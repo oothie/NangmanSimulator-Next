@@ -21,12 +21,12 @@
     input = engine.open(save);
     const hasSeed = window.SBJWildDrop.usable(input.seed);
     let hint = '';
-    if (!save) hint = '导入存档后即可推演藏宝掉落。';
-    else if (input.level < 30) hint = '主角达到 30 级后才会触发寻宝。';
-    else if (!hasSeed) hint = '当前存档缺少藏宝序列。可以在游戏里打一场野怪后重新提档。';
-    else if (input.status === 5) hint = '已有帝陵藏宝线索，先在外殿打出油纸。';
-    else if (input.status === 1 || input.checked >= 10 && !input.status) hint = '本轮判定已结束，从下一次每日刷新开始。';
-    else if (input.status > 1) hint = '存档里有未完成的寻宝。先完成它，再等每日刷新。';
+    if (!save) hint = '세이브를 불러오면 보물찾기 드랍을 예측할 수 있습니다.';
+    else if (input.level < 30) hint = '주인공이 30레벨 이상이어야 보물찾기가 발동합니다.';
+    else if (!hasSeed) hint = '현재 세이브에 보물찾기 순서가 없습니다. 게임에서 필드 사냥을 한 번 진행한 뒤 세이브를 다시 추출하세요.';
+    else if (input.status === 5) hint = '제릉 보물 단서가 있습니다. 먼저 외전에서 기름종이를 획득하세요.';
+    else if (input.status === 1 || input.checked >= 10 && !input.status) hint = '이번 회차 판정이 끝났습니다. 다음 일일 갱신부터 계산합니다.';
+    else if (input.status > 1) hint = '진행 중인 보물찾기가 있습니다. 먼저 완료한 뒤 일일 갱신을 기다리세요.';
     $('treasureHint').textContent = hint;
     $('treasureHint').hidden = !hint;
     $('treasureRun').disabled = !hasSeed || input.level < 30;
@@ -36,17 +36,17 @@
     const hits = rows.filter(row => row.drop);
     const shown = onlyHits.checked ? hits : rows;
     const end = rows[rows.length - 1];
-    const summary = hits.length ? '预计出图 ' + hits.length + ' 개' : '这个范围内未推演到掉落';
-    const cost = end ? ' · 打 ' + end.fight + ' 场 · 等 ' + end.day + ' 회每日刷新' : '';
+    const summary = hits.length ? '보물지도 예상 ' + hits.length + ' 개' : '이 범위에서 드랍이 예측되지 않았습니다';
+    const cost = end ? ' · 사냥 ' + end.fight + '회 · 갱신 대기 ' + end.day + '회' : '';
     const pending = rows.reduce((waiting, row) => row.pending || waiting && row.drop !== 'oil', input.status === 5);
-    result.textContent = summary + cost + (pending ? '。还有帝陵线索待掉油纸。'
-      : hits.length ? '。每次出图后先完成寻宝。' : '。可以增加场次或每日刷新次数再查。');
+    result.textContent = summary + cost + (pending ? '. 제릉 단서가 있어 기름종이 획득을 기다리는 중입니다.'
+      : hits.length ? '. 보물지도가 나오면 먼저 보물찾기를 완료하세요.' : '. 사냥 횟수나 일일 갱신 횟수를 늘려 다시 조회하세요.');
     $('treasureTable').hidden = !shown.length;
     $('treasureResults').replaceChildren(...shown.map(row => {
       const tr = document.createElement('tr');
       tr.classList.toggle('treasure-hit', Boolean(row.drop));
-      const day = row.day ? '第 ' + row.day + ' 회' : '当前';
-      const drop = row.drop === 'oil' ? '残破的油纸' : row.drop === 'clue' ? '藏宝线索' : row.pending ? '触发，待掉油纸' : '无掉落';
+      const day = row.day ? '제 ' + row.day + '회' : '현재';
+      const drop = row.drop === 'oil' ? '낡은 기름종이' : row.drop === 'clue' ? '보물찾기 단서' : row.pending ? '발동됨, 기름종이 획득 대기' : '드랍 없음';
       for (const label of [row.fight, day, engine.sites[row.site], drop]) {
         const td = document.createElement('td');
         td.textContent = label;
