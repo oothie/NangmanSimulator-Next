@@ -695,7 +695,7 @@
 
     function drawWeightedIndex(seed, weights, context) {
         const validWeights = (weights || []).map((weight, index) => {
-            if (!Number.isSafeInteger(weight) || weight < 0) throw new TypeError(`${context}第 ${index + 1} 项权重无效`);
+            if (!Number.isSafeInteger(weight) || weight < 0) throw new TypeError(`${context}의 ${index + 1}번째 가중치가 잘못됐습니다.`);
             return weight;
         });
         const total = validWeights.reduce((sum, value) => sum + value, 0);
@@ -706,14 +706,14 @@
             cumulative += weight;
             return draw.value <= cumulative;
         });
-        if (index < 0) throw new RangeError(`${context}抽取失败`);
+        if (index < 0) throw new RangeError(`${context} 추첨에 실패했습니다.`);
         return { seed: draw.seed, index };
     }
 
     function specialMaterialProperties(material) {
         return (material.prop || []).map((entry, index) => {
             if (!Array.isArray(entry) || typeof entry[0] !== 'string' || !Number.isSafeInteger(entry[1])) {
-                throw new TypeError(`特殊材料「${material.name}」第 ${index + 1} 项属性无效`);
+                throw new TypeError(`추가 재료 '${material.name}'의 ${index + 1}번째 능력치가 올바르지 않습니다.`);
             }
             return { prop: entry[0], weight: entry[1] };
         });
@@ -723,7 +723,7 @@
         const raw = material.lvs && material.lvs[`lv${requirePositiveInteger(equipLevel, '装备等级')}`];
         const value = Array.isArray(raw) ? raw[propertyIndex] : raw;
         if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
-            throw new TypeError(`特殊材料「${material.name}」缺少当前等级数值`);
+            throw new TypeError(`추가 재료 '${material.name}'에 현재 장비 레벨의 수치가 없습니다.`);
         }
         return value;
     }
@@ -839,13 +839,13 @@
         if (!paper || !equip) throw new Error(`未找到图纸 ${branch.paperId}`);
         const available = craftsmanCanCraftPaper(craftsman, paper, data);
         if (!available && !(options && options.forceLocation)) {
-            throw new Error(`「${craftsman.place || craftsman.name}」不能打造「${paper.name}」`);
+            throw new Error(`'${craftsman.place || craftsman.name}'에서는 '${paper.name}' 도면으로 제작할 수 없습니다.`);
         }
         const specialId = finiteNumber(branch.specialId);
         if (specialId) {
             const material = data.special[String(specialId)];
             if (!material || !specialMaterialSupportsEquip(material, equip)) {
-                throw new Error(`打造材料 ${specialId} 不适用于「${equip.name}」`);
+                throw new Error(`제작 재료 ${specialId}는 '${equip.name}'에 사용할 수 없습니다.`);
             }
         }
         return { craftsman, paper, equip };
@@ -950,7 +950,7 @@
             reason: '该装备的数据属性池不会出现任何所选目标属性',
         }));
         if (activeBranchPlans.length * options.craftCount > options.maxCraftWork) {
-            throw new Error(`组合过大：共需预测 ${(activeBranchPlans.length * options.craftCount).toLocaleString()} 次打造，请减少地点、图纸或打造次数`);
+            throw new Error(`탐색 범위가 너무 큽니다. 총 ${(activeBranchPlans.length * options.craftCount).toLocaleString()}회 제작을 예측해야 하므로 지역·도면·제작 횟수를 줄이세요.`);
         }
         const initialMakeState = clone(input.initialMakeState || bridge.getMakeState());
         if (!initialMakeState) throw new Error('存档中没有可用的 MakeRnd 打造状态');
@@ -975,7 +975,7 @@
                 bridge.setMakeState(clone(initialMakeState));
                 onProgress({
                     phase: 'craft', done: branchIndex, total: activeBranchPlans.length,
-                    message: `从原始存档开始：${meta.craftsman.place || meta.craftsman.name} · ${meta.paper.name}`,
+                    message: `원본 세이브부터 계산: ${meta.craftsman.place || meta.craftsman.name} · ${meta.paper.name}`,
                 });
                 const request=buildMakeRequest(branch,data,options);
                 const response = bridge.makePreviewAsync?await bridge.makePreviewAsync(request,options.craftCount,shouldCancel):bridge.makePreview(request,options.craftCount);
@@ -1032,7 +1032,7 @@
                 sum + source.branchResult.targetProps.length * options.refineCount
             ), 0);
             if (refineWork > options.maxRefineWork) {
-                throw new Error(`蓝紫装较多：精炼分析需约 ${refineWork.toLocaleString()} 步，请减少地点、图纸或精炼次数`);
+                throw new Error(`청색·자색 장비 후보가 많아 정련 분석에 약 ${refineWork.toLocaleString()}단계가 필요합니다. 지역·도면·정련 횟수를 줄이세요.`);
             }
 
             const detailed = [];
@@ -1048,7 +1048,7 @@
                 const canSimulateSpecialAttach = !!(craftSpecialMaterial && craftSpecialItems.length);
                 onProgress({
                     phase: 'refine', done: candidateIndex, total: candidates.length,
-                    message: `分析${Number(source.item.color) === 3 ? '蓝装' : '紫装'} ${candidateIndex + 1}/${candidates.length}：${source.branchResult.equipName} · 第 ${source.item.index} 次`,
+                    message: `${Number(source.item.color) === 3 ? '청색 장비' : '자색 장비'} 분석 ${candidateIndex + 1}/${candidates.length}: ${source.branchResult.equipName} · 제작 제${source.item.index}회`,
                 });
                 const slotTargets = options.analyzeAll ? [] : (Array.isArray(source.branch.slotTargets) ? source.branch.slotTargets : []);
                 const evaluation = options.analyzeAll ? prepareRefinementEvaluation(bridge, equip, options.refineCount) : null;
@@ -1062,7 +1062,7 @@
                     refinements.push(analyzeRefinement(bridge, equip, prop, options.refineCount, data, refineOptions, slots));
                     if (options.analyzeAll && propIndex % 2 === 1) {
                         onProgress({ phase: 'refine', done: candidateIndex + (propIndex + 1) / source.branchResult.targetProps.length,
-                            total: candidates.length, message: `分析装备 ${candidateIndex + 1}/${candidates.length}：第 ${propIndex + 1}/${source.branchResult.targetProps.length} 项精炼属性` });
+                            total: candidates.length, message: `장비 분석 ${candidateIndex + 1}/${candidates.length}: 정련 능력치 ${propIndex + 1}/${source.branchResult.targetProps.length}` });
                         await yieldControl();
                     }
                 }
