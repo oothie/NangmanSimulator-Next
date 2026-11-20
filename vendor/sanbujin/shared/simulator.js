@@ -588,9 +588,9 @@ function collectSaveRoles(saveData) {
         out.push({ key, tag, role });
     }
 
-    push('주인공', saveData.MainRole, 'main');
-    asRoleList(saveData.Roles).forEach(r => push('동료', r, 'role'));
-    asRoleList(saveData.Leavers).forEach(r => push('이탈', r, 'leave'));
+    push('主角', saveData.MainRole, 'main');
+    asRoleList(saveData.Roles).forEach(r => push('随从', r, 'role'));
+    asRoleList(saveData.Leavers).forEach(r => push('离队', r, 'leave'));
     return out;
 }
 
@@ -711,13 +711,13 @@ function loadParsedSaveData(saveData, silent) {
         const role = entry.role;
         const opt = document.createElement('option');
         opt.value = entry.key;
-        opt.textContent = `${entry.tag} · ${role.Name || '이름 없음'}`;
+        opt.textContent = `${window.SBJ_KOREAN?.translate?.(entry.tag) || entry.tag} · ${role.Name || '이름 없음'}`;
         roleSelect.appendChild(opt);
     });
 
     const preferred =
         saveRoles.find(e => e.role.ID === 10044) ||
-        saveRoles.find(e => e.tag === '주인공') ||
+        saveRoles.find(e => e.tag === '主角') ||
         saveRoles[0];
     roleSelect.value = preferred.key;
 
@@ -732,9 +732,9 @@ function loadParsedSaveData(saveData, silent) {
     selectRoleFromSave(preferred.key);
     renderAutoWashSaveGate();
 
-    const nMain = saveRoles.filter(e => e.tag === '주인공').length;
-    const nRole = saveRoles.filter(e => e.tag === '동료').length;
-    const nLeave = saveRoles.filter(e => e.tag === '이탈').length;
+    const nMain = saveRoles.filter(e => e.tag === '主角').length;
+    const nRole = saveRoles.filter(e => e.tag === '随从').length;
+    const nLeave = saveRoles.filter(e => e.tag === '离队').length;
     const saveStatus = document.getElementById('saveStatus');
     if (saveStatus) {
         saveStatus.textContent = '불러오기 완료';
@@ -3048,7 +3048,7 @@ function renderAiSearchSnapshot(snapshot, restore = false) {
                 aiDefaultTargetsPending = true;
                 state.vip = normalizeVipLevel(archiveContext.vip);
                 state.dlcMode = !!archiveContext.dlcMode;
-                const currentRole = selectedAutoWashRoleEntry() || (state.saveRoles || []).find(entry => entry.tag === '주인공') || state.saveRoles?.[0];
+                const currentRole = selectedAutoWashRoleEntry() || (state.saveRoles || []).find(entry => entry.tag === '主角') || state.saveRoles?.[0];
                 if (currentRole) selectRoleFromSave(currentRole.key);
                 pushStateToWasm();
             }
@@ -3141,7 +3141,7 @@ function renderAutoWashSaveGate() {
     renderAutoWashAccountInfo(selected?.role, state.vipConfirmed);
     if (select) {
         const placeholder = hasSave ? '캐릭터를 선택하세요.' : '선택 가능한 캐릭터 없음';
-        select.innerHTML = `<option value="">${placeholder}</option>` + ['주인공','동료','이탈'].map(tag=>{
+        select.innerHTML = `<option value="">${placeholder}</option>` + ['主角','随从','离队'].map(tag=>{
             const group=roles.filter(entry=>entry.tag===tag);if(!group.length)return '';
             return `<optgroup label="${tag}">`+group.map(entry=>`<option value="${escapeAiHtml(entry.key)}">${escapeAiHtml(entry.role.Name||'이름 없음')}</option>`).join('')+'</optgroup>';
         }).join('');
@@ -5738,7 +5738,7 @@ function equipAutoFilteredCandidates(candidates) {
         const blueColor = Number(candidate.color) === 3;
         if (equipAutoResultBlueMode === 'none' && blueColor) return false;
         if (equipAutoResultBlueMode === 'only' && !blueColor) return false;
-        if (equipAutoResultSeedFilter && String(candidate.seedKind || '일반') !== equipAutoResultSeedFilter) return false;
+        if (equipAutoResultSeedFilter && String(candidate.seedKind || '普通') !== equipAutoResultSeedFilter) return false;
         const regionProps = Array.isArray(candidate.region) ? candidate.region : [];
         if (equipAutoResultRegionFilter === 'none' && regionProps.length) return false;
         if (equipAutoResultRegionFilter === 'any' && !regionProps.length) return false;
