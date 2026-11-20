@@ -127,3 +127,11 @@ html body dialog.sbj-sidebar .sbj-sidebar-jianghu:focus-visible{outline:2px soli
 
 /* Settings preferences remain independent of the drawer layout. */
 .appearance-preferences{padding:18px}.appearance-preferences h2{font-size:15px;margin:0 0 14px}.appearance-field+.appearance-field{margin-top:18px}.appearance-field>span{display:block;font-size:12px;color:var(--sbj-muted);margin-bottom:8px}.appearance-options{display:flex;gap:6px}.appearance-options button{flex:1;min-width:0;min-height:40px;border:1px solid var(--sbj-border);background:var(--sbj-bg);color:var(--sbj-muted);padding:8px 6px;font:inherit;font-size:12px;cursor:pointer}.appearance-options button[aria-pressed=true]{background:var(--sbj-selected)!important;color:var(--sbj-on-selected)!important;border-color:var(--sbj-selected)!important}
+/* nangman-dark-equipment-popups: honor the integrated dark theme in generated equipment dialogs. */
+html[data-sbj-theme=dark] body :is(.equip-auto-forge-card,.equip-auto-region-dialog,.equip-auto-confirm-card,.equip-auto-candidate,.modal-content,.modal-large,.exchange-sequence-modal){
+ background-color:var(--sbj-surface)!important;color:var(--sbj-ink)!important;border-color:var(--sbj-border)!important;
+}
+html[data-sbj-theme=dark] body :is(.equip-auto-forge-card,.equip-auto-region-dialog,.equip-auto-confirm-card,.exchange-sequence-modal) :is(h1,h2,h3,h4,strong,th,td,label,p){color:inherit}
+html[data-sbj-theme=dark] body :is(.equip-auto-forge-card,.equip-auto-region-dialog,.equip-auto-confirm-card,.exchange-sequence-modal) :is(input,select,textarea){background-color:var(--sbj-bg)!important;color:var(--sbj-ink)!important;border-color:var(--sbj-border)!important}
+html[data-sbj-theme=dark] body :is(.equip-auto-forge-card,.equip-auto-region-dialog,.equip-auto-confirm-card,.exchange-sequence-modal) :is(table,th,td){border-color:var(--sbj-border)!important}
+html[data-sbj-theme=dark] body :is(.equip-auto-forge-card,.equip-auto-region-dialog,.equip-auto-confirm-card,.exchange-sequence-modal) :is(button:not(.primary):not(.btn-primary),.btn-secondary){background-color:var(--sbj-soft);color:var(--sbj-ink);border-color:var(--sbj-border)}
