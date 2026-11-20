@@ -474,7 +474,7 @@ function removeCraftedEquip(onlyId) {
 function formatCraftedBagProps(list) {
     return Array.isArray(list) && list.length
         ? formatProps(list)
-        : '<span class="crafted-prop-empty">无</span>';
+        : '<span class="crafted-prop-empty">없음</span>';
 }
 
 function renderCraftedBagList() {
@@ -2272,7 +2272,7 @@ function renderJianwangCyclePage() {
         const base = escapeHtml(formatBase(item.base || item.equip?.base || {}));
         const props = (item.exts || item.equip?.exts || []).length
             ? (item.exts || item.equip.exts).map(prop => `<span class="jianwang-prop-token">${escapeHtml(propLabel(prop.prop))}+${formatPropValue(prop.prop, prop.value)}</span>`).join('')
-            : '<span class="muted">无</span>';
+            : '<span class="muted">없음</span>';
         const seedText = blank
             ? `碎剑后推进剑胚序列<br>新剑胚已生成`
             : `${item.seedBefore === item.seedAfter ? '保持当前重铸进度' : '已推进重铸序列'}`;
@@ -2338,7 +2338,7 @@ function renderJianwangPage() {
             const base = escapeHtml(formatBase(item.base));
             const props = (item.exts || []).length
                 ? item.exts.map(prop => `<span class="jianwang-prop-token">${escapeHtml(propLabel(prop.prop))}+${formatPropValue(prop.prop, prop.value)}</span>`).join('')
-                : '<span class="muted">无</span>';
+                : '<span class="muted">없음</span>';
             const seeds = `重铸序列编号 ${item.CZSeed}<br>芒晶序列编号 ${item.MJSeed}<br>S ${item.S}`;
             const redSeed = `${item.redSeedBefore} → ${item.redSeedAfter}`;
             const resources = item.cost
@@ -2369,7 +2369,7 @@ function renderJianwangPage() {
             const seedStatus = item.seedBefore === item.seedAfter ? ' · 不推进' : '';
             const props = (item.exts || []).length
                 ? item.exts.map(prop => `<span class="jianwang-prop-token">${escapeHtml(propLabel(prop.prop))}+${formatPropValue(prop.prop, prop.value)}</span>`).join('')
-                : '<span class="muted">无</span>';
+                : '<span class="muted">없음</span>';
             const costs = String(item.cost || '—').split('、')
                 .map(cost => `<span class="jianwang-cost-token">${escapeHtml(cost)}</span>`).join('');
             return `<tr>
@@ -3562,7 +3562,7 @@ function renderStrongPage() {
     const start = (tablePager.page - 1) * pageSize;
     const slice = items.slice(start, start + pageSize);
     if (!slice.length) {
-        body.innerHTML = `<tr><td colspan="5" class="empty-row">无数据</td></tr>`;
+        body.innerHTML = `<tr><td colspan="5" class="empty-row">데이터 없음</td></tr>`;
     } else {
         body.innerHTML = slice.map(it => {
             const deg = it.add_lv_prop / 2;
