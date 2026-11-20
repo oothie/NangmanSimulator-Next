@@ -380,7 +380,7 @@ function passEquipListFilter(e, which) {
         String(e.only_id || ''),
         COLOR_NAMES[e.color] || e.color,
         TYPE_NAMES[e.typ] || e.typ,
-        `${e.need_lv}级`,
+        `${e.need_lv}레벨`,
         e._crafted ? '模拟打造' : '',
         e._equipped ? '已装备' : '未装备',
     ].join(' ').toLowerCase();
@@ -496,7 +496,7 @@ function renderCraftedBagList() {
         const faved = typeof EquipFavorites !== 'undefined'
             ? EquipFavorites.has(favArchive, e.only_id) : false;
         return `<div class="crafted-bag-row" data-only-id="${e.only_id}">
-            <div class="bag-meta">${escapeHtml(e.name)} · ${e.need_lv}级 · ${escapeHtml(String(color))} · ${escapeHtml(String(typ))} · #${e.only_id}</div>
+            <div class="bag-meta">${escapeHtml(e.name)} · ${e.need_lv}레벨 · ${escapeHtml(String(color))} · ${escapeHtml(String(typ))} · #${e.only_id}</div>
             <input type="text" class="crafted-mark-input" maxlength="40" value="${escapeHtml(mark)}" placeholder="输入标记">
             <div class="bag-actions">
                 <button type="button" class="btn btn-reset btn-row-action ${faved ? 'is-faved' : ''}" data-act="fav">${faved ? '★ 已收藏' : '☆ 收藏'}</button>
@@ -1201,7 +1201,7 @@ function fillNpcSelect() {
     for (const cm of sortedCraftsmen()) {
         const opt = document.createElement('option');
         opt.value = cm.id;
-        opt.textContent = `${cm.place || cm.name} · ${cm.name}（${cm.zhi === 'fengzhi' ? '绣' : '铁'}）`;
+        opt.textContent = `${cm.place || cm.name} · ${cm.name}(${cm.zhi === 'fengzhi' ? '재봉' : '대장간'})`;
         sel.appendChild(opt);
     }
     for (const id of ['40520', '32180', '31230', '32256']) {
@@ -2440,7 +2440,7 @@ function equipOptionLabel(e, mode) {
         const typ = TYPE_NAMES[e.typ] || e.typ;
         return `${mark}${e.name} · ${e.need_lv}→${next.lv || 100} · ${color} · ${typ} · ${wear}`;
     }
-    return `${mark}${e.name} · ${e.need_lv}级 · ${color} · 词条${e.exts.length} · ${wear}`;
+    return `${mark}${e.name} · ${e.need_lv}레벨 · ${color} · 词条${e.exts.length} · ${wear}`;
 }
 
 function canPredictSpecialAttach(equip) {
@@ -3868,7 +3868,7 @@ function doMakeAdvanceTo(targetIndex, mark) {
             renderCraftedBagList();
         }
     }
-    appendLog(`[打造·推进到#${n}] ${last.name} · ${COLOR_NAMES[last.color] || last.color} · ${last.pity ? '保底' : last.seed_kind === 'lucky' ? '保底序列' : '普通'} · 入包#${crafted?.only_id || '?'}${markTip}${shenglianTip}`);
+    appendLog(`[제작·${n}회까지 진행] ${last.name} · ${COLOR_NAMES[last.color] || last.color} · ${last.pity ? '천장' : last.seed_kind === 'lucky' ? '천장 순서' : '일반'} · 가방 등록 #${crafted?.only_id || '?'}${markTip}${shenglianTip}`);
     fillEquipSelects();
     updateMakeHints();
     doMakePreview();
