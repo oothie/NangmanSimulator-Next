@@ -332,13 +332,17 @@ const wikiCategories=[
  ['secret','비급'],['material','재료'],['martial','무학'],['craft','생활기술'],
  ['arts','비기'],['buff','상태'],['quest','임무']
 ];
-window.addEventListener('nangman-wiki-loaded',e=>{koreanWiki=e.detail;if(v==='wiki')render()});
+window.addEventListener('nangman-wiki-loaded',e=>{
+ koreanWiki=e.detail;
+ if(wikiFallbackSource)wikiFallbackSource.martial=koreanWiki.filter(entry=>['외공','내공','경공'].includes(entry.category)).map(entry=>({id:entry.id,n:entry.name,kind:entry.category,desc:''}));
+ if(v==='wiki')render();
+});
 window.addEventListener('nangman-v620-wiki-loaded',e=>{
  v620Wiki=e.detail;
  wikiFallbackSource={
   items:Object.entries(v620Wiki.items||{}).map(([id,info])=>({id:Number(id),n:info[0],desc:info[1]||'',cat:info[2]||'misc',icon:info[3]||Number(id)})),
   equips:Object.entries(v620Wiki.equips||{}).map(([id,info])=>({id:Number(id),n:info[0],desc:info[1]||'',type:info[2]||0,icon:info[3]||Number(id)})),
-  martial:[],crafts:[],arts:[],buff:[]
+  martial:koreanWiki.filter(entry=>['외공','내공','경공'].includes(entry.category)).map(entry=>({id:entry.id,n:entry.name,kind:entry.category,desc:''})),crafts:[],arts:[],buff:[]
  };
  if(v==='wiki')render();
 });
