@@ -51,14 +51,14 @@
 
     function requirePositiveInteger(value, field) {
         if (!Number.isSafeInteger(value) || value < 1) {
-            throw new TypeError(`${field}必须是正整数，实际为 ${String(value)}`);
+            throw new TypeError(`${field}에는 양의 정수가 필요합니다. 실제 값: ${String(value)}`);
         }
         return value;
     }
 
     function drawWhaleInt(seed, maximum) {
-        const validSeed = requirePositiveInteger(Number(seed), '序列数据');
-        const validMaximum = requirePositiveInteger(Number(maximum), '随机上限');
+        const validSeed = requirePositiveInteger(Number(seed), '순서 데이터');
+        const validMaximum = requirePositiveInteger(Number(maximum), '무작위 상한');
         const mixed = BigInt.asUintN(
             64,
             (BigInt(validSeed) + BigInt(validMaximum)) * WHALE_MULTIPLIER + WHALE_INCREMENT,
@@ -69,15 +69,15 @@
     }
 
     function drawWeightedIndex(seed, weights, context) {
-        if (!Array.isArray(weights) || !weights.length) throw new TypeError(`${context}权重不能为空`);
+        if (!Array.isArray(weights) || !weights.length) throw new TypeError(`${context}의 가중치가 비어 있습니다`);
         const validWeights = weights.map((weight, index) => {
             if (!Number.isSafeInteger(weight) || weight < 0) {
-                throw new TypeError(`${context}第 ${index + 1} 项权重必须是非负整数`);
+                throw new TypeError(`${context} ${index + 1}번째 가중치는 0 이상의 정수여야 합니다`);
             }
             return weight;
         });
         const total = validWeights.reduce((sum, weight) => sum + weight, 0);
-        requirePositiveInteger(total, `${context}总权重`);
+        requirePositiveInteger(total, `${context} 전체 가중치`);
         const draw = drawWhaleInt(seed, total);
         let cumulative = 0;
         const index = validWeights.findIndex(weight => {
@@ -90,7 +90,7 @@
 
     function drawJianwangBetween(seed, minimum, maximum, context) {
         if (!Number.isSafeInteger(minimum) || !Number.isSafeInteger(maximum) || maximum < minimum) {
-            throw new TypeError(`${context}区间无效：${minimum}–${maximum}`);
+            throw new TypeError(`${context} 범위가 올바르지 않습니다: ${minimum}~${maximum}`);
         }
         const draw = drawWhaleInt(seed, maximum - minimum + 1);
         return { seed: draw.seed, value: draw.value - 1 + minimum };
@@ -112,7 +112,7 @@
         return {
             id,
             only_id: Number(raw?.OnlyID ?? raw?.only_id ?? 0),
-            name: cfg.name || raw?.name || '未知剑王阁装备',
+            name: cfg.name || raw?.name || '알 수 없는 검왕각 장비',
             need_lv: Number(cfg.lv || raw?.need_lv || 0),
             typ: Number(cfg.type || raw?.typ || 3),
             color: Number(raw?.Color ?? raw?.color ?? 6),
@@ -174,18 +174,18 @@
             if (typeof value === 'object') return Object.values(value);
             return [];
         };
-        pushList(rootSave.MainRole?.Equips, '主角装备', true);
+        pushList(rootSave.MainRole?.Equips, '주인공 장비', true);
         roleList(rootSave.Roles).forEach((role, index) => {
-            pushList(role?.Equips, role?.Name || role?.name || `随从${index + 1}`, true);
+            pushList(role?.Equips, role?.Name || role?.name || `동료 ${index + 1}`, true);
         });
         roleList(rootSave.Leavers).forEach((role, index) => {
-            pushList(role?.Equips, role?.Name || role?.name || `离队${index + 1}`, true);
+            pushList(role?.Equips, role?.Name || role?.name || `이탈 동료 ${index + 1}`, true);
         });
         pushList(rootSave.Equips, '背包', false);
         const depots = rootSave.EncryptDepots || rootSave.Depots || {};
         for (const depot of Object.values(depots)) {
             const list = depot?.Depots || depot?.Items || depot;
-            pushList(list, '仓库', false);
+            pushList(list, '창고', false);
         }
         return out.sort((a, b) => Number(a.id) - Number(b.id)
             || String(a._source).localeCompare(String(b._source), 'zh')
@@ -214,10 +214,10 @@
 
     function generateEquip(equipData, targetId, startSeed, rule = JIANWANG_RULE_PATCHED) {
         const cfg = equipData?.equipment?.[String(targetId)];
-        if (!cfg || !JIANWANG_SWORD_IDS.has(Number(targetId))) throw new RangeError(`无效的剑王阁目标装备：${targetId}`);
+        if (!cfg || !JIANWANG_SWORD_IDS.has(Number(targetId))) throw new RangeError(`올바르지 않은 검왕각 목표 장비: ${targetId}`);
         const standard = rule === JIANWANG_RULE_STANDARD;
-        let seed = requirePositiveInteger(Number(startSeed), '重铸进度');
-        seed = drawWeightedIndex(seed, JIANWANG_COLOR_ROLL_WEIGHTS, '剑王阁品质占位').seed;
+        let seed = requirePositiveInteger(Number(startSeed), '재주조 진행도');
+        seed = drawWeightedIndex(seed, JIANWANG_COLOR_ROLL_WEIGHTS, '검왕각 품질 판정').seed;
         const base = {};
         for (const prop of JIANWANG_BASE_PROP_ORDER) {
             const raw = Number(cfg.base?.[prop]) || 0;
@@ -226,7 +226,7 @@
                 base[prop] = raw;
                 continue;
             }
-            const draw = drawJianwangBetween(seed, 100, 100, `剑王阁${prop}`);
+            const draw = drawJianwangBetween(seed, 100, 100, `검왕각 ${prop}`);
             seed = draw.seed;
             base[prop] = Math.floor(raw * draw.value / 100);
         }
@@ -235,7 +235,7 @@
         const slotCount = Math.max(0, Math.floor(((Number(cfg.lv) || 60) - 60) / 10) + 1);
         const exts = [];
         for (let slot = 0; slot < slotCount; slot++) {
-            const draw = drawWeightedIndex(seed, weights, '剑王阁副属性');
+            const draw = drawWeightedIndex(seed, weights, '검왕각 추가 능력치');
             seed = draw.seed;
             const prop = candidates[draw.index];
             exts.push({ prop, value: Number(cfg.exts[prop][0]) });
@@ -254,12 +254,12 @@
     }
 
     function createBlankFromRedSeed(equipData, redSeed, swordIndex = null, context = {}) {
-        const sourceRedSeed = requirePositiveInteger(Number(redSeed), '剑胚进度');
+        const sourceRedSeed = requirePositiveInteger(Number(redSeed), '검 재료 진행도');
         const baseSeed = Math.floor(sourceRedSeed / 10);
         const MJSeed = baseSeed + JIANWANG_BLANK_ID * JIANWANG_REDSEED_MJ_MULTIPLIER;
         const CZSeed = baseSeed + JIANWANG_BLANK_ID * JIANWANG_REDSEED_CZ_MULTIPLIER;
-        requirePositiveInteger(MJSeed, '新剑胚的芒晶洗练进度');
-        requirePositiveInteger(CZSeed, '新剑胚的成长进度');
+        requirePositiveInteger(MJSeed, '새 검 재료의 망정 진행도');
+        requirePositiveInteger(CZSeed, '새 검 재료의 성장 진행도');
         const generated = generateEquip(equipData, JIANWANG_BLANK_ID, sourceRedSeed, JIANWANG_RULE_STANDARD);
         // Match manual creation: live mainland saves and legacy/pre-release/
         // international saves use different MakeRnd advances.
@@ -271,7 +271,7 @@
             equip: {
                 id: JIANWANG_BLANK_ID,
                 only_id: 0,
-                name: cfg.name || '剑胚',
+                name: cfg.name || '검 재료',
                 need_lv: Number(cfg.lv) || 60,
                 typ: Number(cfg.type) || 3,
                 color: 6,
@@ -286,7 +286,7 @@
                 base: generated.base,
                 exts: generated.exts.map(item => ({ ...item })),
                 specials: [],
-                _source: '自动模拟',
+                _source: '자동 시뮬레이션',
                 _equipped: false,
                 _provider: false,
                 _jianwangRebuilt: true,
@@ -312,7 +312,7 @@
             const prop = String(item || '').trim();
             if (prop && !props.includes(prop)) props.push(prop);
         }
-        if (!props.length || props.length > 2) throw new RangeError('指定词条必须选择1～2个');
+        if (!props.length || props.length > 2) throw new RangeError('지정 옵션은 1~2개 선택해야 합니다');
         return props;
     }
 
@@ -395,13 +395,13 @@
     }
 
     function growSwordVariants(equipData, sword, targetId, targetProps, rule) {
-        if (!sword || !JIANWANG_SWORD_IDS.has(Number(sword.id))) throw new TypeError('起始剑无效');
+        if (!sword || !JIANWANG_SWORD_IDS.has(Number(sword.id))) throw new TypeError('시작 검이 올바르지 않습니다');
         const fromId = Number(sword.id);
         const target = Number(targetId);
         const allowed = target === fromId
             ? JIANWANG_LEVEL_90_IDS.has(fromId)
             : (JIANWANG_GROW_TARGETS[fromId] || []).includes(target);
-        if (!allowed) throw new RangeError(`不允许从 ${fromId} 成长到 ${target}`);
+        if (!allowed) throw new RangeError(`${fromId}에서 ${target}(으)로 성장시킬 수 없습니다`);
         const action = target === fromId ? 'reforge' : 'grow';
         const props = normalizeTargetProps(targetProps);
         const minimumValues = action === 'reforge'
@@ -420,7 +420,7 @@
 
     function normalizeTargetCount(value) {
         const count = Number(value == null ? 4 : value);
-        if (!JIANWANG_TARGET_COUNTS.has(count)) throw new RangeError('指定词条目标只能选择三条或四条');
+        if (!JIANWANG_TARGET_COUNTS.has(count)) throw new RangeError('지정 옵션 목표는 3개 또는 4개여야 합니다');
         return count;
     }
 
@@ -459,7 +459,7 @@
     function routeOptions(equipData) {
         return Array.from(JIANWANG_LEVEL_90_IDS).map(id => ({
             id,
-            name: equipData?.equipment?.[String(id)]?.name || '未知剑王阁装备',
+            name: equipData?.equipment?.[String(id)]?.name || '알 수 없는 검왕각 장비',
         }));
     }
 
@@ -527,18 +527,18 @@
     }
 
     function propName(equipData, prop) {
-        return equipData?.propNames?.[prop] || '未知词条';
+        return equipData?.propNames?.[prop] || '알 수 없는 옵션';
     }
 
     function stageName(equipData, sword) {
         const id = Number(sword?.id);
         const cfg = equipData?.equipment?.[String(id)] || {};
-        if (id === 5707) return '60级剑胚';
-        if (id === 5708) return '70级剑胚';
-        if (id === 5709) return '80级剑胚';
-        if (JIANWANG_LEVEL_90_IDS.has(id)) return `90级专武 · ${cfg.name || sword?.name || id}`;
+        if (id === 5707) return '60레벨 검 재료';
+        if (id === 5708) return '70레벨 검 재료';
+        if (id === 5709) return '80레벨 검 재료';
+        if (JIANWANG_LEVEL_90_IDS.has(id)) return `90레벨 전용 무기 · ${cfg.name || sword?.name || id}`;
         if (JIANWANG_LEVEL_100_IDS.has(id)) return `100레벨 신병 · ${cfg.name || sword?.name || id}`;
-        return cfg.name || sword?.name || '未知剑王阁装备';
+        return cfg.name || sword?.name || '알 수 없는 검왕각 장비';
     }
 
     function swordLabel(equipData, sword) {
@@ -554,7 +554,7 @@
         return {
             sword: {
                 ...created.equip,
-                _source: '虚拟首剑',
+                _source: '가상 첫 검',
                 _provider: true,
                 _jianwangVirtualFirst: true,
                 _jianwangSwordIndex: 1,
@@ -565,7 +565,7 @@
     }
 
     function setFirstSwordProvider(provider) {
-        if (provider != null && typeof provider !== 'function') throw new TypeError('首剑生成接口无效');
+        if (provider != null && typeof provider !== 'function') throw new TypeError('첫 검 생성 기능이 올바르지 않습니다');
         firstSwordProvider = provider || null;
     }
 
@@ -590,9 +590,9 @@
         if (!provided) return null;
         const sword = clone(provided.sword || provided.equip || provided);
         if (!sword || !JIANWANG_SWORD_IDS.has(Number(sword.id))) {
-            throw new TypeError('首剑生成接口未返回有效的剑王阁起始剑');
+            throw new TypeError('첫 검 생성 기능에서 올바른 검왕각 시작 검을 반환하지 않았습니다');
         }
-        sword._source = sword._source || '首剑生成接口';
+        sword._source = sword._source || '첫 검 생성 기능';
         sword._provider = true;
         if (provided.redSeed != null) state.redSeed = Number(provided.redSeed) || null;
         if (provided.reforgeCounts) state.reforgeCounts = { ...state.reforgeCounts, ...clone(provided.reforgeCounts) };
@@ -806,7 +806,7 @@
             dualTarget: false,
             targetCount: state.targetCount,
             routeId: state.routeId,
-            routeName: state.equipData?.equipment?.[String(state.routeId)]?.name || '未知路线',
+            routeName: state.equipData?.equipment?.[String(state.routeId)]?.name || '알 수 없는 경로',
             swordOrdinal,
             startedFromCurrent: !!startedFromCurrent,
             finalAction,
@@ -816,7 +816,7 @@
             resources: snapshotResources(state.resources),
             maxSwords: state.maxSwords,
             startSword: clone(state.startSword),
-            startSwordLabel: state.startSword ? swordLabel(state.equipData, state.startSword) : '首剑生成接口',
+            startSwordLabel: state.startSword ? swordLabel(state.equipData, state.startSword) : '첫 검 생성 기능',
         };
     }
 
@@ -833,7 +833,7 @@
             dualTarget: state.dualTarget,
             targetCount: state.targetCount,
             routeId: state.routeId,
-            routeName: state.equipData?.equipment?.[String(state.routeId)]?.name || '未知路线',
+            routeName: state.equipData?.equipment?.[String(state.routeId)]?.name || '알 수 없는 경로',
             successCount: state.matches.length,
             successLimit: state.dualTarget ? null : (state.targetCount === 3 ? THREE_TARGET_SUCCESS_LIMIT : null),
             matches: clone(state.matches),
@@ -841,7 +841,7 @@
             resources: snapshotResources(state.resources),
             maxSwords: state.maxSwords,
             startSword: clone(state.startSword),
-            startSwordLabel: state.startSword ? swordLabel(state.equipData, state.startSword) : '首剑生成接口',
+            startSwordLabel: state.startSword ? swordLabel(state.equipData, state.startSword) : '첫 검 생성 기능',
         };
     }
 
@@ -868,10 +868,10 @@
             if (hit?.threeLimitReached) return { success: null, threeLimitReached: true, sword, path };
         }
         if (!JIANWANG_LEVEL_90_IDS.has(Number(sword.id)) || Number(sword.id) !== state.routeId) {
-            throw new RangeError('候选剑未能进入所选90级路线');
+            throw new RangeError('후보 검이 선택한 90레벨 경로에 진입하지 못했습니다');
         }
         if (!routeTargets.length) {
-            const hit = collectTargetHit(state, sword, path, swordOrdinal, '当前90级状态', startedFromCurrent);
+            const hit = collectTargetHit(state, sword, path, swordOrdinal, '현재 90레벨 상태', startedFromCurrent);
             if (hit?.success) return { success: hit.success, sword };
             if (hit?.threeLimitReached) return { success: null, threeLimitReached: true, sword, path };
         }
@@ -900,10 +900,10 @@
         }
         const routeSword = branches[0]?.sword;
         if (!JIANWANG_LEVEL_90_IDS.has(Number(routeSword?.id)) || Number(routeSword?.id) !== state.routeId) {
-            throw new RangeError('候选剑未能进入所选90级路线');
+            throw new RangeError('후보 검이 선택한 90레벨 경로에 진입하지 못했습니다');
         }
         if (!routeTargets.length) {
-            collectDualBranchHits(state, branches, swordOrdinal, '当前90级状态', startedFromCurrent);
+            collectDualBranchHits(state, branches, swordOrdinal, '현재 90레벨 상태', startedFromCurrent);
         }
         const completed = Math.max(0, Math.min(JIANWANG_REFORGE_LIMIT, Math.floor(Number(reforgeCompleted) || 0)));
         for (let attempt = completed + 1; attempt <= JIANWANG_REFORGE_LIMIT; attempt++) {
@@ -928,12 +928,12 @@
 
     function buildState(input) {
         const equipData = input.equipData;
-        if (!equipData?.equipment) throw new TypeError('缺少装备数据');
+        if (!equipData?.equipment) throw new TypeError('장비 데이터가 없습니다');
         const routeId = Number(input.routeId);
-        if (!JIANWANG_LEVEL_90_IDS.has(routeId)) throw new TypeError('请选择90级镇派路线');
+        if (!JIANWANG_LEVEL_90_IDS.has(routeId)) throw new TypeError('90레벨 진파 경로를 선택하세요');
         const targetProps = normalizeTargetProps(input.targetProps?.length ? input.targetProps : input.targetProp);
         const allowedProps = targetPropertiesForRoute(equipData, routeId);
-        if (targetProps.some(prop => !allowedProps.includes(prop))) throw new TypeError('所选词条不属于该90级路线');
+        if (targetProps.some(prop => !allowedProps.includes(prop))) throw new TypeError('선택한 옵션이 해당 90레벨 경로에 속하지 않습니다');
         const targetCount = normalizeTargetCount(input.targetCount);
         const swords = collectSwords(input.saveData, equipData);
         const detection = detectRuleFromSwords(swords);
@@ -963,11 +963,11 @@
         if (!startSword && swords.length === 1 && input.startSwordKey == null) startSword = clone(swords[0]);
         if (!startSword && swords.length === 0) startSword = resolveProviderStart(input, state);
         if (!startSword) {
-            const error = new Error(swords.length ? '请选择起始剑' : '当前存档没有剑王阁武器，也未记录可用于推演第一把剑胚的进度');
+            const error = new Error(swords.length ? '시작 검을 선택하세요' : '현재 세이브에 검왕각 무기가 없고 첫 검 재료를 예측할 진행도도 없습니다');
             error.code = swords.length ? 'START_SWORD_REQUIRED' : 'NO_SWORD_PROVIDER';
             throw error;
         }
-        if (!JIANWANG_SWORD_IDS.has(Number(startSword.id))) throw new TypeError('起始剑必须是有效的剑王阁装备');
+        if (!JIANWANG_SWORD_IDS.has(Number(startSword.id))) throw new TypeError('시작 검은 올바른 검왕각 장비여야 합니다');
         state.startSword = clone(startSword);
         return state;
     }
@@ -979,10 +979,10 @@
         if (state.rule === JIANWANG_RULE_STANDARD && !state.dualTarget) {
             if (JIANWANG_LEVEL_90_IDS.has(id) && route === state.routeId
                 && isTargetReachedForRoute(state.equipData, state.routeId, start, state.targetProps, state.targetCount)) {
-                const current = successResult(state, start, [], 0, '当前90级状态', true);
+                const current = successResult(state, start, [], 0, '현재 90레벨 상태', true);
                 if (state.targetCount === 4) return current;
                 state.matches.push(current);
-                return multiSuccessResult(state, '当前起始剑已满足三条指定词条；后续序列无法继续产生新的同词结果', 'unreachable');
+                return multiSuccessResult(state, '현재 시작 검이 지정 옵션 3개를 이미 만족합니다. 이후 순서에서 새로운 동일 옵션 결과를 만들 수 없습니다', 'unreachable');
             }
             const names = targetNames(state);
             return {
@@ -1020,13 +1020,13 @@
     }
 
     function generateNextCandidate(state, ordinal) {
-        if (!state.currentForShatter) throw new Error('缺少可碎剑状态');
+        if (!state.currentForShatter) throw new Error('검을 분해할 수 있는 상태가 없습니다');
         const fromId = Number(state.currentForShatter.id);
         if (!JIANWANG_LEVEL_90_IDS.has(fromId) && !JIANWANG_LEVEL_100_IDS.has(fromId)) {
-            throw new Error('只有90级专武或100级神兵可以进入下一把剑');
+            throw new Error('90레벨 전용 무기 또는 100레벨 신병만 다음 검으로 진행할 수 있습니다');
         }
         if (!Number.isSafeInteger(Number(state.redSeed)) || Number(state.redSeed) <= 0) {
-            const error = new Error('存档未记录剑胚进度，暂时无法生成下一把60级剑胚');
+            const error = new Error('세이브에 검 재료 진행도가 없어 다음 60레벨 검 재료를 생성할 수 없습니다');
             error.code = 'MISSING_REDSEED';
             throw error;
         }
@@ -1084,7 +1084,7 @@
         }
         return {
             status: 'limit',
-            reason: `已完成 ${state.metrics.shatters} 次碎剑循环，未找到 지정 옵션 ${state.targetCount}개结果`,
+            reason: `검 분해 반복 ${state.metrics.shatters}회 완료 · 지정 옵션 ${state.targetCount}개를 만족하는 결과 없음`,
             targetProp: state.targetProp,
             targetProps: clone(state.targetProps),
             targetName: names.join(' / '),
@@ -1092,7 +1092,7 @@
             dualTarget: state.dualTarget,
             targetCount: state.targetCount,
             routeId: state.routeId,
-            routeName: state.equipData?.equipment?.[String(state.routeId)]?.name || '未知路线',
+            routeName: state.equipData?.equipment?.[String(state.routeId)]?.name || '알 수 없는 경로',
             metrics: clone(state.metrics),
             resources: snapshotResources(state.resources),
             maxSwords: state.maxSwords,
@@ -1126,7 +1126,7 @@
             if (shouldCancel()) {
                 return {
                     status: 'cancelled',
-                    reason: '用户取消',
+                    reason: '사용자 취소',
                     targetProp: state.targetProp,
                     targetProps: clone(state.targetProps),
                     targetName: targetNames(state).join(' / '),
@@ -1134,14 +1134,14 @@
                     dualTarget: state.dualTarget,
                     targetCount: state.targetCount,
                     routeId: state.routeId,
-                    routeName: state.equipData?.equipment?.[String(state.routeId)]?.name || '未知路线',
+                    routeName: state.equipData?.equipment?.[String(state.routeId)]?.name || '알 수 없는 경로',
                     successCount: state.matches.length,
                     matches: clone(state.matches),
                     metrics: clone(state.metrics),
                     resources: snapshotResources(state.resources),
                     maxSwords: state.maxSwords,
                     startSword: clone(state.startSword),
-                    startSwordLabel: state.startSword ? swordLabel(state.equipData, state.startSword) : '首剑生成接口',
+                    startSwordLabel: state.startSword ? swordLabel(state.equipData, state.startSword) : '첫 검 생성 기능',
                 };
             }
             const success = generateNextCandidate(state, ordinal);
@@ -1156,7 +1156,7 @@
             }
             if (onProgress && (ordinal === 1 || ordinal % batchSize === 0 || ordinal === state.maxSwords)) {
                 let matchText = '';
-                if (state.dualTarget) matchText = ` · 命中 ${state.matches.length}`;
+                if (state.dualTarget) matchText = ` · 일치 ${state.matches.length}건`;
                 else if (state.targetCount === 3) matchText = ` · 옵션 3개 ${state.matches.length}/${THREE_TARGET_SUCCESS_LIMIT}`;
                 onProgress({
                     done: ordinal,
