@@ -124,11 +124,11 @@ async function initializeWasm() {
                     if (isWasmBinary(fetchedBytes)) {
                         bytes = fetchedBytes;
                     } else {
-                        console.warn('HTTP 返回的 WASM 数据无效，降级使用内嵌 Base64。');
+                        console.warn('HTTP 응답의 WASM 데이터가 올바르지 않아 내장 Base64를 사용합니다.');
                     }
                 }
             } catch (e) {
-                console.warn('HTTP fetch WASM 失败，降级使用内嵌 Base64:', e);
+                console.warn('HTTP WASM 읽기 실패, 내장 Base64로 전환:', e);
             }
         }
 
@@ -137,7 +137,7 @@ async function initializeWasm() {
         }
 
         if (!bytes) {
-            throw new Error('推演资料加载失败，请检查网络并刷新页面。');
+            throw new Error('시뮬레이션 데이터를 불러오지 못했습니다. 네트워크를 확인하고 새로고침하세요.');
         }
 
         // 版本规则补丁：把内核里编译死的 99999999 换成 SequenceRules.makeMax(state)
@@ -148,7 +148,7 @@ async function initializeWasm() {
                 preparedBytes = SequenceRules.prepareWasm(bytes);
             }
         } catch (e) {
-            console.warn('WASM 版本规则补丁未应用（继续用未打补丁的内核）:', e && e.message);
+            console.warn('WASM 버전 규칙 보정이 적용되지 않았습니다(원본 엔진 사용):', e && e.message);
             preparedBytes = bytes;
         }
 
@@ -160,7 +160,7 @@ async function initializeWasm() {
         wasmReady = true;
         return true;
     } catch (e) {
-        console.error('WASM 加载失败:', e);
+        console.error('WASM 로드 실패:', e);
         return false;
     }
 }
@@ -335,7 +335,7 @@ function wasmExchangeTalent(index) {
 }
 
 function wasmDecryptSave(b64Text) {
-    if (!wasmReady) throw new Error('推演资料尚未加载，请稍候重试');
+    if (!wasmReady) throw new Error('시뮬레이션 데이터가 아직 로드되지 않았습니다. 다시 시도하세요.');
     let d0, d1;
     const retptr = wasmExports.__wbindgen_add_to_stack_pointer(-16);
     try {
@@ -505,7 +505,7 @@ function correctFixedOrangeRegionFromSource(req, result, stateBefore) {
                 cursor -= Number(weights[i]);
                 if (cursor <= 0) return i;
             }
-            throw new Error('特殊材料权重无效');
+            throw new Error('특수 재료 가중치가 올바르지 않습니다.');
         };
         const index = weighted(material.prop.map(p => p[1]));
         const ranges = [[85, 95], [95, 105], [105, 115], [115, 125], [125, 150]];
@@ -644,8 +644,8 @@ function _wasmMakeOnceRaw(req) {
 // Yield with the live UI RNG restored; another tool action cannot observe or
 // overwrite the private preview sequence between slices.
 async function wasmMakePreviewAsync(req,n,shouldCancel=()=>false){
- if(!wasmReady)return {items:[],error:'推演资料尚未加载，请稍候重试'};
- let resume=wasmMakeGetState();if(!resume)return {items:[],error:'无法读取打造状态'};const items=[];
+ if(!wasmReady)return {items:[],error:'시뮬레이션 데이터가 아직 로드되지 않았습니다. 다시 시도하세요.'};
+ let resume=wasmMakeGetState();if(!resume)return {items:[],error:'제작 상태를 읽지 못했습니다.'};const items=[];
  try{while(items.length<(n>>>0)){
   if(shouldCancel())return {items:[],cancelled:true};const live=wasmMakeGetState(),started=performance.now();
   try{wasmMakeSetState(resume);do{const before=wasmMakeGetState(),item=correctMakeResultFromSource(req,_wasmMakeOnceRaw(req),before);item.index=items.length+1;items.push(item);}while(items.length<(n>>>0)&&performance.now()-started<8);resume=wasmMakeGetState();}
@@ -655,14 +655,14 @@ async function wasmMakePreviewAsync(req,n,shouldCancel=()=>false){
 }
 
 function wasmMakePreview(req, n) {
-    if (!wasmReady) return { items: [], error: '推演资料尚未加载，请稍候重试' };
+    if (!wasmReady) return { items: [], error: '시뮬레이션 데이터가 아직 로드되지 않았습니다. 다시 시도하세요.' };
     try {
         /* 预览必须可重复：先快照状态，结束后恢复，避免连续预测把打造序列往后推。
            这里逐次调用 make_once（与「推进到此」完全同一条内核路径），
            不能用内核的 make_preview：它和 make_once 的取色/取值路径并不总是一致，
            曾出现预览显示紫装、推进入包却变成绿装的问题。 */
         const previewSnapshot = wasmMakeGetState();
-        if (!previewSnapshot) return { items: [], error: '无法读取打造状态' };
+        if (!previewSnapshot) return { items: [], error: '제작 상태를 읽지 못했습니다.' };
         const items = [];
         try {
             for (let i = 0; i < (n >>> 0); i++) {
@@ -682,7 +682,7 @@ function wasmMakePreview(req, n) {
 }
 
 function wasmMakeOnce(req) {
-    if (!wasmReady) return { error: '推演资料尚未加载，请稍候重试' };
+    if (!wasmReady) return { error: '시뮬레이션 데이터가 아직 로드되지 않았습니다. 다시 시도하세요.' };
     try {
         const stateBefore = _needsFixedOrangeSourceCorrection(req) ? wasmMakeGetState() : null;
         return correctMakeResultFromSource(req, _wasmMakeOnceRaw(req), stateBefore);
@@ -695,15 +695,15 @@ function wasmMakeOnce(req) {
 // Independent SL alternatives: N ordinary crafts, then one target. The target
 // never advances the ordinary padding path or the next alternative's pity.
 function wasmMakePaddingPreview(req, paddingReq, n) {
-    if (!wasmReady) return { items: [], error: '推演资料尚未加载，请稍候重试' };
+    if (!wasmReady) return { items: [], error: '시뮬레이션 데이터가 아직 로드되지 않았습니다. 다시 시도하세요.' };
     const target = wasmMakeTables?.equipment?.[String(req?.equip_id)];
     const padding = wasmMakeTables?.equipment?.[String(paddingReq?.equip_id)];
     if (!target || ((n >>> 0) > 1 && (!padding || target.type !== padding.type || target.lv !== padding.lv
         || Number(paddingReq.max_color) > 4 || Number(paddingReq.min_color) > 4))) {
-        return { items: [], error: '垫刀必须选用同等级、同类型的普通装备' };
+        return { items: [], error: '선행 제작에는 같은 레벨·같은 종류의 일반 장비를 사용해야 합니다.' };
     }
     const before = wasmMakeGetState();
-    if (!before) return { items: [], error: '无法读取打造状态' };
+    if (!before) return { items: [], error: '제작 상태를 읽지 못했습니다.' };
     const items = [];
     try {
         for (let i = 0; i < (n >>> 0); i++) {
@@ -722,13 +722,13 @@ function wasmMakePaddingPreview(req, paddingReq, n) {
 
 function wasmMakePaddedOnce(req, paddingReq, paddingCount) {
     const count = Number(paddingCount);
-    if (!Number.isSafeInteger(count) || count < 0 || count > 5000) return { items: [], error: '垫刀次数必须是0–5000的整数' };
+    if (!Number.isSafeInteger(count) || count < 0 || count > 5000) return { items: [], error: '선행 제작 횟수는 0~5000의 정수여야 합니다.' };
     const target = wasmMakeTables?.equipment?.[String(req?.equip_id)];
     const pad = wasmMakeTables?.equipment?.[String(paddingReq?.equip_id)];
     if (count && (!target || !pad || target.lv !== pad.lv || target.type !== pad.type
-        || Number(paddingReq.max_color) > 4)) return { items: [], error: '垫刀必须选择同等级同类型的普通装备图纸' };
+        || Number(paddingReq.max_color) > 4)) return { items: [], error: '선행 제작에는 같은 레벨·같은 종류의 일반 장비 도면을 선택해야 합니다.' };
     const before = wasmMakeGetState();
-    if (!before) return { items: [], error: '无法读取打造状态' };
+    if (!before) return { items: [], error: '제작 상태를 읽지 못했습니다.' };
     try {
         for (let i = 0; i < count; i++) {
             const item = wasmMakeOnce({ ...paddingReq, special_id: 0 });
@@ -742,7 +742,7 @@ function wasmMakePaddedOnce(req, paddingReq, paddingCount) {
 }
 
 function _callJsonInOut(fnName, obj, extraArg) {
-    if (!wasmReady) return { error: '推演资料尚未加载，请稍候重试' };
+    if (!wasmReady) return { error: '시뮬레이션 데이터가 아직 로드되지 않았습니다. 다시 시도하세요.' };
     try {
         let d0, d1;
         const retptr = wasmExports.__wbindgen_add_to_stack_pointer(-16);
@@ -778,7 +778,7 @@ function wasmXilianOnce(equip) {
 }
 
 function wasmXilianPlan(equip, accepts) {
-    if (!wasmReady) return { error: '推演资料尚未加载，请稍候重试' };
+    if (!wasmReady) return { error: '시뮬레이션 데이터가 아직 로드되지 않았습니다. 다시 시도하세요.' };
     try {
         let d0, d1;
         const retptr = wasmExports.__wbindgen_add_to_stack_pointer(-16);
