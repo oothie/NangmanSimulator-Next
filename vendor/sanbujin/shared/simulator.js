@@ -2229,7 +2229,7 @@ function paintPurpleForecastTable() {
         html += `
             <tr data-washno="${item.wash_no}">
                 <td>#${idx + 1}</td>
-                <td><b>#${item.wash_no}</b><div class="conflict-wash-no">洗${item.wash_times || '-'}次</div></td>
+                <td><b>#${item.wash_no}</b><div class="conflict-wash-no">세수 ${item.wash_times || '-'}회</div></td>
                 <td><b class="purple-bright">${item.talent_name}</b></td>
                 <td>${pityTag}</td>
                 <td>${conflictText}</td>
@@ -2440,11 +2440,11 @@ function findAndShowNextConflict(afterSeq) {
                     ? `다음 자맥 '${item.talent_name}'과 충돌하는 맥이 자맥/신맥 '${item.earlier_conflict_name}'입니다. 잠글 수 있는 일반 충돌맥이 없습니다(신맥 충돌은 맥 순서 시뮬레이션에서 처리할 수 있습니다).`
                     : `다음 자맥 '${item.talent_name}'은 충돌맥 잠금 방식으로 치환할 수 없습니다.`));
         box.innerHTML = `
-            <div class="nc-steps" style="color:var(--red)">查询不到可锁定的非紫冲突脉</div>
+            <div class="nc-steps" style="color:var(--red)">잠글 수 있는 자맥 이외의 충돌맥을 찾지 못했습니다</div>
             <div>下一紫：<b class="purple-bright">#${item.wash_no} ${item.talent_name}</b>${item.was_pity ? ' · 保底' : ''}</div>
             <div class="nc-steps">${reason}</div>
             <div class="nc-actions">
-                <button type="button" class="btn btn-wash-custom" id="btnNcFindAfter" data-after="${item.wash_no}">再查其后下一紫</button>
+                <button type="button" class="btn btn-wash-custom" id="btnNcFindAfter" data-after="${item.wash_no}">이후 다음 자맥 조회</button>
             </div>
         `;
         const afterBtn = box.querySelector('#btnNcFindAfter');
@@ -2486,7 +2486,7 @@ function findAndShowNextConflict(afterSeq) {
 
     const stepsHtml = `
         <div class="nc-steps">
-            洗脉步骤：洗到 <b>${prevWashStr}</b> 锁定「<b>${item.earlier_conflict_name}</b>」
+            세수 순서: 다음까지 세수 <b>${prevWashStr}</b> 锁定「<b>${item.earlier_conflict_name}</b>」
             → 继续洗到「<b class="purple-bright">${item.talent_name}</b>」（脉序 #${item.wash_no}）后点置换
             ${gapStr ? `（${gapStr}）` : ''}
         </div>
@@ -2506,14 +2506,14 @@ function findAndShowNextConflict(afterSeq) {
         ${stepsHtml}
         <div class="nc-actions">
             ${!pastConflict ? `
-                <button type="button" class="btn btn-wash-gold" id="btnNcWashLock">洗到冲突并锁定</button>
-                <button type="button" class="btn btn-wash-custom" id="btnNcWashPurple">继续洗到紫脉</button>
-                <button type="button" class="btn btn-wash" id="btnNcWashAll">一键锁冲突洗到紫</button>
+                <button type="button" class="btn btn-wash-gold" id="btnNcWashLock">충돌맥까지 세수 후 잠금</button>
+                <button type="button" class="btn btn-wash-custom" id="btnNcWashPurple">자맥까지 계속 세수</button>
+                <button type="button" class="btn btn-wash" id="btnNcWashAll">충돌맥 잠금 후 자맥까지 자동 세수</button>
             ` : ''}
             ${hasConflictNow && !conflictLocked ? `
                 <button type="button" class="btn btn-wash-gold" id="btnNcLockOnly">锁定「${item.earlier_conflict_name}」</button>
             ` : ''}
-            <button type="button" class="btn btn-wash-custom" id="btnNcFindAfter" data-after="${item.wash_no}">再查其后下一紫</button>
+            <button type="button" class="btn btn-wash-custom" id="btnNcFindAfter" data-after="${item.wash_no}">이후 다음 자맥 조회</button>
         </div>
     `;
 
@@ -2619,7 +2619,7 @@ function formatChainStopAltsHtml(node) {
     }).join('');
     return `
         <details class="chain-stop-alts">
-            <summary>展开：中途保留时后续脉结果（${alts.length} 种停法）</summary>
+            <summary>펼치기: 중간에 유지할 때의 이후 맥 결과 (${alts.length}가지)</summary>
             <div class="chain-stop-body">${rows}</div>
         </details>
     `;
@@ -2803,7 +2803,7 @@ function renderExchangeAnalysisBlock() {
 
     container.innerHTML = `
         <div class="route-joint-panel">
-            <p class="modal-tip"><b>真实路径推演</b>：${mechTip}</p>
+            <p class="modal-tip"><b>실제 경로 예측</b>：${mechTip}</p>
             ${errBanner}
 
             <div class="exchange-stepper route-pad-stepper">
@@ -2812,7 +2812,7 @@ function renderExchangeAnalysisBlock() {
                 <span class="step-val">第 ${routePadCount + 1} 条</span>
                 <button class="step-btn" id="btnRoutePadPlus" type="button">+</button>
                 <span class="pad-jump">
-                    跳转추가 세수
+                    추가 세수로 이동
                     <input type="number" id="routePadInput" min="0" max="${maxPad}" value="${routePadCount}" />
                     发
                 </span>
@@ -3663,7 +3663,7 @@ function aiRouteTimelineHtml(route) {
         return `<div class="ai-route-step-node is-${escapeAiHtml(step.type)}" role="listitem">
             <b>${index + 1}. ${escapeAiHtml(readableWashCopy(step.label))}</b>
             <span>${escapeAiHtml(detail)}</span>
-            <span class="ai-route-step-cost">累计 ${Number(step.cumulativePills).toLocaleString()} 丹</span>
+            <span class="ai-route-step-cost">누적 세수단 ${Number(step.cumulativePills).toLocaleString()}개</span>
         </div>`;
     }).join('')}</div>`;
 }
@@ -3686,7 +3686,7 @@ function aiOperationTableHtml(route) {
         </tr>`;
     }).join('');
     return `<div class="ai-operation-wrap"><table class="ai-operation-table">
-        <thead><tr><th>#</th><th>操作</th><th>玩家照做步骤</th><th>洗数</th><th>单次丹</th><th>本步丹</th><th>累计丹</th><th>累计洗</th><th>脉序(条)</th><th>操作后验证</th></tr></thead>
+        <thead><tr><th>#</th><th>操作</th><th>실제 조작 순서</th><th>세수 횟수</th><th>1회 세수단</th><th>이번 단계 세수단</th><th>累计丹</th><th>누적 세수</th><th>脉序(条)</th><th>조작 후 확인</th></tr></thead>
         <tbody>${rows}</tbody>
     </table></div>`;
 }
@@ -3704,22 +3704,22 @@ function aiRouteResultHtml(route, index) {
         <summary>
             <span class="ai-route-rank">${index + 1}</span>
             <span class="ai-route-name"><b>${index===0?'最省候选 · 查看操作':'查看操作'}</b><span>${escapeAiHtml(finalNames)}</span></span>
-            <span class="ai-route-total">${Number(route.totalPills).toLocaleString()} 丹<small>${Number(route.totalWashes).toLocaleString()} 次洗脉</small></span>
+            <span class="ai-route-total">세수단 ${Number(route.totalPills).toLocaleString()}개<small>세수 ${Number(route.totalWashes).toLocaleString()}회</small></span>
         </summary>
         <div class="ai-route-body">
             ${Number(route.totalPills) === 0 ? '<p class="ai-route-zero-cost"><strong>추가 세수단 불필요</strong>：이 경로에서는 추가 세수가 필요하지 않습니다. 아래 단계에 따라 재능을 조정하세요. 칸 개방 재료는 따로 준비해야 합니다.</p>' : ''}
             <div class="ai-route-metrics">
-                <div class="ai-route-metric"><b>${Number(route.totalPills).toLocaleString()}</b><span>总丹耗</span></div>
+                <div class="ai-route-metric"><b>${Number(route.totalPills).toLocaleString()}</b><span>총 세수단 소모</span></div>
                 <div class="ai-route-metric"><b>${Number(route.totalWashes).toLocaleString()}</b><span>洗髓次数</span></div>
-                <div class="ai-route-metric"><b>${Number(route.totalTalentBars).toLocaleString()}</b><span>累计洗出天赋</span></div>
+                <div class="ai-route-metric"><b>${Number(route.totalTalentBars).toLocaleString()}</b><span>누적 세수出天赋</span></div>
                 <div class="ai-route-metric"><b>${Number(route.exchangeCount).toLocaleString()}</b><span>置换次数</span></div>
-                <div class="ai-route-metric ${inventory.enough === false ? 'is-short' : ''}"><b>${escapeAiHtml(inventoryLabel)}</b><span>세수단是否够用</span></div>
+                <div class="ai-route-metric ${inventory.enough === false ? 'is-short' : ''}"><b>${escapeAiHtml(inventoryLabel)}</b><span>세수단 수량 충족 여부</span></div>
             </div>
-            <p class="ai-visual-heading">路线图 · ${escapeAiHtml(upgradeLabel)}</p>
+            <p class="ai-visual-heading">경로도 · ${escapeAiHtml(upgradeLabel)}</p>
             ${aiRouteTimelineHtml(route)}
-            <p class="ai-visual-heading">세수단消耗分解 · 合计 ${Number(route.totalPills).toLocaleString()} 丹</p>
+            <p class="ai-visual-heading">세수단 소모 내역 · 합계 세수단 ${Number(route.totalPills).toLocaleString()}개</p>
             ${aiCostBreakdownHtml(route)}
-            <p class="ai-visual-heading">详细路线与操作</p>
+            <p class="ai-visual-heading">상세 경로 및 작업</p>
             ${aiOperationTableHtml(route)}
             <div class="ai-route-footer">
                 <span class="ai-final-talents">最终槽位：${escapeAiHtml(finalNames)}</span>
@@ -3743,10 +3743,10 @@ function renderAiPrediction(result, imageContext = {}) {
     const expanded = new Set(previousDetails.filter(el => el.open).map(el => el.dataset.routeKey));
     result.routes.sort((a, b) => Number(a.totalPills) - Number(b.totalPills) || Number(a.totalWashes) - Number(b.totalWashes));
     container.innerHTML = `<div class="ai-result-summary">
-        <span><strong>已找到 ${result.routes.length} 条满足全部目标的路线</strong> · 按耗丹从低到高排序</span>
+        <span><strong>전체 목표를 만족하는 경로 ${result.routes.length}개 발견</strong> · 세수단 소모가 적은 순으로 정렬</span>
         <span>目标：${escapeAiHtml((result.targetNames || []).join('、'))}</span>
-        <span class="ai-best-cost">当前最省 <strong>${formatCount4(result.routes[0].totalPills)} 丹</strong><small>已通过路线回放 · 尚未证明全局最优</small></span>
-        <span>路线以开始查找时的人物状态为起点。</span>
+        <span class="ai-best-cost">현재 최소 소모 <strong>세수단 ${formatCount4(result.routes[0].totalPills)}개</strong><small>경로 재현 검증 완료 · 전체 최적임은 아직 확인되지 않음</small></span>
+        <span>경로는 탐색을 시작했을 때의 캐릭터 상태를 기준으로 합니다.</span>
     </div>${isAutomaticWashPage()?aiRouteResultHtml(result.routes[0],0)+(result.routes.length>1?`<details class="ai-more-routes" ${moreWasOpen?'open':''}><summary>다른 실행 가능 경로 ${result.routes.length-1}개</summary>${result.routes.slice(1).map((route,i)=>aiRouteResultHtml(route,i+1)).join('')}</details>`:''):result.routes.map(aiRouteResultHtml).join('')}`;
 
     if (previousDetails.length) container.querySelectorAll('.ai-route-result').forEach(el => { el.open = expanded.has(el.dataset.routeKey); });
@@ -4737,7 +4737,7 @@ function equipAutoAttachmentHtml(attachment) {
         const isMaximum = maximumIndexes.has(Number(item.index));
         const ratingKey = equipAutoAttachmentRatingKey(item);
         return `<li class="equip-auto-attach-sequence-item${ratingKey ? ` is-rating-${ratingKey}` : ''}${isMaximum ? ' is-maximum' : ''}">
-            <span class="equip-auto-attach-sequence-index">第 ${Number(item.index)} 次</span>
+            <span class="equip-auto-attach-sequence-index">${Number(item.index)}회차</span>
             ${property}
             <strong class="equip-auto-attach-sequence-value">${escapeAiHtml(value)}</strong>
             ${isMaximum ? '<span class="equip-auto-attach-sequence-badge">最高</span>' : ''}
@@ -7323,7 +7323,7 @@ function updateJianwangAutoStartHint() {
     const startSelect = document.getElementById('autoJianwangStartSword');
     if (!sword) {
         if (startSelect?.value === '__provider__' && optimizer.hasFirstSwordProvider()) {
-            hint.textContent = '将由已启用的首剑生成接口提供起始剑，再复用同一套升阶、保留、重铸与碎剑搜索。';
+            hint.textContent = '将由已启用的首剑生成接口提供起始剑，再复用同一套승급、保留、重铸与碎剑搜索。';
             if (message) {
                 message.textContent = '';
                 message.classList.remove('is-error');
@@ -7465,17 +7465,17 @@ function jianwangResourcesHtml(resources) {
     const bodyRows = netRows + onlyReturnedRows
         || '<tr><td colspan="4" class="empty-row">이 경로에서 소모한 재료는 없습니다.</td></tr>';
     return `<details class="jianwang-resources-wrap" open>
-        <summary><strong>材料与资源净需求</strong>（已扣除碎剑返还；用于备料核对，含前置成长与重铸周转请另留余量）</summary>
+        <summary><strong>재료 및 자원 순소모</strong>(검 분해 반환분을 제외한 값입니다. 사전 성장과 재주조용 여유 재료는 별도로 준비하세요)</summary>
         <div class="jianwang-auto-metrics">
-            <div><b>${Number(resources.contribution || 0).toLocaleString()}</b><span>贡献</span></div>
-            <div><b>${Number(resources.swordIntent || 0).toLocaleString()}</b><span>剑意</span></div>
-            <div><b>${Number(resources.qi || 0).toLocaleString()}</b><span>真气</span></div>
+            <div><b>${Number(resources.contribution || 0).toLocaleString()}</b><span>공헌도</span></div>
+            <div><b>${Number(resources.swordIntent || 0).toLocaleString()}</b><span>검의</span></div>
+            <div><b>${Number(resources.qi || 0).toLocaleString()}</b><span>진기</span></div>
         </div>
         <table class="preview-table jianwang-resources-table">
-            <thead><tr><th>材料</th><th>消耗</th><th>返还</th><th>净需求</th></tr></thead>
+            <thead><tr><th>재료</th><th>소모</th><th>반환</th><th>순소모</th></tr></thead>
             <tbody>${bodyRows}</tbody>
         </table>
-        <p class="meta-text">首次铸进材料与 100 级后的芒晶附加是两笔账：芒晶附加每次需芒晶×10 加所选材料×1，请按页面“망정”单独核对；本表不包含常规打造材料与银两。</p>
+        <p class="meta-text">최초 제작에 넣는 재료와 100레벨 이후 망정 추가 옵션은 별개입니다. 망정은 회당 망정 10개와 선택한 재료 1개가 필요합니다. 망정 화면에서 따로 확인하세요. 일반 제작 재료와 은냥은 이 표에 포함하지 않습니다.</p>
     </details>`;
 }
 
@@ -7506,7 +7506,7 @@ function jianwangAttachPanelHtml(equip, key) {
         return '<option value="' + material.id + '"' + (isDefault ? ' selected' : '') + '>' + escapeAiHtml(material.name) + '</option>';
     }).join('');
     return '<details class="jianwang-attach-wrap" open>'
-        + '<summary><strong>100레벨 이후 · 망정 추가 옵션 순서</strong>（매회 망정×10 + 선택 재료×1 소모 기준 · 조회 전용으로 게임 진행도 변경 없음）</summary>'
+        + '<summary><strong>100레벨 이후 · 망정 추가 옵션 순서</strong> (매회 망정×10 + 선택 재료×1 소모 기준 · 조회 전용으로 게임 진행도 변경 없음）</summary>'
         + '<div class="jianwang-attach-controls">'
         + '<label>추가 재료 <select data-jw-attach-material="' + key + '">' + options + '</select></label>'
         + '<label>预览次数 <input type="number" min="1" max="200" value="100" data-jw-attach-count="' + key + '"></label>'
@@ -7587,29 +7587,29 @@ function renderJianwangAutoResult(result) {
                     <div class="jianwang-auto-step-meta">${escapeAiHtml(seedText)}</div>
                     <div class="jianwang-auto-step-exts">${jianwangAutoFormatExts(step.exts)}</div>
                 </li>`;
-            }).join('') : '<li class="jianwang-auto-path-step"><div class="jianwang-auto-step-head"><b>起始状态已满足目标</b></div></li>';
+            }).join('') : '<li class="jianwang-auto-path-step"><div class="jianwang-auto-step-head"><b>시작 상태에서 이미 목표 달성</b></div></li>';
             return `<details class="jianwang-auto-path-wrap" ${matchIndex === 0 ? 'open' : ''}>
-                <summary><strong>第 ${matchIndex + 1} 次三同</strong> · ${escapeAiHtml(swordText)} · ${escapeAiHtml(match.finalAction || '')}</summary>
+                <summary><strong>동일 옵션 3개 달성 ${matchIndex + 1}번째</strong> · ${escapeAiHtml(swordText)} · ${escapeAiHtml(match.finalAction || '')}</summary>
                 <div class="jianwang-auto-final"><strong>词条</strong><span>${jianwangAutoFormatExts(match.finalEquip?.exts || [])}</span></div>
                 ${jianwangAttachPanelHtml(match.finalEquip, 'm' + matchIndex)}
                 <ol class="jianwang-auto-path">${steps}</ol>
             </details>`;
         }).join('');
         container.innerHTML = `<div class="jianwang-auto-summary">
-            <div><span class="ai-route-strength">三同结果</span><strong>${escapeAiHtml(result.routeName || '')} · ${escapeAiHtml(result.targetName || '')}</strong></div>
+            <div><span class="ai-route-strength">동일 옵션 3개 결과</span><strong>${escapeAiHtml(result.routeName || '')} · ${escapeAiHtml(result.targetName || '')}</strong></div>
             <p>${escapeAiHtml(result.reason || `동일 옵션 3개 결과 ${matches.length}회 발견`)}</p>
-            <p class="jianwang-auto-start-line">起点：${escapeAiHtml(result.startSwordLabel || '')}</p>
+            <p class="jianwang-auto-start-line">시작점: ${escapeAiHtml(result.startSwordLabel || '')}</p>
         </div>
         <div class="jianwang-auto-metrics">
-            <div><b>${Number(matches.length).toLocaleString()}</b><span>三同结果</span></div>
-            <div><b>${Number(metrics.newSwords || 0).toLocaleString()}</b><span>新剑把数</span></div>
-            <div><b>${Number(metrics.shatter90 || 0).toLocaleString()}</b><span>碎90</span></div>
-            <div><b>${Number(metrics.shatter100 || 0).toLocaleString()}</b><span>碎100</span></div>
-            <div><b>${Number(metrics.grows || 0).toLocaleString()}</b><span>升阶</span></div>
+            <div><b>${Number(matches.length).toLocaleString()}</b><span>동일 옵션 3개 결과</span></div>
+            <div><b>${Number(metrics.newSwords || 0).toLocaleString()}</b><span>새 검 수량</span></div>
+            <div><b>${Number(metrics.shatter90 || 0).toLocaleString()}</b><span>90레벨 검 분해</span></div>
+            <div><b>${Number(metrics.shatter100 || 0).toLocaleString()}</b><span>100레벨 검 분해</span></div>
+            <div><b>${Number(metrics.grows || 0).toLocaleString()}</b><span>승급</span></div>
             <div><b>${Number(metrics.reforges || 0).toLocaleString()}</b><span>重铸</span></div>
             <div><b>${Number(metrics.keeps || 0).toLocaleString()}</b><span>保留</span></div>
         </div>
-        <div class="jianwang-auto-path-wrap"><h3>三同命中记录（最多 ${Number(result.successLimit || 10)} 次）</h3></div>
+        <div class="jianwang-auto-path-wrap"><h3>동일 옵션 3개 달성 기록 (최대 ${Number(result.successLimit || 10)}회)</h3></div>
         ${jianwangResourcesHtml(result.resources)}
         ${cards}`;
         return;
@@ -7618,7 +7618,7 @@ function renderJianwangAutoResult(result) {
         const metrics = result.metrics || {};
         container.innerHTML = `<div class="jianwang-auto-summary is-limit">
             <strong>${escapeAiHtml(result.reason || '已达到最大模拟次数')}</strong>
-            <span>碎90：${Number(metrics.shatter90 || 0).toLocaleString()} · 碎100：${Number(metrics.shatter100 || 0).toLocaleString()} · 升阶：${Number(metrics.grows || 0).toLocaleString()} · 重铸：${Number(metrics.reforges || 0).toLocaleString()} · 保留：${Number(metrics.keeps || 0).toLocaleString()}</span>
+            <span>90레벨 검 분해：${Number(metrics.shatter90 || 0).toLocaleString()} · 100레벨 검 분해：${Number(metrics.shatter100 || 0).toLocaleString()} · 승급：${Number(metrics.grows || 0).toLocaleString()} · 重铸：${Number(metrics.reforges || 0).toLocaleString()} · 保留：${Number(metrics.keeps || 0).toLocaleString()}</span>
         </div>`;
         return;
     }
@@ -7643,25 +7643,25 @@ function renderJianwangAutoResult(result) {
             <div class="jianwang-auto-step-meta">${escapeAiHtml(seedText)}</div>
             <div class="jianwang-auto-step-exts">${jianwangAutoFormatExts(step.exts)}</div>
         </li>`;
-    }).join('') : '<li class="jianwang-auto-path-step"><div class="jianwang-auto-step-head"><b>起始状态已满足目标</b></div></li>';
+    }).join('') : '<li class="jianwang-auto-path-step"><div class="jianwang-auto-step-head"><b>시작 상태에서 이미 목표 달성</b></div></li>';
     container.innerHTML = `<div class="jianwang-auto-summary">
-        <div><span class="ai-route-strength">找到结果</span><strong>${escapeAiHtml(result.routeName || '')} · 목표 ${targetCount}개${escapeAiHtml(result.targetName || '')}</strong></div>
+        <div><span class="ai-route-strength">결과 발견</span><strong>${escapeAiHtml(result.routeName || '')} · 목표 ${targetCount}개${escapeAiHtml(result.targetName || '')}</strong></div>
         <p>${escapeAiHtml(swordText)}达成 · ${escapeAiHtml(result.finalAction || '')}</p>
-        <p class="jianwang-auto-start-line">起点：${escapeAiHtml(result.startSwordLabel || '')}</p>
+        <p class="jianwang-auto-start-line">시작점: ${escapeAiHtml(result.startSwordLabel || '')}</p>
     </div>
     <div class="jianwang-auto-metrics">
-        <div><b>${Number(metrics.newSwords || 0).toLocaleString()}</b><span>新剑把数</span></div>
-        <div><b>${Number(metrics.shatter90 || 0).toLocaleString()}</b><span>碎90</span></div>
-        <div><b>${Number(metrics.shatter100 || 0).toLocaleString()}</b><span>碎100</span></div>
-        <div><b>${Number(metrics.grows || 0).toLocaleString()}</b><span>升阶</span></div>
+        <div><b>${Number(metrics.newSwords || 0).toLocaleString()}</b><span>새 검 수량</span></div>
+        <div><b>${Number(metrics.shatter90 || 0).toLocaleString()}</b><span>90레벨 검 분해</span></div>
+        <div><b>${Number(metrics.shatter100 || 0).toLocaleString()}</b><span>100레벨 검 분해</span></div>
+        <div><b>${Number(metrics.grows || 0).toLocaleString()}</b><span>승급</span></div>
         <div><b>${Number(metrics.reforges || 0).toLocaleString()}</b><span>重铸</span></div>
         <div><b>${Number(metrics.keeps || 0).toLocaleString()}</b><span>保留</span></div>
     </div>
-    <div class="jianwang-auto-final"><strong>最终词条</strong><span>${finalExts}</span></div>
+    <div class="jianwang-auto-final"><strong>최종 옵션</strong><span>${finalExts}</span></div>
     ${jianwangResourcesHtml(result.resources)}
     ${jianwangAttachPanelHtml(result.finalEquip, 'single')}
     <div class="jianwang-auto-path-wrap">
-        <h3>成功剑详细流程</h3>
+        <h3>성공한 검의 상세 경로</h3>
         <ol class="jianwang-auto-path">${steps}</ol>
     </div>`;
 }
