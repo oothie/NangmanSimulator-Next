@@ -3,7 +3,7 @@
     const clone = value => JSON.parse(JSON.stringify(value)), count = 20;
     const preferredNpc = type => [5, 6, 7].includes(Number(type)) ? 31230 : 40520;
     function papers(data) {
-        return Object.values(data.papers).filter(p => p.min_color === 5 && p.max_color === 5 && data.equipment[p.dz_equip])
+        return Object.values(data.papers).filter(p => p.min_color === 5 && p.max_color === 5 && data.equipment[p.dz_equip] && p.dz_equip !== 5632 && (data.equipment[p.dz_equip].lv !== 100 || p.dz_equip === 5021))
             .sort((a, b) => data.equipment[b.dz_equip].lv - data.equipment[a.dz_equip].lv || a.id - b.id);
     }
     function craftsmen(data, paper) {
@@ -13,6 +13,7 @@
     }
     function paddingPapers(data, paper) {
         const cfg = data.equipment[paper.dz_equip];
+        if (cfg.lv >= 100) return []; // 영호아대는 일반 100급 도면이 없으므로 선행 제작 불가
         return Object.values(data.papers).filter(p => {
             const e = data.equipment[p.dz_equip];
             return e && e.lv === cfg.lv && e.type === cfg.type && p.min_color <= 4 && p.max_color <= 4;
@@ -64,11 +65,13 @@
             const desired = pads.some(p => String(p.id) === oldPad) ? oldPad : pads.some(p => p.id === 2583) ? '2583' : '';
             if (desired) paddingSelect.value = desired;
             paddingSelect.disabled = !pads.length;
-            if (!pads.length) { option(paddingSelect, '', '没有同等级同类型普通图纸');$('orangePaddingCount').value = 0; }
+            $('orangePaddingCount').disabled = !pads.length;
+            if (!pads.length) { option(paddingSelect, '', '선행 제작 불가');$('orangePaddingCount').value = 0; }
             for (const m of specialMaterialsForEquip(cfg)) option(forgeMaterial, m.id, m.name);
             if ([...forgeMaterial.options].some(o => o.value === oldMat)) forgeMaterial.value = oldMat;
-            $('orangePaddingHint').textContent = (cfg.lv >= 100 ? '100级按装备ID使用独立序列，垫其他图纸不等于推进目标图纸。' : '')
-                + '垫刀和最后一次橙装打造都在所选工匠处进行；只有最后打造橙装时才添加所选材料。';
+            $('orangePaddingHint').textContent = cfg.lv >= 100
+                ? '영호아대: 100급 일반 제작 도면이 없어 선행 제작할 수 없습니다. 최초 1회 제작의 지역 옵션만 조회합니다. 망정 순서는 그대로 조회할 수 있습니다.'
+                : '선행 제작과 마지막 주황 장비 제작은 선택한 장인에게서 진행합니다. 추가 재료는 마지막 제작에만 적용합니다.';
             invalidate();
         }
         function fillPapers() {
@@ -119,8 +122,8 @@
             
             const card = document.createElement('section');card.className = 'config-panel orange-query-result';card.dataset.npc = npc.id;
             card.innerHTML = '<h2>' + escapeHtml(cfg.name) + ' · ' + escapeHtml(npcName(npc)) + '</h2><p>'
-                + '垫 0～' + maximum + ' 次，共 ' + items.length + ' 个方案。每行从同一存档起点计算，先垫该行次数的'
-                + escapeHtml(padPaper?.name || '普通装备') + '，再打造一次橙装。</p><p>固定词条：' + props(items[0]?.exts, '无固定词条')
+                + '선행 제작 0~' + maximum + '회, 총 ' + items.length + '개 결과입니다. 같은 세이브에서 시작하여 '
+                + escapeHtml(padPaper?.name || '일반 장비') + ' 제작 이후 주황 장비를 1회 제작합니다.</p><p>고정 옵션: ' + props(items[0]?.exts, '无固定词条')
                 + '</p><div class="table-wrap orange-result-table-wrap"><table class="preview-table orange-query-table"><thead><tr><th>垫刀次数</th><th>地区附加</th><th>打造后红词条</th><th>详细序列</th></tr></thead><tbody></tbody></table></div>';
             results.replaceChildren(card);const body = card.querySelector('tbody');resultCache = [];
             card.addEventListener('click', event => {
@@ -144,10 +147,10 @@
         async function generate() {
             if (!saveLoaded) { status.textContent = '请先导入存档';return; }
             const paper = EQUIP_DATA.papers[paperSelect.value], npc = EQUIP_DATA.craftsman[npcSelect.value], padPaper = EQUIP_DATA.papers[paddingSelect.value];
-            const paddingCount = Number($('orangePaddingCount').value);
-            if (!paper || !npc) { status.textContent = '请选择图纸和 NPC';return; }
+            const paddingCount = EQUIP_DATA.equipment[paper?.dz_equip]?.lv >= 100 ? 0 : Number($('orangePaddingCount').value);
+            if (!paper || !npc) { status.textContent = '도면과 장인을 선택하세요.';return; }
             if (!Number.isSafeInteger(paddingCount) || paddingCount < 0 || paddingCount > 5000) { status.textContent = '垫刀次数必须是0–5000的整数';return; }
-            if (paddingCount && !padPaper) { status.textContent = '请选择同等级同类型的普通垫刀图纸';return; }
+            if (paddingCount && !padPaper) { status.textContent = '동일 등급·종류의 일반 제작 도면을 선택하세요.';return; }
             const targetRequest = request(paper, npc, forgeMaterial.value), padRequest = padPaper ? request(padPaper, npc) : null;
             invalidate();const ticket = generation, state = clone(wasmMakeGetState());startFingerprint = JSON.stringify(state);
             $('btnOrangePreview').disabled = true;$('btnOrangeCancel').hidden = false;status.textContent = '正在计算垫' + paddingCount + '次后的打造结果…';
