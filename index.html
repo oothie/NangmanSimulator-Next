@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.5.1</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.5.2</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -144,9 +144,43 @@ body{background:var(--bg)!important}
 <script>
 (()=>{'use strict';const tabs=[['wash','세수'],['equip','장비'],['character','캐릭터'],['wiki','백과'],['daily','일일'],['drop','드랍'],['quest','임무'],['sect','항산'],['battle','전투']];let v='wash',sub='sim',save=null,filename='',roles=[],selected=0,filter='';
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));const card=(t,x)=>'<section class="card"><h3>'+t+'</h3>'+x+'</section>';
-function getRoles(o){let a=[],ids=new Set;function add(r,type){if(!r||typeof r!=='object')return;const id=r.ID??r.Id??r.id;if(id==null||ids.has(String(id)))return;ids.add(String(id));a.push({id,type,name:String(r.Name||r.NickName||r.name||'캐릭터 '+id).trim(),level:r.Lv??r.Level??''})}add(o.MainRole,'주인공');for(let [key,type] of [['Roles','동료'],['Leavers','이탈']]){let x=o[key]||[],items=Array.isArray(x)?x:Object.values(typeof x==='object'?x:{});items.forEach(r=>add(r,type))}return a}
+function getRoles(o){let a=[],ids=new Set;function add(r,type){if(!r||typeof r!=='object')return;const id=r.ID??r.Id??r.id;if(id==null||ids.has(String(id)))return;ids.add(String(id));a.push({id,type,name:String(r.Name||r.NickName||r.name||'캐릭터 '+id).trim(),level:r.Lv??r.Level??'',raw:r})}add(o.MainRole,'주인공');for(let [key,type] of [['Roles','동료'],['Leavers','이탈']]){let x=o[key]||[],items=Array.isArray(x)?x:Object.values(typeof x==='object'?x:{});items.forEach(r=>add(r,type))}return a}
 function roleList(){const cats=['주인공','동료','이탈'];let out='';for(const cat of cats){const items=roles.filter(x=>x.type===cat);if(!items.length)continue;out+='<div class="role-g"><div class="role-title">'+cat+'<span>'+items.length+'</span></div>'+items.filter(r=>(r.name+' '+r.id).toLowerCase().includes(filter.toLowerCase())).map(r=>{const i=roles.indexOf(r);return '<button class="role '+(selected===i?'active':'')+'" data-role="'+i+'"><span class="avatar">'+escape(r.name.slice(0,1))+'</span><span><b>'+escape(r.name)+'</b><small>ID '+escape(r.id)+(r.level?' · Lv'+escape(r.level):'')+'</small></span></button>'}).join('')+'</div>'}return out||'<p class="blank">JSON 세이브를 불러오면 캐릭터 목록이 표시됩니다.</p>'}
 const stats=x=>'<div class="stats">'+x.map(([v,t])=>'<div class="stat"><b>'+v+'</b><span>'+t+'</span></div>').join('')+'</div>';
+
+// 세수 엔진 연결 준비: 실제 한국판 세이브에서 확인 가능한 후보 필드만 추출
+// 후보 수집은 계산 엔진에 전달하지 않으며 자동 예측 결과로 간주하지 않습니다.
+function washCandidates(role,root){
+ const matching=/(wash|talent|lucky|pity|zizhi|seed|tal|xmai|xilian|exchange|ma[i]?|紫脉|洗髓|资质)/i;
+ const out=[];const seen=new Set();
+ function scan(obj,prefix,depth){
+  if(!obj||typeof obj!=='object'||depth>3||out.length>=100)return;
+  const entries=Array.isArray(obj)?obj.map((v,i)=>[String(i),v]).slice(0,48):Object.entries(obj).slice(0,180);
+  for(const [key,value] of entries){
+    if(out.length>=100)return;
+    const path=prefix?prefix+'.'+key:key;
+    if(seen.has(path))continue;seen.add(path);
+    if(matching.test(key)){
+      const val=(value===null||typeof value!=='object')?String(value??'null'):Array.isArray(value)?'[배열 '+value.length+'개]':'[객체]';
+      out.push({path,value:val.slice(0,72),type:Array.isArray(value)?'배열':typeof value});
+    }
+    if(value&&typeof value==='object'&&depth<3&&!Array.isArray(value)&&Object.keys(value).length<120)scan(value,path,depth+1);
+  }
+ }
+ if(role?.raw)scan(role.raw,'캐릭터',0);
+ if(root){
+  for(const [key,value] of Object.entries(root).slice(0,180)){
+   if(matching.test(key)&&typeof value!=='object')out.push({path:'세이브.'+key,value:String(value).slice(0,72),type:typeof value});
+  }
+ }
+ return out;
+}
+function diagnosticPanel(){
+ if(!save)return '<section class="wash-section"><div class="notice">한국판 JSON 세이브를 불러오면 세수 관련 데이터 필드 후보를 점검할 수 있습니다. 아직 다음 세수 결과를 예측하지 않습니다.</div></section>';
+ const fields=washCandidates(roles[selected],save);
+ const rows=fields.slice(0,40).map(x=>'<tr><td>'+escape(x.path)+'</td><td>'+escape(x.value)+'</td><td>'+escape(x.type)+'</td></tr>').join('');
+ return '<section class="wash-section"><div class="section-header"><h3>세수 엔진 연결 진단</h3><button id="exportWashDiagnostic" class="btn">후보 필드 JSON 내보내기</button></div><p class="micro">한국판 세이브에서 '+fields.length+'개의 키 후보를 찾았습니다. 이는 키 이름 검색 결과일 뿐, 실제 RNG 매핑이 확인됐다는 뜻은 아닙니다.</p><div style="max-height:230px;overflow:auto"><table class="module-table"><thead><tr><th>필드 경로</th><th>값 일부</th><th>형태</th></tr></thead><tbody>'+ (rows||'<tr><td colspan="3">후보 필드를 찾지 못했습니다.</td></tr>')+'</tbody></table></div></section>';
+}
 function wash(){
 const r=roles[selected];
 const groups=['주인공','동료','이탈'];
@@ -161,7 +195,7 @@ if(sub==='sim'){
  const skills='<section class="wash-section"><div class="section-header"><h3>현재 재능</h3><span class="micro">4칸 · 실제 세이브 연결 전</span></div><div class="talents">'+[1,2,3,4].map((n)=>'<div class="talent"><span class="talent-slot">'+n+'</span><div class="talent-text"><b>미확인 재능</b><small>한국판 세수 데이터를 연결하면 표시됩니다.</small></div><button class="btn lock" disabled>잠금</button></div>').join('')+'</div></section>';
  const buttons='<section class="wash-section"><div class="wash-ops"><div class="pity-area"><div class="micro">천장 진행도</div><div class="pity-track"><div class="pity-fill" style="width:0%"></div></div><div class="micro">— / 900 · 다음 자맥 계산 대기</div></div><div class="wash-buttons"><button class="btn" disabled>자맥까지 세수</button><button class="btn" disabled>연속 세수</button><button class="btn" disabled>되돌리기</button><button class="btn primary" disabled>세수</button></div></div><div class="micro">한국판 시드·잠금 매핑 전에는 잘못된 예측을 방지하기 위해 실행할 수 없습니다.</div></section>';
  const history='<section class="wash-section"><div class="section-header"><h3>세수 기록</h3><div><button class="text-action" disabled>핵심 기록 내보내기</button><button class="text-action" disabled>전체 기록 내보내기</button><button class="text-action" disabled>비우기</button></div></div><div class="history">세수 기록이 없습니다.</div></section>';
- body=config+skills+buttons+history;
+ body=config+skills+buttons+history+diagnosticPanel();
 }
 if(sub==='exchange')body='<section class="wash-section"><div class="section-header"><h3>치환 시퀀스</h3><button class="btn" disabled>+2,000회</button></div><div class="fields"><label>미리보기 슬롯<input disabled value="4칸"></label><label>탐색 상한<input disabled value="5000"></label></div><div class="notice">원본 yy-sim의 치환 시퀀스 패널 배치를 반영했습니다. 계산 결과는 엔진 연결 후 표시됩니다.</div><div class="history">자맥 후보 · 충돌맥 · 간격 · 천장 여부 표시 영역</div></section>';
 if(sub==='path')body='<section class="wash-section"><div class="section-header"><h3>목표 자맥 경로 탐색</h3></div><div class="fields"><label>목표 자맥<input disabled placeholder="목표 자맥 선택"></label><label>최대 탐색 횟수<input disabled value="5000"></label></div><div class="actions"><button class="btn primary" disabled>세수 경로 탐색</button></div><div class="notice">실제 세이브 시드가 검증되면 자동 경로 탐색을 연결합니다.</div></section>';
@@ -203,7 +237,7 @@ function others(){
  const [name,desc]=info[v];
  return '<div class="module-wrap">'+moduleHero(name,desc)+'<div class="module-panel"><h3>기능 준비 중</h3><p class="micro">'+desc+'</p></div></div>';
 }
-function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);render()});if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='character')characterTab=id;render()});if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;render()}}
+function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);render()});if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='character')characterTab=id;render()});if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.5.2',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;render()}}
 $('saveLink').onclick=()=>{v='save';render()};$('import').onclick=()=>$('file').click();$('file').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{if(f.size>50e6)throw Error('파일 용량 50MB 초과');let obj=JSON.parse(await f.text());let root=obj?.data?.MainRole?obj.data:obj?.save?.MainRole?obj.save:obj;if(!root||typeof root!=='object'||Array.isArray(root))throw Error('JSON 최상위 객체가 아닙니다');save=root;filename=f.name;roles=getRoles(root);selected=0;render()}catch(err){alert('불러오기 실패: '+err.message)}};function theme(t){document.documentElement.dataset.theme=t;$('paper').classList.toggle('on',t==='paper');$('ink').classList.toggle('on',t==='ink');try{localStorage.setItem('nangman-theme',t)}catch{}}$('paper').onclick=()=>theme('paper');$('ink').onclick=()=>theme('ink');try{theme(localStorage.getItem('nangman-theme')==='ink'?'ink':'paper')}catch{theme('paper')}render()
 })();
 </script></body></html>
