@@ -382,7 +382,7 @@ function passEquipListFilter(e, which) {
         TYPE_NAMES[e.typ] || e.typ,
         `${e.need_lv}레벨`,
         e._crafted ? '모의 제작' : '',
-        e._equipped ? '已装备' : '未装备',
+        e._equipped ? '착용 중' : '미착용',
     ].join(' ').toLowerCase();
     return hay.includes(q);
 }
@@ -500,19 +500,19 @@ function renderCraftedBagList() {
             <input type="text" class="crafted-mark-input" maxlength="40" value="${escapeHtml(mark)}" placeholder="표식 입력">
             <div class="bag-actions">
                 <button type="button" class="btn btn-reset btn-row-action ${faved ? 'is-faved' : ''}" data-act="fav">${faved ? '★ 즐겨찾기 완료' : '☆ 즐겨찾기'}</button>
-                <button type="button" class="btn btn-reset btn-row-action" data-act="remove">移除</button>
+                <button type="button" class="btn btn-reset btn-row-action" data-act="remove">제거</button>
             </div>
             <div class="crafted-bag-props">
                 <div class="crafted-prop-row">
-                    <span class="crafted-prop-label">装备词条</span>
+                    <span class="crafted-prop-label">장비 옵션</span>
                     <span class="crafted-prop-values">${formatCraftedBagProps(current.exts || e.exts)}</span>
                 </div>
                 <div class="crafted-prop-row">
-                    <span class="crafted-prop-label">地区附加</span>
+                    <span class="crafted-prop-label">지역 추가 옵션</span>
                     <span class="crafted-prop-values">${formatCraftedBagProps(e._make_region)}</span>
                 </div>
                 <div class="crafted-prop-row">
-                    <span class="crafted-prop-label red">红词条</span>
+                    <span class="crafted-prop-label red">적색 옵션</span>
                     <span class="crafted-prop-values">${formatCraftedBagProps(e._make_special)}</span>
                 </div>
             </div>
@@ -573,11 +573,11 @@ function renderFavList() {
             return `<div class="fav-row" data-only-id="${escapeHtml(fav.onlyId)}">
                 <div class="fav-main">
                     <strong>${escapeHtml(fav.name)}</strong>
-                    <span class="meta-text">${fav.needLv}级 · ${escapeHtml(fav.colorText || String(fav.color))} · ${escapeHtml(fav.typText || String(fav.typ))} · #${escapeHtml(fav.onlyId)}${liveTip}</span>
+                    <span class="meta-text">${fav.needLv}레벨 · ${escapeHtml(fav.colorText || String(fav.color))} · ${escapeHtml(fav.typText || String(fav.typ))} · #${escapeHtml(fav.onlyId)}${liveTip}</span>
                     <span class="fav-props">${escapeHtml(fav.propsText)}</span>
                 </div>
-                <input type="text" class="fav-note-input" maxlength="40" placeholder="备注" value="${escapeHtml(fav.note)}">
-                <button type="button" class="btn btn-reset btn-row-action" data-fav-act="remove">移除</button>
+                <input type="text" class="fav-note-input" maxlength="40" placeholder="비고" value="${escapeHtml(fav.note)}">
+                <button type="button" class="btn btn-reset btn-row-action" data-fav-act="remove">제거</button>
             </div>`;
         }).join('');
     }
@@ -620,7 +620,7 @@ function renderFavBatchResults(results) {
     document.getElementById('btnFavExportPlan').disabled = !results.length;
     wrap.hidden = !results.length;
     if (!results.length) {
-        body.innerHTML = '<tr><td colspan="9" class="empty-row">尚未运行批量规划</td></tr>';
+        body.innerHTML = '<tr><td colspan="9" class="empty-row">일괄 정련 계획을 실행하지 않았습니다</td></tr>';
         return;
     }
     body.innerHTML = results.map(row => {
@@ -925,7 +925,7 @@ function resetXilianSession() {
     if (bar) bar.hidden = true;
     const target = document.getElementById('xilianTargetProp');
     if (target) {
-        target.innerHTML = '<option value="">请先预测序列</option>';
+        target.innerHTML = '<option value="">먼저 순서를 예측하세요</option>';
         target.disabled = true;
     }
     const optimize = document.getElementById('btnXilianOptimize');
@@ -1114,7 +1114,7 @@ function collectEquipsFromSave(data) {
     };
 
     const mainRoleName = String(root.MainRole?.Name || root.MainRole?.name || '').trim();
-    pushList(root.MainRole?.Equips, '주인공 장비', true, mainRoleName ? `주인공 · ${mainRoleName}` : '主角');
+    pushList(root.MainRole?.Equips, '주인공 장비', true, mainRoleName ? `주인공 · ${mainRoleName}` : '주인공');
     asRoleList(root.Roles).forEach((r, i) => {
         const name = r.Name || r.name || `동료 ${i + 1}`;
         pushList(r.Equips, name, true, `동료 · ${name}`);
@@ -1123,7 +1123,7 @@ function collectEquipsFromSave(data) {
         const name = r.Name || r.name || `이탈 동료 ${i + 1}`;
         pushList(r.Equips, name, true, `이탈 동료 · ${name}`);
     });
-    pushList(root.Equips, '背包', false);
+    pushList(root.Equips, '가방', false);
     const depots = root.EncryptDepots || root.Depots || {};
     for (const [depotId, depot] of Object.entries(depots)) {
         const list = depot?.Depots || depot?.Items || depot;
@@ -1235,7 +1235,7 @@ function fillPaperSelect() {
         matched++;
     }
     if (!matched) {
-        sel.innerHTML = '<option value="">（无匹配装备）</option>';
+        sel.innerHTML = '<option value="">(일치하는 장비 없음)</option>';
     } else if (prev && [...sel.options].some(o => o.value === prev)) {
         sel.value = prev;
     } else {
@@ -1258,7 +1258,7 @@ function fillSpecialSelect() {
     try { meta = JSON.parse(document.getElementById('paperSelect')?.value || ''); }
     catch { }
     const equip = meta ? EQUIP_DATA.equipment[String(meta.equipId)] : null;
-    sel.innerHTML = '<option value="0">不加特殊材料</option>';
+    sel.innerHTML = '<option value="0">특수 재료 사용 안 함</option>';
     const materials = equip ? specialMaterialsForEquip(equip) : [];
     for (const sp of materials) {
         const opt = document.createElement('option');
@@ -1323,7 +1323,7 @@ function updateMakeAutoShenglianControl(req) {
     checkbox.disabled = !available;
     if (row) {
         row.title = available
-            ? `勾选后，“推进到此”打造的装备会自动升炼为${next.name || '100레벨 장비'}`
+            ? `선택하면 '여기까지 진행'으로 제작한 장비를 ${next.name || '100레벨 장비'}(으)로 자동 승련합니다.`
             : '선택한 장비는 90→100레벨 승련을 지원하지 않습니다.';
     }
 }
@@ -1353,7 +1353,7 @@ function updateMakeHints() {
         const special = req.special_id ? EQUIP_DATA.special[String(req.special_id)] : null;
         if (special) parts.push(`특수 재료 '${special.name || special.id}'×1`);
         parts.push(`은냥 약 ${silver}`);
-        costEl.textContent = `若执行将消耗：${parts.join('、')}（仅提示）`;
+        costEl.textContent = `실행 시 소모: ${parts.join(' · ')} (안내용)`;
     } else {
         costEl.textContent = '소모량 미확인';
     }
@@ -1375,7 +1375,7 @@ function updateMakeHints() {
         luckyEl.textContent = `천장 발동(MakeLucky=${lucky}): 다음 제작에서 자색 장비가 확정됩니다.`;
         luckyEl.classList.add('pity');
     } else {
-        const seedValue = bucket && bucket[String(tier)] != null ? bucket[String(tier)] : '缺失';
+        const seedValue = bucket && bucket[String(tier)] != null ? bucket[String(tier)] : '없음';
         luckyEl.textContent = `천장 MakeLucky=${lucky}/10 · Seeds[${eq?.type}][${tier}]=${seedValue}`;
         luckyEl.classList.remove('pity');
     }
@@ -1384,14 +1384,14 @@ function updateMakeHints() {
 function setMakeHead() {
     setPreviewTableKind('make');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>品质</th><th>基础</th><th>청색 옵션</th><th>地区附加</th><th>红词条</th><th>打造序列</th><th>标记</th><th>操作</th>
+        <th>#</th><th>품질</th><th>기본 능력치</th><th>청색 옵션</th><th>지역 추가 옵션</th><th>적색 옵션</th><th>제작 순서</th><th>표식</th><th>작업</th>
     </tr>`;
 }
 
 function setSpecialAttachHead() {
     setPreviewTableKind('special-attach');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>装备</th><th>材料</th><th>预测红词条</th><th>수치 배율</th><th>망정 순서 기록</th>
+        <th>#</th><th>장비</th><th>재료</th><th>예상 적색 옵션</th><th>수치 배율</th><th>망정 순서 기록</th>
     </tr>`;
 }
 
@@ -1502,7 +1502,7 @@ function renderMakePage() {
         return;
     }
     body.innerHTML = slice.map(it => {
-        const seedTxt = it.pity ? '保底' : (it.seed_kind === 'lucky' ? '幸运' : '普通');
+        const seedTxt = it.pity ? '천장' : (it.seed_kind === 'lucky' ? '행운' : '일반');
         const seedCls = it.seed_kind === 'lucky' || it.pity ? 'seed-tag lucky' : 'seed-tag';
         return `<tr data-make-index="${it.index}">
             <td>${it.index}</td>
@@ -1512,8 +1512,8 @@ function renderMakePage() {
             <td>${formatProps(it.region)}</td>
             <td>${formatProps(it.special)}</td>
             <td><span class="${seedCls}">${seedTxt}</span></td>
-            <td><input type="text" class="mark-input make-row-mark" maxlength="40" value="${defaultMark}" placeholder="标记"></td>
-            <td><button type="button" class="btn btn-wash btn-row-action btn-make-advance" data-index="${it.index}">推进到此</button></td>
+            <td><input type="text" class="mark-input make-row-mark" maxlength="40" value="${defaultMark}" placeholder="표식"></td>
+            <td><button type="button" class="btn btn-wash btn-row-action btn-make-advance" data-index="${it.index}">여기까지 진행</button></td>
         </tr>`;
     }).join('');
     updatePreviewPager(items.length);
@@ -1566,8 +1566,8 @@ function requirePositiveInteger(value, field) {
 }
 
 function drawWhaleInt(seed, maximum) {
-    const validSeed = requirePositiveInteger(seed, '序列数据');
-    const validMaximum = requirePositiveInteger(maximum, '随机上限');
+    const validSeed = requirePositiveInteger(seed, '순서 데이터');
+    const validMaximum = requirePositiveInteger(maximum, '난수 상한');
     const mixed = BigInt.asUintN(
         64,
         (BigInt(validSeed) + BigInt(validMaximum)) * WHALE_MULTIPLIER + WHALE_INCREMENT,
@@ -1733,7 +1733,7 @@ function createJianwangBlankFromRedSeed(redSeed, swordIndex = null) {
     const cfg = EQUIP_DATA.equipment[String(JIANWANG_BLANK_ID)] || {};
     const equip = {
         id: JIANWANG_BLANK_ID,
-        name: cfg.name || '剑胚',
+        name: cfg.name || '검 배아',
         need_lv: Number(cfg.lv) || 60,
         typ: Number(cfg.type) || 3,
         color: 6,
@@ -1750,7 +1750,7 @@ function createJianwangBlankFromRedSeed(redSeed, swordIndex = null) {
         specials: [],
         xilian_marks: [],
         xilian_accepted: 0,
-        _source: sequenceIndex ? '模拟背包' : '웹 검 분해·재주조',
+        _source: sequenceIndex ? '시뮬레이션 가방' : '웹 검 분해·재주조',
         _equipped: false,
         _crafted: false,
         _mark: '',
@@ -2080,7 +2080,7 @@ function setMakeAdvanceNotice(result, crafted, advancedCount) {
     makeAdvanceNotice = {
         advancedCount: n,
         result: {
-            name: result?.name || String(result?.equip_id || '装备'),
+            name: result?.name || String(result?.equip_id || '장비'),
             color,
             base: result?.base || {},
             exts: result?.exts || [],
@@ -2105,19 +2105,19 @@ function renderMakeAdvanceNotice() {
     }
     const { advancedCount: n, result, onlyId, mark } = makeAdvanceNotice;
     const color = COLOR_NAMES[result.color] || result.color;
-    const seed = result.pity ? '保底' : (result.seed_kind === 'lucky' ? '幸运' : '普通');
+    const seed = result.pity ? '천장' : (result.seed_kind === 'lucky' ? '행운' : '일반');
     const middle = n > 1 ? `앞선 ${n - 1}개 장비는 순서만 진행하고 가방에 추가하지 않았습니다. ` : '';
     const bag = onlyId ? `시뮬레이션 가방에 추가됨 #${onlyId}` : '진행 완료';
     const markText = mark ? ` · 표시 「${escapeHtml(mark)}」` : '';
     box.innerHTML = `<div class="make-advance-notice-head">
-        <span class="make-advance-notice-title">本次推进结果：${escapeHtml(result.name)} · <span class="color-${result.color}">${escapeHtml(String(color))}</span> · ${escapeHtml(seed)}${markText}</span>
+        <span class="make-advance-notice-title">이번 진행 결과: ${escapeHtml(result.name)} · <span class="color-${result.color}">${escapeHtml(String(color))}</span> · ${escapeHtml(seed)}${markText}</span>
         <span class="make-advance-notice-sequence">${middle}${n}번째 장비${bag}; 아래 표는 다음 장비부터 다시 번호를 매깁니다</span>
     </div>
     <div class="make-advance-notice-details">
-        <div class="make-advance-notice-detail"><strong>基础属性</strong>${formatBase(result.base)}</div>
-        <div class="make-advance-notice-detail"><strong>蓝/紫词条</strong>${formatProps(result.exts)}</div>
-        <div class="make-advance-notice-detail"><strong>地区附加</strong>${formatProps(result.region)}</div>
-        <div class="make-advance-notice-detail"><strong>特殊材料</strong>${formatProps(result.special)}</div>
+        <div class="make-advance-notice-detail"><strong>기본 능력치</strong>${formatBase(result.base)}</div>
+        <div class="make-advance-notice-detail"><strong>청색·자색 옵션</strong>${formatProps(result.exts)}</div>
+        <div class="make-advance-notice-detail"><strong>지역 추가 옵션</strong>${formatProps(result.region)}</div>
+        <div class="make-advance-notice-detail"><strong>특수 재료</strong>${formatProps(result.special)}</div>
     </div>`;
     box.hidden = false;
 }
@@ -2207,7 +2207,7 @@ function renderSpecialAttachPage() {
         <td>${escapeHtml(item.equipName)}</td>
         <td>${escapeHtml(item.materialName)}</td>
         <td class="special-attach-value">${escapeHtml(propLabel(item.prop))}+${formatPropValue(item.prop, item.value)}</td>
-        <td>${item.factor}% · 区间 ${item.factorMin}–${item.factorMax}%${item.isBest ? ' · 最高' : ''}</td>
+        <td>${item.factor}% · 범위 ${item.factorMin}–${item.factorMax}%${item.isBest ? ' · 最高' : ''}</td>
         <td>${item.seedBefore} → ${item.seedAfter}</td>
     </tr>`).join('');
     updatePreviewPager(items.length);
@@ -2231,7 +2231,7 @@ function renderSpecialAttachPreview(items) {
 function setJianwangCycleHead() {
     setPreviewTableKind('jianwang-state');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>结果</th><th>基础属性</th><th>추가 능력치</th><th>打造序列 / 消耗</th>
+        <th>#</th><th>결과</th><th>기본 능력치</th><th>추가 능력치</th><th>제작 순서 / 소모량</th>
     </tr>`;
 }
 
@@ -2248,7 +2248,7 @@ function renderJianwangCyclePage() {
         return;
     }
     setJianwangCycleHead();
-    const blankName = page.blank?.name || '剑胚';
+    const blankName = page.blank?.name || '검 배아';
     if (meta) {
         const entryText = page.entryNote ? ` · ${page.entryNote}` : '';
         meta.textContent = `모의 가방 · ${blankName} · ${page.swordIndex}번째 검 · 검 분해 예측${entryText} · 60→90레벨 성장과 옵션 미유지 재주조 10회 포함 · 조회해도 상태는 진행되지 않습니다.`;
@@ -2259,10 +2259,10 @@ function renderJianwangCyclePage() {
         const toCfg = EQUIP_DATA.equipment[String(item.toId)] || {};
         const fromLevel = Number(fromCfg.lv) || '?';
         const toLevel = Number(toCfg.lv) || '?';
-        const resultName = escapeHtml(toCfg.name || item.toName || item.equip?.name || '剑胚');
+        const resultName = escapeHtml(toCfg.name || item.toName || item.equip?.name || '검 배아');
         let resultLabel;
         if (blank) {
-            resultLabel = `${item.shatterLabel || '碎剑'} → ${toLevel}级 · ${resultName}`;
+            resultLabel = `${item.shatterLabel || '검 분해'} → ${toLevel}레벨 · ${resultName}`;
         } else if (item.action === 'reforge') {
             const reforgeIndex = rowIndex - 3;
             resultLabel = `${toLevel}레벨 재주조 제${reforgeIndex}회 · ${resultName}`;
@@ -2327,7 +2327,7 @@ function renderJianwangPage() {
             <td>${escapeHtml(item.equipName)}</td>
             <td>${escapeHtml(item.materialName)}</td>
             <td class="special-attach-value">${escapeHtml(propLabel(item.prop))}+${formatPropValue(item.prop, item.value)}</td>
-            <td>${item.factor}% · 区间 ${item.factorMin}–${item.factorMax}%${item.isBest ? ' · 最高' : ''}</td>
+            <td>${item.factor}% · 범위 ${item.factorMin}–${item.factorMax}%${item.isBest ? ' · 最高' : ''}</td>
             <td>${item.seedBefore} → ${item.seedAfter}</td>
         </tr>`).join('');
     } else if (blankKind) {
@@ -2350,7 +2350,7 @@ function renderJianwangPage() {
                 <td>${base}</td>
                 <td><div class="jianwang-token-list">${props}</div></td>
                 <td class="jianwang-result-cell"><span class="jianwang-seed">${seeds}</span></td>
-                <td class="jianwang-result-cell"><span class="jianwang-seed">剑胚序列编号 ${redSeed}</span><div class="jianwang-token-list jianwang-cost-list">${resources}</div></td>
+                <td class="jianwang-result-cell"><span class="jianwang-seed">검 배아 순서 번호 ${redSeed}</span><div class="jianwang-token-list jianwang-cost-list">${resources}</div></td>
             </tr>`;
         }).join('');
     } else {
@@ -2366,7 +2366,7 @@ function renderJianwangPage() {
             const resultLabel = item.action === 'reforge'
                 ? `${toLevel}레벨 재주조 · ${resultName}`
                 : `${fromLevel}→${toLevel} · ${resultName}`;
-            const seedStatus = item.seedBefore === item.seedAfter ? ' · 不推进' : '';
+            const seedStatus = item.seedBefore === item.seedAfter ? ' · 진행하지 않음' : '';
             const props = (item.exts || []).length
                 ? item.exts.map(prop => `<span class="jianwang-prop-token">${escapeHtml(propLabel(prop.prop))}+${formatPropValue(prop.prop, prop.value)}</span>`).join('')
                 : '<span class="muted">없음</span>';
@@ -2374,7 +2374,7 @@ function renderJianwangPage() {
                 .map(cost => `<span class="jianwang-cost-token">${escapeHtml(cost)}</span>`).join('');
             return `<tr>
                 <td>${item.index}</td>
-                <td class="jianwang-result-cell"><strong>${resultLabel}</strong><span class="jianwang-seed">重铸序列编号 ${item.seedBefore} → ${item.seedAfter}${seedStatus}</span></td>
+                <td class="jianwang-result-cell"><strong>${resultLabel}</strong><span class="jianwang-seed">재주조 순서 번호 ${item.seedBefore} → ${item.seedAfter}${seedStatus}</span></td>
                 <td><div class="jianwang-token-list">${props}</div></td>
                 <td><span class="jianwang-keep">${escapeHtml(kept)}</span><div class="jianwang-token-list jianwang-cost-list">${costs}</div></td>
             </tr>`;
@@ -2386,14 +2386,14 @@ function renderJianwangPage() {
 function setJianwangStateHead() {
     setPreviewTableKind('jianwang-state');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>结果</th><th>추가 능력치</th><th>선택 및 소모</th>
+        <th>#</th><th>결과</th><th>추가 능력치</th><th>선택 및 소모</th>
     </tr>`;
 }
 
 function setJianwangBlankHead() {
     setPreviewTableKind('jianwang-state');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>结果</th><th>基础属性</th><th>추가 능력치</th><th>重铸序列编号</th><th>碎剑序列 / 材料</th>
+        <th>#</th><th>결과</th><th>기본 능력치</th><th>추가 능력치</th><th>재주조 순서 번호</th><th>검 분해 순서 / 재료</th>
     </tr>`;
 }
 
@@ -2417,7 +2417,7 @@ function renderJianwangPreview(items, kind = 'state') {
         } else if (kind === 'blanks') {
             meta.textContent = `이후 60레벨 검 소재 ${items.length}개 · 현재 검 소재 진행도부터 순서대로 예측 · 조회만으로 현재 진행도가 변하지 않습니다.`;
         } else if (kind === 'shatter') {
-            meta.textContent = `${items[0]?.shatterLabel || '碎剑'} → 重铸下一把60级剑胚 · 预览不推进页面内状态`;
+            meta.textContent = `${items[0]?.shatterLabel || '검 분해'} → 重铸下一把60级剑胚 · 预览不推进页面内状态`;
         } else {
             meta.textContent = `선택한 세이브 실물에서 시작 · ${items.length}단계 · 미리보기는 화면 내부 상태를 진행하지 않음`;
         }
@@ -2428,7 +2428,7 @@ function renderJianwangPreview(items, kind = 'state') {
 
 function equipOptionLabel(e, mode) {
     const owner = String(e._owner || e._source || '').trim();
-    const wear = e._crafted ? '모의 제작' : (e._equipped ? `已装备${owner ? `：${owner}` : ''}` : '未装备');
+    const wear = e._crafted ? '모의 제작' : (e._equipped ? `已装备${owner ? `：${owner}` : ''}` : '미착용');
     const color = COLOR_NAMES[e.color] || e.color;
     const mark = e._mark ? `「${e._mark}」` : '';
     if (mode === 'strong') {
@@ -2450,7 +2450,7 @@ function canPredictSpecialAttach(equip) {
 }
 
 function specialAttachEquipLabel(equip) {
-    const source = equip._crafted ? '모의 제작' : (equip._equipped ? equip._source : '未装备');
+    const source = equip._crafted ? '모의 제작' : (equip._equipped ? equip._source : '미착용');
     const base = equip.exts.length
         ? equip.exts.map(item => `${propLabel(item.prop)}+${formatPropValue(item.prop, item.value)}`).join(' / ')
         : '기본 옵션 없음';
@@ -2572,14 +2572,14 @@ function jianwangSwordLabel(equip) {
     const key = runtimeKey(equip);
     const current = getRuntimeEquip(key) || equip;
     const seed = JIANWANG_LEVEL_100_IDS.has(Number(current.id))
-        ? `芒晶序列编号 ${current.MJSeed || '无效'}`
-        : `重铸序列编号 ${current.CZSeed || '无效'}`;
+        ? `망정 순서 번호 ${current.MJSeed || '유효하지 않음'}`
+        : `재주조 순서 번호 ${current.CZSeed || '유효하지 않음'}`;
     if (current._jianwangRebuilt) {
         const swordIndex = Math.max(1, Math.floor(Number(current._jianwangSwordIndex) || 1));
         const name = current.name || EQUIP_DATA.equipment[String(current.id)]?.name || jianwangStageName(current);
         return `시뮬레이션 가방 · ${name} · ${swordIndex}번째 검`;
     }
-    return `${current._source || equip._source || '출처 미확인'} · ${jianwangStageName(current)} · #${equip.only_id || '无OnlyID'} · ${seed}`;
+    return `${current._source || equip._source || '출처 미확인'} · ${jianwangStageName(current)} · #${equip.only_id || 'OnlyID 없음'} · ${seed}`;
 }
 
 function jianwangActionOptions(equip) {
@@ -2627,7 +2627,7 @@ function fillJianwangActionSelect(preserveSelection = true) {
     const actions = jianwangActionOptions(equip);
     actionSelect.innerHTML = '';
     if (!actions.length) {
-        actionSelect.innerHTML = '<option value="">（当前实物没有可用流程）</option>';
+        actionSelect.innerHTML = '<option value="">(현재 실물 장비에 가능한 경로 없음)</option>';
     } else {
         for (const action of actions) {
             const option = document.createElement('option');
@@ -2654,7 +2654,7 @@ function fillJianwangCycleRouteSelect(preserveSelection = true) {
     const fixedRouteId = equip ? JIANWANG_SHATTER_ROUTE_IDS[Number(equip.id)] : null;
     routeSelect.innerHTML = '';
     if (!equip) {
-        routeSelect.innerHTML = '<option value="">（请先选择剑王阁实物）</option>';
+        routeSelect.innerHTML = '<option value="">(검왕각 실물 장비를 먼저 선택하세요)</option>';
         routeSelect.disabled = true;
         return;
     }
@@ -2691,7 +2691,7 @@ function fillJianwangKeepSelect(preserveSelection = true) {
     const base = saveEquips.find(item => runtimeKey(item) === equipSelect.value);
     const equip = base ? (getRuntimeEquip(runtimeKey(base)) || base) : null;
     const limit = jianwangKeepLimit(equip, actionSelect.value);
-    keepSelect.innerHTML = '<option value="0">不保留</option>';
+    keepSelect.innerHTML = '<option value="0">보존 안 함</option>';
     for (let i = 0; i < limit; i++) {
         const prop = equip.exts[i];
         const option = document.createElement('option');
@@ -2739,7 +2739,7 @@ function fillJianwangEquipSelect(preserveSelection = true) {
     const swords = collectJianwangSwords();
     select.innerHTML = '';
     if (!swords.length) {
-        select.innerHTML = '<option value="">（存档中没有剑王阁剑胚或专武）</option>';
+        select.innerHTML = '<option value="">(세이브에 검왕각 검 배아 또는 전용 무기가 없습니다)</option>';
     } else {
         for (const sword of swords) {
             const option = document.createElement('option');
@@ -2841,7 +2841,7 @@ function findSaveScalar(root, wantedKey) {
 function jianwangReforgeCost(attemptNumber) {
     const index = Math.min(JIANWANG_REFORGE_COSTS.length - 1, Math.max(0, Number(attemptNumber) - 1));
     const [coreA, coreB] = JIANWANG_REFORGE_COSTS[index];
-    return `真气×500、剑芯6516×${coreA}、剑芯6517×${coreB}`;
+    return `진기×500, 검심6516×${coreA}, 검심6517×${coreB}`;
 }
 
 function jianwangCostText(equip, action, sequenceIndex = 1) {
@@ -2851,10 +2851,10 @@ function jianwangCostText(equip, action, sequenceIndex = 1) {
         const completed = Number(jianwangReforgeCounts[String(Number(equip.id))]) || 0;
         return jianwangReforgeCost(completed + sequenceIndex);
     }
-    if (action === 'grow:5708') return '剑意150、雪银×400、青金石×20、贡献×1200';
-    if (action === 'grow:5709') return '剑意300、紫金×200、陨铁×1、贡献×2000';
-    if (action.startsWith('grow:') && id === 5709) return '剑意600、紫金×400、陨铁×2、贡献×4000';
-    if (action.startsWith('ascend:')) return '昆吾石×100、陨铁×2、连金泥×10、内力×1000、铸炼进度×10';
+    if (action === 'grow:5708') return '검의×150, 설은×400, 청금석×20, 공헌도×1200';
+    if (action === 'grow:5709') return '검의×300, 자금×200, 운철×1, 공헌도×2000';
+    if (action.startsWith('grow:') && id === 5709) return '검의×600, 자금×400, 운철×2, 공헌도×4000';
+    if (action.startsWith('ascend:')) return '곤오석×100, 운철×2, 연금니×10, 내력×1000, 주련 진행도×10';
     if (action === 'mangjing') return '망정×10 / 회';
     if (action === JIANWANG_SHATTER_90) return '90레벨 검 분해 후 60레벨 검 배아 재제작';
     if (action === JIANWANG_SHATTER_100) return '100레벨 신병 분해 후 60레벨 검 배아 재제작';
@@ -2915,7 +2915,7 @@ function updateJianwangHint() {
         return;
     }
     const seedText = action.startsWith('ascend:') ? `이번 신병 전환은 재주조 순서를 진행하지 않습니다.` : `현재 재주조 진행도부터 시작`;
-    hint.textContent = `${base?._source || '存档'} · ${jianwangStageName(equip)} · ${seedText} · ${jianwangCostText(equip, action)}`;
+    hint.textContent = `${base?._source || '세이브'} · ${jianwangStageName(equip)} · ${seedText} · ${jianwangCostText(equip, action)}`;
 }
 
 function updateJianwangCycleHint() {
@@ -3019,8 +3019,8 @@ function updateShenglianHint() {
         const typ = TYPE_NAMES[base.typ] || base.typ;
         const mark = base._mark ? ` · 표시 「${escapeHtml(base._mark)}」` : '';
         box.innerHTML = `
-            <div><strong>현재</strong>：${escapeHtml(base.name)} · ${base.need_lv}级 · ${COLOR_NAMES[base.color] || base.color} · ${escapeHtml(String(typ))} · 옵션 ${base.exts.length}개${mark}</div>
-            <div><strong>승련 후</strong>：${escapeHtml(next.name || '?')} · ${next.lv || 100}级 · 장비 ID ${cfg.equ_next}</div>
+            <div><strong>현재</strong>：${escapeHtml(base.name)} · ${base.need_lv}레벨 · ${COLOR_NAMES[base.color] || base.color} · ${escapeHtml(String(typ))} · 옵션 ${base.exts.length}개${mark}</div>
+            <div><strong>승련 후</strong>：${escapeHtml(next.name || '?')} · ${next.lv || 100}레벨 · 장비 ID ${cfg.equ_next}</div>
             <div class="warn">승련 시 기존 옵션, 촉련 단계, 이후 순서와 표시가 유지됩니다. 승련 후 정련 화면에서 출처를 모의 제작으로 설정해 찾을 수 있습니다</div>
         `;
     }
@@ -3084,7 +3084,7 @@ function updateStrongHint() {
     }
     const c = strongAttemptCost(eq.need_lv || 90, preview.level);
     const stone = c ? `${STONE_NAMES[c.mat] || c.mat}×${c.num}` : '?';
-    el.textContent = `${resetNote}S=${eq.S} · 当前 +${preview.level}/15 · 下一级消耗 ${stone} · 成长系数 ${eq.lv_prop}${userMark}`;
+    el.textContent = `${resetNote}S=${eq.S} · 현재 +${preview.level}/15 · 다음 단계 소모 ${stone} · 성장 계수 ${eq.lv_prop}${userMark}`;
 }
 
 function setXilianHead() {
@@ -3381,7 +3381,7 @@ function renderXilianPreview(n) {
     const makeFilter = document.getElementById('makeFilterBar');
     if (makeFilter) makeFilter.hidden = true;
     if (!eq) {
-        body.innerHTML = `<tr><td colspan="6" class="empty-row">请选择装备</td></tr>`;
+        body.innerHTML = `<tr><td colspan="6" class="empty-row">장비를 선택하세요</td></tr>`;
         if (filterBar) filterBar.hidden = true;
         hidePreviewPager();
         return;
@@ -3445,7 +3445,7 @@ function fillStrongTargetLevels(eq) {
         sel.appendChild(opt);
     }
     if (!sel.options.length) {
-        sel.innerHTML = '<option value="">已满 +15</option>';
+        sel.innerHTML = '<option value="">+15 최대 단계 도달</option>';
         return;
     }
     const prefer = prev > cur ? prev : Math.min(15, cur + 15);
@@ -3482,9 +3482,9 @@ function renderPathChipsHtml(accepts, names, which) {
     }).join('');
     const pager = total > PATH_PAGE_SIZE
         ? `<div class="path-pager" data-which="${which}">
-            <button type="button" class="btn btn-reset path-prev" ${page <= 1 ? 'disabled' : ''}>上一页</button>
+            <button type="button" class="btn btn-reset path-prev" ${page <= 1 ? 'disabled' : ''}>이전 페이지</button>
             <span>${page}/${pages}페이지 · 총 ${total}회</span>
-            <button type="button" class="btn btn-reset path-next" ${page >= pages ? 'disabled' : ''}>下一页</button>
+            <button type="button" class="btn btn-reset path-next" ${page >= pages ? 'disabled' : ''}>다음 페이지</button>
            </div>`
         : '';
     return `<div class="advice-path">${path}</div>${pager}`;
@@ -3640,7 +3640,7 @@ function extractMakeRnd(data) {
 
 function loadSaveData(json) {
     const makeRnd = extractMakeRnd(json);
-    if (!makeRnd) throw new Error('存档中未找到 MakeRnd');
+    if (!makeRnd) throw new Error('세이브에서 MakeRnd를 찾을 수 없습니다');
     const state = {
         save_version: saveMeta?.version || (Array.isArray(json) ? json[0]?.DBVersion : json?.DBVersion) || '',
         save_channel: saveMeta?.channel || saveMeta?.platform || '',
@@ -3649,7 +3649,7 @@ function loadSaveData(json) {
         IDSeeds: makeRnd.IDSeeds || {},
         MakeLucky: makeRnd.MakeLucky || {},
     };
-    if (!wasmMakeSetState(state)) throw new Error('MakeRnd 注入失败');
+    if (!wasmMakeSetState(state)) throw new Error('MakeRnd 적용 실패');
     makeRndSnapshot = JSON.parse(JSON.stringify(state));
 
     saveEquips = collectEquipsFromSave(json);
@@ -3707,7 +3707,7 @@ async function handleSaveFile(file) {
             if (typeof saveShareStore === 'function') {
                 saveShareStore(json, {
                     version: r.version, platform: r.platform,
-                    channel: r.channel || (String(r.platform || '').toLowerCase() === 'oversea' ? '国际服' : ''),
+                    channel: r.channel || (String(r.platform || '').toLowerCase() === 'oversea' ? '해외 서버' : ''),
                     format: r.format || 'json', columns: r.columns || null, row: r.row || null,
                 });
             }
@@ -3723,7 +3723,7 @@ async function handleSaveFile(file) {
         }
     } catch (e) {
         if (typeof _importFeedback === 'function') _importFeedback(false);
-        throw new Error('存档解析失败: ' + e.message);
+        throw new Error('세이브 분석 실패: ' + e.message);
     }
     if (typeof _importFeedback === 'function') _importFeedback(false);
     loadSaveData(json);
@@ -3766,7 +3766,7 @@ function switchTab(tab) {
 
 
 let makePreviewWorker=null,makePreviewId=0,makePreviewPending=new Map(),makePreviewIdle=null;
-function backgroundMakePreview(request,count,state,paddingRequest=null,paddingCount=null){if(location.protocol==='file:'||typeof Worker!=='function'){const before=wasmMakeGetState();try{if(!wasmMakeSetState(state))throw Error('打造状态无效');return Promise.resolve(paddingCount!=null?wasmMakePaddedOnce(request,paddingRequest,paddingCount):paddingRequest?wasmMakePaddingPreview(request,paddingRequest,count):wasmMakePreview(request,count));}finally{wasmMakeSetState(before);}}return new Promise((resolve,reject)=>{clearTimeout(makePreviewIdle);try{if(!makePreviewWorker){makePreviewWorker=new Worker(new URL('/vendor/sanbujin/equip/preview-worker.js?v=20261105314&rev=c7c6fbd21c6d',location.href));makePreviewWorker.onmessage=event=>{const m=event.data,p=makePreviewPending.get(m.id);if(!p)return;clearTimeout(p.timer);makePreviewPending.delete(m.id);m.error?p.reject(Error(m.error)):p.resolve(m.result);if(!makePreviewPending.size)makePreviewIdle=setTimeout(()=>{makePreviewWorker?.terminate();makePreviewWorker=null;},30000);};makePreviewWorker.onerror=()=>{for(const p of makePreviewPending.values()){clearTimeout(p.timer);p.reject(Error('\u540e\u53f0\u63a8\u6f14\u672a\u80fd\u52a0\u8f7d\uff0c\u8bf7\u91cd\u8bd5'));}makePreviewPending.clear();makePreviewWorker?.terminate();makePreviewWorker=null;};}const id=++makePreviewId,timer=setTimeout(()=>{makePreviewWorker?.terminate();makePreviewWorker=null;for(const p of makePreviewPending.values()){clearTimeout(p.timer);p.reject(Error('\u63a8\u6f14\u8d85\u65f6\uff0c\u8bf7\u51cf\u5c11\u6b21\u6570\u540e\u91cd\u8bd5'));}makePreviewPending.clear();},60000);makePreviewPending.set(id,{resolve,reject,timer});makePreviewWorker.postMessage({id,request,count,state,paddingRequest,paddingCount});}catch(error){reject(error);}});}
+function backgroundMakePreview(request,count,state,paddingRequest=null,paddingCount=null){if(location.protocol==='file:'||typeof Worker!=='function'){const before=wasmMakeGetState();try{if(!wasmMakeSetState(state))throw Error('제작 상태가 올바르지 않습니다');return Promise.resolve(paddingCount!=null?wasmMakePaddedOnce(request,paddingRequest,paddingCount):paddingRequest?wasmMakePaddingPreview(request,paddingRequest,count):wasmMakePreview(request,count));}finally{wasmMakeSetState(before);}}return new Promise((resolve,reject)=>{clearTimeout(makePreviewIdle);try{if(!makePreviewWorker){makePreviewWorker=new Worker(new URL('/vendor/sanbujin/equip/preview-worker.js?v=20261105314&rev=c7c6fbd21c6d',location.href));makePreviewWorker.onmessage=event=>{const m=event.data,p=makePreviewPending.get(m.id);if(!p)return;clearTimeout(p.timer);makePreviewPending.delete(m.id);m.error?p.reject(Error(m.error)):p.resolve(m.result);if(!makePreviewPending.size)makePreviewIdle=setTimeout(()=>{makePreviewWorker?.terminate();makePreviewWorker=null;},30000);};makePreviewWorker.onerror=()=>{for(const p of makePreviewPending.values()){clearTimeout(p.timer);p.reject(Error('\u540e\u53f0\u63a8\u6f14\u672a\u80fd\u52a0\u8f7d\uff0c\u8bf7\u91cd\u8bd5'));}makePreviewPending.clear();makePreviewWorker?.terminate();makePreviewWorker=null;};}const id=++makePreviewId,timer=setTimeout(()=>{makePreviewWorker?.terminate();makePreviewWorker=null;for(const p of makePreviewPending.values()){clearTimeout(p.timer);p.reject(Error('\u63a8\u6f14\u8d85\u65f6\uff0c\u8bf7\u51cf\u5c11\u6b21\u6570\u540e\u91cd\u8bd5'));}makePreviewPending.clear();},60000);makePreviewPending.set(id,{resolve,reject,timer});makePreviewWorker.postMessage({id,request,count,state,paddingRequest,paddingCount});}catch(error){reject(error);}});}
 window.addEventListener('pagehide',()=>{makePreviewWorker?.terminate();makePreviewWorker=null;});
 function doMakePreview() {
     if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
@@ -3776,7 +3776,7 @@ function doMakePreview() {
     const meta = document.getElementById('previewMeta');
     const button = document.getElementById('btnPreview');
     const originalLabel = button ? button.textContent : '';
-    if (meta) meta.textContent = '예측 중 ' + n + ' 次…';
+    if (meta) meta.textContent = '예측 중 ' + n + '회…';
     if (button) { button.disabled = true; button.textContent = '예측 중…'; }
     /* 让浏览器先把“推演中”画出来，再开始占用主线程 */
     window.setTimeout(async function () {
@@ -3797,8 +3797,8 @@ function doSpecialAttachPreview() {
     const materialId = document.getElementById('specialAttachMaterialSelect')?.value || '';
     const equip = saveEquips.find(item => runtimeKey(item) === equipKey);
     const material = EQUIP_DATA.special[String(materialId)];
-    if (!equip) { alert('请选择要连续附加材料的装备'); return; }
-    if (!material) { alert('请选择要重复附加的特殊材料'); return; }
+    if (!equip) { alert('연속 망정에 사용할 장비를 선택하세요'); return; }
+    if (!material) { alert('반복 적용할 특수 재료를 선택하세요'); return; }
     const count = Number(document.getElementById('specialAttachCount')?.value);
     try {
         if (!Number.isSafeInteger(count) || count < 1 || count > PREVIEW_MAX) {
@@ -3826,7 +3826,7 @@ function doMakeOnce() {
     const bagTip = crafted
         ? ` · 已入模拟背包(#${crafted.only_id})${markTip}`
         : '';
-    appendLog(`[打造] ${r.name} · ${COLOR_NAMES[r.color] || r.color} · ${r.pity ? '保底' : r.seed_kind === 'lucky' ? '천장 순서' : '普通'}${bagTip}`);
+    appendLog(`[打造] ${r.name} · ${COLOR_NAMES[r.color] || r.color} · ${r.pity ? '천장' : r.seed_kind === 'lucky' ? '천장 순서' : '일반'}${bagTip}`);
     fillEquipSelects();
     updateMakeHints();
     doMakePreview();
