@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.5.7</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.5.8</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -139,7 +139,7 @@ body{background:var(--bg)!important}
 @media(max-width:1000px){.top{height:auto;min-height:56px;padding:4px 16px}.nav button{height:42px;font-size:13px}.page{padding:0 16px 35px}.layout{grid-template-columns:240px minmax(0,1fr)}.work{padding-left:20px}.aside{padding-right:14px}}
 @media(max-width:700px){.page{padding:0 12px 30px}.heading{padding-top:17px}.aside{position:relative;top:auto;border-right:0;border-bottom:1px solid var(--wr-line);padding:12px 0}.work{padding:17px 0}.module-wrap{padding:17px 0}.module-columns{grid-template-columns:1fr;gap:0}.hero h2{font-size:24px}}
 
-/* v0.5.7: original yy-sim wiki image list + detail work area */
+/* v0.5.8: original yy-sim wiki image list + detail work area */
 .wiki-module{padding-top:18px}
 .wiki-main-heading{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
 .wiki-main-heading strong{font-size:16px}.wiki-main-heading span{font-size:12px;color:var(--sub)}
@@ -271,13 +271,24 @@ return '<div class="module-head"><div><div class="micro">낭만강호 · 한국�
 }
 function equipView(){
  const opts=[['craft','제작'],['bag','가방'],['auto','자동'],['red','홍무']];
- const title={craft:'장비 제작',bag:'보유 장비',auto:'장비 자동 탐색',red:'홍무 시뮬레이션'}[equipTab];
- const fields=equipTab==='craft'?[['장비 부위','부위 선택'],['장비 이름 / 도면','한국판 장비 선택'],['제작 횟수','결과 탐색']] :equipTab==='bag'?[['보유 장비','세이브 연결 필요'],['승련 · 정련','추가 옵션 미리보기']] :equipTab==='auto'?[['탐색 종류','제작 / 정련 / 망정'],['탐색 조건','옵션·수치 선택'],['탐색 상한','연금니·재료']] :[['무기','홍무 대상'],['특수 옵션','목표 선택']];
- return '<div class="module-wrap">'+moduleHero('장비','yy-sim의 제작·가방·자동·홍무 화면 배치와 한국판 용어를 적용합니다.')+tabRow(opts,equipTab,'equip')+'<h3 class="module-heading">'+title+'</h3><div class="module-columns">'+fields.map(([a,b])=>'<div class="module-group"><label>'+a+'</label><button class="btn" disabled>'+b+'　⌄</button></div>').join('')+'</div><div class="actions"><button class="btn primary" disabled>계산 시작</button><button class="btn" disabled>조건 초기화</button></div><div class="module-panel"><h3>결과</h3><p class="micro">장비 계산은 한국판 Roboking·산부진 엔진 검증 후 연결합니다. 중국판과 다른 결과를 표시하지 않습니다.</p></div></div>';
+ const status=(window.__sanEquipState||{});
+ const headline=moduleHero('장비','산부진 APK 장비 WASM 계산을 사용합니다. 기존 Roboking·yy-sim 장비 엔진은 사용하지 않습니다.');
+ const head=tabRow(opts,equipTab,'equip');
+ if(equipTab!=='craft')return '<div class="module-wrap">'+headline+head+'<div class="module-panel"><h3>'+({bag:'보유 장비 · 승련·정련',auto:'장비 자동 탐색',red:'홍무 시뮬레이션'}[equipTab])+'</h3><p class="micro">이 탭의 산부진 장비 계산 함수는 연결 준비 중입니다. 제작 미리보기부터 먼저 활성화합니다.</p></div></div>';
+ const options=(items,kind)=>'<option value="">'+(kind==='paper'?'제작 도면 선택':'제작 NPC 선택')+'</option>'+(items||[]).map(x=>'<option value="'+x.id+'">'+escape(x.name||x.id)+' · '+x.id+'</option>').join('');
+ const paper=options(status.papers,'paper'),npc=options(status.craftsmen,'npc');
+ const controls='<div class="module-columns">'+
+ '<div class="module-group"><label for="equipPaper">제작 도면</label><select id="equipPaper" '+(!status.ready?'disabled':'')+'>'+paper+'</select></div>'+
+ '<div class="module-group"><label for="equipNpc">제작 NPC</label><select id="equipNpc" '+(!status.ready?'disabled':'')+'>'+npc+'</select></div>'+
+ '<div class="module-group"><label for="equipPreviewCount">미리보기 횟수</label><input id="equipPreviewCount" type="number" min="1" max="200" value="10"></div>'+
+ '<div class="module-group"><label>세이브 상태</label><div class="micro">'+(save?'한국판 JSON 불러옴':'상단에서 JSON을 불러오세요')+'</div></div></div>';
+ return '<div class="module-wrap">'+headline+head+
+ '<h3 class="module-heading">산부진 · 장비 제작 미리보기</h3>'+
+ '<div class="actions"><button class="btn" id="initSanEquip" '+(status.loading?'disabled':'')+'>'+(status.loading?'산부진 엔진 불러오는 중':status.ready?'엔진 준비됨':'산부진 엔진 불러오기')+'</button></div>'+
+ (status.error?'<div class="notice">'+escape(status.error)+'</div>':'')+
+ controls+'<div class="actions"><button class="btn primary" id="previewSanEquip" '+(!status.ready||!save?'disabled':'')+'>제작 결과 미리보기</button></div>'+
+ '<div class="module-panel"><h3>미리보기 결과</h3><p class="micro">한국판 세이브의 MakeRnd를 원본 산부진 계산기에 주입하고, 미리보기마다 시드를 원상 복원합니다.</p><pre id="sanEquipOutput" class="history">'+escape(status.result||'도면과 NPC를 선택하고 미리보기를 실행하세요.')+'</pre></div></div>';
 }
-
-
-
 let koreanWiki=[],wikiQuery='',wikiSelectedCategory='misc',wikiDetail=null,wikiOffset=0,wikiSource=null,wikiSourceError='';
 const wikiCategories=[
  ['misc','잡항'],['equip','장비'],['medicine','단약'],['food','음식·술'],
@@ -373,8 +384,8 @@ function others(){
  const [name,desc]=info[v];
  return '<div class="module-wrap">'+moduleHero(name,desc)+'<div class="module-panel"><h3>기능 준비 중</h3><p class="micro">'+desc+'</p></div></div>';
 }
-function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);render()});if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.5.5',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;render()}}
-$('saveLink').onclick=()=>{v='save';render()};$('import').onclick=()=>$('file').click();$('file').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{if(f.size>50e6)throw Error('파일 용량 50MB 초과');let obj=JSON.parse(await f.text());let root=obj?.data?.MainRole?obj.data:obj?.save?.MainRole?obj.save:obj;if(!root||typeof root!=='object'||Array.isArray(root))throw Error('JSON 최상위 객체가 아닙니다');save=root;filename=f.name;roles=getRoles(root);selected=0;render()}catch(err){alert('불러오기 실패: '+err.message)}};function theme(t){document.documentElement.dataset.theme=t;$('paper').classList.toggle('on',t==='paper');$('ink').classList.toggle('on',t==='ink');try{localStorage.setItem('nangman-theme',t)}catch{}}$('paper').onclick=()=>theme('paper');$('ink').onclick=()=>theme('ink');try{theme(localStorage.getItem('nangman-theme')==='ink'?'ink':'paper')}catch{theme('paper')}render()
+function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);render()});if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.5.5',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;render()}}
+window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));});window.addEventListener('nangman-equip-update',()=>{if(v==='equip'){const p=$('equipPaper')?.value,n=$('equipNpc')?.value,c=$('equipPreviewCount')?.value;render();if(p&&$('equipPaper'))$('equipPaper').value=p;if(n&&$('equipNpc'))$('equipNpc').value=n;if(c&&$('equipPreviewCount'))$('equipPreviewCount').value=c;}});$('saveLink').onclick=()=>{v='save';render()};$('import').onclick=()=>$('file').click();$('file').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{if(f.size>50e6)throw Error('파일 용량 50MB 초과');let obj=JSON.parse(await f.text());let root=obj?.data?.MainRole?obj.data:obj?.save?.MainRole?obj.save:obj;if(!root||typeof root!=='object'||Array.isArray(root))throw Error('JSON 최상위 객체가 아닙니다');save=root;filename=f.name;roles=getRoles(root);window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:root}));selected=0;render()}catch(err){alert('불러오기 실패: '+err.message)}};function theme(t){document.documentElement.dataset.theme=t;$('paper').classList.toggle('on',t==='paper');$('ink').classList.toggle('on',t==='ink');try{localStorage.setItem('nangman-theme',t)}catch{}}$('paper').onclick=()=>theme('paper');$('ink').onclick=()=>theme('ink');try{theme(localStorage.getItem('nangman-theme')==='ink'?'ink':'paper')}catch{theme('paper')}render()
 })();
 </script>
 <script type="module">
@@ -389,4 +400,32 @@ document.head.append(buffScript);
 js.onload=()=>{if(window.WIKI_DATA&&Array.isArray(window.WIKI_DATA.items)){window.WIKI_DATA.buff=Array.isArray(window.WIKI_BUFF)?window.WIKI_BUFF:[];window.dispatchEvent(new CustomEvent('nangman-wiki-source-ready',{detail:window.WIKI_DATA}));}else window.dispatchEvent(new Event('nangman-wiki-source-error'));};
 js.onerror=()=>window.dispatchEvent(new Event('nangman-wiki-source-error'));
 document.head.append(js);
+</script><script type="module">
+import {initialize,injectSave,makeRequest,preview} from './engine/sanbujin-equipment.js';
+const state=window.__sanEquipState={ready:false,loading:false,papers:[],craftsmen:[],error:'',result:''};
+function emit(){window.dispatchEvent(new Event('nangman-equip-update'))}
+window.addEventListener('nangman-equip-update',()=>{const v=document.getElementById('equipPaper');if(!v)return;const page=document.getElementById('view');const previousPaper=v.value,previousNpc=document.getElementById('equipNpc')?.value,previousCount=document.getElementById('equipPreviewCount')?.value;window.dispatchEvent(new CustomEvent('nangman-equip-refresh',{detail:{previousPaper,previousNpc,previousCount}}));});
+window.addEventListener('nangman-equip-init',async()=>{
+ if(state.loading||state.ready)return;
+ state.loading=true;state.error='';emit();
+ try{
+  const data=await initialize();
+  state.ready=true;state.papers=data.papers;state.craftsmen=data.craftsmen;window.dispatchEvent(new Event('nangman-equip-request-loaded-save'));
+ }catch(e){state.error='산부진 원본 계산 파일을 로드하지 못했습니다: '+e.message;}
+ finally{state.loading=false;emit();}
+});
+window.addEventListener('nangman-equip-preview',e=>{
+ try{
+  const req=makeRequest(e.detail);
+  const result=preview(req,e.detail.count);
+  state.result=JSON.stringify(result,null,2);
+  state.error='';
+ }catch(err){state.error=String(err.message||err);}
+ emit();
+});
+window.addEventListener('nangman-save-changed',e=>{
+ if(!state.ready)return;
+ try{injectSave(e.detail);state.error='';}catch(err){state.error='산부진 MakeRnd 로드: '+err.message;}
+ emit();
+});
 </script></body></html>
