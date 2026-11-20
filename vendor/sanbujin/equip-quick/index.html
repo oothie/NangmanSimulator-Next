@@ -89,23 +89,23 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 </style>
 </head>
 <body class="sbj-workbench" data-workbench="auto">
-    <div class="app-container"><header class="feature-heading"><h1>装备</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html" aria-current="page">速查</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html">自动</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html">手动</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html">橙装序列</a></nav></header>
+    <div class="app-container"><header class="feature-heading"><h1>장비</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html" aria-current="page">빠른 조회</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html">자동</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html">수동</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html">주황 장비 순서</a></nav></header>
 
         <div id="yyhxLegacyState" hidden style="display:none!important;">
             <div class="archive-summary-info">
                 <div class="archive-summary-item">
-                    <span>存档状态</span>
-                    <strong id="saveStatus">未导入</strong>
+                    <span>세이브 상태</span>
+                    <strong id="saveStatus">불러오지 않음</strong>
                 </div>
                 <div class="archive-summary-item">
-                    <span>主角</span>
+                    <span>주인공</span>
                     <strong id="archiveMainRole">—</strong>
                 </div>
             </div>
             <div class="archive-summary-actions">
-                <a id="archiveImportButton" class="btn btn-archive-action" href="/vendor/sanbujin/index.html">导入数据</a>
-                <button id="btnExportTable" class="btn btn-archive-action" type="button">导出表格</button>
-                <button id="btnResetWebsite" class="btn btn-archive-action" type="button" aria-live="polite">重置网页</button>
+                <a id="archiveImportButton" class="btn btn-archive-action" href="/vendor/sanbujin/index.html">데이터 불러오기</a>
+                <button id="btnExportTable" class="btn btn-archive-action" type="button">표 내보내기</button>
+                <button id="btnResetWebsite" class="btn btn-archive-action" type="button" aria-live="polite">웹 초기화</button>
             </div>
         </div>
 <section id="simulatorConfigPanel" class="config-panel">
@@ -113,66 +113,66 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 
             <div id="saveRoleRow" class="config-row role-row" hidden>
                 <div class="config-group grow role-select-group">
-                    <label>存档角色</label>
+                    <label>세이브 캐릭터</label>
                     <div class="select-with-btn">
                         <select id="saveRoleSelect">
-                            <option value="">请选择角色</option>
+                            <option value="">캐릭터를 선택하세요</option>
                         </select>
                     </div>
                 </div>
                 <div class="config-group bag-group">
-                    <span class="bag-label">背包洗髓丹</span>
+                    <span class="bag-label">가방의 세수단</span>
                     <span id="bagPillDisplay" class="bag-value">--</span>
                 </div>
             </div>
 
             <div class="config-row">
                 <div class="config-group">
-                    <label>资质等级</label>
+                    <label>자질 등급</label>
                     <select id="zizhiSelect">
-                        <option value="150">资质平平（0 槽）</option>
-                        <option value="151">资质过人（1 槽）</option>
-                        <option value="152">武林俊杰（2 槽）</option>
-                        <option value="153" selected>绝世奇才（3 槽）</option>
-                        <option value="154">空前绝后（4 槽）</option>
+                        <option value="150">평범한 자질(0칸)</option>
+                        <option value="151">뛰어난 자질(1칸)</option>
+                        <option value="152">무림 준걸(2칸)</option>
+                        <option value="153" selected>절세 기재(3칸)</option>
+                        <option value="154">전무후무(4칸)</option>
                     </select>
                 </div>
                 <div class="config-group">
-                    <label>性别</label>
+                    <label>성별</label>
                     <select id="sexSelect">
-                        <option value="1">男</option>
-                        <option value="2">女</option>
+                        <option value="1">남</option>
+                        <option value="2">여</option>
                     </select>
                 </div>
                 <div class="config-group">
                     <label>VIP</label>
                     <select id="vipSelect">
-                        <option value="0">无</option>
+                        <option value="0">없음</option>
                         <option value="1" selected>VIP 1+</option>
                         <option value="2">VIP 2+</option>
                     </select>
-                    <p id="vipImpactHint" class="vip-impact-hint">VIP 1+：开放九阴鬼脉、玄阳神脉、混元奇脉、一心两用等；仍需满足角色类别、资质等其他条件；VIP 不改变丹耗或保底。</p>
+                    <p id="vipImpactHint" class="vip-impact-hint">VIP 1 이상: 구음귀맥·현양신맥·혼원기맥·일심양용 등을 사용할 수 있습니다. 캐릭터 유형 및 자질 조건도 충족해야 합니다. VIP는 세수단 소모량과 천장에 영향을 주지 않습니다.</p>
                 </div>
             </div>
 
             <div id="zizhiPanel" class="zizhi-panel">
                 <div class="zz-stats">
-                    <span class="zz-pill">臂力 <b id="zzStr">0</b></span>
-                    <span class="zz-pill">根骨 <b id="zzCon">0</b></span>
-                    <span class="zz-pill">身法 <b id="zzDex">0</b></span>
-                    <span class="zz-pill">内息 <b id="zzInt">0</b></span>
-                    <span class="zz-pill total">总计 <b id="zzTotal">0</b></span>
+                    <span class="zz-pill">팔힘 <b id="zzStr">0</b></span>
+                    <span class="zz-pill">근골 <b id="zzCon">0</b></span>
+                    <span class="zz-pill">신법 <b id="zzDex">0</b></span>
+                    <span class="zz-pill">내식 <b id="zzInt">0</b></span>
+                    <span class="zz-pill total">합계 <b id="zzTotal">0</b></span>
                 </div>
-                <button id="btnUpgradeZiZhi" class="btn-upgrade-zz" type="button">提升资质</button>
+                <button id="btnUpgradeZiZhi" class="btn-upgrade-zz" type="button">자질 상승</button>
             </div>
 
             <div class="config-row dlc-row" id="dlcRow" style="display:none;">
                 <div class="config-group">
                     <label class="dlc-label">
                         <input type="checkbox" id="dlcModeCheck" class="dlc-check">
-                        <span>额外保底（300 条）</span>
+                        <span>추가 천장(300회)</span>
                     </label>
-                    <span class="dlc-hint">使用额外保底规则：未出紫脉的累计进度达到 300 时触发保底</span>
+                    <span class="dlc-hint">추가 천장 규칙 사용: 자맥을 획득하지 못한 누적 횟수가 300에 도달하면 천장이 발동합니다.</span>
                 </div>
             </div>
 
@@ -187,110 +187,110 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
         <main class="main-content">
             <section class="talent-display wash-simulator-only">
                 <div class="section-title">
-                    <span class="section-heading">当前天赋</span>
+                    <span class="section-heading">현재 재능</span>
                 </div>
-                <p class="talent-tip">先锁住低阶冲突脉，再洗出同类型紫脉时，可点击「!」后的置换；置换按单独的置换序列出紫脉，不消耗洗髓丹，也不推进原始脉序。</p>
+                <p class="talent-tip">낮은 등급의 충돌맥을 먼저 잠그고 같은 유형의 자맥이 나오면 '!'를 눌러 치환할 수 있습니다. 치환은 별도 순서로 자맥을 결정하며 세수단을 소모하거나 원래 맥 순서를 진행하지 않습니다.</p>
                 <div id="talentSlots" class="talent-slots"></div>
             </section>
 
             <section class="action-panel wash-simulator-only">
                 <div class="action-buttons">
-                    <button id="btnWashOnce" class="btn btn-wash" type="button">洗髓</button>
-                    <button id="btnWash10" class="btn btn-wash-multi" type="button">连洗 ×10</button>
-                    <button id="btnWash100" class="btn btn-wash-auto" type="button">连洗 ×100</button>
-                    <button id="btnWashUntilGold" class="btn btn-wash-gold" type="button">洗到出紫</button>
+                    <button id="btnWashOnce" class="btn btn-wash" type="button">세수</button>
+                    <button id="btnWash10" class="btn btn-wash-multi" type="button">연속 세수 ×10</button>
+                    <button id="btnWash100" class="btn btn-wash-auto" type="button">연속 세수 ×100</button>
+                    <button id="btnWashUntilGold" class="btn btn-wash-gold" type="button">자맥이 나올 때까지 세수</button>
                 </div>
                 <div class="action-custom-row">
                     <div class="custom-wash-group">
-                        <label>指定连洗条数：</label>
+                        <label>연속 세수 횟수 지정:</label>
                         <input type="number" id="customWashInput" min="1" max="1000" value="500">
-                        <button id="btnWashCustom" class="btn btn-wash-custom" type="button">连洗 <span id="customWashNum">500</span> 次</button>
+                        <button id="btnWashCustom" class="btn btn-wash-custom" type="button">연속 세수 <span id="customWashNum">500</span> 회</button>
                     </div>
-                    <button id="btnAnalyzePurple" class="btn btn-analyze-purple" type="button">紫脉脉序与置换推演</button>
+                    <button id="btnAnalyzePurple" class="btn btn-analyze-purple" type="button">자맥 등장 순서 및 치환 시뮬레이션</button>
                 </div>
                 <div class="pity-bar">
-                    <div class="pity-label">保底进度</div>
+                    <div class="pity-label">천장 진행도</div>
                     <div class="pity-track">
                         <div id="pityFill" class="pity-fill" style="width: 0%;"></div>
                     </div>
                     <div id="pityText" class="pity-text">0 / 850</div>
                 </div>
                 <div class="cost-info">
-                    <span id="costInfo">每次消耗：洗髓丹 ×3</span>
+                    <span id="costInfo">1회 소모: 세수단 ×3</span>
                 </div>
 
                 <div id="nextConflictPanel" class="next-conflict-panel">
                     <div class="next-conflict-head">
-                        <span class="next-conflict-title">洗到下一紫 · 最近冲突脉</span>
+                        <span class="next-conflict-title">다음 자맥 · 가장 가까운 충돌맥까지 세수</span>
                         <span class="next-conflict-from">
-                            从脉序
+                            맥 순서에서
                             <input type="number" id="nextConflictAfterWash" min="0" value="0" />
-                            之后
+                            이후
                         </span>
-                        <button id="btnFindNextConflict" class="btn btn-wash-custom" type="button">查找</button>
-                        <button id="btnNextConflictFromCurrent" class="btn btn-wash-custom" type="button">从当前进度</button>
+                        <button id="btnFindNextConflict" class="btn btn-wash-custom" type="button">찾기</button>
+                        <button id="btnNextConflictFromCurrent" class="btn btn-wash-custom" type="button">현재 진행도부터</button>
                     </div>
                     <div id="nextConflictResult" class="next-conflict-result">
-                        <span class="text-muted">查下一紫及其最近冲突脉，可一键洗到冲突并锁定，再洗到紫脉。注意：锁脉后保底紫可能偏离未锁预测（与游戏一致）</span>
+                        <span class="text-muted">다음 자맥과 가장 가까운 충돌맥을 찾습니다. 한 번에 충돌맥까지 세수하고 잠근 뒤 자맥까지 진행할 수 있습니다. 맥을 잠그면 천장 자맥이 잠그지 않은 예측 결과와 달라질 수 있습니다(게임과 동일).</span>
                     </div>
                 </div>
             </section>
 
             <section class="config-panel auto-mode-switcher auto-simulator-only" aria-label="自动模拟类型">
                 <div class="auto-mode-tabs" role="tablist" aria-label="自动模拟类型">
-                    <button id="btnAutoEquipMode" class="auto-mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="autoEquipModePanel">装备</button>
-                    <button id="btnAutoJianwangMode" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoJianwangModePanel">剑王阁</button>
-                    <button id="btnAutoHengshanMode" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoHengshanModePanel">恒山弟子</button>
-                    <button id="btnAutoWashMode" hidden style="display:none;" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoWashModePanel">洗髓伐脉</button>
+                    <button id="btnAutoEquipMode" class="auto-mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="autoEquipModePanel">장비</button>
+                    <button id="btnAutoJianwangMode" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoJianwangModePanel">검왕각</button>
+                    <button id="btnAutoHengshanMode" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoHengshanModePanel">항산파 제자</button>
+                    <button id="btnAutoWashMode" hidden style="display:none;" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoWashModePanel">세수·도맥법</button>
                 </div>
             </section>
 
                 <details class="equip-auto-sweep-card" id="autoEquipSweepCard" aria-label="装备速查" open>
                 <summary class="equip-auto-sweep-head">
-                    <strong>筛选条件</strong>
+                    <strong>검색 조건</strong>
                     <span class="equip-auto-sweep-state" aria-hidden="true">
-                        <span class="when-closed">展开</span><span class="when-open">收起</span>
+                        <span class="when-closed">펼치기</span><span class="when-open">접기</span>
                     </span>
                 </summary>
                 <div id="equipAutoSweepBody">
-                    <p class="equip-auto-sweep-desc">共 18 张图纸（紫金 12 张、乌缕 6 张）。紫金图纸查紫金熔炉、胡铁匠、张铁匠；乌缕图纸查月绣、红萝、陈三娘。列出品质不低于所选等级的结果。</p>
+                    <p class="equip-auto-sweep-desc">도면 18개(자금 12개, 오루 6개)를 검사합니다. 자금 도면은 자금 용광로·호 대장장이·장 대장장이, 오루 도면은 월수·홍라·진삼낭에서 검색합니다. 선택한 품질 등급 이상만 표시합니다.</p>
                     <details class="wb-property-picker sweep-paper-picker">
-                        <summary>选择图纸 <span id="equipAutoSweepPaperCount" class="sweep-paper-count">已选 0 / 0</span></summary>
+                        <summary>도면 선택 <span id="equipAutoSweepPaperCount" class="sweep-paper-count">선택 0 / 0</span></summary>
                         <fieldset id="equipAutoSweepPaperFieldset" class="sweep-paper-fieldset">
-                            <div class="sweep-paper-actions"><button type="button" id="btnEquipAutoSweepPaperAll">全选</button><button type="button" id="btnEquipAutoSweepPaperNone">清空</button></div>
+                            <div class="sweep-paper-actions"><button type="button" id="btnEquipAutoSweepPaperAll">전체 선택</button><button type="button" id="btnEquipAutoSweepPaperNone">비우기</button></div>
                             <div id="equipAutoSweepPaperChoices" aria-label="选择速查图纸"></div>
                         </fieldset>
                     </details>
                     <div class="equip-auto-sweep-props">
                         <div class="equip-auto-sweep-props-head">
-                            <span class="equip-auto-sweep-props-label">精炼属性</span>
-                            <button type="button" id="btnEquipAutoSweepAllProps" class="equip-auto-sweep-allprops">一键全选</button>
+                            <span class="equip-auto-sweep-props-label">정련 능력치</span>
+                            <button type="button" id="btnEquipAutoSweepAllProps" class="equip-auto-sweep-allprops">모두 선택</button>
                         </div>
                         <div id="equipAutoSweepProps" class="equip-auto-sweep-prop-list" role="group" aria-label="选择要统计的精炼属性"></div>
                     </div>
                     <div class="equip-auto-sweep-controls">
                         <div class="equip-auto-sweep-filters">
-<label>连金泥 ≤
+<label>연금니 소모 ≤
                             <input type="number" id="autoEquipSweepLianjin" min="0" max="100000" value="300" title="只做过滤：每件装备按需消耗，单属性最多花到第 4 步的「每属性精炼」次数">
                         </label>
-                        <label>打造 ≤
+                        <label>제작 횟수 ≤
                             <input type="number" id="autoEquipSweepCrafts" min="1" max="5000" value="40">
-                            <span>次</span>
+                            <span>회</span>
                         </label>
-                        <label>品质 ≥
+                        <label>품질 ≥
                             <select id="autoEquipSweepQuality">
-                                <option value="0">不限</option>
-                                <option value="51">良好</option>
-                                <option value="71">优秀</option>
-                                <option value="81">极佳</option>
-                                <option value="91" selected>极品</option>
-                                <option value="96">神器</option>
+                                <option value="0">제한 없음</option>
+                                <option value="51">양호</option>
+                                <option value="71">우수</option>
+                                <option value="81">최상</option>
+                                <option value="91" selected>극품</option>
+                                <option value="96">신기</option>
                             </select>
                         </label>
                                                 </div>
-<button type="button" id="btnEquipAutoSweep" class="btn btn-primary">一键查找</button>
+<button type="button" id="btnEquipAutoSweep" class="btn btn-primary">한 번에 찾기</button>
                     </div>
-                    <p class="equip-auto-sweep-hint">按 N 连金泥以内的精炼次数搜索（最多 2000 次）</p>
+                    <p class="equip-auto-sweep-hint">연금니 N개 이내 정련 결과를 탐색합니다(최대 2,000회)</p>
                     <progress id="equipAutoSweepProgress" class="equip-auto-sweep-progress" max="100" value="0" hidden></progress>
                     <p id="equipAutoSweepStatus" class="equip-auto-sweep-status" hidden></p>
                     <div id="equipAutoSweepResults" class="equip-auto-sweep-results"></div>
@@ -301,85 +301,85 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 <div class="section-title ai-prediction-title-row">
                     <div>
                         <span class="ai-kicker">LOCAL ROUTE OPTIMIZER</span>
-                        <h2 id="aiPredictionTitle" class="section-heading">自动模拟 · 最佳洗脉路线</h2>
+                        <h2 id="aiPredictionTitle" class="section-heading">자동 세수 · 최적 경로 탐색</h2>
                     </div>
                 </div>
-                <p class="ai-prediction-intro">选择目标脉和耗丹上限，深度查找满足全部目标的方案。</p>
+                <p class="ai-prediction-intro">목표 맥과 세수단 소모 상한을 지정하면 모든 목표를 충족하는 경로를 심층 탐색합니다.</p>
 
 
                 <div id="autoEquipModePanel" class="auto-mode-panel equip-auto-panel" role="tabpanel" aria-labelledby="btnAutoEquipMode">
                     <div class="equip-auto-snapshot-note">
-                        <strong>独立存档分支</strong>
-                        <span>每个“地点 × 图纸 × 首次材料”都从本次导入的原始打造状态开始；同一分支内才连续推进打造序列。</span>
+                        <strong>독립 세이브 분기</strong>
+                        <span>각 '지역 × 도면 × 최초 재료'는 불러온 세이브의 원래 제작 상태에서 시작합니다. 같은 분기 안에서만 제작 순서가 이어집니다.</span>
                     </div>
 
-                    <p class="equip-auto-collapse-hint">提示：点击任意步骤标题（如「01 选择打造地点」）即可收起，再点一次展开。</p>
+                    <p class="equip-auto-collapse-hint">안내: 단계 제목(예: '01 제작 지역 선택')을 누르면 접히고, 다시 누르면 펼쳐집니다.</p>
 
                     <details class="equip-auto-section">
                         <summary class="equip-auto-section-head">
-                            <div><span>01</span><strong>选择打造地点</strong></div>
-                            <span id="autoEquipLocationCount" class="ai-target-count">已选 0</span>
+                            <div><span>01</span><strong>제작 지역 선택</strong></div>
+                            <span id="autoEquipLocationCount" class="ai-target-count">0개 선택</span>
                         </summary>
                         <div id="autoEquipLocationChoices" class="equip-auto-location-groups" role="group" aria-label="选择打造地点">
-                            <span class="text-muted">装备表加载后显示打造地点</span>
+                            <span class="text-muted">장비표를 불러오면 제작 지역이 표시됩니다</span>
                         </div>
                     </details>
 
                     <details class="equip-auto-section">
                         <summary class="equip-auto-section-head">
-                            <div><span>02</span><strong>选择图纸</strong></div>
-                            <span id="autoEquipPaperCount" class="ai-target-count">已选 0</span>
+                            <div><span>02</span><strong>도면 선택</strong></div>
+                            <span id="autoEquipPaperCount" class="ai-target-count">0개 선택</span>
                         </summary>
 
                         <div id="autoEquipPaperChoices" class="equip-auto-paper-list" role="group" aria-label="选择图纸">
-                            <span class="text-muted">先选择至少一个打造地点</span>
+                            <span class="text-muted">제작 지역을 하나 이상 선택하세요</span>
                         </div>
-                        <p class="equip-auto-help">每张图纸可多选首次打造材料；每种材料会形成一条独立打造分支，未选材料则按普通打造计算。</p>
+                        <p class="equip-auto-help">각 도면에서 최초 제작 재료를 여러 개 선택할 수 있습니다. 재료별로 독립된 제작 분기가 생성되며, 재료를 선택하지 않으면 일반 제작으로 계산합니다.</p>
                     </details>
 
                     <details class="equip-auto-section">
                         <summary class="equip-auto-section-head">
-                            <div><span>03</span><strong>选择目标精炼属性及附加属性</strong></div>
-                            <span id="autoEquipPropertyCount" class="ai-target-count">已选 0</span>
+                            <div><span>03</span><strong>목표 정련 능력치와 추가 능력치를 선택하세요.</strong></div>
+                            <span id="autoEquipPropertyCount" class="ai-target-count">0개 선택</span>
                         </summary>
                         <div id="autoEquipPropertyChoices" class="equip-auto-choice-grid equip-auto-property-grid" role="group" aria-label="选择精炼属性"></div>
                     </details>
 
                     <details class="equip-auto-section equip-auto-settings">
                         <summary class="equip-auto-section-head">
-                            <div><span>04</span><strong>模拟次数</strong></div>
+                            <div><span>04</span><strong>시뮬레이션 횟수</strong></div>
                         </summary>
                         <div class="ai-settings-grid">
                             <div class="equip-auto-inline-field">
-                                <label>每分支打造
+                                <label>분기별 제작
                                     <input type="number" id="autoEquipCraftCount" min="1" max="5000" value="100">
-                                    <span>次</span>
+                                    <span>회</span>
                                 </label>
-                                <label>每属性精炼
+                                <label>능력치별 정련
                                     <input type="number" id="autoEquipRefineCount" min="1" max="2000" value="200">
-                                    <span>次</span>
+                                    <span>회</span>
                                 </label>
                             </div>
-                            <label class="equip-auto-inline-field" title="每件候选按首次打造材料推演这么多条芒晶附加，并按所选等级取区间内最高值">芒晶序列
+                            <label class="equip-auto-inline-field" title="每件候选按首次打造材料推演这么多条芒晶附加，并按所选等级取区间内最高值">망정 순서
                                 <input type="number" id="autoEquipAttachScan" min="1" max="5000" value="100">
-                                <span>次</span>
+                                <span>회</span>
                                 <select id="autoEquipAttachLevel">
-                                    <option value="before">90 级</option>
-                                    <option value="after">100 级</option>
+                                    <option value="before">90레벨</option>
+                                    <option value="after">100레벨</option>
                                 </select>
                             </label>
                         </div>
-                        <p>保留蓝装和紫装，不按词条数量过滤；精炼固定使用升炼后的 100 级装备。精炼结果不限制连金泥消耗。后续芒晶洗练不参与批量计算，请展开候选装备后手动选择升炼前或升炼后模拟。多个目标属性各自从装备原始精炼状态独立分析，不能把不同属性方案串联执行。</p>
+                        <p>청색·자색 장비를 유지하고 옵션 개수로 걸러내지 않습니다. 정련은 승련 후 100레벨 장비를 기준으로 합니다. 연금니 소모 제한은 없고 망정은 일괄 계산에 포함되지 않습니다. 후보 장비를 펼쳐 승련 전·후 시뮬레이션을 선택하세요. 목표 능력치는 각각 원래 정련 상태에서 계산하므로 서로 다른 경로를 이어 실행할 수 없습니다.</p>
 
 
                         <div id="autoEquipSelectionMessage" class="ai-selection-message" aria-live="polite"></div>
                         <div class="ai-search-actions">
-                            <button id="btnAutoEquipPredict" class="btn btn-ai-predict" type="button">开始装备自动模拟</button>
-                            <button id="btnAutoEquipCancel" class="btn btn-reset" type="button" hidden>取消计算</button>
+                            <button id="btnAutoEquipPredict" class="btn btn-ai-predict" type="button">장비 자동 탐색 시작</button>
+                            <button id="btnAutoEquipCancel" class="btn btn-reset" type="button" hidden>계산 취소</button>
                         </div>
                         <div id="autoEquipProgress" class="ai-search-progress" hidden aria-live="polite">
                             <div class="ai-progress-head">
-                                <span id="autoEquipProgressText">准备计算…</span>
+                                <span id="autoEquipProgressText">계산 준비 중…</span>
                                 <b id="autoEquipProgressPercent">0%</b>
                             </div>
                             <div class="ai-progress-track"><div id="autoEquipProgressFill" class="ai-progress-fill"></div></div>
@@ -387,80 +387,80 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                     </details>
                     <details class="equip-auto-section equip-auto-results-section">
                         <summary class="equip-auto-section-head">
-                            <div><span>05</span><strong>模拟结果</strong></div>
+                            <div><span>05</span><strong>시뮬레이션 결과</strong></div>
                             <span id="autoEquipResultsCount" class="ai-target-count"></span>
                         </summary>
                         <div id="autoEquipResults" class="ai-prediction-results equip-auto-results" aria-live="polite">
-                            <div class="ai-result-empty">选择地点、图纸和目标属性后开始本地计算。结果将按地点分组、按打造次数排列，并显示属性最高值和材料消耗。</div>
+                            <div class="ai-result-empty">제작 지역, 도면, 목표 능력치를 고른 후 로컬 계산을 시작하세요. 결과는 지역별로 묶고 제작 횟수 순으로 표시하며, 최대 능력치와 재료 소모량도 표시합니다.</div>
                         </div>
                     </details>
 
                     <!-- 06 收藏列表已并入「藏兵阁」，这里不再展示（保留节点，避免旧脚本报错） -->
                     <details class="equip-auto-section equip-auto-favorites" id="autoEquipFavoritesSection" hidden>
                         <summary class="equip-auto-section-head">
-                            <div><span>06</span><strong>收藏列表</strong></div>
+                            <div><span>06</span><strong>즐겨찾기 목록</strong></div>
                             <span class="equip-auto-favorites-actions">
-                                <button type="button" id="btnBackupFavorites" class="equip-auto-export" title="把整份收藏导出成 JSON，换链接/清缓存后可以再导回来">备份</button>
-                                <button type="button" id="btnRestoreFavorites" class="equip-auto-export" title="从 JSON 备份里恢复，按装备合并，不覆盖现有收藏">恢复</button>
+                                <button type="button" id="btnBackupFavorites" class="equip-auto-export" title="把整份收藏导出成 JSON，换链接/清缓存后可以再导回来">백업</button>
+                                <button type="button" id="btnRestoreFavorites" class="equip-auto-export" title="从 JSON 备份里恢复，按装备合并，不覆盖现有收藏">복원</button>
                                 <input type="file" id="favoritesRestoreInput" accept=".json,application/json" hidden>
-                                <button type="button" id="btnExportFavorites" class="equip-auto-export">导出表格</button>
-                                <span id="autoEquipFavoriteCount" class="ai-target-count">0 件</span>
+                                <button type="button" id="btnExportFavorites" class="equip-auto-export">표 내보내기</button>
+                                <span id="autoEquipFavoriteCount" class="ai-target-count">0개</span>
                             </span>
                         </summary>
                         <div id="autoEquipFavorites" class="equip-auto-candidate-list equip-auto-favorites-list">
-                            <p class="ai-result-empty">在结果里点 ☆ 收藏，装备会出现在这里。</p>
+                            <p class="ai-result-empty">결과의 ☆ 즐겨찾기를 누르면 이곳에 장비가 표시됩니다.</p>
                         </div>
                     </details>
                 </div>
 
                 <div id="autoJianwangModePanel" class="auto-mode-panel jianwang-auto-panel" role="tabpanel" aria-labelledby="btnAutoJianwangMode" hidden>
                     <div class="equip-auto-snapshot-note">
-                        <strong>只读推演</strong>
-                        <span>从选中的剑王阁武器开始，比较剑胚、重铸和碎剑方案；推演不会改动存档、模拟背包或游戏中的剑胚进度。</span>
+                        <strong>읽기 전용 시뮬레이션</strong>
+                        <span>선택한 검왕각 무기에서 시작하여 검 배아·재주조·검 파괴 경로를 비교합니다. 시뮬레이션은 세이브와 가방, 실제 게임의 검 배아 진행도를 변경하지 않습니다.</span>
                     </div>
 
                     <div class="jianwang-auto-config-grid">
-                        <label>起始剑
+                        <label>시작 검
                             <select id="autoJianwangStartSword">
-                                <option value="">导入存档后显示</option>
+                                <option value="">세이브를 불러오면 표시됩니다</option>
                             </select>
                         </label>
-                        <label>90级镇派路线
+                        <label>90레벨 진파 경로
                             <select id="autoJianwangRoute">
-                                <option value="">请选择</option>
+                                <option value="">선택하세요</option>
                             </select>
                         </label>
-                        <label>目标词条
+                        <label>목표 옵션
                             <select id="autoJianwangTargetProp">
-                                <option value="">先选择镇派路线</option>
+                                <option value="">먼저 진파 경로를 선택하세요.</option>
                             </select>
                         </label>
-                        <label>同词条目标
+                        <label>동일 옵션 목표
                             <select id="autoJianwangTargetCount">
-                                <option value="3">三同词条</option>
-                                <option value="4" selected>四同词条</option>
+                                <option value="3">동일 옵션 3개</option>
+                                <option value="4" selected>동일 옵션 4개</option>
                             </select>
                         </label>
-                        <label>最大模拟新剑把数
+                        <label>최대 신규 검 시뮬레이션 수
                             <input type="number" id="autoJianwangMaxSwords" min="1" max="100000" value="500">
                         </label>
                     </div>
 
-                    <p id="autoJianwangStartHint" class="equip-auto-help">会按当前起始剑实际阶段进入流程：60～80级继续升阶，90级同路线先重铸到底、不同路线直接碎剑，100级直接碎神兵。</p>
+                    <p id="autoJianwangStartHint" class="equip-auto-help">현재 검의 단계에 따라 진행합니다. 60~80레벨은 승급하고, 90레벨은 같은 경로라면 끝까지 재주조하며 다른 경로라면 바로 검을 파괴합니다. 100레벨은 바로 신병을 파괴합니다.</p>
                     <div id="autoJianwangSelectionMessage" class="ai-selection-message" aria-live="polite"></div>
                     <div class="ai-search-actions">
-                        <button id="btnAutoJianwangPredict" class="btn btn-ai-predict" type="button">开始剑王阁自动模拟</button>
-                        <button id="btnAutoJianwangCancel" class="btn btn-reset" type="button" hidden>取消计算</button>
+                        <button id="btnAutoJianwangPredict" class="btn btn-ai-predict" type="button">검왕각 자동 시뮬레이션 시작</button>
+                        <button id="btnAutoJianwangCancel" class="btn btn-reset" type="button" hidden>계산 취소</button>
                     </div>
                     <div id="autoJianwangProgress" class="ai-search-progress" hidden aria-live="polite">
                         <div class="ai-progress-head">
-                            <span id="autoJianwangProgressText">准备计算…</span>
+                            <span id="autoJianwangProgressText">계산 준비 중…</span>
                             <b id="autoJianwangProgressPercent">0%</b>
                         </div>
                         <div class="ai-progress-track"><div id="autoJianwangProgressFill" class="ai-progress-fill"></div></div>
                     </div>
                     <div id="autoJianwangResults" class="ai-prediction-results jianwang-auto-results" aria-live="polite">
-                        <div class="ai-result-empty">选择起始剑、镇派路线、目标词条、同词条目标和最大模拟次数后开始搜索。</div>
+                        <div class="ai-result-empty">시작 검, 진파 경로, 목표 옵션과 동일 옵션 목표, 최대 시뮬레이션 횟수를 지정해 검색을 시작하세요.</div>
                     </div>
                 </div>
 
@@ -468,66 +468,66 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 <main class="hs hs-embedded">
                     <header class="hs-head" hidden>
                         <div class="hs-save">
-                            <span>存档状态</span>
-                            <strong id="hsSaveStatus">未导入</strong>
+                            <span>세이브 상태</span>
+                            <strong id="hsSaveStatus">불러오지 않음</strong>
                         </div>
                     </header>
                     <nav class="hs-tabs" role="tablist" aria-label="恒山功能切换" hidden>
-                        <button type="button" role="tab" data-tab="manual" aria-selected="true" aria-controls="panelManual">弟子推演</button>
-                        <button type="button" role="tab" data-tab="shop" aria-selected="false" aria-controls="panelShop">弟子商店</button>
-                        <button type="button" role="tab" data-tab="auto" aria-selected="false" aria-controls="panelAuto">自动推演</button>
+                        <button type="button" role="tab" data-tab="manual" aria-selected="true" aria-controls="panelManual">제자 시뮬레이션</button>
+                        <button type="button" role="tab" data-tab="shop" aria-selected="false" aria-controls="panelShop">제자 상점</button>
+                        <button type="button" role="tab" data-tab="auto" aria-selected="false" aria-controls="panelAuto">자동 시뮬레이션</button>
                     </nav>
-                    <p class="hs-message" id="hsMessage" role="status">请先在首页导入存档。</p>
+                    <p class="hs-message" id="hsMessage" role="status">먼저 홈에서 세이브를 불러오세요.</p>
 
                     <section id="panelManual" class="hs-panel" role="tabpanel">
                         <div class="hs-card">
                             <div class="hs-row">
                                 <label class="hs-field grow">
-                                    <span>推演对象</span>
-                                    <select id="studentSelect" disabled><option value="">导入含恒山弟子的存档后显示</option></select>
+                                    <span>시뮬레이션 대상</span>
+                                    <select id="studentSelect" disabled><option value="">항산파 제자가 포함된 세이브를 불러오면 표시됩니다.</option></select>
                                 </label>
-                                <button type="button" id="btnResetStudent" class="hs-btn" disabled>恢复弟子原进度</button>
+                                <button type="button" id="btnResetStudent" class="hs-btn" disabled>제자 원래 진행도 복원</button>
                             </div>
                             <div class="hs-state-grid" id="studentState" hidden>
-                                <div><span>等级</span><strong id="studentLevel">—</strong></div>
-                                <div><span>经验</span><strong id="studentExp">—</strong></div>
-                                <div><span>每日经验</span><strong id="studentDailyExp">—</strong></div>
+                                <div><span>등급</span><strong id="studentLevel">—</strong></div>
+                                <div><span>경험치</span><strong id="studentExp">—</strong></div>
+                                <div><span>매일 획득 경험치</span><strong id="studentDailyExp">—</strong></div>
                             </div>
                             <div id="studentTalents" class="hs-talent-list"></div>
                         </div>
 
                         <div class="hs-card" id="unlockCard" hidden>
-                            <h2>推进一天</h2>
-                            <p class="hs-note">每日基础经验来自存档科技；“喜静勿动”会动态增加经验。VIP 不放大固定每日经验，额外委托经验请到「自动推演」单独填写。</p>
+                            <h2>하루 진행</h2>
+                            <p class="hs-note">매일 기본 경험치는 세이브의 연구 효과를 따르며, '희정물동'은 경험치를 추가합니다. VIP는 고정 일일 경험치를 배율 적용하지 않습니다. 의뢰 추가 경험치는 '자동 시뮬레이션'에서 별도로 입력하세요.</p>
                             <div id="unlockPreview" class="hs-unlock"></div>
-                            <button type="button" id="btnAdvanceDay" class="hs-btn is-primary">推进一天</button>
+                            <button type="button" id="btnAdvanceDay" class="hs-btn is-primary">하루 진행</button>
                         </div>
 
                         <div class="hs-card" id="refreshCard" hidden>
-                            <h2>指定槽位刷新</h2>
+                            <h2>지정 슬롯 갱신</h2>
                             <div class="hs-row">
                                 <label class="hs-field grow">
-                                    <span>刷新位置</span>
+                                    <span>위치 새로고침</span>
                                     <select id="refreshSlot"></select>
                                 </label>
                                 <label class="hs-field">
-                                    <span>模拟推进次数</span>
+                                    <span>모의 진행 횟수</span>
                                     <input id="refreshCount" type="number" min="1" max="1000" value="20" inputmode="numeric">
                                 </label>
-                                <button type="button" id="btnSimulateRefresh" class="hs-btn is-primary">模拟推进</button>
+                                <button type="button" id="btnSimulateRefresh" class="hs-btn is-primary">모의 진행</button>
                             </div>
-                            <p class="hs-note" id="refreshSummary">设置次数后批量查看后续结果；点击任一行即可应用到该次推进。</p>
+                            <p class="hs-note" id="refreshSummary">횟수를 지정하면 이후 결과를 일괄 확인합니다. 행을 누르면 해당 단계까지 진행합니다.</p>
                             <div class="hs-table-wrap">
                                 <table class="hs-table">
-                                    <thead><tr><th>推进</th><th>抽中天赋</th><th>替换后组合</th><th>应用</th></tr></thead>
-                                    <tbody id="refreshRows"><tr><td colspan="4">尚未推演</td></tr></tbody>
+                                    <thead><tr><th>진행</th><th>획득한 재능</th><th>교체 후 조합</th><th>적용</th></tr></thead>
+                                    <tbody id="refreshRows"><tr><td colspan="4">시뮬레이션 시작 전</td></tr></tbody>
                                 </table>
                             </div>
-                            <h3 class="hs-sub">本次推演操作记录 <span id="refreshHistoryCount">0 条</span></h3>
+                            <h3 class="hs-sub">이번 시뮬레이션 작업 기록 <span id="refreshHistoryCount">0개</span></h3>
                             <div class="hs-table-wrap">
                                 <table class="hs-table">
-                                    <thead><tr><th>操作</th><th>刷新位置</th><th>推进次数</th><th>最终抽中</th><th>应用后组合</th></tr></thead>
-                                    <tbody id="refreshHistoryRows"><tr><td colspan="5">暂无操作记录</td></tr></tbody>
+                                    <thead><tr><th>조작</th><th>위치 새로고침</th><th>진행 횟수</th><th>최종 획득</th><th>적용 후 조합</th></tr></thead>
+                                    <tbody id="refreshHistoryRows"><tr><td colspan="5">작업 기록 없음</td></tr></tbody>
                                 </table>
                             </div>
                         </div>
@@ -537,60 +537,60 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                         <div class="hs-card">
                             <div class="hs-row hs-row-split">
                                 <div class="hs-shop-state">
-                                    <span>页面刷新次数</span>
-                                    <strong id="shopRefreshCount">0 次</strong>
-                                    <small id="shopRefreshMessage">已读取导入存档的当前批次，可从当前状态本地推演下一批</small>
+                                    <span>페이지 갱신 횟수</span>
+                                    <strong id="shopRefreshCount">0회</strong>
+                                    <small id="shopRefreshMessage">불러온 세이브의 현재 회차를 읽었습니다. 현 상태에서 다음 회차를 로컬 시뮬레이션할 수 있습니다.</small>
                                 </div>
                                 <div class="hs-row">
-                                    <button type="button" id="btnShopRefresh" class="hs-btn is-primary" disabled>推演下一批</button>
-                                    <button type="button" id="btnShopRestore" class="hs-btn" disabled>恢复招募原进度</button>
+                                    <button type="button" id="btnShopRefresh" class="hs-btn is-primary" disabled>다음 회차 예측</button>
+                                    <button type="button" id="btnShopRestore" class="hs-btn" disabled>모집 원래 진행도 복원</button>
                                 </div>
                             </div>
-                            <p class="hs-note">玉秀殿当前或本地推演出的候选。候选可加入推演背包，供「弟子推演」和「自动推演」共同使用；所有操作仅用于本次推演，不会修改导入存档。</p>
+                            <p class="hs-note">옥수전의 현재 후보와 로컬 시뮬레이션으로 찾은 후보를 표시합니다. 후보는 시뮬레이션 가방에 추가하여 제자·자동 탐색에 사용할 수 있습니다. 원본 세이브는 수정되지 않습니다.</p>
                         </div>
                         <div class="hs-card">
-                            <h2>玉秀殿候选 <span id="shopStudentCount" class="hs-badge">0 人</span></h2>
+                            <h2>옥수전 후보 <span id="shopStudentCount" class="hs-badge">0명</span></h2>
                             <div id="shopStudentCards" class="hs-student-grid"></div>
                         </div>
                         <div class="hs-card" id="bagCard" hidden>
-                            <h2>推演背包 <span id="studentBagCount" class="hs-badge">0 人</span></h2>
+                            <h2>시뮬레이션 가방 <span id="studentBagCount" class="hs-badge">0명</span></h2>
                             <div id="studentBagCards" class="hs-student-grid"></div>
                         </div>
                     </section>
 
                     <section id="panelAuto" class="hs-panel" role="tabpanel" hidden>
                         <div class="hs-card">
-                            <h2>自动推演弟子</h2>
-                            <div class="equip-auto-snapshot-note"><strong>弟子养成路线</strong><span>每条路线都从当前弟子的养成进度开始。系统会比较升级、领取掌门令、等待冷却和替换天赋的顺序，优先寻找替换次数少、完成时间早的方案；每次替换消耗 20 掌门令。</span></div>
+                            <h2>제자 자동 시뮬</h2>
+                            <div class="equip-auto-snapshot-note"><strong>제자 육성 경로</strong><span>모든 경로는 제자의 현재 육성 진행도에서 시작합니다. 레벨업, 장문령 수령, 대기시간, 재능 교체 순서를 비교해 교체 횟수가 적고 완료 시간이 빠른 경로를 찾습니다. 재능 교체 시 장문령 20개를 소모합니다.</span></div>
                             <div class="hs-param-grid">
-                                <label class="hs-field"><span>选择恒山弟子</span><select id="autoStudent"><option value="">导入存档后显示</option></select></label>
-                                <label class="hs-field"><span>最大替换次数</span><input id="autoMaxRefreshes" type="number" min="0" max="100000" value="20"></label>
-                                <label class="hs-field"><span>最多推进天数</span><input id="autoMaxDays" type="number" min="0" max="3650" value="365"></label>
-                                <label class="hs-field"><span>每日额外经验（委托等）</span><input id="autoDailyExtraExp" type="number" min="0" max="100000" value="0"></label>
-                                <label class="hs-field"><span>当前掌门令</span><input id="autoCurrentTokens" type="number" min="0" max="99" value="20"></label>
-                                <label class="hs-field"><span>每日获得掌门令</span><input id="autoDailyTokens" type="number" min="0" max="99" value="10"></label>
-                                <label class="hs-field"><span>掌门令上限</span><input id="autoTokenCap" type="number" min="20" max="999" value="99"></label>
-                                <label class="hs-field"><span>替换冷却（小时）</span><input id="autoCooldownHours" type="number" min="0" max="168" step="0.1" value="24"></label>
-                                <label class="hs-field"><span>距下次每日结算（小时）</span><input id="autoNextDailyHours" type="number" min="0.1" max="24" step="0.1" value="24"></label>
+                                <label class="hs-field"><span>항산파 제자 선택</span><select id="autoStudent"><option value="">세이브를 불러오면 표시됩니다</option></select></label>
+                                <label class="hs-field"><span>최대 교체 횟수</span><input id="autoMaxRefreshes" type="number" min="0" max="100000" value="20"></label>
+                                <label class="hs-field"><span>최대 진행 일수</span><input id="autoMaxDays" type="number" min="0" max="3650" value="365"></label>
+                                <label class="hs-field"><span>일일 추가 경험치(의뢰 등)</span><input id="autoDailyExtraExp" type="number" min="0" max="100000" value="0"></label>
+                                <label class="hs-field"><span>현재 장문령</span><input id="autoCurrentTokens" type="number" min="0" max="99" value="20"></label>
+                                <label class="hs-field"><span>일일 장문령 획득량</span><input id="autoDailyTokens" type="number" min="0" max="99" value="10"></label>
+                                <label class="hs-field"><span>장문령 최대치</span><input id="autoTokenCap" type="number" min="20" max="999" value="99"></label>
+                                <label class="hs-field"><span>교체 대기 시간(시간)</span><input id="autoCooldownHours" type="number" min="0" max="168" step="0.1" value="24"></label>
+                                <label class="hs-field"><span>다음 일일 정산까지(시간)</span><input id="autoNextDailyHours" type="number" min="0.1" max="24" step="0.1" value="24"></label>
                             </div>
-                            <p class="hs-note">当前版本尚未可靠识别存档中的掌门令，默认按当前 20、每日 10、上限 99 计算；请按科技、宝物和实际状态修正。</p>
+                            <p class="hs-note">현재 버전은 세이브의 장문령 수량을 정확하게 식별하지 못합니다. 기본적으로 현재 20개·일일 10개·상한 99개로 계산하므로 연구 효과·보물·실제 상태에 맞춰 수정하세요.</p>
                             <div class="hs-row">
                                 <select id="autoTalentCategory" aria-label="筛选天赋分类">
-                                    <option value="combat">战斗类</option>
-                                    <option value="dispatch">派遣类</option>
-                                    <option value="commission">委托类</option>
-                                    <option value="utility">功能类</option>
-                                    <option value="all" selected>全部</option>
+                                    <option value="combat">전투 유형</option>
+                                    <option value="dispatch">파견 유형</option>
+                                    <option value="commission">의뢰 유형</option>
+                                    <option value="utility">기능 유형</option>
+                                    <option value="all" selected>전체</option>
                                 </select>
                                 <input id="autoTalentSearch" type="search" placeholder="输入天赋名称" autocomplete="off">
-                                <span id="autoTargetCount" class="hs-badge">已选 0 / 3</span>
+                                <span id="autoTargetCount" class="hs-badge">0 / 3개 선택됨</span>
                             </div>
                             <div id="autoTalentChoices" class="hs-choices" role="group" aria-label="选择目标天赋"></div>
                             <div class="hs-row">
-                                <button type="button" id="btnAutoRun" class="hs-btn is-primary">开始恒山自动推演</button>
+                                <button type="button" id="btnAutoRun" class="hs-btn is-primary">항산파 자동 탐색 시작</button>
                             </div>
                             <div id="autoResults" aria-live="polite">
-                                <p class="hs-note">选择弟子和 1～3 个目标天赋后，比较升级、领取掌门令、等待冷却与替换天赋的不同顺序；开启增强选项后会额外搜索清障、换运和节点跳过。</p>
+                                <p class="hs-note">제자와 목표 재능 1~3개를 선택한 뒤 레벨업, 장문령 수령, 대기시간, 재능 교체 순서를 비교합니다. 확장 옵션을 사용하면 장애물 제거·운세 교체·구간 건너뛰기도 검색합니다.</p>
                             </div>
                         </div>
                     </section>
@@ -599,107 +599,107 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 
                 <div id="autoWashModePanel" class="auto-mode-panel" role="tabpanel" aria-labelledby="btnAutoWashMode" hidden>
                 <div class="equip-auto-snapshot-note">
-                    <strong>从当前存档开始推演</strong>
-                    <span>每次查找都从当前存档的进度开始，只计算本次推演，不改动存档或背包；可随时重新查找。</span>
+                    <strong>현재 세이브를 기준으로 시뮬레이션 시작</strong>
+                    <span>탐색은 현재 세이브 진행도에서 시작합니다. 이번 시뮬레이션만 계산하며 원본 세이브와 가방은 변경되지 않습니다. 언제든 다시 탐색할 수 있습니다.</span>
                 </div>
                 <div id="autoWashSaveGate" class="auto-wash-save-gate">
                     <div class="auto-wash-save-head">
                         <div>
                             <span class="auto-step-number">01</span>
                             <div>
-                                <strong>选择人物</strong>
+                                <strong>캐릭터 선택</strong>
                             </div>
                         </div>
                     </div>
                     <div class="auto-wash-role-grid">
-                        <label class="auto-wash-role-select">选择人物
+                        <label class="auto-wash-role-select">캐릭터 선택
                             <select id="autoWashRoleSelect" disabled>
-                                <option value="">请选择人物</option>
+                                <option value="">인물을 선택하세요</option>
                             </select>                        </label>
                         <div class="auto-wash-pill-card">
-                            <span>当前洗髓丹</span>
+                            <span>현재 세수단</span>
                             <strong id="autoWashBagPillDisplay">--</strong>
                         </div>
-                        <div id="autoWashRoleSummary" class="auto-wash-role-summary">导入后必须明确选择一名人物，才能模拟洗脉路线。</div>
+                        <div id="autoWashRoleSummary" class="auto-wash-role-summary">세이브를 불러온 후 캐릭터 한 명을 지정해야 세수 경로를 시뮬레이션할 수 있습니다.</div>
                     </div>
                 </div>
                 <div class="ai-target-toolbar">
-                    <label for="aiTalentSearch"><span class="auto-step-number">02</span> 筛选目标脉</label>
+                    <label for="aiTalentSearch"><span class="auto-step-number">02</span> 목표 맥 선택</label>
                     <input type="search" id="aiTalentSearch" placeholder="输入脉名称" autocomplete="off">
-                    <span id="aiTargetCount" class="ai-target-count">已选 0 / 4</span>
+                    <span id="aiTargetCount" class="ai-target-count">0 / 4개 선택됨</span>
                 </div>
-                <p class="ai-target-quality-help">紫脉、蓝脉、绿脉均可选择，最多 4 条。</p>
+                <p class="ai-target-quality-help">자맥·청맥·녹맥 중 최대 4개를 선택할 수 있습니다.</p>
                 <div id="aiTalentChoices" class="ai-talent-choices" role="group" aria-label="选择最终目标脉：紫脉、蓝脉、绿脉">
-                    <span class="text-muted">选择人物后显示可用的紫脉、蓝脉和绿脉</span>
+                    <span class="text-muted">캐릭터 선택 후 사용할 수 있는 자맥·청맥·녹맥을 표시합니다</span>
                 </div>
-                <p class="ai-network-note">联网查找，仅提交所选人物的洗脉状态及相关养成数据；不会修改当前存档。</p>
+                <p class="ai-network-note">온라인 탐색은 선택한 캐릭터의 세수 상태와 관련 육성 데이터만 전송하며 현재 세이브는 변경하지 않습니다.</p>
 <div id="aiSelectionMessage" class="ai-selection-message" aria-live="polite"></div>
 
                 <label class="wash-search-budget" for="aiMaxTotalPills">
-                    <span>模拟洗脉最大耗丹数量</span>
-                    <span class="wash-search-budget-input"><input type="number" id="aiMaxTotalPills" min="0" step="100" value="5000" aria-describedby="aiMaxTotalPillsHint"><span>丹</span></span>
-                    <small id="aiMaxTotalPillsHint">只查找总耗丹不超过此数的路线；开天赋栏所需的资质材料另计。</small>
+                    <span>모의 세수단 최대 소모량</span>
+                    <span class="wash-search-budget-input"><input type="number" id="aiMaxTotalPills" min="0" step="100" value="5000" aria-describedby="aiMaxTotalPillsHint"><span>개</span></span>
+                    <small id="aiMaxTotalPillsHint">지정한 세수단 소모량을 넘지 않는 경로만 탐색합니다. 재능 슬롯 개방에 필요한 자질 재료는 별도로 계산합니다.</small>
                 </label>
-                <p class="wash-search-help">按耗丹上限进行深度查找。首次找到方案后，仅显示耗丹不高于首条方案的路线；可随时停止，或切换页面后回来查看。</p>
+                <p class="wash-search-help">세수단 소모 상한 내에서 심층 탐색합니다. 첫 결과 이후에는 해당 결과보다 세수단 소모가 많지 않은 경로만 보여 줍니다. 언제든 중지하거나 다른 화면으로 이동할 수 있습니다.</p>
 
                 <div class="ai-search-actions">
-                    <button id="btnAiPredict" class="btn btn-ai-predict" type="button">开始查找路线</button>
-                    <button id="btnAiCancel" class="btn btn-reset" type="button" hidden>停止查找</button>
+                    <button id="btnAiPredict" class="btn btn-ai-predict" type="button">경로 탐색 시작</button>
+                    <button id="btnAiCancel" class="btn btn-reset" type="button" hidden>탐색 중지</button>
                 </div>
                 <div id="aiSearchProgress" class="ai-search-progress" data-state="idle" hidden aria-live="polite">
                     <div class="ai-progress-head">
-                        <span id="aiProgressText">正在查找，可切换页面</span>
+                        <span id="aiProgressText">탐색 중입니다. 다른 페이지로 이동해도 됩니다.</span>
                         <b id="aiProgressPercent"></b>
                     </div>
                     <div class="ai-progress-track" role="progressbar" aria-label="路线查找进度"><div id="aiProgressFill" class="ai-progress-fill"></div></div>
                 </div>
                 <div id="aiPredictionResults" class="ai-prediction-results" aria-live="polite">
-                    <div class="ai-result-empty">选好人物和目标脉后，点击“开始查找路线”。</div>
+                    <div class="ai-result-empty">캐릭터와 목표 맥을 선택한 후 '경로 탐색 시작'을 누르세요.</div>
                 </div>
                 </div>
             </section>
 
             <section class="stats-panel wash-simulator-only">
                 <div class="section-title">
-                    <span class="section-heading">统计</span>
+                    <span class="section-heading">통계</span>
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-value" id="statTotalWash">0</div>
-                        <div class="stat-label">洗髓次数</div>
+                        <div class="stat-label">세수 횟수</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="statTotalPills">0</div>
-                        <div class="stat-label">洗髓丹消耗</div>
+                        <div class="stat-label">세수단 소모</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value purple" id="statGoldCount">0</div>
-                        <div class="stat-label">出紫次数</div>
+                        <div class="stat-label">자맥 등장 횟수</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="statPityCount">0</div>
-                        <div class="stat-label">保底触发</div>
+                        <div class="stat-label">천장 발동</div>
                     </div>
                 </div>
                 <div class="stats-detail">
                     <div class="quality-stats">
                         <div class="quality-bar">
-                            <span class="quality-label q1">白</span>
+                            <span class="quality-label q1">백</span>
                             <div class="quality-track"><div id="barQ1" class="quality-fill q1" style="width:0%;"></div></div>
                             <span class="quality-count" id="countQ1">0</span>
                         </div>
                         <div class="quality-bar">
-                            <span class="quality-label q2">绿</span>
+                            <span class="quality-label q2">녹</span>
                             <div class="quality-track"><div id="barQ2" class="quality-fill q2" style="width:0%;"></div></div>
                             <span class="quality-count" id="countQ2">0</span>
                         </div>
                         <div class="quality-bar">
-                            <span class="quality-label q3">蓝</span>
+                            <span class="quality-label q3">청</span>
                             <div class="quality-track"><div id="barQ3" class="quality-fill q3" style="width:0%;"></div></div>
                             <span class="quality-count" id="countQ3">0</span>
                         </div>
                         <div class="quality-bar">
-                            <span class="quality-label q4">紫</span>
+                            <span class="quality-label q4">자</span>
                             <div class="quality-track"><div id="barQ4" class="quality-fill q4" style="width:0%;"></div></div>
                             <span class="quality-count" id="countQ4">0</span>
                         </div>
@@ -709,20 +709,20 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 
             <section class="history-panel wash-simulator-only">
                 <div class="section-title history-title">
-                    <span class="section-heading">洗髓记录</span>
+                    <span class="section-heading">세수 기록</span>
                     <div class="section-actions">
-                        <button id="btnExportLog" class="btn-text" type="button">导出</button>
-                        <button id="btnClearLog" class="btn-text" type="button">清空</button>
+                        <button id="btnExportLog" class="btn-text" type="button">내보내기</button>
+                        <button id="btnClearLog" class="btn-text" type="button">비우기</button>
                     </div>
                 </div>
                 <div id="historyLog" class="history-log">
-                    <div class="log-empty">尚未开始洗髓</div>
+                    <div class="log-empty">세수를 시작하지 않았습니다</div>
                 </div>
                 <div id="historyPager" class="pager-bar" hidden>
-                    <button type="button" id="btnHistoryPrev" class="btn btn-reset">上一页</button>
+                    <button type="button" id="btnHistoryPrev" class="btn btn-reset">이전 페이지</button>
                     <span id="historyPagerInfo" class="meta-text">—</span>
-                    <button type="button" id="btnHistoryNext" class="btn btn-reset">下一页</button>
-                    <label class="pager-size">每页
+                    <button type="button" id="btnHistoryNext" class="btn btn-reset">다음 페이지</button>
+                    <label class="pager-size">페이지당
                         <select id="historyPageSize">
                             <option value="50" selected>50</option>
                             <option value="100">100</option>
@@ -736,7 +736,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
         <div id="purpleModal" class="modal-overlay wash-simulator-only" hidden>
             <div class="modal-content modal-split">
                 <div class="modal-header">
-                    <h2>脉序预测与多紫脉联动置换推演</h2>
+                    <h2>맥 등장 순서 예측 및 여러 자맥의 연계 치환 시뮬레이션</h2>
                     <button id="btnClosePurpleModal" class="modal-close-btn" type="button">&times;</button>
                 </div>
                 <div class="modal-body purple-split-body">
@@ -746,13 +746,11 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                                 <input type="text" id="purpleSearchInput" placeholder="搜索紫脉或冲突脉...">
                             </div>
                             <div class="filter-box">
-                                <label><input type="checkbox" id="filterExchangeOnly"> 仅可置换</label>
-                                <label><input type="checkbox" id="filterPityOnly"> 仅保底</label>
+                                <label><input type="checkbox" id="filterExchangeOnly"> 치환 가능만</label>
+                                <label><input type="checkbox" id="filterPityOnly"> 천장만</label>
                             </div>
                             <div class="stats-summary">
-                                扫描 <b id="currentMaxWashesDisplay" class="purple-bright">3000</b> 次洗髓 /
-                                紫 <b id="purpleCount" class="purple-bright">0</b> /
-                                可置换 <b id="exchangeableCount" class="green-bright">0</b>
+                                검색 <b id="currentMaxWashesDisplay" class="purple-bright">3000</b> 회 세수 / 자맥 <b id="purpleCount" class="purple-bright">0</b> / 치환 가능 <b id="exchangeableCount" class="green-bright">0</b>
                                 <button id="btnLoadMoreSequence" class="btn btn-wash-custom" type="button">+3000</button>
                             </div>
                         </div>
@@ -760,16 +758,16 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                             <table class="purple-table">
                                 <thead>
                                     <tr>
-                                        <th>序号</th>
-                                        <th>脉序(条)</th>
-                                        <th>洗出紫脉</th>
-                                        <th>保底</th>
-                                        <th>最近前置同类冲突脉</th>
-                                        <th>操作</th>
+                                        <th>순번</th>
+                                        <th>맥 등장 순서(개)</th>
+                                        <th>세수로 획득한 자맥</th>
+                                        <th>천장</th>
+                                        <th>가장 가까운 선행 동일 유형 충돌맥</th>
+                                        <th>조작</th>
                                     </tr>
                                 </thead>
                                 <tbody id="purpleTableBody">
-                                    <tr><td colspan="6" class="loading-td">正在分析推演脉序中...</td></tr>
+                                    <tr><td colspan="6" class="loading-td">맥 등장 순서를 분석하는 중...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -778,18 +776,18 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                     <div class="purple-pane purple-pane-exchange">
                         <div id="exchangeAnalysisBlock" class="exchange-analysis-block">
                             <div class="block-header">
-                                <h3>多紫脉联动置换</h3>
-                                <span class="block-tip">左侧选 2~3 条可置换紫脉</span>
+                                <h3>여러 자맥 연계 치환</h3>
+                                <span class="block-tip">왼쪽에서 치환 가능한 자맥 2~3개를 선택하세요</span>
                             </div>
                             <div id="exchangeBlockContent" class="block-content">
-                                <div class="block-empty">尚未选择可置换紫脉。请在左侧表格点击「选择推演」</div>
+                                <div class="block-empty">치환할 자맥을 선택하지 않았습니다. 왼쪽 표에서 '시뮬레이션 선택'을 누르세요.</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <p class="modal-tip"><b>说明</b>：脉序=累计天赋条数（非洗髓次数）。神脉均可选推演：已有其他神脉则互冲置换；尚无则可锁留作底，待他紫置换出神脉后再互冲。神脉与普通紫不同——锁定一条后刷出其他神脉，槽内<b>所有神脉都可点置换</b>（可同时 2～3 条）。一心两用等没有低阶冲突脉的天赋，不能靠锁住普通冲突脉来置换。首次置换或保底前，锁紫后垫洗会改变可选的置换序列。<br><b>保底注意</b>：表中标「保底」的紫按<b>未锁定</b>连洗预测；中途锁脉后保底紫可能换成别的——与游戏一致。</p>
-                    <button id="btnRefreshPurpleAnalysis" class="btn btn-wash-gold" type="button">重新推算</button>
+                    <p class="modal-tip"><b>설명</b>맥 등장 순서는 누적 재능 개수이며 세수 횟수가 아닙니다. 신맥은 모두 시뮬레이션 대상으로 선택할 수 있습니다. 다른 신맥이 있으면 서로 충돌해 치환되며, 없으면 잠가 두었다가 다른 자맥을 신맥으로 치환한 다음 충돌시킬 수 있습니다. 일반 자맥과 달리 신맥 하나를 잠근 후 다른 신맥이 나오면 슬롯 안에서<b>모든 신맥에서 치환을 선택할 수 있습니다.</b>(동시에 2~3개 선택 가능). 일심양용처럼 하위 충돌맥이 없는 재능은 일반 충돌맥을 잠가 치환할 수 없습니다. 첫 치환이나 천장 이전에 자맥을 잠그고 세수를 진행하면 선택 가능한 치환 순서가 달라질 수 있습니다.<br><b>천장 주의사항</b>표에서 '천장'으로 표시된 자맥은<b>잠금 안 함</b>연속 세수 기준으로 예측합니다. 도중에 맥을 잠그면 천장 자맥이 달라질 수 있으며 이는 게임 동작과 같습니다.</p>
+                    <button id="btnRefreshPurpleAnalysis" class="btn btn-wash-gold" type="button">다시 예측</button>
                 </div>
             </div>
         </div>
