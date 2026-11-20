@@ -186,9 +186,9 @@
         wrap.innerHTML = '<div class="equip-auto-forge-card" role="dialog" aria-modal="true">'
             + '<div class="equip-auto-forge-head"><div><strong>' + esc(title) + '</strong>'
             + '<span>' + esc(subtitle || '') + '</span></div>'
-            + '<button type="button" class="equip-auto-forge-close" aria-label="关闭" title="关闭">×</button></div>'
+            + '<button type="button" class="equip-auto-forge-close" aria-label="닫기" title="닫기">×</button></div>'
             + bodyHtml
-            + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close button">关闭</button></div>'
+            + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close button">닫기</button></div>'
             + '</div>';
         document.body.appendChild(wrap);
 
@@ -216,9 +216,9 @@
     function refineCostText(cost, upgrade) {
         var materials = new Map(), silver = 0;
         function add(item, amount) { if (!item || !(Number(amount) > 0)) return; var key = String(item.id || item.name); var row = materials.get(key) || { name: item.name || key, amount: 0 }; row.amount += Number(amount); materials.set(key, row); }
-        [cost, upgrade].forEach(function (part) { if (!part) return; (part.materials || []).forEach(function (item) { add(item, item.amount); }); add(part.mainMaterial, part.mainAmount); add({ id: 8801, name: '连金泥' }, part.lianjin); silver += Number(part.silver) || 0; });
+        [cost, upgrade].forEach(function (part) { if (!part) return; (part.materials || []).forEach(function (item) { add(item, item.amount); }); add(part.mainMaterial, part.mainAmount); add({ id: 8801, name: '연금니' }, part.lianjin); silver += Number(part.silver) || 0; });
         var text = Array.from(materials.values()).map(function (item) { return item.name + '×' + item.amount.toLocaleString(); });
-        if (silver) text.push('银两' + (Math.floor(silver / 1000) ? Math.floor(silver / 1000).toLocaleString() + '两' : '') + (silver % 1000 ? silver % 1000 + '文' : ''));
+        if (silver) text.push('은냥' + (Math.floor(silver / 1000) ? Math.floor(silver / 1000).toLocaleString() + '냥' : '') + (silver % 1000 ? silver % 1000 + '문' : ''));
         return text.join(' · ') || '없음';
     }
 
@@ -246,7 +246,7 @@
             var shown = rows.filter(function (row) { return (!slot || String(row[1]) === slot) && (!prop || String(row[3] || '').indexOf(prop + '+') === 0); });
             meta.textContent = '표시 ' + shown.length + ' / ' + rows.length + '개';
             tbody.innerHTML = shown.length ? shown.map(function (row) {
-                return '<tr class="' + (String(row[6]).indexOf('保留') >= 0 || String(row[6]).indexOf('锁定') >= 0 ? 'row-keep' : '') + '"><td>第 ' + esc(row[0]) + ' 次</td><td>槽 ' + esc(row[1]) + '</td><td>' + esc(row[2]) + ' → ' + esc(row[3]) + '</td><td>' + esc(row[6] || '不保留') + '</td><td>×' + esc(row[4]) + '</td><td>' + esc(row[7] == null ? '—' : row[7]) + '</td><td>' + esc(row[5]) + '</td></tr>';
+                return '<tr class="' + (String(row[6]).indexOf('保留') >= 0 || String(row[6]).indexOf('锁定') >= 0 ? 'row-keep' : '') + '"><td>제 ' + esc(row[0]) + '회</td><td>슬롯 ' + esc(row[1]) + '</td><td>' + esc(row[2]) + ' → ' + esc(row[3]) + '</td><td>' + esc(row[6] || '유지 안 함') + '</td><td>×' + esc(row[4]) + '</td><td>' + esc(row[7] == null ? '—' : row[7]) + '</td><td>' + esc(row[5]) + '</td></tr>';
             }).join('') : '<tr><td colspan="7">' + esc(route && route.error ? route.error : route && !route.cutoff ? '새로 유지할 옵션이 필요하지 않습니다. 현재 옵션을 유지합니다' : '검색 조건에 맞는 정련 기록이 없습니다') + '</td></tr>';
         }
         function selectRoute() {
@@ -270,7 +270,7 @@
     function openRegion(candidate, views) {
         var data = views && views.region;
         if (!data) return false;
-        var body = '<p class="equip-auto-forge-meta">按同一张图纸、同一打造进度，在其他 NPC 各模拟打造 1000 次，'
+        var body = '<p class="equip-auto-forge-meta">같은 도면과 제작 진행도에서 다른 장인에게 각각 1,000회 제작을 예측합니다. '
             + '옵션 종류·개수·수치가 완전히 같은 장비가 처음 등장하는 회차를 찾습니다.</p>'
             + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
             + '<thead><tr><th>장인 / 지역</th><th>횟수</th><th>지역 추가 옵션</th></tr></thead><tbody>'
@@ -280,7 +280,7 @@
                     ? data.rows.map(function (row) {
                         return '<tr><td>' + esc(row[0]) + '</td><td>' + esc(row[1]) + '</td><td>' + esc(row[2]) + '</td></tr>';
                     }).join('')
-                    : '<tr><td colspan="3">没有其他可打造这件装备的 NPC</td></tr>'))
+                    : '<tr><td colspan="3">다른 장인에게서 이 장비를 제작할 수 없습니다</td></tr>'))
             + '</tbody></table></div>';
         modal('다른 장인의 추가 옵션 · ' + (candidate.equipName || '장비'), '저장된 계산 결과를 표시합니다', body);
         return true;
@@ -453,13 +453,13 @@
             var parts = [];
             if (data.materialName) parts.push('재료: ' + esc(data.materialName));
             if (levelText) parts.push(levelText);
-            body = '<p class="equip-auto-forge-meta">按 ' + esc(data.count || items.length) + ' 次洗练算好'
+            body = '<p class="equip-auto-forge-meta">망정 ' + esc(data.count || items.length) + '회 계산 결과'
                 + (parts.length ? '（' + parts.join(' · ') + '）' : '')
                 + '. 능력치별 상위 3개 결과입니다.</p>'
                 + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
                 + '<thead><tr><th>순위</th><th>능력치</th><th>수치</th><th>횟수</th></tr></thead>'
                 + '<tbody>' + topHtml + '</tbody></table></div>'
-                + '<details class="equip-auto-mang-all"><summary>展开全部 ' + items.length + ' 次明细</summary>'
+                + '<details class="equip-auto-mang-all"><summary>전체 ' + items.length + '회 상세 보기</summary>'
                 + '<div class="equip-auto-forge-table-wrap" style="margin-top:.5rem"><table class="equip-auto-forge-table">'
                 + '<thead><tr><th>횟수</th><th>능력치</th><th>수치</th></tr></thead>'
                 + '<tbody>' + allRows + '</tbody></table></div></details>';
@@ -471,8 +471,8 @@
                         + '<td>+' + esc(fmtValue(item.prop, item.value)) + '</td>'
                         + '<td>제 ' + esc(item.recommendedIndex) + '회</td></tr>';
                 }).join('')
-                : '<tr><td colspan="3">这件装备没有可洗出的附加属性</td></tr>';
-            body = '<p class="equip-auto-forge-meta">这件收藏得比较早，只存了每个属性的최고 수치（共 '
+                : '<tr><td colspan="3">이 장비에서 얻을 수 있는 망정 추가 옵션이 없습니다</td></tr>';
+            body = '<p class="equip-auto-forge-meta">이전에 저장한 결과로, 능력치별 최고값만 남아 있습니다(총 '
                 + esc(data.count || '') + '회). 자동 탐색에서 다시 즐겨찾기에 등록하면 상세 순서를 확인할 수 있습니다.</p>'
                 + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
                 + '<thead><tr><th>능력치</th><th>최고 수치</th><th>획득 횟수</th></tr></thead><tbody>' + mrows + '</tbody></table></div>';
