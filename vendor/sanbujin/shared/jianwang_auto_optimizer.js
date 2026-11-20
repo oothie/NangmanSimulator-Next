@@ -84,7 +84,7 @@
             cumulative += weight;
             return draw.value <= cumulative;
         });
-        if (index < 0) throw new RangeError(`${context}随机值超出总权重`);
+        if (index < 0) throw new RangeError(`${context} 무작위 값이 전체 가중치를 초과했습니다`);
         return { seed: draw.seed, index };
     }
 
@@ -521,7 +521,7 @@
     function normalizeMaxSwords(value) {
         const count = Math.floor(Number(value));
         if (!Number.isSafeInteger(count) || count < 1 || count > MAX_SIMULATED_SWORDS) {
-            throw new RangeError(`最大模拟次数必须是 1–${MAX_SIMULATED_SWORDS} 的整数`);
+            throw new RangeError(`최대 시뮬레이션 횟수는 1~${MAX_SIMULATED_SWORDS} 사이의 정수여야 합니다`);
         }
         return count;
     }
@@ -537,7 +537,7 @@
         if (id === 5708) return '70级剑胚';
         if (id === 5709) return '80级剑胚';
         if (JIANWANG_LEVEL_90_IDS.has(id)) return `90级专武 · ${cfg.name || sword?.name || id}`;
-        if (JIANWANG_LEVEL_100_IDS.has(id)) return `100级神兵 · ${cfg.name || sword?.name || id}`;
+        if (JIANWANG_LEVEL_100_IDS.has(id)) return `100레벨 신병 · ${cfg.name || sword?.name || id}`;
         return cfg.name || sword?.name || '未知剑王阁装备';
     }
 
@@ -863,7 +863,7 @@
         const routeTargets = routeTargetsFromSword(sword, state.routeId);
         for (const targetId of routeTargets) {
             sword = applyGrowStep(state, sword, targetId, path, 'grow');
-            const hit = collectTargetHit(state, sword, path, swordOrdinal, `升至${stageName(state.equipData, sword)}`, startedFromCurrent);
+            const hit = collectTargetHit(state, sword, path, swordOrdinal, `${stageName(state.equipData, sword)}까지 승련`, startedFromCurrent);
             if (hit?.success) return { success: hit.success, sword };
             if (hit?.threeLimitReached) return { success: null, threeLimitReached: true, sword, path };
         }
@@ -878,7 +878,7 @@
         const completed = Math.max(0, Math.min(JIANWANG_REFORGE_LIMIT, Math.floor(Number(reforgeCompleted) || 0)));
         for (let attempt = completed + 1; attempt <= JIANWANG_REFORGE_LIMIT; attempt++) {
             sword = applyGrowStep(state, sword, Number(sword.id), path, 'reforge', attempt);
-            const hit = collectTargetHit(state, sword, path, swordOrdinal, `第${attempt}次重铸`, startedFromCurrent);
+            const hit = collectTargetHit(state, sword, path, swordOrdinal, `${attempt}번째 재주조`, startedFromCurrent);
             if (hit?.success) return { success: hit.success, sword };
             if (hit?.threeLimitReached) return { success: null, threeLimitReached: true, sword, path };
         }
@@ -896,7 +896,7 @@
         const routeTargets = routeTargetsFromSword(startSword, state.routeId);
         for (const targetId of routeTargets) {
             branches = advanceDualBranches(state, branches, targetId, 'grow');
-            collectDualBranchHits(state, branches, swordOrdinal, `升至${stageName(state.equipData, branches[0].sword)}`, startedFromCurrent);
+            collectDualBranchHits(state, branches, swordOrdinal, `${stageName(state.equipData, branches[0].sword)}까지 승련`, startedFromCurrent);
         }
         const routeSword = branches[0]?.sword;
         if (!JIANWANG_LEVEL_90_IDS.has(Number(routeSword?.id)) || Number(routeSword?.id) !== state.routeId) {
@@ -908,7 +908,7 @@
         const completed = Math.max(0, Math.min(JIANWANG_REFORGE_LIMIT, Math.floor(Number(reforgeCompleted) || 0)));
         for (let attempt = completed + 1; attempt <= JIANWANG_REFORGE_LIMIT; attempt++) {
             branches = advanceDualBranches(state, branches, Number(routeSword.id), 'reforge', attempt);
-            collectDualBranchHits(state, branches, swordOrdinal, `第${attempt}次重铸`, startedFromCurrent);
+            collectDualBranchHits(state, branches, swordOrdinal, `${attempt}번째 재주조`, startedFromCurrent);
         }
         const representative = branches[0];
         return {
@@ -987,7 +987,7 @@
             const names = targetNames(state);
             return {
                 status: 'unreachable',
-                reason: `当前序列下无法产生${state.targetCount === 4 ? '三' : '两'}条相同的新词条`,
+                reason: `현재 순서에서는 동일한 새 옵션 ${state.targetCount === 4 ? '3' : '2'}개를 얻을 수 없습니다`,
                 targetProp: state.targetProp,
                 targetProps: clone(state.targetProps),
                 targetName: names.join(' / '),
@@ -1013,7 +1013,7 @@
         const candidate = simulateCandidateSword(state, start, completed, startOrdinal, true);
         if (candidate.success) return candidate.success;
         if (candidate.threeLimitReached) {
-            return multiSuccessResult(state, `已找到 ${THREE_TARGET_SUCCESS_LIMIT} 次三条指定词条结果，提前停止`, 'success-limit');
+            return multiSuccessResult(state, `지정 옵션 3개를 만족하는 결과를 ${THREE_TARGET_SUCCESS_LIMIT}회 찾아 탐색을 조기 종료했습니다`, 'success-limit');
         }
         state.currentForShatter = candidate.sword;
         return null;
@@ -1066,7 +1066,7 @@
             }
         }
         if (candidate.threeLimitReached) {
-            return multiSuccessResult(state, `已找到 ${THREE_TARGET_SUCCESS_LIMIT} 次三条指定词条结果，提前停止`, 'success-limit');
+            return multiSuccessResult(state, `지정 옵션 3개를 만족하는 결과를 ${THREE_TARGET_SUCCESS_LIMIT}회 찾아 탐색을 조기 종료했습니다`, 'success-limit');
         }
         state.currentForShatter = candidate.sword;
         return null;
@@ -1075,16 +1075,16 @@
     function terminalLimitResult(state) {
         const names = targetNames(state);
         if (state.matches.length && (state.dualTarget || state.targetCount === 3)) {
-            const mode = `${state.targetCount} 条指定词条`;
+            const mode = `지정 옵션 ${state.targetCount}개`;
             return multiSuccessResult(
                 state,
-                `已完成 ${state.metrics.shatters} 次碎剑循环，找到 ${state.matches.length} 笔${mode}结果`,
+                `검 분해 반복 ${state.metrics.shatters}회 완료 · ${mode} 결과 ${state.matches.length}건 발견`,
                 'max-swords',
             );
         }
         return {
             status: 'limit',
-            reason: `已完成 ${state.metrics.shatters} 次碎剑循环，未找到 ${state.targetCount} 条指定词条结果`,
+            reason: `已完成 ${state.metrics.shatters} 次碎剑循环，未找到 지정 옵션 ${state.targetCount}개结果`,
             targetProp: state.targetProp,
             targetProps: clone(state.targetProps),
             targetName: names.join(' / '),
@@ -1148,8 +1148,8 @@
             if (success) {
                 if (onProgress) {
                     const message = !state.dualTarget && state.targetCount === 3
-                        ? `已找到 ${state.matches.length}/${THREE_TARGET_SUCCESS_LIMIT} 次三条指定词条结果`
-                        : `第 ${ordinal} 把新剑找到结果`;
+                        ? `지정 옵션 3개를 만족하는 결과 ${state.matches.length}/${THREE_TARGET_SUCCESS_LIMIT}회 발견`
+                        : `새 검 ${ordinal}번째에서 결과 발견`;
                     onProgress({ done: ordinal, total: state.maxSwords, metrics: clone(state.metrics), matches: state.matches.length, message });
                 }
                 return success;
@@ -1157,13 +1157,13 @@
             if (onProgress && (ordinal === 1 || ordinal % batchSize === 0 || ordinal === state.maxSwords)) {
                 let matchText = '';
                 if (state.dualTarget) matchText = ` · 命中 ${state.matches.length}`;
-                else if (state.targetCount === 3) matchText = ` · 三条词条 ${state.matches.length}/${THREE_TARGET_SUCCESS_LIMIT}`;
+                else if (state.targetCount === 3) matchText = ` · 옵션 3개 ${state.matches.length}/${THREE_TARGET_SUCCESS_LIMIT}`;
                 onProgress({
                     done: ordinal,
                     total: state.maxSwords,
                     metrics: clone(state.metrics),
                     matches: state.matches.length,
-                    message: `已完成 ${state.metrics.shatters} 次碎剑循环${matchText}`,
+                    message: `검 분해 반복 ${state.metrics.shatters}회 완료${matchText}`,
                 });
             }
             if (ordinal % batchSize === 0) await yieldControl();
