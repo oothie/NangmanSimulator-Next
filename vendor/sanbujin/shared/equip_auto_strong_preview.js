@@ -44,7 +44,7 @@
 
     function planPath(grades, start, targetLevel, minGrade, needLv) {
         var need = targetLevel - start;
-        if (need <= 0) return { minCost: { ok: false, reason: '已达期望层数' }, maxValue: { ok: false, reason: '已达期望层数' } };
+        if (need <= 0) return { minCost: { ok: false, reason: '목표 단계에 도달했습니다' }, maxValue: { ok: false, reason: '목표 단계에 도달했습니다' } };
         var n = grades.length;
         function better(a, b, mode) {
             if (!a) return true;
@@ -104,7 +104,7 @@
                         if (d[i2][k2] && k2 > maxK) maxK = k2;
                     }
                 }
-                return { ok: false, reason: maxK < 0 ? '无可行路径' : ('序列内最多升至 +' + (start + maxK) + '（期望 +' + targetLevel + '），请加长序列或降低档位') };
+                return { ok: false, reason: maxK < 0 ? '진행 가능한 경로 없음' : ('현재 순서에서 최대 +' + (start + maxK) + '(목표 +' + targetLevel + ')까지 가능합니다. 조회 횟수를 늘리거나 목표 단계를 낮추세요.') };
             }
             var accepts = {};
             var steps = [];
