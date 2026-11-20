@@ -2008,7 +2008,7 @@ async function compareFirstPurple() {
             try {
                 const result=runExchangeSequenceWasmSandbox(()=>buildExchangeSequence(role,candidate,n,1));
                 value.textContent=result.outputs[0]?.name || '未找到';
-                const show=document.createElement('button');show.type='button';show.disabled=true;show.textContent='查看';show.setAttribute('aria-label',`查看${fixed?'当前固定序列':`위치 ${n}`}的完整置换序列`);
+                const show=document.createElement('button');show.type='button';show.disabled=true;show.textContent='查看';show.setAttribute('aria-label',`查看${fixed?'当前固定序列':`위치 ${n}`}의 전체 치환 순서`);
                 show.onclick=()=>{const input=activeExchangeSequencePadInput(role);if(input)input.value=String(n);generateExchangeSequence();};action.append(show);
             } catch(error) {value.textContent=playerError(error);}
             line.append(position,value,action);body.append(line);
@@ -2203,7 +2203,7 @@ function paintPurpleForecastTable() {
     let html = '';
     filtered.forEach((item, idx) => {
         const pityTag = item.was_pity
-            ? '<span class="tag-pity" title="未锁定连洗下的保底预测；中途锁脉后保底紫可能换成别的（与游戏一致）">保底</span>'
+            ? '<span class="tag-pity" title="잠금 없이 연속 세수했을 때의 천장 예측입니다. 중간에 맥을 잠그면 천장에서 나오는 자맥이 달라질 수 있습니다(게임과 동일).">保底</span>'
             : '-';
 
         let conflictText = '-';
@@ -4098,7 +4098,7 @@ function renderEquipAutoLocations() {
             .filter(Boolean);
         const headExtra = selectedNames.length ? " · 已选 " + selectedNames.join("、") : "";
         return "<div class=\"equip-auto-location-group is-" + kind + "\">"
-            + "<div class=\"equip-auto-location-group-head\"><strong>" + title + "</strong><span>" + items.length + " 处" + headExtra + "</span></div>"
+            + "<div class=\"equip-auto-location-group-head\"><strong>" + title + "</strong><span>" + items.length + " 곳" + headExtra + "</span></div>"
             + "<div class=\"equip-auto-choice-grid\">" + items.map(labelHtml).join("") + "</div>"
             + "</div>";
     };
@@ -4208,7 +4208,7 @@ function renderEquipAutoPapers() {
             .map(item => String(item.equip.name || item.paper.name || ''));
         const headExtra = selectedNames.length ? ' · 已选 ' + selectedNames.join('、') : '';
         return '<div class="equip-auto-paper-group is-' + group.kind + '" data-material="' + escapeAiHtml(group.name) + '">'
-            + '<div class="equip-auto-paper-group-head"><strong>' + escapeAiHtml(group.name) + '</strong><span>' + group.items.length + ' 张' + headExtra + '</span></div>'
+            + '<div class="equip-auto-paper-group-head"><strong>' + escapeAiHtml(group.name) + '</strong><span>' + group.items.length + ' 장' + headExtra + '</span></div>'
             + '<div class="equip-auto-paper-group-body">' + group.items.map(cardHtml).join('') + '</div>'
             + '</div>';
     }).join('');
@@ -4363,7 +4363,7 @@ function renderEquipAutoProperties() {
             return '<button type="button" class="equip-auto-attach-chip' + (selected ? ' is-selected' : '') + '" data-attach-paper="' + escapeAiHtml(String(paperId)) + '" data-attach-material="' + Number(material.id) + '" aria-pressed="' + selected + '">' + escapeAiHtml(material.name) + (values ? '<small>' + values + '</small>' : '') + '</button>';
         }).join('');
         const name = String(paper.name || equip.name || '').replace(/图样$/, '');
-        return '<div class="equip-auto-attach-group"><div class="equip-auto-attach-group-title">' + escapeAiHtml(name) + '</div><div class="equip-auto-attach-row">' + (chips || '<span>无可选材料</span>') + '</div></div>';
+        return '<div class="equip-auto-attach-group"><div class="equip-auto-attach-group-title">' + escapeAiHtml(name) + '</div><div class="equip-auto-attach-row">' + (chips || '<span>선택 가능한 재료 없음</span>') + '</div></div>';
     }).join('');
     container.innerHTML = '<section class="equip-auto-subpanel is-attach"><div class="equip-auto-subpanel-head"><strong>망정 능력치</strong><em>최초 제작 추가 재료(복수 선택 가능)</em></div>' + groups + '<p class="equip-auto-slot-hint">재료마다 독립적인 제작 경로를 계산하며 선택하지 않으면 일반 제작 기준으로 계산합니다.</p></section>';
     container.querySelectorAll('[data-attach-material]').forEach(button => button.addEventListener('click', () => {
@@ -4749,7 +4749,7 @@ function equipAutoAttachmentHtml(attachment) {
             <span>${escapeAiHtml(equipAutoPropertyLabel(maximum.prop))}</span>
             <span class="equip-auto-cost-line">消耗：芒晶×${maximum.recommendedIndex}</span>
         </div>`).join('')}</div>
-        ${sequence ? `<ol class="equip-auto-attach-sequence" aria-label="망정逐次结果">${sequence}</ol>` : ''}
+        ${sequence ? `<ol class="equip-auto-attach-sequence" aria-label="망정 회차별 결과">${sequence}</ol>` : ''}
     </div>`;
 }
 
@@ -4823,7 +4823,7 @@ function equipAutoCandidateCostHtml(candidate) {
     if (cost.mainMaterial && cost.mainAmount) parts.push(`${escapeAiHtml(cost.mainMaterial.name)}×${Number(cost.mainAmount).toLocaleString()}`);
     if (cost.lianjin) parts.push(`连金泥×${Number(cost.lianjin).toLocaleString()}`);
     if (cost.silver) parts.push(`银两${equipAutoFormatSilver(cost.silver)}`);
-    const items = parts.length ? parts.map(part => `<span>${part}</span>`).join('') : '<span>无</span>';
+    const items = parts.length ? parts.map(part => `<span>${part}</span>`).join('') : '<span>없음</span>';
     return `<div class="equip-auto-cost-items">${items}</div>`;
 }
 
@@ -5146,7 +5146,7 @@ function equipAutoAskCacheOptions() {
             + '<h3 class="equip-auto-fav-title">收藏到云盘</h3>'
             + '<p class="equip-auto-fav-tip">즐겨찾기 시 상세 결과도 저장되므로 다른 기기나 세이브에서도 확인할 수 있습니다.</p>'
             + '<label class="equip-auto-fav-field"><span>精炼数据</span>'
-            + '<input type="number" id="favRefineRows" min="0" max="2000" step="50" value="500"><i>条</i></label>'
+            + '<input type="number" id="favRefineRows" min="0" max="2000" step="50" value="500"><i>개</i></label>'
             + '<label class="equip-auto-fav-field"><span>촉련 데이터</span>'
             + '<input type="number" id="favForgeCount" min="0" max="2000" step="50" value="300"><i>회</i></label>'
             + '<label class="equip-auto-fav-field"><span>망정</span>'
@@ -5351,7 +5351,7 @@ function equipAutoFavoriteTypeName(candidate) {
 function renderEquipAutoFavorites() {
     const container = document.getElementById('autoEquipFavorites');
     const count = document.getElementById('autoEquipFavoriteCount');
-    if (count) count.textContent = equipAutoFavorites.length + ' 件';
+    if (count) count.textContent = equipAutoFavorites.length + ' 개';
     if (!container || container.closest('[hidden]')) return;
     if (!equipAutoFavorites.length) {
         container.innerHTML = '<p class="ai-result-empty">在结果里点 ☆ 收藏，装备会出现在这里。</p>';
@@ -5603,7 +5603,7 @@ function bindEquipAutoFavoritesBackup() {
             reader.onload = () => {
                 const result = equipAutoFavoritesRestore(String(reader.result || ''));
                 if (!result.ok) { window.alert('恢复失败：' + result.error); return; }
-                window.alert('恢复完成：新增 ' + result.added + ' 件，现有 ' + result.total + ' 件');
+                window.alert('恢复完成：新增 ' + result.added + ' 개，现有 ' + result.total + ' 개');
             };
             reader.onerror = () => window.alert('读文件失败');
             reader.readAsText(file);
@@ -5804,7 +5804,7 @@ function equipAutoResultFilterOptionsHtml(candidates) {
             <div class="equip-auto-combo-controls">
                 ${[0,1,2].map(i => `<label class="equip-auto-combo-field"><span>词条 ${i+1}</span><select data-combo-slot="${i}" aria-label="词条 ${i+1}目标属性"><option value="">不限</option>${comboEntries.map(([prop,label]) => `<option value="${escapeAiHtml(prop)}">${escapeAiHtml(label)}</option>`).join('')}</select></label>`).join('')}
                 <button type="button" id="btnEquipAutoCombo" class="btn">筛选组合</button>
-            </div><p class="equip-auto-combo-help">不限表示该词条不限制，筛选结果会逐件回放验证。</p><p id="equipAutoComboStatus" role="status" aria-live="polite"></p>
+            </div><p class="equip-auto-combo-help">제한 없음은 해당 옵션에 조건을 적용하지 않는다는 뜻입니다. 검색 결과는 장비별로 재현하여 검증합니다.</p><p id="equipAutoComboStatus" role="status" aria-live="polite"></p>
         </section>
         <div class="equip-auto-control-row">
             <span class="equip-auto-control-label">筛选</span>
@@ -6617,7 +6617,7 @@ function renderEquipAutoResults(result) {
     const resultsCount = document.getElementById('autoEquipResultsCount');
     if (resultsCount) {
         const total = Number(result && result.candidates && result.candidates.length || 0);
-        resultsCount.textContent = total ? total + ' 件' : '';
+        resultsCount.textContent = total ? total + ' 개' : '';
     }
     equipAutoLastResult = result;
     equipAutoResultPage = 1;
@@ -6658,7 +6658,7 @@ function renderEquipAutoResults(result) {
                 <select id="equipAutoResultPageSize">
                     ${EQUIP_AUTO_RESULT_PAGE_SIZES.map(size => `<option value="${size}" ${size === equipAutoResultPageSize ? 'selected' : ''}>${size}</option>`).join('')}
                 </select>
-                件
+                개
             </label>
         </div>
     </div>`;
@@ -6672,7 +6672,7 @@ function setEquipAutoInputsDisabled(disabled) {
 }
 
 /* ---------------- 神器速查 ----------------
-   18 张图纸里：40 次打造以内、连金泥 ≤300、品质神器。
+   18 장图纸里：40 次打造以内、连金泥 ≤300、品质神器。
    紫金(3025) 只查南阳渡/忘忧村/铸剑山庄；乌缕(3035) 只查洛阳/南阳渡/泠月。 */
 var equipAutoSweepRunning = false;
 var EQUIP_AUTO_SWEEP_LOCATIONS = {
@@ -6755,7 +6755,7 @@ function equipAutoSweepSelectedProps() {
     return selected;
 }
 
-/* 速查的图纸：固定这 18 张（紫金 12 + 乌缕 6） */
+/* 速查的图纸：固定这 18 장（紫金 12 + 乌缕 6） */
 var EQUIP_AUTO_SWEEP_PAPER_NAMES = [
     '撼岳掌套', '破军指套', '掠影刀', '碎月重刀', '万仞重剑', '巽风剑',
     '碎虚枪', '贪狼棍', '青云戒', '苏布宝戒', '其木格坠', '青云坠',
@@ -6783,7 +6783,7 @@ function renderEquipAutoSweepPaperPicker() {
     box.dataset.ready = '1';
     box.innerHTML = ['3025', '3035'].map(function (material) {
         var items = papers.filter(function (id) { return String(EQUIP_DATA.papers[id].dz_mat) === material; });
-        return '<div class="sweep-paper-group"><div class="sweep-paper-group-title">' + (material === '3025' ? '紫金' : '乌缕') + ' <span>' + items.length + ' 张</span></div><div class="sweep-paper-grid">'
+        return '<div class="sweep-paper-group"><div class="sweep-paper-group-title">' + (material === '3025' ? '紫金' : '乌缕') + ' <span>' + items.length + ' 장</span></div><div class="sweep-paper-grid">'
             + items.map(function (id) {
                 var paper = EQUIP_DATA.papers[id];
                 var equip = EQUIP_DATA.equipment[String(paper.dz_equip)] || {};
@@ -7072,7 +7072,7 @@ async function runEquipAutoSweep() {
             if (a.prop !== b.prop) return a.prop < b.prop ? -1 : 1;
             return b.value - a.value;
         });
-        setStatus('找到 ' + found.length + ' 件。');
+        setStatus('找到 ' + found.length + ' 개。');
         renderEquipAutoSweepResults(found);
     } catch (error) {
         setStatus('查找失败：' + (error && error.message ? error.message : error));
