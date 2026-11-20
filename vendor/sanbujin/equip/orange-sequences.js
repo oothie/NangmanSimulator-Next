@@ -27,7 +27,7 @@
         if (result.error) throw Error(result.error);
         const cfg = data.equipment[paper.dz_equip], czSeed = result.CZSeed ?? result.cz_seed;
         const mjSeed = czSeed - paper.id * 198;
-        if (!Number.isSafeInteger(mjSeed) || mjSeed <= 0) throw Error('这次打造缺少有效芒晶进度');
+        if (!Number.isSafeInteger(mjSeed) || mjSeed <= 0) throw Error('이번 제작에 유효한 망정 진행도가 없습니다');
         return { id: cfg.id, name: cfg.name, typ: cfg.type, need_lv: cfg.lv, color: result.color, level: 0, lv_prop: 0,
             S: result.S ?? result.s, CZSeed: czSeed, MJSeed: mjSeed, XLLevel: 0, XLNumber: 0,
             exts: clone(result.exts || []), base: clone(result.base || {}), specials: clone(result.special || []), xilian_marks: [] };
@@ -44,24 +44,24 @@
         let generation = 0, startFingerprint = '', selected = null, resultCache = [];
         const fingerprint = () => JSON.stringify(wasmMakeGetState());
         const npcName = npc => [npc.place, npc.name].filter(Boolean).join(' · ');
-        const props = (items, empty = '无附加') => items?.length ? items.map(p => escapeHtml(propLabel(p.prop)) + '+' + formatPropValue(p.prop, p.value)).join(' / ') : empty;
+        const props = (items, empty = '추가 옵션 없음') => items?.length ? items.map(p => escapeHtml(propLabel(p.prop)) + '+' + formatPropValue(p.prop, p.value)).join(' / ') : empty;
         function option(select, value, label) { const el = document.createElement('option');el.value = value;el.textContent = label;select.append(el); }
-        function invalidate(message = '选择图纸、NPC 和垫刀次数后查询') {
+        function invalidate(message = '도면·장인·선행 제작 횟수를 선택하세요') {
             generation++;selected = null;resultCache = [];startFingerprint = '';results.replaceChildren();status.textContent = message;
             $('btnOrangePreview').disabled = false;$('btnOrangeCancel').hidden = true;if (dialog.open) dialog.close();
         }
-        function checkState() { if (startFingerprint && startFingerprint !== fingerprint()) invalidate('模拟状态已改变，请重新查询'); }
+        function checkState() { if (startFingerprint && startFingerprint !== fingerprint()) invalidate('시뮬레이션 상태가 변경됐습니다. 다시 조회하세요'); }
         root.OrangeForgeUI = { invalidate, checkState };
         function fillConfig() {
             const paper = EQUIP_DATA.papers[paperSelect.value], oldNpc = npcSelect.value, oldPad = paddingSelect.value;
             const oldMat = forgeMaterial.value;
             for (const s of [npcSelect, paddingSelect, forgeMaterial]) s.replaceChildren();
-            option(forgeMaterial, 0, '不加特殊材料');
-            if (!paper) { invalidate('没有匹配的橙装图纸');return; }
+            option(forgeMaterial, 0, '추가 재료 없음');
+            if (!paper) { invalidate('일치하는 주황 장비 도면이 없습니다');return; }
             const cfg = EQUIP_DATA.equipment[paper.dz_equip], npcs = craftsmen(EQUIP_DATA, paper), pads = paddingPapers(EQUIP_DATA, paper);
             for (const npc of npcs) option(npcSelect, npc.id, npcName(npc));
             if (npcs.some(n => String(n.id) === oldNpc)) npcSelect.value = oldNpc;
-            for (const p of pads) option(paddingSelect, p.id, p.name + ' · ' + cfg.lv + '级');
+            for (const p of pads) option(paddingSelect, p.id, p.name + ' · ' + cfg.lv + '레벨');
             const desired = pads.some(p => String(p.id) === oldPad) ? oldPad : pads.some(p => p.id === 2583) ? '2583' : '';
             if (desired) paddingSelect.value = desired;
             paddingSelect.disabled = !pads.length;
@@ -77,7 +77,7 @@
         function fillPapers() {
             const previous = paperSelect.value || '3468', term = $('orangePaperSearch').value.trim().toLocaleLowerCase();
             const list = papers(EQUIP_DATA).filter(p => (p.name + ' ' + EQUIP_DATA.equipment[p.dz_equip].name).toLocaleLowerCase().includes(term));
-            paperSelect.replaceChildren();for (const p of list) { const cfg = EQUIP_DATA.equipment[p.dz_equip];option(paperSelect, p.id, cfg.name + ' · ' + cfg.lv + '级 · ' + p.name); }
+            paperSelect.replaceChildren();for (const p of list) { const cfg = EQUIP_DATA.equipment[p.dz_equip];option(paperSelect, p.id, cfg.name + ' · ' + cfg.lv + '레벨 · ' + p.name); }
             if (list.some(p => String(p.id) === previous)) paperSelect.value = previous;
             fillConfig();
         }
@@ -90,18 +90,18 @@
             if (!selected) return;
             const material = EQUIP_DATA.special[$('orangeMangjingMaterial').value], equip = selected.equip;
             mjMaterialId = $('orangeMangjingMaterial').value;
-            $('orangeMangjingCost').textContent = '每次消耗 ' + Math.floor(equip.need_lv / 10) + ' 个芒晶及对应特殊材料；从本次垫刀后打造出的这件装备开始连续洗炼。';
+            $('orangeMangjingCost').textContent = '회당 소모 ' + Math.floor(equip.need_lv / 10) + '개의 망정 및 대응 추가 재료를 소모합니다. 해당 장비의 연속 망정을 예측합니다.';
             try {
-                if (!material) throw Error('该装备没有可用的附加材料');
+                if (!material) throw Error('이 장비에 사용할 추가 재료가 없습니다');
                 const rows = predictSpecialAttachSequence(equip, material, count);
-                $('orangeMangjingResults').innerHTML = table('芒晶序列 · 前20次', ['次数', '附加属性', '品质比例'], rows.map(r => [r.index, props([r]), r.factor + '%']));
-            } catch (error) { $('orangeMangjingResults').textContent = '芒晶序列：' + error.message; }
+                $('orangeMangjingResults').innerHTML = table('망정 순서 · 처음 20회', ['횟수', '추가 옵션', '품질 비율'], rows.map(r => [r.index, props([r]), r.factor + '%']));
+            } catch (error) { $('orangeMangjingResults').textContent = '망정 순서: ' + error.message; }
         }
         function openDetail(kind) {
             checkState();if (!selected) return;
             const { equip, result, npc, paddingCount } = selected;
-            $('orangeDetailTitle').textContent = equip.name + ' · 垫' + paddingCount + '次后打造';
-            $('orangeDetailOrigin').textContent = npcName(npc) + ' · 地区附加：' + (result.region?.length ? result.region.map(p => propLabel(p.prop) + '+' + formatPropValue(p.prop, p.value)).join(' / ') : '无附加');
+            $('orangeDetailTitle').textContent = equip.name + ' · 선행 제작 ' + paddingCount + '회 후 제작';
+            $('orangeDetailOrigin').textContent = npcName(npc) + ' · 지역 추가 옵션: ' + (result.region?.length ? result.region.map(p => propLabel(p.prop) + '+' + formatPropValue(p.prop, p.value)).join(' / ') : '추가 옵션 없음');
             const select = $('orangeMangjingMaterial');select.replaceChildren();
             for (const m of specialMaterialsForEquip(equip)) option(select, m.id, m.name);
             if ([...select.options].some(o => o.value === mjMaterialId)) select.value = mjMaterialId;
@@ -111,9 +111,9 @@
             if ([1, 2, 3, 4].includes(Number(equip.typ))) {
                 const response = wasmStrongPreview(toWasmEquip(equip), count);
                 if (response.error) throw Error(response.error);
-                strong.innerHTML = table('武器淬炼序列 · 前20次（同层参考）', ['次数', '结果', '增幅'],
+                strong.innerHTML = table('무기 촉련 순서 · 처음 20회 (동일 단계 기준)', ['횟수', '결과', '상승폭'],
                     response.items.map(r => [r.index, escapeHtml(r.grade_name), '+' + r.add_lv_prop / 2 + '%']))
-                    + '<p class="meta-text">按新武器初始层数展示；接受结果会改变层数，后续增幅以实际层数为准。</p>';
+                    + '<p class="meta-text">按新武器初始层数展示；接受결과会改变层数，后续상승폭以实际层数为准。</p>';
             }
             dialog.showModal();if (kind === 'strong') strong.scrollIntoView({ block: 'start' });
         }
@@ -124,12 +124,12 @@
             card.innerHTML = '<h2>' + escapeHtml(cfg.name) + ' · ' + escapeHtml(npcName(npc)) + '</h2><p>'
                 + '선행 제작 0~' + maximum + '회, 총 ' + items.length + '개 결과입니다. 같은 세이브에서 시작하여 '
                 + escapeHtml(padPaper?.name || '일반 장비') + ' 제작 이후 주황 장비를 1회 제작합니다.</p><p>고정 옵션: ' + props(items[0]?.exts, '无固定词条')
-                + '</p><div class="table-wrap orange-result-table-wrap"><table class="preview-table orange-query-table"><thead><tr><th>垫刀次数</th><th>地区附加</th><th>打造后红词条</th><th>详细序列</th></tr></thead><tbody></tbody></table></div>';
+                + '</p><div class="table-wrap orange-result-table-wrap"><table class="preview-table orange-query-table"><thead><tr><th>垫刀횟수</th><th>지역 추가 옵션</th><th>제작 후 적색 옵션</th><th>상세 순서</th></tr></thead><tbody></tbody></table></div>';
             results.replaceChildren(card);const body = card.querySelector('tbody');resultCache = [];
             card.addEventListener('click', event => {
                 const button = event.target.closest('[data-orange-detail]');if (!button) return;
                 selected = resultCache[Number(button.dataset.orangeIndex)];
-                try { openDetail(button.dataset.orangeDetail); } catch (e) { status.textContent = '读取失败：' + e.message; }
+                try { openDetail(button.dataset.orangeDetail); } catch (e) { status.textContent = '조회 실패: ' + e.message; }
             });
             for (let start = 0; start < items.length; start += 50) {
                 if (ticket !== generation) return;
@@ -139,35 +139,35 @@
                     const button = (kind, label) => '<button type="button" class="btn btn-reset" data-orange-index="' + index + '" data-orange-detail="' + kind + '">' + label + '</button>';
                     return '<tr data-padding-count="' + paddingCount + '"><td>' + paddingCount + '</td><td class="orange-region-result">' + props(result.region)
                         + '</td><td>' + props(result.special) + '</td><td><div class="orange-row-actions">'
-                        + button('mangjing', '查芒晶') + (weapon ? button('strong', '查淬炼') : '') + '</div></td></tr>';
+                        + button('mangjing', '망정 조회') + (weapon ? button('strong', '촉련 조회') : '') + '</div></td></tr>';
                 }).join('');body.insertAdjacentHTML('beforeend', html);
                 if (start + 50 < items.length) await new Promise(resolve => setTimeout(resolve, 0));
             }
         }
         async function generate() {
-            if (!saveLoaded) { status.textContent = '请先导入存档';return; }
+            if (!saveLoaded) { status.textContent = '먼저 세이브를 불러오세요';return; }
             const paper = EQUIP_DATA.papers[paperSelect.value], npc = EQUIP_DATA.craftsman[npcSelect.value], padPaper = EQUIP_DATA.papers[paddingSelect.value];
             const paddingCount = EQUIP_DATA.equipment[paper?.dz_equip]?.lv >= 100 ? 0 : Number($('orangePaddingCount').value);
             if (!paper || !npc) { status.textContent = '도면과 장인을 선택하세요.';return; }
-            if (!Number.isSafeInteger(paddingCount) || paddingCount < 0 || paddingCount > 5000) { status.textContent = '垫刀次数必须是0–5000的整数';return; }
+            if (!Number.isSafeInteger(paddingCount) || paddingCount < 0 || paddingCount > 5000) { status.textContent = '垫刀횟수必须是0–5000的整数';return; }
             if (paddingCount && !padPaper) { status.textContent = '동일 등급·종류의 일반 제작 도면을 선택하세요.';return; }
             const targetRequest = request(paper, npc, forgeMaterial.value), padRequest = padPaper ? request(padPaper, npc) : null;
             invalidate();const ticket = generation, state = clone(wasmMakeGetState());startFingerprint = JSON.stringify(state);
-            $('btnOrangePreview').disabled = true;$('btnOrangeCancel').hidden = false;status.textContent = '正在计算垫' + paddingCount + '次后的打造结果…';
+            $('btnOrangePreview').disabled = true;$('btnOrangeCancel').hidden = false;status.textContent = '선행 제작 ' + paddingCount + '次后的打造결과…';
             try {
                 const response = await backgroundMakePreview(targetRequest, paddingCount + 1, state, padRequest);
                 if (ticket !== generation) return;
-                if (fingerprint() !== startFingerprint) { invalidate('模拟状态已改变，请重新查询');return; }
+                if (fingerprint() !== startFingerprint) { invalidate('시뮬레이션 상태가 변경됐습니다. 다시 조회하세요');return; }
                 if (response.error) throw Error(response.error);
                 await renderResults(response.items, paper, npc, padPaper, paddingCount, ticket);
                 if (ticket !== generation) return;
-                status.textContent = '已列出垫0～' + paddingCount + '次的全部' + (paddingCount + 1) + '个方案。每行只打造1次橙装，未推进存档或模拟背包。';
-            } catch (e) { if (ticket === generation) status.textContent = '查询失败：' + e.message; }
+                status.textContent = '선행 제작 0~' + paddingCount + '회에 대한 전체 ' + (paddingCount + 1) + '개 결과입니다. 각 결과는 주황 장비를 한 번만 제작하며 세이브와 가방은 변경하지 않습니다.';
+            } catch (e) { if (ticket === generation) status.textContent = '조회 실패: ' + e.message; }
             finally { if (ticket === generation) { $('btnOrangePreview').disabled = false;$('btnOrangeCancel').hidden = true; } }
         }
         $('orangePaperSearch').addEventListener('input', fillPapers);paperSelect.addEventListener('change', fillConfig);
         for (const el of [npcSelect, paddingSelect, forgeMaterial, $('orangePaddingCount')]) el.addEventListener('change', () => invalidate());
-        $('btnOrangePreview').addEventListener('click', generate);$('btnOrangeCancel').addEventListener('click', () => invalidate('已停止查询'));
+        $('btnOrangePreview').addEventListener('click', generate);$('btnOrangeCancel').addEventListener('click', () => invalidate('조회를 중단했습니다'));
         $('orangeDetailClose').addEventListener('click', () => dialog.close());$('orangeMangjingMaterial').addEventListener('change', renderMangjing);
         dialog.addEventListener('click', e => { if (e.target === dialog) { const r = dialog.getBoundingClientRect();if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close(); } });
         fillPapers();
