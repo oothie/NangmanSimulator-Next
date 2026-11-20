@@ -632,27 +632,27 @@
             if (!target.lock_only && conflictName) {
                 if (ti === 0 && n(target.conflict_wash_no) > 0) {
                     if (!washTimesInternational(s, eligible, n(target.conflict_wash_no))) {
-                        return { pad, nodes, error: makeRouteError(`无法推进到冲突脉「${conflictName}」`) };
+                        return { pad, nodes, error: makeRouteError(`충돌맥 「${conflictName}」까지 진행할 수 없습니다`) };
                     }
                     if (findTalentIndexByName(s, conflictName) < 0) {
-                        return { pad, nodes, error: makeRouteError(`未洗到冲突脉「${conflictName}」`) };
+                        return { pad, nodes, error: makeRouteError(`충돌맥 「${conflictName}」이 나올 때까지 세수하지 못했습니다`) };
                     }
                 } else if (findTalentIndexByName(s, conflictName) < 0) {
                     if (!washUntilTalentInternational(s, eligible, conflictName, 20000)) {
-                        return { pad, nodes, error: makeRouteError(`未洗到冲突脉「${conflictName}」`) };
+                        return { pad, nodes, error: makeRouteError(`충돌맥 「${conflictName}」이 나올 때까지 세수하지 못했습니다`) };
                     }
                 }
                 setTalentLockedByName(s, conflictName, true);
             }
 
             if (!washUntilTalentInternational(s, eligible, purpleName, 20000)) {
-                return { pad, nodes, error: makeRouteError(`未洗到紫脉「${purpleName}」`) };
+                return { pad, nodes, error: makeRouteError(`자맥 「${purpleName}」이 나올 때까지 세수하지 못했습니다`) };
             }
             setTalentLockedByName(s, purpleName, true);
 
             if (ti === 0 && pad > 0) {
                 if (!washTimesInternational(s, eligible, pad)) {
-                    return { pad, nodes, error: makeRouteError(`锁紫后无法继续垫洗 ${pad} 次`) };
+                    return { pad, nodes, error: makeRouteError(`자맥을 잠근 뒤 추가 세수 ${pad}회를 진행할 수 없습니다`) };
                 }
             }
 
@@ -672,7 +672,7 @@
                 const c = exchangeConflictAt(s, idx);
                 if (!c || !c.canExchange) {
                     node.conflict_name = '锁留（待互冲）';
-                    node.chain = [`${purpleName}（锁留）`];
+                    node.chain = [`${purpleName}(잠금 유지)`];
                     node.final_name = purpleName;
                     nodes.push(node);
                     continue;
@@ -681,7 +681,7 @@
 
             let targetIndex = findTalentIndexByName(s, purpleName);
             if (targetIndex < 0) {
-                return { pad, nodes, error: makeRouteError(`紫脉「${purpleName}」在置换前丢失`) };
+                return { pad, nodes, error: makeRouteError(`자맥 「${purpleName}」이 치환 전에 사라졌습니다`) };
             }
 
             const shenIdxs = (s.talents || []).map((slot, i) => isShenmai(talent(n(slot.id))) ? i : -1).filter(i => i >= 0);
@@ -689,7 +689,7 @@
             let routeResult = null;
 
             if (isMutualShenmai) {
-                node.conflict_name = `神脉互冲（${shenIdxs.length}条均可置换）`;
+                node.conflict_name = `신맥끼리 충돌(총 ${shenIdxs.length}개 모두 치환 가능)`;
                 const preFork = copyOperationalState(s);
                 const forks = [];
                 let canonicalState = null;
@@ -723,7 +723,7 @@
             }
 
             if (!routeResult || !routeResult.chain.length) {
-                return { pad, nodes, error: makeRouteError(`紫脉「${purpleName}」当前不可置换`) };
+                return { pad, nodes, error: makeRouteError(`현재 자맥 「${purpleName}」을 치환할 수 없습니다`) };
             }
 
             node.chain = routeResult.chain;
