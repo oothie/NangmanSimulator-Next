@@ -14,7 +14,13 @@ var current=getInitial();
 function korean(x){x=String(x||'');if(!chinese.test(x))return x;var original=x;
 if(Object.prototype.hasOwnProperty.call(dict,x))return dict[x];
 for(var p of pairs){if(x.includes(p[0]))x=x.split(p[0]).join(p[1])}
-// Preserve unknown short names in source language rather than showing broken half-translations.
+ // Formatting units in generated messages: convert only numeric suffixes,
+ // never rewrite a Chinese equipment/name ID speculatively.
+ x=x.replace(/(\d+)\s*级/g,'$1레벨').replace(/(\d+)\s*次/g,'$1회')
+    .replace(/(\d+)\s*页/g,'$1페이지').replace(/(\d+)\s*件/g,'$1개')
+    .replace(/(\d+)\s*条/g,'$1개').replace(/(\d+)\s*两/g,'$1냥')
+    .replace(/(\d+)\s*文/g,'$1문').replace(/第\s*(\\d+)/g,'제$1');
+ // Preserve unknown short names in source language rather than showing broken half-translations.
 if(chinese.test(x)&&original.length<=18&&!/[\s，。！？,.;:：；（）()]/.test(original))return original;
 return x}function translate(x){x=String(x==null?'':x);return current===KO?korean(x):current===TW?convertTW(x):x}
 function skip(el){return !!(el&&(el.closest&&el.closest('.ignore-opencc, [translate="no"], [contenteditable="true"]')||['SCRIPT','STYLE','CODE','PRE','TEXTAREA','SVG','PATH','NOSCRIPT'].includes(el.tagName)))}
