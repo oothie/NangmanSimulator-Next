@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.6.7</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.6.8</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -547,4 +547,49 @@ window.addEventListener('message',e=>{
   if(frame&&e.source===frame.contentWindow&&window.__nangmanForwardSave)window.__nangmanForwardSave(frame);
  }
 });
-</script></body></html>
+</script>
+<!-- v0.6.8: read-only whole-site localization audit, including same-origin equipment frames. -->
+<script>
+(function(){
+  function visible(el){
+    if(!el || !el.getClientRects || !el.getClientRects().length)return false;
+    const style=el.ownerDocument.defaultView.getComputedStyle(el);
+    return style.display!=='none' && style.visibility!=='hidden';
+  }
+  function collect(doc,scope,findings){
+    if(!doc || !doc.body)return;
+    const re=/[\u3400-\u9fff]/;
+    const walker=doc.createTreeWalker(doc.body,NodeFilter.SHOW_TEXT);
+    let node;
+    while((node=walker.nextNode())){
+      if(!node.parentElement || /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA)$/.test(node.parentElement.tagName))continue;
+      if(!visible(node.parentElement))continue;
+      const value=(node.nodeValue||'').trim();
+      if(value && re.test(value))findings.push({scope,type:'text',value:value.slice(0,240)});
+    }
+    doc.querySelectorAll('[placeholder],[title],[aria-label],input[value]').forEach(el=>{
+      if(!visible(el))return;
+      for(const attr of ['placeholder','title','aria-label','value']){
+        const value=el.getAttribute(attr);
+        if(value && re.test(value))findings.push({scope,type:attr,value:value.slice(0,240)});
+      }
+    });
+  }
+  window.NangmanFullTranslationAudit={scan(){
+    const findings=[];
+    collect(document,'통합 화면',findings);
+    document.querySelectorAll('iframe').forEach((frame,i)=>{
+      if(!visible(frame))return;
+      try{collect(frame.contentDocument,frame.title||frame.id||('장비 화면 '+(i+1)),findings)}
+      catch(error){findings.push({scope:frame.id||('프레임 '+(i+1)),type:'접근 불가',value:String(error.message||error)})}
+    });
+    const grouped=Object.values(findings.reduce((out,item)=>{
+      const key=item.scope+'|'+item.type+'|'+item.value;
+      if(!out[key])out[key]={...item,count:0};out[key].count++;return out;
+    },{}));
+    console.table(grouped);
+    return {total:findings.length,unique:grouped.length,results:grouped};
+  }};
+})();
+</script>
+</body></html>
