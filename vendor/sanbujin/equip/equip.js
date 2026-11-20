@@ -1,5 +1,5 @@
 const COLOR_NAMES = (typeof EQUIP_DATA !== 'undefined' && EQUIP_DATA.colorNames) || {
-    1: '白', 2: '绿', 3: '蓝', 4: '紫', 5: '橙', 6: '红',
+    1: '백색', 2: '녹색', 3: '청색', 4: '자색', 5: '주황색', 6: '적색',
 };
 const PROP_NAMES = (typeof EQUIP_DATA !== 'undefined' && EQUIP_DATA.propNames) || {};
 const TYPE_NAMES = (typeof EQUIP_DATA !== 'undefined' && EQUIP_DATA.typeNames) || {};
@@ -2525,7 +2525,7 @@ function updateSpecialAttachHint() {
     }
     const current = equip.specials.length
         ? equip.specials.map(item => `${propLabel(item.prop)}+${formatPropValue(item.prop, item.value)}`).join(' / ')
-        : '无';
+        : '없음';
     hint.textContent = `현재 적색 옵션: ${current} · 장비의 현재 망정 진행도부터 예측하며 세이브나 게임 진행도를 변경하지 않습니다.`;
 }
 
@@ -3922,7 +3922,7 @@ function doStrongPreview() {
     const preview = strongPreviewEquip(eq);
     fillStrongTargetLevels(preview);
     if (Number(preview.level) >= 15) {
-        clearPreview('已满 +15：当前最多淬炼至 +15，暂无后续结果; 다시 예측하려면 「유화정 사용 후 0단계부터 예측」을 선택하세요');
+        clearPreview('이미 +15까지 촉련되어 이후 결과가 없습니다. 다시 예측하려면 「유화정 사용 후 0단계부터 예측」을 선택하세요');
         updateStrongHint();
         return;
     }
