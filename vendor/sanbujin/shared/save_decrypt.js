@@ -39,6 +39,14 @@ var SAVE_NESTED_INNER_KEY_MAP = Object.freeze({
     '00073420': 'n0b06b00po06ewkx'
 });
 var SAVE_V20_CHANNEL_INNER_KEYS = { '先行服': 'jkds85wecgkmi4cq' };
+// Channel names are filename/decryption identifiers. Only localize the supported-channel help text.
+function saveChannelLabel(channel) {
+    var ko = {'官服':'공식 서버','华为':'화웨이','小米':'샤오미','魅族':'메이주',
+        '九游':'지우유','4399':'4399','OPPO':'OPPO','荣耀':'아너','Bilibili':'빌리빌리',
+        '抖音':'더우인','国际服':'글로벌 서버','葫芦侠':'후루샤',
+        '先行服':'선행 서버','vivo':'vivo','应用宝':'응용보'};
+    return ko[channel] || String(channel);
+}
 var SAVE_V20_CHANNELS = ['官服', '华为', '小米', '魅族', '九游', '4399', 'OPPO', '荣耀', 'Bilibili', '抖音', '国际服', '葫芦侠', '先行服', 'vivo', '应用宝'];
 var SAVE_V20_FILE_PATTERN = /^yanyu-@([A-Za-z0-9]{16})@-@(官服|华为|小米|魅族|九游|4399|OPPO|荣耀|Bilibili|抖音|国际服|葫芦侠|先行服|vivo|应用宝)@-(\d{8})-(\d{6})-v2\.0\.db$/;
 var SAVE_V20_FILE_SHAPE_PATTERN = /^yanyu-@([^@]*)@-@([^@]+)@-(\d{8})-(\d{6})-v2\.0\.db$/;
@@ -203,7 +211,7 @@ function getV30SaveFileNameError(fileName) {
     const match = String(fileName || '').match(SAVE_V30_FILE_SHAPE_PATTERN);
     if (!match) return null;
     if (!SAVE_V30_CHANNELS.includes(match[1])) {
-        return '서버 채널을 확인하지 못했습니다. 지원 채널: ' + SAVE_V30_CHANNELS.join('、');
+        return '서버 채널을 확인하지 못했습니다. 지원 채널: ' + SAVE_V30_CHANNELS.map(saveChannelLabel).join(', ');
     }
     if (!/^[0-9a-f]{8}$/i.test(match[4])) {
         return 'v3.0 파일명의 인증 식별자가 8자리 16진수가 아닙니다. 파일명을 변경하지 말고 다시 추출하세요.';
@@ -310,7 +318,7 @@ function getV20SaveFileNameError(fileName) {
     const match = String(fileName || '').match(SAVE_V20_FILE_SHAPE_PATTERN);
     if (!match) return null;
     if (!SAVE_V20_CHANNELS.includes(match[2])) {
-        return '서버 채널을 확인하지 못했습니다. 지원 채널: ' + SAVE_V20_CHANNELS.join('、');
+        return '서버 채널을 확인하지 못했습니다. 지원 채널: ' + SAVE_V20_CHANNELS.map(saveChannelLabel).join(', ');
     }
     if (!/^[A-Za-z0-9]{16}$/.test(match[1])) {
         return '세이브 암호화 키가 맞지 않습니다. 파일명의 분석 코드는 영문·숫자 16자리여야 합니다. 파일명을 변경하지 말고 다시 추출하세요.';
@@ -322,7 +330,7 @@ function getV21SaveFileNameError(fileName) {
     const match = String(fileName || '').match(SAVE_V21_FILE_SHAPE_PATTERN);
     if (!match) return null;
     if (!SAVE_V20_CHANNELS.includes(match[2])) {
-        return '서버 채널을 확인하지 못했습니다. 지원 채널: ' + SAVE_V20_CHANNELS.join('、');
+        return '서버 채널을 확인하지 못했습니다. 지원 채널: ' + SAVE_V20_CHANNELS.map(saveChannelLabel).join(', ');
     }
     if (!/^[A-Za-z0-9]{16}$/.test(match[1])) {
         return '세이브 암호화 키가 맞지 않습니다. 파일명의 분석 코드는 영문·숫자 16자리여야 합니다. 파일명을 변경하지 말고 다시 추출하세요.';
