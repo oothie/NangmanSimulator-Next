@@ -2417,7 +2417,7 @@ function renderJianwangPreview(items, kind = 'state') {
         } else if (kind === 'blanks') {
             meta.textContent = `이후 60레벨 검 소재 ${items.length}개 · 현재 검 소재 진행도부터 순서대로 예측 · 조회만으로 현재 진행도가 변하지 않습니다.`;
         } else if (kind === 'shatter') {
-            meta.textContent = `${items[0]?.shatterLabel || '검 분해'} → 重铸下一把60级剑胚 · 预览不推进页面内状态`;
+            meta.textContent = `${items[0]?.shatterLabel || '검 분해'} → 다음 60레벨 검 배아 재주조 · 미리보기는 화면 내부 상태를 변경하지 않음`;
         } else {
             meta.textContent = `선택한 세이브 실물에서 시작 · ${items.length}단계 · 미리보기는 화면 내부 상태를 진행하지 않음`;
         }
@@ -3458,7 +3458,7 @@ function formatCostChips(bag) {
         const n = bag?.stones?.[id] || 0;
         if (n) chips.push(`<span class="cost-chip">${STONE_NAMES[id]}×${n}</span>`);
     }
-    if (bag?.silver) chips.push(`<span class="cost-chip">银两${formatSilver(bag.silver)}</span>`);
+    if (bag?.silver) chips.push(`<span class="cost-chip">은냥 ${formatSilver(bag.silver)}</span>`);
     return chips.join('') || '<span class="cost-chip">—</span>';
 }
 
@@ -3826,7 +3826,7 @@ function doMakeOnce() {
     const bagTip = crafted
         ? ` · 시뮬레이션 가방에 추가됨(#${crafted.only_id})${markTip}`
         : '';
-    appendLog(`[打造] ${r.name} · ${COLOR_NAMES[r.color] || r.color} · ${r.pity ? '천장' : r.seed_kind === 'lucky' ? '천장 순서' : '일반'}${bagTip}`);
+    appendLog(`[제작] ${EQUIP_DATA.equipment?.[r.equip_id || r.id]?.koName || window.SBJ_KOREAN?.translate?.(r.name) || r.name} · ${COLOR_NAMES[r.color] || r.color} · ${r.pity ? '천장' : r.seed_kind === 'lucky' ? '행운' : '일반'}${bagTip}`);
     fillEquipSelects();
     updateMakeHints();
     doMakePreview();
