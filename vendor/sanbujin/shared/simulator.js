@@ -3816,7 +3816,7 @@ function openWashOriginPreview() {
     const input=frozen||buildAiSearchInput([],budget),role=input.savedRole;
     const slots=Number(input.initialState.zizhi)-150,roleName=role?.Name||'当前人物',N=C.node;
     const d=C.modal(roleName+' · 初始脉');d.classList.add('wash-origin-dialog');
-    if(d.ownerDocument!==document&&!d.ownerDocument.querySelector('link[data-wash-origin-style]')){const link=d.ownerDocument.createElement('link');link.rel='stylesheet';link.href=document.querySelector('link[href*="wash-compact.css"]')?.href||'/suanbujin/shared/wash-compact.css';link.dataset.washOriginStyle='true';d.ownerDocument.head.append(link);}
+    if(d.ownerDocument!==document&&!d.ownerDocument.querySelector('link[data-wash-origin-style]')){const link=d.ownerDocument.createElement('link');link.rel='stylesheet';link.href=document.querySelector('link[href*="wash-compact.css"]')?.href||'/vendor/sanbujin/shared/wash-compact.css';link.dataset.washOriginStyle='true';d.ownerDocument.head.append(link);}
     const description=N('p',`不锁脉、不置换，查看 ${formatCount4(budget)} 丹内从当前存档直接洗出的紫脉；不代表能同时保留。`);description.className='wash-origin-description';
     const vip=N('p',`推演条件：VIP ${input.initialState.vip===0?'0':input.initialState.vip+'+'}（${input.vipConfirmed?'手动确认':'模拟等级，未确认'}），原档 ${slots} 栏。`);vip.className='wash-origin-note';
     const label=N('label'),labelText=N('span','预览栏数'),select=N('select');label.className='wash-origin-slots';label.append(labelText);select.setAttribute('aria-label','初始脉预览栏数');
