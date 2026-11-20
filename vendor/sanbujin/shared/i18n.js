@@ -32,6 +32,23 @@ function walk(node){if(!node)return;if(node.nodeType===3){txt(node);return}if(no
 function set(locale){var next=normalize(locale)||CN;try{localStorage.setItem(KEY,next)}catch(e){}try{var u=new URL(location.href);if(u.searchParams.has('lang')){u.searchParams.set('lang',next);history.replaceState({},'',u)}}catch(e){}if(next!==current)location.reload();return next}
 var scheduled=false;function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;if(applying)return;applying=true;try{walk(document.documentElement)}finally{applying=false}})}
 function ready(){document.documentElement.lang=current;document.documentElement.dataset.locale=current;
+ // 1.5x desktop canvas for embedded equipment pages and dialogs; mobile stays viewport-bound.
+ if(!document.getElementById('nangman-wide-layout-v066')){
+   var wide=document.createElement('style');wide.id='nangman-wide-layout-v066';
+   wide.textContent=[
+     '@media(min-width:901px){',
+       'html body.sbj-workbench .app-container{max-width:min(1140px,100%)!important;width:100%!important;}',
+       'html body .equip-auto-forge-card{width:min(49.5rem,94vw)!important;max-height:90vh!important;}',
+       'html body .equip-auto-region-dialog{width:min(51rem,94vw)!important;max-width:94vw!important;}',
+       'html body .equip-auto-confirm-card{width:min(33rem,94vw)!important;max-width:94vw!important;}',
+       'html body .modal-large{max-width:min(1500px,95vw)!important;}',
+       'html body .exchange-sequence-modal{width:min(1470px,95vw)!important;}',
+     '}',
+     '@media(max-width:900px){html body .equip-auto-forge-card,html body .equip-auto-region-dialog{max-width:96vw!important;}}'
+   ].join('');
+   document.head.appendChild(wide);
+ }
+
  // The host already displays shared-save state. Do not repeat a save-success
  // banner at the top of each embedded equipment calculator.
  if(w.parent!==w&&document.documentElement.hasAttribute('data-sbj-feature')){
