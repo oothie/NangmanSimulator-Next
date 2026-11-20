@@ -131,9 +131,9 @@
         },
         restoreJson(text) {
             let payload;
-            try { payload = JSON.parse(text); } catch (error) { return { ok: false, error: '不是有效的 JSON' }; }
+            try { payload = JSON.parse(text); } catch (error) { return { ok: false, error: '유효한 JSON 파일이 아닙니다.' }; }
             const items = Array.isArray(payload) ? payload : (payload && payload.items);
-            if (!Array.isArray(items)) return { ok: false, error: '文件里没有收藏数据' };
+            if (!Array.isArray(items)) return { ok: false, error: '파일에 즐겨찾기 데이터가 없습니다.' };
             const merged = readList();
             const seen = Object.create(null);
             merged.forEach(item => { seen[item.onlyId] = 1; });
@@ -149,7 +149,7 @@
             return { ok: true, added, total: merged.length };
         },
         csv(rows) {
-            const headers = ['名称', '等级', '品质', '部位', '词条', '#only_id', '备注'];
+            const headers = ['장비명', '레벨', '품질', '부위', '옵션', '#only_id', '비고'];
             const lines = [headers.join(',')];
             for (const row of rows || []) {
                 const cells = [row.name, row.needLv, row.colorText || row.color, row.typText || row.typ, row.propsText, row.onlyId, row.note];
