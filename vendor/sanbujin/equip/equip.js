@@ -564,7 +564,7 @@ function renderFavList() {
     const exportPlanBtn = document.getElementById('btnFavExportPlan');
     if (!favs.length) {
         box.classList.add('empty');
-        box.textContent = '즐겨찾기한 장비가 없습니다. 시뮬레이션 가방 또는 제작 예측표에서 '즐겨찾기'를 누르세요.';
+        box.textContent = '즐겨찾기한 장비가 없습니다. 시뮬레이션 가방 또는 제작 예측표에서 ‘즐겨찾기’를 누르세요.';
     } else {
         box.classList.remove('empty');
         box.innerHTML = favs.map(fav => {
@@ -799,7 +799,7 @@ function updateCraftedBagHint() {
     const canSt = saveEquips.filter(e => e._crafted && canStrong(e)).length;
     el.textContent = n
         ? `모의 가방: 제작 ${n}개(표시 ${marked}개) · 승련 가능 ${canSl}개 · 정련 가능 ${canXl}개 · 촉련 가능 ${canSt}개`
-        : '제작을 진행하거나 예측표에서 '여기까지 진행'을 누르면 시뮬레이션 가방에 추가됩니다. 검색용 표식을 남길 수 있습니다.';
+        : '제작을 진행하거나 예측표에서 ‘여기까지 진행’을 누르면 시뮬레이션 가방에 추가됩니다. 검색용 표식을 남길 수 있습니다.';
 }
 
 function toWasmEquip(eq) {
@@ -3754,11 +3754,11 @@ function switchTab(tab) {
     if (tab === 'shenglian') {
         fillEquipSelects();
         updateShenglianHint();
-        clearPreview('승련은 순서 예측이 필요 없습니다. 장비를 선택한 뒤 '승련 실행'을 누르세요.');
+        clearPreview('승련은 순서 예측이 필요 없습니다. 장비를 선택한 뒤 ‘승련 실행’을 누르세요.');
     } else if (tab === 'jianwang') {
         fillJianwangEquipSelect(true);
         updateJianwangHint();
-        clearPreview('세이브의 검 배아 또는 전용 무기와 경로를 선택한 뒤 '현재 경로 미리보기'를 누르세요.');
+        clearPreview('세이브의 검 배아 또는 전용 무기와 경로를 선택한 뒤 ‘현재 경로 미리보기’를 누르세요.');
     } else {
         clearPreview('예측을 눌러 결과 확인');
     }
@@ -4220,26 +4220,26 @@ async function initApp() {
         const filter = document.getElementById('paperFilter');
         if (filter) filter.value = '';
         fillPaperSelect();
-        clearPreview('대상이 변경됐습니다. '순서 예측'을 다시 누르세요.');
+        clearPreview('대상이 변경됐습니다. ‘순서 예측’을 다시 누르세요.');
     });
     document.getElementById('paperFilter')?.addEventListener('input', fillPaperSelect);
     document.getElementById('paperSelect').addEventListener('change', () => {
         fillSpecialSelect();
         updateMakeHints();
-        clearPreview('대상이 변경됐습니다. '순서 예측'을 다시 누르세요.');
+        clearPreview('대상이 변경됐습니다. ‘순서 예측’을 다시 누르세요.');
     });
     document.getElementById('specialSelect').addEventListener('change', () => {
         updateMakeHints();
-        clearPreview('재료가 변경됐습니다. '순서 예측'을 다시 누르세요.');
+        clearPreview('재료가 변경됐습니다. ‘순서 예측’을 다시 누르세요.');
     });
     document.getElementById('specialAttachEquipSelect')?.addEventListener('change', () => {
         fillSpecialAttachMaterialSelect(false);
         updateSpecialAttachHint();
-        clearPreview('대상 장비가 변경됐습니다. '연속 망정 예측'을 다시 누르세요.');
+        clearPreview('대상 장비가 변경됐습니다. ‘연속 망정 예측’을 다시 누르세요.');
     });
     document.getElementById('specialAttachMaterialSelect')?.addEventListener('change', () => {
         updateSpecialAttachHint();
-        clearPreview('추가 재료가 변경됐습니다. '연속 망정 예측'을 다시 누르세요.');
+        clearPreview('추가 재료가 변경됐습니다. ‘연속 망정 예측’을 다시 누르세요.');
     });
     document.getElementById('btnJianwangCyclePreview')?.addEventListener('click', doJianwangCyclePreview);
     document.getElementById('jianwangCycleCount')?.addEventListener('change', () => {
@@ -4254,14 +4254,14 @@ async function initApp() {
         fillJianwangCycleRouteSelect(false);
         updateJianwangHint();
         updateJianwangCycleHint();
-        clearPreview('세이브 실물 장비가 변경됐습니다. '현재 경로 미리보기'를 다시 누르세요.');
+        clearPreview('세이브 실물 장비가 변경됐습니다. ‘현재 경로 미리보기’를 다시 누르세요.');
     });
     document.getElementById('jianwangActionSelect')?.addEventListener('change', () => {
         fillJianwangKeepSelect(false);
         fillJianwangMaterialSelect(false);
         updateJianwangControls();
         updateJianwangHint();
-        clearPreview('진행 경로가 변경됐습니다. '현재 경로 미리보기'를 다시 누르세요.');
+        clearPreview('진행 경로가 변경됐습니다. ‘현재 경로 미리보기’를 다시 누르세요.');
     });
     document.getElementById('jianwangKeepSelect')?.addEventListener('change', () => {
         updateJianwangHint();
@@ -4269,23 +4269,23 @@ async function initApp() {
     });
     document.getElementById('jianwangMaterialSelect')?.addEventListener('change', () => {
         updateJianwangHint();
-        clearPreview('주조 재료가 변경됐습니다. '전용 무기 순서 보기'를 다시 누르세요.');
+        clearPreview('주조 재료가 변경됐습니다. ‘전용 무기 순서 보기’를 다시 누르세요.');
     });
     document.getElementById('xilianEquipSelect').addEventListener('change', () => {
         resetXilianSession();
         updateXilianHint();
-        clearPreview('장비가 변경됐습니다. '순서 예측'을 다시 누르세요.');
+        clearPreview('장비가 변경됐습니다. ‘순서 예측’을 다시 누르세요.');
     });
     document.getElementById('strongEquipSelect').addEventListener('change', () => {
         strongPlanCache = null;
         updateStrongHint();
-        clearPreview('장비가 변경됐습니다. '예측 및 추천 생성'을 다시 누르세요.');
+        clearPreview('장비가 변경됐습니다. ‘예측 및 추천 생성’을 다시 누르세요.');
     });
     document.getElementById('strongResetOrigin')?.addEventListener('change', () => {
         strongPlanCache = null;
         updateStrongHint();
         clearPreview(isStrongResetOrigin()
-            ? '유화정 시뮬레이션으로 전환했습니다. 촉련 0단계부터 계산하므로 '예측 및 추천 생성'을 누르세요.'
+            ? '유화정 시뮬레이션으로 전환했습니다. 촉련 0단계부터 계산하므로 ‘예측 및 추천 생성’을 누르세요.'
             : '유화정 시뮬레이션을 종료했습니다. 현재 촉련 단계부터 계산합니다.');
     });
     document.getElementById('shenglianEquipSelect')?.addEventListener('change', () => {
@@ -4299,11 +4299,11 @@ async function initApp() {
     document.getElementById('strongTextFilter')?.addEventListener('input', onEquipFilterChange);
     document.getElementById('shenglianTextFilter')?.addEventListener('input', onEquipFilterChange);
     document.getElementById('strongMinGrade')?.addEventListener('change', () => {
-        clearPreview('조건이 변경됐습니다. '예측 및 추천 생성'을 다시 누르세요.');
+        clearPreview('조건이 변경됐습니다. ‘예측 및 추천 생성’을 다시 누르세요.');
         updateStrongHint();
     });
     document.getElementById('strongTargetLevel')?.addEventListener('change', () => {
-        clearPreview('목표 단계가 변경됐습니다. '예측 및 추천 생성'을 다시 누르세요.');
+        clearPreview('목표 단계가 변경됐습니다. ‘예측 및 추천 생성’을 다시 누르세요.');
         updateStrongHint();
     });
 
