@@ -592,7 +592,7 @@ function renderFavList() {
         targetSel.innerHTML = props.size
             ? '<option value="">选择目标属性</option>' + [...props].sort((a, b) => propLabel(a).localeCompare(propLabel(b), 'zh')).map(p =>
                 `<option value="${escapeHtml(p)}">${escapeHtml(propLabel(p))}</option>`).join('')
-            : '<option value="">先收藏可精炼装备</option>';
+            : '<option value="">먼저 정련 가능한 장비를 즐겨찾기에 등록하세요</option>';
         targetSel.disabled = !props.size;
         if (prev && props.has(prev)) targetSel.value = prev;
     }
@@ -835,8 +835,8 @@ function formatSilver(wen) {
     const liang = Math.floor(wen / 1000);
     const rest = wen % 1000;
     let s = '';
-    if (liang > 0) s += `${liang}两`;
-    if (rest > 0 || !s) s += `${rest}文`;
+    if (liang > 0) s += `${liang}냥`;
+    if (rest > 0 || !s) s += `${rest}문`;
     return s;
 }
 
@@ -1497,7 +1497,7 @@ function renderMakePage() {
     const slice = items.slice(start, start + pageSize);
     const defaultMark = escapeHtml(getDefaultMakeMark());
     if (!slice.length) {
-        body.innerHTML = `<tr><td colspan="9" class="empty-row">无匹配记录</td></tr>`;
+        body.innerHTML = `<tr><td colspan="9" class="empty-row">일치하는 기록이 없습니다</td></tr>`;
         updatePreviewPager(items.length);
         return;
     }
@@ -2198,7 +2198,7 @@ function renderSpecialAttachPage() {
     const start = (tablePager.page - 1) * pageSize;
     const slice = items.slice(start, start + pageSize);
     if (!slice.length) {
-        body.innerHTML = '<tr><td colspan="6" class="empty-row">无预测记录</td></tr>';
+        body.innerHTML = '<tr><td colspan="6" class="empty-row">예측 기록이 없습니다</td></tr>';
         updatePreviewPager(items.length);
         return;
     }
@@ -2242,7 +2242,7 @@ function renderJianwangCyclePage() {
     if (!body) return;
     const page = pages[tablePager.page - 1];
     if (!page) {
-        body.innerHTML = '<tr><td colspan="5" class="empty-row">无碎剑循环记录</td></tr>';
+        body.innerHTML = '<tr><td colspan="5" class="empty-row">검 분해 반복 기록이 없습니다</td></tr>';
         if (meta) meta.textContent = '';
         updateJianwangCyclePager(0, 0);
         return;
@@ -2317,7 +2317,7 @@ function renderJianwangPage() {
     const blankKind = tablePager.jianwangKind === 'blanks' || tablePager.jianwangKind === 'shatter';
     if (!slice.length) {
         const columns = tablePager.jianwangKind === 'mangjing' ? 6 : (blankKind ? 6 : 4);
-        body.innerHTML = `<tr><td colspan="${columns}" class="empty-row">无专武序列记录</td></tr>`;
+        body.innerHTML = `<tr><td colspan="${columns}" class="empty-row">전용 무기 예측 기록이 없습니다</td></tr>`;
         updatePreviewPager(items.length);
         return;
     }
@@ -2343,7 +2343,7 @@ function renderJianwangPage() {
             const redSeed = `${item.redSeedBefore} → ${item.redSeedAfter}`;
             const resources = item.cost
                 ? String(item.cost).split('；').map(part => `<span class="jianwang-cost-token">${escapeHtml(part)}</span>`).join('')
-                : '<span class="muted">只读预览</span>';
+                : '<span class="muted">조회 전용 미리보기</span>';
             return `<tr>
                 <td>${item.index}</td>
                 <td class="jianwang-result-cell"><strong>${resultLabel}</strong><span class="jianwang-seed">${item.shatterLabel ? escapeHtml(item.fromName) : '按当前剑胚进度生成'}</span></td>
@@ -2474,7 +2474,7 @@ function fillSpecialAttachMaterialSelect(preserveSelection) {
     const equip = saveEquips.find(item => runtimeKey(item) === equipSelect.value);
     materialSelect.innerHTML = '';
     if (!equip) {
-        materialSelect.innerHTML = '<option value="">（请先选择可预测装备）</option>';
+        materialSelect.innerHTML = '<option value="">（먼저 예측할 장비를 선택하세요）</option>';
         return;
     }
     const materials = specialMaterialsForEquip(equip);
@@ -2496,7 +2496,7 @@ function fillSpecialAttachEquipSelect(preserveSelection) {
     const equips = saveEquips.filter(canPredictSpecialAttach);
     select.innerHTML = '';
     if (!equips.length) {
-        select.innerHTML = '<option value="">（暂无已读取芒晶洗练进度的适用装备）</option>';
+        select.innerHTML = '<option value="">（망정 진행도를 확인한 장비가 없습니다）</option>';
     } else {
         for (const equip of equips) {
             const option = document.createElement('option');
@@ -2565,7 +2565,7 @@ function jianwangStageName(equip) {
     if (Number(equip?.id) === 5709) return '80级剑胚';
     if (JIANWANG_LEVEL_90_IDS.has(Number(equip?.id))) return `90级专武 · ${cfg.name || equip.name}`;
     if (JIANWANG_LEVEL_100_IDS.has(Number(equip?.id))) return `100레벨 신병 · ${cfg.name || equip.name}`;
-    return `${lv}级`;
+    return `${lv}레벨`;
 }
 
 function jianwangSwordLabel(equip) {
@@ -2718,7 +2718,7 @@ function fillJianwangMaterialSelect(preserveSelection = true) {
     const equip = base ? (getRuntimeEquip(runtimeKey(base)) || base) : null;
     materialSelect.innerHTML = '';
     if (!equip) {
-        materialSelect.innerHTML = '<option value="">（请先选择已铸进专武）</option>';
+        materialSelect.innerHTML = '<option value="">（승련한 전용 무기를 선택하세요）</option>';
         return;
     }
     for (const material of jianwangMaterialsForEquip(equip)) {
@@ -3219,7 +3219,7 @@ function renderXilianPage() {
     const start = (tablePager.page - 1) * pageSize;
     const slice = entries.slice(start, start + pageSize);
     if (!slice.length) {
-        body.innerHTML = `<tr><td colspan="6" class="empty-row">无匹配记录</td></tr>`;
+        body.innerHTML = `<tr><td colspan="6" class="empty-row">일치하는 기록이 없습니다</td></tr>`;
     } else {
         body.innerHTML = slice.map(({ it, idx }) => {
             const oldTxt = it.old_prop
@@ -3339,13 +3339,13 @@ function refreshXilianPlan() {
     const lianjinTotal = plan.total_lianjin != null ? plan.total_lianjin : (total['连金泥'] || 0);
     const mainTxt = main.map(m => m.label + m.value).join(' · ') || '无罡气/内劲基础';
     const cutoffLine = cutoffTotal
-        ? `<div><strong>截止花费</strong>（至第 ${lastKeepNo} 次，含此前共 ${lastKeepIdx + 1} 次精炼，保留 ${keepN} 次）：${cutoffTxt}</div>`
+        ? `<div><strong>종료 회차까지 소모량</strong>（제${lastKeepNo}회까지 총 정련 ${lastKeepIdx + 1}회, 옵션 유지 ${keepN}회）：${cutoffTxt}</div>`
         : '';
     let autoLine = '';
     if (xilianAutoPlan && xilianAutoPlan.equipKey === key) {
         const target = xilianAutoPlan.target;
         const naturalSteps = xilianAutoPlan.steps.map(step => xilianPlanItems[step - 1]?.index ?? step);
-        const pathText = naturalSteps.length ? naturalSteps.map(no => `第 ${no} 次`).join(' → ') : '无需新增保留';
+        const pathText = naturalSteps.length ? naturalSteps.map(no => `제${no}회`).join(' → ') : '无需新增保留';
         const targetSlots = exts.map((p, i) => {
             const value = p?.prop === target ? Number(p.value) || 0 : 0;
             return `슬롯 ${i + 1}=${formatPropValue(target, value)}`;
@@ -3364,7 +3364,7 @@ function refreshXilianPlan() {
         <div>连金泥合计 ${lianjinTotal} · 最终 精炼等级=${xl} · 标记槽数 ${simMarks}</div>
         <div>${mainTxt}</div>
         <div class="swap-line"><strong>最终附加</strong>：${extTxt}</div>
-        <div class="warn">※ 每次精炼均消耗；仅勾选「保留」的结果会替换对应槽并标记（后续消耗翻倍）。勾选后「截止花费」按最后一条保留记录统计。</div>
+        <div class="warn">※ 每次精炼均消耗；仅勾选「保留」的结果会替换对应槽并标记（后续消耗翻倍）。勾选后「종료 회차까지 소모량」按最后一条保留记录统计。</div>
     `;
 
     fillXilianPropFilter(xilianPlanItems);
@@ -3614,7 +3614,7 @@ function renderStrongPreview(resp, eq) {
     advice.innerHTML = [
         formatPlanCard('消耗最少', plans.minCost, names, '优先省稀有炼石', 'min'),
         formatPlanCard('数值最优', plans.maxValue, names, '优先高淬炼度', 'max'),
-        '<div class="advice-note">※ 取消也耗炼石；同结果尽量把尝试留在更便宜的层。稀有度：紫＞蓝＞绿＞白。点下方按钮可高亮对应接受行。</div>',
+        '<div class="advice-note">※ 유지하지 않아도 정련석이 소모됩니다. 같은 결과라면 소모량이 적은 단계에서 시도하세요. 등급은 자색·청색·녹색·백색 순입니다. 아래 버튼을 누르면 해당 유지 회차가 강조됩니다.</div>',
     ].join('');
     bindPathPagers();
 
