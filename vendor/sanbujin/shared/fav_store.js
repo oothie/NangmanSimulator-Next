@@ -63,9 +63,9 @@
     /* 按 id 合并，不覆盖已有收藏；重复导入不会产生重复项 */
     function restoreJson(text) {
         var payload;
-        try { payload = JSON.parse(text); } catch (error) { return { ok: false, error: '这不是备份文件，请选择之前导出的备份' }; }
+        try { payload = JSON.parse(text); } catch (error) { return { ok: false, error: '백업 파일이 아닙니다. 이전에 내보낸 백업 파일을 선택하세요.' }; }
         var items = Array.isArray(payload) ? payload : (payload && payload.items);
-        if (!Array.isArray(items)) return { ok: false, error: '文件里没有收藏数据' };
+        if (!Array.isArray(items)) return { ok: false, error: '파일에 즐겨찾기 데이터가 없습니다.' };
         var list = read();
         var seen = Object.create(null);
         list.forEach(function (item) { seen[String(item.id)] = 1; });
@@ -84,8 +84,8 @@
 
     /* 来源标签：收藏那一刻的存档身份，写进快照，之后换任何存档都不会变 */
     var PLATFORM_LABELS = {
-        ios: 'iOS', android: '安卓', pre_ios: 'iOS 先行服', pre_android: '安卓先行服',
-        oversea: '国际服', korea: '韩服', japan: '日服', windows: 'Windows', older: '旧版', test: '测试服'
+        ios: 'iOS', android: '안드로이드', pre_ios: 'iOS 사전 서버', pre_android: '안드로이드 사전 서버',
+        oversea: '해외 서버', korea: '한국 서버', japan: '일본 서버', windows: 'Windows', older: '구버전', test: '테스트 서버'
     };
 
     function day(ts) {
@@ -105,17 +105,17 @@
         var channel = String(o.channel || '');
         if (channel) parts.push(channel);                      /* 官服 / 华为 / 国际服 … */
         else if (PLATFORM_LABELS[platform]) parts.push(PLATFORM_LABELS[platform]);
-        else parts.push('渠道未记录');
+        else parts.push('채널 정보 없음');
         if (o.server) {
             var s = String(o.server);
             parts.push(/(?:服|서버)$/.test(s) ? s.replace(/服$/, '서버') : s + '서버');           /* 区服，和渠道并列 */
         }
         var saveDay = day(o.saveAt || o.importedAt);   /* UploadTime（存档时点）优先，导入时间兜底 */
-        if (saveDay) parts.push(saveDay + ' 存档');
+        if (saveDay) parts.push(saveDay + ' 세이브');
         var version = String(o.version || '').replace(/^0+(?=\d)/, '');
-        if (version) parts.push(version + ' 版号');
+        if (version) parts.push(version + ' 버전');
         var favDay = day(o.favoritedAt);
-        if (favDay) parts.push(favDay + ' 收藏');
+        if (favDay) parts.push(favDay + ' 즐겨찾기');
         return parts;
     }
 
@@ -126,9 +126,9 @@
         var parts = tagParts(item);
         var o = (item && item.origin) || {};
         var title = [];
-        if (o.sourceFile) title.push('来源文件：' + o.sourceFile);
+        if (o.sourceFile) title.push('원본 파일: ' + o.sourceFile);
         if (o.importedAt) {
-            try { title.push('存档导入：' + new Date(Number(o.importedAt)).toLocaleString('zh-CN')); } catch (error) { }
+            try { title.push('세이브 불러온 시각: ' + new Date(Number(o.importedAt)).toLocaleString('ko-KR')); } catch (error) { }
         }
         if (!parts.length) return '<div class="fav-meta-tag is-unknown" title="이 즐겨찾기에는 당시 세이브 정보가 기록되어 있지 않습니다">来源未记录</div>';
         return '<div class="fav-meta-tag" title="' + String(title.join(' · ')).replace(/"/g, '&quot;') + '">'
@@ -141,7 +141,7 @@
     }
 
     function csv(list) {
-        var rows = [['类型', '装备', '打造次数', '地点', '品质', '收藏时间']];
+        var rows = [['종류', '장비', '제작 횟수', '지역', '품질', '즐겨찾기 시각']];
         (list || read()).forEach(function (item) {
             rows.push([
                 item.equipType || '',
@@ -149,7 +149,7 @@
                 item.craftIndex == null ? '' : item.craftIndex,
                 item.location || '',
                 item.colorText || item.color || '',
-                item.savedAt ? new Date(Number(item.savedAt)).toLocaleString('zh-CN') : '',
+                item.savedAt ? new Date(Number(item.savedAt)).toLocaleString('ko-KR') : '',
             ]);
         });
         return '\ufeff' + rows.map(function (row) { return row.map(cell).join(','); }).join('\r\n');
