@@ -583,9 +583,9 @@ function renderFavList() {
             const liveTip = live ? '' : '(현재 시뮬레이션에 없는 장비이므로 일괄 계획에서 제외됩니다.)';
             return `<div class="fav-row" data-only-id="${escapeHtml(fav.onlyId)}">
                 <div class="fav-main">
-                    <strong>${escapeHtml(fav.name)}</strong>
-                    <span class="meta-text">${fav.needLv}레벨 · ${escapeHtml(fav.colorText || String(fav.color))} · ${escapeHtml(fav.typText || String(fav.typ))} · #${escapeHtml(fav.onlyId)}${liveTip}</span>
-                    <span class="fav-props">${escapeHtml(fav.propsText)}</span>
+                    <strong>${escapeHtml(live ? nangmanEquipmentDisplayName(live) : nangmanEquipmentDisplayText(fav.name))}</strong>
+                    <span class="meta-text">${fav.needLv}레벨 · ${escapeHtml(nangmanEquipmentDisplayText(fav.colorText || String(fav.color)))} · ${escapeHtml(nangmanEquipmentDisplayText(fav.typText || String(fav.typ)))} · #${escapeHtml(fav.onlyId)}${liveTip}</span>
+                    <span class="fav-props">${escapeHtml(nangmanEquipmentDisplayText(fav.propsText))}</span>
                 </div>
                 <input type="text" class="fav-note-input" maxlength="40" placeholder="비고" value="${escapeHtml(fav.note)}">
                 <button type="button" class="btn btn-reset btn-row-action" data-fav-act="remove">제거</button>
@@ -3031,7 +3031,7 @@ function updateShenglianHint() {
         const mark = base._mark ? ` · 표시 「${escapeHtml(base._mark)}」` : '';
         box.innerHTML = `
             <div><strong>현재</strong>：${escapeHtml(base.name)} · ${base.need_lv}레벨 · ${COLOR_NAMES[base.color] || base.color} · ${escapeHtml(String(typ))} · 옵션 ${base.exts.length}개${mark}</div>
-            <div><strong>승련 후</strong>：${escapeHtml(next.name || '?')} · ${next.lv || 100}레벨 · 장비 ID ${cfg.equ_next}</div>
+            <div><strong>승련 후</strong>：${escapeHtml(nangmanEquipmentDisplayName(next) || '?')} · ${next.lv || 100}레벨 · 장비 ID ${cfg.equ_next}</div>
             <div class="warn">승련 시 기존 옵션, 촉련 단계, 이후 순서와 표시가 유지됩니다. 승련 후 정련 화면에서 출처를 모의 제작으로 설정해 찾을 수 있습니다</div>
         `;
     }
