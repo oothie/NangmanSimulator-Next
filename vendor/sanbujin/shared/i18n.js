@@ -24,6 +24,11 @@ function korean(x){x=String(x==null?'':x);
  });
  if(!chinese.test(x))return x;var original=x;
 if(Object.prototype.hasOwnProperty.call(dict,x))return dict[x];
+ // Generated table cells sometimes contain only a single Han counter with
+ // padding whitespace. Translate the known unit without touching game IDs.
+ var trimmed=x.trim();
+ if(trimmed&&trimmed.length<=2&&Object.prototype.hasOwnProperty.call(dict,trimmed))
+   return x.replace(trimmed,dict[trimmed]);
 for(var p of pairs){if(x.includes(p[0]))x=x.split(p[0]).join(p[1])}
  // Formatting units in generated messages: convert only numeric suffixes,
  // never rewrite a Chinese equipment/name ID speculatively.
