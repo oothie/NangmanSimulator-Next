@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-sbj-feature="equip-manual">
-<head><script data-feature-config>window.SBJ_FEATURE_PAGE="equip-manual";window.SBJ_FEATURE_TAB="make";</script><script>if(new URLSearchParams(location.search).get("tab")==="jianwang")location.replace("../jianwang-manual/index.html"+location.search);</script>
+<head><script data-feature-config>window.SBJ_FEATURE_PAGE="equip-manual";window.SBJ_FEATURE_TAB="make";</script><script>if(new URLSearchParams(location.search).get("tab")==="jianwang")location.replace("/vendor/sanbujin/jianwang-manual/index.html"+location.search);</script>
 
     <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -35,7 +35,7 @@ html,body{max-width:100%;overflow-x:hidden}body{margin:0}
 body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 </style></head>
 <body class="sbj-workbench" data-workbench="manual">
-    <div class="app-container equip-app"><header class="feature-heading"><h1>装备</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/suanbujin/equip-quick/index.html">速查</a><a data-feature-mode="equip-auto" href="/suanbujin/equip-auto/index.html">自动</a><a data-feature-mode="equip-manual" href="/suanbujin/equip/index.html" aria-current="page">手动</a><a data-feature-mode="equip-orange" href="/suanbujin/equip-orange/index.html">橙装序列</a></nav></header>
+    <div class="app-container equip-app"><header class="feature-heading"><h1>装备</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html">速查</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html">自动</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html" aria-current="page">手动</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html">橙装序列</a></nav></header>
 
         <div id="yyhxLegacyState" hidden style="display:none!important;">
             <div class="archive-summary-info">
@@ -53,7 +53,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
                     <input type="checkbox" id="resetClearCrafted" checked>
                     <span>清除模拟背包</span>
                 </label>
-                <a id="archiveImportButton" class="btn btn-archive-action" href="/suanbujin/index.html">导入数据</a>
+                <a id="archiveImportButton" class="btn btn-archive-action" href="/vendor/sanbujin/index.html">导入数据</a>
                 <button id="btnExportTable" class="btn btn-archive-action" type="button">导出表格</button>
                 <button id="btnResetAll" class="btn btn-archive-action" type="button">重置状态</button>
                 <button id="btnResetWebsite" class="btn btn-archive-action" type="button" aria-live="polite">重置网页</button>
@@ -508,5 +508,5 @@ window.addEventListener('message',event=>{
 });
 window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'equip',status:'ready'},location.origin));
 })();
-</script></body>
+</script><script defer src="/engine/native-equipment-navigation.js"></script></body>
 </html>
