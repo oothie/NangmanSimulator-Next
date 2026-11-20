@@ -41,3 +41,11 @@
 - **제한:** 산부진 원본 도메인의 실행 자산을 현재 원격 로드합니다. 외부 자산 접근·브라우저 실제 WASM 실행은 미검증입니다. 성공한 한국판 제작 결과로 확정하지 않습니다. 후속 자체 호스팅 및 한국판 동일 세이브 검증이 필요합니다.
 - 승련·정련·촉련·망정·자동 탐색은 산부진 함수 통합 전입니다.
 - 백과 및 상단 탭은 유지했습니다.
+
+## v0.6.1 실제 산부진 원본 화면 연결
+- `index.html`: 기존 백과/테마 보존, 장비는 `vendor/sanbujin/equip/index.html`을 독립 프레임으로, 드랍은 `vendor/sanbujin/drops/index.html`을 독립 프레임으로 실행하도록 변경.
+- `vendor/sanbujin/equip/index.html`: CDN 및 APK 셸 외부 링크 제거, 동일 사이트에 있는 12개 원본 JS 엔진 연결, 상단 JSON 세이브 postMessage 전달.
+- `vendor/sanbujin/drops/index.html`: 필드/관문/보물지도 원본 JS 13개와 로컬 세이브 이벤트 전달.
+- `vendor/yysim/engine-host.html`: 동일 출처 WASM을 `engine/local-engine-bridge.js`로 호출하여 시드 직접 입력 시험 실행 기능 추가.
+- 빠른 조회/자동은 필수 원본 `shared/simulator.js` 등이 저장소에 빠져 있어 미완료. 정상 작동한다고 표시하지 않음.
+- 환경 내 Chromium 실제 사이트 탐색이 ERR_BLOCKED_BY_ADMINISTRATOR로 차단돼 정적 연결/JS 파싱을 우선 검사했음.
