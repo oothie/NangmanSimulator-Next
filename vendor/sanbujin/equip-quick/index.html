@@ -80,7 +80,14 @@ html,body{background:transparent!important;color:inherit;overflow-x:hidden;min-h
 body.sbj-workbench{background:transparent!important;padding:8px 0!important;margin:0!important}
 .feature-heading,.feature-mode-nav,#nangman-direct-header{display:none!important}
 .sbj-site-header,.sbj-site-nav{display:none!important}
-</style></head>
+</style><style id="nangman-quick-detail-style">
+#equipAutoSweepResults tr[data-sweep-item]{cursor:pointer}
+#equipAutoSweepResults tr[data-sweep-item]:hover{background:rgba(122,106,67,.12)}
+#equipAutoSweepResults tr[data-sweep-item]:focus-visible{outline:2px solid #8e7148;outline-offset:-2px}
+#equipAutoSweepResults [data-sweep-back]{margin:12px 0 16px}
+#equipAutoSweepResults>.equip-auto-candidate{margin-top:10px}
+</style>
+</head>
 <body class="sbj-workbench" data-workbench="auto">
     <div class="app-container"><header class="feature-heading"><h1>装备</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html" aria-current="page">速查</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html">自动</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html">手动</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html">橙装序列</a></nav></header>
 
