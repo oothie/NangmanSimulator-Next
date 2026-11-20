@@ -27,12 +27,12 @@
         let fingerprint = 2166136261;
         for (const byte of bytes) fingerprint = Math.imul(fingerprint ^ byte, 16777619) >>> 0;
         if (bytes.length !== 393716 || fingerprint !== 1496480125) {
-            throw new Error('装备资料版本不匹配，暂时无法继续推演，请刷新后重试');
+            throw new Error('장비 데이터 버전이 일치하지 않아 계산을 계속할 수 없습니다. 새로고침 후 다시 시도하세요.');
         }
         function read(pos) {
             let value = 0, shift = 0, byte;
             do { byte = bytes[pos++]; value += (byte & 127) * 2 ** shift; shift += 7;
-                if (shift > 35 || pos > bytes.length) throw new Error('推演资料不完整，请刷新后重试');
+                if (shift > 35 || pos > bytes.length) throw new Error('시뮬레이션 데이터가 불완전합니다. 새로고침 후 다시 시도하세요.');
             } while (byte & 128);
             return [value, pos];
         }
@@ -45,7 +45,7 @@
             let payload = bytes.slice(start, end);
             if (id === 6) {
                 const [count, body] = read(start);
-                if (count !== 3) throw new Error('推演资料版本不匹配，请刷新后重试');
+                if (count !== 3) throw new Error('시뮬레이션 데이터 버전이 일치하지 않습니다. 새로고침 후 다시 시도하세요.');
                 payload = Uint8Array.from([...leb(4), ...bytes.slice(body, end), 0x7e, 1, 0x42, ...leb(99999999), 0x0b]);
                 globals = true;
             } else if (id === 7) {
@@ -67,10 +67,10 @@
             chunks.push(Uint8Array.from([id, ...leb(payload.length)]), payload);
             pos = end;
         }
-        if (!globals || !exports || patched !== 4) throw new Error('装备序列资料未能核对，请刷新后重试');
+        if (!globals || !exports || patched !== 4) throw new Error('장비 순서 데이터를 검증하지 못했습니다. 새로고침 후 다시 시도하세요.');
         const result = new Uint8Array(chunks.reduce((n, a) => n + a.length, 0));
         let offset = 0; for (const chunk of chunks) { result.set(chunk, offset); offset += chunk.length; }
-        if (!WebAssembly.validate(result)) throw new Error('装备序列资料未能核对，请刷新后重试');
+        if (!WebAssembly.validate(result)) throw new Error('장비 순서 데이터를 검증하지 못했습니다. 새로고침 후 다시 시도하세요.');
         return result;
     }
     root.SequenceRules = Object.freeze({ version, channel, international, washRC, makeMax, prepareWasm });
