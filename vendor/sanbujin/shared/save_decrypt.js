@@ -75,20 +75,20 @@ var SAVE_PLAIN_YANYU_ITERATIONS = 120000;
 
 async function decryptPlainYanyuContainer(bytes, code) {
     if (!(typeof crypto !== 'undefined' && crypto.subtle)) {
-        throw new Error('当前环境不支持 WebCrypto，无法解密 YANYUPL1 存档');
+        throw new Error('현재 환경에서 WebCrypto를 지원하지 않아 YANYUPL1 세이브를 복호화할 수 없습니다.');
     }
-    if (bytes.length < 8 + 2 + 16 + 12 + 16) throw new Error('YANYUPL1 存档长度异常');
+    if (bytes.length < 8 + 2 + 16 + 12 + 16) throw new Error('YANYUPL1 세이브의 파일 길이가 올바르지 않습니다.');
     const version = bytes[8];
     const flags = bytes[9];
-    if (version !== 1 && version !== 2) throw new Error('不支持的 YANYUPL1 版本：' + version);
+    if (version !== 1 && version !== 2) throw new Error('지원하지 않는 YANYUPL1 버전: ' + version);
     code = code ? String(code).trim() : '';
     if (version === 2 && !code) {
-        throw new Error('这张 .yanyu 是带授权码的导出（YANYUPL1 v2），需要输入导出时的授权码才能解密');
+        throw new Error('이 .yanyu 파일은 인증 코드가 필요한 YANYUPL1 v2 형식입니다. 내보낼 때 사용한 인증 코드를 입력해야 합니다.');
     }
     const saltStart = 10;
     const nonceStart = saltStart + 16;
     const bodyStart = nonceStart + 12 + (version === 2 ? 8 : 0);
-    if (bodyStart + 16 > bytes.length) throw new Error('YANYUPL1 存档头部损坏');
+    if (bodyStart + 16 > bytes.length) throw new Error('YANYUPL1 세이브의 헤더가 손상됐습니다.');
     const salt = bytes.slice(saltStart, nonceStart);
     const nonce = bytes.slice(nonceStart, nonceStart + 12);
     const body = bytes.slice(bodyStart);
@@ -106,8 +106,8 @@ async function decryptPlainYanyuContainer(bytes, code) {
         plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: nonce }, key, body);
     } catch (error) {
         throw new Error(version === 2
-            ? 'YANYUPL1 解密失败：授权码不对，或文件已损坏'
-            : 'YANYUPL1 解密失败：文件已损坏或被改动过');
+            ? 'YANYUPL1 복호화 실패: 인증 코드가 틀렸거나 파일이 손상됐습니다.'
+            : 'YANYUPL1 복호화 실패: 파일이 손상되었거나 수정됐습니다.');
     }
     let out = new Uint8Array(plain);
     if (flags & 1) out = await _inflateGzip(out);
@@ -115,10 +115,10 @@ async function decryptPlainYanyuContainer(bytes, code) {
     try {
         data = JSON.parse(new TextDecoder('utf-8').decode(out));
     } catch (error) {
-        throw new Error('YANYUPL1 解密后不是有效 JSON：' + (error && error.message ? error.message : error));
+        throw new Error('YANYUPL1 복호화 결과가 유효한 JSON이 아닙니다: ' + (error && error.message ? error.message : error));
     }
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
-        throw new Error('YANYUPL1 解密结果不是存档对象');
+        throw new Error('YANYUPL1 복호화 결과가 세이브 데이터가 아닙니다.');
     }
     return data;
 }
@@ -203,10 +203,10 @@ function getV30SaveFileNameError(fileName) {
     const match = String(fileName || '').match(SAVE_V30_FILE_SHAPE_PATTERN);
     if (!match) return null;
     if (!SAVE_V30_CHANNELS.includes(match[1])) {
-        return '未识别到渠道服。当前支持：' + SAVE_V30_CHANNELS.join('、');
+        return '서버 채널을 확인하지 못했습니다. 지원 채널: ' + SAVE_V30_CHANNELS.join('、');
     }
     if (!/^[0-9a-f]{8}$/i.test(match[4])) {
-        return 'v3.0 文件名中的授权标识不是 8 位十六进制，请重新导出且不要修改文件名';
+        return 'v3.0 파일명의 인증 식별자가 8자리 16진수가 아닙니다. 파일명을 변경하지 말고 다시 추출하세요.';
     }
     return null;
 }
@@ -216,10 +216,10 @@ function parseV30ContainerHeader(bytes, fileInfo) {
     const fixedLength = SAVE_V30_CONTAINER_MAGIC.length + SAVE_V30_FILE_ID_BYTES
         + SAVE_V30_WEB_TOKEN_BYTES + 1;
     if (!bytes || bytes.length < fixedLength + SAVE_V30_NONCE_BYTES + 16) {
-        throw new Error('v3.0 加密存档不完整，请重新导出');
+        throw new Error('v3.0 암호화 세이브가 불완전합니다. 다시 추출하세요.');
     }
     if (_bytesToAscii(bytes.slice(0, SAVE_V30_CONTAINER_MAGIC.length)) !== SAVE_V30_CONTAINER_MAGIC) {
-        throw new Error('不是有效的 v3.0 加密存档');
+        throw new Error('올바른 v3.0 암호화 세이브가 아닙니다.');
     }
     const fileIdStart = SAVE_V30_CONTAINER_MAGIC.length;
     const fileIdEnd = fileIdStart + SAVE_V30_FILE_ID_BYTES;
@@ -231,18 +231,18 @@ function parseV30ContainerHeader(bytes, fileInfo) {
     const channelStart = webTokenEnd + 1;
     const nonceStart = channelStart + channelLength;
     const cipherStart = nonceStart + SAVE_V30_NONCE_BYTES;
-    if (channelLength < 1 || bytes.length < cipherStart + 16) throw new Error('v3.0 存档头无效');
+    if (channelLength < 1 || bytes.length < cipherStart + 16) throw new Error('v3.0 세이브 헤더가 올바르지 않습니다.');
     let channel;
     try {
         channel = new TextDecoder('utf-8', { fatal: true }).decode(bytes.slice(channelStart, nonceStart));
     } catch (e) {
-        throw new Error('v3.0 存档渠道信息无效');
+        throw new Error('v3.0 세이브의 채널 정보가 올바르지 않습니다.');
     }
     if (!SAVE_V30_CHANNELS.includes(channel)
         || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(fileId)
         || !fileInfo || fileId.slice(0, 8) !== fileInfo.fileIdPrefix
         || channel !== fileInfo.channel) {
-        throw new Error('v3.0 存档文件名与文件内容不匹配，请勿修改文件名');
+        throw new Error('v3.0 파일명과 파일 내용이 일치하지 않습니다. 파일명을 변경하지 마세요.');
     }
     return { fileId: fileId, webToken: webToken, channel: channel, nonceStart: nonceStart, cipherStart: cipherStart };
 }
@@ -265,11 +265,11 @@ async function decryptV30Container(bytes, fileInfo, contentKeyBase64) {
     const header = parseV30ContainerHeader(bytes, fileInfo);
     const keyBytes = _b64ToBytesLocal(contentKeyBase64 || '');
     if (keyBytes.length !== 32) {
-        throw new Error('这是 v3.0 存档（YANYU301），它的密钥由观星官网在导入时联网签发，本工具不伪造授权、无法解密。'
-            + '请让导出方改用 v2.1 格式导出，或直接把该文件拿到观星官网网页导入。');
+        throw new Error('v3.0 세이브(YANYU301)는 원본 서비스가 온라인으로 발급한 키가 필요합니다. 이 도구는 인증을 우회하지 않으며 복호화할 수 없습니다.'
+            + '추출한 측에 v2.1 형식으로 다시 추출해 달라고 요청하거나 원본 서비스 웹사이트에서 불러오세요.');
     }
     const subtle = typeof crypto !== 'undefined' && crypto.subtle ? crypto.subtle : null;
-    if (!subtle) throw new Error('当前浏览器不支持本地安全解密，请使用最新版 Chrome 或 Edge');
+    if (!subtle) throw new Error('현재 브라우저는 로컬 보안 복호화를 지원하지 않습니다. 최신 Chrome 또는 Edge를 사용하세요.');
     try {
         const key = await subtle.importKey('raw', keyBytes, { name: 'AES-GCM' }, false, ['decrypt']);
         keyBytes.fill(0);
@@ -293,7 +293,7 @@ async function decryptV30Container(bytes, fileInfo, contentKeyBase64) {
         };
     } catch (error) {
         keyBytes.fill(0);
-        throw new Error('v3.0 存档认证失败：授权无效、文件已损坏或文件名被修改');
+        throw new Error('v3.0 세이브 인증 실패: 인증이 유효하지 않거나 파일 손상 또는 파일명 변경이 발생했습니다.');
     }
 }
 
@@ -310,10 +310,10 @@ function getV20SaveFileNameError(fileName) {
     const match = String(fileName || '').match(SAVE_V20_FILE_SHAPE_PATTERN);
     if (!match) return null;
     if (!SAVE_V20_CHANNELS.includes(match[2])) {
-        return '未识别到渠道服。当前支持：' + SAVE_V20_CHANNELS.join('、');
+        return '서버 채널을 확인하지 못했습니다. 지원 채널: ' + SAVE_V20_CHANNELS.join('、');
     }
     if (!/^[A-Za-z0-9]{16}$/.test(match[1])) {
-        return '存档密钥不对。文件名中的解析码必须是 16 位字母或数字，请重新导出且不要修改文件名';
+        return '세이브 암호화 키가 맞지 않습니다. 파일명의 분석 코드는 영문·숫자 16자리여야 합니다. 파일명을 변경하지 말고 다시 추출하세요.';
     }
     return null;
 }
@@ -322,10 +322,10 @@ function getV21SaveFileNameError(fileName) {
     const match = String(fileName || '').match(SAVE_V21_FILE_SHAPE_PATTERN);
     if (!match) return null;
     if (!SAVE_V20_CHANNELS.includes(match[2])) {
-        return '未识别到渠道服。当前支持：' + SAVE_V20_CHANNELS.join('、');
+        return '서버 채널을 확인하지 못했습니다. 지원 채널: ' + SAVE_V20_CHANNELS.join('、');
     }
     if (!/^[A-Za-z0-9]{16}$/.test(match[1])) {
-        return '存档密钥不对。文件名中的解析码必须是 16 位字母或数字，请重新导出且不要修改文件名';
+        return '세이브 암호화 키가 맞지 않습니다. 파일명의 분석 코드는 영문·숫자 16자리여야 합니다. 파일명을 변경하지 말고 다시 추출하세요.';
     }
     return null;
 }
@@ -342,19 +342,19 @@ function detectSaveFileVersion(fileName) {
 }
 
 async function decryptAuthenticatedContainer(bytes, fileInfo, fileName) {
-    const displayVersion = fileInfo && fileInfo.formatVersion ? fileInfo.formatVersion : '加密版';
+    const displayVersion = fileInfo && fileInfo.formatVersion ? fileInfo.formatVersion : '암호화 버전';
     const headerLength = SAVE_AUTH_CONTAINER_MAGIC.length
         + SAVE_AUTH_SALT_BYTES + SAVE_AUTH_NONCE_BYTES;
     if (!bytes || bytes.length < headerLength + 16) {
-        throw new Error(displayVersion + ' 加密存档不完整，请重新导出');
+        throw new Error(displayVersion + ' 암호화 세이브가 불완전합니다. 다시 추출하세요.');
     }
     const magic = _bytesToAscii(bytes.slice(0, SAVE_AUTH_CONTAINER_MAGIC.length));
     if (magic !== SAVE_AUTH_CONTAINER_MAGIC) {
-        throw new Error('不是有效的 ' + displayVersion + ' 加密存档，请勿修改文件内容或扩展名');
+        throw new Error('올바른 ' + displayVersion + ' 암호화 세이브가 아닙니다. 파일 내용이나 확장자를 변경하지 마세요.');
     }
     const subtle = typeof crypto !== 'undefined' && crypto.subtle ? crypto.subtle : null;
     if (!subtle) {
-        throw new Error('当前浏览器不支持本地安全解密，请使用最新版 Chrome 或 Edge');
+        throw new Error('현재 브라우저는 로컬 보안 복호화를 지원하지 않습니다. 최신 Chrome 또는 Edge를 사용하세요.');
     }
     const saltStart = SAVE_AUTH_CONTAINER_MAGIC.length;
     const nonceStart = saltStart + SAVE_AUTH_SALT_BYTES;
@@ -378,7 +378,7 @@ async function decryptAuthenticatedContainer(bytes, fileInfo, fileName) {
         }, key, encrypted);
         return new Uint8Array(plain);
     } catch (error) {
-        throw new Error(displayVersion + ' 存档认证失败：文件已被修改、文件名不匹配或存档密钥不正确');
+        throw new Error(displayVersion + ' 세이브 인증 실패: 파일 변경, 파일명 불일치 또는 잘못된 키입니다.');
     }
 }
 
@@ -531,7 +531,7 @@ async function _inflateZlib(data) {
             return new Uint8Array(buf);
         } catch (e) { }
     }
-    throw new Error('当前环境不支持 zlib 解压（需 DecompressionStream 或 pako）');
+    throw new Error('현재 환경에서 zlib 압축 해제를 지원하지 않습니다(DecompressionStream 또는 pako 필요).');
 }
 
 async function _inflateGzip(data) {
@@ -544,7 +544,7 @@ async function _inflateGzip(data) {
         } catch (e) { }
     }
     if (typeof pako !== 'undefined' && pako.ungzip) return pako.ungzip(data);
-    throw new Error('当前环境不支持 gzip 解压（需 DecompressionStream 或 pako）');
+    throw new Error('현재 환경에서 gzip 압축 해제를 지원하지 않습니다(DecompressionStream 또는 pako 필요).');
 }
 
 
@@ -622,9 +622,9 @@ async function decryptSaveContent(contentText, outerKey, formatVersion, channel)
 }
 
 function _newSaveOuterKeyError(marker) {
-    const error = new Error('新版存档外层解密失败：导出工具生成的解析码与存档不匹配，或文件已损坏。'
-        + (marker === 'dnkemiea' ? '请使用 2.1.7 或后续兼容版本导出工具重新导出，不要手动修改文件名'
-            : '请使用支持新版存档格式的导出工具重新导出，不要手动修改文件名'));
+    const error = new Error('새 형식 세이브의 외부 복호화 실패: 추출 도구의 분석 코드가 세이브와 맞지 않거나 파일이 손상됐습니다.'
+        + (marker === 'dnkemiea' ? '2.1.7 이상 호환 추출 도구로 다시 추출하세요. 파일명을 직접 변경하지 마세요.'
+            : '새 세이브 형식을 지원하는 도구로 다시 추출하세요. 파일명을 직접 변경하지 마세요.'));
     error.code = 'SAVE_OUTER_KEY_MISMATCH';
     error.stage = 'outer';
     error.transportMarker = marker || 'cdexdmk5';
@@ -632,8 +632,8 @@ function _newSaveOuterKeyError(marker) {
 }
 
 function _unsupportedSaveInnerVersionError(version, marker) {
-    const error = new Error('存档外层已解密成功，但当前模拟器尚未收录游戏存档版本 '
-        + version + ' 的内层解密参数。请提供该版本的新导出存档用于适配，无需反复重命名或重新导出');
+    const error = new Error('세이브 외부 복호화는 성공했지만 이 시뮬레이터는 아직 게임 세이브 버전 '
+        + version + '의 내부 복호화 인자를 지원하지 않습니다. 해당 버전의 새로 추출한 세이브가 필요하며 파일명 변경을 반복할 필요는 없습니다.');
     error.code = 'SAVE_INNER_VERSION_UNSUPPORTED';
     error.stage = 'inner';
     error.version = version;
@@ -768,7 +768,7 @@ function _loadSqlWasm() {
         el.src = src;
         el.async = false;
         el.onload = () => resolve();
-        el.onerror = () => reject(new Error('SQLite 模块加载失败：' + src));
+        el.onerror = () => reject(new Error('SQLite 모듈 로드 실패: ' + src));
         document.head.appendChild(el);
     });
     _sqlWasmLoading = load(base + 'sql-wasm.js' + query).then(() => load(base + 'sql-wasm-embed.js' + query));
@@ -778,7 +778,7 @@ function _loadSqlWasm() {
 async function _extractContentFromSqlite(bytes) {
     await _loadSqlWasm();
     if (typeof initSqlJsEmbed !== 'function') {
-        throw new Error('SQLite 解析模块未加载（请确认网络可访问 sql-wasm.js 和 sql-wasm-embed.js）');
+        throw new Error('SQLite 분석 모듈을 로드하지 못했습니다(sql-wasm.js 및 sql-wasm-embed.js 접속 상태 확인).');
     }
     const SQL = await initSqlJsEmbed();
     const db = new SQL.Database(bytes);
@@ -803,7 +803,7 @@ async function _extractContentFromSqlite(bytes) {
             }
         }
         if (!row || !row.content) {
-            throw new Error('SQLite 数据库里没找到 content 字段（save 表为空或不存在）');
+            throw new Error('SQLite 데이터베이스에서 content 필드를 찾지 못했습니다(save 테이블이 비었거나 없습니다).');
         }
         let columns = null;
         let fullRow = null;
@@ -826,7 +826,7 @@ async function _extractContentFromSqlite(bytes) {
 
 async function decryptSaveFile(file, requestedFormatVersion, authorization) {
     if (!file || typeof file.arrayBuffer !== 'function') {
-        throw new Error('需要传入浏览器 File 对象');
+        throw new Error('브라우저 File 객체를 전달해야 합니다.');
     }
     const earlyBuf = new Uint8Array(await file.arrayBuffer());
     /* 第三方「烟雨观星 4.0」导出的 .yanyu（YANYUPL1）：本地解密后就是存档 JSON */
@@ -848,17 +848,17 @@ async function decryptSaveFile(file, requestedFormatVersion, authorization) {
     }
     /* 先按魔数识别第三方 .gx 容器，避免被文件名规则误拦 */
     if (_bytesToAscii(earlyBuf.slice(0, 8)) === 'GXARCH33') {
-        if (earlyBuf.length < 13) throw new Error('GXARCH33 存档长度异常，无法读取');
+        if (earlyBuf.length < 13) throw new Error('GXARCH33 세이브 파일 길이가 올바르지 않아 읽을 수 없습니다.');
         const headerLength = ((earlyBuf[8] << 24) | (earlyBuf[9] << 16) | (earlyBuf[10] << 8) | earlyBuf[11]) >>> 0;
         const bodyStart = 12 + headerLength;
         if (!headerLength || bodyStart >= earlyBuf.length) {
-            throw new Error('GXARCH33 存档头部损坏，无法定位正文');
+            throw new Error('GXARCH33 세이브 헤더가 손상되어 본문을 찾을 수 없습니다.');
         }
         let gxData;
         try {
             gxData = JSON.parse(new TextDecoder('utf-8').decode(earlyBuf.slice(bodyStart)));
         } catch (error) {
-            throw new Error('GXARCH33 存档正文不是有效 JSON：' + (error && error.message ? error.message : error));
+            throw new Error('GXARCH33 세이브 본문이 유효한 JSON이 아닙니다: ' + (error && error.message ? error.message : error));
         }
         /* 存档正文里带 DBVersion（例：73460），它是序列规则的分水岭依据 */
         const gxVersion = String(gxData.DBVersion || gxData.dbVersion || gxData.Version || gxData.SaveVersion || '').trim();
@@ -883,22 +883,22 @@ async function decryptSaveFile(file, requestedFormatVersion, authorization) {
             fileInfo = parseV183SaveFileName(file.name);
             if (!fileInfo) {
                 if (!/\.db$/i.test(String(file.name || ''))) {
-                    throw new Error('无法识别这个存档文件：请导入 dat.db、.db 或 .yanyu 文件');
+                    throw new Error('세이브 형식을 인식하지 못했습니다. dat.db, .db 또는 .yanyu 파일을 불러오세요.');
                 }
                 fileInfo = { formatVersion: '1.8' };
             }
         } else if (selectedVersion === '1.8.3') {
             fileInfo = parseV183SaveFileName(file.name);
             if (!fileInfo) {
-                throw new Error('1.8.3 存档文件名必须包含一对 8 位 @设备码@，并以 .db 结尾');
+                throw new Error('1.8.3 세이브 파일명은 8자리 장치 코드(@장치코드@)를 포함하고 .db로 끝나야 합니다.');
             }
         } else if (selectedVersion === '1.8') {
             if (!/\.db$/i.test(String(file.name || ''))) {
-                throw new Error('1.8 仅支持直接导入 dat.db 或其他 .db SQLite 存档');
+                throw new Error('1.8 형식은 dat.db 또는 다른 .db SQLite 세이브만 직접 지원합니다.');
             }
             fileInfo = { formatVersion: '1.8' };
         } else {
-            throw new Error('无法识别存档版本或文件名。请选择解析版本 v3.0 / v2.1 的 .yanyu 文件，或未改名的 v2.0 / v1.9 .db 文件；旧 dat.db 请先选择 1.8 或 1.8.3');
+            throw new Error('세이브 버전 또는 파일명을 인식하지 못했습니다. v3.0/v2.1 형식의 .yanyu 파일이나 이름을 변경하지 않은 v2.0/v1.9 .db 파일을 선택하세요. 구버전 dat.db는 1.8 또는 1.8.3을 선택하세요.');
         }
     }
     let buf = earlyBuf;
@@ -912,8 +912,8 @@ async function decryptSaveFile(file, requestedFormatVersion, authorization) {
 
     if (fmt !== 'sqlite') {
         throw new Error(fileInfo.formatVersion === '2.1'
-            ? fileInfo.formatVersion + ' 容器解密后不是有效 SQLite 存档'
-            : '仅支持导出工具生成的 SQLite 存档');
+            ? fileInfo.formatVersion + ' 컨테이너 복호화 후 올바른 SQLite 세이브가 아닙니다.'
+            : '추출 도구에서 생성한 SQLite 세이브만 지원합니다.');
     }
 
     let content = null;
@@ -922,8 +922,8 @@ async function decryptSaveFile(file, requestedFormatVersion, authorization) {
     content = ext.content;
     if (['cdexdmk5', 'dnkemiea'].includes(String(content).slice(0, 8))
         && (fileInfo.formatVersion === '1.8' || fileInfo.formatVersion === '1.8.3')) {
-        throw new Error('这是新版加密原始存档，不能按 1.8 / 1.8.3 读取。'
-            + '请使用支持新版存档格式的导出工具生成 .yanyu 文件，再选择 v2.1 导入');
+        throw new Error('새 형식의 암호화 원본 세이브이므로 1.8/1.8.3으로 읽을 수 없습니다.'
+            + '새 세이브 형식을 지원하는 도구로 .yanyu 파일을 생성한 뒤 v2.1을 선택해 불러오세요.');
     }
     extra.format = fileInfo.formatVersion === '2.1'
         ? 'yanyu201' : 'sqlite';
@@ -939,14 +939,14 @@ async function decryptSaveFile(file, requestedFormatVersion, authorization) {
     if (fileInfo.formatVersion === 'serverid') {
         r = await decryptServerIdSaveContent(content);
         if (!r) {
-            throw new Error('原始 dat.db 解析失败：内容已损坏或平台密钥不匹配');
+            throw new Error('원본 dat.db 분석 실패: 데이터 손상 또는 플랫폼 키 불일치');
         }
     } else if (fileInfo.formatVersion === '1.8') {
         r = await decryptV18SaveContent(content);
     } else if (fileInfo.formatVersion === '1.8.3') {
         const outerKeys = buildV183OuterKeys(fileInfo.deviceCode, ext.row || null);
         if (!outerKeys.length) {
-            throw new Error('1.8.3 存档缺少有效的 save.id，无法与文件名设备码组合解析');
+            throw new Error('1.8.3 세이브에 유효한 save.id가 없어 파일명 장치 코드와 연결할 수 없습니다.');
         }
         r = await decryptV183SaveContent(content, outerKeys);
     } else {
@@ -955,16 +955,16 @@ async function decryptSaveFile(file, requestedFormatVersion, authorization) {
     }
     if (!r) {
         if (fileInfo.formatVersion === '1.8') {
-            throw new Error('1.8 存档解析失败：版本头、历史平台密钥、压缩数据或 JSON 不匹配');
+            throw new Error('1.8 세이브 분석 실패: 버전 헤더, 과거 플랫폼 키, 압축 데이터 또는 JSON 불일치');
         }
         if (fileInfo.formatVersion === '1.8.3') {
-            throw new Error('1.8.3 存档解析失败：文件名设备码与当前 dat.db 不匹配，或存档内容已损坏');
+            throw new Error('1.8.3 세이브 분석 실패: 파일명 장치 코드와 dat.db 불일치 또는 데이터 손상');
         }
         if (fileInfo.formatVersion === '2.0' || fileInfo.formatVersion === '2.1') {
-            throw new Error('存档密钥不对。请重新使用当前渠道的 '
-                + fileInfo.formatVersion + ' 导出工具导出，且不要修改文件名');
+            throw new Error('세이브 키가 맞지 않습니다. 현재 채널의 '
+                + fileInfo.formatVersion + ' 추출 도구로 다시 추출하고 파일명을 변경하지 마세요.');
         }
-        throw new Error('存档解密失败：文件名中的 16 位解析码或版本与存档不匹配');
+        throw new Error('세이브 복호화 실패: 파일명의 16자리 분석 코드나 버전이 세이브와 일치하지 않습니다.');
     }
     return Object.assign(r, extra);
 }
@@ -1011,19 +1011,19 @@ function setSaveFormatVersion(version) {
             download.href = '';
         }
     }
-    if (exporter) exporter.textContent = exporterVersion ? 'v' + exporterVersion : '无（仅解析）';
+    if (exporter) exporter.textContent = exporterVersion ? 'v' + exporterVersion : '없음(분석 전용)';
     if (hint) {
         hint.textContent = selected === '3.0'
-            ? 'v3.0 协议（YANYU301）：官方导出器 v3.0.6 产出，需授权密钥；本工具可直接解析已授权文件'
+            ? 'v3.0 규격(YANYU301): 공식 추출 도구 v3.0.6에서 생성하며 인증 키가 필요합니다. 인증된 파일은 분석할 수 있습니다.'
             : (selected === '1.8'
-                ? '仅解析：直接选择旧版 dat.db（含 iOS 备份里的存档），不需要文件名设备码'
+                ? '분석 전용: 구버전 dat.db(iOS 백업 포함)를 바로 선택하세요. 파일명 장치 코드가 필요하지 않습니다.'
                 : (selected === '1.8.3'
-                    ? '仅解析：文件名须包含一对 8 位 @设备码@'
+                    ? '분석 전용: 파일명에 8자리 @장치코드@가 포함되어야 합니다.'
                     : (selected === '2.1'
-                        ? '支持解析版本 v2.1 的只读加密 .yanyu 文件（YANYU201 容器，密钥在文件名里）'
+                        ? 'v2.1 읽기 전용 암호화 .yanyu 파일 지원(YANYU201 컨테이너, 파일명에 키 포함)'
                         : (selected === '2.0'
-                            ? '兼容 v2.0 工具导出的渠道命名 .db 文件'
-                            : '兼容 v1.9 工具导出的 -dat-v1.9.db 文件'))));
+                            ? 'v2.0 도구에서 추출한 채널명 포함 .db 파일 지원'
+                            : 'v1.9 도구에서 추출한 -dat-v1.9.db 파일 지원'))));
     }
 }
 
@@ -1331,7 +1331,7 @@ function _importFeedback(on) {
         if (!txt) return;
         if (on) {
             if (!txt.dataset.importTxt) txt.dataset.importTxt = txt.textContent;
-            txt.textContent = '解密中…';
+            txt.textContent = '복호화 중…';
         } else {
             if (txt.dataset.importTxt) txt.textContent = txt.dataset.importTxt;
         }
