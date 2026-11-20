@@ -36,8 +36,8 @@
     const hits = rows.filter(row => row.drop);
     const shown = onlyHits.checked ? hits : rows;
     const end = rows[rows.length - 1];
-    const summary = hits.length ? '预计出图 ' + hits.length + ' 份' : '这个范围内未推演到掉落';
-    const cost = end ? ' · 打 ' + end.fight + ' 场 · 等 ' + end.day + ' 次每日刷新' : '';
+    const summary = hits.length ? '预计出图 ' + hits.length + ' 개' : '这个范围内未推演到掉落';
+    const cost = end ? ' · 打 ' + end.fight + ' 场 · 等 ' + end.day + ' 회每日刷新' : '';
     const pending = rows.reduce((waiting, row) => row.pending || waiting && row.drop !== 'oil', input.status === 5);
     result.textContent = summary + cost + (pending ? '。还有帝陵线索待掉油纸。'
       : hits.length ? '。每次出图后先完成寻宝。' : '。可以增加场次或每日刷新次数再查。');
@@ -45,7 +45,7 @@
     $('treasureResults').replaceChildren(...shown.map(row => {
       const tr = document.createElement('tr');
       tr.classList.toggle('treasure-hit', Boolean(row.drop));
-      const day = row.day ? '第 ' + row.day + ' 次' : '当前';
+      const day = row.day ? '第 ' + row.day + ' 회' : '当前';
       const drop = row.drop === 'oil' ? '残破的油纸' : row.drop === 'clue' ? '藏宝线索' : row.pending ? '触发，待掉油纸' : '无掉落';
       for (const label of [row.fight, day, engine.sites[row.site], drop]) {
         const td = document.createElement('td');
