@@ -94,7 +94,7 @@
     const interval = Number($('wildInterval').value), bait = $('wildBait').value;
     const time = Math.floor(Date.parse($('wildTime').value + '+08:00') / 1000);
     try {
-      if (target.kind === 'aidrop' && !engine.usable(time)) throw Error('请填写有效的首场结算时间');
+      if (target.kind === 'aidrop' && !engine.usable(time)) throw Error('올바른 첫 사냥 판정 시각을 입력하세요.');
       rows = engine.predict(input, target, {pad, count, interval, bait, time}, EQUIP_DATA.equipment);
       render();
     } catch (error) { $('wildStatus').textContent = error.message; }
