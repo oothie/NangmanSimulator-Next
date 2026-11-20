@@ -56,10 +56,10 @@
     const shown = onlyHits ? rows.filter(row => row.itemId) : rows;
     const hits = rows.filter(row => !row.padding && row.itemId).length;
     const padding = rows.filter(row => row.padding).length;
-    $('wildStatus').textContent = '垫怪 ' + padding + ' 场 · 预测 ' + (rows.length - padding) + ' 场 · 有掉落 ' + hits + ' 场';
+    $('wildStatus').textContent = '垫怪 ' + padding + ' 회 · 预测 ' + (rows.length - padding) + ' 회 · 有掉落 ' + hits + ' 회';
     host.replaceChildren(...shown.map(row => {
       const item = node('li', '');
-      const label = '第 ' + row.serial + ' 场' + (row.padding ? ' · 垫怪' : '') +
+      const label = '第 ' + row.serial + ' 회' + (row.padding ? ' · 垫怪' : '') +
         (row.tiger ? ' · ' + row.tiger : '') + ' · ' + (row.itemName || '无预测掉落') +
         (row.color ? ' · ' + color[row.color] : '');
       item.append(node('strong', label));
