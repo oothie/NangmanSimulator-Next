@@ -51,10 +51,10 @@ function recordManualRoute(type,before,detail=''){
 function clearManualRoute(){manualRoute={start:null,events:[],mode:null};const button=document.getElementById('btnManualRouteImage');if(button)button.disabled=true;}
 async function exportManualRouteImage(){
     const button=document.getElementById('btnManualRouteImage');
-    try{if(!manualRoute.events.length)throw Error('请先进行洗脉操作，再导出路线图。');if(!window.WashRouteImage?.buildManualModel)throw Error('路线图片资源尚未加载，请刷新后重试。');
-        const roleName=state.roleRaw?.Name||'当前人物',model=WashRouteImage.buildManualModel(manualRoute,{roleName,talentData:TALENT_DATA,vip:state.vip,vipConfirmed:state.vipConfirmed,dlcMode:state.dlcMode});
-        button.disabled=true;button.textContent='正在生成…';await WashRouteImage.show(model,{returnFocus:button,autoSave:true});
-    }catch(error){alert(error?.message||'路线图生成失败，请重试。')}finally{button.disabled=!manualRoute.events.length;button.textContent='一键导出手动路线图'}
+    try{if(!manualRoute.events.length)throw Error('세수를 진행한 다음 경로 이미지를 내보내세요.');if(!window.WashRouteImage?.buildManualModel)throw Error('경로 이미지 생성 기능을 불러오지 못했습니다. 새로고침한 후 다시 시도하세요.');
+        const roleName=state.roleRaw?.Name||'현재 인물',model=WashRouteImage.buildManualModel(manualRoute,{roleName,talentData:TALENT_DATA,vip:state.vip,vipConfirmed:state.vipConfirmed,dlcMode:state.dlcMode});
+        button.disabled=true;button.textContent='생성 중…';await WashRouteImage.show(model,{returnFocus:button,autoSave:true});
+    }catch(error){alert(error?.message||'경로 이미지를 생성하지 못했습니다. 다시 시도하세요.')}finally{button.disabled=!manualRoute.events.length;button.textContent='수동 경로 이미지 내보내기'}
 }
 
 
@@ -183,7 +183,7 @@ function exchangeTalent(index) {
     }
 
     pullStateFromWasm();
-    recordManualRoute('exchange',routeBefore,`${result.exchangedFrom||'当前脉'} → ${result.exchangedTo||'新脉'}`);
+    recordManualRoute('exchange',routeBefore,`${result.exchangedFrom||'현재 맥'} → ${result.exchangedTo||'새 맥'}`);
     addLogEntry(result);
     updateAll();
 }
@@ -224,7 +224,7 @@ function analyzeTalentConflicts() {
             conflicts.push({
                 index,
                 earlierIndex: partner,
-                earlierName: partnerTalent ? partnerTalent.name : '神脉',
+                earlierName: partnerTalent ? partnerTalent.name : '신맥',
                 canExchange: true,
                 shenmaiMutual: true,
             });
@@ -245,7 +245,7 @@ function analyzeTalentConflicts() {
             conflicts.push({
                 index,
                 earlierIndex: earlier,
-                earlierName: earlierTalent ? earlierTalent.name : '未知',
+                earlierName: earlierTalent ? earlierTalent.name : '알 수 없음',
                 canExchange,
                 shenmaiMutual: false,
             });
@@ -330,7 +330,7 @@ function renderAptitudePanel() {
     const zzConfig = getZZConfig();
     
     if (state.zizhi >= 154) {
-        upgradeBtn.textContent = '资质已满';
+        upgradeBtn.textContent = '자질 최대 단계';
         upgradeBtn.disabled = true;
     } else {
         const nextId = state.zizhi + 1;
@@ -400,7 +400,7 @@ function recordWash(result) {
     for (const t of result.talents) {
         ids.push(Number(t.id));
         const talent = TALENT_DATA[String(t.id)];
-        names.push(talent ? talent.name : '未知');
+        names.push(talent ? talent.name : '알 수 없음');
     }
     state.washHistory.push({
         ...result,
@@ -419,7 +419,7 @@ function buildLogEntryEl(result) {
     let talentsHtml = '';
     for (const t of result.talents) {
         const talent = TALENT_DATA[String(t.id)];
-        const name = talent ? talent.name : '未知';
+        const name = talent ? talent.name : '알 수 없음';
         const qClass = talent ? getQualityClass(talent.weight) : 'q1';
         const lockMark = t.locked ? '[锁]' : '';
         talentsHtml += `<span class="log-talent ${qClass}">${lockMark}${name}</span>`;
@@ -529,7 +529,7 @@ function exportWashHistory() {
     const lines = state.washHistory.map(r => {
         const names = (r.talentNames || []).join('+');
         let flag = '-';
-        if (r.isExchange) flag = '置换';
+        if (r.isExchange) flag = '치환';
         else if (r.wasPity) flag = '保底';
         else if (r.gotGold) flag = '出紫';
         let gap = '';
@@ -819,7 +819,7 @@ function upgradeZiZhi() {
 
 function toggleLock(index) {
     if (index >= 0 && index < state.talents.length) {
-        const routeBefore=manualRouteState(),talent=state.talents[index],talentName=TALENT_DATA[String(talent.id)]?.name||'当前脉';
+        const routeBefore=manualRouteState(),talent=state.talents[index],talentName=TALENT_DATA[String(talent.id)]?.name||'현재 맥';
         state.talents[index].locked = !state.talents[index].locked;
         recordManualRoute('lock',routeBefore,(state.talents[index].locked?'锁定':'解除锁定')+'「'+talentName+'」');
         invalidatePurpleCache();
@@ -1958,7 +1958,7 @@ function renderExchangeSequence(role, candidate, n, result) {
     const meta = document.getElementById('exchangeSequenceResultMeta');
     if (initialSeed) {
         initialSeed.textContent = result.directPity || result.fixed
-            ? '沿用已固定的置换序列'
+            ? '이미 고정된 치환 순서를 그대로 사용합니다.'
             : `첫 자맥 이후 ${n}번째 맥부터 비교`;
     }
     if (grid) {
@@ -2728,8 +2728,8 @@ function renderExchangeAnalysisBlock() {
 
     const luckInited = !!state.luckSeedInited;
     const mechTip = luckInited
-        ? '当前置换序列已固定。继续垫洗不会重新选择首紫的置换序列，下表沿用当前进度推演。'
-        : '尚未进行首次置换或触发保底。先锁住冲突脉、开至少三栏，再洗出首紫；保持冲突对并多垫洗一次，可比较另一条置换序列。首次置换或保底后，序列便会固定。';
+        ? '현재 치환 순서가 고정됐습니다. 세수를 더 진행해도 첫 자맥의 치환 순서가 다시 선택되지 않으며, 아래 표는 현재 진행도부터 계산합니다.'
+        : '첫 치환이나 천장이 아직 발생하지 않았습니다. 충돌맥을 잠그고 세수 칸을 최소 3개 개방한 뒤 첫 자맥을 얻으세요. 충돌맥 상태를 유지하고 세수를 한 번 더 진행하면 다른 치환 순서를 비교할 수 있습니다. 첫 치환 또는 천장 이후에는 순서가 고정됩니다.';
 
     let nodesSummaryHtml = routeItems.map((item, idx) => {
         const nodeSim = selected && selected.nodes ? selected.nodes[idx] : null;
@@ -3020,11 +3020,11 @@ function renderAiSearchSnapshot(snapshot, restore = false) {
         }
     } else {
         const failed = snapshot.status === 'error';
-        const message = failed ? `查找失败：${snapshot.error || '后台计算异常，请重试'}`
+        const message = failed ? `查找失败：${snapshot.error || '계산 도중 오류가 발생했습니다. 다시 시도하세요.'}`
             : snapshot.stopReason === 'optimization-limit'
-                ? '本轮持续优化已达到计算量上限，已保留最省候选；尚未证明最优。'
+                ? '이번 최적화는 계산량 상한에 도달했습니다. 소모량이 가장 적은 후보는 보존했으나 최적이라는 보장은 없습니다.'
             : snapshot.stopReason === 'resource-limit'
-                ? '方案数量或内存达到保护限制，已保留路线；尚未证明最优。'
+                ? '계획 개수 또는 메모리 사용량이 제한에 도달했습니다. 계산된 경로는 유지되지만 최적 경로라는 보장은 없습니다.'
             : snapshot.stopReason === 'search-incomplete'
                 ? `이번 탐색에서는 세수단 ${Number(snapshot.view?.maxTotalPills || 0).toLocaleString()}개 이내에 모든 목표를 달성하는 경로를 찾지 못했습니다. 탐색을 완료하지 않았으므로 불가능하다고 판단할 수 없습니다.`
                 : `${snapshot.stopReason === 'page-reloaded' ? '页面已刷新，可核验后继续' : '已停止'}${found ? '，最好路线已保留。' : '，可重新开始。'}`;
@@ -3259,7 +3259,7 @@ function readableWashCopy(value) {
         ['源码规则', '洗脉规则'], ['源码状态机', '洗脉规则'],
         ['状态机回放', '逐步核对操作'], ['回放验证', '逐步核对'],
         ['欧气种子', '置换序列'], ['洗髓种子', '原始脉序'],
-        ['因此零丹无法取得完整目标', '因此当前条件下还需要消耗洗髓丹才能达到全部目标'], ['零丹', '无需额外洗髓丹'], ['当前四槽起点', '从当前四栏开始'],
+        ['因此零丹无法取得完整目标', '因此当前条件下还需要消耗洗髓丹才能达到全部目标'], ['零丹', '추가 세수단 불필요'], ['当前四槽起点', '从当前四栏开始'],
     ];
     let text = String(value ?? '');
     for (const [before, after] of replacements) text = text.split(before).join(after);
@@ -3756,17 +3756,17 @@ function renderAiPrediction(result, imageContext = {}) {
             event.stopPropagation();
             try {
                 if (!imageContext.originReady) throw new Error('请先核验或继续优化这条路线，再生成图片，以免使用了不匹配的起点。');
-                if (!window.WashRouteImage) throw new Error('路线图片资源尚未加载，请刷新后重试。');
+                if (!window.WashRouteImage) throw new Error('경로 이미지 생성 기능을 불러오지 못했습니다. 새로고침한 후 다시 시도하세요.');
                 // Capture one complete displayed candidate before awaiting any
                 // painting. Later cheaper results must not change this image.
                 const model = WashRouteImage.buildModel(result, result.routes[Number(button.dataset.routeIndex)], {
                     ...imageContext, talentData: TALENT_DATA, readable: readableWashCopy,
                 });
                 button.disabled = true;
-                button.textContent = '正在生成…';
+                button.textContent = '생성 중…';
                 await WashRouteImage.show(model, { returnFocus: button, autoSave: true });
             } catch (error) {
-                alert(error?.message || '路线图生成失败，请重试。');
+                alert(error?.message || '경로 이미지를 생성하지 못했습니다. 다시 시도하세요.');
             } finally {
                 button.disabled = false;
                 button.textContent = '一键导出路线图';
@@ -3814,7 +3814,7 @@ function openWashOriginPreview() {
     const field=document.getElementById('aiMaxTotalPills'),budget=Number(frozen?.options?.maxTotalPills??field?.value);
     if(!Number.isSafeInteger(budget)||budget<0||!frozen&&!field?.value.trim()){C.alert('请先填写有效的耗丹上限');return;}
     const input=frozen||buildAiSearchInput([],budget),role=input.savedRole;
-    const slots=Number(input.initialState.zizhi)-150,roleName=role?.Name||'当前人物',N=C.node;
+    const slots=Number(input.initialState.zizhi)-150,roleName=role?.Name||'현재 인물',N=C.node;
     const d=C.modal(roleName+' · 初始脉');d.classList.add('wash-origin-dialog');
     if(d.ownerDocument!==document&&!d.ownerDocument.querySelector('link[data-wash-origin-style]')){const link=d.ownerDocument.createElement('link');link.rel='stylesheet';link.href=document.querySelector('link[href*="wash-compact.css"]')?.href||'/vendor/sanbujin/shared/wash-compact.css';link.dataset.washOriginStyle='true';d.ownerDocument.head.append(link);}
     const description=N('p',`不锁脉、不置换，查看 ${formatCount4(budget)} 丹内从当前存档直接洗出的紫脉；不代表能同时保留。`);description.className='wash-origin-description';
@@ -3830,7 +3830,7 @@ function openWashOriginPreview() {
         exportImage.disabled=false;exportImage.onclick=()=>{try{if(!window.WashRouteImage?.buildOriginModel)throw Error('导出功能尚未加载，请刷新后重试');const model=window.WashRouteImage.buildOriginModel(result,{roleName,vip:input.initialState.vip,vipConfirmed:input.vipConfirmed});window.WashRouteImage.show(model,{returnFocus:exportImage,autoSave:true})}catch(error){C.alert(playerError(error))}};
         rows.replaceChildren();note.textContent=result.existingPurples.length?'起点已有紫脉（0丹）：'+result.existingPurples.map(x=>x.name).join('、'):'起点没有已有紫脉。';
         if(result.firstFixedAtPills!==null)note.textContent+=` 이 미리보기 경로는 세수단 ${formatCount4(result.firstFixedAtPills)}개 소모 시 천장이 발동하고 치환 순서가 고정됩니다. 원본 세이브의 자격에는 영향을 주지 않습니다.`;
-        status.textContent=`세수단 ${formatCount4(result.spentPills)}/${formatCount4(budget)}개 계산 · 자맥 ${result.rows.length}회 등장`+(result.complete?'已检查预算内次数。':result.stopReason==='cancelled'?'已停止，仅显示已检查部分。':'达到计算量保护上限，仅含已检查部分，可缩小范围重试。');
+        status.textContent=`세수단 ${formatCount4(result.spentPills)}/${formatCount4(budget)}개 계산 · 자맥 ${result.rows.length}회 등장`+(result.complete?'설정한 범위의 횟수를 모두 확인했습니다.':result.stopReason==='cancelled'?'검색을 중단했습니다. 확인한 부분만 표시합니다.':'계산량 제한에 도달해 확인한 범위만 표시합니다. 검색 범위를 줄여 다시 시도하세요.');
         if(result.openedSlots)note.textContent+=` 이번 미리보기에서는 먼저 ${result.previewSlots}칸을 개방한 것으로 가정합니다. 개방 재료는 별도 계산합니다.`;
         if(!result.rows.length){rows.append(N('p',result.complete?'该预览范围内未直接洗出紫脉。':'已检查部分尚未洗出紫脉。'));return;}
         const table=N('table');table.className='wash-origin-table';table.setAttribute('aria-label','初始紫脉预览；间隔丹为与上一条紫脉的丹数差，首条以横线表示');const head=N('thead'),tr=N('tr');for(const name of ['第几次','累计丹','间隔丹','紫脉','来源']){const th=N('th',name);th.scope='col';if(name==='间隔丹')th.title='与上一条紫脉之间相差的丹数；首条没有上一紫，记为—';tr.append(th);}head.append(tr);const body=N('tbody');table.append(head,body);rows.append(table);let shown=0;
@@ -3881,7 +3881,7 @@ async function runAiPrediction(restart = false) {
             bundle: window.WASH_ROUTE_WORKER_BUNDLE,
             view: {
                 roleKey: autoWashSelectedRoleKey,
-                roleName: selectedAutoWashRoleEntry()?.role?.Name || '当前人物',
+                roleName: selectedAutoWashRoleEntry()?.role?.Name || '현재 인물',
                 targetIds: validation.ids.slice(),
                 vip: normalizeVipLevel(state.vip),
                 dlcMode: !!state.dlcMode,
@@ -3969,9 +3969,9 @@ function setAutoSimulatorMode(mode) {
     }
     if (intro) {
         intro.textContent = isEquip
-            ? '选择工匠、图纸和芒晶材料，设置打造与精炼次数；推演完成后再按属性筛选装备。'
+            ? '장인·도면·망정 재료를 선택하고 제작·정련 횟수를 설정하세요. 계산이 끝나면 능력치로 장비를 검색할 수 있습니다.'
             : (isJianwang
-                ? '选择存档中的起始剑、90级镇派路线、目标词条与三同/四同目标。系统会自动保留已有目标词条，跨多把剑搜索首次达到所选同词条门槛的可执行流程。'
+                ? '세이브의 시작 검, 90레벨 진파 경로, 목표 옵션과 동일 옵션 3개/4개 조건을 선택하세요. 기존 목표 옵션을 자동 유지하며 여러 검을 거쳐 조건을 처음 달성하는 경로를 검색합니다.'
                 : '选择最终要同时保留的天赋。系统会比较当前天赋栏、逐步开栏、保底卡格和冲突置换等方案，并逐步核对操作和丹耗。');
     }
     const kicker = document.querySelector('#aiPredictionPanel .ai-kicker');
@@ -4744,7 +4744,7 @@ function equipAutoAttachmentHtml(attachment) {
         </li>`;
     }).join('');
     return `<div class="equip-auto-attach-card">
-        <div class="equip-auto-refine-title"><strong>芒晶洗练 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><span class="equip-auto-attachment-value">${maximumSummary || '预测范围内未出现可用属性'}</span></div>
+        <div class="equip-auto-refine-title"><strong>芒晶洗练 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><span class="equip-auto-attachment-value">${maximumSummary || '예측 범위에 유효한 추가 옵션이 나오지 않았습니다'}</span></div>
         <div class="equip-auto-attachment-maxima">${maxima.map(maximum => `<div class="equip-auto-attachment-maximum">
             <span>${escapeAiHtml(equipAutoPropertyLabel(maximum.prop))}</span>
             <span class="equip-auto-cost-line">消耗：芒晶×${maximum.recommendedIndex}</span>
@@ -4806,7 +4806,7 @@ function equipAutoManualAttachHtml(candidate) {
             <label>模拟次数<input class="equip-auto-manual-attach-count" type="number" min="1" max="5000" value="${state.count}"><span>次</span></label>
             <button class="btn equip-auto-manual-attach-button" type="button" data-manual-attach-action="simulate">模拟芒晶洗练</button>
         </div>
-        <p class="equip-auto-manual-attach-hint">沿用首次打造材料「${escapeAiHtml(candidate.craftSpecialName)}」的属性池；仅供查看，不推进游戏内的芒晶洗练进度。</p>
+        <p class="equip-auto-manual-attach-hint">최초 제작 재료 '${escapeAiHtml(candidate.craftSpecialName)}'의 능력치 목록을 사용합니다. 조회 전용이며 게임 내 망정 진행도를 변경하지 않습니다.</p>
         ${state.error ? `<div class="ai-result-error">${escapeAiHtml(state.error)}</div>` : result}
     </div>`;
 }
