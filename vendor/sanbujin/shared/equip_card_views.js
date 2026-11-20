@@ -5,8 +5,8 @@
  * 看淬炼要跑 200 次推演。收藏到藏兵阁之后这些按钮更是直接失效（处理函数在别的页面）。
  *
  * 现在改成：点 ☆ 收藏时同步算一次，把「能直接显示的数据」塞进收藏快照：
- *   views.refine = { count, rows: [[序, 槽, 旧词条文本, 新词条文本, 倍率, 等级前后], ...] }
- *   views.region = { limit, rows: [[地点文本, 第几次, 附加值文本], ...], error }
+ *   views.refine = { count, rows: [[序, 槽, 旧词条文本, 新词条文本, 배율, 等级前后], ...] }
+ *   views.region = { limit, rows: [[地点文本, 횟수, 附加值文本], ...], error }
  *   views.forge  = { html, meta }   —— 淬炼面板结构复杂，直接存渲染好的 HTML
  * 之后两个页面点开都只做渲染，不再跑算法。
  *
@@ -229,15 +229,15 @@
         var body = '<div class="equip-auto-forge-controls">'
             + '<label>조회 <select id="cvRefineRoute">'
             + routes.map(function (route, index) { return '<option value="' + index + '">' + esc(route.title || label(route.prop)) + ' · 유지 계획</option>'; }).join('')
-            + '<option value="raw">原始序列（不保留）</option></select></label>'
+            + '<option value="raw">원본 순서(옵션 유지 없음)</option></select></label>'
             + '<label>옵션 슬롯 <select id="cvRefineSlot"></select></label>'
             + '<label>능력치 <select id="cvRefineProp"></select></label>'
             + '<span class="equip-auto-forge-meta" id="cvRefineMeta"></span></div>'
             + '<div class="equip-auto-forge-meta" id="cvRefineSummary"></div>'
             + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table" style="min-width:760px">'
-            + '<thead><tr><th>第几次</th><th>槽位</th><th>词条变化</th><th>操作</th><th>倍率</th><th>累计连金泥</th><th>等级</th></tr></thead><tbody></tbody></table></div>';
+            + '<thead><tr><th>횟수</th><th>槽位</th><th>옵션 변경</th><th>操作</th><th>배율</th><th>누적 연금니</th><th>等级</th></tr></thead><tbody></tbody></table></div>';
         var old = document.querySelector('.equip-auto-forge-modal'); if (old) old.remove();
-        var wrap = modal('精炼数据 · ' + (candidate.equipName || '装备'), '按这件装备的保留方案逐步推演，到计划完成时停止', body);
+        var wrap = modal('정련 상세 · ' + (candidate.equipName || '장비'), '장비의 옵션 유지 계획에 따라 종료 회차까지 정련 순서를 표시합니다.', body);
         var tbody = wrap.querySelector('tbody'), meta = wrap.querySelector('#cvRefineMeta'), summary = wrap.querySelector('#cvRefineSummary');
         var routeSel = wrap.querySelector('#cvRefineRoute'), slotSel = wrap.querySelector('#cvRefineSlot'), propSel = wrap.querySelector('#cvRefineProp');
         var rows = [], route = null;
@@ -273,7 +273,7 @@
         var body = '<p class="equip-auto-forge-meta">按同一张图纸、同一打造进度，在其他 NPC 各模拟打造 1000 次，'
             + '找第一次出现与这件装备「词条、数量、数值完全相同」的打造。</p>'
             + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
-            + '<thead><tr><th>NPC / 地点</th><th>第几次</th><th>地区附加</th></tr></thead><tbody>'
+            + '<thead><tr><th>NPC / 地点</th><th>횟수</th><th>地区附加</th></tr></thead><tbody>'
             + (data.error && !(data.rows || []).length
                 ? '<tr><td colspan="3">' + esc(data.error) + '</td></tr>'
                 : ((data.rows || []).length
@@ -282,7 +282,7 @@
                     }).join('')
                     : '<tr><td colspan="3">没有其他可打造这件装备的 NPC</td></tr>'))
             + '</tbody></table></div>';
-        modal('其他NPC附加值 · ' + (candidate.equipName || '装备'), '저장된 계산 결과를 표시합니다', body);
+        modal('다른 장인의 추가 옵션 · ' + (candidate.equipName || '장비'), '저장된 계산 결과를 표시합니다', body);
         return true;
     }
 
@@ -378,7 +378,7 @@
             var gradeSel = card.querySelector('.equip-auto-forge-grade');
             if (nInput) {
                 nInput.max = String(items ? items.length : 2000);
-                nInput.title = items ? '最多 ' + items.length + ' 次（收藏时缓存的量）' : '';
+                nInput.title = items ? '최대 ' + items.length + '회(즐겨찾기 저장 시 보관된 데이터)' : '';
             }
             if (runBtn && canRerun) {
                 runBtn.addEventListener('click', function () {
@@ -457,11 +457,11 @@
                 + (parts.length ? '（' + parts.join(' · ') + '）' : '')
                 + '. 능력치별 상위 3개 결과입니다.</p>'
                 + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
-                + '<thead><tr><th>名次</th><th>属性</th><th>数值</th><th>第几次</th></tr></thead>'
+                + '<thead><tr><th>순위</th><th>属性</th><th>数值</th><th>횟수</th></tr></thead>'
                 + '<tbody>' + topHtml + '</tbody></table></div>'
                 + '<details class="equip-auto-mang-all"><summary>展开全部 ' + items.length + ' 次明细</summary>'
                 + '<div class="equip-auto-forge-table-wrap" style="margin-top:.5rem"><table class="equip-auto-forge-table">'
-                + '<thead><tr><th>第几次</th><th>属性</th><th>数值</th></tr></thead>'
+                + '<thead><tr><th>횟수</th><th>属性</th><th>数值</th></tr></thead>'
                 + '<tbody>' + allRows + '</tbody></table></div></details>';
         } else {
             maxima.sort(function (a, b) { return Number(b.value) - Number(a.value); });
@@ -469,16 +469,16 @@
                 ? maxima.map(function (item) {
                     return '<tr><td>' + esc(label(item.prop)) + '</td>'
                         + '<td>+' + esc(fmtValue(item.prop, item.value)) + '</td>'
-                        + '<td>第 ' + esc(item.recommendedIndex) + ' 次</td></tr>';
+                        + '<td>제 ' + esc(item.recommendedIndex) + ' 次</td></tr>';
                 }).join('')
                 : '<tr><td colspan="3">这件装备没有可洗出的附加属性</td></tr>';
-            body = '<p class="equip-auto-forge-meta">这件收藏得比较早，只存了每个属性的最高值（共 '
+            body = '<p class="equip-auto-forge-meta">这件收藏得比较早，只存了每个属性的최고 수치（共 '
                 + esc(data.count || '') + '회). 자동 탐색에서 다시 즐겨찾기에 등록하면 상세 순서를 확인할 수 있습니다.</p>'
                 + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
-                + '<thead><tr><th>属性</th><th>最高值</th><th>在第几次</th></tr></thead><tbody>' + mrows + '</tbody></table></div>';
+                + '<thead><tr><th>属性</th><th>최고 수치</th><th>在횟수</th></tr></thead><tbody>' + mrows + '</tbody></table></div>';
         }
 
-        modal('망정 · ' + (candidate.equipName || '装备'), '해당 장비의 망정 예측 결과', body);
+        modal('망정 · ' + (candidate.equipName || '장비'), '해당 장비의 망정 예측 결과', body);
         return true;
     }
 
