@@ -367,6 +367,10 @@ function wikiKoMap(){
  for(const e of koreanWiki){
   if(['외공','내공','경공'].includes(e.category))m.set('martial:'+String(e.id),e);
  }
+ for(const [id,entry] of Object.entries(window.NANGMAN_54506_MARTIAL_KO||{})){
+  const key='martial:'+id, prior=m.get(key);
+  m.set(key,{name:prior?.name||entry[0],desc:prior?.desc||entry[1],source:prior?'한국판 V6.20 명칭 · 54506 설명':'한국판 54506'});
+ }
  if(v620Wiki){
   for(const [id,entry] of Object.entries(v620Wiki.items||{}))m.set('items:'+id,{name:String(entry[0]||'').trim(),desc:String(entry[1]||'').trim()});
   for(const [id,entry] of Object.entries(v620Wiki.equips||{}))m.set('equips:'+id,{name:String(entry[0]||'').trim(),desc:String(entry[1]||'').trim()});
@@ -560,6 +564,7 @@ window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.
 <script src="./data/wiki-status-ko.js"></script>
 <script src="./data/wiki-status-ko-256-315.js"></script>
 <script src="./data/wiki-status-ko-316-374.js"></script>
+<script src="./data/wiki-martial-54506-ko.js"></script>
 <script src="./data/wiki-skills-54506-ko.js"></script>
 <script src="./data/wiki-status-54506-ko.js"></script>
 <script src="./data/wiki-status-v620.js"></script>
