@@ -1,0 +1,108 @@
+@import url("../shared/simulator.css?v=20261105314&rev=575488c39156");
+
+/* ---------- 手机端（≤600px）结果区与筛选区排版 ---------- */
+@media (max-width: 600px) {
+    /* 筛选区：标签与控件紧凑排列，不再整行拉满 */
+    html body .equip-auto-result-filters .equip-auto-filter-field {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        column-gap: 0.4rem;
+        row-gap: 0.15rem;
+    }
+
+    html body .equip-auto-result-filters .equip-auto-filter-field > span {
+        font-size: 0.68rem;
+        color: var(--sbj-c-93639cbed1,#7a6a52);
+        white-space: nowrap;
+    }
+
+    html body .equip-auto-result-filters select {
+        width: 100% !important;
+        max-width: none;
+        height: 1.9rem !important;
+        font-size: 16px !important;
+        padding: 0 0.4rem;
+    }
+
+    html body .equip-auto-quality-row {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    html body .equip-auto-quality-toggle {
+        flex: 0 0 auto;
+        font-size: 0.68rem;
+        white-space: nowrap;
+    }
+
+    /* 排序行：按钮换行，隐藏冗长提示 */
+    html body .equip-auto-control-row.is-sort {
+        flex-wrap: wrap;
+        row-gap: 0.3rem;
+    }
+
+    html body .equip-auto-sort-hint { display: none; }
+
+    html body .equip-auto-sort-chip {
+        padding: 0.16rem 0.5rem;
+        font-size: 0.68rem;
+    }
+
+    html body .equip-auto-rating {
+        flex: 0 0 auto;
+    }
+
+    html body .equip-auto-expand-hint {
+        margin-left: auto;
+        font-size: 0.68rem;
+        white-space: nowrap;
+    }
+
+    html body .equip-auto-candidate-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.3rem 0.4rem;
+    }
+
+    html body .equip-auto-paper { font-size: 0.92rem; }
+
+    html body .equip-auto-round,
+    html body .equip-auto-chip { font-size: 0.68rem; }
+
+    html body .equip-auto-chips { gap: 0.3rem; }
+
+    html body .equip-auto-candidate-costs {
+        display: block;
+        font-size: 0.66rem;
+        line-height: 1.55;
+        word-break: break-word;
+    }
+
+    html body .equip-auto-total {
+        display: block;
+        margin-top: 0.4rem;
+    }
+
+    html body .equip-auto-total strong { font-size: 0.86rem; }
+
+}
+
+html body .equip-auto-sweep-hint {
+    display: block;
+    flex-basis: 100%;
+    margin: 0.15rem 0 0;
+    font-size: 0.66rem;
+    line-height: 1.5;
+    color: var(--sbj-c-55f0f1a04a,rgba(120, 90, 40, 0.65));
+}
+
+html body .equip-auto-sweep-hint {
+    display: block;
+    margin: 0.3rem 0 0.4rem;
+    font-size: 0.68rem;
+    line-height: 1.6;
+    color: var(--sbj-c-55f0f1a04a,rgba(120, 90, 40, 0.65));
+}
