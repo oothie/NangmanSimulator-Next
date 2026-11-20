@@ -78,7 +78,7 @@ let jianwangRedSeedSnapshot = null;
 let jianwangRuleDetection = Object.freeze({
     rule: 'patched',
     confidence: 'fallback',
-    reason: '没有足够的实物批次 S 可判断，保持二号补丁规则',
+    reason: '장비 실물의 S값 자료가 부족하여 두 번째 보정 규칙을 유지합니다.',
 });
 let logPage = 1;
 let pathPages = { min: 1, max: 1 };
@@ -150,7 +150,7 @@ function updatePreviewPager(total) {
     if (tablePager.page < 1) tablePager.page = 1;
     bar.hidden = total <= 0;
     info.textContent = total
-        ? `第 ${tablePager.page}/${pages} 页 · 共 ${total} 条`
+        ? `${tablePager.page}/${pages}페이지 · 전체 ${total}개`
         : '—';
     const prev = document.getElementById('btnPreviewPrev');
     const next = document.getElementById('btnPreviewNext');
@@ -169,7 +169,7 @@ function updateJianwangCyclePager(totalPages, swordIndex) {
     const pagerSize = document.getElementById('previewPageSizeWrap');
     if (pagerSize) pagerSize.hidden = true;
     info.textContent = totalPages
-        ? `第 ${tablePager.page}/${pages} 页 · 第 ${swordIndex || tablePager.page} 把剑`
+        ? `${tablePager.page}/${pages}페이지 · ${swordIndex || tablePager.page}번째 검`
         : '—';
     const prev = document.getElementById('btnPreviewPrev');
     const next = document.getElementById('btnPreviewNext');
@@ -202,7 +202,7 @@ function updateLogPager() {
     if (logPage < 1) logPage = 1;
     bar.hidden = total <= LOG_PAGE_SIZE;
     info.textContent = total
-        ? `第 ${logPage}/${pages} 页 · 共 ${total} 条`
+        ? `${logPage}/${pages}페이지 · 전체 ${total}개`
         : '—';
     const prev = document.getElementById('btnLogPrev');
     const next = document.getElementById('btnLogNext');
@@ -394,11 +394,11 @@ function getDefaultMakeMark() {
 function craftedMJSeedFromMakeResult(result, paperId) {
     const czSeed = result?.CZSeed != null ? result.CZSeed : result?.cz_seed;
     if (!Number.isSafeInteger(paperId) || paperId <= 0) {
-        throw new TypeError(`打造图纸 ID 必须是正安全整数，实际为 ${String(paperId)}`);
+        throw new TypeError(`제작 도면 ID는 양의 안전 정수여야 합니다. 입력값: ${String(paperId)}`);
     }
     const offset = paperId * CRAFTED_MJ_SEED_PAPER_MULTIPLIER;
     if (!Number.isSafeInteger(czSeed) || czSeed <= offset) {
-        throw new TypeError(`这件装备的打造进度不完整，请重新导入存档后再试`);
+        throw new TypeError(`이 장비의 제작 진행 정보가 불완전합니다. 세이브를 다시 불러오세요.`);
     }
     return czSeed - offset;
 }
@@ -483,7 +483,7 @@ function renderCraftedBagList() {
     const list = saveEquips.filter(e => e._crafted);
     if (!list.length) {
         box.classList.add('empty');
-        box.textContent = '暂无模拟打造装备';
+        box.textContent = '시뮬레이션으로 제작한 장비가 없습니다.';
         return;
     }
     box.classList.remove('empty');
@@ -564,12 +564,12 @@ function renderFavList() {
     const exportPlanBtn = document.getElementById('btnFavExportPlan');
     if (!favs.length) {
         box.classList.add('empty');
-        box.textContent = '还没有收藏。在模拟背包或打造预测表点「收藏」加入。';
+        box.textContent = '즐겨찾기한 장비가 없습니다. 시뮬레이션 가방 또는 제작 예측표에서 '즐겨찾기'를 누르세요.';
     } else {
         box.classList.remove('empty');
         box.innerHTML = favs.map(fav => {
             const live = findEquipByOnlyId(fav.onlyId);
-            const liveTip = live ? '' : '（该装备不在当前模拟状态中，批量规划会跳过）';
+            const liveTip = live ? '' : '(현재 시뮬레이션에 없는 장비이므로 일괄 계획에서 제외됩니다.)';
             return `<div class="fav-row" data-only-id="${escapeHtml(fav.onlyId)}">
                 <div class="fav-main">
                     <strong>${escapeHtml(fav.name)}</strong>
@@ -628,7 +628,7 @@ function renderFavBatchResults(results) {
             return `<tr><td>${escapeHtml(row.name)}</td><td>${escapeHtml(row.onlyId)}</td><td colspan="7" class="empty-row">${escapeHtml(row.error)}</td></tr>`;
         }
         const plan = row.plan;
-        const stepsTxt = plan.steps.length ? plan.steps.join('、') : '—（当前已达标，无需保留）';
+        const stepsTxt = plan.steps.length ? plan.steps.join('、') : '— (이미 목표를 달성하여 추가 보존이 필요 없습니다.)';
         return `<tr>
             <td>${escapeHtml(row.name)}</td>
             <td>${escapeHtml(row.onlyId)}</td>
@@ -652,11 +652,11 @@ async function runFavBatchRefine() {
     if (!target) { alert('목표 능력치를 선택하세요'); return; }
     const archiveId = equipFavoritesArchiveId();
     const favs = EquipFavorites.list(archiveId);
-    if (!favs.length) { alert('还没有收藏装备'); return; }
+    if (!favs.length) { alert('즐겨찾기한 장비가 없습니다.'); return; }
     if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
 
     favBatchRunning = true;
-    if (button) { button.disabled = true; button.textContent = '正在批量规划…'; }
+    if (button) { button.disabled = true; button.textContent = '일괄 계획 계산 중…'; }
     if (status) { status.hidden = false; status.textContent = `계획 완료 0/${favs.length}개`; }
     const results = [];
     try {
@@ -667,9 +667,9 @@ async function runFavBatchRefine() {
                 name: fav.name, onlyId: fav.onlyId, note: fav.note,
             };
             if (!eq) {
-                results.push({ ...base, error: '装备不在当前模拟状态（可能已重置或属旧存档起点）' });
+                results.push({ ...base, error: '현재 시뮬레이션에 없는 장비입니다. 초기화되었거나 이전 세이브의 장비일 수 있습니다.' });
             } else if (!canXilian(eq)) {
-                results.push({ ...base, error: '不可精炼（需 100 级绿/蓝/紫装）' });
+                results.push({ ...base, error: '정련 불가(100레벨 녹색·청색·자색 장비 필요)' });
             } else {
                 try {
                     const plan = buildXilianMaxPlan(eq, count, target);
@@ -689,13 +689,13 @@ async function runFavBatchRefine() {
         if (status) status.textContent = `일괄 정련 계획 완료: ${results.length}개 중 ${results.filter(r => r.plan).length}개 성공`;
     } finally {
         favBatchRunning = false;
-        if (button) { button.disabled = false; button.textContent = '批量精炼规划'; }
+        if (button) { button.disabled = false; button.textContent = '일괄 정련 계획'; }
     }
 }
 
 function exportFavBatchCsv() {
     if (!favBatchLastResults.length) return;
-    const lines = ['装备,#only_id,目标属性,当前合计,规划最高,保留次数,截止连金泥,保留步骤,备注,状态'];
+    const lines = ['장비,#only_id,목표 옵션,현재 합계,계획 최고,보존 횟수,소모 연금니,보존 단계,비고,상태'];
     for (const row of favBatchLastResults) {
         const cells = row.error
             ? [row.name, row.onlyId, '', '', '', '', '', '', row.note, row.error]
@@ -719,14 +719,14 @@ function bindEquipFavorites() {
         if (!btn) return;
         const onlyId = btn.closest('[data-only-id]')?.dataset.onlyId;
         if (onlyId == null) return;
-        if (!confirm('从收藏中移除该装备？')) return;
+        if (!confirm('이 장비를 즐겨찾기에서 제거할까요?')) return;
         EquipFavorites.remove(equipFavoritesArchiveId(), onlyId);
         renderFavList();
     });
     document.getElementById('btnFavBatchRefine')?.addEventListener('click', runFavBatchRefine);
     document.getElementById('btnFavExport')?.addEventListener('click', () => {
         const favs = EquipFavorites.list(equipFavoritesArchiveId());
-        if (!favs.length) { alert('还没有收藏装备'); return; }
+        if (!favs.length) { alert('즐겨찾기한 장비가 없습니다.'); return; }
         EquipFavorites.download(`装备收藏_${new Date().toISOString().slice(0, 10)}.csv`, EquipFavorites.csv(favs));
     });
     document.getElementById('btnFavExportPlan')?.addEventListener('click', exportFavBatchCsv);
@@ -750,13 +750,13 @@ function calcShengLianCost(eq) {
 
 function applyShengLian(key) {
     const idx = saveEquips.findIndex(e => runtimeKey(e) === key);
-    if (idx < 0) return { error: '未找到装备' };
+    if (idx < 0) return { error: '장비를 찾을 수 없습니다.' };
     const cur = saveEquips[idx];
-    if (!canShengLian(cur)) return { error: '该装备不可升炼（需 90 级且有下一档）' };
+    if (!canShengLian(cur)) return { error: '승련할 수 없는 장비입니다(90레벨이며 다음 등급이 있어야 합니다).' };
     const cfg = EQUIP_DATA.equipment[String(cur.id)] || {};
     const nextId = cfg.equ_next;
     const nextCfg = EQUIP_DATA.equipment[String(nextId)];
-    if (!nextCfg) return { error: `缺少下一档装备 ${nextId}` };
+    if (!nextCfg) return { error: `다음 등급 장비 ${nextId}가 없습니다.` };
 
     if (!cur.only_id) cur.only_id = nextCraftedOnlyId();
     const stableKey = runtimeKey(cur);
@@ -799,7 +799,7 @@ function updateCraftedBagHint() {
     const canSt = saveEquips.filter(e => e._crafted && canStrong(e)).length;
     el.textContent = n
         ? `모의 가방: 제작 ${n}개(표시 ${marked}개) · 승련 가능 ${canSl}개 · 정련 가능 ${canXl}개 · 촉련 가능 ${canSt}개`
-        : '推进打造或预测表「推进到此」后进入模拟背包；可写标记便于筛选';
+        : '제작을 진행하거나 예측표에서 '여기까지 진행'을 누르면 시뮬레이션 가방에 추가됩니다. 검색용 표식을 남길 수 있습니다.';
 }
 
 function toWasmEquip(eq) {
@@ -1042,7 +1042,7 @@ function planStrongPath(grades, startLevel, targetLevel, minGrade, needLv) {
             }
             return {
                 ok: false,
-                reason: maxK < 0 ? '无可行路径' : `序列内最多升至 +${startLevel + maxK}（期望 +${targetLevel}），请加长序列或降低档位`,
+                reason: maxK < 0 ? '无可行路径' : `현재 순서에서는 최대 +${startLevel + maxK}까지 가능합니다(목표 +${targetLevel}). 조회 횟수를 늘리거나 목표 단계를 낮추세요.`,
                 reached: startLevel + Math.max(0, maxK),
             };
         }
@@ -1291,14 +1291,14 @@ function currentMakeRequest() {
 }
 
 function makeRequestValidationError(req) {
-    if (!req) return '请选择目标装备';
+    if (!req) return '대상 장비를 선택하세요.';
     const equip = EQUIP_DATA.equipment[String(req.equip_id)];
-    if (!equip) return `目标装备 ${req.equip_id} 不存在`;
+    if (!equip) return `대상 장비 ${req.equip_id}가 존재하지 않습니다.`;
     if (!req.special_id) return '';
     const material = EQUIP_DATA.special[String(req.special_id)];
-    if (!material) return `特殊材料 ${req.special_id} 不存在`;
+    if (!material) return `특수 재료 ${req.special_id}가 존재하지 않습니다.`;
     if (!specialMaterialSupportsEquip(material, equip)) {
-        return `特殊材料「${material.name || material.id}」不适用于装备「${equip.name || equip.id}」`;
+        return `특수 재료 '${material.name || material.id}'는 장비 '${equip.name || equip.id}'에 사용할 수 없습니다.`;
     }
     return '';
 }
@@ -1324,7 +1324,7 @@ function updateMakeAutoShenglianControl(req) {
     if (row) {
         row.title = available
             ? `勾选后，“推进到此”打造的装备会自动升炼为${next.name || '100级装备'}`
-            : '当前目标装备不支持90→100升炼';
+            : '선택한 장비는 90→100레벨 승련을 지원하지 않습니다.';
     }
 }
 
@@ -1334,7 +1334,7 @@ function updateMakeHints() {
     const luckyEl = document.getElementById('luckyHint');
     updateMakeAutoShenglianControl(req);
     if (!req) {
-        costEl.textContent = '请选择目标装备';
+        costEl.textContent = '대상 장비를 선택하세요.';
         luckyEl.textContent = '';
         return;
     }
@@ -1359,7 +1359,7 @@ function updateMakeHints() {
     }
 
     if (!saveLoaded) {
-        luckyEl.textContent = '尚未读取打造进度，请先导入存档';
+        luckyEl.textContent = '제작 진행도를 읽지 못했습니다. 먼저 세이브를 불러오세요.';
         luckyEl.classList.remove('pity');
         return;
     }
@@ -1369,14 +1369,14 @@ function updateMakeHints() {
     const bucket = st?.Seeds?.[String(eq?.type)];
     const hasSeed = !!(bucket && typeof bucket === 'object' && bucket[String(tier)] != null);
     if (!hasSeed && (eq?.lv || 0) < 100) {
-        luckyEl.textContent = `警告：存档无 Seeds[${eq?.type}][${tier}]，无法预测`;
+        luckyEl.textContent = `경고: 세이브에 Seeds[${eq?.type}][${tier}] 값이 없어 예측할 수 없습니다.`;
         luckyEl.classList.add('pity');
     } else if (lucky >= 10) {
-        luckyEl.textContent = `保底已触发（MakeLucky=${lucky}）：下一次强制紫装`;
+        luckyEl.textContent = `천장 발동(MakeLucky=${lucky}): 다음 제작에서 자색 장비가 확정됩니다.`;
         luckyEl.classList.add('pity');
     } else {
         const seedValue = bucket && bucket[String(tier)] != null ? bucket[String(tier)] : '缺失';
-        luckyEl.textContent = `保底 MakeLucky=${lucky}/10 · Seeds[${eq?.type}][${tier}]=${seedValue}`;
+        luckyEl.textContent = `천장 MakeLucky=${lucky}/10 · Seeds[${eq?.type}][${tier}]=${seedValue}`;
         luckyEl.classList.remove('pity');
     }
 }
@@ -1484,7 +1484,7 @@ function applyMakeFilter(resetPage = false) {
     tablePager.makeItems = all.filter(makeFilterMatch);
     if (resetPage) tablePager.page = 1;
     const metaFilter = document.getElementById('makeFilterMeta');
-    if (metaFilter) metaFilter.textContent = `显示 ${tablePager.makeItems.length} / ${all.length} 条`;
+    if (metaFilter) metaFilter.textContent = `${tablePager.makeItems.length}/${all.length}개 표시`;
     renderMakePage();
 }
 
@@ -1560,7 +1560,7 @@ const WHALE_REDUCTION_LIMIT = 2047483645n;
 
 function requirePositiveInteger(value, field) {
     if (!Number.isSafeInteger(value) || value < 1) {
-        throw new TypeError(`${field}必须是正整数，实际为 ${String(value)}`);
+        throw new TypeError(`${field}은(는) 양의 정수여야 합니다. 입력값: ${String(value)}`);
     }
     return value;
 }
@@ -1579,29 +1579,29 @@ function drawWhaleInt(seed, maximum) {
 
 function drawWeightedIndex(seed, weights, context) {
     if (!Array.isArray(weights) || !weights.length) {
-        throw new TypeError(`${context}权重不能为空`);
+        throw new TypeError(`${context} 가중치는 비워 둘 수 없습니다.`);
     }
     const validWeights = weights.map((weight, index) => {
         if (!Number.isSafeInteger(weight) || weight < 0) {
-            throw new TypeError(`${context}第 ${index + 1} 项权重必须是非负整数`);
+            throw new TypeError(`${context}의 ${index + 1}번째 가중치는 0 이상의 정수여야 합니다.`);
         }
         return weight;
     });
     const total = validWeights.reduce((sum, weight) => sum + weight, 0);
-    requirePositiveInteger(total, `${context}总权重`);
+    requirePositiveInteger(total, `${context} 전체 가중치`);
     const draw = drawWhaleInt(seed, total);
     let cumulative = 0;
     const index = validWeights.findIndex((weight) => {
         cumulative += weight;
         return draw.value <= cumulative;
     });
-    if (index < 0) throw new RangeError(`${context}随机值 ${draw.value} 超出总权重 ${total}`);
+    if (index < 0) throw new RangeError(`${context} 난수값 ${draw.value}이(가) 전체 가중치 ${total}을(를) 초과합니다.`);
     return { seed: draw.seed, index };
 }
 
 function drawJianwangBetween(seed, minimum, maximum, context) {
     if (!Number.isSafeInteger(minimum) || !Number.isSafeInteger(maximum) || maximum < minimum) {
-        throw new TypeError(`${context}区间无效：${minimum}–${maximum}`);
+        throw new TypeError(`${context} 범위 오류: ${minimum}–${maximum}`);
     }
     const draw = drawWhaleInt(seed, maximum - minimum + 1);
     return { seed: draw.seed, value: draw.value - 1 + minimum };
@@ -1645,7 +1645,7 @@ function detectJianwangRuleFromEquips(equips) {
         return Object.freeze({
             rule: JIANWANG_RULE_PATCHED,
             confidence: patchedCount > 1 ? 'batch-consensus' : 'batch-evidence',
-            reason: `${patchedCount} 把实物的可判定新生成批次共用 EnExts.S，使用二号补丁规则`,
+            reason: `실물 ${patchedCount}개에서 확인된 신규 생성 배치가 EnExts.S를 공유하므로 두 번째 보정 규칙을 적용합니다.`,
         });
     }
     if (standardCount > patchedCount) {
@@ -1666,8 +1666,8 @@ function detectJianwangRuleFromEquips(equips) {
         rule: JIANWANG_RULE_PATCHED,
         confidence: evidence.length ? 'conflict-fallback' : 'fallback',
         reason: evidence.length
-            ? '实物批次 S 证据数量相同且互相冲突，保持二号补丁规则'
-            : '没有至少两条且带有效 EnExts.S 的剑王阁实物，保持二号补丁规则',
+            ? '실물 배치 S의 근거가 서로 충돌하여 두 번째 보정 규칙을 유지합니다.'
+            : '유효한 EnExts.S가 있는 검왕각 실물이 2개 미만이므로 두 번째 보정 규칙을 유지합니다.',
     });
 }
 
@@ -1680,7 +1680,7 @@ function currentJianwangRule() {
 function generateJianwangEquip(targetId, startSeed, rule = JIANWANG_RULE_PATCHED) {
     const cfg = EQUIP_DATA.equipment[String(targetId)];
     if (!cfg || !JIANWANG_SWORD_IDS.has(Number(targetId))) {
-        throw new RangeError(`无效的剑王阁目标装备：${targetId}`);
+        throw new RangeError(`유효하지 않은 검왕각 대상 장비: ${targetId}`);
     }
     const standard = rule === JIANWANG_RULE_STANDARD;
     let seed = requirePositiveInteger(Number(startSeed), '重铸进度');
@@ -1774,7 +1774,7 @@ function createJianwangBlankFromRedSeed(redSeed, swordIndex = null) {
 function predictJianwangFutureBlanks(startRedSeed, count = 1) {
     const total = Number(count);
     if (!Number.isSafeInteger(total) || total < 1 || total > PREVIEW_MAX) {
-        throw new RangeError(`预览把数必须是 1–${PREVIEW_MAX} 的整数`);
+        throw new RangeError(`미리보기 검 수는 1~${PREVIEW_MAX}의 정수여야 합니다.`);
     }
     let redSeed = requirePositiveInteger(Number(startRedSeed), "剑胚序列编号");
     const rows = [];
@@ -1788,19 +1788,19 @@ function predictJianwangFutureBlanks(startRedSeed, count = 1) {
 
 function jianwangShatterRouteId(equip) {
     const routeId = JIANWANG_SHATTER_ROUTE_IDS[Number(equip?.id)];
-    if (!routeId) throw new TypeError('只有90级专武或100级神兵可以碎剑重铸');
+    if (!routeId) throw new TypeError('90레벨 전용 무기 또는 100레벨 신병만 분해·재주조할 수 있습니다.');
     return routeId;
 }
 
 function predictJianwangShatterRebuild(equip, action, redSeed) {
-    if (!equip || !isJianwangSword(equip)) throw new TypeError('请选择存档中的剑王阁实物');
+    if (!equip || !isJianwangSword(equip)) throw new TypeError('세이브의 검왕각 실물 장비를 선택하세요.');
     const id = Number(equip.id);
     const isNinety = action === JIANWANG_SHATTER_90 && JIANWANG_LEVEL_90_IDS.has(id);
     const isHundred = action === JIANWANG_SHATTER_100 && JIANWANG_LEVEL_100_IDS.has(id);
     if (!isNinety && !isHundred) {
         throw new RangeError(action === JIANWANG_SHATTER_90
-            ? '90级碎剑只能用于5710～5713'
-            : '100级碎神兵只能用于5714～5717');
+            ? '90레벨 검 분해는 5710~5713 장비만 가능합니다.'
+            : '100레벨 신병 분해는 5714~5717 장비만 가능합니다.');
     }
     const nextSwordIndex = Math.max(0, Math.floor(Number(equip._jianwangSwordIndex) || 0)) + 1;
     const created = createJianwangBlankFromRedSeed(redSeed, nextSwordIndex);
@@ -1820,13 +1820,13 @@ function predictJianwangShatterRebuild(equip, action, redSeed) {
 }
 
 function resolveJianwangCycleRouteId(equip, requestedRouteId = null) {
-    if (!equip || !isJianwangSword(equip)) throw new TypeError('请选择剑王阁剑胚或专武');
+    if (!equip || !isJianwangSword(equip)) throw new TypeError('검왕각 검 배아 또는 전용 무기를 선택하세요.');
     const id = Number(equip.id);
     const fixedRouteId = JIANWANG_SHATTER_ROUTE_IDS[id];
     if (fixedRouteId) return fixedRouteId;
-    if (![5707, 5708, 5709].includes(id)) throw new TypeError('当前剑王阁装备不能进入碎剑预览');
+    if (![5707, 5708, 5709].includes(id)) throw new TypeError('현재 검왕각 장비는 검 분해 미리보기를 사용할 수 없습니다.');
     const routeId = Number(requestedRouteId);
-    if (!JIANWANG_LEVEL_90_IDS.has(routeId)) throw new TypeError('请选择90级专武路线');
+    if (!JIANWANG_LEVEL_90_IDS.has(routeId)) throw new TypeError('90레벨 전용 무기 경로를 선택하세요.');
     return routeId;
 }
 
@@ -1847,11 +1847,11 @@ function prepareJianwangCycleStart(equip, routeId, rule = currentJianwangRule())
 
 function predictJianwangShatterCycle(equip, startRedSeed, count = 1, rule = currentJianwangRule(), requestedRouteId = null) {
     if (!equip || !isJianwangSword(equip)) {
-        throw new TypeError('碎剑预览只能从剑王阁5707～5717实物开始');
+        throw new TypeError('검 분해 미리보기는 검왕각 5707~5717 실물 장비에서만 시작할 수 있습니다.');
     }
     const total = Number(count);
     if (!Number.isSafeInteger(total) || total < 1 || total > PREVIEW_MAX) {
-        throw new RangeError(`循环次数必须是 1–${PREVIEW_MAX} 的整数`);
+        throw new RangeError(`반복 횟수는 1~${PREVIEW_MAX}의 정수여야 합니다.`);
     }
     const initial = JSON.parse(JSON.stringify(equip));
     const routeId = resolveJianwangCycleRouteId(initial, requestedRouteId);
@@ -1924,21 +1924,21 @@ function requireJianwangKeepIndex(equip, action, keepIndex) {
     const index = Number(keepIndex) || 0;
     const limit = jianwangKeepLimit(equip, action);
     if (!Number.isSafeInteger(index) || index < 0 || index > limit) {
-        throw new RangeError(`保留槽位必须是 0–${limit} 的整数`);
+        throw new RangeError(`보존 슬롯 수는 0~${limit}의 정수여야 합니다.`);
     }
     return index;
 }
 
 function predictJianwangGrow(equip, targetId, keepIndex = 0, rule = currentJianwangRule()) {
-    if (!equip || !isJianwangSword(equip)) throw new TypeError('请选择存档中的剑王阁实物');
-    if (!validJianwangCZSeed(equip)) throw new TypeError('所选武器缺少成长进度，请重新导入存档');
+    if (!equip || !isJianwangSword(equip)) throw new TypeError('세이브의 검왕각 실물 장비를 선택하세요.');
+    if (!validJianwangCZSeed(equip)) throw new TypeError('선택한 무기의 성장 진행 정보가 없습니다. 세이브를 다시 불러오세요.');
     const fromId = Number(equip.id);
     const target = Number(targetId);
     const action = target === fromId ? 'reforge' : `grow:${target}`;
     const allowed = target === fromId
         ? JIANWANG_LEVEL_90_IDS.has(fromId)
         : (JIANWANG_GROW_TARGETS[fromId] || []).includes(target);
-    if (!allowed) throw new RangeError(`不允许从 ${fromId} 成长到 ${target}`);
+    if (!allowed) throw new RangeError(`${fromId}에서 ${target}(으)로 성장시킬 수 없습니다.`);
     const index = requireJianwangKeepIndex(equip, action, keepIndex);
     const generated = generateJianwangEquip(target, Number(equip.CZSeed), rule);
     const exts = generated.exts.map(item => ({ prop: item.prop, value: item.value }));
@@ -1964,11 +1964,11 @@ function predictJianwangGrow(equip, targetId, keepIndex = 0, rule = currentJianw
 
 function predictJianwangAscend(equip, targetId) {
     if (!equip || !JIANWANG_LEVEL_90_IDS.has(Number(equip.id))) {
-        throw new TypeError('只有存档中的90级剑王阁专武可以铸为100级神兵');
+        throw new TypeError('세이브의 90레벨 검왕각 전용 무기만 100레벨 신병으로 제작할 수 있습니다.');
     }
     const target = Number(targetId);
     if (JIANWANG_LEVEL_100_TARGETS[Number(equip.id)] !== target) {
-        throw new RangeError(`90级专武 ${equip.id} 不能转换为 ${target}`);
+        throw new RangeError(`90레벨 전용 무기 ${equip.id}는 ${target}(으)로 전환할 수 없습니다.`);
     }
     const cfg = EQUIP_DATA.equipment[String(target)];
     return {
@@ -1986,18 +1986,18 @@ function predictJianwangAscend(equip, targetId) {
 }
 
 function predictJianwangStateSequence(equip, action, count = 1, keepIndex = 0, completedReforges = 0, rule = currentJianwangRule()) {
-    if (!equip) throw new TypeError('请选择存档中的剑王阁实物');
+    if (!equip) throw new TypeError('세이브의 검왕각 실물 장비를 선택하세요.');
     const total = action === 'reforge' ? Number(count) : 1;
     if (!Number.isSafeInteger(total) || total < 1 || total > PREVIEW_MAX) {
-        throw new RangeError(`预测次数必须是 1–${PREVIEW_MAX} 的整数`);
+        throw new RangeError(`예측 횟수는 1~${PREVIEW_MAX}의 정수여야 합니다.`);
     }
     if (action === 'reforge') {
         const completed = Math.max(0, Math.floor(Number(completedReforges) || 0));
         const remaining = Math.max(0, JIANWANG_REFORGE_LIMIT - completed);
         if (total > remaining) {
             throw new RangeError(remaining > 0
-                ? `此流派已重铸 ${completed} 次，仅剩 ${remaining} 次可预览`
-                : `此流派已重铸 ${completed} 次，已达 ${JIANWANG_REFORGE_LIMIT} 次上限`);
+                ? `이 계열은 ${completed}회 재주조하여 ${remaining}회만 미리볼 수 있습니다.`
+                : `이 계열은 ${completed}회 재주조하여 상한 ${JIANWANG_REFORGE_LIMIT}회에 도달했습니다.`);
         }
     }
     let current = JSON.parse(JSON.stringify(equip));
@@ -2011,7 +2011,7 @@ function predictJianwangStateSequence(equip, action, count = 1, keepIndex = 0, c
         } else if (action.startsWith('ascend:')) {
             current = predictJianwangAscend(current, Number(action.split(':')[1]));
         } else {
-            throw new RangeError(`不支持的剑王阁流程：${action}`);
+            throw new RangeError(`지원하지 않는 검왕각 진행 방식: ${action}`);
         }
         const kept = Number(keepIndex) > 0 ? before.exts?.[Number(keepIndex) - 1] : null;
         rows.push({
@@ -2037,26 +2037,26 @@ function predictJianwangStateSequence(equip, action, count = 1, keepIndex = 0, c
 
 function requireSpecialMaterial(material, equip) {
     if (!material || typeof material !== 'object' || Array.isArray(material)) {
-        throw new TypeError('特殊材料必须是对象');
+        throw new TypeError('특수 재료 데이터는 객체여야 합니다.');
     }
     if (!Number.isSafeInteger(material.id) || typeof material.name !== 'string' || !material.name) {
-        throw new TypeError('特殊材料缺少有效的 id 或名称');
+        throw new TypeError('특수 재료의 유효한 ID 또는 이름이 없습니다.');
     }
     if (!specialMaterialSupportsEquip(material, equip)) {
-        throw new RangeError(`特殊材料「${material.name}」不适用于装备「${equip.name}」`);
+        throw new RangeError(`특수 재료 '${material.name}'는 장비 '${equip.name}'에 사용할 수 없습니다.`);
     }
     if (!Array.isArray(material.prop) || !material.prop.length) {
-        throw new TypeError(`特殊材料「${material.name}」缺少属性权重`);
+        throw new TypeError(`특수 재료 '${material.name}'의 옵션 가중치가 없습니다.`);
     }
     if (!material.lvs || typeof material.lvs !== 'object' || Array.isArray(material.lvs)) {
-        throw new TypeError(`特殊材料「${material.name}」缺少等级数值`);
+        throw new TypeError(`특수 재료 '${material.name}'의 등급별 수치가 없습니다.`);
     }
     return material;
 }
 
 function specialMaterialParts(material) {
     if (!Array.isArray(material.part)) {
-        throw new TypeError(`特殊材料「${material.name}」的适用部位格式无效`);
+        throw new TypeError(`특수 재료 '${material.name}'의 적용 부위 형식이 올바르지 않습니다.`);
     }
     if (material.part.length) return material.part;
     return SPECIAL_MATERIAL_PART_OVERRIDES[String(material.id)] || [];
@@ -2125,10 +2125,10 @@ function renderMakeAdvanceNotice() {
 function specialMaterialProperties(material) {
     return material.prop.map((entry, index) => {
         if (!Array.isArray(entry) || entry.length < 2 || typeof entry[0] !== 'string' || !entry[0]) {
-            throw new TypeError(`特殊材料「${material.name}」第 ${index + 1} 项属性格式无效`);
+            throw new TypeError(`특수 재료 '${material.name}'의 ${index + 1}번째 옵션 형식이 올바르지 않습니다.`);
         }
         if (!Number.isSafeInteger(entry[1]) || entry[1] < 0) {
-            throw new TypeError(`特殊材料「${material.name}」第 ${index + 1} 项属性权重无效`);
+            throw new TypeError(`특수 재료 '${material.name}'의 ${index + 1}번째 옵션 가중치가 올바르지 않습니다.`);
         }
         return { prop: entry[0], weight: entry[1] };
     });
@@ -2154,12 +2154,12 @@ function scaleSpecialMaterialValue(baseValue, factor) {
 
 function predictSpecialAttachSequence(equip, material, count) {
     if (!equip || typeof equip !== 'object' || Array.isArray(equip)) {
-        throw new TypeError('目标装备必须是对象');
+        throw new TypeError('대상 장비 데이터는 객체여야 합니다.');
     }
     const validCount = requirePositiveInteger(count, '预测次数');
     const validMaterial = requireSpecialMaterial(material, equip);
     const properties = specialMaterialProperties(validMaterial);
-    let seed = requirePositiveInteger(equip.MJSeed, `装备「${equip.name}」的芒晶洗练进度`);
+    let seed = requirePositiveInteger(equip.MJSeed, `장비 '${equip.name}'의 망정 진행도`);
     const items = [];
     for (let index = 1; index <= validCount; index += 1) {
         const seedBefore = seed;
@@ -2224,7 +2224,7 @@ function renderSpecialAttachPreview(items) {
     tablePager.mode = 'specialAttach';
     tablePager.page = 1;
     tablePager.specialAttachItems = items;
-    if (meta) meta.textContent = `连续附加 ${items.length} 次 · 最高值位于第 ${bestIndexes} 次 · 仅供查看，不推进游戏内的芒晶洗练进度`;
+    if (meta) meta.textContent = `연속 망정 ${items.length}회 · 최고 수치 ${bestIndexes}회차 · 조회 전용(게임 내 망정 진행도에 영향 없음)`;
     renderSpecialAttachPage();
 }
 
@@ -2274,7 +2274,7 @@ function renderJianwangCyclePage() {
             ? (item.exts || item.equip.exts).map(prop => `<span class="jianwang-prop-token">${escapeHtml(propLabel(prop.prop))}+${formatPropValue(prop.prop, prop.value)}</span>`).join('')
             : '<span class="muted">없음</span>';
         const seedText = blank
-            ? `碎剑后推进剑胚序列<br>新剑胚已生成`
+            ? `검 분해 후 검 배아 순서 진행 · 새 검 배아 생성 완료`
             : `${item.seedBefore === item.seedAfter ? '保持当前重铸进度' : '已推进重铸序列'}`;
         const costs = String(item.cost || '—').split(/[、；]/)
             .filter(Boolean)
@@ -2357,7 +2357,7 @@ function renderJianwangPage() {
         body.innerHTML = slice.map(item => {
             const kept = item.kept
                 ? `保留 ${propLabel(item.kept.prop)}+${formatPropValue(item.kept.prop, item.kept.value)}`
-                : (item.action.startsWith('ascend:') ? '固定保留现有六条' : '不保留旧词条');
+                : (item.action.startsWith('ascend:') ? '현재 옵션 6개 고정 보존' : '기존 옵션 보존 안 함');
             const fromCfg = EQUIP_DATA.equipment[String(item.fromId)] || {};
             const toCfg = EQUIP_DATA.equipment[String(item.toId)] || {};
             const fromLevel = Number(fromCfg.lv) || '?';
@@ -2413,13 +2413,13 @@ function renderJianwangPreview(items, kind = 'state') {
     if (meta) {
         if (kind === 'mangjing') {
             const bestIndexes = items.filter(item => item.isBest).map(item => item.index).join('、');
-            meta.textContent = `剑王阁芒晶洗练 ${items.length} 次 · 最高值位于第 ${bestIndexes} 次 · 每次芒晶×10 · 只读预测`;
+            meta.textContent = `검왕각 망정 ${items.length}회 · 최고 수치 ${bestIndexes}회차 · 회당 망정×10 · 조회 전용`;
         } else if (kind === 'blanks') {
             meta.textContent = `이후 60레벨 검 소재 ${items.length}개 · 현재 검 소재 진행도부터 순서대로 예측 · 조회만으로 현재 진행도가 변하지 않습니다.`;
         } else if (kind === 'shatter') {
             meta.textContent = `${items[0]?.shatterLabel || '碎剑'} → 重铸下一把60级剑胚 · 预览不推进页面内状态`;
         } else {
-            meta.textContent = `从所选存档实物起步 · ${items.length} 步 · 预览不推进页面内状态`;
+            meta.textContent = `선택한 세이브 실물에서 시작 · ${items.length}단계 · 미리보기는 화면 내부 상태를 진행하지 않음`;
         }
     }
     renderJianwangPage();
@@ -2453,10 +2453,10 @@ function specialAttachEquipLabel(equip) {
     const source = equip._crafted ? '模拟打造' : (equip._equipped ? equip._source : '未装备');
     const base = equip.exts.length
         ? equip.exts.map(item => `${propLabel(item.prop)}+${formatPropValue(item.prop, item.value)}`).join(' / ')
-        : '无基础词条';
+        : '기본 옵션 없음';
     const current = equip.specials.length
         ? equip.specials.map(item => `${propLabel(item.prop)}+${formatPropValue(item.prop, item.value)}`).join(' / ')
-        : '当前无红词条';
+        : '현재 적색 옵션 없음';
     return `${source} · ${equip.name} · ${base} · ${current} · #${equip.only_id}`;
 }
 
@@ -2520,7 +2520,7 @@ function updateSpecialAttachHint() {
     const equip = saveEquips.find(item => runtimeKey(item) === equipSelect.value);
     const material = EQUIP_DATA.special[String(materialSelect.value)];
     if (!equip || !material) {
-        hint.textContent = '导入存档后选择同一件装备和材料，预测连续覆盖红词条的结果';
+        hint.textContent = '세이브를 불러온 뒤 동일한 장비와 재료를 선택하면 적색 옵션을 연속으로 교체한 결과를 예측합니다.';
         return;
     }
     const current = equip.specials.length
@@ -2579,7 +2579,7 @@ function jianwangSwordLabel(equip) {
         const name = current.name || EQUIP_DATA.equipment[String(current.id)]?.name || jianwangStageName(current);
         return `模拟背包 · ${name} · 第 ${swordIndex} 把剑`;
     }
-    return `${current._source || equip._source || '未知来源'} · ${jianwangStageName(current)} · #${equip.only_id || '无OnlyID'} · ${seed}`;
+    return `${current._source || equip._source || '출처 미확인'} · ${jianwangStageName(current)} · #${equip.only_id || '无OnlyID'} · ${seed}`;
 }
 
 function jianwangActionOptions(equip) {
@@ -2668,7 +2668,7 @@ function fillJianwangCycleRouteSelect(preserveSelection = true) {
     }
     const placeholder = document.createElement('option');
     placeholder.value = '';
-    placeholder.textContent = '请选择90级专武路线';
+    placeholder.textContent = '90레벨 전용 무기 경로를 선택하세요.';
     routeSelect.appendChild(placeholder);
     for (const routeId of JIANWANG_GROW_TARGETS[5709]) {
         const option = document.createElement('option');
@@ -3802,7 +3802,7 @@ function doSpecialAttachPreview() {
     const count = Number(document.getElementById('specialAttachCount')?.value);
     try {
         if (!Number.isSafeInteger(count) || count < 1 || count > PREVIEW_MAX) {
-            throw new RangeError(`预测次数必须是 1–${PREVIEW_MAX} 的整数`);
+            throw new RangeError(`예측 횟수는 1~${PREVIEW_MAX}의 정수여야 합니다.`);
         }
         renderSpecialAttachPreview(predictSpecialAttachSequence(equip, material, count));
     } catch (error) {
@@ -4045,7 +4045,7 @@ function doJianwangPreview() {
     try {
         const count = Number(document.getElementById('jianwangCount')?.value);
         if (!Number.isSafeInteger(count) || count < 1 || count > PREVIEW_MAX) {
-            throw new RangeError(`预测次数必须是 1–${PREVIEW_MAX} 的整数`);
+            throw new RangeError(`예측 횟수는 1~${PREVIEW_MAX}의 정수여야 합니다.`);
         }
         if (action === 'mangjing') {
             if (!canPredictJianwangMangjing(equip)) {
