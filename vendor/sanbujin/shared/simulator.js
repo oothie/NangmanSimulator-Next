@@ -2293,7 +2293,7 @@ function findTalentSlotIndexByName(name) {
 function lockTalentByName(name) {
     const idx = findTalentSlotIndexByName(name);
     if (idx < 0) return false;
-    if(!state.talents[idx].locked){const before=manualRouteState();state.talents[idx].locked=true;recordManualRoute('lock',before,'锁定「'+name+'」');}
+    if(!state.talents[idx].locked){const before=manualRouteState();state.talents[idx].locked=true;recordManualRoute('lock',before,'잠금: '+name+'」');}
     return true;
 }
 
@@ -3456,7 +3456,7 @@ function filterAiTalentChoices() {
         section.hidden = labels.length === 0;
         const selected = aiSelectedTalentIds.filter(id => Number(TALENT_DATA[String(id)]?.pinzhi ?? TALENT_DATA[String(id)]?.weight) === Number(quality)).length;
         const count = section.querySelector('.ai-talent-group-title small');
-        if (count) count.textContent = `${labels.length}개 ${selected ? ` · 已选 ${selected} 条` : ''}`;
+        if (count) count.textContent = `${labels.length}개 ${selected ? ` · ${selected}개 선택됨` : ''}`;
         if (section.tagName !== 'DETAILS') return;
         if (keyword) {
             if (!('searchWasOpen' in section.dataset)) section.dataset.searchWasOpen = String(section.open);
@@ -3564,7 +3564,7 @@ function paintAiTalentChoices(targetIds) {
             if (aiSearchRunning) {
                 const message = document.getElementById('aiSelectionMessage');
                 if (message) {
-                    message.textContent = '正在查找路线；如需修改目标，请先停止查找。';
+                    message.textContent = '경로 탐색 중입니다. 목표를 변경하려면 탐색을 먼저 중지하세요.';
                     message.classList.add('is-error');
                 }
                 return;
@@ -3576,7 +3576,7 @@ function paintAiTalentChoices(targetIds) {
             } else if (aiSelectedTalentIds.length >= 4) {
                 const message = document.getElementById('aiSelectionMessage');
                 if (message) {
-                    message.textContent = '最终最多只能选择 4 条目标脉。';
+                    message.textContent = '최종 목표 맥은 최대 4개까지 선택할 수 있습니다.';
                     message.classList.add('is-error');
                 }
                 return;
@@ -3608,7 +3608,7 @@ function renderAiAlgorithmVersion(snapshot = {}, reportedOnly = false) {
     if (reportedOnly && !raw) return;
     const candidate = raw || (snapshot.restored ? '' : window.WASH_ROUTE_WORKER_BUNDLE?.algorithmVersion);
     const version = typeof candidate === 'string' && /^[0-9]+\.[0-9]+(?:\.[0-9]+)?$/.test(candidate) ? candidate : '';
-    const label = version ? 'AI 洗脉 v' + version.replace(/\.0$/, '') : '洗脉算法：版本读取中…';
+    const label = version ? 'AI 세수 v' + version.replace(/\.0$/, '') : '세수 알고리즘: 버전 읽는 중…';
     for (const id of ['aiAlgorithmVersion', 'aiRunningAlgorithm']) {
         const node = document.getElementById(id); if (node) {node.textContent = label;node.dataset.algorithmVersion = version;}
     }
@@ -3626,16 +3626,16 @@ function renderAiSearchProgress(progress = {}) {
         box.dataset.state = terminal ? progress.phase : 'searching';
         const track = box.querySelector('[role="progressbar"]');
         if (track) {
-            track.setAttribute('aria-label', terminal ? (progress.phase === 'complete' ? '路线查找完成' : '路线查找已停止') : '正在查找路线');
+            track.setAttribute('aria-label', terminal ? (progress.phase === 'complete' ? '경로 탐색 완료' : '경로 탐색 중지') : '경로 탐색 중');
             if (progress.phase === 'complete') track.setAttribute('aria-valuenow', '100');
             else track.removeAttribute('aria-valuenow');
         }
     }
-    if (text) text.textContent = progress.phase === 'optimizing' ? `더 적은 세수단을 사용하는 경로 검색 · 제${progress.optimizationRound}회` : !terminal && progress.message ? readableWashCopy(progress.message) : terminal ? (progress.phase === 'error' ? playerError(progress.message) : readableWashCopy(progress.message)) : (progress.foundCount ? `상세 탐색 중 · ${progress.foundCount}개 경로 발견…` : '正在深度查找满足目标的路线…');
+    if (text) text.textContent = progress.phase === 'optimizing' ? `더 적은 세수단을 사용하는 경로 검색 · 제${progress.optimizationRound}회` : !terminal && progress.message ? readableWashCopy(progress.message) : terminal ? (progress.phase === 'error' ? playerError(progress.message) : readableWashCopy(progress.message)) : (progress.foundCount ? `상세 탐색 중 · ${progress.foundCount}개 경로 발견…` : '목표를 만족하는 경로 정밀 탐색 중…');
     const washes = Number(progress.totalRawWashesSimulated ?? progress.rawWashesSimulated ?? 0);
     if (percent) percent.textContent = terminal
-        ? (progress.phase === 'complete' ? '完成' : progress.phase === 'stopped' ? '중지됨' : '出现错误')
-        : (washes > 0 ? `세수 ${formatCount4(washes)}회 시뮬레이션 완료` : '正在准备');
+        ? (progress.phase === 'complete' ? '완료' : progress.phase === 'stopped' ? '중지됨' : '오류 발생')
+        : (washes > 0 ? `세수 ${formatCount4(washes)}회 시뮬레이션 완료` : '준비 중');
     if (fill) fill.style.removeProperty('width');
 }
 
@@ -3656,7 +3656,7 @@ function aiCostBreakdownHtml(route) {
 }
 
 function aiRouteTimelineHtml(route) {
-    return `<div class="ai-route-timeline" role="list" aria-label="路线操作时间轴">${(route.steps || []).map((step, index) => {
+    return `<div class="ai-route-timeline" role="list" aria-label="경로 작업 타임라인">${(route.steps || []).map((step, index) => {
         const detail = step.washes > 0
             ? `세수 ${step.washes}회 · 이번 단계 세수단 ${step.pills}개`
             : `이번 단계 세수단 ${step.pills}개`;
@@ -3670,8 +3670,8 @@ function aiRouteTimelineHtml(route) {
 
 function aiOperationTableHtml(route) {
     const rows = (route.steps || []).map((step, index) => {
-        const afterNames = (step.after?.talents || []).map(t => `${t.name}${t.locked ? '（锁）' : ''}`).join('、');
-        const verify = step.type === 'verify' ? '最终目标已逐步核对' : (step.expectedName ? `'${step.expectedName}' 등장 예상` : afterNames);
+        const afterNames = (step.after?.talents || []).map(t => `${t.name}${t.locked ? '(잠금)' : ''}`).join('、');
+        const verify = step.type === 'verify' ? '최종 목표 단계별 검증 완료' : (step.expectedName ? `'${step.expectedName}' 등장 예상` : afterNames);
         return `<tr>
             <td>${index + 1}</td>
             <td><b>${escapeAiHtml(readableWashCopy(step.label))}</b></td>
@@ -3682,7 +3682,7 @@ function aiOperationTableHtml(route) {
             <td>${Number(step.cumulativePills).toLocaleString()}</td>
             <td>${Number(step.cumulativeWashes).toLocaleString()}</td>
             <td>${Number(step.cumulativeTalentBars).toLocaleString()}</td>
-            <td class="ai-operation-verify">${escapeAiHtml(verify || '状态已记录')}</td>
+            <td class="ai-operation-verify">${escapeAiHtml(verify || '상태 기록 완료')}</td>
         </tr>`;
     }).join('');
     return `<div class="ai-operation-wrap"><table class="ai-operation-table">
@@ -3694,16 +3694,16 @@ function aiOperationTableHtml(route) {
 function aiRouteResultHtml(route, index) {
     const inventory = route.inventory || {};
     const inventoryLabel = inventory.available == null
-        ? '库存未读取'
+        ? '보유량 읽기 전'
         : (inventory.enough ? `남은 세수단 ${Number(inventory.remaining).toLocaleString()}개` : `부족한 세수단 ${Number(inventory.shortfall).toLocaleString()}개`);
     const upgradeLabel = Array.isArray(route.slotPath) && route.slotPath.length
         ? `${route.slotPath.join('→')}칸`
-        : '保持当前槽位';
-    const finalNames = (route.finalTalents || []).map(item => `${item.name}${item.locked ? '（锁）' : ''}`).join('、');
+        : '현재 슬롯 유지';
+    const finalNames = (route.finalTalents || []).map(item => `${item.name}${item.locked ? '(잠금)' : ''}`).join('、');
     return `<div class="ai-route-card"><details class="ai-route-result" data-route-key="${escapeAiHtml(route.branchId || index)}" ${index === 0 && !isAutomaticWashPage() ? 'open' : ''}>
         <summary>
             <span class="ai-route-rank">${index + 1}</span>
-            <span class="ai-route-name"><b>${index===0?'最省候选 · 查看操作':'查看操作'}</b><span>${escapeAiHtml(finalNames)}</span></span>
+            <span class="ai-route-name"><b>${index===0?'최소 소모 후보 · 작업 보기':'작업 보기'}</b><span>${escapeAiHtml(finalNames)}</span></span>
             <span class="ai-route-total">세수단 ${Number(route.totalPills).toLocaleString()}개<small>세수 ${Number(route.totalWashes).toLocaleString()}회</small></span>
         </summary>
         <div class="ai-route-body">
@@ -3735,7 +3735,7 @@ function renderAiPrediction(result, imageContext = {}) {
     aiLastPrediction = result;
     container.dataset.hasResult = 'true';
     if (!result || !result.routes || !result.routes.length) {
-        container.innerHTML = `<div class="ai-result-error">${escapeAiHtml(readableWashCopy(result?.noResultReason || '暂未找到已核对的路线，请继续查找。'))}</div>`;
+        container.innerHTML = `<div class="ai-result-error">${escapeAiHtml(readableWashCopy(result?.noResultReason || '검증된 경로를 아직 찾지 못했습니다. 탐색을 계속하세요.'))}</div>`;
         return;
     }
     const moreWasOpen=container.querySelector('.ai-more-routes')?.open;
@@ -3755,7 +3755,7 @@ function renderAiPrediction(result, imageContext = {}) {
             event.preventDefault();
             event.stopPropagation();
             try {
-                if (!imageContext.originReady) throw new Error('请先核验或继续优化这条路线，再生成图片，以免使用了不匹配的起点。');
+                if (!imageContext.originReady) throw new Error('시작 상태가 맞지 않는 이미지가 만들어지지 않도록 경로를 검증하거나 최적화한 뒤 이미지를 생성하세요.');
                 if (!window.WashRouteImage) throw new Error('경로 이미지 생성 기능을 불러오지 못했습니다. 새로고침한 후 다시 시도하세요.');
                 // Capture one complete displayed candidate before awaiting any
                 // painting. Later cheaper results must not change this image.
@@ -3769,7 +3769,7 @@ function renderAiPrediction(result, imageContext = {}) {
                 alert(error?.message || '경로 이미지를 생성하지 못했습니다. 다시 시도하세요.');
             } finally {
                 button.disabled = false;
-                button.textContent = '一键导出路线图';
+                button.textContent = '경로 이미지 내보내기';
             }
         });
     });
@@ -3812,42 +3812,42 @@ function openWashOriginPreview() {
     const manager=getAiSearchManager(),task=manager?.snapshot(),frozen=task?.status==='running'?manager.getInput():null;
     if(!frozen&&!selectedAutoWashRoleEntry()){C.alert('먼저 인물을 선택하세요');return;}
     const field=document.getElementById('aiMaxTotalPills'),budget=Number(frozen?.options?.maxTotalPills??field?.value);
-    if(!Number.isSafeInteger(budget)||budget<0||!frozen&&!field?.value.trim()){C.alert('请先填写有效的耗丹上限');return;}
+    if(!Number.isSafeInteger(budget)||budget<0||!frozen&&!field?.value.trim()){C.alert('유효한 세수단 소모 상한을 입력하세요.');return;}
     const input=frozen||buildAiSearchInput([],budget),role=input.savedRole;
     const slots=Number(input.initialState.zizhi)-150,roleName=role?.Name||'현재 인물',N=C.node;
-    const d=C.modal(roleName+' · 初始脉');d.classList.add('wash-origin-dialog');
+    const d=C.modal(roleName+' · 시작 맥');d.classList.add('wash-origin-dialog');
     if(d.ownerDocument!==document&&!d.ownerDocument.querySelector('link[data-wash-origin-style]')){const link=d.ownerDocument.createElement('link');link.rel='stylesheet';link.href=document.querySelector('link[href*="wash-compact.css"]')?.href||'/vendor/sanbujin/shared/wash-compact.css';link.dataset.washOriginStyle='true';d.ownerDocument.head.append(link);}
     const description=N('p',`맥 잠금이나 치환 없이 세수단 ${formatCount4(budget)}개 범위에서 직접 등장하는 자맥을 확인합니다. 모든 자맥을 동시에 유지할 수 있다는 뜻은 아닙니다.`);description.className='wash-origin-description';
     const vip=N('p',`예측 조건: VIP ${input.initialState.vip===0?'0':input.initialState.vip+'+'} (${input.vipConfirmed?'수동 확인':'시뮬레이션 등급, 미확인'}), 원본 ${slots}칸.`);vip.className='wash-origin-note';
-    const label=N('label'),labelText=N('span','预览栏数'),select=N('select');label.className='wash-origin-slots';label.append(labelText);select.setAttribute('aria-label','初始脉预览栏数');
-    if(slots===0){const zero=N('option','当前0栏（无法洗脉）');zero.value='0';select.append(zero);}
+    const label=N('label'),labelText=N('span','미리보기 칸 수'),select=N('select');label.className='wash-origin-slots';label.append(labelText);select.setAttribute('aria-label','시작 맥 미리보기 칸 수');
+    if(slots===0){const zero=N('option','현재 0칸(세수 불가)');zero.value='0';select.append(zero);}
     for(let count=Math.max(1,slots);count<=4;count++){const option=N('option',count===slots?`현재 ${count}칸`:`먼저 ${count}칸까지 개방(재료 별도 계산)`);option.value=String(count);select.append(option);}
     select.value=String(slots);label.append(select);
-    const status=N('p'),note=N('p'),noteDetails=N('details'),noteSummary=N('summary','起点与置换说明'),rows=N('div'),actions=N('div'),stop=N('button','停止预览'),exportImage=N('button','导出初始脉长图'),close=N('button','关闭');exportImage.disabled=true;status.className='wash-origin-status';status.setAttribute('role','status');note.className='wash-origin-note';noteDetails.className='wash-origin-note-details';noteDetails.append(noteSummary,note);rows.className='wash-origin-rows';actions.className='sc-actions';close.type=stop.type=exportImage.type='button';stop.hidden=true;actions.append(stop,exportImage,close);d.append(description,vip,label,status,noteDetails,rows,actions);
+    const status=N('p'),note=N('p'),noteDetails=N('details'),noteSummary=N('summary','시작 상태와 치환 설명'),rows=N('div'),actions=N('div'),stop=N('button','미리보기 중지'),exportImage=N('button','시작 맥 긴 이미지 내보내기'),close=N('button','닫기');exportImage.disabled=true;status.className='wash-origin-status';status.setAttribute('role','status');note.className='wash-origin-note';noteDetails.className='wash-origin-note-details';noteDetails.append(noteSummary,note);rows.className='wash-origin-rows';actions.className='sc-actions';close.type=stop.type=exportImage.type='button';stop.hidden=true;actions.append(stop,exportImage,close);d.append(description,vip,label,status,noteDetails,rows,actions);
     let worker,blobUrl,generation=0,running=false;
     function dispose(){if(worker){worker.terminate();worker=null;}if(blobUrl){URL.revokeObjectURL(blobUrl);blobUrl=null;}}
     function paint(result){
-        exportImage.disabled=false;exportImage.onclick=()=>{try{if(!window.WashRouteImage?.buildOriginModel)throw Error('导出功能尚未加载，请刷新后重试');const model=window.WashRouteImage.buildOriginModel(result,{roleName,vip:input.initialState.vip,vipConfirmed:input.vipConfirmed});window.WashRouteImage.show(model,{returnFocus:exportImage,autoSave:true})}catch(error){C.alert(playerError(error))}};
-        rows.replaceChildren();note.textContent=result.existingPurples.length?'起点已有紫脉（0丹）：'+result.existingPurples.map(x=>x.name).join('、'):'起点没有已有紫脉。';
+        exportImage.disabled=false;exportImage.onclick=()=>{try{if(!window.WashRouteImage?.buildOriginModel)throw Error('내보내기 기능이 로드되지 않았습니다. 새로고침 후 다시 시도하세요.');const model=window.WashRouteImage.buildOriginModel(result,{roleName,vip:input.initialState.vip,vipConfirmed:input.vipConfirmed});window.WashRouteImage.show(model,{returnFocus:exportImage,autoSave:true})}catch(error){C.alert(playerError(error))}};
+        rows.replaceChildren();note.textContent=result.existingPurples.length?'시작 상태에 있는 자맥(세수단 0개): '+result.existingPurples.map(x=>x.name).join('、'):'시작 상태에 자맥이 없습니다.';
         if(result.firstFixedAtPills!==null)note.textContent+=` 이 미리보기 경로는 세수단 ${formatCount4(result.firstFixedAtPills)}개 소모 시 천장이 발동하고 치환 순서가 고정됩니다. 원본 세이브의 자격에는 영향을 주지 않습니다.`;
         status.textContent=`세수단 ${formatCount4(result.spentPills)}/${formatCount4(budget)}개 계산 · 자맥 ${result.rows.length}회 등장`+(result.complete?'설정한 범위의 횟수를 모두 확인했습니다.':result.stopReason==='cancelled'?'검색을 중단했습니다. 확인한 부분만 표시합니다.':'계산량 제한에 도달해 확인한 범위만 표시합니다. 검색 범위를 줄여 다시 시도하세요.');
         if(result.openedSlots)note.textContent+=` 이번 미리보기에서는 먼저 ${result.previewSlots}칸을 개방한 것으로 가정합니다. 개방 재료는 별도 계산합니다.`;
-        if(!result.rows.length){rows.append(N('p',result.complete?'该预览范围内未直接洗出紫脉。':'已检查部分尚未洗出紫脉。'));return;}
-        const table=N('table');table.className='wash-origin-table';table.setAttribute('aria-label','初始紫脉预览；间隔丹为与上一条紫脉的丹数差，首条以横线表示');const head=N('thead'),tr=N('tr');for(const name of ['第几次','누적 세수단','间隔丹','자맥','来源']){const th=N('th',name);th.scope='col';if(name==='间隔丹')th.title='与上一条紫脉之间相差的丹数；首条没有上一紫，记为—';tr.append(th);}head.append(tr);const body=N('tbody');table.append(head,body);rows.append(table);let shown=0;
-        const more=N('button','显示更多');more.type='button';function next(){for(let index=shown;index<Math.min(shown+50,result.rows.length);index++){const row=result.rows[index],interval=index===0?'—':formatCount4(row.totalPills-result.rows[index-1].totalPills),line=N('tr');for(const text of [formatCount4(row.washNo),formatCount4(row.totalPills),interval,row.name,row.kind==='pity'?'保底紫':'自然紫'])line.append(N('td',text));body.append(line);}shown+=50;more.hidden=shown>=result.rows.length;}more.onclick=next;rows.append(more);next();
+        if(!result.rows.length){rows.append(N('p',result.complete?'현재 미리보기 범위에서 자맥이 등장하지 않았습니다.':'확인한 범위에서는 자맥이 등장하지 않았습니다.'));return;}
+        const table=N('table');table.className='wash-origin-table';table.setAttribute('aria-label','초기 자맥 미리보기: 간격은 이전 자맥과의 세수단 소모 차이이며 첫 자맥은 —로 표시합니다.');const head=N('thead'),tr=N('tr');for(const name of ['회차','누적 세수단','세수단 간격','자맥','출처']){const th=N('th',name);th.scope='col';if(name==='세수단 간격')th.title='이전 자맥과의 세수단 차이입니다. 첫 자맥은 —로 표시합니다.';tr.append(th);}head.append(tr);const body=N('tbody');table.append(head,body);rows.append(table);let shown=0;
+        const more=N('button','더 보기');more.type='button';function next(){for(let index=shown;index<Math.min(shown+50,result.rows.length);index++){const row=result.rows[index],interval=index===0?'—':formatCount4(row.totalPills-result.rows[index-1].totalPills),line=N('tr');for(const text of [formatCount4(row.washNo),formatCount4(row.totalPills),interval,row.name,row.kind==='pity'?'천장 자맥':'일반 자맥'])line.append(N('td',text));body.append(line);}shown+=50;more.hidden=shown>=result.rows.length;}more.onclick=next;rows.append(more);next();
     }
     function start(){
         dispose();const token=++generation,previewSlots=Number(select.value);rows.replaceChildren();note.textContent='';stop.hidden=true;exportImage.disabled=true;
-        if(!previewSlots){status.textContent='当前人物尚无可洗脉栏位。请明确选择要开至几栏，再预览；不会修改存档。';return;}
-        try{const bundle=window.WASH_ROUTE_WORKER_BUNDLE;if(!bundle?.src)throw Error('本机预览资源尚未加载完成，请刷新后重试');blobUrl=URL.createObjectURL(new Blob([bundle.src],{type:'text/javascript'}));worker=new Worker(blobUrl);running=true;stop.hidden=false;stop.disabled=false;stop.textContent='停止预览';status.textContent='正在读取人物条件并预览…';const requestId='origin-'+Date.now()+'-'+token;
-            worker.onerror=event=>{if(token!==generation)return;status.textContent=playerError(event.message||'初始脉预览失败');running=false;stop.hidden=true;dispose();};
+        if(!previewSlots){status.textContent='현재 캐릭터에 세수 가능한 칸이 없습니다. 개방할 칸 수를 선택한 뒤 미리보세요. 세이브는 변경되지 않습니다.';return;}
+        try{const bundle=window.WASH_ROUTE_WORKER_BUNDLE;if(!bundle?.src)throw Error('미리보기 리소스가 아직 로드되지 않았습니다. 새로고침 후 다시 시도하세요.');blobUrl=URL.createObjectURL(new Blob([bundle.src],{type:'text/javascript'}));worker=new Worker(blobUrl);running=true;stop.hidden=false;stop.disabled=false;stop.textContent='미리보기 중지';status.textContent='캐릭터 조건 읽기 및 미리보기 진행 중…';const requestId='origin-'+Date.now()+'-'+token;
+            worker.onerror=event=>{if(token!==generation)return;status.textContent=playerError(event.message||'시작 맥 미리보기 실패');running=false;stop.hidden=true;dispose();};
             worker.onmessage=event=>{if(token!==generation||event.data.requestId!==requestId)return;const m=event.data;
                 if(m.type==='origin-preview-progress')status.textContent=`세수단 ${formatCount4(m.progress.spentPills)}/${formatCount4(budget)}개까지 계산 · 자맥 ${m.progress.purpleCount}회 발견…`;
-                if(m.type==='origin-preview-result'){running=false;paint(m.result);stop.textContent='重新预览';stop.disabled=false;dispose();}
-                if(m.type==='error'){running=false;status.textContent=playerError(m.error);stop.textContent='重试';stop.disabled=false;dispose();}
+                if(m.type==='origin-preview-result'){running=false;paint(m.result);stop.textContent='다시 미리보기';stop.disabled=false;dispose();}
+                if(m.type==='error'){running=false;status.textContent=playerError(m.error);stop.textContent='다시 시도';stop.disabled=false;dispose();}
             };
             worker.postMessage({type:'origin-preview',requestId,input:{...input,options:undefined,maxTotalPills:budget,previewSlots}});
-        }catch(error){status.textContent=playerError(error);running=false;stop.hidden=false;stop.textContent='重试';dispose();}
+        }catch(error){status.textContent=playerError(error);running=false;stop.hidden=false;stop.textContent='다시 시도';dispose();}
     }
     select.onchange=start;stop.onclick=()=>{if(!running){start();return;}stop.disabled=true;worker?.postMessage({type:'cancel'});};close.onclick=()=>d.close();d.addEventListener('close',()=>{++generation;dispose()},{once:true});d.showModal();start();
 }
@@ -3893,7 +3893,7 @@ async function runAiPrediction(restart = false) {
     } catch (error) {
         aiSearchRunning = false;
         setAiSearchControls(false);
-        renderAiSearchProgress({ phase: 'error', message: `查找失败：${error?.message || error}` });
+        renderAiSearchProgress({ phase: 'error', message: `탐색 실패: ${error?.message || error}` });
     }
 }
 
@@ -3904,7 +3904,7 @@ function cancelAiPrediction() {
 const EQUIP_AUTO_ALLOWED_PAPER_IDS = new Set(
     typeof EquipmentAutoOptimizer !== 'undefined' ? EquipmentAutoOptimizer.AUTO_PAPER_IDS : [],
 );
-const EQUIP_AUTO_PROPERTY_LABELS = Object.freeze({ hp_add: '气血' });
+const EQUIP_AUTO_PROPERTY_LABELS = Object.freeze({ hp_add: '기혈' });
 const EQUIP_AUTO_RESULT_PAGE_SIZES = Object.freeze([10, 30, 50, 100]);
 let autoSimulatorMode = 'wash';
 let equipAutoSelectedLocations = new Set();
@@ -3964,15 +3964,15 @@ function setAutoSimulatorMode(mode) {
     if (jianwangPanel) jianwangPanel.hidden = !isJianwang;
     if (title) {
         title.textContent = isEquip
-            ? '自动模拟 · 装备批量预测'
-            : (isJianwang ? '自动模拟 · 剑王阁同词条' : '自动模拟 · 最佳洗脉路线');
+            ? '자동 시뮬레이션 · 장비 일괄 예측'
+            : (isJianwang ? '자동 시뮬레이션 · 검왕각 동일 옵션' : '자동 시뮬레이션 · 최적 세수 경로');
     }
     if (intro) {
         intro.textContent = isEquip
             ? '장인·도면·망정 재료를 선택하고 제작·정련 횟수를 설정하세요. 계산이 끝나면 능력치로 장비를 검색할 수 있습니다.'
             : (isJianwang
                 ? '세이브의 시작 검, 90레벨 진파 경로, 목표 옵션과 동일 옵션 3개/4개 조건을 선택하세요. 기존 목표 옵션을 자동 유지하며 여러 검을 거쳐 조건을 처음 달성하는 경로를 검색합니다.'
-                : '选择最终要同时保留的天赋。系统会比较当前天赋栏、逐步开栏、保底卡格和冲突置换等方案，并逐步核对操作和丹耗。');
+                : '최종적으로 함께 보존할 재능을 선택하세요. 현재 재능 칸과 단계별 개방, 천장 칸 조절, 충돌 치환을 비교하고 작업과 세수단 소모량을 단계별로 검증합니다.');
     }
     const kicker = document.querySelector('#aiPredictionPanel .ai-kicker');
     if (kicker) kicker.textContent = isEquip ? 'LOCAL EQUIPMENT OPTIMIZER' : (isJianwang ? 'LOCAL JIANWANG OPTIMIZER' : 'LOCAL ROUTE OPTIMIZER');
@@ -3993,7 +3993,7 @@ function invalidateEquipAutoPrediction(message) {
     const results = document.getElementById('autoEquipResults');
     if (results) {
         results.dataset.hasResult = 'false';
-        results.innerHTML = `<div class="ai-result-empty">${escapeAiHtml(message || '配置已变化，请重新开始装备自动模拟。')}</div>`;
+        results.innerHTML = `<div class="ai-result-empty">${escapeAiHtml(message || '설정이 변경됐습니다. 장비 자동 시뮬레이션을 다시 시작하세요.')}</div>`;
     }
     if (!equipAutoRunning) {
         const progress = document.getElementById('autoEquipProgress');
@@ -4096,7 +4096,7 @@ function renderEquipAutoLocations() {
         const selectedNames = items.filter(craftsman => equipAutoSelectedLocations.has(Number(craftsman.id)))
             .map(craftsman => String(craftsman.name || craftsman.place || ""))
             .filter(Boolean);
-        const headExtra = selectedNames.length ? " · 已选 " + selectedNames.join("、") : "";
+        const headExtra = selectedNames.length ? " · 선택됨 " + selectedNames.join("、") : "";
         return "<div class=\"equip-auto-location-group is-" + kind + "\">"
             + "<div class=\"equip-auto-location-group-head\"><strong>" + title + "</strong><span>" + items.length + " 곳" + headExtra + "</span></div>"
             + "<div class=\"equip-auto-choice-grid\">" + items.map(labelHtml).join("") + "</div>"
@@ -4112,7 +4112,7 @@ function renderEquipAutoLocations() {
             const craftsman = EquipmentAutoOptimizer.sortedCraftsmen(EQUIP_DATA).find(item => Number(item.id) === Number(id));
             return craftsman ? String(craftsman.name || craftsman.place || "") : "";
         }).filter(Boolean);
-        count.textContent = names.length ? "已选 " + names.join("、") : "已选 0";
+        count.textContent = names.length ? "선택됨 " + names.join("、") : "0개 선택";
     }
 }
 
@@ -4122,14 +4122,14 @@ function equipAutoAttachPickerHtml(equip, selectedIds) {
     const buttons = materials.map(material => {
         const selected = selectedSet.has(Number(material.id));
         const action = selected ? 'remove' : 'add';
-        const state = selected ? '已选' : '选择';
-        return `<button class="equip-auto-attach-option ${selected ? 'is-selected' : 'is-available'}" type="button" data-attach-action="${action}" data-material-id="${material.id}" aria-pressed="${selected}" aria-label="${state}附加材料 ${escapeAiHtml(material.name)}">
+        const state = selected ? '선택됨' : '선택';
+        return `<button class="equip-auto-attach-option ${selected ? 'is-selected' : 'is-available'}" type="button" data-attach-action="${action}" data-material-id="${material.id}" aria-pressed="${selected}" aria-label="${state} 추가 재료 ${escapeAiHtml(material.name)}">
             <span>${escapeAiHtml(material.name)}</span><small>${state}</small>
         </button>`;
     }).join('');
     return `<div class="equip-auto-attach-field">
         <span class="equip-auto-field-label">최초 제작 추가 재료(복수 선택 시 각각 독립 계산)</span>
-        <div class="equip-auto-attach-picker" role="group" aria-label="首次打造附加材料多选">
+        <div class="equip-auto-attach-picker" role="group" aria-label="첫 제작 추가 재료 복수 선택">
             <div class="equip-auto-attach-options">${buttons || '<span class="equip-auto-attach-empty">현재 장비에 사용할 수 있는 추가 재료가 없습니다</span>'}</div>
         </div>
     </div>`;
@@ -4157,12 +4157,12 @@ function renderEquipAutoPapers() {
     if (!available.size) {
         container.innerHTML = '<span class="text-muted">제작 지역을 하나 이상 선택하세요. 자색 장비 제작과 승련·정련이 가능한 90~100레벨 도면만 표시됩니다.</span>';
         const count = document.getElementById('autoEquipPaperCount');
-        if (count) count.textContent = '已选 0';
+        if (count) count.textContent = '0개 선택';
         return;
     }
     /* 按主材料分组（紫金 / 乌缕 / 雪银…），组内按部位、等级、名称排 */
     const materialNameOf = item => String((EQUIP_DATA.itemNames && EQUIP_DATA.itemNames[String(item.paper.dz_mat)])
-        || ('材料' + item.paper.dz_mat));
+        || ('재료' + item.paper.dz_mat));
     const typeRankOf = item => {
         const type = Number(item.equip.type);
         return Number.isFinite(type) ? type : 99;
@@ -4206,7 +4206,7 @@ function renderEquipAutoPapers() {
         const hasSelected = group.items.some(item => equipAutoPaperConfigs.has(String(item.paper.id)));
         const selectedNames = group.items.filter(item => equipAutoPaperConfigs.has(String(item.paper.id)))
             .map(item => String(item.equip.name || item.paper.name || ''));
-        const headExtra = selectedNames.length ? ' · 已选 ' + selectedNames.join('、') : '';
+        const headExtra = selectedNames.length ? ' · 선택됨 ' + selectedNames.join('、') : '';
         return '<div class="equip-auto-paper-group is-' + group.kind + '" data-material="' + escapeAiHtml(group.name) + '">'
             + '<div class="equip-auto-paper-group-head"><strong>' + escapeAiHtml(group.name) + '</strong><span>' + group.items.length + ' 장' + headExtra + '</span></div>'
             + '<div class="equip-auto-paper-group-body">' + group.items.map(cardHtml).join('') + '</div>'
@@ -4220,7 +4220,7 @@ function renderEquipAutoPapers() {
             const equip = paper && EQUIP_DATA.equipment && EQUIP_DATA.equipment[String(paper.dz_equip)];
             return equip ? String(equip.name || '') : (paper ? String(paper.name || '').replace(/图样$/, '') : '');
         }).filter(Boolean);
-        count.textContent = names.length ? '已选 ' + names.join('、') : '已选 0';
+        count.textContent = names.length ? '선택됨 ' + names.join('、') : '0개 선택';
     }
 }
 
@@ -4373,7 +4373,7 @@ function renderEquipAutoProperties() {
         const shouldSelect = !config.craftMaterialIds || !config.craftMaterialIds.map(Number).includes(materialId);
         if (!updateEquipAutoAttachMaterialSelection(config, materialId, shouldSelect)) return;
         renderEquipAutoProperties();
-        invalidateEquipAutoPrediction('芒晶材料已变化，请重新开始装备自动模拟。');
+        invalidateEquipAutoPrediction('망정 재료가 변경됐습니다. 장비 자동 시뮬레이션을 다시 시작하세요.');
     }));
 }
 
@@ -4431,7 +4431,7 @@ function handleEquipAutoLocationClick(event) {
     renderEquipAutoLocations();
     renderEquipAutoPapers();
     renderEquipAutoProperties();
-    invalidateEquipAutoPrediction('地点已变化，请重新开始装备自动模拟。');
+    invalidateEquipAutoPrediction('지역이 변경됐습니다. 장비 자동 시뮬레이션을 다시 시작하세요.');
 }
 
 function equipAutoDefaultPropForType(type) {
@@ -4476,7 +4476,7 @@ function handleEquipAutoPaperChange(event) {
         });
         renderEquipAutoProperties();
     }
-    invalidateEquipAutoPrediction('图纸或附加材料已变化，请重新开始装备自动模拟。');
+    invalidateEquipAutoPrediction('도면 또는 추가 재료가 변경됐습니다. 장비 자동 시뮬레이션을 다시 시작하세요.');
 }
 
 function handleEquipAutoPaperClick(event) {
@@ -4491,7 +4491,7 @@ function handleEquipAutoPaperClick(event) {
     const scrollTop = list ? list.scrollTop : 0;
     renderEquipAutoPapers();
     if (list) list.scrollTop = scrollTop;
-    invalidateEquipAutoPrediction('附加材料已变化，请重新开始装备自动模拟。');
+    invalidateEquipAutoPrediction('추가 재료가 변경됐습니다. 장비 자동 시뮬레이션을 다시 시작하세요.');
 }
 
 function handleEquipAutoPropertyClick(event) {
@@ -4553,10 +4553,10 @@ function validateEquipAutoSelection() {
     const errors = [];
     const makeRnd = extractEquipMakeRnd(state.saveData);
     const branches = buildEquipAutoBranches();
-    if (!makeRnd) errors.push('请先导入包含打造状态的有效存档');
-    if (!equipAutoSelectedLocations.size) errors.push('请至少选择一个打造地点');
-    if (!equipAutoPaperConfigs.size) errors.push('请至少选择一张图纸');
-    if (!branches.length && equipAutoPaperConfigs.size) errors.push('当前地点与图纸没有可打造组合');
+    if (!makeRnd) errors.push('제작 상태가 포함된 세이브를 먼저 불러오세요.');
+    if (!equipAutoSelectedLocations.size) errors.push('제작 지역을 하나 이상 선택하세요.');
+    if (!equipAutoPaperConfigs.size) errors.push('도면을 하나 이상 선택하세요.');
+    if (!branches.length && equipAutoPaperConfigs.size) errors.push('현재 지역과 도면으로 제작 가능한 조합이 없습니다.');
     const targetProps = EquipmentAutoOptimizer.TARGET_PROPERTIES.slice();
     const compatibleBranches = branches.filter(branch => {
         const paper = EQUIP_DATA.papers[String(branch.paperId)];
@@ -4571,7 +4571,7 @@ function validateEquipAutoSelection() {
     if (message) {
         message.textContent = errors.length
             ? errors.join('；')
-            : (skippedBranchCount ? `호환되는 경로 ${compatibleBranches.length}개를 실행하고, 목표 옵션이 나올 수 없는 ${skippedBranchCount}개 경로는 제외합니다.` : '可以开始模拟；精炼属性将在结果中筛选。');
+            : (skippedBranchCount ? `호환되는 경로 ${compatibleBranches.length}개를 실행하고, 목표 옵션이 나올 수 없는 ${skippedBranchCount}개 경로는 제외합니다.` : '계산할 수 있습니다. 정련 옵션은 결과에서 필터링합니다.');
         message.classList.toggle('is-error', errors.length > 0);
     }
     return { valid: errors.length === 0, errors, makeRnd, branches, compatibleBranches, skippedBranchCount };
@@ -4586,7 +4586,7 @@ function renderEquipAutoProgress(progress) {
     const ratio = progress.total > 0 ? Math.max(0, Math.min(1, progress.done / progress.total)) : 0;
     const value = progress.phase === 'refine' ? 45 + ratio * 55 : ratio * 45;
     panel.hidden = false;
-    if (text) text.textContent = progress.message || '正在计算…';
+    if (text) text.textContent = progress.message || '계산 중…';
     if (percent) percent.textContent = `${Math.round(value)}%`;
     if (fill) fill.style.width = `${value}%`;
 }
@@ -4670,8 +4670,8 @@ function equipAutoFormatCost(cost) {
     const parts = (cost.materials || []).filter(item => Number(item.amount) > 0)
         .map(item => `${escapeAiHtml(item.name)}×${Number(item.amount).toLocaleString()}`);
     if (cost.mainMaterial && cost.mainAmount) parts.push(`${escapeAiHtml(cost.mainMaterial.name)}×${Number(cost.mainAmount).toLocaleString()}`);
-    if (cost.lianjin) parts.push(`连金泥×${Number(cost.lianjin).toLocaleString()}`);
-    if (cost.silver) parts.push(`银两${equipAutoFormatSilver(cost.silver)}`);
+    if (cost.lianjin) parts.push(`연금니×${Number(cost.lianjin).toLocaleString()}`);
+    if (cost.silver) parts.push(`은냥 ${equipAutoFormatSilver(cost.silver)}`);
     return parts.join(' · ') || '없음';
 }
 
@@ -4681,7 +4681,7 @@ function mergeEquipAutoCosts(...costs) {
     const addMaterial = (material, amount) => {
         const value = Math.max(0, Number(amount) || 0);
         if (!material || !value) return;
-        const name = String(material.name || material.id || '材料');
+        const name = String(material.name || material.id || '재료');
         const key = `${material.id ?? ''}:${name}`;
         const current = materials.get(key) || { id: material.id, name, amount: 0 };
         current.amount += value;
@@ -4690,11 +4690,11 @@ function mergeEquipAutoCosts(...costs) {
     costs.filter(Boolean).forEach(cost => {
         (cost.materials || []).forEach(item => addMaterial(item, item.amount));
         addMaterial(cost.mainMaterial, cost.mainAmount);
-        if (cost.lianjin) addMaterial({ id: 8801, name: '连金泥' }, cost.lianjin);
+        if (cost.lianjin) addMaterial({ id: 8801, name: '연금니' }, cost.lianjin);
         silver += Math.max(0, Number(cost.silver) || 0);
     });
     return {
-        materials: Array.from(materials.values()).sort((a, b) => Number(a.name === '连金泥') - Number(b.name === '连金泥')),
+        materials: Array.from(materials.values()).sort((a, b) => Number(a.name === '연금니') - Number(b.name === '연금니')),
         silver,
     };
 }
@@ -4704,23 +4704,23 @@ function equipAutoRefinementHtml(refinement, upgradeCost = null) {
     const slots = [1, 2, 3].map(slot => {
         const maximum = refinement.maxima[slot];
         if (!maximum) return `<span>옵션 ${slot}: 없음</span>`;
-        const occurrences = maximum.occurrences.map(item => item.source === 'original' ? '原有' : `#${item.index}`).join('、');
+        const occurrences = maximum.occurrences.map(item => item.source === 'original' ? '기존' : `#${item.index}`).join('、');
         return `<span>옵션 ${slot}：${escapeAiHtml(equipAutoFormatPropValue(refinement.prop, maximum.value))}<small>（${occurrences}）</small></span>`;
     }).join('');
     const plan = refinement.plan;
-    const accepts = plan ? plan.accepts.map(item => `#${item.index}（词条${item.slot}）`).join(' → ') : '없음';
+    const accepts = plan ? plan.accepts.map(item => `#${item.index}(옵션 ${item.slot})`).join(' → ') : '없음';
     const totalCost = mergeEquipAutoCosts(upgradeCost, plan && plan.cost);
     return `<div class="equip-auto-refine-card">
         <div class="equip-auto-refine-title"><strong>精炼 · ${escapeAiHtml(label)}</strong><span class="equip-auto-max-value">最高${escapeAiHtml(label)} ${escapeAiHtml(equipAutoFormatRefinementTotal(refinement))}</span></div>
         <div class="equip-auto-slot-list">${slots}</div>
-        <div>状态回放：${accepts}${plan ? `，제 ${plan.cutoff} 次为止` : ''}</div>
+        <div>状态回放：${accepts}${plan ? ` · ${plan.cutoff}회까지` : ''}</div>
         <div class="equip-auto-cost-line">消耗（精炼消耗）：${plan ? equipAutoFormatCost(plan.cost) : '없음'}</div>
         <div class="equip-auto-total-cost-line">总消耗（升炼 + 精炼）：${equipAutoFormatCost(totalCost)}</div>
     </div>`;
 }
 
 function equipAutoAttachmentHtml(attachment) {
-    const stageText = attachment.stage === 'before' ? '升炼前' : '升炼后';
+    const stageText = attachment.stage === 'before' ? '승련 전' : '승련 후';
     const levelText = Number(attachment.equipLevel) > 0 ? ` · ${Number(attachment.equipLevel)}레벨` : '';
     const stageHtml = `<span class="equip-auto-attachment-stage">${stageText}${levelText}</span>`;
     if (attachment.unavailable) {
@@ -4782,7 +4782,7 @@ function equipAutoManualAttachHtml(candidate) {
     const candidateId = String(candidate && candidate.id || '');
     const firstStage = Number(candidate && candidate.craftSpecialEquipLevel) > 0
         ? `승련 전 · ${Number(candidate.craftSpecialEquipLevel)}레벨`
-        : '升炼前';
+        : '승련 전';
     if (!candidate || !candidate.canSimulateSpecialAttach || !candidate.specialAttachEquips || !candidate.craftSpecialId) {
         return `<div class="equip-auto-manual-attach is-unavailable" data-candidate-id="${escapeAiHtml(candidateId)}">
             <p class="ai-visual-heading">附加属性</p>
@@ -4818,22 +4818,22 @@ function equipAutoCandidateCostHtml(candidate) {
         && !(specialId && String(item.id) === specialId)).map(item => {
         const isPaper = Number(item.id) === Number(candidate.paperId)
             || String(item.name || '') === String(candidate.paperName || '');
-        return isPaper ? '图纸×1' : `${escapeAiHtml(item.name)}×${Number(item.amount).toLocaleString()}`;
+        return isPaper ? '도면×1' : `${escapeAiHtml(item.name)}×${Number(item.amount).toLocaleString()}`;
     });
     if (cost.mainMaterial && cost.mainAmount) parts.push(`${escapeAiHtml(cost.mainMaterial.name)}×${Number(cost.mainAmount).toLocaleString()}`);
-    if (cost.lianjin) parts.push(`连金泥×${Number(cost.lianjin).toLocaleString()}`);
-    if (cost.silver) parts.push(`银两${equipAutoFormatSilver(cost.silver)}`);
+    if (cost.lianjin) parts.push(`연금니×${Number(cost.lianjin).toLocaleString()}`);
+    if (cost.silver) parts.push(`은냥 ${equipAutoFormatSilver(cost.silver)}`);
     const items = parts.length ? parts.map(part => `<span>${part}</span>`).join('') : '<span>없음</span>';
     return `<div class="equip-auto-cost-items">${items}</div>`;
 }
 
 const EQUIP_AUTO_RATING_LEVELS = Object.freeze([
-    { min: 96, key: 'red', label: '神器' },
-    { min: 91, key: 'gold', label: '极品' },
-    { min: 81, key: 'purple', label: '极佳' },
-    { min: 71, key: 'blue', label: '优秀' },
-    { min: 51, key: 'green', label: '良好' },
-    { min: 0, key: 'white', label: '劣质' },
+    { min: 96, key: 'red', label: '신기' },
+    { min: 91, key: 'gold', label: '최상급' },
+    { min: 81, key: 'purple', label: '매우 우수' },
+    { min: 71, key: 'blue', label: '우수' },
+    { min: 51, key: 'green', label: '양호' },
+    { min: 0, key: 'white', label: '하급' },
 ]);
 const EQUIP_AUTO_REFINEMENT_THEORETICAL_MAX_MULTIPLIER = 1.25;
 const EQUIP_AUTO_REFINEMENT_SLOT_MULTIPLIERS = Object.freeze([1, 0.75, 0.5]);
@@ -5019,14 +5019,14 @@ function equipAutoAttachScanChipHtml(candidate) {
     if (!scan) return "";
     const bestText = equipAutoFormatProps([{ prop: scan.best.prop, value: scan.best.value }]);
     const roundText = scan.best && scan.best.index != null ? (scan.best.index + '회차') : "";
-    return "<span class=\"equip-auto-chip is-scan\" title=\"芒晶前 " + scan.count + " 次（" + escapeAiHtml(scan.materialName) + "）中的最高附加" + (roundText ? "，出现在" + roundText : "") + "\"><span>芒晶" + (roundText || "附加") + "</span><strong>" + bestText + "</strong></span>";
+    return "<span class=\"equip-auto-chip is-scan\" title=\"망정 전 " + scan.count + "회(" + escapeAiHtml(scan.materialName) + ") 중 최고 추가 능력치" + (roundText ? " · 등장 회차: " + roundText : "") + "\"><span>芒晶" + (roundText || "추가") + "</span><strong>" + bestText + "</strong></span>";
 }
 
 function equipAutoAttachScanDetailHtml(candidate) {
     const scan = equipAutoAttachScanSummary(candidate);
     if (!scan) return "";
     const rows = scan.maxima.filter(item => item.recommendedIndex != null).map(item => {
-        return "<div class=\"equip-auto-attach-scan-row\"><span>" + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + "</span><strong>+" + escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value)) + "（第" + item.recommendedIndex + "次）</strong></div>";
+        return "<div class=\"equip-auto-attach-scan-row\"><span>" + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + "</span><strong>+" + escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value)) + "(제 " + item.recommendedIndex + "次）</strong></div>";
     }).join("");
     return "<div class=\"equip-auto-detail-card equip-auto-attach-scan-card\"><strong>芒晶前 " + scan.count + " 회 내 최고</strong>" + (rows || "없음") + "</div>";
 }
@@ -5044,7 +5044,7 @@ function equipAutoMergeCost(map, cost) {
     if (!cost) return;
     (cost.materials || []).forEach(item => equipAutoAddCost(map, item.id, item.name || item.id, item.amount));
     if (cost.mainMaterial && cost.mainAmount) equipAutoAddCost(map, cost.mainMaterial.id, cost.mainMaterial.name || cost.mainMaterial.id, cost.mainAmount);
-    if (Number(cost.lianjin) > 0) equipAutoAddCost(map, 8801, "连金泥", cost.lianjin);
+    if (Number(cost.lianjin) > 0) equipAutoAddCost(map, 8801, "연금니", cost.lianjin);
 }
 
 /* 首次打造的附加材料（龙骨之类）不计入消耗统计：游戏里它是“每件只投一次”的选材，
@@ -5083,7 +5083,7 @@ function equipAutoCostText(parts) {
     const chunks = parts.map(item => {
         const isPaper = (parts.paperId && String(item.id) === String(parts.paperId))
             || (parts.paperName && String(item.name) === String(parts.paperName));
-        return isPaper ? "图纸×1" : escapeAiHtml(item.name) + "×" + Number(item.amount).toLocaleString();
+        return isPaper ? "도면×1" : escapeAiHtml(item.name) + "×" + Number(item.amount).toLocaleString();
     });
     return chunks.join("、");
 }
@@ -5094,13 +5094,13 @@ function equipAutoCandidateCostLinesHtml(candidate) {
     parts.craftList.paperName = parts.paperName;
     parts.totalList.paperId = parts.paperId;
     parts.totalList.paperName = parts.paperName;
-    const craftText = equipAutoCostText(parts.craftList) + (parts.craftSilver > 0 ? "、银两" + equipAutoFormatSilver(parts.craftSilver) : "");
+    const craftText = equipAutoCostText(parts.craftList) + (parts.craftSilver > 0 ? ", 은냥" + equipAutoFormatSilver(parts.craftSilver) : "");
     const isPaperItem = item => (parts.paperId && String(item.id) === String(parts.paperId))
         || (parts.paperName && String(item.name) === String(parts.paperName));
     const totalItems = parts.totalList.filter(item => !isPaperItem(item));
-    const totalText = equipAutoCostText(totalItems) + (parts.totalSilver > 0 ? "、银两" + equipAutoFormatSilver(parts.totalSilver) : "");
-    const label = candidate && candidate.allRefinements && !equipAutoResultPropFilter && !equipAutoComboActive ? '基础消耗' : '方案消耗';
-    const title = candidate && candidate.allRefinements && !equipAutoResultPropFilter && !equipAutoComboActive ? '打造与升炼消耗；选择精炼属性后显示对应方案消耗' : '打造、升炼与所选精炼方案的消耗';
+    const totalText = equipAutoCostText(totalItems) + (parts.totalSilver > 0 ? ", 은냥" + equipAutoFormatSilver(parts.totalSilver) : "");
+    const label = candidate && candidate.allRefinements && !equipAutoResultPropFilter && !equipAutoComboActive ? '기본 소모' : '계획 소모';
+    const title = candidate && candidate.allRefinements && !equipAutoResultPropFilter && !equipAutoComboActive ? '제작·승련 소모량입니다. 정련 옵션을 선택하면 계획 소모량이 표시됩니다.' : '제작·승련 및 선택한 정련 계획 소모량';
     return '<span class="equip-auto-candidate-line equip-auto-cost-line" title="' + title + '"><span class="equip-auto-cost-tag is-total">' + label + '</span><span>' + totalText + '</span></span>';
 }
 
@@ -5201,8 +5201,8 @@ function equipAutoSyncFavoriteButton(id) {
     document.querySelectorAll('[data-fav-id="' + String(id) + '"]').forEach(button => {
         const on = !!equipAutoFindFavorite(id);
         button.classList.toggle('is-on', on);
-        button.textContent = on ? '★ 已收藏' : '☆ 收藏';
-        button.title = on ? '取消本机收藏标记，云盘副本保留' : '收藏到云盘';
+        button.textContent = on ? '★ 즐겨찾기 완료' : '☆ 즐겨찾기';
+        button.title = on ? '이 기기의 즐겨찾기 표시만 해제하고 클라우드 사본은 유지합니다.' : '클라우드에 즐겨찾기 저장';
     });
 }
 
@@ -5250,7 +5250,7 @@ function equipAutoAddFavorite(candidate, opts) {
         };
     } catch (error) { }
 
-    var busy = equipAutoBusy('正在计算收藏数据…');
+    var busy = equipAutoBusy('즐겨찾기 데이터 계산 중…');
     var mangCount = Number(opts && opts.mangCount);
     window.setTimeout(async function () {
         var previousOverride = equipAutoAttachScanOverride;
@@ -5283,7 +5283,7 @@ function equipAutoAddFavorite(candidate, opts) {
         }
         if (busy) busy.close();
         try {
-            await SBJCloud.put('equipment',snapshot,snapshot.equipName||snapshot.name||'收藏装备');
+            await SBJCloud.put('equipment',snapshot,snapshot.equipName||snapshot.name||'장비 즐겨찾기');
             equipAutoFavorites.unshift(snapshot);
             equipAutoSaveFavorites();renderEquipAutoFavorites();equipAutoSyncFavoriteButton(id);
         } catch(error) { if(!error.cancelled)SBJCloud.alert(error.message); }
@@ -5296,12 +5296,12 @@ function equipAutoAddFavorite(candidate, opts) {
 window.equipAutoSeedTestFavorite = function (options) {
     var opts = options || {};
     var list = (equipAutoLastResult && equipAutoLastResult.candidates) || [];
-    if (!list.length) return { ok: false, reason: '还没有模拟结果，先在第五步跑一次' };
+    if (!list.length) return { ok: false, reason: '계산 결과가 없습니다. 먼저 5단계에서 시뮬레이션을 실행하세요.' };
     var wanted = String(opts.name || '碎月重刀');
     var hit = list.filter(function (item) {
         return String(item && (item.equipName || '')).indexOf(wanted) >= 0;
     })[0] || list[0];
-    if (!hit) return { ok: false, reason: '没有可收藏的候选' };
+    if (!hit) return { ok: false, reason: '즐겨찾기할 후보가 없습니다.' };
     /* 注意：0 是有效值（表示这次不缓存），不能写成 Number(x) || 默认值 */
     var pick = function (value, fallback) {
         var n = Number(value);
@@ -5445,15 +5445,15 @@ function equipAutoCsvCell(value) {
 
 function exportEquipAutoFavorites() {
     if (!equipAutoFavorites.length) {
-        window.alert('收藏列表是空的，先在结果里点 ☆ 收藏。');
+        window.alert('즐겨찾기가 비어 있습니다. 결과에서 ☆ 즐겨찾기를 누르세요.');
         return;
     }
     const rows = [[
-        '类型', '装备', '图纸', '打造次数', '地点', '品质',
-        '基础属性', '蓝/紫词条', '地区附加', '망정 N회 내 최고', '首次附加材料',
-        '总属性', '打造消耗', '升炼消耗',
-        '精炼（词条最高 / 做到第几次 / 状态回放）', '精炼消耗',
-        '总消耗（升炼+精炼）',
+        '종류', '장비', '도면', '제작 횟수', '지역', '품질',
+        '기본 능력치', '청색·자색 옵션', '지역 추가 옵션', '망정 N회 내 최고', '첫 제작 추가 재료',
+        '전체 능력치', '제작 소모', '승련 소모',
+        '정련(최고 옵션/회차/상태 재현)', '정련 소모',
+        '전체 소모(승련+정련)',
     ]];
     equipAutoFavorites.slice().sort((a, b) =>
         (equipAutoFavoriteTypeKey(a) - equipAutoFavoriteTypeKey(b))
@@ -5471,14 +5471,14 @@ function exportEquipAutoFavorites() {
             const slots = [1, 2, 3].map(slot => {
                 const maximum = refinement.maxima && refinement.maxima[slot];
                 if (!maximum) return '옵션 ' + slot + ': 없음';
-                const indexes = (maximum.occurrences || []).map(item => item.source === 'original' ? '原有' : '#' + item.index).join('/');
-                return '词条' + slot + ' ' + equipAutoFormatPropValue(refinement.prop, maximum.value) + '（' + indexes + '）';
+                const indexes = (maximum.occurrences || []).map(item => item.source === 'original' ? '기존' : '#' + item.index).join('/');
+                return '옵션' + slot + ' ' + equipAutoFormatPropValue(refinement.prop, maximum.value) + '（' + indexes + '）';
             }).join('；');
-            const cutoff = refinement.plan ? (refinement.plan.cutoff + '회차') : '未达成';
+            const cutoff = refinement.plan ? (refinement.plan.cutoff + '회차') : '미달성';
             const replay = refinement.plan && refinement.plan.accepts
-                ? refinement.plan.accepts.map(item => '#' + item.index + '（词条' + item.slot + '）').join(' → ')
+                ? refinement.plan.accepts.map(item => '#' + item.index + '(옵션' + item.slot + '）').join(' → ')
                 : '';
-            return label + '：' + slots + '；' + cutoff + (replay ? '；回放 ' + replay : '');
+            return label + '：' + slots + '；' + cutoff + (replay ? ' · 재현 ' + replay : '');
         }).join('\n');
         const refineCost = mergeEquipAutoCosts(...(candidate.refinements || []).map(item => item.plan && item.plan.cost));
         const totalCost = mergeEquipAutoCosts(candidate.craftCost, candidate.upgradeCost, refineCost);
@@ -5488,7 +5488,7 @@ function exportEquipAutoFavorites() {
             String(candidate.paperName || '').replace(/图样$/, ''),
             candidate.craftIndex,
             candidate.location || '',
-            Number(candidate.color) === 3 ? '蓝色' : '紫色',
+            Number(candidate.color) === 3 ? '청색' : '자색',
             equipAutoFormatBase(candidate.base),
             equipAutoFormatProps(candidate.exts),
             equipAutoFormatProps(candidate.region),
@@ -5507,7 +5507,7 @@ function exportEquipAutoFavorites() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = '算不尽-收藏列表-' + new Date().toISOString().slice(0, 10) + '.csv';
+    link.download = '낭만강호-즐겨찾기-' + new Date().toISOString().slice(0, 10) + '.csv';
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -5542,7 +5542,7 @@ function equipAutoFavoritesBackupPayload() {
 
 function equipAutoFavoritesRestore(text) {
     let payload;
-    try { payload = JSON.parse(text); } catch (error) { return { ok: false, error: '不是有效的 JSON 文件' }; }
+    try { payload = JSON.parse(text); } catch (error) { return { ok: false, error: '유효한 JSON 파일이 아닙니다.' }; }
     if (typeof FavoriteStore !== 'undefined') {
         const merged = FavoriteStore.restoreJson(text);
         if (merged.ok) {
@@ -5552,7 +5552,7 @@ function equipAutoFavoritesRestore(text) {
         return merged;
     }
     const items = Array.isArray(payload) ? payload : (payload && payload.items);
-    if (!Array.isArray(items)) return { ok: false, error: '文件里没有收藏数据' };
+    if (!Array.isArray(items)) return { ok: false, error: '파일에 즐겨찾기 데이터가 없습니다.' };
     const seen = Object.create(null);
     equipAutoFavorites.forEach(item => { seen[String(item.id)] = 1; });
     let added = 0;
@@ -5576,11 +5576,11 @@ function bindEquipAutoFavoritesBackup() {
         backup.addEventListener('click', event => {
             event.preventDefault();
             event.stopPropagation();
-            if (!equipAutoFavorites.length) { window.alert('收藏列表是空的，没有可备份的内容'); return; }
+            if (!equipAutoFavorites.length) { window.alert('즐겨찾기가 비어 있어 백업할 내용이 없습니다.'); return; }
             const blob = new Blob([equipAutoFavoritesBackupPayload()], { type: 'application/json;charset=utf-8' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = '算不尽-收藏备份-' + new Date().toISOString().slice(0, 10) + '.json';
+            link.download = '낭만강호-즐겨찾기백업-' + new Date().toISOString().slice(0, 10) + '.json';
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -5602,10 +5602,10 @@ function bindEquipAutoFavoritesBackup() {
             const reader = new FileReader();
             reader.onload = () => {
                 const result = equipAutoFavoritesRestore(String(reader.result || ''));
-                if (!result.ok) { window.alert('恢复失败：' + result.error); return; }
-                window.alert('恢复完成：新增 ' + result.added + ' 개，现有 ' + result.total + ' 개');
+                if (!result.ok) { window.alert('복원 실패: ' + result.error); return; }
+                window.alert('복원 완료: 새로 추가 ' + result.added + '개, 현재 ' + result.total + ' 개');
             };
-            reader.onerror = () => window.alert('读文件失败');
+            reader.onerror = () => window.alert('파일 읽기 실패');
             reader.readAsText(file);
         });
     }
@@ -5738,7 +5738,7 @@ function equipAutoFilteredCandidates(candidates) {
         const blueColor = Number(candidate.color) === 3;
         if (equipAutoResultBlueMode === 'none' && blueColor) return false;
         if (equipAutoResultBlueMode === 'only' && !blueColor) return false;
-        if (equipAutoResultSeedFilter && String(candidate.seedKind || '普通') !== equipAutoResultSeedFilter) return false;
+        if (equipAutoResultSeedFilter && String(candidate.seedKind || '일반') !== equipAutoResultSeedFilter) return false;
         const regionProps = Array.isArray(candidate.region) ? candidate.region : [];
         if (equipAutoResultRegionFilter === 'none' && regionProps.length) return false;
         if (equipAutoResultRegionFilter === 'any' && !regionProps.length) return false;
@@ -5824,8 +5824,8 @@ function equipAutoResultFilterOptionsHtml(candidates) {
             <label class="equip-auto-filter-field" for="equipAutoResultSeedFilter"><span class="equip-auto-filter-sr">제작 순서</span>
                 <select id="equipAutoResultSeedFilter">
                     <option value="">순서: 전체</option>
-                    <option value="普通">순서: 일반</option>
-                    <option value="幸运">순서: 행운</option>
+                    <option value="일반">순서: 일반</option>
+                    <option value="행운">순서: 행운</option>
                     <option value="천장">순서: 천장</option>
                 </select>
             </label>
@@ -5907,7 +5907,7 @@ function equipAutoSortCandidates(items) {
     const costScore = candidate => {
         try {
             const parts = equipAutoCandidateCostParts(candidate);
-            const item = (parts.totalList || []).find(entry => String(entry.name || '').indexOf('连金泥') >= 0);
+            const item = (parts.totalList || []).find(entry => String(entry.name || '').indexOf('연금니') >= 0);
             return item ? Number(item.amount) || 0 : 0;
         } catch (error) { return 0; }
     };
@@ -5963,7 +5963,7 @@ function renderEquipAutoResultPage() {
     if (regionFilter) regionFilter.value = equipAutoResultRegionFilter;
     document.querySelectorAll('[data-sort-chip]').forEach(chip => {
         chip.classList.toggle('is-active', String(chip.dataset.sortChip) === equipAutoResultSort);
-        if (equipAutoLastResult?.options?.analyzeAll) { const sort = String(chip.dataset.sortChip || ''); chip.disabled = equipAutoComboActive ? sort !== 'cost' : !equipAutoResultPropFilter; chip.title = chip.disabled ? '请先选择单个精炼属性' : ''; }
+        if (equipAutoLastResult?.options?.analyzeAll) { const sort = String(chip.dataset.sortChip || ''); chip.disabled = equipAutoComboActive ? sort !== 'cost' : !equipAutoResultPropFilter; chip.title = chip.disabled ? '정련 옵션 하나를 먼저 선택하세요.' : ''; }
     });
 
     if (showBlue) showBlue.value = equipAutoResultBlueMode;
@@ -6049,7 +6049,7 @@ function equipAutoCanCraftWith(cm, paper, equip) {
 }
 
 function equipAutoRegionSimulate(candidate, limit) {
-    if (typeof EQUIP_DATA === 'undefined') return { rows: [], error: '数据未加载' };
+    if (typeof EQUIP_DATA === 'undefined') return { rows: [], error: '데이터가 로드되지 않았습니다.' };
     if (!equipAutoInitialMakeState) {
         try {
             const mr = typeof extractEquipMakeRnd === 'function' && typeof state !== 'undefined'
@@ -6682,7 +6682,7 @@ var EQUIP_AUTO_SWEEP_LOCATIONS = {
 
 /* 速查卡片里的精炼属性多选：默认全选，点一下切换 */
 /* 属性按钮的显示顺序：常用属性在前，其余按原顺序 */
-var EQUIP_AUTO_SWEEP_PREFERRED = ['免伤', '穿甲', '攻击', '内劲', '吸血', '聚气', '真元', '溅伤', '反伤', '气血', '命中', '速度'];
+var EQUIP_AUTO_SWEEP_PREFERRED = ['免伤', '穿甲', '攻击', '内劲', '吸血', '聚气', '真元', '溅伤', '反伤', '기혈', '命中', '速度'];
 
 function equipAutoSweepPropRank(prop) {
     var label = EQUIP_DATA.propNames[prop] || prop;
@@ -6867,7 +6867,7 @@ function equipAutoSweepLianjin(candidate, refinement) {
     });
     var parts = equipAutoCandidateCostParts(Object.assign({}, candidate, { refinements: normalized }));
     return (parts.totalList || []).reduce(function (sum, item) {
-        return sum + (String(item.id) === '8801' || String(item.name || '').indexOf('连金泥') >= 0 ? Number(item.amount) || 0 : 0);
+        return sum + (String(item.id) === '8801' || String(item.name || '').indexOf('연금니') >= 0 ? Number(item.amount) || 0 : 0);
     }, 0);
 }
 
