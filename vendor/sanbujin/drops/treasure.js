@@ -47,7 +47,7 @@
       tr.classList.toggle('treasure-hit', Boolean(row.drop));
       const day = row.day ? '제 ' + row.day + '회' : '현재';
       const drop = row.drop === 'oil' ? '낡은 유지 조각' : row.drop === 'clue' ? '보물 단서' : row.pending ? '발동됨, 기름종이 획득 대기' : '드랍 없음';
-      for (const label of [row.fight, day, engine.sites[row.site], drop]) {
+      for (const label of [row.fight, day, window.SBJ_KOREAN?.translate?.(engine.sites[row.site]) || engine.sites[row.site], drop]) {
         const td = document.createElement('td');
         td.textContent = label;
         tr.append(td);
