@@ -20,7 +20,7 @@ for(var p of pairs){if(x.includes(p[0]))x=x.split(p[0]).join(p[1])}
  x=x.replace(/(\d+)\s*级/g,'$1레벨').replace(/(\d+)\s*次/g,'$1회')
     .replace(/(\d+)\s*页/g,'$1페이지').replace(/(\d+)\s*件/g,'$1개')
     .replace(/(\d+)\s*条/g,'$1개').replace(/(\d+)\s*两/g,'$1냥')
-    .replace(/(\d+)\s*文/g,'$1문').replace(/第\s*(\\d+)/g,'제$1');
+    .replace(/(\d+)\s*文/g,'$1문').replace(/第\s*(\d+)/g,'제$1');
  // Preserve unknown short names in source language rather than showing broken half-translations.
 if(chinese.test(x)&&original.length<=18&&!/[\s，。！？,.;:：；（）()]/.test(original))return original;
 return x}function translate(x){x=String(x==null?'':x);return current===KO?korean(x):current===TW?convertTW(x):x}
@@ -69,5 +69,22 @@ if(!w.__nangmanTranslatedDialogs){
 }
 w.YYJHI18n=Object.freeze({get:function(){return current},set:set,translate:translate,normalizeForSearch:function(x){return (current===KO?korean(x):convertTW(x)).trim().toLocaleLowerCase()}});
 w.SBJ_KOREAN={dictionaryEntries:pairs.length,translate:korean,locale:function(){return current},translateName:function(v){return current===KO?korean(v):current===TW?convertTW(v):v}};
+ // Inspect unresolved Han characters in displayed DOM after translations have run.
+ // Read-only diagnostic: do not erase unknown equipment names or game data.
+ w.NangmanTranslationAudit=Object.freeze({
+   scan:function(){
+     var unresolved=[],seen=new Set(),nodes=document.createTreeWalker(document.body||document.documentElement,NodeFilter.SHOW_TEXT);
+     while(nodes.nextNode()){
+       var n=nodes.currentNode;
+       if(!n.parentElement||skip(n.parentElement))continue;
+       var val=String(n.nodeValue||'').trim();
+       if(!chinese.test(val)||seen.has(val))continue;
+       seen.add(val);
+       unresolved.push({text:val.slice(0,240),element:n.parentElement.tagName,className:String(n.parentElement.className||'').slice(0,100)});
+     }
+     return {count:unresolved.length,items:unresolved};
+   }
+ });
+
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
 })(window);
