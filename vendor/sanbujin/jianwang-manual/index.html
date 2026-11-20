@@ -42,65 +42,65 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 .sbj-site-header,.sbj-site-nav{display:none!important}
 </style></head>
 <body class="sbj-workbench" data-workbench="manual">
-    <div class="app-container equip-app"><header class="feature-heading"><h1>剑王阁</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="jianwang-auto" href="/vendor/sanbujin/jianwang-auto/index.html">自动</a><a data-feature-mode="jianwang-manual" href="/vendor/sanbujin/jianwang-manual/index.html" aria-current="page">手动</a></nav></header>
+    <div class="app-container equip-app"><header class="feature-heading"><h1>검왕각</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="jianwang-auto" href="/vendor/sanbujin/jianwang-auto/index.html">자동</a><a data-feature-mode="jianwang-manual" href="/vendor/sanbujin/jianwang-manual/index.html" aria-current="page">수동</a></nav></header>
 
         <div id="yyhxLegacyState" hidden style="display:none!important;">
             <div class="archive-summary-info">
                 <div class="archive-summary-item">
-                    <span>存档状态</span>
-                    <strong id="saveStatus">未导入</strong>
+                    <span>세이브 상태</span>
+                    <strong id="saveStatus">불러오지 않음</strong>
                 </div>
                 <div class="archive-summary-item">
-                    <span>主角</span>
+                    <span>주인공</span>
                     <strong id="archiveMainRole">—</strong>
                 </div>
             </div>
             <div class="archive-summary-actions">
                 <label class="check-row archive-reset-check" title="重置状态时一并清空模拟背包">
                     <input type="checkbox" id="resetClearCrafted" checked>
-                    <span>清除模拟背包</span>
+                    <span>모의 가방 비우기</span>
                 </label>
-                <a id="archiveImportButton" class="btn btn-archive-action" href="/vendor/sanbujin/index.html">导入数据</a>
-                <button id="btnExportTable" class="btn btn-archive-action" type="button">导出表格</button>
-                <button id="btnResetAll" class="btn btn-archive-action" type="button">重置状态</button>
-                <button id="btnResetWebsite" class="btn btn-archive-action" type="button" aria-live="polite">重置网页</button>
+                <a id="archiveImportButton" class="btn btn-archive-action" href="/vendor/sanbujin/index.html">데이터 불러오기</a>
+                <button id="btnExportTable" class="btn btn-archive-action" type="button">표 내보내기</button>
+                <button id="btnResetAll" class="btn btn-archive-action" type="button">상태 초기화</button>
+                <button id="btnResetWebsite" class="btn btn-archive-action" type="button" aria-live="polite">웹 초기화</button>
             </div>
         </div>
 <section class="config-panel tab-bar-card">
             <div class="tab-bar" id="tabBar">
-                <button type="button" class="tab-btn active" data-tab="make">打造</button>
-                <button type="button" class="tab-btn" data-tab="orange">橙装图纸序列</button>
-                <button type="button" class="tab-btn" data-tab="shenglian">升炼</button>
-                <button type="button" class="tab-btn" data-tab="xilian">精炼</button>
-                <button type="button" class="tab-btn" data-tab="strong">淬炼</button>
-                <button type="button" class="tab-btn" data-tab="jianwang">剑王阁</button>
+                <button type="button" class="tab-btn active" data-tab="make">제작</button>
+                <button type="button" class="tab-btn" data-tab="orange">주황 장비 도면 순서</button>
+                <button type="button" class="tab-btn" data-tab="shenglian">승련</button>
+                <button type="button" class="tab-btn" data-tab="xilian">정련</button>
+                <button type="button" class="tab-btn" data-tab="strong">촉련</button>
+                <button type="button" class="tab-btn" data-tab="jianwang">검왕각</button>
             </div>
         </section>
 
         <section id="panelOrange" class="tab-panel" hidden>
             <section class="config-panel">
-                <div class="panel-header"><h2>橙装图纸序列</h2></div>
-                <p class="meta-text">一次列出垫0～N次的所有方案。每个方案都从同一存档起点，用同等级同类型普通图纸垫刀，再打造一次目标橙装；查询不推进存档。</p>
+                <div class="panel-header"><h2>주황 장비 도면 순서</h2></div>
+                <p class="meta-text">선행 제작 0~N회의 모든 결과를 한 번에 조회합니다. 각 경우는 동일한 세이브 시드에서 시작하며, 같은 등급·종류의 일반 도면을 먼저 제작한 뒤 목표 주황 장비를 한 번 제작합니다. 조회만으로 세이브 시드는 진행되지 않습니다.</p>
                 <div class="config-row">
-                    <div class="config-group grow"><label for="orangePaperSearch">橙装图纸</label><input id="orangePaperSearch" type="search" placeholder="搜索图纸或装备，如黑泷" autocomplete="off"><select id="orangePaperSelect" aria-label="橙装图纸"></select></div>
-                    <div class="config-group grow"><label for="orangeNpcSelect">打造工匠</label><select id="orangeNpcSelect"></select></div>
+                    <div class="config-group grow"><label for="orangePaperSearch">주황 장비 도면</label><input id="orangePaperSearch" type="search" placeholder="搜索图纸或装备，如黑泷" autocomplete="off"><select id="orangePaperSelect" aria-label="橙装图纸"></select></div>
+                    <div class="config-group grow"><label for="orangeNpcSelect">제작 장인</label><select id="orangeNpcSelect"></select></div>
                 </div>
                 <div class="config-row">
-                    <div class="config-group grow"><label for="orangePaddingPaper">垫刀图纸（同等级同类型）</label><select id="orangePaddingPaper"></select></div>
-                    <div class="config-group"><label for="orangePaddingCount">最多垫刀次数 N</label><input id="orangePaddingCount" type="number" min="0" max="5000" step="1" value="20"></div>
+                    <div class="config-group grow"><label for="orangePaddingPaper">선행 제작 도면(동일 등급·종류)</label><select id="orangePaddingPaper"></select></div>
+                    <div class="config-group"><label for="orangePaddingCount">최대 선행 제작 횟수 N</label><input id="orangePaddingCount" type="number" min="0" max="5000" step="1" value="20"></div>
                 </div>
                 <div class="config-row">
-                    <div class="config-group grow"><label for="orangeForgeMaterial">打造时添加的材料</label><select id="orangeForgeMaterial"></select></div>
+                    <div class="config-group grow"><label for="orangeForgeMaterial">제작 시 추가할 재료</label><select id="orangeForgeMaterial"></select></div>
                 </div>
                 <p id="orangePaddingHint" class="meta-text"></p>
-                <div class="action-buttons"><button id="btnOrangePreview" class="btn btn-wash-gold" type="button">查询垫0～N次全部结果</button><button id="btnOrangeCancel" class="btn btn-reset" type="button" hidden>停止</button></div>
-                <p id="orangeSequenceStatus" class="meta-text" role="status" aria-live="polite">选择图纸、NPC 和垫刀次数后查询</p>
+                <div class="action-buttons"><button id="btnOrangePreview" class="btn btn-wash-gold" type="button">0~N회 사전 제작 결과 전체 조회</button><button id="btnOrangeCancel" class="btn btn-reset" type="button" hidden>중지</button></div>
+                <p id="orangeSequenceStatus" class="meta-text" role="status" aria-live="polite">도면·제작 NPC·선행 제작 횟수를 선택한 뒤 조회하세요.</p>
             </section>
             <div id="orangeSequenceResults" class="orange-npc-grid"></div>
             <dialog id="orangeSequenceDialog" class="orange-sequence-dialog">
-                <div class="orange-dialog-heading"><h2 id="orangeDetailTitle"></h2><button id="orangeDetailClose" type="button" class="btn btn-reset" aria-label="关闭序列详情">关闭</button></div>
+                <div class="orange-dialog-heading"><h2 id="orangeDetailTitle"></h2><button id="orangeDetailClose" type="button" class="btn btn-reset" aria-label="关闭序列详情">닫기</button></div>
                 <p id="orangeDetailOrigin" class="meta-text"></p>
-                <p class="meta-text">芒晶洗练会替换现有的材料附加红词条，不会叠加；仅推演结果，不消耗游戏中的物品。</p><label for="orangeMangjingMaterial">芒晶洗炼材料</label><select id="orangeMangjingMaterial"></select>
+                <p class="meta-text">망정은 기존 특수 재료의 적색 추가 옵션을 교체하며 중첩되지 않습니다. 결과 예측만 수행하고 실제 게임 재료는 소모하지 않습니다.</p><label for="orangeMangjingMaterial">망정 재료</label><select id="orangeMangjingMaterial"></select>
                 <p id="orangeMangjingCost" class="meta-text"></p>
                 <div id="orangeMangjingResults"></div>
                 <div id="orangeStrongResults"></div>
@@ -111,79 +111,79 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
             <section class="config-panel">
                 <div class="config-row">
                     <div class="config-group grow">
-                        <label>工匠地点</label>
+                        <label>제작 장인 위치</label>
                         <select id="npcSelect"></select>
                     </div>
                     <div class="config-group">
-                        <label>预览次数</label>
+                        <label>미리보기 횟수</label>
                         <input type="number" id="previewCount" min="1" max="5000" value="300">
                     </div>
                 </div>
                 <div class="config-row">
                     <div class="config-group grow">
-                        <label>目标装备 / 图纸</label>
+                        <label>목표 장비 / 도면</label>
                         <input type="search" id="paperFilter" placeholder="输入名称筛选，如 巽风" autocomplete="off">
                         <select id="paperSelect"></select>
                     </div>
                 </div>
                 <div class="config-row">
                     <div class="config-group grow">
-                        <label>特殊材料（红词条）</label>
+                        <label>특수 재료(적색 추가 옵션)</label>
                         <select id="specialSelect">
-                            <option value="0">不加特殊材料</option>
+                            <option value="0">특수 재료 사용 안 함</option>
                         </select>
                     </div>
                 </div>
                 <div class="config-row">
                     <div class="config-group grow">
-                        <label>默认标记（加入背包时写入）</label>
+                        <label>기본 표시(가방에 추가할 때 적용)</label>
                         <input type="text" id="makeDefaultMark" maxlength="40" placeholder="如：紫满攻 / 备选1" autocomplete="off">
                         <label class="check-row" id="makeAutoShenglianRow" title="仅对预测结果中的“推进到此”生效">
                             <input type="checkbox" id="makeAutoShenglian">
-                            <span>“推进到此”后自动升炼（90→100）</span>
+                            <span>'여기까지 진행' 후 자동 승련(90→100)</span>
                         </label>
                     </div>
                 </div>
-                <div id="costHint" class="cost-hint">导入存档并选择目标后显示消耗提示</div>
+                <div id="costHint" class="cost-hint">세이브를 불러와 목표를 선택하면 소모 재료 안내가 표시됩니다.</div>
                 <div id="luckyHint" class="lucky-hint"></div>
-                <div id="craftedBagHint" class="cost-hint">推进打造后装备会进入模拟背包，供升炼 / 精炼 / 淬炼选用</div>
+                <div id="craftedBagHint" class="cost-hint">제작을 진행하면 장비가 모의 가방에 들어가 승련·정련·촉련에 사용할 수 있습니다.</div>
                 <div class="action-buttons equip-make-actions">
-                    <button id="btnPreview" class="btn btn-wash-gold" type="button">预测序列</button>
-                    <button id="btnMakeOnce" class="btn btn-wash" type="button">推进并加入背包</button>
+                    <button id="btnPreview" class="btn btn-wash-gold" type="button">예측 순서</button>
+                    <button id="btnMakeOnce" class="btn btn-wash" type="button">진행 후 가방에 추가</button>
                 </div>
             </section>
             <section class="config-panel">
                 <div class="panel-header">
-                    <h2>芒晶序列</h2>
-                    <span class="meta-text">从这件装备当前的芒晶洗练进度开始查看，仅推演结果，不消耗材料</span>
+                    <h2>망정 순서</h2>
+                    <span class="meta-text">선택 장비의 현재 망정 진행도부터 결과를 확인합니다. 예측만 수행하며 재료는 소모하지 않습니다.</span>
                 </div>
                 <div class="config-row">
                     <div class="config-group grow">
-                        <label>目标装备</label>
+                        <label>목표 장비</label>
                         <select id="specialAttachEquipSelect"></select>
                     </div>
                     <div class="config-group">
-                        <label>预测次数</label>
+                        <label>예측 횟수</label>
                         <input type="number" id="specialAttachCount" min="1" max="5000" value="100">
                     </div>
                 </div>
                 <div class="config-row">
                     <div class="config-group grow">
-                        <label>重复附加材料</label>
+                        <label>추가 재료 중복 적용</label>
                         <select id="specialAttachMaterialSelect"></select>
                     </div>
                 </div>
-                <div id="specialAttachHint" class="cost-hint">选择已有或模拟打造装备和材料，预测连续覆盖红词条的结果</div>
+                <div id="specialAttachHint" class="cost-hint">보유 장비 또는 모의 제작 장비와 재료를 선택하여 적색 추가 옵션이 연속으로 교체되는 결과를 예측합니다.</div>
                 <div class="action-buttons">
-                    <button id="btnSpecialAttachPreview" class="btn btn-wash-custom" type="button">预测连续附加</button>
+                    <button id="btnSpecialAttachPreview" class="btn btn-wash-custom" type="button">연속 추가 옵션 예측</button>
                 </div>
             </section>
             <section class="manual-panel" id="craftedBagPanel">
                 <div class="panel-header">
-                    <h2>模拟背包</h2>
-                    <span class="meta-text">可改标记；预测表中可「推进到此」直达指定记录</span>
+                    <h2>모의 가방</h2>
+                    <span class="meta-text">표시를 수정하거나 예측표에서 특정 결과까지 진행할 수 있습니다</span>
                 </div>
-                <div id="craftedBagList" class="crafted-bag-list empty">暂无模拟打造装备</div>
+                <div id="craftedBagList" class="crafted-bag-list empty">모의 제작한 장비가 없습니다</div>
             </section>
 
         </section>
@@ -192,30 +192,30 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
             <section class="config-panel">
                 <div class="config-row">
                     <div class="config-group grow">
-                        <label>可升炼装备</label>
+                        <label>승련 가능 장비</label>
                         <select id="shenglianEquipSelect"></select>
                     </div>
                 </div>
                 <div class="config-row equip-filter-row">
                     <div class="config-group">
-                        <label>来源</label>
+                        <label>출처</label>
                         <select id="shenglianSourceFilter">
-                            <option value="all" selected>全部</option>
-                            <option value="equipped">仅已装备</option>
-                            <option value="crafted">仅模拟打造</option>
+                            <option value="all" selected>전체</option>
+                            <option value="equipped">장착 장비만</option>
+                            <option value="crafted">모의 제작 장비만</option>
                         </select>
                     </div>
                     <div class="config-group grow">
-                        <label>文本筛选</label>
+                        <label>텍스트 필터</label>
                         <input type="search" id="shenglianTextFilter" placeholder="名称 / 角色 / 标记 / 部位" autocomplete="off">
                     </div>
                 </div>
-                <div id="shenglianHint" class="cost-hint">90 级非橙红装且存在下一档（equ_next）可升炼至 100 级，之后才能精炼</div>
-                <div id="shenglianPreview" class="manual-result empty">选择装备后显示 90→100 对照</div>
+                <div id="shenglianHint" class="cost-hint">90레벨 주황·적색 장비가 아니고 다음 등급(equ_next)이 존재하면 100레벨로 승련할 수 있습니다. 승련 후 정련할 수 있습니다.</div>
+                <div id="shenglianPreview" class="manual-result empty">장비를 선택하면 90→100레벨 비교가 표시됩니다.</div>
             </section>
             <section class="action-panel">
                 <div class="action-buttons">
-                    <button id="btnShenglianOnce" class="btn btn-wash-gold" type="button">执行升炼</button>
+                    <button id="btnShenglianOnce" class="btn btn-wash-gold" type="button">승련 실행</button>
                 </div>
             </section>
         </section>
@@ -224,54 +224,54 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
             <section class="config-panel">
                 <div class="config-row">
                     <div class="config-group grow">
-                        <label>可精炼装备</label>
+                        <label>정련 가능 장비</label>
                         <select id="xilianEquipSelect"></select>
                     </div>
                     <div class="config-group">
-                        <label>预览次数</label>
+                        <label>미리보기 횟수</label>
                         <input type="number" id="xilianCount" min="1" max="5000" value="1000">
                     </div>
                 </div>
                 <div class="config-row equip-filter-row">
                     <div class="config-group">
-                        <label>来源</label>
+                        <label>출처</label>
                         <select id="xilianSourceFilter">
-                            <option value="all">全部</option>
-                            <option value="equipped" selected>仅已装备</option>
-                            <option value="crafted">仅模拟打造</option>
+                            <option value="all">전체</option>
+                            <option value="equipped" selected>장착 장비만</option>
+                            <option value="crafted">모의 제작 장비만</option>
                         </select>
                     </div>
                     <div class="config-group grow">
-                        <label>文本筛选</label>
+                        <label>텍스트 필터</label>
                         <input type="search" id="xilianTextFilter" placeholder="名称 / 角色 / 标记 / 品质" autocomplete="off">
                     </div>
                 </div>
-                <div id="xilianHint" class="cost-hint">仅 100 级绿/蓝/紫装可精炼（90 级需先升炼）</div>
+                <div id="xilianHint" class="cost-hint">100레벨 녹색·청색·자색 장비만 정련할 수 있습니다. 90레벨 장비는 먼저 승련해야 합니다.</div>
                 <div id="xilianInitialExts" class="xilian-initial-exts empty">
-                    <span class="xilian-initial-label">打造时初始词条</span>
-                    <span class="xilian-initial-values">请选择装备</span>
+                    <span class="xilian-initial-label">제작 시 최초 옵션</span>
+                    <span class="xilian-initial-values">장비를 선택하세요</span>
                 </div>
             </section>
             <section class="action-panel">
                 <div class="action-buttons">
-                    <button id="btnXilianPreview" class="btn btn-wash-gold" type="button">预测序列</button>
+                    <button id="btnXilianPreview" class="btn btn-wash-gold" type="button">예측 순서</button>
                 </div>
             </section>
             <section class="manual-panel" id="xilianPlanPanel">
                 <div class="panel-header">
-                    <h2>保留规划</h2>
-                    <span class="meta-text">勾选要保留的结果；每次精炼都消耗，接受才替换词条并标记翻倍</span>
+                    <h2>정련 유지 계획</h2>
+                    <span class="meta-text">유지할 결과를 선택하세요. 정련할 때마다 재료가 소모되며, 수락해야 옵션이 교체되고 배율 적용이 기록됩니다.</span>
                 </div>
                 <div class="xilian-opt-controls">
-                    <label>目标属性
+                    <label>목표 능력치
                         <select id="xilianTargetProp" disabled>
-                            <option value="">请先预测序列</option>
+                            <option value="">먼저 순서를 예측하세요</option>
                         </select>
                     </label>
-                    <button id="btnXilianOptimize" class="btn btn-wash" type="button" disabled>规划合计最大</button>
-                    <span class="meta-text">按最终三个词条的目标属性合计值规划；同值优先截止花费更少、完成更早、保留次数更少</span>
+                    <button id="btnXilianOptimize" class="btn btn-wash" type="button" disabled>합계 최대화 계획</button>
+                    <span class="meta-text">최종 옵션 3개의 목표 능력치 합계가 최대가 되도록 계획합니다. 합계가 같으면 소모 재료가 적고 완료가 빠르며 유지 횟수가 적은 결과를 우선합니다.</span>
                 </div>
-                <div id="xilianPlanSummary" class="manual-result empty">预测后勾选「保留」查看总花费与最终属性</div>
+                <div id="xilianPlanSummary" class="manual-result empty">예측 결과에서 '유지'를 선택하면 총 소모량과 최종 능력치를 볼 수 있습니다.</div>
             </section>
         </section>
 
@@ -279,54 +279,54 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
             <section class="config-panel">
                 <label class="check-row" id="strongResetOriginRow" title="硫华晶会把淬炼层数清零，但保留当前随机进度；这里只做模拟，不改存档">
                     <input type="checkbox" id="strongResetOrigin">
-                    使用硫华晶后从 0 层预测（仅模拟，保留当前随机进度）
+                    유화정을 사용한 상태로 0단계부터 예측합니다. 모의 계산만 진행하며 현재 난수 진행도는 보존합니다.
                 </label>
                 <div class="config-row">
                     <div class="config-group grow">
-                        <label>可淬炼装备</label>
+                        <label>촉련 가능 장비</label>
                         <select id="strongEquipSelect"></select>
                     </div>
                     <div class="config-group">
-                        <label>序列长度</label>
+                        <label>예측 순서 길이</label>
                         <input type="number" id="strongCount" min="5" max="5000" value="200">
                     </div>
                 </div>
                 <div class="config-row equip-filter-row">
                     <div class="config-group">
-                        <label>来源</label>
+                        <label>출처</label>
                         <select id="strongSourceFilter">
-                            <option value="all" selected>全部</option>
-                            <option value="equipped">仅已装备</option>
-                            <option value="crafted">仅模拟打造</option>
+                            <option value="all" selected>전체</option>
+                            <option value="equipped">장착 장비만</option>
+                            <option value="crafted">모의 제작 장비만</option>
                         </select>
                     </div>
                     <div class="config-group grow">
-                        <label>文本筛选</label>
+                        <label>텍스트 필터</label>
                         <input type="search" id="strongTextFilter" placeholder="名称 / 角色 / 标记 / 部位" autocomplete="off">
                     </div>
                 </div>
                 <div class="config-row" style="margin-top:0.65rem;">
                     <div class="config-group">
-                        <label>期望淬炼层数</label>
+                        <label>목표 촉련 단계</label>
                         <select id="strongTargetLevel"></select>
                     </div>
                     <div class="config-group">
-                        <label>可接受最低档</label>
+                        <label>허용할 최저 품질</label>
                         <select id="strongMinGrade">
-                            <option value="4">完美</option>
-                            <option value="3" selected>优秀及以上</option>
-                            <option value="2">良好及以上</option>
-                            <option value="1">一般及以上</option>
+                            <option value="4">완벽</option>
+                            <option value="3" selected>우수 이상</option>
+                            <option value="2">양호 이상</option>
+                            <option value="1">보통 이상</option>
                         </select>
                     </div>
                 </div>
-                <div id="strongHint" class="cost-hint">对齐 Wiki 淬炼序列记录：在已知序列上规划「消耗最少」与「数值最优」。来源选「仅模拟打造」可专看打造武器。</div>
+                <div id="strongHint" class="cost-hint">위키 촉련 순서 기록을 기준으로 알려진 순서에서 최소 소모 및 최적 수치 계획을 계산합니다. 출처를 '모의 제작 장비만'으로 선택하면 제작 무기만 확인합니다.</div>
             </section>
             <section class="action-panel">
                 <div class="action-buttons">
-                    <button id="btnStrongPreview" class="btn btn-wash-gold" type="button">预测并生成建议</button>
-                    <button id="btnStrongShowMin" class="btn btn-wash" type="button">高亮·消耗最少</button>
-                    <button id="btnStrongShowBest" class="btn btn-wash" type="button">高亮·数值最优</button>
+                    <button id="btnStrongPreview" class="btn btn-wash-gold" type="button">예측 및 추천 생성</button>
+                    <button id="btnStrongShowMin" class="btn btn-wash" type="button">강조 · 소모 최소</button>
+                    <button id="btnStrongShowBest" class="btn btn-wash" type="button">강조 · 수치 최적</button>
                 </div>
             </section>
             <div id="strongAdvice" class="advice-grid"></div>
@@ -335,117 +335,117 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
         <section id="panelJianwang" class="tab-panel" hidden>
             <section class="config-panel jianwang-panel">
                 <div class="panel-header">
-                    <h2>当前专武</h2>
-                    <span class="meta-text">支持专武成长、重铸与碎剑循环预览</span>
+                    <h2>현재 전용무기</h2>
+                    <span class="meta-text">전용무기 성장·재주조·검 파괴 순서를 미리 볼 수 있습니다</span>
                 </div>
                 <div class="config-row">
                     <div class="config-group grow">
-                        <label>存档中的剑胚 / 专武</label>
+                        <label>세이브에 있는 검의 원형·전용무기</label>
                         <select id="jianwangEquipSelect"></select>
                     </div>
                     <div class="config-group">
-                        <label>流程</label>
+                        <label>진행 절차</label>
                         <select id="jianwangActionSelect"></select>
                     </div>
                 </div>
                 <div class="config-row">
                     <div class="config-group" id="jianwangKeepGroup">
-                        <label>保留旧副属性</label>
+                        <label>기존 부가 능력치 유지</label>
                         <select id="jianwangKeepSelect"></select>
                     </div>
                     <div class="config-group" id="jianwangCountGroup">
-                        <label>预览次数</label>
+                        <label>미리보기 횟수</label>
                         <input type="number" id="jianwangCount" min="1" max="5000" value="1">
                     </div>
                 </div>
                 <div class="config-row" id="jianwangMaterialGroup">
                     <div class="config-group grow">
-                        <label>已铸进材料（请按游戏实际选择）</label>
+                        <label>제작에 사용한 재료(게임에서 실제 사용한 재료 선택)</label>
                         <select id="jianwangMaterialSelect"></select>
                     </div>
                 </div>
-                <div id="jianwangHint" class="cost-hint">导入存档后自动筛选剑王阁5707～5717实物</div>
+                <div id="jianwangHint" class="cost-hint">세이브를 불러오면 검왕각 장비 ID 5707~5717의 실제 보유품을 자동으로 추립니다.</div>
                 <div class="jianwang-rule-grid" aria-label="剑王阁专武规则摘要">
-                    <div><strong>实物范围</strong><span>主角、随从、离队角色、背包和仓库中的 5707～5717</span></div>
-                    <div><strong>成长 / 重铸</strong><span>沿当前专武状态继续推演；保留词条不改变随机推进</span></div>
-                    <div><strong>碎剑循环</strong><span>当前剑未满90级时先推到所选90级路线；100级神兵直接碎后进入后续循环</span></div>
+                    <div><strong>장비 검색 범위</strong><span>주인공·동료·이탈 캐릭터·가방·창고에서 ID 5707~5717 검색</span></div>
+                    <div><strong>성장 / 재주조</strong><span>현재 전용무기 상태에서 계속 시뮬레이션합니다. 옵션 유지는 난수 진행 순서를 바꾸지 않습니다.</span></div>
+                    <div><strong>검 파괴 반복</strong><span>현재 검이 90레벨 미만이면 선택한 90레벨 경로까지 먼저 진행합니다. 100레벨 신병은 분해 후 다음 반복으로 넘어갑니다.</span></div>
                 </div>
                 <div class="config-row" style="margin-top:0.75rem;">
                     <div class="config-group">
-                        <label>碎剑 + 重铸预览次数</label>
+                        <label>검 분해 + 재주조 미리보기 횟수</label>
                         <input type="number" id="jianwangCycleCount" min="1" max="5000" value="5">
                     </div>
                     <div class="config-group">
-                        <label>90级路线</label>
+                        <label>90레벨 경로</label>
                         <select id="jianwangCycleRouteSelect"></select>
                     </div>
                     <div class="config-group grow">
-                        <label>循环预览</label>
-                        <div id="jianwangCycleHint" class="cost-hint">选择剑王阁剑胚或专武后，按每把新剑一页预览后续循环</div>
+                        <label>반복 과정 미리보기</label>
+                        <div id="jianwangCycleHint" class="cost-hint">검왕각 검 배아 또는 전용무기를 선택하면 새 검 한 자루씩 다음 순서를 미리 볼 수 있습니다.</div>
                     </div>
                 </div>
                 <div class="action-buttons" style="margin-top:0.75rem;">
-                    <button id="btnJianwangCyclePreview" class="btn btn-wash-gold" type="button" disabled>碎剑预览</button>
+                    <button id="btnJianwangCyclePreview" class="btn btn-wash-gold" type="button" disabled>검 분해 미리보기</button>
                 </div>
             </section>
             <section class="action-panel">
                 <div class="action-buttons">
-                    <button id="btnJianwangPreview" class="btn btn-wash-gold" type="button">预览当前流程</button>
-                    <button id="btnJianwangApply" class="btn btn-wash" type="button">执行一次（仅网页）</button>
+                    <button id="btnJianwangPreview" class="btn btn-wash-gold" type="button">현재 과정 미리보기</button>
+                    <button id="btnJianwangApply" class="btn btn-wash" type="button">1회 실행(웹에서만)</button>
                 </div>
             </section>
         </section>
 
         <section class="history-panel">
             <div class="panel-header">
-                <h2>预测结果</h2>
+                <h2>예측 결과</h2>
                 <span id="previewMeta" class="meta-text" aria-live="polite"></span>
             </div>
             <div id="makeAdvanceNotice" class="make-advance-notice" role="status" aria-live="polite" hidden></div>
             <div id="makeFilterBar" class="filter-bar" hidden>
-                <label>品质
+                <label>품질
                     <select id="makeFilterColor">
-                        <option value="">全部</option>
-                        <option value="1">白</option>
-                        <option value="2">绿</option>
-                        <option value="3">蓝</option>
-                        <option value="4" selected>紫</option>
+                        <option value="">전체</option>
+                        <option value="1">백</option>
+                        <option value="2">녹</option>
+                        <option value="3">청</option>
+                        <option value="4" selected>자</option>
                     </select>
                 </label>
-                <label>打造序列
+                <label>제작 순서
                     <select id="makeFilterSeed">
-                        <option value="">全部</option>
-                        <option value="normal">普通</option>
-                        <option value="lucky">保底序列</option>
-                        <option value="pity">保底</option>
+                        <option value="">전체</option>
+                        <option value="normal">일반</option>
+                        <option value="lucky">천장 시퀀스</option>
+                        <option value="pity">천장</option>
                     </select>
                 </label>
-                <label>词条
+                <label>옵션
                     <select id="makeFilterProp">
-                        <option value="">全部</option>
+                        <option value="">전체</option>
                     </select>
                 </label>
-                <label>地区附加
+                <label>지역 추가 옵션
                     <select id="makeFilterRegion">
-                        <option value="">全部</option>
-                        <option value="has" selected>有</option>
-                        <option value="none">无</option>
+                        <option value="">전체</option>
+                        <option value="has" selected>있음</option>
+                        <option value="none">없음</option>
                     </select>
                 </label>
                 <span id="makeFilterMeta" class="meta-text"></span>
             </div>
             <div id="xilianFilterBar" class="filter-bar" hidden>
-                <label>槽位
+                <label>슬롯
                     <select id="xilianFilterSlot">
-                        <option value="">全部</option>
-                        <option value="1">槽 1</option>
-                        <option value="2">槽 2</option>
-                        <option value="3">槽 3</option>
+                        <option value="">전체</option>
+                        <option value="1">슬롯 1</option>
+                        <option value="2">슬롯 2</option>
+                        <option value="3">슬롯 3</option>
                     </select>
                 </label>
-                <label>属性
+                <label>능력치
                     <select id="xilianFilterProp">
-                        <option value="">全部</option>
+                        <option value="">전체</option>
                     </select>
                 </label>
                 <span id="xilianFilterMeta" class="meta-text"></span>
@@ -454,15 +454,15 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 <table class="preview-table" id="previewTable">
                     <thead id="previewHead"></thead>
                     <tbody id="previewBody">
-                        <tr><td class="empty-row">导入存档后选择功能并预测</td></tr>
+                        <tr><td class="empty-row">세이브를 불러온 후 기능을 선택하고 예측을 시작하세요.</td></tr>
                     </tbody>
                 </table>
             </div>
             <div id="previewPager" class="pager-bar" hidden>
-                <button type="button" id="btnPreviewPrev" class="btn btn-reset">上一页</button>
+                <button type="button" id="btnPreviewPrev" class="btn btn-reset">이전 페이지</button>
                 <span id="previewPagerInfo" class="meta-text">—</span>
-                <button type="button" id="btnPreviewNext" class="btn btn-reset">下一页</button>
-                <label id="previewPageSizeWrap" class="pager-size">每页
+                <button type="button" id="btnPreviewNext" class="btn btn-reset">다음 페이지</button>
+                <label id="previewPageSizeWrap" class="pager-size">페이지당
                     <select id="previewPageSize">
                         <option value="20" selected>20</option>
                         <option value="50">50</option>
@@ -474,14 +474,14 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 
         <section class="history-panel">
             <div class="panel-header">
-                <h2>操作记录</h2>
-                <button id="btnClearLog" class="btn btn-reset" type="button">清空</button>
+                <h2>조작 기록</h2>
+                <button id="btnClearLog" class="btn btn-reset" type="button">비우기</button>
             </div>
             <div id="makeLog" class="make-log"></div>
             <div id="logPager" class="pager-bar" hidden>
-                <button type="button" id="btnLogPrev" class="btn btn-reset">上一页</button>
+                <button type="button" id="btnLogPrev" class="btn btn-reset">이전 페이지</button>
                 <span id="logPagerInfo" class="meta-text">—</span>
-                <button type="button" id="btnLogNext" class="btn btn-reset">下一页</button>
+                <button type="button" id="btnLogNext" class="btn btn-reset">다음 페이지</button>
             </div>
         </section>
     </div>
