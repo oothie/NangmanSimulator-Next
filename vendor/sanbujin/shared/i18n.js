@@ -50,7 +50,31 @@ function attrs(n){if(skip(n))return;for(var key of ['placeholder','aria-label','
 function walk(node){if(!node)return;if(node.nodeType===3){txt(node);return}if(node.nodeType!==1||skip(node))return;attrs(node);var walker=document.createTreeWalker(node,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT);while(walker.nextNode()){var n=walker.currentNode;if(n.nodeType===3)txt(n);else if(!skip(n))attrs(n)}}
 function set(locale){var next=normalize(locale)||CN;try{localStorage.setItem(KEY,next)}catch(e){}try{var u=new URL(location.href);if(u.searchParams.has('lang')){u.searchParams.set('lang',next);history.replaceState({},'',u)}}catch(e){}if(next!==current)location.reload();return next}
 var scheduled=false;function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;if(applying)return;applying=true;try{walk(document.documentElement)}finally{applying=false}})}
+// Synchronize all embedded equipment subpages with the main simulator's theme.
+// The equipment engine has its own existing dark palette in appearance.css.
+function applyEmbeddedTheme(mode){
+ if(mode!=='dark'&&mode!=='light')return;
+ document.documentElement.dataset.sbjTheme=mode;
+ document.documentElement.style.colorScheme=mode;
+}
+function parentTheme(){
+ try{
+  if(w.parent===w || w.parent.location.origin!==w.location.origin)return null;
+  return w.parent.document.documentElement.dataset.theme==='ink'?'dark':'light';
+ }catch(e){return null}
+}
+if(w.parent!==w){
+ w.addEventListener('message',function(event){
+  if(event.origin!==w.location.origin||event.source!==w.parent)return;
+  if(!event.data||event.data.kind!=='nangman-equipment-theme')return;
+  applyEmbeddedTheme(event.data.theme);
+ });
+}
 function ready(){document.documentElement.lang=current;document.documentElement.dataset.locale=current;
+ if(w.parent!==w && document.documentElement.hasAttribute('data-sbj-feature')){
+  applyEmbeddedTheme(parentTheme()||'light');
+ }
+
  // 1.5x desktop canvas for embedded equipment pages and dialogs; mobile stays viewport-bound.
  if(!document.getElementById('nangman-wide-layout-v066')){
    var wide=document.createElement('style');wide.id='nangman-wide-layout-v066';
