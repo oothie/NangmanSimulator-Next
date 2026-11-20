@@ -38,9 +38,9 @@
         var status = document.getElementById('saveStatus');
         var mainRole = document.getElementById('archiveMainRole');
         var importButton = document.getElementById('archiveImportButton');
-        if (status) status.textContent = hasSave ? '已就绪' : '未导入';
+        if (status) status.textContent = hasSave ? '준비 완료' : '불러오기 전';
         if (mainRole) mainRole.textContent = hasSave ? getMainRoleName(shared.data) : '—';
-        if (importButton) importButton.textContent = hasSave ? '更换' : '导入';
+        if (importButton) importButton.textContent = hasSave ? '교체' : '불러오기';
         /* 角色名后面补区服，例如「绵绵 · 26服」 */
         if (mainRole) {
             var oldServer = mainRole.parentNode && mainRole.parentNode.querySelector('.asb-server');
@@ -81,22 +81,22 @@
     function showResetFeedback() {
         var resetButton = document.getElementById('btnResetWebsite');
         if (!resetButton) return;
-        resetButton.textContent = '重置成功';
+        resetButton.textContent = '초기화 완료';
         resetButton.classList.add('is-reset-success');
         window.setTimeout(function () {
             resetButton.classList.remove('is-reset-success');
-            resetButton.textContent = '重置网页';
+            resetButton.textContent = '화면 초기화';
         }, 2000);
     }
 
     function resetWebsiteState() {
         var message = [
-            '重置会清空这些内容：',
-            '· 本机导入的存档（之后需要重新导入）',
-            '· 推演过程中的临时状态（已选的图纸、目标、结果）',
+            '초기화하면 다음 내용이 삭제됩니다:',
+            '· 이 기기에서 불러온 세이브(초기화 후 다시 불러와야 함)',
+            '· 시뮬레이션의 임시 상태(선택한 도면, 목표 및 결과)',
             '',
-            '会保留：藏兵阁里的收藏。',
-            '重置后页面会自动刷新，确定继续吗？'
+            '유지되는 항목: 장비 즐겨찾기.',
+            '초기화 후 페이지가 자동 새로고침됩니다. 계속하시겠습니까?'
         ].join('\n');
 
         function doReset() {
@@ -106,7 +106,7 @@
         }
 
         if (window.AppDialog && typeof window.AppDialog.confirm === 'function') {
-            window.AppDialog.confirm(message, { title: '重置网页', okText: '确认重置' }).then(function (ok) {
+            window.AppDialog.confirm(message, { title: '화면 초기화', okText: '초기화 확인' }).then(function (ok) {
                 if (ok) doReset();
             });
             return;
@@ -115,7 +115,7 @@
     }
 
     function showNoExportData() {
-        window.alert('无数据可以导出');
+        window.alert('내보낼 데이터가 없습니다.');
     }
 
     function initializeArchiveState() {
