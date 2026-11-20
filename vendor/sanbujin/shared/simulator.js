@@ -5620,9 +5620,9 @@ function equipAutoCandidateHtml(candidate, options) {
     const visibleRefinements = equipAutoVisibleRefinements(candidate);
     const refinementChips = visibleRefinements.map(refinement => {
         const refinementRating = equipAutoRefinementRating(candidate, refinement, ratingReference);
-        return `<span class="equip-auto-chip is-target" title="${escapeAiHtml(equipAutoPropertyLabel(refinement.prop))}品质：${refinementRating.label} ${refinementRating.roundedPercent}%"><span>${escapeAiHtml(equipAutoPropertyLabel(refinement.prop))}</span><strong class="is-${refinementRating.key}">${escapeAiHtml(equipAutoFormatRefinementTotal(refinement))}</strong></span>`;
+        return `<span class="equip-auto-chip is-target" title="${escapeAiHtml(equipAutoPropertyLabel(refinement.prop))}품질: ${refinementRating.label} ${refinementRating.roundedPercent}%"><span>${escapeAiHtml(equipAutoPropertyLabel(refinement.prop))}</span><strong class="is-${refinementRating.key}">${escapeAiHtml(equipAutoFormatRefinementTotal(refinement))}</strong></span>`;
     }).join('');
-    const targetChips = combo ? slotPlan.filter(Boolean).map(item => '<span class="equip-auto-chip is-target"><span>词条' + item.slot + ' ' + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + '</span><strong>' + escapeAiHtml(equipAutoFormatPropValue(item.prop,item.value)) + '</strong></span>').join('') : slotPlan
+    const targetChips = combo ? slotPlan.filter(Boolean).map(item => '<span class="equip-auto-chip is-target"><span>옵션' + item.slot + ' ' + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + '</span><strong>' + escapeAiHtml(equipAutoFormatPropValue(item.prop,item.value)) + '</strong></span>').join('') : slotPlan
         ? (equipAutoPropertyMode === 'multi'
             ? (() => {
                 const groups = new Map();
@@ -5641,7 +5641,7 @@ function equipAutoCandidateHtml(candidate, options) {
                         .sort((a, b) => a.slot - b.slot)
                         .map(item => equipAutoFormatPropValue(prop, item.value))
                         .join('·');
-                    return '<span class="equip-auto-chip is-target" title="' + escapeAiHtml(equipAutoPropertyLabel(prop)) + ' 三个精炼位最大值"><span>' + escapeAiHtml(equipAutoPropertyLabel(prop)) + '</span><strong class="is-' + key + '">' + escapeAiHtml(values) + '</strong></span>';
+                    return '<span class="equip-auto-chip is-target" title="' + escapeAiHtml(equipAutoPropertyLabel(prop)) + ' 정련 옵션 세 슬롯의 최대 수치"><span>' + escapeAiHtml(equipAutoPropertyLabel(prop)) + '</span><strong class="is-' + key + '">' + escapeAiHtml(values) + '</strong></span>';
                 }).join('');
             })()
             : slotPlan.filter(Boolean).map(item => {
@@ -5650,12 +5650,12 @@ function equipAutoCandidateHtml(candidate, options) {
                     const refinement = candidate.refinements.find(entry => entry && entry.prop === item.prop);
                     if (refinement) key = equipAutoRefinementRating(candidate, refinement, equipAutoRatingReference(candidate)).key || 'white';
                 } catch (error) { key = 'white'; }
-                return '<span class="equip-auto-chip is-target" title="词条 ' + item.slot + ' · ' + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + '"><span>词条' + item.slot + ' ' + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + '</span><strong class="is-' + key + '">' + escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value)) + '</strong></span>';
+                return '<span class="equip-auto-chip is-target" title="옵션 ' + item.slot + ' · ' + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + '"><span>옵션' + item.slot + ' ' + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + '</span><strong class="is-' + key + '">' + escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value)) + '</strong></span>';
             }).join(''))
         : refinementChips;
     const locationChip = candidate.location ? `<span class="equip-auto-chip is-loc">${escapeAiHtml(candidate.location)}</span>` : '';
     const regionChip = candidate.region.length
-        ? `<span class="equip-auto-chip is-region" title="地区附加"><span>地区</span><strong>${equipAutoFormatProps(candidate.region)}</strong></span>`
+        ? `<span class="equip-auto-chip is-region" title="지역 추가 옵션"><span>지역</span><strong>${equipAutoFormatProps(candidate.region)}</strong></span>`
         : '';
     const paperMeta = (typeof EQUIP_DATA !== 'undefined' && EQUIP_DATA.papers) ? EQUIP_DATA.papers[String(candidate.paperId)] : null;
     const paperMaterialId = paperMeta ? paperMeta.dz_mat : null;
@@ -5664,11 +5664,11 @@ function equipAutoCandidateHtml(candidate, options) {
         + (/紫金/.test(paperMaterialName) ? ' is-zijin' : (/乌缕/.test(paperMaterialName) ? ' is-wulv' : ''));
     const paperLabel = String(candidate.paperName || '').replace(/图样$/, '');
     const totalProps = equipAutoCandidateTotalProps(candidate, slotPlan);
-    const totalHtml = candidate.allRefinements && !equipAutoResultPropFilter && !combo ? '选择精炼属性后查看' : totalProps.map(item => '<span class="is-' + item.kind + '">' + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + '+' + escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value)) + '</span>').join('<i class="equip-auto-total-sep">、</i>');
+    const totalHtml = candidate.allRefinements && !equipAutoResultPropFilter && !combo ? '정련 능력치를 선택하면 표시됩니다' : totalProps.map(item => '<span class="is-' + item.kind + '">' + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + '+' + escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value)) + '</span>').join('<i class="equip-auto-total-sep">、</i>');
     return `<details class="equip-auto-candidate is-${rating.key}">
         <summary>
             <span class="equip-auto-leading">
-            <span class="equip-auto-rating is-${rating.key}" title="${combo ? '组合品质：按选中槽位分别计算百分比后取平均' : '精炼评级：按三槽理论满值'} ${rating.label} ${rating.roundedPercent}%"><strong>${rating.label}</strong><small>${rating.roundedPercent}%</small></span>
+            <span class="equip-auto-rating is-${rating.key}" title="${combo ? '组合품질: 按选中槽位分别计算百分比后取平均' : '정련 품질: 세 슬롯의 이론상 최대 수치 기준'} ${rating.label} ${rating.roundedPercent}%"><strong>${rating.label}</strong><small>${rating.roundedPercent}%</small></span>
             <span class="equip-auto-expand-hint" aria-hidden="true">详情<i>›</i></span>
             </span>
             <span class="equip-auto-candidate-main">
@@ -5679,30 +5679,30 @@ function equipAutoCandidateHtml(candidate, options) {
                 <span class="equip-auto-chips">${targetChips}${equipAutoAttachScanChipHtml(candidate)}${regionChip}</span>
                 <span class="equip-auto-candidate-costs">${equipAutoCandidateCostLinesHtml(candidate)}</span>
             </span>
-            <span class="equip-auto-total" title="${combo ? '所选槽位精炼属性 + 芒晶附加 + 地区附加；未选槽位不计入' : '最高精炼属性 + 芒晶 N 次最高附加 + 地区附加'}">
-                <span class="equip-auto-total-label">${combo ? '目标合计' : '总属性'}</span><strong>${totalHtml}</strong>
+            <span class="equip-auto-total" title="${combo ? '선택한 슬롯의 정련 옵션과 망정·지역 추가 옵션을 합산하며, 미선택 슬롯은 제외합니다.' : '정련 최고 수치 + 망정 N회 내 최고 추가 옵션 + 지역 추가 옵션'}">
+                <span class="equip-auto-total-label">${combo ? '선택 옵션 합계' : '전체 능력치'}</span><strong>${totalHtml}</strong>
             </span>
             <span class="equip-auto-card-actions" data-card-v="4">
                     <span class="equip-auto-actions-scroll">
-                    <button type="button" class="equip-auto-region-compare" data-region-id="${escapeAiHtml(String(candidate.id))}" title="查看这件装备在其他 NPC 打造时的地区附加"><span class="act-full">看其他NPC附加值</span><span class="act-short">附加值</span></button>
-                    ${options && options.refine ? '<button type="button" class="equip-auto-refine-seq" data-refine-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">精炼数据</span><span class="act-short">精炼</span></button>' : ''}
-                    ${options && options.forge && equipAutoCanForge(candidate) ? '<button type="button" class="equip-auto-forge" data-forge-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">看淬炼</span><span class="act-short">淬炼</span></button>' : ''}
-                    ${candidate && candidate.canSimulateSpecialAttach ? '<button type="button" class="equip-auto-mang" data-mang-id="' + escapeAiHtml(String(candidate.id)) + '" title="查看这件装备的芒晶洗练序列"><span class="act-full">看芒晶洗练</span><span class="act-short">芒晶</span></button>' : ''}
+                    <button type="button" class="equip-auto-region-compare" data-region-id="${escapeAiHtml(String(candidate.id))}" title="다른 장인에게 제작할 경우의 지역 추가 옵션 보기"><span class="act-full">看其他NPC附加值</span><span class="act-short">附加值</span></button>
+                    ${options && options.refine ? '<button type="button" class="equip-auto-refine-seq" data-refine-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">정련 데이터</span><span class="act-short">精炼</span></button>' : ''}
+                    ${options && options.forge && equipAutoCanForge(candidate) ? '<button type="button" class="equip-auto-forge" data-forge-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">촉련 보기</span><span class="act-short">淬炼</span></button>' : ''}
+                    ${candidate && candidate.canSimulateSpecialAttach ? '<button type="button" class="equip-auto-mang" data-mang-id="' + escapeAiHtml(String(candidate.id)) + '" title="查看这件装备的망정 순서"><span class="act-full">망정 보기</span><span class="act-short">芒晶</span></button>' : ''}
                     </span>
-                    <button type="button" class="equip-auto-fav${equipAutoFindFavorite(candidate.id) ? ' is-on' : ''}" data-fav-id="${escapeAiHtml(String(candidate.id))}" style="${equipAutoFindFavorite(candidate.id) ? 'background:linear-gradient(180deg,var(--sbj-c-660160d401,#b34433),#8f2a20);color:var(--sbj-c-e4902b41a0,#fffdf8);border:1px solid var(--sbj-c-cd06ff8d37,#8a291e);' : 'background:transparent;color:var(--sbj-c-3f9e5e18ed,#9c2f22);border:1px solid var(--sbj-c-29a04590dd,rgba(156,47,34,0.55));'}" title="${equipAutoFindFavorite(candidate.id) ? '取消收藏' : '收藏到云盘'}">${equipAutoFindFavorite(candidate.id) ? '★ 已收藏' : '☆ 收藏'}</button>
+                    <button type="button" class="equip-auto-fav${equipAutoFindFavorite(candidate.id) ? ' is-on' : ''}" data-fav-id="${escapeAiHtml(String(candidate.id))}" style="${equipAutoFindFavorite(candidate.id) ? 'background:linear-gradient(180deg,var(--sbj-c-660160d401,#b34433),#8f2a20);color:var(--sbj-c-e4902b41a0,#fffdf8);border:1px solid var(--sbj-c-cd06ff8d37,#8a291e);' : 'background:transparent;color:var(--sbj-c-3f9e5e18ed,#9c2f22);border:1px solid var(--sbj-c-29a04590dd,rgba(156,47,34,0.55));'}" title="${equipAutoFindFavorite(candidate.id) ? '즐겨찾기 취소' : '즐겨찾기에 저장'}">${equipAutoFindFavorite(candidate.id) ? '★ 즐겨찾기 등록됨' : '☆ 즐겨찾기'}</button>
             </span>
         </summary>
         <div class="equip-auto-candidate-body">
             <div class="equip-auto-detail-grid">
-                <div class="equip-auto-detail-card"><strong>装备品质</strong>${Number(candidate.color) === 3 ? '蓝色' : '紫色'} · ${candidate.exts.length} 词条</div>
+                <div class="equip-auto-detail-card"><strong>装备品质</strong>${Number(candidate.color) === 3 ? '청색' : '자색'} · ${candidate.exts.length} 词条</div>
                 <div class="equip-auto-detail-card"><strong>基础属性</strong>${equipAutoFormatBase(candidate.base)}</div>
                 <div class="equip-auto-detail-card"><strong>蓝/紫词条</strong>${equipAutoFormatProps(candidate.exts)}</div>
                 <div class="equip-auto-detail-card equip-auto-region-card"><strong>地区附加</strong>${equipAutoFormatProps(candidate.region)}</div>
                 ${equipAutoAttachScanDetailHtml(candidate)}
                 <div class="equip-auto-detail-card equip-auto-material-cost"><strong>打造消耗</strong>${equipAutoCandidateCostHtml(candidate)}</div>
             </div>
-            <p class="ai-visual-heading">精炼属性${candidate.allRefinements && !equipAutoResultPropFilter && !combo ? '（各属性为独立方案，不可叠加）' : ''}</p>
-            ${combo ? '<div class="equip-auto-refine-card"><strong>组合路线</strong><div>做到第 ' + combo.cutoff + ' 次 · 精炼消耗：' + equipAutoFormatCost(combo.cost) + '</div><div>点击“精炼数据”查看逐次操作。</div></div>' : visibleRefinements.map(refinement => equipAutoRefinementHtml(refinement, candidate.upgradeCost)).join('')}
+            <p class="ai-visual-heading">精炼属性${candidate.allRefinements && !equipAutoResultPropFilter && !combo ? '（능력치별 정련 계획은 독립적이며 중복 적용할 수 없습니다）' : ''}</p>
+            ${combo ? '<div class="equip-auto-refine-card"><strong>조합 경로</strong><div>做到第 ' + combo.cutoff + ' 次 · 정련 소모: ' + equipAutoFormatCost(combo.cost) + '</div><div>정련 데이터를 눌러 회차별 작업을 확인하세요.</div></div>' : visibleRefinements.map(refinement => equipAutoRefinementHtml(refinement, candidate.upgradeCost)).join('')}
             ${equipAutoManualAttachHtml(candidate)}
         </div>
     </details>`;
@@ -7101,14 +7101,14 @@ function renderEquipAutoSweepResults(list) {
     var html = '';
     byPaper.forEach(function (byProp, paperId) {
         var paperName = paperId === 'my-favorites'
-            ? '我的收藏'
+            ? '내 즐겨찾기'
             : ((EQUIP_DATA.papers[paperId] || {}).name || paperId);
         html += '<div class="equip-auto-sweep-group"><h4>' + paperName + '</h4>';
         byProp.forEach(function (items, prop) {
             var propName = EQUIP_DATA.propNames[prop] || prop;
             html += '<div class="equip-auto-sweep-sub"><span class="equip-auto-sweep-sub-label">' + propName + '</span>'
                 + '<table class="equip-auto-sweep-table"><thead><tr>'
-                + '<th>NPC</th><th>第几次</th><th>地区附加</th><th>' + propName + '</th><th>连金泥总消耗</th><th>品质</th>'
+                + '<th>NPC</th><th>제작 회차</th><th>지역 추가 옵션</th><th>' + propName + '</th><th>연금니 총소모</th><th>품질</th>'
                 + '</tr></thead><tbody>';
             items.forEach(function (item) {
                 const detailIndex = equipAutoSweepDetailRows.push(item) - 1;
