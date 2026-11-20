@@ -326,19 +326,29 @@ function equipView(){
  
  '<p class="micro">상단의 공통 세이브가 각 기능에 자동 전달됩니다. 기능을 전환해도 이미 불러온 계산 화면은 유지됩니다.</p></div>';
 }
-let koreanWiki=[],wikiQuery='',wikiSelectedCategory='misc',wikiDetail=null,wikiOffset=0,wikiSource=null,wikiSourceError='';
+let koreanWiki=[],v620Wiki=null,wikiFallbackSource=null,wikiQuery='',wikiSelectedCategory='misc',wikiDetail=null,wikiOffset=0,wikiSource=null,wikiSourceError='';
 const wikiCategories=[
  ['misc','잡항'],['equip','장비'],['medicine','단약'],['food','음식·술'],
  ['secret','비급'],['material','재료'],['martial','무학'],['craft','생활기술'],
  ['arts','비기'],['buff','상태'],['quest','임무']
 ];
 window.addEventListener('nangman-wiki-loaded',e=>{koreanWiki=e.detail;if(v==='wiki')render()});
+window.addEventListener('nangman-v620-wiki-loaded',e=>{
+ v620Wiki=e.detail;
+ wikiFallbackSource={
+  items:Object.entries(v620Wiki.items||{}).map(([id,info])=>({id:Number(id),n:info[0],desc:info[1]||'',cat:info[2]||'misc',icon:info[3]||Number(id)})),
+  equips:Object.entries(v620Wiki.equips||{}).map(([id,info])=>({id:Number(id),n:info[0],desc:info[1]||'',type:info[2]||0,icon:info[3]||Number(id)})),
+  martial:[],crafts:[],arts:[],buff:[]
+ };
+ if(v==='wiki')render();
+});
 window.addEventListener('nangman-wiki-source-ready',e=>{wikiSource=e.detail;wikiSourceError='';if(v==='wiki')render()});
 window.addEventListener('nangman-wiki-source-error',()=>{wikiSourceError='yy-sim 원본 백과 데이터를 불러오지 못했습니다.';if(v==='wiki')render()});
 function wikiRows(){
- if(!wikiSource)return [];
+ const sourceData=wikiSource||wikiFallbackSource;
+ if(!sourceData)return [];
  const rows=[];
- const sources=[['items',wikiSource.items],['equips',wikiSource.equips],['martial',wikiSource.martial],['crafts',wikiSource.crafts],['arts',wikiSource.arts],['buff',wikiSource.buff]];
+ const sources=[['items',sourceData.items],['equips',sourceData.equips],['martial',sourceData.martial],['crafts',sourceData.crafts],['arts',sourceData.arts],['buff',sourceData.buff]];
  for(const [source,arr] of sources){
   for(const obj of (Array.isArray(arr)?arr:[])){
    const cat=source==='items'?(obj.cat||'misc'):{equips:'equip',martial:'martial',crafts:'craft',arts:'arts',buff:'buff'}[source];
@@ -353,9 +363,14 @@ function wikiKoMap(){
  for(const e of koreanWiki){
   if(['외공','내공','경공'].includes(e.category))m.set('martial:'+String(e.id),e);
  }
+ if(v620Wiki){
+  for(const [id,entry] of Object.entries(v620Wiki.items||{}))m.set('items:'+id,{name:entry[0],desc:entry[1]||''});
+  for(const [id,entry] of Object.entries(v620Wiki.equips||{}))m.set('equips:'+id,{name:entry[0],desc:entry[1]||''});
+ }
  return m;
 }
 function wikiName(x,ko){const k=ko.get(x.key);return k?.name||x.obj.n||'이름 없음'}
+function wikiCleanDescription(value){return String(value||'').replace(/#[0-9a-fA-F]{6}#/g,'').replace(/\\n/g,'\n')}
 function wikiImage(x){
  if(!x)return '';
  const o=x.obj;
@@ -384,25 +399,25 @@ function wikiView(){
  const rows=src.filter(x=>{
   if(x.cat!==wikiSelectedCategory)return false;
   if(!q)return true;
-  return (x.id+' '+wikiName(x,ko)+' '+(x.obj.n||'')+' '+(x.obj.desc||'')).toLowerCase().includes(q);
+  return (x.id+' '+wikiName(x,ko)+' '+(x.obj.n||'')+' '+(ko.get(x.key)?.desc||x.obj.desc||'')).toLowerCase().includes(q);
  });
  const selected=src.find(x=>x.key===wikiDetail)||rows[0]||null;
  const catLabel=wikiCategories.find(x=>x[0]===wikiSelectedCategory)?.[1]||'백과';
  const catbar='<nav class="wiki-category-bar">'+wikiCategories.map(([id,label])=>'<button data-wiki-cat="'+id+'" class="'+(id===wikiSelectedCategory?'active':'')+'">'+label+'</button>').join('')+'</nav>';
  const search='<label class="wiki-search-label"><input id="wikiSearch" type="search" placeholder="이름 · ID · 원문 검색" value="'+escape(wikiQuery)+'"></label>';
- const list='<section class="wiki-browser-list"><div class="wiki-result-count">'+catLabel+' · '+rows.length+'건</div><div class="wiki-list-scroll">'+(rows.slice(wikiOffset,wikiOffset+120).map(x=>'<button class="wiki-result-row '+(selected?.key===x.key?'selected':'')+'" data-wiki-detail="'+escape(x.key)+'">'+wikiImgTag(x)+'<span><strong>'+escape(wikiName(x,ko))+'</strong><small>#'+escape(x.id)+' · '+escape(x.obj.n||'')+'</small></span></button>').join('')||'<div class="blank">'+(wikiSourceError?escape(wikiSourceError):'일치하는 항목이 없습니다.')+'</div>')+'</div><div class="wiki-pager"><button data-wiki-paging="prev" '+(wikiOffset===0?'disabled':'')+'>이전</button><span>'+(rows.length?wikiOffset+1:0)+'–'+Math.min(rows.length,wikiOffset+120)+' / '+rows.length+'</span><button data-wiki-paging="next" '+(wikiOffset+120>=rows.length?'disabled':'')+'>다음</button></div></section>';
+ const list='<section class="wiki-browser-list"><div class="wiki-result-count">'+catLabel+' · '+rows.length+'건</div><div class="wiki-list-scroll">'+(rows.slice(wikiOffset,wikiOffset+120).map(x=>'<button class="wiki-result-row '+(selected?.key===x.key?'selected':'')+'" data-wiki-detail="'+escape(x.key)+'">'+wikiImgTag(x)+'<span><strong>'+escape(wikiName(x,ko))+'</strong><small>#'+escape(x.id)+' · '+escape(wikiCategories.find(c=>c[0]===x.cat)?.[1]||'한국판 자료')+'</small></span></button>').join('')||'<div class="blank">'+(wikiSourceError?escape(wikiSourceError):'일치하는 항목이 없습니다.')+'</div>')+'</div><div class="wiki-pager"><button data-wiki-paging="prev" '+(wikiOffset===0?'disabled':'')+'>이전</button><span>'+(rows.length?wikiOffset+1:0)+'–'+Math.min(rows.length,wikiOffset+120)+' / '+rows.length+'</span><button data-wiki-paging="next" '+(wikiOffset+120>=rows.length?'disabled':'')+'>다음</button></div></section>';
  let detail='<div class="wiki-detail-empty">항목을 선택하면 원본 이미지·설명·효과가 표시됩니다.</div>';
  if(selected){
   const k=ko.get(selected.key),o=selected.obj;
   const title=wikiName(selected,ko);
-  const desc=(k?.desc||o.desc||'설명이 없습니다.');
+  const desc=wikiCleanDescription(k?.desc||o.desc||'설명이 없습니다.');
   detail='<article class="wiki-browser-detail"><div class="wiki-detail-head">'+wikiImgTag(selected,true)+'<div><h2>'+escape(title)+'</h2><p>'+escape(catLabel)+' · #'+escape(selected.id)+(o.lv?' · '+escape(o.lv)+'레벨':'')+'</p>'+(k?'<small>한국판 명칭 적용</small>':'')+'</div></div><div class="wiki-description">'+escape(desc)+'</div>'+
   '<div class="wiki-detail-fields">'+Object.entries(o).filter(([key])=>!['id','n','desc'].includes(key)).map(([key,val])=>wikiFormatField(key,val)).join('')+'</div></article>';
  }
  return '<div class="module-wrap wiki-module">'+
- '<div class="wiki-main-heading"><strong>백과</strong><span>'+escape(catLabel)+' '+rows.length+'건 · yy-sim 원본 데이터 / 한국판 명칭 연결</span></div>'+
+ '<div class="wiki-main-heading"><strong>백과</strong><span>'+escape(catLabel)+' '+rows.length+'건 · '+(wikiSource?'yy-sim 분류 / 한국판 V6.20 번역':'한국판 V6.20 추출 데이터')+'</span></div>'+
  catbar+'<div class="wiki-browser"><aside class="wiki-list-column">'+search+list+'</aside>'+detail+'</div>'+
- '<p class="micro wiki-footnote">원본 yy-sim 이미지 경로를 사용합니다. 한국판 자료와 같은 ID·종류인 항목만 이름을 대체하며, 설명은 해당 ID의 한국판 설명이 확보된 경우에만 대체합니다.</p></div>';
+ '<p class="micro wiki-footnote">아이템·장비는 한국판 APK V6.20의 동일 데이터 유형·ID에서 확인한 명칭과 설명을 우선 사용합니다. 획득처는 추가하지 않습니다. 원본 백과를 불러오지 못한 경우 한국판 추출 자료로 목록을 표시합니다.</p></div>';
 }
 function dailyView(){
  const opts=[['ghost','귀시'],['merchant','행상'],['drop','드랍']];
@@ -505,6 +520,8 @@ window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.
 </script>
 <script type="module">
 import {loadKoreanWikiNames} from './data/korean-wiki-index.js';
+import {loadV620KoreanReference} from './data/v620-korean-reference.js';
+loadV620KoreanReference().then(ref=>window.dispatchEvent(new CustomEvent('nangman-v620-wiki-loaded',{detail:ref}))).catch(error=>console.error('한국판 V6.20 백과 자료 로드 오류',error));
 loadKoreanWikiNames().then(rows=>window.dispatchEvent(new CustomEvent('nangman-wiki-loaded',{detail:rows}))).catch(e=>console.error('한국판 백과 번역 대조표 오류',e));
 const js=document.createElement('script');
 js.src='./vendor/yysim/wiki_data.js';
