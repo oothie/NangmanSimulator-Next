@@ -4199,16 +4199,18 @@ function renderEquipAutoPapers() {
 
     const cardHtml = item => {
         const paperId = String(item.paper.id);
+        const koreanEquip = item.equip.koName || nangmanAutoDisplay(item.equip.name);
+        const koreanPaper = nangmanAutoDisplay(item.paper.name);
         const config = equipAutoPaperConfigs.get(paperId);
         const selected = !!config;
         const attachIds = config && config.craftMaterialIds || [];
         const supportedProps = EquipmentAutoOptimizer.supportedTargetProperties(item.equip, EQUIP_DATA, EquipmentAutoOptimizer.TARGET_PROPERTIES);
         const compatibleSelected = supportedProps.filter(prop => equipAutoSelectedProperties.has(prop));
         const isIncompatible = equipAutoSelectedProperties.size > 0 && compatibleSelected.length === 0;        const supportedLabels = supportedProps.map(equipAutoPropertyLabel).join('、');
-        return `<div class="equip-auto-paper-card ${selected ? 'is-selected' : ''} ${isIncompatible ? 'is-incompatible' : ''}" data-paper-id="${paperId}" data-search="${escapeAiHtml(`${item.equip.name} ${item.paper.name}`.toLowerCase())}">
+        return `<div class="equip-auto-paper-card ${selected ? 'is-selected' : ''} ${isIncompatible ? 'is-incompatible' : ''}" data-paper-id="${paperId}" data-search="${escapeAiHtml(`${item.equip.name} ${item.paper.name} ${koreanEquip} ${koreanPaper}`.toLowerCase())}">
             <label class="equip-auto-paper-check">
                 <input class="equip-auto-paper-toggle" type="checkbox" value="${paperId}" ${selected ? 'checked' : ''}>
-                <strong title="${escapeAiHtml(item.paper.name)} · ${Number(item.equip.lv)}레벨${item.equip.lv === 90 ? '(자동 승련)' : ''} · 선택한 ${item.npcIds.length}곳에서 제작 가능 · 정련 가능한 능력치: ${escapeAiHtml(supportedLabels || '목표 옵션 없음')}">${escapeAiHtml(item.equip.name)} · ${escapeAiHtml(EQUIP_DATA.typeNames[String(item.equip.type)] || item.equip.type)}</strong>
+                <strong title="${escapeAiHtml(koreanPaper)} · ${Number(item.equip.lv)}레벨${item.equip.lv === 90 ? '(자동 승련)' : ''} · 선택한 ${item.npcIds.length}곳에서 제작 가능 · 정련 가능한 능력치: ${escapeAiHtml(supportedLabels || '목표 옵션 없음')}">${escapeAiHtml(koreanEquip)} · ${escapeAiHtml(nangmanAutoDisplay(EQUIP_DATA.typeNames[String(item.equip.type)] || item.equip.type))}</strong>
             </label>
 
         </div>`;
@@ -4217,10 +4219,10 @@ function renderEquipAutoPapers() {
     container.innerHTML = groupList.map(group => {
         const hasSelected = group.items.some(item => equipAutoPaperConfigs.has(String(item.paper.id)));
         const selectedNames = group.items.filter(item => equipAutoPaperConfigs.has(String(item.paper.id)))
-            .map(item => String(item.equip.name || item.paper.name || ''));
-        const headExtra = selectedNames.length ? ' · 선택됨 ' + selectedNames.join('、') : '';
+             .map(item => item.equip.koName || nangmanAutoDisplay(item.equip.name || item.paper.name || ''));
+        const headExtra = selectedNames.length ? ' · 선택됨 ' + selectedNames.join(' · ') : '';
         return '<div class="equip-auto-paper-group is-' + group.kind + '" data-material="' + escapeAiHtml(group.name) + '">'
-            + '<div class="equip-auto-paper-group-head"><strong>' + escapeAiHtml(group.name) + '</strong><span>' + group.items.length + ' 장' + headExtra + '</span></div>'
+            + '<div class="equip-auto-paper-group-head"><strong>' + escapeAiHtml(nangmanAutoDisplay(group.name)) + '</strong><span>' + group.items.length + ' 장' + headExtra + '</span></div>'
             + '<div class="equip-auto-paper-group-body">' + group.items.map(cardHtml).join('') + '</div>'
             + '</div>';
     }).join('');
@@ -4230,9 +4232,9 @@ function renderEquipAutoPapers() {
         const names = Array.from(equipAutoPaperConfigs.keys()).map(paperId => {
             const paper = EQUIP_DATA.papers && EQUIP_DATA.papers[String(paperId)];
             const equip = paper && EQUIP_DATA.equipment && EQUIP_DATA.equipment[String(paper.dz_equip)];
-            return equip ? String(equip.name || '') : (paper ? String(paper.name || '').replace(/图样$/, '') : '');
+            return equip ? (equip.koName || nangmanAutoDisplay(equip.name)) : (paper ? nangmanAutoDisplay(String(paper.name || '').replace(/图样$/, '')) : '');
         }).filter(Boolean);
-        count.textContent = names.length ? '선택됨 ' + names.join('、') : '0개 선택';
+        count.textContent = names.length ? '선택됨 ' + names.join(' · ') : '0개 선택';
     }
 }
 
