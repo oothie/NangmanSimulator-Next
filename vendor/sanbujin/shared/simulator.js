@@ -3259,7 +3259,7 @@ function readableWashCopy(value) {
         ['源码规则', '洗脉规则'], ['源码状态机', '洗脉规则'],
         ['状态机回放', '逐步核对操作'], ['回放验证', '逐步核对'],
         ['欧气种子', '置换序列'], ['洗髓种子', '原始脉序'],
-        ['因此零丹无法取得完整目标', '因此当前条件下还需要消耗세수단才能达到全部目标'], ['零丹', '추가 세수단 불필요'], ['当前四槽起点', '从当前四栏开始'],
+        ['因此零丹无法取得完整目标', '따라서 현재 조건에서 모든 목표를 달성하려면 세수단을 추가로 사용해야 합니다'], ['零丹', '추가 세수단 불필요'], ['当前四槽起点', '从当前四栏开始'],
     ];
     let text = String(value ?? '');
     for (const [before, after] of replacements) text = text.split(before).join(after);
@@ -4727,7 +4727,7 @@ function equipAutoAttachmentHtml(attachment) {
         return `<div class="equip-auto-attach-card"><strong>附加 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><div class="ai-result-error">附加不可用</div></div>`;
     }
     const maxima = (attachment.maxima || []).filter(item => item.recommendedIndex != null);
-    const maximumSummary = maxima.map(maximum => `最高${escapeAiHtml(equipAutoPropertyLabel(maximum.prop))} ${escapeAiHtml(equipAutoFormatPropValue(maximum.prop, maximum.value))} · 第 ${maximum.indexes.join('、')} 次`).join('；');
+    const maximumSummary = maxima.map(maximum => `최고 ${escapeAiHtml(equipAutoPropertyLabel(maximum.prop))} ${escapeAiHtml(equipAutoFormatPropValue(maximum.prop, maximum.value))} · 제${maximum.indexes.join('、')}회`).join('；');
     const sequenceItems = attachment.items || [];
     const showProperty = new Set(sequenceItems.map(item => item.prop)).size > 1;
     const maximumIndexes = new Set(maxima.flatMap(maximum => maximum.indexes || []).map(Number));
