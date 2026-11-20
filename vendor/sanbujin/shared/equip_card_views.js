@@ -115,7 +115,7 @@
                 }).join('、') || '-';
                 return [
                     String(row.place || '') + (row.name && row.name !== row.place ? ' · ' + row.name : ''),
-                    row.index ? '第 ' + row.index + ' 次' : '-',
+                    row.index ? '제 ' + row.index + '회' : '-',
                     region,
                 ];
             });
@@ -219,7 +219,7 @@
         [cost, upgrade].forEach(function (part) { if (!part) return; (part.materials || []).forEach(function (item) { add(item, item.amount); }); add(part.mainMaterial, part.mainAmount); add({ id: 8801, name: '连金泥' }, part.lianjin); silver += Number(part.silver) || 0; });
         var text = Array.from(materials.values()).map(function (item) { return item.name + '×' + item.amount.toLocaleString(); });
         if (silver) text.push('银两' + (Math.floor(silver / 1000) ? Math.floor(silver / 1000).toLocaleString() + '两' : '') + (silver % 1000 ? silver % 1000 + '文' : ''));
-        return text.join(' · ') || '无';
+        return text.join(' · ') || '없음';
     }
 
     function openRefine(candidate, views) {
@@ -227,11 +227,11 @@
         if (!data || !Array.isArray(data.rows) || (!data.rows.length && !(data.routes || []).length)) return false;
         var routes = Array.isArray(data.routes) ? data.routes : [];
         var body = '<div class="equip-auto-forge-controls">'
-            + '<label>查看 <select id="cvRefineRoute">'
-            + routes.map(function (route, index) { return '<option value="' + index + '">' + esc(route.title || label(route.prop)) + ' · 保留规划</option>'; }).join('')
+            + '<label>조회 <select id="cvRefineRoute">'
+            + routes.map(function (route, index) { return '<option value="' + index + '">' + esc(route.title || label(route.prop)) + ' · 유지 계획</option>'; }).join('')
             + '<option value="raw">原始序列（不保留）</option></select></label>'
-            + '<label>槽位 <select id="cvRefineSlot"></select></label>'
-            + '<label>属性 <select id="cvRefineProp"></select></label>'
+            + '<label>옵션 슬롯 <select id="cvRefineSlot"></select></label>'
+            + '<label>능력치 <select id="cvRefineProp"></select></label>'
             + '<span class="equip-auto-forge-meta" id="cvRefineMeta"></span></div>'
             + '<div class="equip-auto-forge-meta" id="cvRefineSummary"></div>'
             + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table" style="min-width:760px">'
@@ -244,10 +244,10 @@
         function paint() {
             var slot = slotSel.value, prop = propSel.value;
             var shown = rows.filter(function (row) { return (!slot || String(row[1]) === slot) && (!prop || String(row[3] || '').indexOf(prop + '+') === 0); });
-            meta.textContent = '显示 ' + shown.length + ' / ' + rows.length + ' 条';
+            meta.textContent = '표시 ' + shown.length + ' / ' + rows.length + '개';
             tbody.innerHTML = shown.length ? shown.map(function (row) {
                 return '<tr class="' + (String(row[6]).indexOf('保留') >= 0 || String(row[6]).indexOf('锁定') >= 0 ? 'row-keep' : '') + '"><td>第 ' + esc(row[0]) + ' 次</td><td>槽 ' + esc(row[1]) + '</td><td>' + esc(row[2]) + ' → ' + esc(row[3]) + '</td><td>' + esc(row[6] || '不保留') + '</td><td>×' + esc(row[4]) + '</td><td>' + esc(row[7] == null ? '—' : row[7]) + '</td><td>' + esc(row[5]) + '</td></tr>';
-            }).join('') : '<tr><td colspan="7">' + esc(route && route.error ? route.error : route && !route.cutoff ? '无需新增保留，已保留当前属性' : '没有符合筛选条件的精炼记录') + '</td></tr>';
+            }).join('') : '<tr><td colspan="7">' + esc(route && route.error ? route.error : route && !route.cutoff ? '새로 유지할 옵션이 필요하지 않습니다. 현재 옵션을 유지합니다' : '검색 조건에 맞는 정련 기록이 없습니다') + '</td></tr>';
         }
         function selectRoute() {
             route = routeSel.value === 'raw' ? null : routes[Number(routeSel.value)];
@@ -255,8 +255,8 @@
             if (route && route.error) summary.textContent = route.error;
             else if (route) {
                 var ending = rows.filter(function (row) { return String(row[6] || '').indexOf('不保留') !== 0; }).map(function (row) { return '#' + row[0] + '（词条' + row[1] + '）'; }).join(' → ') || '无需新增保留';
-                summary.textContent = '状态回放：' + ending + (route.cutoff ? '，做到第 ' + route.cutoff + ' 次为止' : '') + '\n精炼消耗：' + refineCostText(route.cost) + '\n总消耗（升炼 + 精炼）：' + refineCostText(route.cost, route.upgradeCost);
-            } else summary.textContent = routes.length ? '原始序列未应用保留规划，属性成长与保留路线可能不同' : '旧收藏仅保存原始序列，未应用保留规划';
+                summary.textContent = '상태 재현: ' + ending + (route.cutoff ? ', 제' + route.cutoff + '회까지 진행' : '') + '\n정련 소모: ' + refineCostText(route.cost) + '\n总消耗（升炼 + 精炼）：' + refineCostText(route.cost, route.upgradeCost);
+            } else summary.textContent = routes.length ? '원본 순서에는 옵션 유지 계획이 적용되지 않았습니다. 실제 경로는 다를 수 있습니다' : '기존 즐겨찾기에는 원본 순서만 저장되어 옵션 유지 계획을 확인할 수 없습니다';
             summary.style.whiteSpace = 'pre-line';
             var slots = {}, props = {}; rows.forEach(function (row) { slots[String(row[1])] = '槽 ' + row[1]; var name = String(row[3] || '').split('+')[0]; if (name) props[name] = name; });
             slotSel.innerHTML = '<option value="">全部</option>' + Object.keys(slots).sort().map(function (key) { return '<option value="' + esc(key) + '">' + esc(slots[key]) + '</option>'; }).join('');
@@ -282,7 +282,7 @@
                     }).join('')
                     : '<tr><td colspan="3">没有其他可打造这件装备的 NPC</td></tr>'))
             + '</tbody></table></div>';
-        modal('其他NPC附加值 · ' + (candidate.equipName || '装备'), '收藏时已保存，打开就能看', body);
+        modal('其他NPC附加值 · ' + (candidate.equipName || '装备'), '저장된 계산 결과를 표시합니다', body);
         return true;
     }
 
@@ -355,8 +355,8 @@
                 });
             } catch (error) { }
             var text = capped
-                ? '最多可用 ' + items.length + ' 次（收藏时缓存的量），想更长请回「自动推演」重新收藏并填更大的数字。'
-                : '这次用到 ' + limit + ' 次，最长 ' + items.length + ' 次。';
+                ? '최대 사용 가능 ' + items.length + ' 次（收藏时缓存的量），想更长请回「自动推演」重新收藏并填更大的数字。'
+                : '이번 계산에 사용한 횟수 ' + limit + ' 次，最长 ' + items.length + ' 次。';
             if (capped && plansFailed) {
                 text += ' 现在够不到你选的层数，可以把「期望淬炼层数」调低或「可接受最低档」放宽再试。';
             }
@@ -364,7 +364,7 @@
             if (capped) {
                 var go = document.createElement('a');
                 go.href = '../auto/index.html';
-                go.textContent = ' 去自动推演拿更长的序列 →';
+                go.textContent = '자동 탐색에서 더 긴 순서 계산';
                 go.style.marginLeft = '0.2rem';
                 note.appendChild(go);
             }
@@ -402,7 +402,7 @@
             if (controls && controls.parentNode && !controls.parentNode.querySelector('.equip-auto-forge-frozen-note')) {
                 var hint = document.createElement('p');
                 hint.className = 'equip-auto-forge-meta equip-auto-forge-frozen-note';
-                hint.textContent = '这件收藏得比较早。打开一次「自动推演」页会自动补上数据，之后就能在这里改长度重算。';
+                hint.textContent = '이전 버전에서 저장한 장비입니다. 자동 탐색을 한 번 열어 계산 데이터를 갱신하면 조회 횟수를 변경할 수 있습니다.';
                 controls.parentNode.insertBefore(hint, controls.nextSibling);
             }
         }
@@ -436,26 +436,26 @@
 
             var topHtml = topRows.map(function (row) {
                 return '<tr>'
-                    + '<td>第 ' + esc(row.rank) + '</td>'
+                    + '<td>제 ' + esc(row.rank) + '</td>'
                     + '<td>' + esc(label(row.prop)) + '</td>'
                     + '<td>+' + esc(fmtValue(row.prop, row.value)) + '</td>'
-                    + '<td>第 ' + esc(row.index) + ' 次</td>'
+                    + '<td>제 ' + esc(row.index) + '회</td>'
                     + '</tr>';
             }).join('');
 
             var allRows = items.map(function (item) {
-                return '<tr><td>第 ' + esc(item.index) + ' 次</td>'
+                return '<tr><td>제 ' + esc(item.index) + '회</td>'
                     + '<td>' + esc(label(item.prop)) + '</td>'
                     + '<td>+' + esc(fmtValue(item.prop, item.value)) + '</td></tr>';
             }).join('');
 
-            var levelText = data.level ? (esc(data.level) + ' 级') : '';
+            var levelText = data.level ? (esc(data.level) + '레벨') : '';
             var parts = [];
-            if (data.materialName) parts.push('材料：' + esc(data.materialName));
+            if (data.materialName) parts.push('재료: ' + esc(data.materialName));
             if (levelText) parts.push(levelText);
             body = '<p class="equip-auto-forge-meta">按 ' + esc(data.count || items.length) + ' 次洗练算好'
                 + (parts.length ? '（' + parts.join(' · ') + '）' : '')
-                + '，这是其中最高的三次：</p>'
+                + '. 능력치별 상위 3개 결과입니다.</p>'
                 + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
                 + '<thead><tr><th>名次</th><th>属性</th><th>数值</th><th>第几次</th></tr></thead>'
                 + '<tbody>' + topHtml + '</tbody></table></div>'
@@ -473,12 +473,12 @@
                 }).join('')
                 : '<tr><td colspan="3">这件装备没有可洗出的附加属性</td></tr>';
             body = '<p class="equip-auto-forge-meta">这件收藏得比较早，只存了每个属性的最高值（共 '
-                + esc(data.count || '') + ' 次）。回「自动推演」重新收藏一次就能看到前三大和明细。</p>'
+                + esc(data.count || '') + '회). 자동 탐색에서 다시 즐겨찾기에 등록하면 상세 순서를 확인할 수 있습니다.</p>'
                 + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
                 + '<thead><tr><th>属性</th><th>最高值</th><th>在第几次</th></tr></thead><tbody>' + mrows + '</tbody></table></div>';
         }
 
-        modal('芒晶洗练 · ' + (candidate.equipName || '装备'), '收藏时已算好，打开就能看', body);
+        modal('망정 · ' + (candidate.equipName || '装备'), '해당 장비의 망정 예측 결과', body);
         return true;
     }
 
