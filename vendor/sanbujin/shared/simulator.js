@@ -4596,14 +4596,14 @@ function equipAutoUsesPercentFormat(prop, value) {
     return Number.isFinite(number) && (number < 1 || prop === 'atk_extend');
 }
 
-function equipAutoTruncateDecimal(value, decimals = 2) {
+function equipAutoTruncateDecimal(value, decimals = 1) {
     const number = Number(value);
     if (!Number.isFinite(number)) return number;
     const factor = 10 ** decimals;
     return Math.floor(number * factor + 1e-8) / factor;
 }
 
-function equipAutoFormatDecimal(value, decimals = 2) {
+function equipAutoFormatDecimal(value, decimals = 1) {
     const truncated = equipAutoTruncateDecimal(value, decimals);
     if (!Number.isFinite(truncated)) return String(value);
     return Number(truncated.toFixed(decimals)).toString();
