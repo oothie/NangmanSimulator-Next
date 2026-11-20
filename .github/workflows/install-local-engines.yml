@@ -1,0 +1,59 @@
+name: Install bundled offline engines
+on:
+  push:
+    paths:
+      - NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Unpack verified local engine resources
+        run: |
+          set -euo pipefail
+          test -f NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip
+          unzip -oq NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip -d .
+          test -s vendor/yysim/wasm_data.js
+          test -s vendor/yysim/core_glue.js
+          test -s vendor/sanbujin/shared/wasm_data.js
+          test -s vendor/sanbujin/shared/equip_data.js
+          test -s vendor/sanbujin/drops/dungeon-core.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          src=p.read_text(encoding='utf-8')
+          # Retain existing wiki UI. The original yy-sim JS datasets are now local.
+          src=src.replace('https://yy-sim.pages.dev/wiki_data.js','./vendor/yysim/wiki_data.js')
+          src=src.replace('https://yy-sim.pages.dev/wiki_buff.js','./vendor/yysim/wiki_buff.js')
+          src=src.replace('https://yy-sim.pages.dev/icons/','./assets/yy-icons/')
+          p.write_text(src,encoding='utf-8')
+          PY
+          # Download yy-sim background artwork only at build time, not per user session.
+          mkdir -p assets/yy-background
+          curl --retry 3 -fsSL 'https://yy-sim.pages.dev/assets/warm_colored_background-B4XlJ8Tz.png' -o assets/yy-background/warm.png || true
+          curl --retry 3 -fsSL 'https://yy-sim.pages.dev/assets/dark_background-BL63IPck.png' -o assets/yy-background/dark.png || true
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          if Path('assets/yy-background/warm.png').is_file():
+              s=s.replace('https://yy-sim.pages.dev/assets/warm_colored_background-B4XlJ8Tz.png','./assets/yy-background/warm.png')
+          if Path('assets/yy-background/dark.png').is_file():
+              s=s.replace('https://yy-sim.pages.dev/assets/dark_background-BL63IPck.png','./assets/yy-background/dark.png')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit original engine resources into site
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor engine/local-engine-bridge.js manifest.json ENGINE_ASSETS_README.md assets/yy-background index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Install local yy-sim and Sanbujin engine assets from supplied archives"
+            git push
+          fi
