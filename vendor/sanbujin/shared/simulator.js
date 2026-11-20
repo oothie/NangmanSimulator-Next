@@ -439,9 +439,9 @@ function buildLogEntryEl(result) {
 
     if (result.gotGold && !result.isExchange) {
         if (result.isFirstPurple) {
-            tags.push(`<span class="log-tag gap">首次 · 累计${result.purpleGapPills}丹</span>`);
+            tags.push(`<span class="log-tag gap">첫 등장 · 누적 세수단 ${result.purpleGapPills}개</span>`);
         } else if (result.purpleGapPills != null) {
-            tags.push(`<span class="log-tag gap">间隔${result.purpleGapPills}丹</span>`);
+            tags.push(`<span class="log-tag gap">세수단 간격 ${result.purpleGapPills}개</span>`);
         }
     }
 
@@ -2038,7 +2038,7 @@ function generateExchangeSequence() {
     clearExchangeSequenceResults('正在生成置换脉序…');
     if (status) {
         status.className = 'exchange-sequence-status';
-        status.textContent = candidate.isDirectPity ? '正在查看已固定的置换序列…' : '正在生成천장 자맥序列…';
+        status.textContent = candidate.isDirectPity ? '正在查看已固定的置换序列…' : '천장 자맥 순서를 생성하는 중…';
     }
     requestAnimationFrame(() => {
         try {
@@ -2150,7 +2150,7 @@ function closePurpleAnalysisModal() {
 function loadMoreSequence() {
     currentMaxWashes += 3000;
     const tbody = document.getElementById('purpleTableBody');
-    if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="loading-td">正在扩展脉序至 ${currentMaxWashes}...</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="loading-td">맥 순서를 ${currentMaxWashes}회까지 확장하는 중...</td></tr>`;
     requestAnimationFrame(() => {
         ensurePurpleSequenceCache({ force: true });
         paintPurpleForecastTable();
@@ -2196,7 +2196,7 @@ function paintPurpleForecastTable() {
     if (elEx) elEx.textContent = exchangeableTotal;
 
     if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="loading-td">未找到符合条件的紫脉（已预测 ${currentMaxWashes} 次洗髓 / 脉序按天赋条数）</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="loading-td">조건에 맞는 자맥이 없습니다(세수 ${currentMaxWashes}회 예측, 재능 등장 순서 기준).</td></tr>`;
         return;
     }
 
@@ -2428,7 +2428,7 @@ function findAndShowNextConflict(afterSeq) {
     if (!box) return item;
 
     if (!item) {
-        box.innerHTML = `<span class="text-muted">脉序 #${after} 之后未找到紫脉（可先打开「紫脉脉序与置换推演」加载更多；脉序=天赋条数）</span>`;
+        box.innerHTML = `<span class="text-muted">맥 순서 #${after} 이후 자맥을 찾지 못했습니다. 자맥 등장 순서 메뉴에서 더 불러올 수 있습니다.</span>`;
         return null;
     }
 
@@ -2577,12 +2577,12 @@ function formatShenmaiForkNote(forks) {
     const chainsSame = forks.every(f => JSON.stringify(f.chain || []) === JSON.stringify(forks[0].chain || []));
 
     if (!finalsSame) {
-        return `<div class="shenmai-fork-note text-muted">换掉不同神脉，会保留不同的另一条神脉；置换会避开仍持有的同名天赋，因此后续结果可能不同。</div>`;
+        return `<div class="shenmai-fork-note text-muted">서로 다른 신맥을 치환하면 남는 신맥이 달라집니다. 이미 보유한 동일 재능은 치환 대상에서 제외되므로 이후 결과도 달라질 수 있습니다.</div>`;
     }
     if (chainsSame && seedsSame && rollsSame) {
-        return `<div class="shenmai-fork-note text-muted">本次无论换掉哪条神脉，都会得到相同的置换结果和后续脉序。</div>`;
+        return `<div class="shenmai-fork-note text-muted">이번에는 어떤 신맥을 치환해도 치환 결과와 후속 맥 순서가 같습니다.</div>`;
     }
-    return `<div class="shenmai-fork-note text-muted">两种换法这次得到的天赋相同，但后续置换序列已经不同，继续洗脉时请分别查看。</div>`;
+    return `<div class="shenmai-fork-note text-muted">두 치환 방법의 이번 결과는 같지만 이후 치환 순서는 다릅니다. 이후 세수 결과는 각각 확인하세요.</div>`;
 }
 
 function formatFollowingNodesBrief(following) {
@@ -2704,17 +2704,17 @@ function renderExchangeAnalysisBlock() {
     const purples = cachedPurpleData.purples || [];
 
     if (!routeWashNos.length) {
-        container.innerHTML = `<div class="block-empty">尚未选择可置换紫脉。请在上方表格点击「选择推演」（建议选 2~3 条，共同推演置换脉序）</div>`;
+        container.innerHTML = `<div class="block-empty">치환 가능한 자맥을 선택하지 않았습니다. 위 표에서 시뮬레이션 선택을 누르세요(2~3개 자맥 비교 권장).</div>`;
         return;
     }
 
     const routeItems = routeWashNos.map(wn => purples.find(p => p.wash_no === wn)).filter(Boolean);
     if (!routeItems.length) {
-        container.innerHTML = `<div class="block-empty">所选脉序已不在当前预测范围内，请重新选择</div>`;
+        container.innerHTML = `<div class="block-empty">선택한 맥 순서가 현재 예측 범위를 벗어났습니다. 다시 선택하세요.</div>`;
         return;
     }
     if (routeItems.some(i => !i.earlier_conflict_name && !isShenmaiTalentId(i.talent_id))) {
-        container.innerHTML = `<div class="block-empty">所选紫脉缺少冲突脉信息，无法推演置换</div>`;
+        container.innerHTML = `<div class="block-empty">선택한 자맥에 충돌맥 정보가 없어 치환을 예측할 수 없습니다.</div>`;
         return;
     }
 
@@ -3016,7 +3016,7 @@ function renderAiSearchSnapshot(snapshot, restore = false) {
         if (!found && results && results.dataset.hasResult !== 'searching') {
             aiLastPrediction = null;
             results.dataset.hasResult = 'searching';
-            results.innerHTML = '<div class="ai-result-empty">正在按耗丹上限深度查找，找到的方案会陆续显示。可以切换页面，回来查看进度或结果。</div>';
+            results.innerHTML = '<div class="ai-result-empty">세수단 소모 상한 내에서 경로를 찾고 있습니다. 다른 탭을 이용한 뒤 다시 돌아와 진행 상황과 결과를 확인할 수 있습니다.</div>';
         }
     } else {
         const failed = snapshot.status === 'error';
@@ -3306,7 +3306,7 @@ function invalidateAiPrediction() {
     const results = document.getElementById('aiPredictionResults');
     if (results && results.dataset.hasResult !== 'false') {
         results.dataset.hasResult = 'false';
-        results.innerHTML = '<div class="ai-result-empty">选择目标后，点击“开始查找路线”。</div>';
+        results.innerHTML = '<div class="ai-result-empty">목표를 선택하고 경로 탐색 시작을 누르세요.</div>';
     }
 }
 
@@ -3534,7 +3534,7 @@ function paintAiTalentChoices(targetIds) {
     aiSelectedTalentIds = (aiDefaultTargetsPending ? AI_DEFAULT_TARGET_IDS : aiSelectedTalentIds).filter(id => aiAvailableTalentIds.includes(id));
     aiDefaultTargetsPending = false;
     if (!aiAvailableTalentIds.length) {
-        container.innerHTML = '<span class="text-muted">当前角色没有可选目标脉，请检查角色条件和 VIP。</span>';
+        container.innerHTML = '<span class="text-muted">현재 인물에게 선택 가능한 목표 맥이 없습니다. 인물 조건과 VIP를 확인하세요.</span>';
         updateAiTargetChoiceState();
         return;
     }
@@ -3590,7 +3590,7 @@ function paintAiTalentChoices(targetIds) {
             const results = document.getElementById('aiPredictionResults');
             if (results) {
                 results.dataset.hasResult = 'false';
-                results.innerHTML = '<div class="ai-result-empty">目标已更新，点击“开始查找路线”。</div>';
+                results.innerHTML = '<div class="ai-result-empty">목표가 변경됐습니다. 경로 탐색 시작을 누르세요.</div>';
             }
             updateAiTargetChoiceState();
             if(aiSelectedTalentIds.length===4){const picker=document.getElementById('washTargetPicker');if(picker)picker.open=false;}
@@ -3707,7 +3707,7 @@ function aiRouteResultHtml(route, index) {
             <span class="ai-route-total">${Number(route.totalPills).toLocaleString()} 丹<small>${Number(route.totalWashes).toLocaleString()} 次洗脉</small></span>
         </summary>
         <div class="ai-route-body">
-            ${Number(route.totalPills) === 0 ? '<p class="ai-route-zero-cost"><strong>无需额外세수단</strong>：这条路线不需要继续洗髓，请按下方步骤调整现有天赋；如需开天赋栏，资质材料仍要另外准备。</p>' : ''}
+            ${Number(route.totalPills) === 0 ? '<p class="ai-route-zero-cost"><strong>无需额外세수단</strong>：이 경로에서는 추가 세수가 필요하지 않습니다. 아래 단계에 따라 재능을 조정하세요. 칸 개방 재료는 따로 준비해야 합니다.</p>' : ''}
             <div class="ai-route-metrics">
                 <div class="ai-route-metric"><b>${Number(route.totalPills).toLocaleString()}</b><span>总丹耗</span></div>
                 <div class="ai-route-metric"><b>${Number(route.totalWashes).toLocaleString()}</b><span>洗髓次数</span></div>
@@ -3817,7 +3817,7 @@ function openWashOriginPreview() {
     const slots=Number(input.initialState.zizhi)-150,roleName=role?.Name||'현재 인물',N=C.node;
     const d=C.modal(roleName+' · 初始脉');d.classList.add('wash-origin-dialog');
     if(d.ownerDocument!==document&&!d.ownerDocument.querySelector('link[data-wash-origin-style]')){const link=d.ownerDocument.createElement('link');link.rel='stylesheet';link.href=document.querySelector('link[href*="wash-compact.css"]')?.href||'/vendor/sanbujin/shared/wash-compact.css';link.dataset.washOriginStyle='true';d.ownerDocument.head.append(link);}
-    const description=N('p',`不锁脉、不置换，查看 ${formatCount4(budget)} 丹内从当前存档直接洗出的紫脉；不代表能同时保留。`);description.className='wash-origin-description';
+    const description=N('p',`맥 잠금이나 치환 없이 세수단 ${formatCount4(budget)}개 범위에서 직접 등장하는 자맥을 확인합니다. 모든 자맥을 동시에 유지할 수 있다는 뜻은 아닙니다.`);description.className='wash-origin-description';
     const vip=N('p',`推演条件：VIP ${input.initialState.vip===0?'0':input.initialState.vip+'+'}（${input.vipConfirmed?'手动确认':'模拟等级，未确认'}），原档 ${slots} 栏。`);vip.className='wash-origin-note';
     const label=N('label'),labelText=N('span','预览栏数'),select=N('select');label.className='wash-origin-slots';label.append(labelText);select.setAttribute('aria-label','初始脉预览栏数');
     if(slots===0){const zero=N('option','当前0栏（无法洗脉）');zero.value='0';select.append(zero);}
@@ -4104,7 +4104,7 @@ function renderEquipAutoLocations() {
     };
     const scrollTop = container.scrollTop;
     container.innerHTML = section("铁匠铺", tie, "tie") + section("绣庄", xiu, "xiu")
-        || "<span class=\"text-muted\">没有匹配的地点，换个关键词试试</span>";
+        || "<span class=\"text-muted\">일치하는 지역이 없습니다. 다른 검색어를 입력하세요.</span>";
     container.scrollTop = scrollTop;
     const count = document.getElementById("autoEquipLocationCount");
     if (count) {
@@ -4155,7 +4155,7 @@ function renderEquipAutoPapers() {
         if (!available.has(String(paperId))) equipAutoPaperConfigs.delete(String(paperId));
     }
     if (!available.size) {
-        container.innerHTML = '<span class="text-muted">先选择至少一个打造地点；这里只显示可出紫且可升炼/精炼的 90～100 级图纸。</span>';
+        container.innerHTML = '<span class="text-muted">제작 지역을 하나 이상 선택하세요. 자색 장비 제작과 승련·정련이 가능한 90~100레벨 도면만 표시됩니다.</span>';
         const count = document.getElementById('autoEquipPaperCount');
         if (count) count.textContent = '已选 0';
         return;
@@ -4341,7 +4341,7 @@ function renderEquipAutoProperties() {
     if (!container || typeof EquipmentAutoOptimizer === 'undefined' || typeof EQUIP_DATA === 'undefined') return;
     const papers = equipAutoSelectedPapers();
     if (!papers.length) {
-        container.innerHTML = '<p class="equip-auto-slot-hint">选择图纸后，可在这里选择首次打造的芒晶材料。</p>';
+        container.innerHTML = '<p class="equip-auto-slot-hint">도면을 선택하면 최초 제작에 사용할 망정 재료를 선택할 수 있습니다.</p>';
         return;
     }
     const groups = papers.map(paperId => {
@@ -4365,7 +4365,7 @@ function renderEquipAutoProperties() {
         const name = String(paper.name || equip.name || '').replace(/图样$/, '');
         return '<div class="equip-auto-attach-group"><div class="equip-auto-attach-group-title">' + escapeAiHtml(name) + '</div><div class="equip-auto-attach-row">' + (chips || '<span>无可选材料</span>') + '</div></div>';
     }).join('');
-    container.innerHTML = '<section class="equip-auto-subpanel is-attach"><div class="equip-auto-subpanel-head"><strong>芒晶属性</strong><em>首次打造附加材料，可多选</em></div>' + groups + '<p class="equip-auto-slot-hint">每种材料各形成一条独立打造分支；不选则按普通打造。</p></section>';
+    container.innerHTML = '<section class="equip-auto-subpanel is-attach"><div class="equip-auto-subpanel-head"><strong>芒晶属性</strong><em>首次打造附加材料，可多选</em></div>' + groups + '<p class="equip-auto-slot-hint">재료마다 독립적인 제작 경로를 계산하며 선택하지 않으면 일반 제작 기준으로 계산합니다.</p></section>';
     container.querySelectorAll('[data-attach-material]').forEach(button => button.addEventListener('click', () => {
         const config = equipAutoPaperConfigs.get(String(button.dataset.attachPaper || ''));
         if (!config) return;
@@ -5144,14 +5144,14 @@ function equipAutoAskCacheOptions() {
         wrap.className = 'equip-auto-confirm';
         wrap.innerHTML = '<div class="equip-auto-confirm-card equip-auto-fav-options" role="dialog" aria-modal="true">'
             + '<h3 class="equip-auto-fav-title">收藏到云盘</h3>'
-            + '<p class="equip-auto-fav-tip">收藏时会把详情一起存下来，之后换设备、换存档打开都能直接看。</p>'
+            + '<p class="equip-auto-fav-tip">즐겨찾기 시 상세 결과도 저장되므로 다른 기기나 세이브에서도 확인할 수 있습니다.</p>'
             + '<label class="equip-auto-fav-field"><span>精炼数据</span>'
             + '<input type="number" id="favRefineRows" min="0" max="2000" step="50" value="500"><i>条</i></label>'
             + '<label class="equip-auto-fav-field"><span>촉련数据</span>'
             + '<input type="number" id="favForgeCount" min="0" max="2000" step="50" value="300"><i>次</i></label>'
             + '<label class="equip-auto-fav-field"><span>망정</span>'
             + '<input type="number" id="favMangCount" min="0" max="5000" step="50" value="500"><i>次</i></label>'
-            + '<p class="equip-auto-fav-tip">数字越大，收藏时算得越久、占的地方也越多。其他NPC附加值会自动算好。</p>'
+            + '<p class="equip-auto-fav-tip">조회 횟수가 많을수록 저장 시간과 용량이 늘어납니다. 다른 장인의 지역 옵션도 자동 계산합니다.</p>'
             + '<div class="equip-auto-confirm-actions">'
             + '<button type="button" class="equip-auto-confirm-cancel">取消</button>'
             + '<button type="button" class="equip-auto-confirm-ok">开始收藏</button>'
@@ -5192,7 +5192,7 @@ function equipAutoBusy(text) {
     wrap.className = 'equip-auto-confirm';
     wrap.innerHTML = '<div class="equip-auto-confirm-card equip-auto-fav-busy" role="status" aria-live="polite">'
         + '<p class="equip-auto-fav-title">' + escapeAiHtml(text) + '</p>'
-        + '<p class="equip-auto-fav-tip">条数多的话要几秒，请先别关页面。</p></div>';
+        + '<p class="equip-auto-fav-tip">조회 횟수가 많으면 시간이 걸립니다. 저장 중에는 화면을 닫지 마세요.</p></div>';
     document.body.appendChild(wrap);
     return { close: function () { wrap.remove(); } };
 }
@@ -5973,7 +5973,7 @@ function renderEquipAutoResultPage() {
     if (page) {
         page.innerHTML = pageData.items.length
             ? equipAutoCandidateListHtml(pageData.items)
-            : '<div class="ai-result-empty">当前筛选条件下没有候选装备，请调整筛选条件或增加精炼次数后重新推演。</div>';
+            : '<div class="ai-result-empty">현재 조건에 맞는 장비가 없습니다. 조건을 바꾸거나 정련 횟수를 늘려 다시 계산하세요.</div>';
     }
 }
 
@@ -6168,7 +6168,7 @@ function openEquipAutoRefineSequence(candidateId) {
         + '<div class="equip-auto-forge-head"><div><strong>精炼数据 · ' + escapeAiHtml(String(candidate.equipName || '装备')) + '</strong>'
         + '<span id="equipAutoRefineRange">第 1～' + count + ' 次 · 只读预览，不推进存档</span></div>'
         + '<button type="button" class="equip-auto-forge-close" aria-label="关闭" title="关闭">×</button></div>'
-        + '<p class="equip-auto-forge-meta">目标属性：' + escapeAiHtml(targets) + ' · 可自定义查看次数，并按槽位、属性筛选。</p>'
+        + '<p class="equip-auto-forge-meta">目标属性：' + escapeAiHtml(targets) + ' · 조회 횟수를 설정하고 옵션 슬롯과 능력치로 필터링할 수 있습니다.</p>'
         + '<div class="equip-auto-refine-controls">'
         + '<label>查看次数 <input id="equipAutoRefineCount" type="number" min="1" max="2000" step="1" value="' + count + '"></label>'
         + '<label>槽位 <select id="equipAutoRefineSlot"><option value="">全部</option><option value="1">槽 1</option><option value="2">槽 2</option><option value="3">槽 3</option></select></label>'
@@ -6280,13 +6280,13 @@ function openEquipAutoRegionCompare(candidateId) {
     wrap.className = 'equip-auto-confirm equip-auto-forge-modal';
     wrap.innerHTML = '<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="地区附加对照">'
         + '<div class="equip-auto-forge-head"><div><strong>其他NPC附加值 · ' + escapeAiHtml(String(candidate.equipName || '装备')) + '</strong>'
-        + '<span>同词条、同数值 · 只读模拟，不推进存档</span></div>'
+        + '<span>같은 옵션과 같은 수치 · 조회 전용으로 세이브는 진행되지 않습니다.</span></div>'
         + '<button type="button" class="equip-auto-forge-close" aria-label="关闭" title="关闭">×</button></div>'
         + '<p class="equip-auto-forge-meta">按同一张图纸、同一打造进度，在其他 NPC 各模拟打造 ' + limit + ' 次，'
-        + '找第一次出现与这件装备「词条、数量、数值完全相同」的打造；无匹配或无地区附加填“-”。</p>'
+        + '추가 옵션 종류·개수·수치가 모두 같은 장비의 첫 제작을 찾습니다. 없으면 -로 표시합니다.</p>'
         + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
         + '<thead><tr><th>NPC / 地点</th><th>第几次</th><th>地区附加</th></tr></thead>'
-        + '<tbody><tr><td colspan="3">正在模拟打造…</td></tr></tbody></table></div>'
+        + '<tbody><tr><td colspan="3">장비 제작 시뮬레이션 중…</td></tr></tbody></table></div>'
         + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close">关闭</button></div>'
         + '</div>';
     document.body.appendChild(wrap);    const close = () => { document.removeEventListener('keydown', onKey); wrap.remove(); };
@@ -6318,7 +6318,7 @@ function openEquipAutoRegionCompare(candidateId) {
         tbody.innerHTML = simulated.rows.map(row => '<tr>'
             + '<td>' + escapeAiHtml(row.place + (row.name && row.name !== row.place ? ' · ' + row.name : '')) + '</td>'
             + '<td>' + (row.index ? '第 ' + row.index + ' 次' : '-') + '</td>'
-            + '<td>' + fmt(row.region) + '</td></tr>').join('') || '<tr><td colspan="3">没有其他可打造这件装备的 NPC</td></tr>';
+            + '<td>' + fmt(row.region) + '</td></tr>').join('') || '<tr><td colspan="3">같은 장비를 제작할 다른 장인이 없습니다.</td></tr>';
     }, 30);
 }
 
@@ -6637,10 +6637,10 @@ function renderEquipAutoResults(result) {
         const skipped = Number(result && result.summary && result.summary.skippedBranchCount || 0);
         const filteredBySlot = Number(result && result.summary && result.summary.slotFiltered || 0);
         if (filteredBySlot > 0) {
-            container.innerHTML = `<div class="ai-result-error">按所选词条组合过滤掉了 ${filteredBySlot} 件蓝/紫装：没有装备的三词条同时满足你指定的属性。可以清空某个词条位（表示任意属性）再试。</div>`;
+            container.innerHTML = `<div class="ai-result-error">설정한 옵션 조합을 만족하지 못하는 청색·자색 장비 ${filteredBySlot}개를 제외했습니다. 일부 슬롯을 비운 다음 다시 시도하세요.</div>`;
             return;
         }
-        container.innerHTML = `<div class="ai-result-error">当前兼容范围没有打造出蓝装或紫装，请增加打造次数或调整地点、图纸与材料。${skipped ? ` 已跳过 ${skipped} 个属性不兼容分支。` : ''}</div>`;
+        container.innerHTML = `<div class="ai-result-error">현재 범위에서는 청색·자색 장비가 제작되지 않았습니다. 제작 횟수나 지역·도면·재료를 변경하세요.${skipped ? ` 已跳过 ${skipped} 个属性不兼容分支。` : ''}</div>`;
         return;
     }
     container.innerHTML = `${(result.skippedBranches || []).length ? `<details class="equip-auto-skipped-branches"><summary>查看跳过的 ${result.skippedBranches.length} 个分支</summary>${result.skippedBranches.map(branch => `<div>${escapeAiHtml(branch.location)} · ${escapeAiHtml(branch.paperName)}：${escapeAiHtml(branch.reason)}</div>`).join('')}</details>` : ''}
@@ -7196,7 +7196,7 @@ async function runEquipAutoSimulation() {
         cancel.disabled = false;
         cancel.textContent = '取消计算';
     }
-    if (results) results.innerHTML = '<div class="ai-result-empty">正在按独立存档分支计算打造与精炼结果…</div>';
+    if (results) results.innerHTML = '<div class="ai-result-empty">독립된 세이브 경로별 제작·정련 결과 계산 중…</div>';
     renderEquipAutoProgress({ phase: 'craft', done: 0, total: validation.branches.length, message: '正在保存原始打造状态' });
     try {
         const result = await EquipmentAutoOptimizer.simulateEquipmentRoutes({
@@ -7228,7 +7228,7 @@ async function runEquipAutoSimulation() {
         });
         if (runToken !== equipAutoRunToken) return;
         if (result.cancelled) {
-            if (results) results.innerHTML = '<div class="ai-result-empty">装备计算已取消，原始打造状态已恢复，页面模拟状态未改变。</div>';
+            if (results) results.innerHTML = '<div class="ai-result-empty">계산을 취소했습니다. 원본 제작 상태가 복원됐으며 시뮬레이션 진행도는 변하지 않았습니다.</div>';
             const progress = document.getElementById('autoEquipProgress');
             if (progress) progress.hidden = true;
             return;
@@ -7463,7 +7463,7 @@ function jianwangResourcesHtml(resources) {
         .map(([id, count]) => `<tr><td>${escapeAiHtml(jianwangMaterialName(id))}</td><td>0</td><td>${Number(count).toLocaleString()}</td><td><strong>−${Number(count).toLocaleString()}（盈余返还）</strong></td></tr>`)
         .join('');
     const bodyRows = netRows + onlyReturnedRows
-        || '<tr><td colspan="4" class="empty-row">本路线未消耗材料</td></tr>';
+        || '<tr><td colspan="4" class="empty-row">이 경로에서 소모한 재료는 없습니다.</td></tr>';
     return `<details class="jianwang-resources-wrap" open>
         <summary><strong>材料与资源净需求</strong>（已扣除碎剑返还；用于备料核对，含前置成长与重铸周转请另留余量）</summary>
         <div class="jianwang-auto-metrics">
@@ -7494,13 +7494,13 @@ function jianwangAttachEquipFor(equip) {
 function jianwangAttachPanelHtml(equip, key) {
     const normalized = jianwangAttachEquipFor(equip);
     if (!normalized || !Number.isSafeInteger(Number(normalized.MJSeed)) || Number(normalized.MJSeed) <= 0) {
-        return '<p class="meta-text">这把剑缺少망정进度，暂时无法推演附加属性。</p>';
+        return '<p class="meta-text">이 검에는 망정 진행도가 없어 추가 옵션을 예측할 수 없습니다.</p>';
     }
     jianwangAttachEquips[key] = normalized;
     const mod = typeof EquipmentAutoOptimizer !== 'undefined' ? EquipmentAutoOptimizer : null;
     const materials = mod && typeof mod.specialMaterialsForEquip === 'function' && typeof EQUIP_DATA !== 'undefined'
         ? mod.specialMaterialsForEquip(EQUIP_DATA, normalized) : [];
-    if (!materials.length) return '<p class="meta-text">没有适用于这把剑的特殊材料。</p>';
+    if (!materials.length) return '<p class="meta-text">이 검에 사용할 수 있는 특수 재료가 없습니다.</p>';
     const options = materials.map(material => {
         const isDefault = String(material.name || '') === '龙骨' || Number(material.id) === 2021;
         return '<option value="' + material.id + '"' + (isDefault ? ' selected' : '') + '>' + escapeAiHtml(material.name) + '</option>';
@@ -7510,7 +7510,7 @@ function jianwangAttachPanelHtml(equip, key) {
         + '<div class="jianwang-attach-controls">'
         + '<label>추가 재료 <select data-jw-attach-material="' + key + '">' + options + '</select></label>'
         + '<label>预览次数 <input type="number" min="1" max="200" value="100" data-jw-attach-count="' + key + '"></label>'
-        + '<button type="button" class="btn btn-ai-predict" data-jw-attach-run="' + key + '">生成附加序列</button>'
+        + '<button type="button" class="btn btn-ai-predict" data-jw-attach-run="' + key + '">추가 옵션 순서 생성</button>'
         + '</div>'
         + '<div class="jianwang-attach-result" data-jw-attach-result="' + key + '"></div>'
         + '</details>';
@@ -7520,14 +7520,14 @@ function renderJianwangAttachResult(key) {
     const equip = jianwangAttachEquips[key];
     const box = document.querySelector('[data-jw-attach-result="' + key + '"]');
     if (!box) return;
-    if (!equip) { box.innerHTML = '<p class="meta-text">没有可用的剑实例。</p>'; return; }
+    if (!equip) { box.innerHTML = '<p class="meta-text">사용할 수 있는 검이 없습니다.</p>'; return; }
     const select = document.querySelector('[data-jw-attach-material="' + key + '"]');
     const countInput = document.querySelector('[data-jw-attach-count="' + key + '"]');
     const materialId = Number(select && select.value);
     const count = Math.max(1, Math.min(200, Number(countInput && countInput.value) || 100));
     const mod = typeof EquipmentAutoOptimizer !== 'undefined' ? EquipmentAutoOptimizer : null;
     const material = typeof EQUIP_DATA !== 'undefined' ? EQUIP_DATA.special[String(materialId)] : null;
-    if (!mod || !material) { box.innerHTML = '<p class="meta-text">材料数据不可用。</p>'; return; }
+    if (!mod || !material) { box.innerHTML = '<p class="meta-text">재료 데이터를 사용할 수 없습니다.</p>'; return; }
     let result;
     try {
         result = mod.predictSpecialAttachSequence(equip, material, count);
@@ -7552,7 +7552,7 @@ function renderJianwangAttachResult(key) {
         + result.bestFactor + '%（第 ' + result.bestIndexes.join('、') + ' 次）· 推荐停在第 ' + result.recommendedIndex + ' 次</p>'
         + '<table class="preview-table"><thead><tr><th>#</th><th>属性</th><th>品质</th><th>洗练序列编号</th><th></th></tr></thead><tbody>'
         + rows + '</tbody></table>'
-        + (maxima ? '<p class="meta-text">各项最高：' + maxima + '</p>' : '');
+        + (maxima ? '<p class="meta-text">각 능력치 최고 수치: ' + maxima + '</p>' : '');
 }
 
 function renderJianwangAutoResult(result) {
@@ -7724,7 +7724,7 @@ async function runJianwangAutoSimulation() {
     }
     renderJianwangAutoProgress({ done: 0, total: input.maxSwords, message: '正在检查起始剑并准备搜索…' });
     const results = document.getElementById('autoJianwangResults');
-    if (results) results.innerHTML = '<div class="ai-result-empty">正在本地推演，失败剑只累计次数，不会全部保存在页面中。</div>';
+    if (results) results.innerHTML = '<div class="ai-result-empty">현재 기기에서 예측 중입니다. 조건에 맞지 않는 검은 횟수만 기록하고 모두 화면에 저장하지 않습니다.</div>';
     try {
         const result = await JianwangAutoOptimizer.searchAsync({
             ...input,
