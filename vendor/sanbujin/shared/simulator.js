@@ -3203,6 +3203,16 @@ function escapeAiHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function nangmanAutoDisplay(value) {
+    const original = String(value == null ? '' : value);
+    return window.SBJ_KOREAN?.translate?.(original) || original;
+}
+function nangmanAutoEquipName(candidate) {
+    const id = candidate?.equipId ?? candidate?.equip_id ?? candidate?.id;
+    const korean = EQUIP_DATA?.equipment?.[String(id)]?.koName;
+    return korean || nangmanAutoDisplay(candidate?.equipName || candidate?.name || '');
+}
+
 function clampAiNumber(id, min, max, fallback) {
     const el = document.getElementById(id);
     let value = parseInt(el?.value || String(fallback), 10);
@@ -4125,8 +4135,8 @@ function equipAutoAttachPickerHtml(equip, selectedIds) {
         const selected = selectedSet.has(Number(material.id));
         const action = selected ? 'remove' : 'add';
         const state = selected ? '선택됨' : '선택';
-        return `<button class="equip-auto-attach-option ${selected ? 'is-selected' : 'is-available'}" type="button" data-attach-action="${action}" data-material-id="${material.id}" aria-pressed="${selected}" aria-label="${state} 추가 재료 ${escapeAiHtml(material.name)}">
-            <span>${escapeAiHtml(material.name)}</span><small>${state}</small>
+        return `<button class="equip-auto-attach-option ${selected ? 'is-selected' : 'is-available'}" type="button" data-attach-action="${action}" data-material-id="${material.id}" aria-pressed="${selected}" aria-label="${state} 추가 재료 ${escapeAiHtml(nangmanAutoDisplay(material.name))}">
+            <span>${escapeAiHtml(nangmanAutoDisplay(material.name))}</span><small>${state}</small>
         </button>`;
     }).join('');
     return `<div class="equip-auto-attach-field">
@@ -4362,7 +4372,7 @@ function renderEquipAutoProperties() {
                 return prop && value != null ? escapeAiHtml(equipAutoPropertyLabel(prop)) + '+' + escapeAiHtml(equipAutoFormatPropValue(prop, value)) : '';
             }).filter(Boolean).join(' · ');
             const selected = picked.has(Number(material.id));
-            return '<button type="button" class="equip-auto-attach-chip' + (selected ? ' is-selected' : '') + '" data-attach-paper="' + escapeAiHtml(String(paperId)) + '" data-attach-material="' + Number(material.id) + '" aria-pressed="' + selected + '">' + escapeAiHtml(material.name) + (values ? '<small>' + values + '</small>' : '') + '</button>';
+            return '<button type="button" class="equip-auto-attach-chip' + (selected ? ' is-selected' : '') + '" data-attach-paper="' + escapeAiHtml(String(paperId)) + '" data-attach-material="' + Number(material.id) + '" aria-pressed="' + selected + '">' + escapeAiHtml(nangmanAutoDisplay(material.name)) + (values ? '<small>' + values + '</small>' : '') + '</button>';
         }).join('');
         const name = String(paper.name || equip.name || '').replace(/图样$/, '');
         return '<div class="equip-auto-attach-group"><div class="equip-auto-attach-group-title">' + escapeAiHtml(name) + '</div><div class="equip-auto-attach-row">' + (chips || '<span>선택 가능한 재료 없음</span>') + '</div></div>';
@@ -4670,8 +4680,8 @@ function equipAutoFormatSilver(value) {
 function equipAutoFormatCost(cost) {
     if (!cost) return '없음';
     const parts = (cost.materials || []).filter(item => Number(item.amount) > 0)
-        .map(item => `${escapeAiHtml(item.name)}×${Number(item.amount).toLocaleString()}`);
-    if (cost.mainMaterial && cost.mainAmount) parts.push(`${escapeAiHtml(cost.mainMaterial.name)}×${Number(cost.mainAmount).toLocaleString()}`);
+        .map(item => `${escapeAiHtml(nangmanAutoDisplay(item.name))}×${Number(item.amount).toLocaleString()}`);
+    if (cost.mainMaterial && cost.mainAmount) parts.push(`${escapeAiHtml(nangmanAutoDisplay(cost.mainMaterial.name))}×${Number(cost.mainAmount).toLocaleString()}`);
     if (cost.lianjin) parts.push(`연금니×${Number(cost.lianjin).toLocaleString()}`);
     if (cost.silver) parts.push(`은냥 ${equipAutoFormatSilver(cost.silver)}`);
     return parts.join(' · ') || '없음';
@@ -4726,7 +4736,7 @@ function equipAutoAttachmentHtml(attachment) {
     const levelText = Number(attachment.equipLevel) > 0 ? ` · ${Number(attachment.equipLevel)}레벨` : '';
     const stageHtml = `<span class="equip-auto-attachment-stage">${stageText}${levelText}</span>`;
     if (attachment.unavailable) {
-        return `<div class="equip-auto-attach-card"><strong>추가 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><div class="ai-result-error">추가 옵션을 사용할 수 없습니다</div></div>`;
+        return `<div class="equip-auto-attach-card"><strong>추가 · ${escapeAiHtml(nangmanAutoDisplay(attachment.materialName))} ${stageHtml}</strong><div class="ai-result-error">추가 옵션을 사용할 수 없습니다</div></div>`;
     }
     const maxima = (attachment.maxima || []).filter(item => item.recommendedIndex != null);
     const maximumSummary = maxima.map(maximum => `최고 ${escapeAiHtml(equipAutoPropertyLabel(maximum.prop))} ${escapeAiHtml(equipAutoFormatPropValue(maximum.prop, maximum.value))} · 제${maximum.indexes.join('、')}회`).join('；');
@@ -4746,7 +4756,7 @@ function equipAutoAttachmentHtml(attachment) {
         </li>`;
     }).join('');
     return `<div class="equip-auto-attach-card">
-        <div class="equip-auto-refine-title"><strong>망정 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><span class="equip-auto-attachment-value">${maximumSummary || '예측 범위에 유효한 추가 옵션이 나오지 않았습니다'}</span></div>
+        <div class="equip-auto-refine-title"><strong>망정 · ${escapeAiHtml(nangmanAutoDisplay(attachment.materialName))} ${stageHtml}</strong><span class="equip-auto-attachment-value">${maximumSummary || '예측 범위에 유효한 추가 옵션이 나오지 않았습니다'}</span></div>
         <div class="equip-auto-attachment-maxima">${maxima.map(maximum => `<div class="equip-auto-attachment-maximum">
             <span>${escapeAiHtml(equipAutoPropertyLabel(maximum.prop))}</span>
             <span class="equip-auto-cost-line">소모량: 망정×${maximum.recommendedIndex}</span>
@@ -4797,7 +4807,7 @@ function equipAutoManualAttachHtml(candidate) {
     return `<div class="equip-auto-manual-attach" data-candidate-id="${escapeAiHtml(candidateId)}">
         <p class="ai-visual-heading">추가 능력치</p>
         <div class="equip-auto-attach-card equip-auto-crafted-special">
-            <div class="equip-auto-refine-title"><strong>망정 1회 · ${escapeAiHtml(candidate.craftSpecialName)}</strong><span class="equip-auto-attachment-stage">${firstStage}</span></div>
+            <div class="equip-auto-refine-title"><strong>망정 1회 · ${escapeAiHtml(nangmanAutoDisplay(candidate.craftSpecialName))}</strong><span class="equip-auto-attachment-stage">${firstStage}</span></div>
             <div class="equip-auto-crafted-special-value">${equipAutoFormatProps(candidate.special)}</div>
         </div>
         <div class="equip-auto-manual-attach-controls" aria-label="이후 망정 설정">
@@ -4808,7 +4818,7 @@ function equipAutoManualAttachHtml(candidate) {
             <label>예측 횟수<input class="equip-auto-manual-attach-count" type="number" min="1" max="5000" value="${state.count}"><span>회</span></label>
             <button class="btn equip-auto-manual-attach-button" type="button" data-manual-attach-action="simulate">망정 시뮬레이션</button>
         </div>
-        <p class="equip-auto-manual-attach-hint">최초 제작 재료 '${escapeAiHtml(candidate.craftSpecialName)}'의 능력치 목록을 사용합니다. 조회 전용이며 게임 내 망정 진행도를 변경하지 않습니다.</p>
+        <p class="equip-auto-manual-attach-hint">최초 제작 재료 '${escapeAiHtml(nangmanAutoDisplay(candidate.craftSpecialName))}'의 능력치 목록을 사용합니다. 조회 전용이며 게임 내 망정 진행도를 변경하지 않습니다.</p>
         ${state.error ? `<div class="ai-result-error">${escapeAiHtml(state.error)}</div>` : result}
     </div>`;
 }
@@ -4820,9 +4830,9 @@ function equipAutoCandidateCostHtml(candidate) {
         && !(specialId && String(item.id) === specialId)).map(item => {
         const isPaper = Number(item.id) === Number(candidate.paperId)
             || String(item.name || '') === String(candidate.paperName || '');
-        return isPaper ? '도면×1' : `${escapeAiHtml(item.name)}×${Number(item.amount).toLocaleString()}`;
+        return isPaper ? '도면×1' : `${escapeAiHtml(nangmanAutoDisplay(item.name))}×${Number(item.amount).toLocaleString()}`;
     });
-    if (cost.mainMaterial && cost.mainAmount) parts.push(`${escapeAiHtml(cost.mainMaterial.name)}×${Number(cost.mainAmount).toLocaleString()}`);
+    if (cost.mainMaterial && cost.mainAmount) parts.push(`${escapeAiHtml(nangmanAutoDisplay(cost.mainMaterial.name))}×${Number(cost.mainAmount).toLocaleString()}`);
     if (cost.lianjin) parts.push(`연금니×${Number(cost.lianjin).toLocaleString()}`);
     if (cost.silver) parts.push(`은냥 ${equipAutoFormatSilver(cost.silver)}`);
     const items = parts.length ? parts.map(part => `<span>${part}</span>`).join('') : '<span>없음</span>';
@@ -5085,7 +5095,7 @@ function equipAutoCostText(parts) {
     const chunks = parts.map(item => {
         const isPaper = (parts.paperId && String(item.id) === String(parts.paperId))
             || (parts.paperName && String(item.name) === String(parts.paperName));
-        return isPaper ? "도면×1" : escapeAiHtml(item.name) + "×" + Number(item.amount).toLocaleString();
+        return isPaper ? "도면×1" : escapeAiHtml(nangmanAutoDisplay(item.name)) + "×" + Number(item.amount).toLocaleString();
     });
     return chunks.join("、");
 }
@@ -5655,7 +5665,7 @@ function equipAutoCandidateHtml(candidate, options) {
                 return '<span class="equip-auto-chip is-target" title="옵션 ' + item.slot + ' · ' + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + '"><span>옵션' + item.slot + ' ' + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + '</span><strong class="is-' + key + '">' + escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value)) + '</strong></span>';
             }).join(''))
         : refinementChips;
-    const locationChip = candidate.location ? `<span class="equip-auto-chip is-loc">${escapeAiHtml(candidate.location)}</span>` : '';
+    const locationChip = candidate.location ? `<span class="equip-auto-chip is-loc">${escapeAiHtml(nangmanAutoDisplay(candidate.location))}</span>` : '';
     const regionChip = candidate.region.length
         ? `<span class="equip-auto-chip is-region" title="지역 추가 옵션"><span>지역</span><strong>${equipAutoFormatProps(candidate.region)}</strong></span>`
         : '';
@@ -5675,7 +5685,7 @@ function equipAutoCandidateHtml(candidate, options) {
             </span>
             <span class="equip-auto-candidate-main">
                 <span class="equip-auto-candidate-head">
-                    <b class="equip-auto-paper${paperTone}">${escapeAiHtml(paperLabel)}</b><span class="equip-auto-round">제작 ${candidate.craftIndex}회차</span>
+                    <b class="equip-auto-paper${paperTone}">${escapeAiHtml(nangmanAutoDisplay(paperLabel))}</b><span class="equip-auto-round">제작 ${candidate.craftIndex}회차</span>
                     ${locationChip}
                 </span>
                 <span class="equip-auto-chips">${targetChips}${equipAutoAttachScanChipHtml(candidate)}${regionChip}</span>
@@ -6318,7 +6328,7 @@ function openEquipAutoRegionCompare(candidateId) {
             return;
         }
         tbody.innerHTML = simulated.rows.map(row => '<tr>'
-            + '<td>' + escapeAiHtml(row.place + (row.name && row.name !== row.place ? ' · ' + row.name : '')) + '</td>'
+            + '<td>' + escapeAiHtml(nangmanAutoDisplay(row.place) + (row.name && row.name !== row.place ? ' · ' + nangmanAutoDisplay(row.name) : '')) + '</td>'
             + '<td>' + (row.index ? row.index + '회차' : '-') + '</td>'
             + '<td>' + fmt(row.region) + '</td></tr>').join('') || '<tr><td colspan="3">같은 장비를 제작할 다른 장인이 없습니다.</td></tr>';
     }, 30);
@@ -6365,7 +6375,7 @@ function openEquipAutoMang(candidateId) {
     backdrop.id='nangmanQuickMangModal';
     backdrop.className='equip-auto-confirm equip-auto-forge-modal';
     backdrop.innerHTML='<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="망정 상세 조회">'
-      +'<div class="equip-auto-forge-head"><div><strong>망정 보기 · '+escapeAiHtml(candidate.equipName||baseCfg.name)+'</strong>'
+      +'<div class="equip-auto-forge-head"><div><strong>망정 보기 · '+escapeAiHtml(nangmanAutoEquipName(candidate)||baseCfg.koName||nangmanAutoDisplay(baseCfg.name))+'</strong>'
       +'<span>장비의 망정 시드를 기준으로 선택한 재료의 순서를 계산합니다.</span></div>'
       +'<button type="button" class="equip-auto-forge-close" data-close-mang>×</button></div>'
       +'<div class="equip-auto-forge-controls"><label>망정 재료<select data-mang-material>'
@@ -7505,7 +7515,7 @@ function jianwangAttachPanelHtml(equip, key) {
     if (!materials.length) return '<p class="meta-text">이 검에 사용할 수 있는 특수 재료가 없습니다.</p>';
     const options = materials.map(material => {
         const isDefault = String(material.name || '') === '龙骨' || Number(material.id) === 2021;
-        return '<option value="' + material.id + '"' + (isDefault ? ' selected' : '') + '>' + escapeAiHtml(material.name) + '</option>';
+        return '<option value="' + material.id + '"' + (isDefault ? ' selected' : '') + '>' + escapeAiHtml(nangmanAutoDisplay(material.name)) + '</option>';
     }).join('');
     return '<details class="jianwang-attach-wrap" open>'
         + '<summary><strong>100레벨 이후 · 망정 추가 옵션 순서</strong> (매회 망정×10 + 선택 재료×1 소모 기준 · 조회 전용으로 게임 진행도 변경 없음）</summary>'
