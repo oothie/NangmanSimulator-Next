@@ -1384,14 +1384,14 @@ function updateMakeHints() {
 function setMakeHead() {
     setPreviewTableKind('make');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>品质</th><th>基础</th><th>蓝词条</th><th>地区附加</th><th>红词条</th><th>打造序列</th><th>标记</th><th>操作</th>
+        <th>#</th><th>品质</th><th>基础</th><th>청색 옵션</th><th>地区附加</th><th>红词条</th><th>打造序列</th><th>标记</th><th>操作</th>
     </tr>`;
 }
 
 function setSpecialAttachHead() {
     setPreviewTableKind('special-attach');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>装备</th><th>材料</th><th>预测红词条</th><th>数值倍率</th><th>洗练序列记录</th>
+        <th>#</th><th>装备</th><th>材料</th><th>预测红词条</th><th>수치 배율</th><th>망정 순서 기록</th>
     </tr>`;
 }
 
@@ -2111,7 +2111,7 @@ function renderMakeAdvanceNotice() {
     const markText = mark ? ` · 표시 「${escapeHtml(mark)}」` : '';
     box.innerHTML = `<div class="make-advance-notice-head">
         <span class="make-advance-notice-title">本次推进结果：${escapeHtml(result.name)} · <span class="color-${result.color}">${escapeHtml(String(color))}</span> · ${escapeHtml(seed)}${markText}</span>
-        <span class="make-advance-notice-sequence">${middle}第 ${n} 件${bag}；下表从下一件重新编号</span>
+        <span class="make-advance-notice-sequence">${middle}${n}번째 장비${bag}; 아래 표는 다음 장비부터 다시 번호를 매깁니다</span>
     </div>
     <div class="make-advance-notice-details">
         <div class="make-advance-notice-detail"><strong>基础属性</strong>${formatBase(result.base)}</div>
@@ -2231,7 +2231,7 @@ function renderSpecialAttachPreview(items) {
 function setJianwangCycleHead() {
     setPreviewTableKind('jianwang-state');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>结果</th><th>基础属性</th><th>副属性</th><th>打造序列 / 消耗</th>
+        <th>#</th><th>结果</th><th>基础属性</th><th>추가 능력치</th><th>打造序列 / 消耗</th>
     </tr>`;
 }
 
@@ -2386,14 +2386,14 @@ function renderJianwangPage() {
 function setJianwangStateHead() {
     setPreviewTableKind('jianwang-state');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>结果</th><th>副属性</th><th>选择与消耗</th>
+        <th>#</th><th>结果</th><th>추가 능력치</th><th>선택 및 소모</th>
     </tr>`;
 }
 
 function setJianwangBlankHead() {
     setPreviewTableKind('jianwang-state');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>结果</th><th>基础属性</th><th>副属性</th><th>重铸序列编号</th><th>碎剑序列 / 材料</th>
+        <th>#</th><th>结果</th><th>基础属性</th><th>추가 능력치</th><th>重铸序列编号</th><th>碎剑序列 / 材料</th>
     </tr>`;
 }
 
@@ -3359,9 +3359,9 @@ function refreshXilianPlan() {
     box.classList.remove('empty');
     box.innerHTML = `
         ${autoLine}
-        <div><strong>총 소모</strong>（完整序列共 ${accepts.length} 次精炼）：${costTxt}</div>
+        <div><strong>총 소모</strong>(정련 ${accepts.length}회 전체): ${costTxt}</div>
         ${cutoffLine}
-        <div>连金泥合计 ${lianjinTotal} · 最终 精炼等级=${xl} · 标记槽数 ${simMarks}</div>
+        <div>연금니 합계 ${lianjinTotal} · 최종 정련 등급=${xl} · 표시된 슬롯 ${simMarks}개</div>
         <div>${mainTxt}</div>
         <div class="swap-line"><strong>최종 추가 옵션</strong>：${extTxt}</div>
         <div class="warn">※ 정련 시 매회 재료가 소모됩니다. 유지하기로 선택한 결과만 해당 슬롯을 교체하며 이후 소모량은 2배가 됩니다. 종료 회차까지 소모량은 마지막으로 유지한 회차까지 계산합니다.</div>
