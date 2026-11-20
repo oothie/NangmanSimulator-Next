@@ -1,6 +1,7 @@
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
+  const ko = value => window.SBJ_KOREAN?.translate?.(String(value ?? '')) || String(value ?? '');
   const panel = $('wildDrop'), picker = $('wildTarget'), form = panel.querySelector('form');
   const targets = window.SBJWildCatalog, engine = window.SBJWildDrop;
   const color = ['', '백색 장비', '녹색 장비', '청색 장비', '자색 장비'];
@@ -45,7 +46,7 @@
       const saved = engine.open(archive, target);
       const ready = engine.usable(saved.seed) && (target.kind !== 'tigerbone' || engine.usable(saved.tigerSeed));
       if (ready && firstReady == null) firstReady = i;
-      picker.add(new Option(target.location + ' · ' + target.name + (ready ? '' : ' · 순서 없음'), i));
+      picker.add(new Option(ko(target.location) + ' · ' + ko(target.name) + (ready ? '' : ' · 순서 없음'), i));
     });
     picker.value = previous || String(firstReady ?? 0);
     configure();
@@ -60,7 +61,7 @@
     host.replaceChildren(...shown.map(row => {
       const item = node('li', '');
       const label = '제 ' + row.serial + '회' + (row.padding ? ' · 선행 사냥' : '') +
-        (row.tiger ? ' · ' + row.tiger : '') + ' · ' + (row.itemName || '예상 드랍 없음') +
+        (row.tiger ? ' · ' + row.tiger : '') + ' · ' + (EQUIP_DATA.equipment?.[row.itemId]?.koName || ko(row.itemName || '예상 드랍 없음')) +
         (row.color ? ' · ' + color[row.color] : '');
       item.append(node('strong', label));
       if (row.tiger) item.append(node('span', '호골 연속 미획득 ' + row.droughtBefore + ' → ' + row.droughtAfter, 'wild-row-note'));
@@ -69,7 +70,7 @@
           const label = EQUIP_DATA.propNames?.[prop] || EQUIP_DATA.props?.[prop] || prop;
           const percent = value < 1 || prop === 'atk_extend';
           const display = percent ? (Math.round(value * 10000) / 100) + '%' : value;
-          return label + ' ' + display;
+          return ko(label) + ' ' + display;
         });
         item.append(node('span', attrs ? attrs.join(' · ') || '추가 옵션 없음' : '장비 옵션 계산에 필요한 데이터가 없습니다', 'wild-row-note'));
       }
