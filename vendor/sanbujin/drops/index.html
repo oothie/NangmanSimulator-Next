@@ -1,11 +1,15 @@
-<!doctype html><html lang="zh-CN"><head><script src="/__app/native.js?rev=92efd8f6f8f8"></script><script src="/suanbujin/shared/resource-entry.js?v=20261106common&rev=953c4fb6a9d5"></script><script src="/suanbujin/shared/player-messages.js?v=20261106messages&rev=4492da062cb4"></script>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><title>掉落推演 · 算不尽</title>
-<script src="../shared/app/appearance.js?v=20261106sidebar&rev=4b5ed6a63801"></script><link rel="stylesheet" href="../shared/app/appearance.css?v=20261106319settings&rev=1c0b8d89065e"><script defer src="../shared/app/account-state.js?v=20261106323&rev=0e2f10034a35"></script>
-<script src="../shared/version.js?v=20261106324&rev=fef1d3f34523"></script><script defer src="../shared/pako.min.js?v=20261103253&rev=83a0cef96bef"></script><script defer src="../shared/save_decrypt.js?v=20261105314&rev=6199549ba1a8"></script><script defer src="../shared/save_library.js?v=20261103260&rev=ff7f5cee0002"></script><script defer src="../shared/app/chrome.js?v=20261106324&rev=97131b90912b"></script>
-<link rel="stylesheet" data-sbj-theme href="../shared/app/theme.css?v=20261106319auth&rev=73b7e30491a2"><link rel="stylesheet" href="../shared/app/hubs.css?v=20261105314&rev=868a5e56dffb"><link rel="stylesheet" href="../shared/progress.css?v=20261105314&rev=babe625677ba">
-<link rel="stylesheet" href="./wild.css?rev=424563e2f4b2">
-<script defer src="../shared/opencc-cn2t.js?rev=d66d920069ab"></script><script defer src="../shared/i18n.js?rev=c568b29f5605"></script><link rel="icon" href="../favicon.ico">
-</head><body class="sbj-web"><main class="hub-main progress-main">
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><title>낭만강호 · 산부진 드랍 원본</title>
+
+<script defer src="../shared/pako.min.js"></script><script defer src="../shared/save_decrypt.js"></script>
+
+<link rel="stylesheet" href="./wild.css">
+<script defer src="../shared/i18n.js"></script>
+<style>
+/* 낭만강호 통합 사이트 내부용: 원본 산부진 화면과 엔진 UI 보존 */
+html,body{max-width:100%;overflow-x:hidden}body{margin:0}
+body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
+</style><style>body{background:#f5f0e8;color:#2b2722;font-family:system-ui,"Malgun Gothic",sans-serif;padding:16px}button,input,select{font:inherit}button{cursor:pointer}nav.drop-modes{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}nav.drop-modes button{padding:8px 14px;border:1px solid #bba98e;border-radius:5px;background:#f8f5f0}.wild-form{padding:14px 0}.wild-fields{display:flex;gap:12px;flex-wrap:wrap}label{display:inline-grid;gap:6px;margin:4px}input,select{padding:7px;border:1px solid #b5a995;border-radius:5px}ol.wild-results{line-height:1.7}body{min-height:700px}</style></head><body class="sbj-web"><main class="hub-main progress-main">
 <header class="progress-heading"><span class="hub-mark" aria-hidden="true">落</span><div><h1>掉落推演</h1><p>从存档里的随机序列查看装备与藏宝掉落。</p></div></header>
 <nav class="drop-modes" aria-label="掉落类型">
   <button type="button" id="dropWildLink" aria-controls="wildDrop">野外掉落</button>
@@ -94,9 +98,23 @@
   </section>
 </section>
 </main>
-<script defer src="../shared/equip_data.js?rev=0a3284d24ea3"></script>
-<script defer src="./wild-data.js?rev=748f06dc633a"></script><script defer src="./wild-core.js?rev=01213b205bbe"></script><script defer src="./wild.js?rev=a2320a7ce88c"></script>
-<script defer src="./dungeon-data.js?rev=8a4acc615be9"></script><script defer src="./dungeon-orange.js?rev=ebf81cc04531"></script>
-<script defer src="./dungeon-core.js?rev=1478c5353cb4"></script><script defer src="./dungeon.js?rev=b3bd4e0af912"></script>
-<script defer src="./treasure-core.js?rev=e7521288db36"></script><script defer src="./treasure.js?rev=6a0abfcb30fe"></script>
-<script src="/suanbujin/shared/navigation.js?rev=67841b0e583a"></script></body></html>
+<script defer src="../shared/equip_data.js"></script>
+<script defer src="./wild-data.js"></script><script defer src="./wild-core.js"></script><script defer src="./wild.js"></script>
+<script defer src="./dungeon-data.js"></script><script defer src="./dungeon-orange.js"></script>
+<script defer src="./dungeon-core.js"></script><script defer src="./dungeon.js"></script>
+<script defer src="./treasure-core.js"></script><script defer src="./treasure.js"></script>
+<script>
+/* Same-origin save relay; data stays in user's browser. */
+(function(){
+let latest=null;
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==parent||event.data?.kind!=='nangman-save')return;
+ latest=event.data.save;
+ try{
+ window.loadShareStore=()=>({data:latest});document.dispatchEvent(new Event('yyjh-save'));
+ parent.postMessage({kind:'nangman-embedded-status',module:'drops',status:'save-loaded'},location.origin);
+ }catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'drops',status:'error',message:String(err.message||err)},location.origin)}
+});
+window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'drops',status:'ready'},location.origin));
+})();
+</script></body></html>
