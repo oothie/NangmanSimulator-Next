@@ -45,11 +45,11 @@
         if (!Number.isFinite(num)) return String(value == null ? '' : value);
         /* 小于 1 的按百分比显示（和主站一致）：0.0565 → 5.65% */
         if (num < 1 || prop === 'atk_extend') {
-            var points = Math.floor(num * 100 * 100 + 1e-8) / 100;
-            return Number(points.toFixed(2)).toString() + '%';
+            var points = Math.floor(num * 100 * 10 + 1e-8) / 10;
+            return Number(points.toFixed(1)).toString() + '%';
         }
-        var plain = Math.floor(num * 100 + 1e-8) / 100;
-        return Number(plain.toFixed(2)).toString();
+        var plain = Math.floor(num * 10 + 1e-8) / 10;
+        return Number(plain.toFixed(1)).toString();
     }
 
     /* ---------------- 收藏时：把三块数据算出来 ---------------- */
