@@ -27,6 +27,14 @@ function ready(){document.documentElement.lang=current;document.documentElement.
  document.querySelectorAll('[data-language-choice]').forEach(function(el){el.setAttribute('aria-pressed',String(el.getAttribute('data-language-choice')===current));el.addEventListener('click',function(){set(el.getAttribute('data-language-choice'))})});
  if(current===KO||current===TW){schedule();if(typeof MutationObserver==='function'){new MutationObserver(function(ms){if(applying)return;for(var m of ms){if(m.type==='childList'||m.type==='characterData'||m.type==='attributes'){schedule();break}}}).observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['placeholder','aria-label','title','alt']})}}
  w.dispatchEvent(new CustomEvent('yyjh:language-ready',{detail:{locale:current}}))}
+// 원본 엔진에서 직접 호출하는 alert/confirm/prompt 문구도 한국어 사전으로 변환한다.
+if(!w.__nangmanTranslatedDialogs){
+ w.__nangmanTranslatedDialogs=true;
+ var _sbjAlert=w.alert,_sbjConfirm=w.confirm,_sbjPrompt=w.prompt;
+ if(typeof _sbjAlert==='function')w.alert=function(message){return _sbjAlert.call(w,translate(message))};
+ if(typeof _sbjConfirm==='function')w.confirm=function(message){return _sbjConfirm.call(w,translate(message))};
+ if(typeof _sbjPrompt==='function')w.prompt=function(message,defaultValue){return _sbjPrompt.call(w,translate(message),defaultValue)};
+}
 w.YYJHI18n=Object.freeze({get:function(){return current},set:set,translate:translate,normalizeForSearch:function(x){return (current===KO?korean(x):convertTW(x)).trim().toLocaleLowerCase()}});
 w.SBJ_KOREAN={dictionaryEntries:pairs.length,translate:korean,locale:function(){return current},translateName:function(v){return current===KO?korean(v):current===TW?convertTW(v):v}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();
