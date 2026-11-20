@@ -2545,7 +2545,7 @@ function formatExchangeChainHtml(chain) {
     if (!chain || !chain.length) return '<span class="text-muted">-</span>';
     if (chain.length === 1) {
         const only = chain[0];
-        if (/跳过|锁留/.test(only)) return `<span class="text-muted">${only}</span>`;
+        if (/跳过|锁留|건너뜀|잠금 유지/.test(only)) return `<span class="text-muted">${only}</span>`;
         return `<b class="purple-bright">${only}</b>`;
     }
     const head = chain.slice(0, -1).map(n => `${n}<span class="reconflict-tag">(다시 충돌)</span>`).join(' ➔ ');
@@ -2594,7 +2594,7 @@ function formatFollowingNodesBrief(following) {
             return `<span class="chain-follow-item"><b>${name}</b>：${forks}</span>`;
         }
         const c0 = (n.chain && n.chain[0]) || n.final_name || '-';
-        if (/跳过|锁留/.test(c0)) {
+        if (/跳过|锁留|건너뜀|잠금 유지/.test(c0)) {
             return `<span class="chain-follow-item"><b>${name}</b>：${c0}</span>`;
         }
         const fin = n.final_name || c0;
@@ -2633,7 +2633,7 @@ function formatNodeExchangeResult(node) {
     }
     const chain = node.chain || [];
     if (!chain.length) return '<span class="text-muted">-</span>';
-    if (/跳过|锁留/.test(chain[0] || '')) return formatExchangeChainHtml(chain);
+    if (/跳过|锁留|건너뜀|잠금 유지/.test(chain[0] || '')) return formatExchangeChainHtml(chain);
     const from = node.purple_name || '';
     const conf = node.conflict_name && node.conflict_name !== '—'
         ? `<span class="reconflict-tag">←${node.conflict_name}</span>`
@@ -3652,7 +3652,7 @@ function aiCostBreakdownHtml(route) {
     }).join('');
     const legend = entries.map(([key, value]) => `<span>${escapeAiHtml(labels[key] || key)}：<b>${Number(value).toLocaleString()}</b>개</span>`).join('');
     return `<div class="ai-cost-bar" role="img" aria-label="세수단 소모 구성: ${escapeAiHtml(entries.map(([key, value]) => `${labels[key] || key} ${value}개`).join('，'))}">${segments}</div>
-        <div class="ai-cost-legend">${legend}<span>4칸 개방 / 치환: <b>0</b> 丹</span></div>`;
+        <div class="ai-cost-legend">${legend}<span>4칸 개방 / 치환: 세수단 <b>0</b>개</span></div>`;
 }
 
 function aiRouteTimelineHtml(route) {
@@ -4803,7 +4803,7 @@ function equipAutoManualAttachHtml(candidate) {
                 <button type="button" data-manual-attach-action="stage" data-stage="before" class="${stage === 'before' ? 'is-active' : ''}" aria-pressed="${stage === 'before'}">升炼前</button>
                 <button type="button" data-manual-attach-action="stage" data-stage="after" class="${stage === 'after' ? 'is-active' : ''}" aria-pressed="${stage === 'after'}">升炼后</button>
             </div>
-            <label>模拟次数<input class="equip-auto-manual-attach-count" type="number" min="1" max="5000" value="${state.count}"><span>次</span></label>
+            <label>예측 횟수<input class="equip-auto-manual-attach-count" type="number" min="1" max="5000" value="${state.count}"><span>회</span></label>
             <button class="btn equip-auto-manual-attach-button" type="button" data-manual-attach-action="simulate">망정 시뮬레이션</button>
         </div>
         <p class="equip-auto-manual-attach-hint">최초 제작 재료 '${escapeAiHtml(candidate.craftSpecialName)}'의 능력치 목록을 사용합니다. 조회 전용이며 게임 내 망정 진행도를 변경하지 않습니다.</p>
@@ -7323,7 +7323,7 @@ function updateJianwangAutoStartHint() {
     const startSelect = document.getElementById('autoJianwangStartSword');
     if (!sword) {
         if (startSelect?.value === '__provider__' && optimizer.hasFirstSwordProvider()) {
-            hint.textContent = '将由已启用的首剑生成接口提供起始剑，再复用同一套승급、保留、重铸与碎剑搜索。';
+            hint.textContent = '활성화된 첫 검 생성 기능으로 시작 검을 만든 후 동일한 승급·유지·재주조·검 분해 탐색을 적용합니다.';
             if (message) {
                 message.textContent = '';
                 message.classList.remove('is-error');
