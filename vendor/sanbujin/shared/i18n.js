@@ -37,12 +37,12 @@ function ready(){document.documentElement.lang=current;document.documentElement.
    var wide=document.createElement('style');wide.id='nangman-wide-layout-v066';
    wide.textContent=[
      '@media(min-width:901px){',
-       'html body.sbj-workbench .app-container{max-width:min(1140px,100%)!important;width:100%!important;}',
-       'html body .equip-auto-forge-card{width:min(49.5rem,94vw)!important;max-height:90vh!important;}',
-       'html body .equip-auto-region-dialog{width:min(51rem,94vw)!important;max-width:94vw!important;}',
-       'html body .equip-auto-confirm-card{width:min(33rem,94vw)!important;max-width:94vw!important;}',
-       'html body .modal-large{max-width:min(1500px,95vw)!important;}',
-       'html body .exchange-sequence-modal{width:min(1470px,95vw)!important;}',
+       'html body.sbj-workbench .app-container{max-width:min(912px,100%)!important;width:100%!important;}',
+       'html body .equip-auto-forge-card{width:min(39.6rem,94vw)!important;max-height:90vh!important;}',
+       'html body .equip-auto-region-dialog{width:min(40.8rem,94vw)!important;max-width:94vw!important;}',
+       'html body .equip-auto-confirm-card{width:min(26.4rem,94vw)!important;max-width:94vw!important;}',
+       'html body .modal-large{max-width:min(1200px,95vw)!important;}',
+       'html body .exchange-sequence-modal{width:min(1176px,95vw)!important;}',
      '}',
      '@media(max-width:900px){html body .equip-auto-forge-card,html body .equip-auto-region-dialog{max-width:96vw!important;}}'
    ].join('');
