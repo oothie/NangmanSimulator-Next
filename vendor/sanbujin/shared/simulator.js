@@ -335,7 +335,7 @@ function renderAptitudePanel() {
     } else {
         const nextId = state.zizhi + 1;
         const nextConfig = ZZ_DATA[String(nextId)] || { num_talent: 4 };
-        upgradeBtn.textContent = `提升资质（${nextConfig.num_talent} 槽）`;
+        upgradeBtn.textContent = `자질 상승(${nextConfig.num_talent}칸)`;
         upgradeBtn.disabled = false;
     }
 }
@@ -381,9 +381,9 @@ function renderCostInfo() {
     if (lockedCount > 0) {
         eatCount = eatCount + 2 * lockedCount - 1;
     }
-    let text = `当前资质：${zzConfig.zz_name || zzConfig.name}（${zzConfig.num_talent} 槽） · 每次消耗洗髓丹 ×${eatCount}`;
+    let text = `현재 자질: ${zzConfig.zz_name || zzConfig.name}(${zzConfig.num_talent}칸) · 세수 1회 소모: 세수단×${eatCount}`;
     if (lockedCount > 0) {
-        text += `（锁定加价 ${lockedCount}）`;
+        text += `(잠금 추가 소모 ${lockedCount})`;
     }
     document.getElementById('costInfo').textContent = text;
 }
@@ -450,7 +450,7 @@ function buildLogEntryEl(result) {
     }
     tags.push(`<span class="log-tag meta">累${result.totalPills}</span>`);
 
-    const numLabel = result.isExchange ? `换${result.exchangeNo || ''}` : `#${result.washNo}`;
+    const numLabel = result.isExchange ? `치환${result.exchangeNo || ''}` : `#${result.washNo}`;
     entry.innerHTML = `
         <span class="log-num">${numLabel}</span>
         <span class="log-talents">${talentsHtml}</span>
@@ -536,7 +536,7 @@ function exportWashHistory() {
         if (r.isExchange) {
             gap = `${r.exchangedFrom || ''}→${r.exchangedTo || ''}`;
         } else if (r.gotGold) {
-            gap = r.isFirstPurple ? `首次(${r.purpleGapPills})` : String(r.purpleGapPills ?? '');
+            gap = r.isFirstPurple ? `최초 등장(${r.purpleGapPills})` : String(r.purpleGapPills ?? '');
         }
         return [
             r.isExchange ? `换` : r.washNo,
@@ -553,7 +553,7 @@ function exportWashHistory() {
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `洗髓记录_${state.washHistory.length}次.txt`;
+    a.download = `세수 기록_${state.washHistory.length}회.txt`;
     a.click();
     URL.revokeObjectURL(a.href);
 }
@@ -810,10 +810,10 @@ function upgradeZiZhi() {
 
     state.strGift += 100;
     state.conGift += 100;
-    recordManualRoute('upgrade',routeBefore,`提升资质，开启第 ${zzConfig.num_talent} 栏`);
+    recordManualRoute('upgrade',routeBefore,`자질을 올려 ${zzConfig.num_talent}번째 세수 칸 개방`);
 
     updateAll();
-    alert(`资质提升至【${zzConfig.zz_name}】！成功开启 ${zzConfig.num_talent} 个天赋槽位！`);
+    alert(`자질이 【${zzConfig.zz_name}】으로 상승하여 재능 칸 ${zzConfig.num_talent}개가 개방됐습니다.`);
 }
 
 
@@ -1100,12 +1100,12 @@ function updateCustomWashUndoButton() {
     const available = manualWashesAvailable(), count = requestedManualWashCount();
     button.disabled = !available || !count;
     button.textContent = count && String(count).length <= 4 ? `撤回 ${count} 次` : '撤回 N 次';
-    button.setAttribute('aria-label', count ? `撤回填写的 ${count} 次洗脉` : '撤回填写次数的洗脉');
+    button.setAttribute('aria-label', count ? `입력한 세수 ${count}회 되돌리기` : '撤回填写次数的洗脉');
     button.title = '按填写的次数回退本页洗脉进度，可跨多轮连洗；回退点之后的锁脉、置换及记录一并恢复。';
     const number = document.getElementById('customWashNum');
     if (number) number.textContent = count ? Math.min(count, 1000) : 'N';
     const hint = document.getElementById('washUndoAvailable');
-    if (hint) hint.textContent = `本页可撤回 ${available.toLocaleString()} 次` + (count > 1000 ? '；每轮连洗最多 1000 次，撤回不受此限制。' : '');
+    if (hint) hint.textContent = `이 화면에서 ${available.toLocaleString()}회 되돌릴 수 있습니다` + (count > 1000 ? '；每轮连洗最多 1000 次，撤回不受此限制。' : '');
 }
 function restoreManualWashPoint(point) {
     if (!wasmSetState(point.wasm)) throw new Error('撤回状态暂时无法恢复，请稍后重试。');
@@ -1119,7 +1119,7 @@ function restoreManualWashPoint(point) {
 function undoCustomWash() {
     const count = requestedManualWashCount(), available = manualWashesAvailable();
     if (!count) { manualWashUndoFeedback('请输入需要撤回的正整数次数。'); return; }
-    if (count > available) { manualWashUndoFeedback(`本页当前最多可撤回 ${available.toLocaleString()} 次，请调整次数。`); return; }
+    if (count > available) { manualWashUndoFeedback(`이 화면에서는 최대 ${available.toLocaleString()}회만 되돌릴 수 있습니다. 횟수를 조정하세요.`); return; }
     const entries = manualWashUndo.entries;
     let remaining = count, index = entries.length - 1;
     while (index >= 0 && remaining > entries[index].washed) { remaining -= entries[index].washed; index--; }
@@ -1147,7 +1147,7 @@ function undoCustomWash() {
         manualWashUndo.entries = entries.slice(0, index);
         if (keep > 0) manualWashUndo.entries.push({ before: entry.before, washed: keep, endTotal: state.totalWash });
         manualWashUndo.entries.forEach(item => { item.before.history = state.washHistory; });
-        manualWashUndoFeedback(`已按填写数量撤回 ${count.toLocaleString()} 次洗脉。`);
+        manualWashUndoFeedback(`입력한 횟수에 따라 세수 ${count.toLocaleString()}회를 되돌렸습니다.`);
     } catch (error) {
         restoreManualWashPoint(current);
         state.washHistory = originalHistory;
@@ -1455,7 +1455,7 @@ function analyzeExchangeSequenceCandidates(role) {
         const source = cloneExchangeSequenceValue(role.wasmState);
         source.global_vars = exchangeSequenceDataset.globalVars;
         source.talents = (source.talents || []).map(talent => ({ ...talent, locked: false }));
-        if (!wasmSetState(source)) throw new Error(`角色「${role.roleName}」的洗脉进度读取失败，请重新选择人物`);
+        if (!wasmSetState(source)) throw new Error(`${role.roleName}의 세수 진행도를 불러오지 못했습니다. 인물을 다시 선택하세요.`);
         const preview = wasmPreviewSequence(10000) || {};
         const purples = Array.isArray(preview.purples) ? preview.purples : [];
         annotateExchangeSequenceShenmaiPairs(purples, source.talents);
@@ -1580,7 +1580,7 @@ async function populateExchangeSequencePurples() {
         updateExchangeSequenceGenerateButton(role, null);
         if (status) {
             status.className = 'exchange-sequence-status';
-            status.textContent = `正在分析「${role.roleName}」的置换首紫…`;
+            status.textContent = `${role.roleName}의 첫 자맥 치환을 분석하는 중…`;
         }
         await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
         if (token !== exchangeSequenceCandidateLoadToken || role !== selectedExchangeSequenceRole()) return;
@@ -1681,13 +1681,13 @@ function initializeExchangeSequenceSeed(role, candidate, n) {
     const targetTalent = exchangeSequenceTalentByName(candidate.name);
     const targetId = Number(candidate.talentId || targetTalent?.id);
     const isTargetTalent = slot => Number(slot?.id) === targetId;
-    if (!Number.isFinite(targetId)) throw new Error(`未找到所选首紫「${candidate.name}」的数据`);
+    if (!Number.isFinite(targetId)) throw new Error(`선택한 첫 자맥 '${candidate.name}' 데이터를 찾지 못했습니다`);
 
     const lockTalent = name => {
         const target = exchangeSequenceTalentByName(name);
         const current = wasmGetState();
         const slot = target && current?.talents.find(item => Number(item.id) === Number(target.id));
-        if (!slot) throw new Error(`洗脉结果中未找到「${name}」`);
+        if (!slot) throw new Error(`세수 결과에서 '${name}'을 찾지 못했습니다`);
         slot.locked = true;
         current.bag_pills = 999999999;
         current.has_bag_pills = true;
@@ -1710,14 +1710,14 @@ function initializeExchangeSequenceSeed(role, candidate, n) {
                 const targetWash = wasmDoWash();
                 const targetState = wasmGetState();
                 if (!targetWash || !targetState?.talents.some(isTargetTalent)) {
-                    throw new Error(`未洗到所选首紫「${candidate.name}」`);
+                    throw new Error(`선택한 첫 자맥 '${candidate.name}'이 등장하지 않았습니다`);
                 }
                 return { beforeTarget, targetState, targetWash };
             }
             if (batch.length !== batchSize) break;
             remaining -= batchSize;
         }
-        throw new Error(`未洗到所选首紫「${candidate.name}」`);
+        throw new Error(`선택한 첫 자맥 '${candidate.name}'이 등장하지 않았습니다`);
     };
 
     if (directPity) {
@@ -1736,7 +1736,7 @@ function initializeExchangeSequenceSeed(role, candidate, n) {
         const conflictIndex = current && conflict
             ? current.talents.findIndex(item => Number(item.id) === Number(conflict.id))
             : -1;
-        if (!current || conflictIndex < 0) throw new Error(`未找到已锁定的首紫冲突脉「${candidate.conflictName}」`);
+        if (!current || conflictIndex < 0) throw new Error(`잠근 첫 자맥과 충돌하는 '${candidate.conflictName}'을 찾지 못했습니다`);
         const [lockedConflict] = current.talents.splice(conflictIndex, 1);
         lockedConflict.locked = true;
         current.talents = [lockedConflict, ...current.talents.map(item => ({ ...item, locked: false }))];
@@ -1748,7 +1748,7 @@ function initializeExchangeSequenceSeed(role, candidate, n) {
     const initializeThreeSlotShenmaiPair = () => {
         const conflictTalent = exchangeSequenceTalentByName(candidate.conflictName);
         const conflictId = Number(conflictTalent?.id);
-        if (!Number.isFinite(conflictId)) throw new Error(`未找到神脉冲突「${candidate.conflictName}」的数据`);
+        if (!Number.isFinite(conflictId)) throw new Error(`충돌하는 신맥 '${candidate.conflictName}'의 데이터가 없습니다`);
         const writeInitializedState = (source, totalTalentBars, targetPosition = null) => {
             const initialized = cloneExchangeSequenceValue(source);
             initialized.talents = [
@@ -1872,7 +1872,7 @@ function initializeExchangeSequenceSeed(role, candidate, n) {
 
     const conflictLimit = Math.max(200, Number(candidate.conflictWashTimes || 0) + 100);
     if (!hasTalent(candidate.conflictName)) wasmWashUntilTalentName(candidate.conflictName, conflictLimit);
-    if (!hasTalent(candidate.conflictName)) throw new Error(`未洗到首紫冲突脉「${candidate.conflictName}」`);
+    if (!hasTalent(candidate.conflictName)) throw new Error(`첫 자맥과 충돌하는 '${candidate.conflictName}'이 등장하지 않았습니다`);
     lockTalent(candidate.conflictName);
     const fourSlot = isExchangeSequenceFourSlotRole(role);
     let extraLockName = null;
@@ -1885,14 +1885,14 @@ function initializeExchangeSequenceSeed(role, candidate, n) {
         ({ padLockedCount, targetPosition } = initializeThreeSlotShenmaiPair());
     } else {
         if (!hasTalent(candidate.name)) wasmWashUntilTalentName(candidate.name, 20000);
-        if (!hasTalent(candidate.name)) throw new Error(`未洗到所选首紫「${candidate.name}」`);
+        if (!hasTalent(candidate.name)) throw new Error(`선택한 첫 자맥 '${candidate.name}'이 등장하지 않았습니다`);
         lockTalent(candidate.name);
     }
     const padState = wasmGetState();
     const expectedLocks = fourSlot ? 3 : 2;
     const actualLocks = padState?.talents.filter(item => item.locked).length || 0;
-    if (actualLocks !== expectedLocks) throw new Error(`首紫定位前锁定数错误：需要 ${expectedLocks}，实际 ${actualLocks}`);
-    if (n > 0 && (wasmWashMulti(n) || []).length !== n) throw new Error(`首紫锁定后未完成 ${n} 次刷新`);
+    if (actualLocks !== expectedLocks) throw new Error(`첫 자맥을 찾기 전 잠금 개수가 맞지 않습니다. 필요 ${expectedLocks}개, 실제 ${actualLocks}개`);
+    if (n > 0 && (wasmWashMulti(n) || []).length !== n) throw new Error(`첫 자맥 잠금 이후 ${n}회 갱신을 완료하지 못했습니다`);
     const initializedState = wasmGetState();
     const luckSeed = Number(initializedState?.seed);
     if (!Number.isFinite(luckSeed)) throw new Error('无法读取所选首紫及垫洗位置对应的置换序列');
@@ -1930,7 +1930,7 @@ function previewExchangeSequence(base, luckSeed, count) {
         if (pityRows.length >= count) break;
         scanLimit = Math.ceil(scanLimit * 1.75);
     }
-    if (pityRows.length < count) throw new Error(`只生成 ${pityRows.length}/${count} 条保底紫脉，请减少生成项数`);
+    if (pityRows.length < count) throw new Error(`천장 자맥을 ${pityRows.length}/${count}개만 생성했습니다. 생성 개수를 줄이세요.`);
     return pityRows.slice(0, count).map((item, index) => ({
         index: index + 1,
         name: item.talent_name,
@@ -1959,7 +1959,7 @@ function renderExchangeSequence(role, candidate, n, result) {
     if (initialSeed) {
         initialSeed.textContent = result.directPity || result.fixed
             ? '沿用已固定的置换序列'
-            : `从首紫后的第 ${n} 条脉开始比较`;
+            : `첫 자맥 이후 ${n}번째 맥부터 비교`;
     }
     if (grid) {
         grid.innerHTML = result.outputs.map(item =>
@@ -1969,11 +1969,11 @@ function renderExchangeSequence(role, candidate, n, result) {
     }
     if (empty) empty.hidden = true;
     const extraLock = result.extraLockName ? `（${result.extraLockName}）` : '';
-    const lockMode = result.padLockedCount ? ` · ${role.slotCount}脉锁${result.padLockedCount}${extraLock}` : '';
+    const lockMode = result.padLockedCount ? ` · ${role.slotCount}칸 중 ${result.padLockedCount}칸 잠금${extraLock}` : '';
     if (meta) {
         meta.textContent = result.directPity
-            ? `${role.roleName} · 首位保底紫 ${candidate.name} · 置换序列已固定 · 前 ${result.outputs.length} 条`
-            : `${role.roleName} · 置换首紫 ${candidate.name} · 紫后第 ${n} 条脉${lockMode} · 前 ${result.outputs.length} 条`;
+            ? `${role.roleName} · 첫 천장 자맥 ${candidate.name} · 치환 순서 고정 · 최초 ${result.outputs.length}개`
+            : `${role.roleName} · 첫 자맥 ${candidate.name} 치환 · 자맥 이후 ${n}번째 맥${lockMode} · 최초 ${result.outputs.length}개`;
     }
 }
 
@@ -2001,7 +2001,7 @@ async function compareFirstPurple() {
     try {
         for (let n=0;n<=last;n++) {
             if (token!==exchangeCompareToken || document.getElementById('exchangeSequenceModal')?.hidden || selectedExchangeSequenceRole()!==role || selectedExchangeSequenceCandidate(role)!==candidate) return;
-            status.textContent=`正在比较 ${n+1} / ${last+1}…`;
+            status.textContent=`비교 진행 중 ${n+1}/${last+1}…`;
             await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve,0)));
             if (token!==exchangeCompareToken) return;
             const line=document.createElement('tr'),position=document.createElement('td'),value=document.createElement('td'),action=document.createElement('td');position.textContent=fixed?'已固定':String(n);
@@ -2013,7 +2013,7 @@ async function compareFirstPurple() {
             } catch(error) {value.textContent=playerError(error);}
             line.append(position,value,action);body.append(line);
         }
-        if(token===exchangeCompareToken)status.textContent=fixed?'置换序列已固定，垫洗不会改变置换结果。':`已比较 ${last+1} 个位置；点击“查看”可生成对应的完整置换序列。`;
+        if(token===exchangeCompareToken)status.textContent=fixed?'置换序列已固定，垫洗不会改变置换结果。':`${last+1}개 위치를 비교했습니다. '보기'를 누르면 해당 치환 순서를 생성합니다.`;
     } finally { if(token===exchangeCompareToken){exchangeSequenceRunning=false;host.querySelectorAll('button').forEach(button=>{button.disabled=false});updateExchangeSequenceGenerateButton();} }
 }
 
@@ -2209,7 +2209,7 @@ function paintPurpleForecastTable() {
         let conflictText = '-';
         if (item.earlier_conflict_name) {
             const prevWashStr = item.earlier_conflict_wash_no === 0 ? '初始槽位' : `#${item.earlier_conflict_wash_no}`;
-            const gapStr = item.earlier_conflict_gap != null ? `相距 ${item.earlier_conflict_gap} 条` : '';
+            const gapStr = item.earlier_conflict_gap != null ? `${item.earlier_conflict_gap}개 맥 간격` : '';
             const purpleTag = item.earlier_conflict_is_purple ? ' · 紫' : '';
             conflictText = `<span class="conflict-cell">前有「${item.earlier_conflict_name}」<span class="conflict-wash-no">(${prevWashStr}，${gapStr}${purpleTag})</span></span>`;
         } else if (item.block_reason) {
@@ -2362,13 +2362,13 @@ function washToConflictAndLock(item) {
         return;
     }
     if (item.earlier_conflict_is_purple) {
-        alert(`冲突「${item.earlier_conflict_name}」为紫脉/神脉，请改在「紫脉脉序与置换推演」中操作神脉互冲`);
+        alert(`충돌 대상 '${item.earlier_conflict_name}'은 자맥/신맥입니다. '자맥 순서 및 치환 시뮬레이션'에서 신맥 간 충돌을 처리하세요.`);
         return;
     }
     const conflictTimes = item.earlier_conflict_wash_times || 0;
     const conflictSeq = item.earlier_conflict_wash_no || 0;
     if (conflictTimes > 0 && state.totalWash > conflictTimes) {
-        alert(`当前已洗 ${state.totalWash} 次（超过冲突脉洗髓次数 ${conflictTimes}，脉序 #${conflictSeq}）。请重置网页后重试。`);
+        alert(`현재 세수 ${state.totalWash}회 진행 상태가 충돌맥 세수 ${conflictTimes}회(순서 #${conflictSeq})를 초과합니다. 화면을 초기화한 뒤 다시 시도하세요.`);
         return;
     }
     if (conflictTimes > state.totalWash) {
@@ -2384,7 +2384,7 @@ function washToConflictAndLock(item) {
         const r = batchWashUntilName(item.earlier_conflict_name, 80);
         if (!r.found) {
             updateAll();
-            alert(`脉序 #${conflictSeq || '-'}（洗${conflictTimes || state.totalWash}次）附近未出现「${item.earlier_conflict_name}」`);
+            alert(`맥 순서 #${conflictSeq || '-'}(세수 ${conflictTimes || state.totalWash}회) 부근에 '${item.earlier_conflict_name}'이 등장하지 않았습니다`);
             return;
         }
     }
@@ -2404,7 +2404,7 @@ function washToPurpleTalent(item) {
     updateAll();
     if (!r.found) {
         alert(r.washed > 0
-            ? `连洗 ${r.washed} 次仍未出现「${item.talent_name}」，请确认已锁定冲突脉`
+            ? `${r.washed}회 연속 세수했지만 '${item.talent_name}'이 등장하지 않았습니다. 충돌맥 잠금을 확인하세요.`
             : '未能洗到紫脉');
     }
     findAndShowNextConflict(state.totalTalentBars);
@@ -2435,7 +2435,7 @@ function findAndShowNextConflict(afterSeq) {
     if (!hasLockableNonPurpleConflict(item)) {
         const reason = item.block_reason
             || (!item.earlier_conflict_name
-                ? `下一紫「${item.talent_name}」无同类冲突，无法置换`
+                ? `다음 자맥 '${item.talent_name}'과 같은 종류의 충돌이 없어 치환할 수 없습니다.`
                 : (item.earlier_conflict_is_purple
                     ? `下一紫「${item.talent_name}」冲突为紫脉/神脉「${item.earlier_conflict_name}」，无非紫脉冲突可锁定（神脉可在脉序推演中互冲）`
                     : `下一紫「${item.talent_name}」不可按锁冲突流程置换`));
@@ -2461,7 +2461,7 @@ function findAndShowNextConflict(afterSeq) {
     const conflictSeq = item.earlier_conflict_wash_no || 0;
     const conflictTimes = item.earlier_conflict_wash_times || 0;
     const prevWashStr = conflictSeq === 0 ? '初始槽位' : `#${conflictSeq}`;
-    const gapStr = item.earlier_conflict_gap != null ? `相距 ${item.earlier_conflict_gap} 条` : '';
+    const gapStr = item.earlier_conflict_gap != null ? `${item.earlier_conflict_gap}개 맥 간격` : '';
     const pity = item.was_pity ? ' · 保底' : '';
 
     const toConflictWash = conflictTimes > curWash ? conflictTimes - curWash : 0;
@@ -2743,7 +2743,7 @@ function renderExchangeAnalysisBlock() {
             conflictHtml = `冲突：${nodeSim.conflict_name}`;
         } else if (item.earlier_conflict_name) {
             const prevWashStr = item.earlier_conflict_wash_no === 0 ? '初始槽位' : `#${item.earlier_conflict_wash_no}`;
-            const gapStr = item.earlier_conflict_gap != null ? `相距 ${item.earlier_conflict_gap} 条` : '';
+            const gapStr = item.earlier_conflict_gap != null ? `${item.earlier_conflict_gap}개 맥 간격` : '';
             conflictHtml = `冲突：「${item.earlier_conflict_name}」(${prevWashStr}${gapStr ? '，' + gapStr : ''})`;
         } else if (isShenmaiTalentId(item.talent_id)) {
             conflictHtml = '冲突：锁留（前序若已有神脉则自动互冲置换）';
@@ -4571,7 +4571,7 @@ function validateEquipAutoSelection() {
     if (message) {
         message.textContent = errors.length
             ? errors.join('；')
-            : (skippedBranchCount ? `将运行 ${compatibleBranches.length} 个兼容分支，跳过 ${skippedBranchCount} 个不可能出现目标属性的分支。` : '可以开始模拟；精炼属性将在结果中筛选。');
+            : (skippedBranchCount ? `호환되는 경로 ${compatibleBranches.length}개를 실행하고, 목표 옵션이 나올 수 없는 ${skippedBranchCount}개 경로는 제외합니다.` : '可以开始模拟；精炼属性将在结果中筛选。');
         message.classList.toggle('is-error', errors.length > 0);
     }
     return { valid: errors.length === 0, errors, makeRnd, branches, compatibleBranches, skippedBranchCount };
@@ -4721,7 +4721,7 @@ function equipAutoRefinementHtml(refinement, upgradeCost = null) {
 
 function equipAutoAttachmentHtml(attachment) {
     const stageText = attachment.stage === 'before' ? '升炼前' : '升炼后';
-    const levelText = Number(attachment.equipLevel) > 0 ? ` · ${Number(attachment.equipLevel)}级` : '';
+    const levelText = Number(attachment.equipLevel) > 0 ? ` · ${Number(attachment.equipLevel)}레벨` : '';
     const stageHtml = `<span class="equip-auto-attachment-stage">${stageText}${levelText}</span>`;
     if (attachment.unavailable) {
         return `<div class="equip-auto-attach-card"><strong>附加 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><div class="ai-result-error">附加不可用</div></div>`;
@@ -4781,7 +4781,7 @@ function equipAutoManualAttachState(candidate) {
 function equipAutoManualAttachHtml(candidate) {
     const candidateId = String(candidate && candidate.id || '');
     const firstStage = Number(candidate && candidate.craftSpecialEquipLevel) > 0
-        ? `升炼前 · ${Number(candidate.craftSpecialEquipLevel)}级`
+        ? `승련 전 · ${Number(candidate.craftSpecialEquipLevel)}레벨`
         : '升炼前';
     if (!candidate || !candidate.canSimulateSpecialAttach || !candidate.specialAttachEquips || !candidate.craftSpecialId) {
         return `<div class="equip-auto-manual-attach is-unavailable" data-candidate-id="${escapeAiHtml(candidateId)}">
@@ -5668,7 +5668,7 @@ function equipAutoCandidateHtml(candidate, options) {
     return `<details class="equip-auto-candidate is-${rating.key}">
         <summary>
             <span class="equip-auto-leading">
-            <span class="equip-auto-rating is-${rating.key}" title="${combo ? '组合품질: 按选中槽位分别计算百分比后取平均' : '정련 품질: 세 슬롯의 이론상 최대 수치 기준'} ${rating.label} ${rating.roundedPercent}%"><strong>${rating.label}</strong><small>${rating.roundedPercent}%</small></span>
+            <span class="equip-auto-rating is-${rating.key}" title="${combo ? '조합 품질: 선택한 슬롯별 달성률의 평균' : '정련 품질: 세 슬롯의 이론상 최대 수치 기준'} ${rating.label} ${rating.roundedPercent}%"><strong>${rating.label}</strong><small>${rating.roundedPercent}%</small></span>
             <span class="equip-auto-expand-hint" aria-hidden="true">详情<i>›</i></span>
             </span>
             <span class="equip-auto-candidate-main">
@@ -5950,9 +5950,9 @@ function renderEquipAutoResultPage() {
     const range = pageData.items.length ? `${pageData.start + 1}–${pageData.end}` : '0';
     const totalSuffix = filteredCandidates.length === equipAutoLastResult.candidates.length
         ? ''
-        : `（全部 ${equipAutoLastResult.candidates.length} 件）`;
+        : `(전체 ${equipAutoLastResult.candidates.length}개)`;
 
-    if (pageInfo) pageInfo.textContent = `第 ${pageData.page}/${pageData.pageCount} 页 · 显示 ${range} / ${filteredCandidates.length} 件${totalSuffix}`;
+    if (pageInfo) pageInfo.textContent = `${pageData.page}/${pageData.pageCount}페이지 · ${range}/${filteredCandidates.length}개 표시${totalSuffix}`;
     if (pageSize) pageSize.value = String(pageData.pageSize);
     if (locationFilter) locationFilter.value = equipAutoResultLocationFilter;
     if (paperFilter) paperFilter.value = equipAutoResultPaperFilter;
@@ -5969,7 +5969,7 @@ function renderEquipAutoResultPage() {
     if (showBlue) showBlue.value = equipAutoResultBlueMode;
     if (previous) previous.disabled = pageData.page <= 1;
     if (next) next.disabled = pageData.page >= pageData.pageCount;
-    if (heading) heading.textContent = `筛选结果：${filteredCandidates.length} 件，本页 ${pageData.items.length} 件`;
+    if (heading) heading.textContent = `필터 결과 ${filteredCandidates.length}개 · 현재 페이지 ${pageData.items.length}개`;
     if (page) {
         page.innerHTML = pageData.items.length
             ? equipAutoCandidateListHtml(pageData.items)
@@ -6476,7 +6476,7 @@ async function runEquipAutoComboFilter() {
     try {
         for (let i = 0; i < candidates.length; i++) {
             if (token !== equipAutoComboToken) return;
-            if (status) status.textContent = `正在回放组合 ${i+1}/${candidates.length} 件…`;
+            if (status) status.textContent = `정련 조합 재현 중 ${i+1}/${candidates.length}개…`;
             const candidate = candidates[i], equip = equipAutoRefineWasmEquip(candidate);
             const plan = EquipmentAutoOptimizer.analyzeRefinementCombination({xilianPlan:(eq, flags) => wasmXilianPlan(eq, flags)}, equip, wanted, count, EQUIP_DATA);
             if (plan) plans.set(String(candidate.id), plan);
@@ -6485,7 +6485,7 @@ async function runEquipAutoComboFilter() {
         if (token !== equipAutoComboToken) return;
         equipAutoComboPlans = plans; equipAutoComboActive = true; equipAutoResultPropFilter = ''; equipAutoResultSort = 'default'; equipAutoResultPage = 1;
         const prop = document.getElementById('equipAutoResultPropFilter'); if (prop) prop.value = '';
-        if (status) status.textContent = `已回放 ${candidates.length} 件，${plans.size} 件满足组合；各结果均可按路线操作。`;
+        if (status) status.textContent = `${candidates.length}개를 재현했으며 ${plans.size}개가 조합 조건을 충족합니다. 각 결과의 정련 경로를 확인할 수 있습니다.`;
         renderEquipAutoResultPage();
     } catch (error) {
         resetEquipAutoCombo();
@@ -7343,7 +7343,7 @@ function updateJianwangAutoStartHint() {
     }
     const id = Number(sword.id);
     if (id <= 5709) {
-        hint.textContent = `从${optimizer.stageName(EQUIP_DATA, sword)}开始，按所选路线逐级升至90级；每一步已有目标词条时都会自动保留。`;
+        hint.textContent = `${optimizer.stageName(EQUIP_DATA, sword)}부터 선택한 경로로 90레벨까지 성장합니다. 각 단계에서 이미 보유한 목표 옵션은 자동 유지합니다.`;
         return;
     }
     if (id >= 5714 && id <= 5717) {
@@ -7354,7 +7354,7 @@ function updateJianwangAutoStartHint() {
     if (routeId && currentRoute === routeId) {
         const counts = optimizer.extractReforgeCounts(state.saveData || {});
         const used = Number(counts[String(routeId)] || 0);
-        hint.textContent = `起始实物与所选路线一致：先从当前进度继续剩余 ${Math.max(0, optimizer.JIANWANG_REFORGE_LIMIT - used)} 次90级重铸；仍未达成才碎剑进入下一把。`;
+        hint.textContent = `선택한 경로와 시작 장비가 일치합니다. 현재 진행도부터 90레벨 재주조 ${Math.max(0, optimizer.JIANWANG_REFORGE_LIMIT - used)}회를 먼저 진행하고, 실패할 때만 검을 분해해 다음 검으로 넘어갑니다.`;
     } else {
         hint.textContent = '起始90级实物与所选路线不同：不会消耗这把剑的重铸次数，直接碎剑后从下一把60级剑胚进入所选路线。';
     }
@@ -7437,7 +7437,7 @@ function jianwangAutoFormatExts(exts) {
 
 function jianwangAutoStepLabel(step) {
     if (step.type === 'blank') return `碎剑后生成${step.toName || '60级剑胚'}`;
-    if (step.type === 'reforge') return `第 ${Number(step.reforgeAttempt || 0)} 次重铸`;
+    if (step.type === 'reforge') return `재주조 제${Number(step.reforgeAttempt || 0)}회`;
     return `${step.fromName || step.fromId} → ${step.toName || step.toId}`;
 }
 
@@ -7563,7 +7563,7 @@ function renderJianwangAutoResult(result) {
         return;
     }
     if (result.status === 'cancelled') {
-        const foundText = Number(result.successCount || 0) > 0 ? `、已找到 ${Number(result.successCount).toLocaleString()} 次三同结果` : '';
+        const foundText = Number(result.successCount || 0) > 0 ? ` · 동일 옵션 3개 결과 ${Number(result.successCount).toLocaleString()}회 발견` : '';
         container.innerHTML = `<div class="ai-result-empty">已取消计算。已模拟 ${Number(result.metrics?.newSwords || 0).toLocaleString()} 把新剑、重铸 ${Number(result.metrics?.reforges || 0).toLocaleString()} 次${foundText}。</div>`;
         return;
     }
@@ -7575,7 +7575,7 @@ function renderJianwangAutoResult(result) {
         const metrics = result.metrics || {};
         const matches = Array.isArray(result.matches) ? result.matches : [];
         const cards = matches.map((match, matchIndex) => {
-            const swordText = match.startedFromCurrent ? '当前起始剑' : `第 ${Number(match.swordOrdinal || 0).toLocaleString()} 把新剑`;
+            const swordText = match.startedFromCurrent ? '当前起始剑' : `새 검 제${Number(match.swordOrdinal || 0).toLocaleString()}자루`;
             const path = Array.isArray(match.path) ? match.path : [];
             const steps = path.length ? path.map((step, index) => {
                 const keepText = step.kept ? `保留 ${jianwangAutoFormatExt(step.kept)}` : '不保留';
@@ -7597,7 +7597,7 @@ function renderJianwangAutoResult(result) {
         }).join('');
         container.innerHTML = `<div class="jianwang-auto-summary">
             <div><span class="ai-route-strength">三同结果</span><strong>${escapeAiHtml(result.routeName || '')} · ${escapeAiHtml(result.targetName || '')}</strong></div>
-            <p>${escapeAiHtml(result.reason || `找到 ${matches.length} 次三同词条结果`)}</p>
+            <p>${escapeAiHtml(result.reason || `동일 옵션 3개 결과 ${matches.length}회 발견`)}</p>
             <p class="jianwang-auto-start-line">起点：${escapeAiHtml(result.startSwordLabel || '')}</p>
         </div>
         <div class="jianwang-auto-metrics">
@@ -7628,7 +7628,7 @@ function renderJianwangAutoResult(result) {
     }
     const metrics = result.metrics || {};
     const targetCount = Number(result.targetCount || 4) === 3 ? 3 : 4;
-    const swordText = result.startedFromCurrent ? '当前起始剑' : `第 ${Number(result.swordOrdinal || 0).toLocaleString()} 把新剑`;
+    const swordText = result.startedFromCurrent ? '当前起始剑' : `새 검 제${Number(result.swordOrdinal || 0).toLocaleString()}자루`;
     const finalExts = jianwangAutoFormatExts(result.finalEquip?.exts || []);
     const path = Array.isArray(result.path) ? result.path : [];
     const steps = path.length ? path.map((step, index) => {
