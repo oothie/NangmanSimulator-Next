@@ -4,6 +4,16 @@ const COLOR_NAMES = (typeof EQUIP_DATA !== 'undefined' && EQUIP_DATA.colorNames)
 const PROP_NAMES = (typeof EQUIP_DATA !== 'undefined' && EQUIP_DATA.propNames) || {};
 const TYPE_NAMES = (typeof EQUIP_DATA !== 'undefined' && EQUIP_DATA.typeNames) || {};
 
+function nangmanEquipmentDisplayName(e) {
+    const cfg = EQUIP_DATA.equipment?.[String(e?.id ?? e?.equip_id ?? '')];
+    const original = String(e?.name ?? cfg?.name ?? '');
+    return cfg?.koName || window.SBJ_KOREAN?.translate?.(original) || original;
+}
+function nangmanEquipmentDisplayText(value) {
+    const original = String(value ?? '');
+    return window.SBJ_KOREAN?.translate?.(original) || original;
+}
+
 let makeRndSnapshot = null;
 let saveLoaded = false;
 let logLines = [];
@@ -374,6 +384,7 @@ function passEquipListFilter(e, which) {
     if (!q) return true;
     const hay = [
         e.name,
+        nangmanEquipmentDisplayName(e),
         e._mark,
         e._source,
         e._owner,
@@ -496,7 +507,7 @@ function renderCraftedBagList() {
         const faved = typeof EquipFavorites !== 'undefined'
             ? EquipFavorites.has(favArchive, e.only_id) : false;
         return `<div class="crafted-bag-row" data-only-id="${e.only_id}">
-            <div class="bag-meta">${escapeHtml(e.name)} · ${e.need_lv}레벨 · ${escapeHtml(String(color))} · ${escapeHtml(String(typ))} · #${e.only_id}</div>
+            <div class="bag-meta">${escapeHtml(nangmanEquipmentDisplayName(e))} · ${e.need_lv}레벨 · ${escapeHtml(String(color))} · ${escapeHtml(String(typ))} · #${e.only_id}</div>
             <input type="text" class="crafted-mark-input" maxlength="40" value="${escapeHtml(mark)}" placeholder="표식 입력">
             <div class="bag-actions">
                 <button type="button" class="btn btn-reset btn-row-action ${faved ? 'is-faved' : ''}" data-act="fav">${faved ? '★ 즐겨찾기 완료' : '☆ 즐겨찾기'}</button>
@@ -958,7 +969,7 @@ function formatStoneBag(bag) {
     const parts = [];
     for (const id of [3027, 3028, 3029, 3030]) {
         const n = bag.stones?.[id] || 0;
-        if (n) parts.push(`${STONE_NAMES[id]}×${n}`);
+        if (n) parts.push(`${nangmanEquipmentDisplayText(STONE_NAMES[id])}×${n}`);
     }
     if (bag.silver) parts.push(`은냥 ${formatSilver(bag.silver)}`);
     return parts.join(' · ') || '—';
@@ -2080,7 +2091,7 @@ function setMakeAdvanceNotice(result, crafted, advancedCount) {
     makeAdvanceNotice = {
         advancedCount: n,
         result: {
-            name: result?.name || String(result?.equip_id || '장비'),
+            name: EQUIP_DATA.equipment?.[String(result?.equip_id || result?.id || '')]?.koName || nangmanEquipmentDisplayText(result?.name || String(result?.equip_id || '장비')),
             color,
             base: result?.base || {},
             exts: result?.exts || [],
@@ -2432,15 +2443,15 @@ function equipOptionLabel(e, mode) {
     const color = COLOR_NAMES[e.color] || e.color;
     const mark = e._mark ? `「${e._mark}」` : '';
     if (mode === 'strong') {
-        return `${mark}${e.name} · 촉련 ${e.level} · 성장 계수 ${e.lv_prop} · ${wear}`;
+        return `${mark}${nangmanEquipmentDisplayName(e)} · 촉련 ${e.level} · 성장 계수 ${e.lv_prop} · ${wear}`;
     }
     if (mode === 'shenglian') {
         const cfg = EQUIP_DATA.equipment[String(e.id)] || {};
         const next = EQUIP_DATA.equipment[String(cfg.equ_next)] || {};
         const typ = TYPE_NAMES[e.typ] || e.typ;
-        return `${mark}${e.name} · ${e.need_lv}→${next.lv || 100} · ${color} · ${typ} · ${wear}`;
+        return `${mark}${nangmanEquipmentDisplayName(e)} · ${e.need_lv}→${next.lv || 100} · ${color} · ${typ} · ${wear}`;
     }
-    return `${mark}${e.name} · ${e.need_lv}레벨 · ${color} · 옵션 ${e.exts.length}개 · ${wear}`;
+    return `${mark}${nangmanEquipmentDisplayName(e)} · ${e.need_lv}레벨 · ${color} · 옵션 ${e.exts.length}개 · ${wear}`;
 }
 
 function canPredictSpecialAttach(equip) {
@@ -2457,7 +2468,7 @@ function specialAttachEquipLabel(equip) {
     const current = equip.specials.length
         ? equip.specials.map(item => `${propLabel(item.prop)}+${formatPropValue(item.prop, item.value)}`).join(' / ')
         : '현재 적색 옵션 없음';
-    return `${source} · ${equip.name} · ${base} · ${current} · #${equip.only_id}`;
+    return `${source} · ${nangmanEquipmentDisplayName(equip)} · ${base} · ${current} · #${equip.only_id}`;
 }
 
 function specialMaterialsForEquip(equip) {
@@ -3270,8 +3281,8 @@ function sumXilianCosts(eq, items, untilIdx) {
 
 function formatXilianCostText(total) {
     return Object.entries(total).map(([name, n]) => {
-        if (name === '银两') return `${name}${formatSilver(n)}`;
-        return `${name}×${n}`;
+        if (name === '银两') return `${nangmanEquipmentDisplayText(name)} ${formatSilver(n)}`;
+        return `${nangmanEquipmentDisplayText(name)}×${n}`;
     }).join(' · ') || '—';
 }
 
@@ -3456,7 +3467,7 @@ function formatCostChips(bag) {
     const chips = [];
     for (const id of [3027, 3028, 3029, 3030]) {
         const n = bag?.stones?.[id] || 0;
-        if (n) chips.push(`<span class="cost-chip">${STONE_NAMES[id]}×${n}</span>`);
+        if (n) chips.push(`<span class="cost-chip">${nangmanEquipmentDisplayText(STONE_NAMES[id])}×${n}</span>`);
     }
     if (bag?.silver) chips.push(`<span class="cost-chip">은냥 ${formatSilver(bag.silver)}</span>`);
     return chips.join('') || '<span class="cost-chip">—</span>';
