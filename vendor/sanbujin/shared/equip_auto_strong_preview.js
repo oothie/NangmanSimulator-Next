@@ -116,7 +116,7 @@
                 var f = st3.from;
                 if (f.action === 'accept') {
                     accepts[f.seq + 1] = true;
-                    steps.push({ index: f.seq + 1, action: '수락', level: f.level, grade: f.grade });
+                    steps.push({ index: f.seq + 1, action: '接受', level: f.level, grade: f.grade });
                     i3 = f.i; k3 = f.k;
                 } else if (f.action === 'skip') {
                     steps.push({ index: f.seq + 1, action: '取消', level: f.level, grade: f.grade });
@@ -159,7 +159,7 @@
             return '<article class="equip-auto-forge-plan is-fail"><header><h4>' + title + '</h4></header>'
                 + '<p>' + escapeHtml((plan && plan.reason) || '사용 불가') + '</p></article>';
         }
-        var accepts = plan.steps.filter(function (s) { return s.action === '수락'; });
+        var accepts = plan.steps.filter(function (s) { return s.action === '接受'; });
         return '<article class="equip-auto-forge-plan"><header><h4>' + title + '</h4><span>' + tag + '</span></header>'
             + '<div class="equip-auto-forge-metrics">'
             + '<div><b>' + plan.attempts + '</b><span>시도 횟수</span></div>'
