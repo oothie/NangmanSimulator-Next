@@ -503,43 +503,51 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 
 <script id="nangman-integrated-equipment-bridge">
 (function(){
- const kind="jianwang-manual";
- let lastSave=null,appliedVersion=-1,requestInProgress=false;
- function reply(status,message,version){
-  if(window.parent!==window)parent.postMessage({kind:'nangman-native-equipment',module:kind,status,message:message||'',version:version??appliedVersion},location.origin);
+ const moduleName="jianwang-manual",isAuto=false;
+ let saved=null,requestedVersion=0,confirmedVersion=-1,running=false,retryTimer=null;
+ function signal(status,message,version){
+  if(parent!==window)parent.postMessage({kind:'nangman-native-equipment',module:moduleName,status,message:message||'',version:version??requestedVersion},location.origin);
  }
  async function apply(){
-  if(!lastSave||requestInProgress)return;
-  requestInProgress=true;
-  let done=false,error='';
+  if(running||!saved||confirmedVersion===requestedVersion)return;
+  running=true;
+  const version=requestedVersion;
+  let worked=false,error='';
   try{
-    for(let i=0;i<40;i++){
-      try{
-        if(typeof loadSaveData==='function' && /equip|jianwang-manual/.test(kind)){
-           const result=loadSaveData(lastSave);if(result&&typeof result.then==='function')await result;done=true;break;
-        }
-        if(typeof loadParsedSaveData==='function'){
-           const result=loadParsedSaveData(lastSave,false);if(result&&typeof result.then==='function')await result;done=true;break;
-        }
-        if(typeof loadSaveData==='function'){
-           const result=loadSaveData(lastSave);if(result&&typeof result.then==='function')await result;done=true;break;
-        }
-      }catch(e){error=String(e.message||e)}
-      await new Promise(r=>setTimeout(r,250));
-    }
-    if(done){appliedVersion=lastSave.__nangmanTransferVersion??appliedVersion;reply('applied','한국판 세이브 적용 완료');}
-    else reply('error',error||'산부진 세이브 입력 함수 또는 WASM이 아직 준비되지 않았습니다.');
-  }finally{requestInProgress=false}
+   const root=Array.isArray(saved)?saved[0]:saved;
+   if(!root||typeof root!=='object')throw Error('한국판 세이브 JSON 객체가 없습니다.');
+   for(let n=0;n<48;n++){
+    try{
+     if(isAuto&&typeof loadParsedSaveData==='function'){
+      const r=loadParsedSaveData(root,false);if(r&&typeof r.then==='function')await r;worked=true;break;
+     }
+     if(!isAuto&&typeof loadSaveData==='function'){
+      const r=loadSaveData(root);if(r&&typeof r.then==='function')await r;worked=true;break;
+     }
+    }catch(e){error=String(e.message||e)}
+    await new Promise(resolve=>setTimeout(resolve,250));
+   }
+   if(worked){
+    confirmedVersion=version;
+    signal('applied','한국판 세이브가 '+moduleName+' 계산기에 적용됐습니다.',version);
+   }else signal('error',error||'WASM 또는 산부진 원본 세이브 로더가 아직 준비되지 않았습니다.',version);
+  }catch(e){signal('error',String(e.message||e),version)}
+  finally{
+   running=false;
+   if(worked&&requestedVersion!==version)setTimeout(apply,0);
+  }
  }
  window.addEventListener('message',e=>{
-  if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-equip-save')return;
-  lastSave=e.data.save;appliedVersion=e.data.version;
-  Promise.resolve().then(apply).catch(err=>reply('error',String(err.message||err)));
+  if(e.source!==parent||e.origin!==location.origin||e.data?.kind!=='nangman-equip-save')return;
+  if(!Number.isInteger(e.data.version))return;
+  if(confirmedVersion===e.data.version)return;
+  saved=e.data.save;requestedVersion=e.data.version;
+  clearTimeout(retryTimer);retryTimer=setTimeout(apply,125);
  });
  window.addEventListener('load',()=>{
   try{window.YYJHI18n?.set('ko-KR')}catch(e){}
-  reply('ready','산부진 계산 화면 준비');
-  if(lastSave)apply();
+  signal('ready','원본 엔진 준비됨');
+  if(saved)apply();
  });
 })();
 </script></body>
