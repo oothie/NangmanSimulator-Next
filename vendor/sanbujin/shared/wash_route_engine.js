@@ -266,7 +266,7 @@
                 .map(key => talentData[String(key)])
                 .filter(item => item && numeric(item.weight));
             if (ordered.length !== 114) {
-                throw new Error(`天赋资料不完整，请刷新后重试。已读取数量：${ordered.length} 条`);
+                throw new Error(`재능 데이터가 불완전합니다. 새로고침 후 다시 시도하세요. 읽은 항목: ${ordered.length}개`);
             }
             this.config = new Map(ordered.map(item => [numeric(item.id), item]));
             this.allIds = ordered.map(item => numeric(item.id));
