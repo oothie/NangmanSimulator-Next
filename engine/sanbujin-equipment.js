@@ -2,7 +2,7 @@
 // yy-sim 장비 난수 엔진과 기존 Roboking 장비 계산은 호출하지 않습니다.
 // External assets are loaded from the original Sanbujin server until bundled locally.
 // Browser-only, simulations are read-only and reset to the loaded save per preview.
-const SOURCE='https://tool.launch-ai.cloud/suanbujin/shared/';
+const SOURCE='./vendor/sanbujin/shared/';
 const required=[
  'equip_data.js',
  'wasm_data.js',

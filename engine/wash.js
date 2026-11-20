@@ -2,7 +2,7 @@
 // the browser. Until Korean save mapping is verified, only an explicit sandbox
 // seed may be used. No account/save data are posted to yy-sim.
 let ready=null,initDone=false;
-const BASE='https://yy-sim.pages.dev/';
+const BASE='./vendor/yysim/';
 function script(url){
  return new Promise((resolve,reject)=>{
  const el=document.createElement('script');el.src=url;el.async=false;

@@ -1,0 +1,3 @@
+importScripts('../shared/wasm_data.js','../shared/sequence_rules.js','../shared/core_glue.js?v=20261105314&rev=f42d00895211','../shared/equip_data.js');
+let ready;
+self.onmessage=async({data:m})=>{try{ready||=(async()=>{await initWasm();if(!wasmMakeInitTables(EQUIP_DATA))throw Error('装备数据初始化失败');})();await ready;if(!wasmMakeSetState(m.state))throw Error('打造状态读取失败');self.postMessage({id:m.id,result:m.paddingCount!=null?wasmMakePaddedOnce(m.request,m.paddingRequest,m.paddingCount):m.paddingRequest?wasmMakePaddingPreview(m.request,m.paddingRequest,m.count):wasmMakePreview(m.request,m.count)});}catch(error){self.postMessage({id:m.id,error:error.message});}};

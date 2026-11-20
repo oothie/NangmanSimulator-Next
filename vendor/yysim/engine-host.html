@@ -1,0 +1,15 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>yy-sim 세수 엔진</title></head><body><script src="./wasm_data.js"></script><script src="./core_glue.js"></script><script src="./data.js"></script><script>
+let ready=false;
+function send(requestId,ok,data){parent.postMessage({kind:'yysim-wash',requestId,ok,data},location.origin)}
+window.addEventListener('message',async e=>{if(e.origin!==location.origin||e.source!==parent)return;
+const {kind,requestId,op,payload}=e.data||{};if(kind!=='nangman-engine-command')return;
+try{
+ if(op==='init'){if(!ready){const ok=await initWasm();if(!ok||!wasmInitEngine(TALENT_DATA,ZZ_DATA))throw Error('yy-sim 세수 WASM 초기화 실패');ready=true}send(requestId,true,{ready:true});return}
+ if(!ready)throw Error('yy-sim 엔진 초기화가 필요합니다');
+ if(op==='state'){send(requestId,true,wasmGetState());return}
+ if(op==='set-state'){if(!wasmSetState(payload))throw Error('세수 상태 지정 실패');send(requestId,true,wasmGetState());return}
+ if(op==='wash'){const count=Number(payload?.count||1);if(!Number.isInteger(count)||count<1||count>100)throw Error('1–100회만 실행');const results=count===1?wasmDoWash():wasmWashMulti(count);send(requestId,true,{results,state:wasmGetState()});return}
+ throw Error('알 수 없는 명령');
+}catch(err){send(requestId,false,{error:String(err.message||err)})}
+});
+</script></body></html>

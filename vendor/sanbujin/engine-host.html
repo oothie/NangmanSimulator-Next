@@ -1,0 +1,26 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>산부진 장비 계산 엔진</title></head><body><script src="./shared/equip_data.js"></script><script src="./shared/wasm_data.js"></script><script src="./shared/sequence_rules.js"></script><script src="./shared/core_glue.js"></script><script>
+let loaded=false,snapshot=null;
+function send(requestId,ok,data){parent.postMessage({kind:'sanbujin-equipment',requestId,ok,data},location.origin)}
+window.addEventListener('message',async e=>{if(e.origin!==location.origin||e.source!==parent)return;
+const {kind,requestId,op,payload}=e.data||{};if(kind!=='nangman-engine-command')return;
+try{
+ if(op==='init'){
+  if(!loaded){const ok=await initWasm();if(!ok||!wasmMakeInitTables(EQUIP_DATA))throw Error('산부진 WASM 또는 장비 데이터 초기화 실패');loaded=true;}
+  send(requestId,true,{ready:true,papers:Object.values(EQUIP_DATA.papers||{}),craftsmen:Object.values(EQUIP_DATA.craftsman||{}),specials:Object.values(EQUIP_DATA.special||{})});return;
+ }
+ if(!loaded)throw Error('산부진 계산 엔진을 먼저 초기화하세요');
+ if(op==='save'){
+  const root=Array.isArray(payload)?payload[0]:payload;const rnd=root?.MakeRnd;if(!rnd)throw Error('세이브에서 MakeRnd를 찾지 못했습니다');
+  snapshot={save_version:String(root.DBVersion||''),save_channel:String(root.Channel||''),Seeds:rnd.Seeds||{},LuckySeeds:rnd.LuckySeeds||{},IDSeeds:rnd.IDSeeds||{},MakeLucky:rnd.MakeLucky||{}};
+  if(!wasmMakeSetState(snapshot))throw Error('MakeRnd 상태 주입 실패');send(requestId,true,{loaded:true});return;
+ }
+ if(op==='preview'){
+  if(!snapshot)throw Error('한국판 세이브를 먼저 불러오세요');
+  const {request,count}=payload;const n=Number(count);if(!Number.isInteger(n)||n<1||n>200)throw Error('미리보기 횟수는 1–200');
+  if(!wasmMakeSetState(snapshot))throw Error('시드 복원 실패');
+  try{const result=wasmMakePreview(request,n);if(result?.error)throw Error(result.error);send(requestId,true,result)}finally{wasmMakeSetState(snapshot)}return;
+ }
+ throw Error('알 수 없는 명령');
+}catch(err){send(requestId,false,{error:String(err.message||err)})}
+});
+</script></body></html>

@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.5.8</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.5.9</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -95,8 +95,8 @@ body{background:var(--bg)!important}
 /* v0.5.0 yy-sim 원본 구조 검수: 56px 헤더, 280px 목록, 넓은 종이 영역 */
 :root{--wr-max:1280px;--wr-ink:#241f1c;--wr-ink-2:#706861;--wr-line:#856f5b39;--wr-wash-header:#f7f1e6e8;--wr-wash-main:#f7f1e66b}
 [data-theme=ink]{--wr-ink:#e4ded5;--wr-ink-2:#aaa69f;--wr-line:#e4d9c735;--wr-wash-header:#15171ce9;--wr-wash-main:#1a1d2399}
-.app-shell-bg{background-color:#f3eee3;background-image:linear-gradient(#f7f2e8ad,#f3eee3b8),url("https://yy-sim.pages.dev/assets/warm_colored_background-B4XlJ8Tz.png"),url("./assets/ink-landscape.svg");background-repeat:no-repeat;background-position:center,center,center;background-size:auto,cover,cover}
-[data-theme=ink] .app-shell-bg{background-color:#0e0e10;background-image:linear-gradient(#08080ac7,#060608d6),url("https://yy-sim.pages.dev/assets/dark_background-BL63IPck.png"),url("./assets/ink-landscape.svg");background-repeat:no-repeat;background-position:center,center,center;background-size:auto,cover,cover}
+.app-shell-bg{background-color:#f3eee3;background-image:linear-gradient(#f7f2e8ad,#f3eee3b8),url("./assets/yy-background/warm.png"),url("./assets/ink-landscape.svg");background-repeat:no-repeat;background-position:center,center,center;background-size:auto,cover,cover}
+[data-theme=ink] .app-shell-bg{background-color:#0e0e10;background-image:linear-gradient(#08080ac7,#060608d6),url("./assets/yy-background/dark.png"),url("./assets/ink-landscape.svg");background-repeat:no-repeat;background-position:center,center,center;background-size:auto,cover,cover}
 .top{min-height:56px;height:56px;padding:0 24px;gap:25px;background:var(--wr-wash-header)}
 .brand{font-weight:500;letter-spacing:.06em;font-size:17px;line-height:56px}
 .nav{gap:4px}.nav button{height:56px;font-size:15px;font-weight:400;border-bottom:0;padding:0 10px}
@@ -139,7 +139,7 @@ body{background:var(--bg)!important}
 @media(max-width:1000px){.top{height:auto;min-height:56px;padding:4px 16px}.nav button{height:42px;font-size:13px}.page{padding:0 16px 35px}.layout{grid-template-columns:240px minmax(0,1fr)}.work{padding-left:20px}.aside{padding-right:14px}}
 @media(max-width:700px){.page{padding:0 12px 30px}.heading{padding-top:17px}.aside{position:relative;top:auto;border-right:0;border-bottom:1px solid var(--wr-line);padding:12px 0}.work{padding:17px 0}.module-wrap{padding:17px 0}.module-columns{grid-template-columns:1fr;gap:0}.hero h2{font-size:24px}}
 
-/* v0.5.8: original yy-sim wiki image list + detail work area */
+/* v0.5.9: original yy-sim wiki image list + detail work area */
 .wiki-module{padding-top:18px}
 .wiki-main-heading{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
 .wiki-main-heading strong{font-size:16px}.wiki-main-heading span{font-size:12px;color:var(--sub)}
@@ -392,9 +392,9 @@ window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.
 import {loadKoreanWikiNames} from './data/korean-wiki-index.js';
 loadKoreanWikiNames().then(rows=>window.dispatchEvent(new CustomEvent('nangman-wiki-loaded',{detail:rows}))).catch(e=>console.error('한국판 백과 번역 대조표 오류',e));
 const js=document.createElement('script');
-js.src='https://yy-sim.pages.dev/wiki_data.js';
+js.src='./vendor/yysim/wiki_data.js';
 const buffScript=document.createElement('script');
-buffScript.src='https://yy-sim.pages.dev/wiki_buff.js';
+buffScript.src='./vendor/yysim/wiki_buff.js';
 buffScript.onload=()=>{if(window.WIKI_DATA){window.WIKI_DATA.buff=window.WIKI_BUFF||[];window.dispatchEvent(new CustomEvent('nangman-wiki-source-ready',{detail:window.WIKI_DATA}));}};
 document.head.append(buffScript);
 js.onload=()=>{if(window.WIKI_DATA&&Array.isArray(window.WIKI_DATA.items)){window.WIKI_DATA.buff=Array.isArray(window.WIKI_BUFF)?window.WIKI_BUFF:[];window.dispatchEvent(new CustomEvent('nangman-wiki-source-ready',{detail:window.WIKI_DATA}));}else window.dispatchEvent(new Event('nangman-wiki-source-error'));};
