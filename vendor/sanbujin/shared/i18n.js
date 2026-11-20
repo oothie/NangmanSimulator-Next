@@ -30,7 +30,9 @@ for(var p of pairs){if(x.includes(p[0]))x=x.split(p[0]).join(p[1])}
  x=x.replace(/(\d+)\s*级/g,'$1레벨').replace(/(\d+)\s*次/g,'$1회')
     .replace(/(\d+)\s*页/g,'$1페이지').replace(/(\d+)\s*件/g,'$1개')
     .replace(/(\d+)\s*条/g,'$1개').replace(/(\d+)\s*两/g,'$1냥')
-    .replace(/(\d+)\s*文/g,'$1문').replace(/第\s*(\d+)/g,'제$1');
+    .replace(/(\d+)\s*文/g,'$1문').replace(/(\d+)\s*丹/g,'$1개')
+    .replace(/(\d+)\s*槽/g,'$1칸').replace(/(\d+)\s*处/g,'$1곳')
+    .replace(/(\d+)\s*张/g,'$1장').replace(/第\s*(\d+)/g,'제$1');
  // Preserve unknown short names in source language rather than showing broken half-translations.
 if(chinese.test(x)&&original.length<=18&&!/[\s，。！？,.;:：；（）()]/.test(original))return original;
 return x}function translate(x){x=String(x==null?'':x);return current===KO?korean(x):current===TW?convertTW(x):x}
