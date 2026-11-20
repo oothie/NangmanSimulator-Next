@@ -221,7 +221,7 @@
         const levelLimit = normalizeLimit(config, 'lv_limit');
         if (levelLimit != null && source.roleLevel > numeric(levelLimit)) return false;
         if (normalizeLimit(config, 'sx_limit') != null) {
-            throw new Error(`暂不支持这名人物的部分天赋条件，请重新选择人物。条件编号：${config.id}`);
+            throw new Error(`이 캐릭터의 일부 재능 조건은 아직 지원하지 않습니다. 캐릭터를 다시 선택하세요. 조건 번호: ${config.id}`);
         }
         return true;
     }
@@ -256,7 +256,7 @@
                 .map(key => talentData[String(key)])
                 .filter(item => item && numeric(item.weight));
             if (ordered.length !== 114) {
-                throw new Error(`天赋资料不完整，请刷新后重试。已读取数量：${ordered.length} 条`);
+                throw new Error(`재능 데이터가 불완전합니다. 새로고침 후 다시 시도하세요. 읽은 항목: ${ordered.length}개`);
             }
             this.config = new Map(ordered.map(item => [numeric(item.id), item]));
             this.allIds = ordered.map(item => numeric(item.id));
