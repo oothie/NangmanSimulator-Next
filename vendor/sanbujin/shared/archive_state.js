@@ -50,7 +50,7 @@
             if (hasSave && meta && meta.server) {
                 var serverTag = document.createElement('span');
                 serverTag.className = 'asb-server';
-                serverTag.textContent = '· ' + meta.server + '服';
+                serverTag.textContent = '· ' + String(meta.server).replace(/服$/, '') + '서버';
                 mainRole.insertAdjacentElement('afterend', serverTag);
             }
         }
