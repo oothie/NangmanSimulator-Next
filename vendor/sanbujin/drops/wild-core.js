@@ -9,7 +9,7 @@
   const output = state => Number((state >> 17n) & 2147483647n);
 
   function draw(seed, bound) {
-    if (!usable(seed) || !usable(bound)) throw Error('存档中的掉落序列不可用');
+    if (!usable(seed) || !usable(bound)) throw Error('세이브의 드랍 순서를 사용할 수 없습니다');
     const next = output(raw(BigInt(seed) + BigInt(bound))) % 2047483645 + 1;
     return {seed: next, value: next % bound + 1};
   }
@@ -46,8 +46,8 @@
     state.seed = hit.seed;
     const itemId = drops[hit.index][0], before = state.drought;
     state.drought = itemId === 3065 ? 0 : before + 1;
-    return {itemId, itemName: ({3065: '虎骨', 3088: '虎皮', 3921: '虎肉', 3922: '虎鞭'})[itemId],
-      tiger: white ? '白虎' : '猛虎', droughtBefore: before, droughtAfter: state.drought};
+    return {itemId, itemName: ({3065: '호골', 3088: '호피', 3921: '호랑이 고기', 3922: '호편'})[itemId],
+      tiger: white ? '백호' : '맹호', droughtBefore: before, droughtAfter: state.drought};
   }
 
   function loot(state, target) {
@@ -109,7 +109,7 @@
   }
 
   function predict(input, target, options, equipment) {
-    if (!usable(input.seed) || target.kind === 'tigerbone' && !usable(input.tigerSeed)) throw Error('当前存档缺少该目标的掉落序列');
+    if (!usable(input.seed) || target.kind === 'tigerbone' && !usable(input.tigerSeed)) throw Error('현재 세이브에 해당 대상의 드랍 순서가 없습니다');
     const state = {...input, sds: {...input.sds}, eds: {...input.eds}};
     const rows = [];
     for (let index = 0; index < options.pad + options.count; index++) {
@@ -117,7 +117,7 @@
       // Game table equipment[7200] has appearance data and no combat affixes.
       const cfg = equipment[String(row.itemId)] || (row.itemId === 7200 ? {} : null);
       if (row.color) {
-        row.itemName = row.itemName || cfg?.name || '装备 ' + row.itemId;
+        row.itemName = row.itemName || cfg?.name || '장비 ' + row.itemId;
         if (cfg) {
           const persistent = target.kind === 'story';
           row.time = persistent ? null : options.time + index * options.interval;
