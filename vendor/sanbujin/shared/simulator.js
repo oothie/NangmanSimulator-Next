@@ -6838,8 +6838,10 @@ async function runEquipAutoSweep() {
     var button = document.getElementById('btnEquipAutoSweep');
 
     var saveState = typeof loadShareStore === 'function' ? loadShareStore() : null;
-    var makeRnd = saveState && typeof extractEquipMakeRnd === 'function' ? extractEquipMakeRnd(saveState.data) : null;
-    if (!makeRnd) { setStatus('没有检测到存档里的打造状态，请先导入存档。'); return; }
+    // 통합 탭은 메모리의 한국판 JSON을 직접 전달한다. 빠른 조회는 저장소에 없는 경우에도 이 데이터를 사용한다.
+    var sourceSave = (state && state.saveData) || (saveState && saveState.data);
+    var makeRnd = sourceSave && typeof extractEquipMakeRnd === 'function' ? extractEquipMakeRnd(sourceSave) : null;
+    if (!makeRnd) { setStatus('불러온 세이브에서 장비 제작 정보(MakeRnd)를 찾지 못했습니다.'); return; }
 
     renderEquipAutoSweepPaperPicker();
     var allPapers = equipAutoSweepPapers();
