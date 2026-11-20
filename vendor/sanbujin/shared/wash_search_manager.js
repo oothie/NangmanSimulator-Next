@@ -373,7 +373,7 @@
                 if (saved) {
                     input.options.resumeBestRoute = saved.route;
                     input.options.resumeOptimizationRound = saved.round;
-                    state.progress.message = `正在核验已保存的 ${saved.route.totalPills} 丹路线`;
+                    state.progress.message = `저장된 세수단 ${saved.route.totalPills}개 사용 경로를 검증하는 중`;
                 }
                 blobUrl = owner.URL.createObjectURL(new owner.Blob([bundle.src], {type: 'text/javascript'}));
                 worker = new owner.Worker(blobUrl);
@@ -417,13 +417,13 @@
                             finish('error', null, String(message.error || '后台查找失败，请刷新后重试'));
                         }
                     } catch (error) {
-                        finish('error', null, `后台路线数据异常：${error?.message || '请刷新后重试'}`);
+                        finish('error', null, `백그라운드 경로 데이터 오류: ${error?.message || '새로고침 후 다시 시도하세요'}`);
                     }
                 };
                 worker.onerror = event => {
                     if (!isCurrent()) return;
                     event?.preventDefault?.();
-                    finish('error', null, `后台计算线程失败：${event?.message || '请刷新后重试'}`);
+                    finish('error', null, `백그라운드 계산 스레드 오류: ${event?.message || '새로고침 후 다시 시도하세요'}`);
                 };
                 notify(true);
                 if (isCurrent()) worker.postMessage({ type: 'start', requestId, input });
