@@ -102,7 +102,18 @@ html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-contr
     <meta name="twitter:description" content="算不尽：原版游戏装备推演工具。导入存档，一键找出极品装备，自动模拟洗脉路线。">
     <meta name="twitter:image" content="https://tool.launch-ai.cloud/suanbujin/share-cover.jpg">
     
-<meta name="apple-mobile-web-app-title" content="算不尽"><script defer src="../shared/i18n.js"></script><style>html,body{max-width:100%;overflow-x:hidden}body{font-family:system-ui,"Malgun Gothic",sans-serif}img{max-width:100%}.sbj-site-header,.sbj-side-nav{display:none!important}</style><link rel="stylesheet" href="../shared/app/appearance.css"><link rel="stylesheet" href="../shell/shell.css"><link rel="stylesheet" href="../shared/app/theme.css"><link rel="stylesheet" href="../shared/app/workbench.css"><link rel="stylesheet" href="../shared/app/feature-page.css"></head>
+<meta name="apple-mobile-web-app-title" content="算不尽"><script defer src="../shared/i18n.js"></script><style>html,body{max-width:100%;overflow-x:hidden}body{font-family:system-ui,"Malgun Gothic",sans-serif}img{max-width:100%}.sbj-site-header,.sbj-side-nav{display:none!important}</style><link rel="stylesheet" href="../shared/app/appearance.css"><link rel="stylesheet" href="../shell/shell.css"><link rel="stylesheet" href="../shared/app/theme.css"><link rel="stylesheet" href="../shared/app/workbench.css"><link rel="stylesheet" href="../shared/app/feature-page.css"><script>
+(function(){
+ try{localStorage.setItem('yyjh_locale_v1','ko-KR')}catch(e){}
+ window.NANGMAN_EMBEDDED_EQUIP=true;
+})();
+</script>
+<style id="nangman-integrated-equipment-style">
+html,body{background:transparent!important;color:inherit;overflow-x:hidden;min-height:0!important}
+body.sbj-workbench{background:transparent!important;padding:8px 0!important;margin:0!important}
+.feature-heading,.feature-mode-nav,#nangman-direct-header{display:none!important}
+.sbj-site-header,.sbj-site-nav{display:none!important}
+</style></head>
 <body class="sbj-workbench" data-workbench="auto">
     <div class="app-container"><header class="feature-heading"><h1>装备</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html?rev=98938bd19cc9">速查</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html" aria-current="page">自动</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html">手动</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html">橙装序列</a></nav></header>
 
@@ -901,5 +912,46 @@ html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-contr
 </script>
 
 
-<script>(function(){window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-save')return;try{const d=e.data.save;if(typeof loadParsedSaveData!=='function')throw Error('자동 장비 로더 미준비');loadParsedSaveData(d,false);parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'save-loaded'},location.origin)}catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'error',message:String(err.message||err)},location.origin)}});window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'ready'},location.origin));})();</script><script defer src="/engine/native-equipment-navigation.js"></script></body>
+<script>(function(){window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-save')return;try{const d=e.data.save;if(typeof loadParsedSaveData!=='function')throw Error('자동 장비 로더 미준비');loadParsedSaveData(d,false);parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'save-loaded'},location.origin)}catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'error',message:String(err.message||err)},location.origin)}});window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'ready'},location.origin));})();</script><script id="nangman-integrated-equipment-bridge">
+(function(){
+ const kind="equip-auto";
+ let lastSave=null,appliedVersion=-1,requestInProgress=false;
+ function reply(status,message,version){
+  if(window.parent!==window)parent.postMessage({kind:'nangman-native-equipment',module:kind,status,message:message||'',version:version??appliedVersion},location.origin);
+ }
+ async function apply(){
+  if(!lastSave||requestInProgress)return;
+  requestInProgress=true;
+  let done=false,error='';
+  try{
+    for(let i=0;i<40;i++){
+      try{
+        if(typeof loadSaveData==='function' && /equip|jianwang-manual/.test(kind)){
+           const result=loadSaveData(lastSave);if(result&&typeof result.then==='function')await result;done=true;break;
+        }
+        if(typeof loadParsedSaveData==='function'){
+           const result=loadParsedSaveData(lastSave,false);if(result&&typeof result.then==='function')await result;done=true;break;
+        }
+        if(typeof loadSaveData==='function'){
+           const result=loadSaveData(lastSave);if(result&&typeof result.then==='function')await result;done=true;break;
+        }
+      }catch(e){error=String(e.message||e)}
+      await new Promise(r=>setTimeout(r,250));
+    }
+    if(done){appliedVersion=lastSave.__nangmanTransferVersion??appliedVersion;reply('applied','한국판 세이브 적용 완료');}
+    else reply('error',error||'산부진 세이브 입력 함수 또는 WASM이 아직 준비되지 않았습니다.');
+  }finally{requestInProgress=false}
+ }
+ window.addEventListener('message',e=>{
+  if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-equip-save')return;
+  lastSave=e.data.save;appliedVersion=e.data.version;
+  Promise.resolve().then(apply).catch(err=>reply('error',String(err.message||err)));
+ });
+ window.addEventListener('load',()=>{
+  try{window.YYJHI18n?.set('ko-KR')}catch(e){}
+  reply('ready','산부진 계산 화면 준비');
+  if(lastSave)apply();
+ });
+})();
+</script></body>
 </html>
