@@ -4052,7 +4052,9 @@ function renderEquipAutoLocations() {
         if (equipAutoLocationType === "xiu" && !isXiu) return false;
         if (!query) return true;
         return String(craftsman.place || "").toLowerCase().includes(query)
-            || String(craftsman.name || "").toLowerCase().includes(query);
+            || String(craftsman.name || "").toLowerCase().includes(query)
+            || String(window.SBJ_KOREAN?.translate?.(craftsman.place || "") || "").toLowerCase().includes(query)
+            || String(window.SBJ_KOREAN?.translate?.(craftsman.name || "") || "").toLowerCase().includes(query);
     });
     const tie = craftsmen.filter(craftsman => craftsman.zhi !== "fengzhi");
     const xiu = craftsmen.filter(craftsman => craftsman.zhi === "fengzhi");
@@ -4085,10 +4087,10 @@ function renderEquipAutoLocations() {
         const selected = equipAutoSelectedLocations.has(id);
         const place = String(craftsman.place || craftsman.name || "");
         const ownName = String(craftsman.name || "");
-        const suffix = craftsman.zhi === "fengzhi" ? "绣" : "铁";
+        const suffix = craftsman.zhi === "fengzhi" ? "자수" : "대장간";
         return "<label class=\"equip-auto-choice " + (selected ? "is-selected" : "") + "\" data-location-id=\"" + id + "\">"
             + "<input type=\"checkbox\" value=\"" + id + "\"" + (selected ? " checked" : "") + ">"
-            + "<span><strong>" + escapeAiHtml(place) + "</strong><small>" + escapeAiHtml(ownName) + " · " + suffix + "</small></span>"
+            + "<span><strong>" + escapeAiHtml(window.SBJ_KOREAN?.translate?.(place) || place) + "</strong><small>" + escapeAiHtml(window.SBJ_KOREAN?.translate?.(ownName) || ownName) + " · " + suffix + "</small></span>"
             + "</label>";
     };
     const section = (title, items, kind) => {
@@ -4096,14 +4098,14 @@ function renderEquipAutoLocations() {
         const selectedNames = items.filter(craftsman => equipAutoSelectedLocations.has(Number(craftsman.id)))
             .map(craftsman => String(craftsman.name || craftsman.place || ""))
             .filter(Boolean);
-        const headExtra = selectedNames.length ? " · 선택됨 " + selectedNames.join("、") : "";
+        const headExtra = selectedNames.length ? " · 선택됨 " + selectedNames.map(name => window.SBJ_KOREAN?.translate?.(name) || name).join(" · ") : "";
         return "<div class=\"equip-auto-location-group is-" + kind + "\">"
             + "<div class=\"equip-auto-location-group-head\"><strong>" + title + "</strong><span>" + items.length + " 곳" + headExtra + "</span></div>"
             + "<div class=\"equip-auto-choice-grid\">" + items.map(labelHtml).join("") + "</div>"
             + "</div>";
     };
     const scrollTop = container.scrollTop;
-    container.innerHTML = section("铁匠铺", tie, "tie") + section("绣庄", xiu, "xiu")
+    container.innerHTML = section("대장간", tie, "tie") + section("자수방", xiu, "xiu")
         || "<span class=\"text-muted\">일치하는 지역이 없습니다. 다른 검색어를 입력하세요.</span>";
     container.scrollTop = scrollTop;
     const count = document.getElementById("autoEquipLocationCount");
@@ -4112,7 +4114,7 @@ function renderEquipAutoLocations() {
             const craftsman = EquipmentAutoOptimizer.sortedCraftsmen(EQUIP_DATA).find(item => Number(item.id) === Number(id));
             return craftsman ? String(craftsman.name || craftsman.place || "") : "";
         }).filter(Boolean);
-        count.textContent = names.length ? "선택됨 " + names.join("、") : "0개 선택";
+        count.textContent = names.length ? "선택됨 " + names.map(name => window.SBJ_KOREAN?.translate?.(name) || name).join(" · ") : "0개 선택";
     }
 }
 
