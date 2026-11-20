@@ -121,7 +121,7 @@
 
     function tagHtml(item) {
         if (!item || !item.origin) {
-            return '<div class="fav-meta-tag is-unknown" title="이 즐겨찾기에는 당시 세이브 정보가 기록되어 있지 않습니다">来源未记录</div>';
+            return '<div class="fav-meta-tag is-unknown" title="이 즐겨찾기에는 당시 세이브 정보가 기록되어 있지 않습니다">출처 정보 없음</div>';
         }
         var parts = tagParts(item);
         var o = (item && item.origin) || {};
@@ -130,7 +130,7 @@
         if (o.importedAt) {
             try { title.push('세이브 불러온 시각: ' + new Date(Number(o.importedAt)).toLocaleString('ko-KR')); } catch (error) { }
         }
-        if (!parts.length) return '<div class="fav-meta-tag is-unknown" title="이 즐겨찾기에는 당시 세이브 정보가 기록되어 있지 않습니다">来源未记录</div>';
+        if (!parts.length) return '<div class="fav-meta-tag is-unknown" title="이 즐겨찾기에는 당시 세이브 정보가 기록되어 있지 않습니다">출처 정보 없음</div>';
         return '<div class="fav-meta-tag" title="' + String(title.join(' · ')).replace(/"/g, '&quot;') + '">'
             + parts.map(function (s) { return '<span>' + String(s).replace(/</g, '&lt;') + '</span>'; }).join('<i>·</i>')
             + '</div>';
