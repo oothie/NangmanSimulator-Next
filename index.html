@@ -20,9 +20,9 @@ body{background-image:linear-gradient(180deg,#f5f0e9bb 0%,#efe9ddbb 68%,#e7e3d8d
 
 /* v0.4.0 - yy-sim 실제 저장 화면의 영역 구성에 맞춘 레이아웃 */
 body{background:var(--bg)!important}
-.app-shell-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;background-color:#f3eee3;background-image:linear-gradient(#f7f2e8b5,#f3eee3d0),url('./assets/ink-landscape.svg');background-repeat:no-repeat;background-position:center center;background-size:auto,cover}
+.app-shell-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-color:#f3eee3;background-image:linear-gradient(#f7f2e8b5,#f3eee3d0),url('./assets/ink-landscape.svg');background-repeat:no-repeat;background-position:center center;background-size:auto,cover}
 [data-theme=ink] .app-shell-bg{background-color:#0e0e10;background-image:linear-gradient(#08080ad3,#07080ae3),url('./assets/ink-landscape.svg')}
-.shell{max-width:none;margin:0;padding:0}
+.shell{position:relative;z-index:1;max-width:none;margin:0;padding:0}
 .top{position:sticky;top:0;z-index:10;max-width:none;min-height:56px;border:0;border-bottom:1px solid #6e604622;border-radius:0;box-shadow:none;padding:0 max(20px,calc((100vw - 1480px)/2));background:#f7f2e8df;backdrop-filter:blur(12px);gap:25px}
 [data-theme=ink] .top{background:#171a20e9;border-color:#ffffff21}
 .brand{font-family:Georgia,serif;font-size:22px;color:var(--text);letter-spacing:1px}
