@@ -401,8 +401,8 @@
                         earlier_conflict_is_purple: earlier ? !!earlier.purple : false,
                         can_exchange: canExchange,
                         block_reason: earlier
-                            ? (canExchange ? null : '前置同类也是紫脉')
-                            : '无前置同类冲突脉'
+                            ? (canExchange ? null : '앞선 같은 종류의 충돌맥도 자맥입니다.')
+                            : '앞서 등장한 같은 종류의 충돌맥이 없습니다.'
                     });
                 }
 
@@ -615,7 +615,7 @@
     }
 
     function makeRouteError(text) {
-        return String(text || '推演失败');
+        return String(text || '시뮬레이션 실패');
     }
 
     function simulateInternationalExchangeRoute(baseState, targets, pad, eligible) {
@@ -671,7 +671,7 @@
                 const idx = findTalentIndexByName(s, purpleName);
                 const c = exchangeConflictAt(s, idx);
                 if (!c || !c.canExchange) {
-                    node.conflict_name = '锁留（待互冲）';
+                    node.conflict_name = '잠금 유지(상호 충돌 대기)';
                     node.chain = [`${purpleName}(잠금 유지)`];
                     node.final_name = purpleName;
                     nodes.push(node);
