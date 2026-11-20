@@ -6964,7 +6964,7 @@ async function runEquipAutoSweep() {
             });
             if (!branches.length) continue;
 
-            setStatus('查找中 ' + (index + 1) + '/' + papers.length + '：' + (paper.name || paperId) + '（' + props.length + ' 个属性）');
+            setStatus('탐색 중 ' + (index + 1) + '/' + papers.length + '：' + (paper.name || paperId) + '（' + props.length + '개 옵션)');
             setProgress(index, papers.length);
 
             var result = await EquipmentAutoOptimizer.simulateEquipmentRoutes({
@@ -6976,7 +6976,7 @@ async function runEquipAutoSweep() {
                 bridge: {
                     getMakeState: function () { return wasmMakeGetState(); },
                     setMakeState: function (next) {
-                        if (!wasmMakeSetState(next)) throw new Error('原始打造状态恢复失败');
+                        if (!wasmMakeSetState(next)) throw new Error('원본 제작 상태 복구 실패');
                         return true;
                     },
                     makePreview: function (request, count) { return wasmMakePreview(request, count); },
@@ -7034,7 +7034,7 @@ async function runEquipAutoSweep() {
                     if (!rating || Number(rating.roundedPercent) < minQuality) return;
                     found.push({
                         paperId: 'my-favorites',
-                        paperName: '我的收藏 · ' + (item.equipName || item.name || ''),
+                        paperName: '내 즐겨찾기 · ' + (item.equipName || item.name || ''),
                         npc: item.craftsmanName || item.location || '—',
                         craftIndex: item.craftIndex,
                         prop: prop,
@@ -7059,7 +7059,7 @@ async function runEquipAutoSweep() {
         } catch (error) { }
 
         if (!found.length) {
-            setStatus('没有符合条件的装备（' + craftLimit + ' 次内、单属性路线连金泥总消耗 ≤' + lianjinLimit + '、品质 ≥ ' + qualityLabel + '）。');
+            setStatus('조건을 만족하는 장비가 없습니다 (' + craftLimit + '회 이내, 단일 옵션 경로 연금니 총 소모 ≤' + lianjinLimit + ', 품질 ≥ ' + qualityLabel + '）。');
             return;
         }
         /* 符合条件的全部展示，不再按属性截前三 */
@@ -7072,7 +7072,7 @@ async function runEquipAutoSweep() {
             if (a.prop !== b.prop) return a.prop < b.prop ? -1 : 1;
             return b.value - a.value;
         });
-        setStatus('找到 ' + found.length + ' 개。');
+        setStatus('발견 ' + found.length + ' 개。');
         renderEquipAutoSweepResults(found);
     } catch (error) {
         setStatus('검색 실패: ' + (error && error.message ? error.message : error));
@@ -7214,7 +7214,7 @@ async function runEquipAutoSimulation() {
             bridge: {
                 getMakeState: () => wasmMakeGetState(),
                 setMakeState: next => {
-                    if (!wasmMakeSetState(next)) throw new Error('原始打造状态恢复失败');
+                    if (!wasmMakeSetState(next)) throw new Error('원본 제작 상태 복구 실패');
                     return true;
                 },
                 makePreview: (request, count) => wasmMakePreview(request, count),
@@ -7236,7 +7236,7 @@ async function runEquipAutoSimulation() {
         renderEquipAutoProgress({ phase: 'refine', done: 1, total: 1, message: '제작·정련 분석 완료' });
         renderEquipAutoResults(result);
     } catch (error) {
-        console.error('装备自动模拟失败:', error);
+        console.error('장비 자동 시뮬레이션 실패:', error);
         if (runToken === equipAutoRunToken && results) {
             results.innerHTML = `<div class="ai-result-error">计算失败：${escapeAiHtml(error?.message || error)}</div>`;
         }
@@ -7288,7 +7288,7 @@ function invalidateJianwangAutoPrediction(message) {
     jianwangAutoLastResult = null;
     if (jianwangAutoRunning) jianwangAutoCancelRequested = true;
     const results = document.getElementById('autoJianwangResults');
-    if (results) results.innerHTML = `<div class="ai-result-empty">${escapeAiHtml(message || '配置已变化，请重新开始剑王阁自动模拟。')}</div>`;
+    if (results) results.innerHTML = `<div class="ai-result-empty">${escapeAiHtml(message || '설정이 변경됐습니다. 검왕각 자동 시뮬레이션을 다시 시작하세요.')}</div>`;
     if (!jianwangAutoRunning) {
         const progress = document.getElementById('autoJianwangProgress');
         if (progress) progress.hidden = true;
@@ -7304,7 +7304,7 @@ function refreshJianwangAutoTargetProps(preserveSelection = true) {
     const props = optimizer.targetPropertiesForRoute(EQUIP_DATA, Number(routeSelect.value));
     propSelect.innerHTML = '';
     if (!props.length) {
-        propSelect.appendChild(new Option('先选择镇派路线', ''));
+        propSelect.appendChild(new Option('먼저 진파 경로를 선택하세요.', ''));
         propSelect.disabled = true;
         return;
     }
@@ -7347,7 +7347,7 @@ function updateJianwangAutoStartHint() {
         return;
     }
     if (id >= 5714 && id <= 5717) {
-        hint.textContent = '起始实物为100级神兵：直接碎神兵并生成下一把60级剑胚，再按所选路线进入搜索。';
+        hint.textContent = '시작 장비가 100레벨 신병입니다. 신병을 바로 분해해 다음 60레벨 검 배아를 만들고 선택한 경로로 탐색합니다.';
         return;
     }
     const currentRoute = jianwangAutoRouteForId(id);
@@ -7356,7 +7356,7 @@ function updateJianwangAutoStartHint() {
         const used = Number(counts[String(routeId)] || 0);
         hint.textContent = `선택한 경로와 시작 장비가 일치합니다. 현재 진행도부터 90레벨 재주조 ${Math.max(0, optimizer.JIANWANG_REFORGE_LIMIT - used)}회를 먼저 진행하고, 실패할 때만 검을 분해해 다음 검으로 넘어갑니다.`;
     } else {
-        hint.textContent = '起始90级实物与所选路线不同：不会消耗这把剑的重铸次数，直接碎剑后从下一把60级剑胚进入所选路线。';
+        hint.textContent = '시작 90레벨 장비가 선택한 경로와 다릅니다. 이 검의 재주조 횟수를 소모하지 않고 바로 분해한 뒤 다음 60레벨 검 배아부터 선택 경로를 진행합니다.';
     }
 }
 
@@ -7372,11 +7372,11 @@ function refreshJianwangAutoSwords(preserveSelection = true) {
         select.disabled = false;
         select.value = jianwangAutoSwords.some(sword => sword.key === previous) ? previous : jianwangAutoSwords[0].key;
     } else if (optimizer.hasFirstSwordProvider()) {
-        select.appendChild(new Option('首剑生成接口', '__provider__'));
+        select.appendChild(new Option('첫 검 생성 함수', '__provider__'));
         select.disabled = false;
         select.value = '__provider__';
     } else {
-        select.appendChild(new Option('暂无剑王阁实物', ''));
+        select.appendChild(new Option('검왕각 실물 장비가 없습니다.', ''));
         select.disabled = true;
     }
     updateJianwangAutoStartHint();
@@ -7436,7 +7436,7 @@ function jianwangAutoFormatExts(exts) {
 }
 
 function jianwangAutoStepLabel(step) {
-    if (step.type === 'blank') return `碎剑后生成${step.toName || '60级剑胚'}`;
+    if (step.type === 'blank') return `碎剑后生成${step.toName || '60레벨 검 배아'}`;
     if (step.type === 'reforge') return `재주조 제${Number(step.reforgeAttempt || 0)}회`;
     return `${step.fromName || step.fromId} → ${step.toName || step.toId}`;
 }
@@ -7446,7 +7446,7 @@ function jianwangMaterialName(itemId) {
         if (typeof ITEM_NAMES !== 'undefined' && ITEM_NAMES[String(itemId)]) return ITEM_NAMES[String(itemId)];
         if (typeof ITEM_NAMES !== 'undefined' && ITEM_NAMES[Number(itemId)]) return ITEM_NAMES[Number(itemId)];
     } catch (error) { /* 忽略 */ }
-    return `物品 ${itemId}`;
+    return `아이템 ${itemId}`;
 }
 
 function jianwangResourcesHtml(resources) {
@@ -7540,16 +7540,16 @@ function renderJianwangAttachResult(key) {
         return '<tr class="' + (best ? 'jianwang-best' : '') + '">'
             + '<td>' + item.index + '</td>'
             + '<td>' + jianwangAutoFormatExt({ prop: item.prop, value: item.value }) + '</td>'
-            + '<td>' + item.factor + '% · 区间 ' + item.valueMinimum + '–' + item.valueMaximum + '</td>'
+            + '<td>' + item.factor + '% · 범위 ' + item.valueMinimum + '–' + item.valueMaximum + '</td>'
             + '<td>' + item.seedBefore + ' → ' + item.seedAfter + '</td>'
-            + '<td>' + (best ? '最高' : '') + '</td>'
+            + '<td>' + (best ? '최고' : '') + '</td>'
             + '</tr>';
     }).join('');
     const maxima = result.maxima.filter(item => item.recommendedIndex != null)
-        .map(item => jianwangAutoFormatExt({ prop: item.prop, value: item.value }) + '（第 ' + item.recommendedIndex + ' 次）')
+        .map(item => jianwangAutoFormatExt({ prop: item.prop, value: item.value }) + '(제 ' + item.recommendedIndex + '회)')
         .join(' · ');
-    box.innerHTML = '<p class="meta-text">' + escapeAiHtml(result.materialName) + ' · ' + count + ' 次 · 最高系数 '
-        + result.bestFactor + '%（第 ' + result.bestIndexes.join('、') + '회) · 권장 종료 회차: ' + result.recommendedIndex + '회</p>'
+    box.innerHTML = '<p class="meta-text">' + escapeAiHtml(result.materialName) + ' · ' + count + '회 · 최고 계수 '
+        + result.bestFactor + '%(제 ' + result.bestIndexes.join('、') + '회) · 권장 종료 회차: ' + result.recommendedIndex + '회</p>'
         + '<table class="preview-table"><thead><tr><th>#</th><th>능력치</th><th>품질</th><th>망정 순서 번호</th><th></th></tr></thead><tbody>'
         + rows + '</tbody></table>'
         + (maxima ? '<p class="meta-text">각 능력치 최고 수치: ' + maxima + '</p>' : '');
@@ -7578,10 +7578,10 @@ function renderJianwangAutoResult(result) {
             const swordText = match.startedFromCurrent ? '현재 시작 검' : `새 검 제${Number(match.swordOrdinal || 0).toLocaleString()}자루`;
             const path = Array.isArray(match.path) ? match.path : [];
             const steps = path.length ? path.map((step, index) => {
-                const keepText = step.kept ? `保留 ${jianwangAutoFormatExt(step.kept)}` : '유지 안 함';
+                const keepText = step.kept ? `${jianwangAutoFormatExt(step.kept)} 보존` : '유지 안 함';
                 const seedText = step.type === 'blank'
-                    ? `碎剑后已推进剑胚序列 · 新剑胚可继续成长或重铸`
-                    : `重铸序列编号 ${Number(step.seedBefore || 0)} → ${Number(step.seedAfter || 0)}`;
+                    ? `검 분해 후 검 배아 순서 진행 완료 · 새 검 배아를 성장하거나 재주조할 수 있습니다.`
+                    : `재주조 순서 번호 ${Number(step.seedBefore || 0)} → ${Number(step.seedAfter || 0)}`;
                 return `<li class="jianwang-auto-path-step">
                     <div class="jianwang-auto-step-head"><b>${index + 1}. ${escapeAiHtml(jianwangAutoStepLabel(step))}</b><span>${keepText}</span></div>
                     <div class="jianwang-auto-step-meta">${escapeAiHtml(seedText)}</div>
@@ -7617,7 +7617,7 @@ function renderJianwangAutoResult(result) {
     if (result.status === 'limit') {
         const metrics = result.metrics || {};
         container.innerHTML = `<div class="jianwang-auto-summary is-limit">
-            <strong>${escapeAiHtml(result.reason || '已达到最大模拟次数')}</strong>
+            <strong>${escapeAiHtml(result.reason || '최대 계산 횟수에 도달했습니다.')}</strong>
             <span>90레벨 검 분해：${Number(metrics.shatter90 || 0).toLocaleString()} · 100레벨 검 분해：${Number(metrics.shatter100 || 0).toLocaleString()} · 승급：${Number(metrics.grows || 0).toLocaleString()} · 重铸：${Number(metrics.reforges || 0).toLocaleString()} · 保留：${Number(metrics.keeps || 0).toLocaleString()}</span>
         </div>`;
         return;
@@ -7633,11 +7633,11 @@ function renderJianwangAutoResult(result) {
     const path = Array.isArray(result.path) ? result.path : [];
     const steps = path.length ? path.map((step, index) => {
         const keepText = step.kept
-            ? `保留 ${jianwangAutoFormatExt(step.kept)}`
+            ? `${jianwangAutoFormatExt(step.kept)} 보존`
             : '유지 안 함';
         const seedText = step.type === 'blank'
-            ? `碎剑后已推进剑胚序列 · 新剑胚可继续成长或重铸`
-            : `重铸序列编号 ${Number(step.seedBefore || 0)} → ${Number(step.seedAfter || 0)}`;
+            ? `검 분해 후 검 배아 순서 진행 완료 · 새 검 배아를 성장하거나 재주조할 수 있습니다.`
+            : `재주조 순서 번호 ${Number(step.seedBefore || 0)} → ${Number(step.seedAfter || 0)}`;
         return `<li class="jianwang-auto-path-step">
             <div class="jianwang-auto-step-head"><b>${index + 1}. ${escapeAiHtml(jianwangAutoStepLabel(step))}</b><span>${keepText}</span></div>
             <div class="jianwang-auto-step-meta">${escapeAiHtml(seedText)}</div>
@@ -7668,17 +7668,17 @@ function renderJianwangAutoResult(result) {
 
 function validateJianwangAutoSelection() {
     const optimizer = jianwangAutoModule();
-    if (!optimizer) throw new Error('剑王阁自动模拟模块未加载');
+    if (!optimizer) throw new Error('검왕각 자동 시뮬레이션 모듈이 로드되지 않았습니다.');
     if (!state.saveData) throw new Error('먼저 세이브를 불러오세요');
     const routeId = Number(document.getElementById('autoJianwangRoute')?.value || 0);
     const targetProp = String(document.getElementById('autoJianwangTargetProp')?.value || '');
     const targetCount = Number(document.getElementById('autoJianwangTargetCount')?.value || 4);
     const maxSwords = clampAiNumber('autoJianwangMaxSwords', 1, optimizer.MAX_SIMULATED_SWORDS, 500);
-    if (!routeId) throw new Error('请选择90级镇派路线');
-    if (!targetProp) throw new Error('请选择目标词条');
-    if (targetCount !== 3 && targetCount !== 4) throw new Error('请选择三同词条或四同词条');
+    if (!routeId) throw new Error('90레벨 진파 경로를 선택하세요.');
+    if (!targetProp) throw new Error('목표 옵션을 선택하세요.');
+    if (targetCount !== 3 && targetCount !== 4) throw new Error('동일 옵션 3개 또는 4개를 선택하세요.');
     const select = document.getElementById('autoJianwangStartSword');
-    if (!select?.value && !optimizer.hasFirstSwordProvider()) throw new Error('请选择起始剑');
+    if (!select?.value && !optimizer.hasFirstSwordProvider()) throw new Error('시작 검을 선택하세요.');
     return {
         saveData: state.saveData,
         equipData: EQUIP_DATA,
@@ -7722,7 +7722,7 @@ async function runJianwangAutoSimulation() {
         cancel.disabled = false;
         cancel.textContent = '계산 취소';
     }
-    renderJianwangAutoProgress({ done: 0, total: input.maxSwords, message: '正在检查起始剑并准备搜索…' });
+    renderJianwangAutoProgress({ done: 0, total: input.maxSwords, message: '시작 검을 확인하고 탐색 준비 중…' });
     const results = document.getElementById('autoJianwangResults');
     if (results) results.innerHTML = '<div class="ai-result-empty">현재 기기에서 예측 중입니다. 조건에 맞지 않는 검은 횟수만 기록하고 모두 화면에 저장하지 않습니다.</div>';
     try {
@@ -7742,7 +7742,7 @@ async function runJianwangAutoSimulation() {
         const progress = document.getElementById('autoJianwangProgress');
         if (progress && result.status !== 'limit') progress.hidden = true;
     } catch (error) {
-        console.error('剑王阁自动模拟失败:', error);
+        console.error('검왕각 자동 시뮬레이션 실패:', error);
         if (runToken === jianwangAutoRunToken && results) {
             results.innerHTML = `<div class="ai-result-error">计算失败：${escapeAiHtml(error?.message || error)}</div>`;
         }
@@ -7754,7 +7754,7 @@ async function runJianwangAutoSimulation() {
             setJianwangAutoInputsDisabled(false);
             if (predict) {
                 predict.disabled = false;
-                predict.textContent = '重新剑王阁自动模拟';
+                predict.textContent = '검왕각 자동 시뮬레이션 다시 시작';
             }
             if (cancel) {
                 cancel.hidden = true;
@@ -7774,7 +7774,7 @@ function cancelJianwangAutoSimulation() {
         button.disabled = true;
         button.textContent = '중지 중…';
     }
-    if (text) text.textContent = '当前剑计算结束后停止…';
+    if (text) text.textContent = '현재 검 계산을 마친 후 중지…';
 }
 
 window.refreshJianwangAutoStartSwords = refreshJianwangAutoSwords;
@@ -7789,9 +7789,9 @@ function applySimulatorView() {
     const autoNav = document.getElementById('navAutoSimulator');
 
     root.classList.toggle('auto-simulator-view', isAutoView);
-    if (pageTitle) pageTitle.textContent = isAutoView ? '自动模拟' : '洗髓模拟器';
-    if (pageSubtitle) pageSubtitle.textContent = isAutoView ? '原版游戏 · 本地存档模拟' : '原版游戏 · 天赋洗炼';
-    document.title = '算不尽';
+    if (pageTitle) pageTitle.textContent = isAutoView ? '자동 시뮬레이션' : '세수 시뮬레이터';
+    if (pageSubtitle) pageSubtitle.textContent = isAutoView ? '원본 게임 · 로컬 세이브 시뮬레이션' : '원본 게임 · 재능 세수';
+    document.title = '산부진';
 
     [washNav, autoNav].forEach(link => {
         if (!link) return;
@@ -7823,16 +7823,16 @@ async function initApp() {
 
     const ok = await initWasm();
     if (!ok) {
-        alert('WebAssembly 模块加载失败：洗髓/预测功能不可用（存档导入与解密不受影响）');
+        alert('WebAssembly 로드 실패: 세수·예측 기능을 사용할 수 없습니다(세이브 불러오기와 복호화에는 영향 없음).');
         return;
     }
 
     wasmInitEngine(TALENT_DATA, _buildZZDataForWasm());
     if (typeof EQUIP_DATA !== 'undefined' && !wasmMakeInitTables(EQUIP_DATA)) {
-        console.error('装备表注入失败，装备自动模拟不可用');
+        console.error('장비 데이터 적용 실패로 장비 자동 시뮬레이션을 사용할 수 없습니다.');
         const message = document.getElementById('autoEquipSelectionMessage');
         if (message) {
-            message.textContent = '装备表注入失败，装备自动模拟不可用。';
+            message.textContent = '장비 데이터 적용 실패로 장비 자동 시뮬레이션을 사용할 수 없습니다.';
             message.classList.add('is-error');
         }
     }
@@ -7852,7 +7852,7 @@ async function initApp() {
         const style=document.createElement('style');style.textContent='.community-wash-embedded .feature-heading,.community-wash-embedded #sbj-app-chrome,.community-wash-embedded .sbj-mobile-nav,.community-wash-embedded .sbj-bottom-nav{display:none!important}.community-wash-embedded .app-container{padding-top:0!important}.community-wash-embedded #saveRoleRow,.community-wash-embedded .wash-cloud-actions{display:none!important}';document.head.append(style);
         let sharedWash;try{sharedWash=window.parent.__SBJCommunityWashContext}catch(_){}
         if (!sharedWash?.role?.BornTalent || !Number.isFinite(sharedWash.salt)) {
-            document.body.textContent='洗脉数据已失效，请返回看号重新打开。';return;
+            document.body.textContent='세수 데이터가 만료됐습니다. 캐릭터 보기에서 다시 여세요.';return;
         }
         try {
             state.saveVersion=sharedWash.version||'';state.saveChannel=sharedWash.dlc?'해외 서버':'';
@@ -7861,7 +7861,7 @@ async function initApp() {
             state.salt=sharedWash.salt;document.getElementById('saltInput').value=String(sharedWash.salt);
             state.hasBagPills=false;state.vip=1;state.vipConfirmed=false;syncVipControls();
             selectAutoWashRole('main:'+sharedWash.role.ID);pushStateToWasm();updateAll();renderAutoWashSaveGate();
-        } catch(e){document.body.textContent='洗脉数据加载失败，请返回看号重新打开。';console.error(e);return;}
+        } catch(e){document.body.textContent='세수 데이터 로드 실패. 캐릭터 보기에서 다시 여세요.';console.error(e);return;}
     }
     if (!communityWash && typeof loadShareStore === 'function') {
         const shared = loadShareStore();
@@ -7876,7 +7876,7 @@ async function initApp() {
                 if (typeof _applyDlcByPlatform === 'function') _applyDlcByPlatform(shared.meta.platform);
                 loadParsedSaveData(shared.data, true);
             } catch (e) {
-                console.warn('自动加载共享存档失败:', e);
+                console.warn('공유 세이브 자동 불러오기 실패:', e);
             }
         }
     }
@@ -8003,7 +8003,7 @@ async function initApp() {
     document.getElementById('autoWashVipSelect')?.addEventListener('change', onVipChange);
     document.getElementById('btnWashOrigin')?.addEventListener('click', openWashOriginPreview);
     document.getElementById('autoWashExchangeStatus')?.addEventListener('click',event=>{
-        const C=window.SBJCloud;if(!C)return;C.alert(event.currentTarget.dataset.detail||'选择人物后核对');
+        const C=window.SBJCloud;if(!C)return;C.alert(event.currentTarget.dataset.detail||'캐릭터 선택 후 검증');
     });
     document.getElementById('btnAiPredict')?.addEventListener('click', () => runAiPrediction(false));
     document.getElementById('btnAiRestart')?.addEventListener('click', () => runAiPrediction(true));
@@ -8016,24 +8016,24 @@ async function initApp() {
     document.getElementById('btnAutoEquipMode')?.addEventListener('click', () => setAutoSimulatorMode('equip'));
     document.getElementById('btnAutoJianwangMode')?.addEventListener('click', () => setAutoSimulatorMode('jianwang'));
     document.getElementById('autoJianwangStartSword')?.addEventListener('change', () => {
-        invalidateJianwangAutoPrediction('起始剑已变化，请重新开始剑王阁自动模拟。');
+        invalidateJianwangAutoPrediction('시작 검이 변경됐습니다. 검왕각 자동 시뮬레이션을 다시 시작하세요.');
         updateJianwangAutoStartHint();
     });
     document.getElementById('autoJianwangRoute')?.addEventListener('change', () => {
         refreshJianwangAutoTargetProps(false);
-        invalidateJianwangAutoPrediction('镇派路线已变化，请重新开始剑王阁自动模拟。');
+        invalidateJianwangAutoPrediction('진파 경로가 변경됐습니다. 검왕각 자동 시뮬레이션을 다시 시작하세요.');
         updateJianwangAutoStartHint();
     });
-    document.getElementById('autoJianwangTargetProp')?.addEventListener('change', () => invalidateJianwangAutoPrediction('目标词条已变化，请重新开始剑王阁自动模拟。'));
-    document.getElementById('autoJianwangTargetCount')?.addEventListener('change', () => invalidateJianwangAutoPrediction('同词条目标已变化，请重新开始剑王阁自动模拟。'));
-    document.getElementById('autoJianwangMaxSwords')?.addEventListener('change', () => invalidateJianwangAutoPrediction('最大模拟次数已变化，请重新开始剑王阁自动模拟。'));
+    document.getElementById('autoJianwangTargetProp')?.addEventListener('change', () => invalidateJianwangAutoPrediction('목표 옵션이 변경됐습니다. 검왕각 자동 시뮬레이션을 다시 시작하세요.'));
+    document.getElementById('autoJianwangTargetCount')?.addEventListener('change', () => invalidateJianwangAutoPrediction('동일 옵션 목표가 변경됐습니다. 검왕각 자동 시뮬레이션을 다시 시작하세요.'));
+    document.getElementById('autoJianwangMaxSwords')?.addEventListener('change', () => invalidateJianwangAutoPrediction('최대 계산 횟수가 변경됐습니다. 검왕각 자동 시뮬레이션을 다시 시작하세요.'));
     document.getElementById('btnAutoJianwangPredict')?.addEventListener('click', runJianwangAutoSimulation);
     document.getElementById('btnAutoJianwangCancel')?.addEventListener('click', cancelJianwangAutoSimulation);
     document.getElementById('autoEquipLocationChoices')?.addEventListener('change', handleEquipAutoLocationClick);
     document.getElementById('autoEquipPaperChoices')?.addEventListener('change', handleEquipAutoPaperChange);
     document.getElementById('autoEquipPaperChoices')?.addEventListener('click', handleEquipAutoPaperClick);
     document.getElementById('autoEquipPaperSearch')?.addEventListener('input', filterEquipAutoPapers);
-    document.getElementById('autoEquipIncludeBlue')?.addEventListener('change', () => invalidateEquipAutoPrediction('蓝装选项已变化，请重新开始装备自动模拟。'));
+    document.getElementById('autoEquipIncludeBlue')?.addEventListener('change', () => invalidateEquipAutoPrediction('청색 장비 설정이 변경됐습니다. 장비 자동 시뮬레이션을 다시 시작하세요.'));
     document.getElementById('btnAutoEquipPredict')?.addEventListener('click', runEquipAutoSimulation);
     document.getElementById('btnAutoEquipCancel')?.addEventListener('click', cancelEquipAutoSimulation);
     document.getElementById('autoEquipResults')?.addEventListener('click', handleEquipAutoResultClick);
@@ -8065,7 +8065,7 @@ async function initApp() {
     }
 })();
     ['autoEquipCraftCount', 'autoEquipRefineCount'].forEach(id => {
-        document.getElementById(id)?.addEventListener('change', () => invalidateEquipAutoPrediction('模拟次数已变化，请重新开始装备自动模拟。'));
+        document.getElementById(id)?.addEventListener('change', () => invalidateEquipAutoPrediction('계산 횟수가 변경됐습니다. 장비 자동 시뮬레이션을 다시 시작하세요.'));
     });
     document.getElementById('autoEquipLocationSearch')?.addEventListener('input', event => {
         equipAutoLocationQuery = String(event.target.value || '');
