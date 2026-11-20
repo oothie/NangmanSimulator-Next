@@ -373,6 +373,7 @@ function wikiKoMap(){
   for(const [id,entry] of Object.entries(v620Wiki.buff||{}))m.set('buff:'+id,{name:String(entry[0]||'').trim(),desc:String(entry[1]||'').trim(),icon:entry[2]||null});
  }
  for(const [id,entry] of Object.entries(window.NANGMAN_STATUS_KO||{}))if(!m.has('buff:'+id))m.set('buff:'+id,entry);
+ for(const [id,entry] of Object.entries(window.NANGMAN_V620_BUFF_KO||{}))m.set('buff:'+id,{name:entry[0],desc:entry[1],icon:entry[2],source:'한국판 V6.20'});
  return m;
 }
 function wikiHasChinese(value){return /[\u3400-\u9fff]/.test(String(value||''))}
@@ -400,7 +401,7 @@ function wikiImage(x){
  if(x.source==='equips'){folder='equip';icon=Number(o.icon||o.id)||9999}
  if(x.source==='martial'){folder='item';icon=Number(o.pic||1000)||1000}
  if(x.cat==='buff'){
-   folder='buff';icon=String(o.icon||'icon_buff_empty').split('/').pop().replace(/\.png$/i,'');
+   folder='buff';icon=String((window.NANGMAN_V620_BUFF_KO||{})[String(o.id)]?.[2]||o.icon||'icon_buff_empty').split('/').pop().replace(/\.png$/i,'');
    if(!/^[a-zA-Z0-9_-]+$/.test(icon))icon='icon_buff_empty';
  }
  return base+folder+'/'+icon+'.png';
@@ -443,7 +444,7 @@ function wikiView(){
   const k=ko.get(selected.key),o=selected.obj;
   const title=wikiName(selected,ko);
   const desc=wikiDescription(selected,ko);
-  detail='<article class="wiki-browser-detail"><div class="wiki-detail-head">'+wikiImgTag(selected,true)+'<div><h2>'+escape(title)+'</h2><p>'+escape(catLabel)+' · #'+escape(selected.id)+(o.lv?' · '+escape(o.lv)+'레벨':'')+'</p>'+(k?'<small>한국판 명칭 적용</small>':'')+'</div></div><div class="wiki-description">'+escape(desc)+'</div>'+
+  detail='<article class="wiki-browser-detail"><div class="wiki-detail-head">'+wikiImgTag(selected,true)+'<div><h2>'+escape(title)+'</h2><p>'+escape(catLabel)+' · #'+escape(selected.id)+(o.lv?' · '+escape(o.lv)+'레벨':'')+'</p>'+(k?'<small>'+escape(k.source||'한국어 번역 적용')+'</small>':'')+'</div></div><div class="wiki-description">'+escape(desc)+'</div>'+
   wikiEffectDescription(selected)+'<div class="wiki-detail-fields">'+Object.entries(o).filter(([key])=>!['id','n','desc','name','koName','origin_desc','origin','acquisition','acquire','source_cn'].includes(key)).map(([key,val])=>wikiFormatField(key,val)).join('')+'</div></article>';
  }
  return '<div class="module-wrap wiki-module">'+
@@ -551,6 +552,7 @@ window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.
 })();
 </script>
 <script src="./data/wiki-status-ko.js"></script>
+<script src="./data/wiki-status-v620.js"></script>
 <script type="module">
 import {loadKoreanWikiNames} from './data/korean-wiki-index.js';
 import {loadV620KoreanReference} from './data/v620-korean-reference.js';
