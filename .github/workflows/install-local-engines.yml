@@ -2,7 +2,7 @@ name: Install bundled offline engines
 on:
   push:
     paths:
-      - NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip
+      - 'assets/archive_parts/part*.b64'
   workflow_dispatch:
 permissions:
   contents: write
@@ -16,7 +16,13 @@ jobs:
       - name: Unpack verified local engine resources
         run: |
           set -euo pipefail
-          test -f NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip
+          for n in 01 02 03 04 05 06 07 08; do
+            if test ! -s "assets/archive_parts/part${n}.b64"; then
+              echo "Still missing asset bundle part ${n}, skipping until upload complete"
+              exit 0
+            fi
+          done
+          cat assets/archive_parts/part{01,02,03,04,05,06,07,08}.b64 | base64 --decode > NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip
           echo '4d05e88a6c7f2353896f09f4915f1b495c750819bcc73708448f566f3e7a78c5  NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip' | sha256sum -c -
           unzip -tq NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip
           unzip -oq NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip -d .
