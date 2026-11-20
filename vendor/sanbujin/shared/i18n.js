@@ -19,7 +19,7 @@ var pairs=Object.entries(dict).filter(function(p){return p[0].length>1}).sort(fu
 var chinese=/[\u3400-\u9fff]/;
 var convertTW=(w.OpenCC&&typeof w.OpenCC.Converter==='function')?w.OpenCC.Converter({from:'cn',to:'tw'}):function(x){return String(x||'')};
 function normalize(v){v=String(v||'').toLowerCase();if(v==='ko'||v.startsWith('ko-'))return KO;if(['zh-tw','zh-hk','zh-mo','zh-hant'].includes(v)||v.startsWith('zh-hant-'))return TW;if(['zh-cn','zh-sg','zh-hans'].includes(v)||v.startsWith('zh-hans-'))return CN;return ''}
-function getInitial(){var u='';try{u=normalize(new URLSearchParams(location.search).get('lang'))}catch(e){}if(u)return u;try{u=normalize(localStorage.getItem(KEY))}catch(e){}if(u)return u;var langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language];for(var l of langs){u=normalize(l);if(u)return u}return CN}
+function getInitial(){if(document.documentElement&&document.documentElement.getAttribute('lang')==='ko')return KO;var u='';try{u=normalize(new URLSearchParams(location.search).get('lang'))}catch(e){}if(u)return u;try{u=normalize(localStorage.getItem(KEY))}catch(e){}if(u)return u;var langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language];for(var l of langs){u=normalize(l);if(u)return u}return CN}
 var current=getInitial();
 function korean(x){x=String(x==null?'':x);
  // The old source sometimes double-escaped Korean characters as &#xAD00;.
