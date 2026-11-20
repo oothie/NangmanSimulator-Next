@@ -17,6 +17,8 @@ jobs:
         run: |
           set -euo pipefail
           test -f NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip
+          echo '4d05e88a6c7f2353896f09f4915f1b495c750819bcc73708448f566f3e7a78c5  NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip' | sha256sum -c -
+          unzip -tq NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip
           unzip -oq NangmanSimulator_Offline_Engine_Assets_v0.5.9.zip -d .
           test -s vendor/yysim/wasm_data.js
           test -s vendor/yysim/core_glue.js
@@ -30,8 +32,12 @@ jobs:
           # Retain existing wiki UI. The original yy-sim JS datasets are now local.
           src=src.replace('https://yy-sim.pages.dev/wiki_data.js','./vendor/yysim/wiki_data.js')
           src=src.replace('https://yy-sim.pages.dev/wiki_buff.js','./vendor/yysim/wiki_buff.js')
-          src=src.replace('https://yy-sim.pages.dev/icons/','./assets/yy-icons/')
+          # Keep existing wiki icon URLs until the one-time icon sync completes.
+          src=src.replace('v0.5.8','v0.5.9')
           p.write_text(src,encoding='utf-8')
+          for path,old,new in [('engine/sanbujin-equipment.js','https://tool.launch-ai.cloud/suanbujin/shared/','./vendor/sanbujin/shared/'),('engine/wash.js','https://yy-sim.pages.dev/','./vendor/yysim/')]:
+              q=Path(path)
+              if q.exists(): q.write_text(q.read_text(encoding='utf-8').replace(old,new),encoding='utf-8')
           PY
           # Download yy-sim background artwork only at build time, not per user session.
           mkdir -p assets/yy-background
@@ -52,7 +58,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add vendor engine/local-engine-bridge.js manifest.json ENGINE_ASSETS_README.md assets/yy-background index.html
+          git add vendor engine/local-engine-bridge.js manifest.json ENGINE_ASSETS_README.md assets/yy-background index.html engine/sanbujin-equipment.js engine/wash.js
           if ! git diff --cached --quiet; then
             git commit -m "Install local yy-sim and Sanbujin engine assets from supplied archives"
             git push
