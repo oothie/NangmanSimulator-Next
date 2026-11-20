@@ -5752,7 +5752,16 @@ function equipAutoFilteredCandidates(candidates) {
         const blueColor = Number(candidate.color) === 3;
         if (equipAutoResultBlueMode === 'none' && blueColor) return false;
         if (equipAutoResultBlueMode === 'only' && !blueColor) return false;
-        if (equipAutoResultSeedFilter && String(candidate.seedKind || '普通') !== equipAutoResultSeedFilter) return false;
+        // Compare displayed Korean categories, not the engine's Chinese/English seed-kind tokens.
+        // Keep candidate.seedKind and saved results unchanged for archive compatibility.
+        if (equipAutoResultSeedFilter) {
+            const rawKind = String(candidate.seedKind || '普通');
+            const kind = rawKind === '保底' || rawKind === 'pity' ? '천장'
+                : rawKind === '幸运' || rawKind === 'lucky' ? '행운'
+                : rawKind === '普通' || rawKind === 'normal' ? '일반'
+                : nangmanAutoDisplay(rawKind);
+            if (kind !== equipAutoResultSeedFilter) return false;
+        }
         const regionProps = Array.isArray(candidate.region) ? candidate.region : [];
         if (equipAutoResultRegionFilter === 'none' && regionProps.length) return false;
         if (equipAutoResultRegionFilter === 'any' && !regionProps.length) return false;
