@@ -539,7 +539,7 @@ function exportWashHistory() {
             gap = r.isFirstPurple ? `최초 등장(${r.purpleGapPills})` : String(r.purpleGapPills ?? '');
         }
         return [
-            r.isExchange ? `换` : r.washNo,
+            r.isExchange ? `치환` : r.washNo,
             flag,
             names,
             r.pillsUsed,
