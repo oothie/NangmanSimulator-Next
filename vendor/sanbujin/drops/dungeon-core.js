@@ -27,7 +27,7 @@
     const advanced = new Map();
     return (key, weights, bound) => {
       const seed = advanced.get(key) ?? value(input.seeds[key]);
-      if (!usable(seed)) throw Error('当前存档缺少相关随机序列');
+      if (!usable(seed)) throw Error('현재 세이브에 해당 난수 순서가 없습니다');
       const output = weights ? choose(seed, weights) : draw(seed, bound);
       advanced.set(key, output.seed);
       return weights ? output.index : output.value;
@@ -58,7 +58,7 @@
     const map = scope => scope === 'temp' ? temp : vars;
     const state = {
       level: input.level,
-      branch() { throw Error('缺少剧情分支校验'); },
+      branch() { throw Error('스토리 분기 검증 정보가 없습니다'); },
       get(key, scope) { return map(scope).get(key) || 0; },
       set(key, value, scope) { map(scope).set(key, Number(value) || 0); },
       add(key, value, scope) { state.set(key, state.get(key, scope) + value, scope); },
