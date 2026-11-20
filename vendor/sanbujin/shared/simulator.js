@@ -3544,7 +3544,7 @@ function paintAiTalentChoices(targetIds) {
         const item = TALENT_DATA[String(id)] || {};
         const name = item.name || `재능 #${id}`;
         const quality = Number(item.pinzhi ?? item.weight);
-        const qualityName = ({2: '绿', 3: '蓝', 4: '紫'})[quality] || '';
+        const qualityName = ({2: '녹', 3: '청', 4: '자'})[quality] || '';
         return `<label class="ai-talent-choice" data-talent-id="${id}" data-talent-name="${escapeAiHtml(name)}" data-talent-quality="${quality}">
             <input type="checkbox" value="${id}" aria-label="${qualityName}맥 · ${escapeAiHtml(name)}" ${aiSearchRunning ? 'disabled' : ''}>
             <span class="ai-talent-quality" aria-hidden="true">${qualityName}</span><span>${escapeAiHtml(name)}</span>
@@ -3553,7 +3553,7 @@ function paintAiTalentChoices(targetIds) {
     container.innerHTML = [4, 3, 2].map(quality => {
         const ids = aiAvailableTalentIds.filter(id => Number(TALENT_DATA[String(id)]?.pinzhi ?? TALENT_DATA[String(id)]?.weight) === quality);
         if (!ids.length) return '';
-        const title = ({4: '紫', 3: '蓝', 2: '绿'})[quality] + '脉';
+        const title = ({4: '자', 3: '청', 2: '녹'})[quality] + '맥';
         const heading = `<span>${title}</span><small></small>`;
         const choices = `<div class="ai-talent-grid">${ids.map(choiceHtml).join('')}</div>`;
         return `<details class="ai-talent-section ai-talent-collapsible" data-talent-quality-section="${quality}" ${(previousQualities.has(quality) ? expandedQualities.has(quality) : quality === 4) ? 'open' : ''}><summary class="ai-talent-group-title" data-talent-quality-group="${quality}">${heading}</summary>${choices}</details>`;
@@ -5143,7 +5143,7 @@ function equipAutoAskCacheOptions() {
         var wrap = document.createElement('div');
         wrap.className = 'equip-auto-confirm';
         wrap.innerHTML = '<div class="equip-auto-confirm-card equip-auto-fav-options" role="dialog" aria-modal="true">'
-            + '<h3 class="equip-auto-fav-title">收藏到云盘</h3>'
+            + '<h3 class="equip-auto-fav-title">클라우드에 즐겨찾기 저장</h3>'
             + '<p class="equip-auto-fav-tip">즐겨찾기 시 상세 결과도 저장되므로 다른 기기나 세이브에서도 확인할 수 있습니다.</p>'
             + '<label class="equip-auto-fav-field"><span>정련 데이터</span>'
             + '<input type="number" id="favRefineRows" min="0" max="2000" step="50" value="500"><i>개</i></label>'
@@ -6783,7 +6783,7 @@ function renderEquipAutoSweepPaperPicker() {
     box.dataset.ready = '1';
     box.innerHTML = ['3025', '3035'].map(function (material) {
         var items = papers.filter(function (id) { return String(EQUIP_DATA.papers[id].dz_mat) === material; });
-        return '<div class="sweep-paper-group"><div class="sweep-paper-group-title">' + (material === '3025' ? '紫金' : '乌缕') + ' <span>' + items.length + ' 장</span></div><div class="sweep-paper-grid">'
+        return '<div class="sweep-paper-group"><div class="sweep-paper-group-title">' + (material === '3025' ? '자금' : '오루') + ' <span>' + items.length + ' 장</span></div><div class="sweep-paper-grid">'
             + items.map(function (id) {
                 var paper = EQUIP_DATA.papers[id];
                 var equip = EQUIP_DATA.equipment[String(paper.dz_equip)] || {};
@@ -7436,7 +7436,7 @@ function jianwangAutoFormatExts(exts) {
 }
 
 function jianwangAutoStepLabel(step) {
-    if (step.type === 'blank') return `碎剑后生成${step.toName || '60레벨 검 배아'}`;
+    if (step.type === 'blank') return `검 분해 후 ${step.toName || '60레벨 검 배아'} 생성`;
     if (step.type === 'reforge') return `재주조 제${Number(step.reforgeAttempt || 0)}회`;
     return `${step.fromName || step.fromId} → ${step.toName || step.toId}`;
 }
