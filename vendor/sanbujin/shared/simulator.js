@@ -1099,7 +1099,7 @@ function updateCustomWashUndoButton() {
     if (!button || manualWashTracking || manualWashReplaying) return;
     const available = manualWashesAvailable(), count = requestedManualWashCount();
     button.disabled = !available || !count;
-    button.textContent = count && String(count).length <= 4 ? `撤回 ${count} 次` : '撤回 N 次';
+    button.textContent = count && String(count).length <= 4 ? `${count}회 되돌리기` : '撤回 N 次';
     button.setAttribute('aria-label', count ? `입력한 세수 ${count}회 되돌리기` : '撤回填写次数的洗脉');
     button.title = '按填写的次数回退本页洗脉进度，可跨多轮连洗；回退点之后的锁脉、置换及记录一并恢复。';
     const number = document.getElementById('customWashNum');
@@ -2437,8 +2437,8 @@ function findAndShowNextConflict(afterSeq) {
             || (!item.earlier_conflict_name
                 ? `다음 자맥 '${item.talent_name}'과 같은 종류의 충돌이 없어 치환할 수 없습니다.`
                 : (item.earlier_conflict_is_purple
-                    ? `下一紫「${item.talent_name}」冲突为紫脉/神脉「${item.earlier_conflict_name}」，无非紫脉冲突可锁定（神脉可在脉序推演中互冲）`
-                    : `下一紫「${item.talent_name}」不可按锁冲突流程置换`));
+                    ? `다음 자맥 '${item.talent_name}'과 충돌하는 맥이 자맥/신맥 '${item.earlier_conflict_name}'입니다. 잠글 수 있는 일반 충돌맥이 없습니다(신맥 충돌은 맥 순서 시뮬레이션에서 처리할 수 있습니다).`
+                    : `다음 자맥 '${item.talent_name}'은 충돌맥 잠금 방식으로 치환할 수 없습니다.`));
         box.innerHTML = `
             <div class="nc-steps" style="color:var(--red)">查询不到可锁定的非紫冲突脉</div>
             <div>下一紫：<b class="purple-bright">#${item.wash_no} ${item.talent_name}</b>${item.was_pity ? ' · 保底' : ''}</div>
@@ -2472,15 +2472,15 @@ function findAndShowNextConflict(afterSeq) {
 
     let statusHtml = `<div class="nc-steps">当前：脉序 <b>#${curBars}</b>（已洗 ${curWash} 次）`;
     if (hasPurpleNow) {
-        statusHtml += ` · 已刷出「${item.talent_name}」，可直接置换`;
+        statusHtml += ` · '${item.talent_name}' 등장 완료, 바로 치환할 수 있습니다.`;
     } else if (conflictLocked) {
         statusHtml += ` · 已锁定「${item.earlier_conflict_name}」，约再洗 <b>${toPurpleWash}</b> 次到紫`;
     } else if (hasConflictNow) {
-        statusHtml += ` · 槽内已有「${item.earlier_conflict_name}」，请锁定后继续洗`;
+        statusHtml += ` · 현재 칸에 '${item.earlier_conflict_name}'이 있습니다. 잠근 다음 계속 세수하세요.`;
     } else if (conflictTimes > 0 && curWash < conflictTimes) {
         statusHtml += ` · 约再洗 <b>${toConflictWash}</b> 次到冲突，再到紫约 <b>${toPurpleWash}</b> 次`;
     } else if (conflictTimes > 0 && curWash > conflictTimes) {
-        statusHtml += ` · 已过冲突洗髓次数 ${conflictTimes}（脉序 #${conflictSeq}），此条需回档/重置`;
+        statusHtml += ` · 충돌맥 세수 회차 ${conflictTimes}(맥 순서 #${conflictSeq})를 지나갔습니다. 이 경로는 세이브를 되돌리거나 초기화해야 합니다.`;
     }
     statusHtml += '</div>';
 
@@ -2590,7 +2590,7 @@ function formatFollowingNodesBrief(following) {
     return following.map(n => {
         const name = n.purple_name || '?';
         if (n.shenmai_forks && n.shenmai_forks.length >= 2) {
-            const forks = n.shenmai_forks.map(f => `换${f.exchange_from}→${f.final_name || '?'}`).join('；');
+            const forks = n.shenmai_forks.map(f => `치환 ${f.exchange_from}→${f.final_name || '?'}`).join('；');
             return `<span class="chain-follow-item"><b>${name}</b>：${forks}</span>`;
         }
         const c0 = (n.chain && n.chain[0]) || n.final_name || '-';
@@ -2737,7 +2737,7 @@ function renderExchangeAnalysisBlock() {
         const lastHint = nodeSim && nodeSim.last_slot_name
             ? `<span class="card-last-slot">末格：${nodeSim.last_slot_name}</span>`
             : '';
-        const roleLabel = idx === 0 ? '首紫（可垫洗）' : `第${idx + 1}紫（锁定后固定）`;
+        const roleLabel = idx === 0 ? '首紫（可垫洗）' : `제${idx + 1}자맥(잠금 후 고정)`;
         let conflictHtml;
         if (nodeSim && nodeSim.conflict_name) {
             conflictHtml = `冲突：${nodeSim.conflict_name}`;
@@ -2784,7 +2784,7 @@ function renderExchangeAnalysisBlock() {
                 cells += `<td>${n ? formatNodeExchangeResult(n) : '-'}</td>`;
             }
         }
-        const padLabel = pad === 0 ? '直接置换' : `锁紫再洗 ${pad} 次`;
+        const padLabel = pad === 0 ? '直接置换' : `자맥 잠금 후 ${pad}회 세수`;
         tableBody += `
             <tr class="route-pad-row ${isSel ? 'current-step' : ''}" data-pad="${pad}">
                 <td><b>第 ${pad + 1} 条</b></td>
@@ -2924,7 +2924,7 @@ function setAiSearchControls(running) {
         predict.hidden = running;
         predict.disabled = !running && (aiTargetPoolLoading || !!aiTargetPoolError);
         const saved = !running ? getAiSearchManager()?.resumable(aiAttachedTaskKey, window.WASH_ROUTE_WORKER_BUNDLE?.hash) : null;
-        predict.textContent = saved ? (saved.route.totalPills===0?'核验0丹路线':`继续优化 · ${formatCount4(saved.route.totalPills)}丹`) : '开始查找路线';
+        predict.textContent = saved ? (saved.route.totalPills===0?'核验0丹路线':`추가 최적화 · 세수단 ${formatCount4(saved.route.totalPills)}개`) : '开始查找路线';
         const restart = document.getElementById('btnAiRestart');
         if (restart) restart.hidden = running || !saved;
     }
@@ -3010,7 +3010,7 @@ function renderAiSearchSnapshot(snapshot, restore = false) {
         aiRenderedResultRevision = revision;
     }
     if (snapshot.status === 'complete') {
-        renderAiSearchProgress({ phase: 'complete', message: snapshot.result?.strength || `本轮搜索结束，已找到 ${found} 条路线；尚未证明最优` });
+        renderAiSearchProgress({ phase: 'complete', message: snapshot.result?.strength || `이번 탐색에서 ${found}개 경로를 찾았지만 최적 경로임은 아직 증명되지 않았습니다.` });
     } else if (snapshot.status === 'running') {
         renderAiSearchProgress({ ...(snapshot.progress || {}), foundCount: found });
         if (!found && results && results.dataset.hasResult !== 'searching') {
@@ -3026,7 +3026,7 @@ function renderAiSearchSnapshot(snapshot, restore = false) {
             : snapshot.stopReason === 'resource-limit'
                 ? '方案数量或内存达到保护限制，已保留路线；尚未证明最优。'
             : snapshot.stopReason === 'search-incomplete'
-                ? `本轮尚未找到 ${Number(snapshot.view?.maxTotalPills || 0).toLocaleString()} 丹以内满足全部目标的路线；搜索未穷尽，不能判定无解。`
+                ? `이번 탐색에서는 세수단 ${Number(snapshot.view?.maxTotalPills || 0).toLocaleString()}개 이내에 모든 목표를 달성하는 경로를 찾지 못했습니다. 탐색을 완료하지 않았으므로 불가능하다고 판단할 수 없습니다.`
                 : `${snapshot.stopReason === 'page-reloaded' ? '页面已刷新，可核验后继续' : '已停止'}${found ? '，最好路线已保留。' : '，可重新开始。'}`;
         renderAiSearchProgress({ phase: failed ? 'error' : 'stopped', message });
         if (!found) {
@@ -3152,7 +3152,7 @@ function renderAutoWashSaveGate() {
     if (status) {
         status.textContent = !hasSave
             ? '尚未导入存档'
-            : (selected ? `已选择 · ${selected.tag} · ${selected.role.Name || '无名'}` : `已导入 ${roles.length} 名人物，请继续选择`);
+            : (selected ? `已选择 · ${selected.tag} · ${selected.role.Name || '无名'}` : `인물 ${roles.length}명의 정보를 불러왔습니다. 인물을 선택하세요.`);
     }
     if (pills) pills.textContent = state.hasBagPills ? `${state.bagPills.toLocaleString()} 颗` : '--';
     if (summary) {
@@ -3166,7 +3166,7 @@ function renderAutoWashSaveGate() {
                 ? ' · 从当前天赋栏开始，比较逐步开栏的洗法'
                 : '';
             const talentNames = state.talents.map(t => TALENT_DATA[String(t.id)]?.name || '未知天赋').join('、');
-            summary.textContent = isAutomaticWashPage()?`${zz.zz_name || zz.name || '当前资质'} · ${Number(zz.num_talent || 0)} 栏 · ${talentNames || '暂无天赋'}`:`${selected.role.Name || '无名'} · ${zz.zz_name || zz.name || `资质 ${state.zizhi}`}（${Number(zz.num_talent || 0)} 栏） · 当前天赋：${talentNames || '无'}${zeroSlotPlan}`;
+            summary.textContent = isAutomaticWashPage()?`${zz.zz_name || zz.name || '현재 자질'} · ${Number(zz.num_talent || 0)}칸 · ${talentNames || '재능 없음'}`:`${selected.role.Name || '无名'} · ${zz.zz_name || zz.name || `资质 ${state.zizhi}`}(${Number(zz.num_talent || 0)}칸) · 현재 재능: ${talentNames || '없음'}${zeroSlotPlan}`;
         }
     }
 }
@@ -3228,7 +3228,7 @@ function validateAiTargetSet(targetIds, talentData, slotCount = 4) {
     const ids = Array.from(new Set((targetIds || []).map(Number).filter(id => id > 0)));
     const errors = [];
     if (!ids.length) errors.push('请至少选择一条目标脉');
-    if (ids.length > slotCount) errors.push(`目标脉数量不能超过 ${slotCount} 条`);
+    if (ids.length > slotCount) errors.push(`목표 맥 개수는 ${slotCount}개를 초과할 수 없습니다.`);
     const seenTypes = new Map();
     for (const id of ids) {
         const item = talentData?.[String(id)];
@@ -3236,11 +3236,11 @@ function validateAiTargetSet(targetIds, talentData, slotCount = 4) {
             errors.push(`未找到天赋 ID ${id}`);
             continue;
         }
-        if (![2, 3, 4].includes(Number(item.pinzhi ?? item.weight))) errors.push(`「${item.name}」不是可选的绿脉、蓝脉或紫脉`);
+        if (![2, 3, 4].includes(Number(item.pinzhi ?? item.weight))) errors.push(`'${item.name}'은 선택 가능한 녹맥·청맥·자맥이 아닙니다.`);
         if (item.type == null) continue;
         const type = String(item.type);
         if (seenTypes.has(type)) {
-            errors.push(`「${seenTypes.get(type)}」与「${item.name}」同类型，不能作为最终有效脉同时保留`);
+            errors.push(`'${seenTypes.get(type)}'과 '${item.name}'은 같은 유형이므로 최종 유효 맥으로 동시에 유지할 수 없습니다.`);
         } else {
             seenTypes.set(type, item.name);
         }
@@ -3415,12 +3415,12 @@ function validateAiTargetSelection({ showMessage = true } = {}) {
     const unavailable = result.ids.filter(id => !aiAvailableTalentIds.includes(id));
     if (unavailable.length) {
         result.valid = false;
-        result.errors.push(`当前角色或四脉资质不可用：${unavailable.map(id => TALENT_DATA[String(id)]?.name || id).join('、')}`);
+        result.errors.push(`현재 인물 또는 4칸 자질에서 사용할 수 없는 맥: ${unavailable.map(id => TALENT_DATA[String(id)]?.name || id).join('、')}`);
     }
     if (showMessage && message) {
         message.classList.toggle('is-error', !result.valid);
         message.textContent = result.valid
-            ? `将筛选最终同时包含「${result.ids.map(id => TALENT_DATA[String(id)].name).join('、')}」的路线。`
+            ? `최종적으로 '${result.ids.map(id => TALENT_DATA[String(id)].name).join('、')}'을 모두 포함하는 경로를 찾습니다.`
             : (result.errors[0] || '请选择目标脉');
     }
     return result;
@@ -3519,7 +3519,7 @@ function renderAiTalentChoices() {
     }).catch(error => {
         if (token !== aiTargetPoolToken) return;
         aiTargetPoolLoading = false;
-        aiTargetPoolError = `可用目标脉读取失败：${error?.message || error}`;
+        aiTargetPoolError = `사용 가능한 목표 맥을 읽지 못했습니다: ${error?.message || error}`;
         aiAvailableTalentIds = [];
         container.textContent = aiTargetPoolError;
         if (predict) predict.disabled = true;
@@ -3546,7 +3546,7 @@ function paintAiTalentChoices(targetIds) {
         const quality = Number(item.pinzhi ?? item.weight);
         const qualityName = ({2: '绿', 3: '蓝', 4: '紫'})[quality] || '';
         return `<label class="ai-talent-choice" data-talent-id="${id}" data-talent-name="${escapeAiHtml(name)}" data-talent-quality="${quality}">
-            <input type="checkbox" value="${id}" aria-label="${qualityName}脉 · ${escapeAiHtml(name)}" ${aiSearchRunning ? 'disabled' : ''}>
+            <input type="checkbox" value="${id}" aria-label="${qualityName}맥 · ${escapeAiHtml(name)}" ${aiSearchRunning ? 'disabled' : ''}>
             <span class="ai-talent-quality" aria-hidden="true">${qualityName}</span><span>${escapeAiHtml(name)}</span>
         </label>`;
     };
@@ -3631,11 +3631,11 @@ function renderAiSearchProgress(progress = {}) {
             else track.removeAttribute('aria-valuenow');
         }
     }
-    if (text) text.textContent = progress.phase === 'optimizing' ? `继续寻找更省路线 · 第 ${progress.optimizationRound} 轮` : !terminal && progress.message ? readableWashCopy(progress.message) : terminal ? (progress.phase === 'error' ? playerError(progress.message) : readableWashCopy(progress.message)) : (progress.foundCount ? `正在深度查找，已找到 ${progress.foundCount} 条路线…` : '正在深度查找满足目标的路线…');
+    if (text) text.textContent = progress.phase === 'optimizing' ? `더 적은 세수단을 사용하는 경로 검색 · 제${progress.optimizationRound}회` : !terminal && progress.message ? readableWashCopy(progress.message) : terminal ? (progress.phase === 'error' ? playerError(progress.message) : readableWashCopy(progress.message)) : (progress.foundCount ? `상세 탐색 중 · ${progress.foundCount}개 경로 발견…` : '正在深度查找满足目标的路线…');
     const washes = Number(progress.totalRawWashesSimulated ?? progress.rawWashesSimulated ?? 0);
     if (percent) percent.textContent = terminal
         ? (progress.phase === 'complete' ? '完成' : progress.phase === 'stopped' ? '已停止' : '出现错误')
-        : (washes > 0 ? `已模拟 ${formatCount4(washes)} 次洗脉` : '正在准备');
+        : (washes > 0 ? `세수 ${formatCount4(washes)}회 시뮬레이션 완료` : '正在准备');
     if (fill) fill.style.removeProperty('width');
 }
 
@@ -3646,7 +3646,7 @@ function aiCostBreakdownHtml(route) {
     const total = Math.max(1, Number(route.totalPills) || 1);
     const segments = entries.map(([key, value]) => {
         const width = Math.max(4, Number(value) / total * 100);
-        return `<div class="ai-cost-segment" style="flex-basis:${width}%" title="${escapeAiHtml(labels[key] || key)}：${Number(value).toLocaleString()} 丹">
+        return `<div class="ai-cost-segment" style="flex-basis:${width}%" title="${escapeAiHtml(labels[key] || key)}: 세수단 ${Number(value).toLocaleString()}개">
             ${escapeAiHtml(labels[key] || key)} ${Number(value).toLocaleString()}
         </div>`;
     }).join('');
@@ -3658,8 +3658,8 @@ function aiCostBreakdownHtml(route) {
 function aiRouteTimelineHtml(route) {
     return `<div class="ai-route-timeline" role="list" aria-label="路线操作时间轴">${(route.steps || []).map((step, index) => {
         const detail = step.washes > 0
-            ? `洗 ${step.washes} 次 · 本步 ${step.pills} 丹`
-            : `本步 ${step.pills} 丹`;
+            ? `세수 ${step.washes}회 · 이번 단계 세수단 ${step.pills}개`
+            : `이번 단계 세수단 ${step.pills}개`;
         return `<div class="ai-route-step-node is-${escapeAiHtml(step.type)}" role="listitem">
             <b>${index + 1}. ${escapeAiHtml(readableWashCopy(step.label))}</b>
             <span>${escapeAiHtml(detail)}</span>
@@ -3671,7 +3671,7 @@ function aiRouteTimelineHtml(route) {
 function aiOperationTableHtml(route) {
     const rows = (route.steps || []).map((step, index) => {
         const afterNames = (step.after?.talents || []).map(t => `${t.name}${t.locked ? '（锁）' : ''}`).join('、');
-        const verify = step.type === 'verify' ? '最终目标已逐步核对' : (step.expectedName ? `应出现「${step.expectedName}」` : afterNames);
+        const verify = step.type === 'verify' ? '最终目标已逐步核对' : (step.expectedName ? `'${step.expectedName}' 등장 예상` : afterNames);
         return `<tr>
             <td>${index + 1}</td>
             <td><b>${escapeAiHtml(readableWashCopy(step.label))}</b></td>
@@ -3695,9 +3695,9 @@ function aiRouteResultHtml(route, index) {
     const inventory = route.inventory || {};
     const inventoryLabel = inventory.available == null
         ? '库存未读取'
-        : (inventory.enough ? `余 ${Number(inventory.remaining).toLocaleString()} 丹` : `缺 ${Number(inventory.shortfall).toLocaleString()} 丹`);
+        : (inventory.enough ? `남은 세수단 ${Number(inventory.remaining).toLocaleString()}개` : `부족한 세수단 ${Number(inventory.shortfall).toLocaleString()}개`);
     const upgradeLabel = Array.isArray(route.slotPath) && route.slotPath.length
-        ? `${route.slotPath.join('→')} 槽`
+        ? `${route.slotPath.join('→')}칸`
         : '保持当前槽位';
     const finalNames = (route.finalTalents || []).map(item => `${item.name}${item.locked ? '（锁）' : ''}`).join('、');
     return `<div class="ai-route-card"><details class="ai-route-result" data-route-key="${escapeAiHtml(route.branchId || index)}" ${index === 0 && !isAutomaticWashPage() ? 'open' : ''}>
@@ -3726,7 +3726,7 @@ function aiRouteResultHtml(route, index) {
             </div>
         </div>
     </details>
-    <button type="button" class="btn btn-reset ai-route-image ai-route-card-export" data-route-index="${index}" aria-label="一键导出第 ${index+1} 条路线图">一键导出路线图</button></div>`;
+    <button type="button" class="btn btn-reset ai-route-image ai-route-card-export" data-route-index="${index}" aria-label="${index+1}번째 경로 이미지 내보내기">一键导出路线图</button></div>`;
 }
 
 function renderAiPrediction(result, imageContext = {}) {
@@ -3821,7 +3821,7 @@ function openWashOriginPreview() {
     const vip=N('p',`推演条件：VIP ${input.initialState.vip===0?'0':input.initialState.vip+'+'}（${input.vipConfirmed?'手动确认':'模拟等级，未确认'}），原档 ${slots} 栏。`);vip.className='wash-origin-note';
     const label=N('label'),labelText=N('span','预览栏数'),select=N('select');label.className='wash-origin-slots';label.append(labelText);select.setAttribute('aria-label','初始脉预览栏数');
     if(slots===0){const zero=N('option','当前0栏（无法洗脉）');zero.value='0';select.append(zero);}
-    for(let count=Math.max(1,slots);count<=4;count++){const option=N('option',count===slots?`当前 ${count} 栏`:`先开至 ${count} 栏（材料另计）`);option.value=String(count);select.append(option);}
+    for(let count=Math.max(1,slots);count<=4;count++){const option=N('option',count===slots?`현재 ${count}칸`:`먼저 ${count}칸까지 개방(재료 별도 계산)`);option.value=String(count);select.append(option);}
     select.value=String(slots);label.append(select);
     const status=N('p'),note=N('p'),noteDetails=N('details'),noteSummary=N('summary','起点与置换说明'),rows=N('div'),actions=N('div'),stop=N('button','停止预览'),exportImage=N('button','导出初始脉长图'),close=N('button','关闭');exportImage.disabled=true;status.className='wash-origin-status';status.setAttribute('role','status');note.className='wash-origin-note';noteDetails.className='wash-origin-note-details';noteDetails.append(noteSummary,note);rows.className='wash-origin-rows';actions.className='sc-actions';close.type=stop.type=exportImage.type='button';stop.hidden=true;actions.append(stop,exportImage,close);d.append(description,vip,label,status,noteDetails,rows,actions);
     let worker,blobUrl,generation=0,running=false;
@@ -3829,9 +3829,9 @@ function openWashOriginPreview() {
     function paint(result){
         exportImage.disabled=false;exportImage.onclick=()=>{try{if(!window.WashRouteImage?.buildOriginModel)throw Error('导出功能尚未加载，请刷新后重试');const model=window.WashRouteImage.buildOriginModel(result,{roleName,vip:input.initialState.vip,vipConfirmed:input.vipConfirmed});window.WashRouteImage.show(model,{returnFocus:exportImage,autoSave:true})}catch(error){C.alert(playerError(error))}};
         rows.replaceChildren();note.textContent=result.existingPurples.length?'起点已有紫脉（0丹）：'+result.existingPurples.map(x=>x.name).join('、'):'起点没有已有紫脉。';
-        if(result.firstFixedAtPills!==null)note.textContent+=` 此预览分支在 ${formatCount4(result.firstFixedAtPills)} 丹触发保底并固定置换序列；不会改变原始存档的资格。`;
-        status.textContent=`已推演 ${formatCount4(result.spentPills)} / ${formatCount4(budget)} 丹 · 紫脉 ${result.rows.length} 次。`+(result.complete?'已检查预算内次数。':result.stopReason==='cancelled'?'已停止，仅显示已检查部分。':'达到计算量保护上限，仅含已检查部分，可缩小范围重试。');
-        if(result.openedSlots)note.textContent+=` 本次假设先开至 ${result.previewSlots} 栏，开栏材料另计。`;
+        if(result.firstFixedAtPills!==null)note.textContent+=` 이 미리보기 경로는 세수단 ${formatCount4(result.firstFixedAtPills)}개 소모 시 천장이 발동하고 치환 순서가 고정됩니다. 원본 세이브의 자격에는 영향을 주지 않습니다.`;
+        status.textContent=`세수단 ${formatCount4(result.spentPills)}/${formatCount4(budget)}개 계산 · 자맥 ${result.rows.length}회 등장`+(result.complete?'已检查预算内次数。':result.stopReason==='cancelled'?'已停止，仅显示已检查部分。':'达到计算量保护上限，仅含已检查部分，可缩小范围重试。');
+        if(result.openedSlots)note.textContent+=` 이번 미리보기에서는 먼저 ${result.previewSlots}칸을 개방한 것으로 가정합니다. 개방 재료는 별도 계산합니다.`;
         if(!result.rows.length){rows.append(N('p',result.complete?'该预览范围内未直接洗出紫脉。':'已检查部分尚未洗出紫脉。'));return;}
         const table=N('table');table.className='wash-origin-table';table.setAttribute('aria-label','初始紫脉预览；间隔丹为与上一条紫脉的丹数差，首条以横线表示');const head=N('thead'),tr=N('tr');for(const name of ['第几次','累计丹','间隔丹','紫脉','来源']){const th=N('th',name);th.scope='col';if(name==='间隔丹')th.title='与上一条紫脉之间相差的丹数；首条没有上一紫，记为—';tr.append(th);}head.append(tr);const body=N('tbody');table.append(head,body);rows.append(table);let shown=0;
         const more=N('button','显示更多');more.type='button';function next(){for(let index=shown;index<Math.min(shown+50,result.rows.length);index++){const row=result.rows[index],interval=index===0?'—':formatCount4(row.totalPills-result.rows[index-1].totalPills),line=N('tr');for(const text of [formatCount4(row.washNo),formatCount4(row.totalPills),interval,row.name,row.kind==='pity'?'保底紫':'自然紫'])line.append(N('td',text));body.append(line);}shown+=50;more.hidden=shown>=result.rows.length;}more.onclick=next;rows.append(more);next();
@@ -3842,7 +3842,7 @@ function openWashOriginPreview() {
         try{const bundle=window.WASH_ROUTE_WORKER_BUNDLE;if(!bundle?.src)throw Error('本机预览资源尚未加载完成，请刷新后重试');blobUrl=URL.createObjectURL(new Blob([bundle.src],{type:'text/javascript'}));worker=new Worker(blobUrl);running=true;stop.hidden=false;stop.disabled=false;stop.textContent='停止预览';status.textContent='正在读取人物条件并预览…';const requestId='origin-'+Date.now()+'-'+token;
             worker.onerror=event=>{if(token!==generation)return;status.textContent=playerError(event.message||'初始脉预览失败');running=false;stop.hidden=true;dispose();};
             worker.onmessage=event=>{if(token!==generation||event.data.requestId!==requestId)return;const m=event.data;
-                if(m.type==='origin-preview-progress')status.textContent=`已推演 ${formatCount4(m.progress.spentPills)} / ${formatCount4(budget)} 丹，发现 ${m.progress.purpleCount} 次紫脉…`;
+                if(m.type==='origin-preview-progress')status.textContent=`세수단 ${formatCount4(m.progress.spentPills)}/${formatCount4(budget)}개까지 계산 · 자맥 ${m.progress.purpleCount}회 발견…`;
                 if(m.type==='origin-preview-result'){running=false;paint(m.result);stop.textContent='重新预览';stop.disabled=false;dispose();}
                 if(m.type==='error'){running=false;status.textContent=playerError(m.error);stop.textContent='重试';stop.disabled=false;dispose();}
             };
@@ -4196,7 +4196,7 @@ function renderEquipAutoPapers() {
         return `<div class="equip-auto-paper-card ${selected ? 'is-selected' : ''} ${isIncompatible ? 'is-incompatible' : ''}" data-paper-id="${paperId}" data-search="${escapeAiHtml(`${item.equip.name} ${item.paper.name}`.toLowerCase())}">
             <label class="equip-auto-paper-check">
                 <input class="equip-auto-paper-toggle" type="checkbox" value="${paperId}" ${selected ? 'checked' : ''}>
-                <strong title="${escapeAiHtml(item.paper.name)} · ${Number(item.equip.lv)}级${item.equip.lv === 90 ? '（自动升炼）' : ''} · 可在 ${item.npcIds.length} 个已选地点打造 · 可精炼：${escapeAiHtml(supportedLabels || '无目标属性')}">${escapeAiHtml(item.equip.name)} · ${escapeAiHtml(EQUIP_DATA.typeNames[String(item.equip.type)] || item.equip.type)}</strong>
+                <strong title="${escapeAiHtml(item.paper.name)} · ${Number(item.equip.lv)}레벨${item.equip.lv === 90 ? '(자동 승련)' : ''} · 선택한 ${item.npcIds.length}곳에서 제작 가능 · 정련 가능한 능력치: ${escapeAiHtml(supportedLabels || '목표 옵션 없음')}">${escapeAiHtml(item.equip.name)} · ${escapeAiHtml(EQUIP_DATA.typeNames[String(item.equip.type)] || item.equip.type)}</strong>
             </label>
 
         </div>`;
