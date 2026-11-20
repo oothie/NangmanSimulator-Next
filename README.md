@@ -1,27 +1,29 @@
-# NangmanSimulator-Next
+# 낭만강호 통합 시뮬레이터 (Next)
 
-한국판 낭만강호 신규 통합 시뮬레이터의 독립 사이트 저장소.
+배포 사이트: https://nangman-sim.pages.dev/
 
-현재 배포용 초기 버전: **v0.2.1** (GitHub + Cloudflare Pages).
+현재 초기 UI 버전: **v0.5.0**
 
-- 기존 `oothie/NangmanSimulator` 사이트와 별도 관리합니다.
-- UI/사이트 구조는 yy-sim을 참고하되, 복제 자산을 무단 배포하지 않습니다.
-- 한국판 장비 계산은 기존 Roboking 및 산부진 결과를 검증한 후 연결합니다.
-- 세수·도맥법은 yy-sim 로직의 한국판 세이브 매핑 검증을 거칩니다.
-- 백과는 한국판 APK에서 복원한 NangmanGame 데이터를 기준으로 구축합니다.
-- 항산파·전투 자동 시뮬레이션 제외.
-- `内息`은 한국판 용어 '내식'을 사용합니다.
+## 설계 기준
+- yy-sim 화면 구조를 참고해 한국어 UI를 자체 구현합니다.
+- 장비 계산은 한국판 검증 기준인 Roboking + 산부진 메커니즘으로 교체할 예정입니다. 중국판 yy-sim 장비 결과를 사용하지 않습니다.
+- 세수는 yy-sim 엔진을 한국판 세이브와 대조해 연결합니다.
+- 백과는 NangmanGame 한국판 APK 복원 데이터를 사용합니다.
+- 항산과 전투 탭은 유지하되 계산 미구현입니다.
+- `内息`은 반드시 `내식`이라고 표기합니다.
 
-## Cloudflare Pages 설정
-- GitHub 저장소: `oothie/NangmanSimulator-Next`
-- Production branch: `main`
-- Framework preset: `None`
-- Build command: 비움
-- Build output directory: `/` (repo root)
-- Root directory: `/`
+## 현재 구현된 UI
+- 56px 상단 가로 메뉴, 배경 산수화 레이어, 한국어 밝은/어두운 테마
+- 왼쪽 캐릭터 목록, 오른쪽 세수 화면 및 세수·치환 시퀀스·경로 탐색 탭
+- 장비: 제작/가방/자동/홍무 탭 표시
+- 백과: 카테고리 탭 및 검색 자리
+- 일일: 귀시/행상/드랍 탭
+- 로컬 JSON 세이브 불러오기, 캐릭터 목록
 
-`index.html`이 저장소 루트에 있어 별도 빌드 없이 정적으로 배포됩니다.
-Cloudflare의 Fetching repository 오류는 첫 커밋 부재 또는 GitHub App 접근 권한 설정 문제일 수 있습니다. GitHub App에 이 저장소 접근이 허용되어야 합니다.
+## 중요 제한
+- **UI 복원 진행 중**입니다. 전체 yy-sim 기능이나 문구가 이미 완벽 복제·번역된 단계가 아닙니다.
+- 한국판 세수 시드·잠금·천장 매핑과 장비 엔진은 미연결이며, 계산 버튼은 비활성화했습니다.
+- 원본 yy-sim 배경 이미지 경로는 외부 참조 중입니다. 이미지가 차단되면 저장소의 대체 배경으로 표시됩니다. 재사용 권한과 안정적인 자체 호스팅 확인이 필요합니다.
+- Cloudflare Pages 실제 배포 완료 여부는 GitHub 커밋과 별도입니다.
 
-## 현재 기능
-한국어 사이드바 UI, 테마 전환, 한국판 JSON 파일 로컬 불러오기, 기본 캐릭터·세이브 확인. 그 외 계산 기능은 개발 예정이며 미검증 예측값을 제공하지 않습니다.
+기존 `oothie/NangmanSimulator` 저장소는 수정하지 않습니다.
