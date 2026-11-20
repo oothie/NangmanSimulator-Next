@@ -263,7 +263,7 @@ function renderTalents() {
     const maxSlots = zzConfig.num_talent;
 
     if (maxSlots === 0) {
-        container.innerHTML = '<div class="talent-card empty"><span style="color:var(--text-muted)">此资质无天赋槽位</span></div>';
+        container.innerHTML = '<div class="talent-card empty"><span style="color:var(--text-muted)">이 자질에서는 재능 칸을 사용할 수 없습니다</span></div>';
         return;
     }
 
@@ -286,8 +286,8 @@ function renderTalents() {
         let conflictHtml = '';
         if (conflict) {
             conflictHtml = conflict.shenmaiMutual
-                ? `<span class="talent-conflict" title="多神脉互冲：槽内每条神脉都可置换">互冲 · 另有${conflict.earlierName}</span>`
-                : `<span class="talent-conflict" title="与「${conflict.earlierName}」同类型，本条不生效">冲突 · 前有${conflict.earlierName}</span>`;
+                ? `<span class="talent-conflict" title="신맥끼리 충돌: 해당 칸의 모든 신맥 치환 가능">상호 충돌 · ${conflict.earlierName}과 충돌</span>`
+                : `<span class="talent-conflict" title="'${conflict.earlierName}'과 동일 유형이므로 이 맥은 적용되지 않습니다">충돌 · 앞에 ${conflict.earlierName} 존재</span>`;
         }
 
         let exchangeBtn = '';
@@ -311,7 +311,7 @@ function renderTalents() {
     }
 
     for (let i = shown.length; i < maxSlots; i++) {
-        html += '<div class="talent-card empty">空槽位</div>';
+        html += '<div class="talent-card empty">빈 칸</div>';
     }
 
     container.innerHTML = html;
@@ -749,9 +749,9 @@ function loadParsedSaveData(saveData, silent) {
     }
     if (!silent) {
         alert(
-            `成功载入存档！\n` +
+            `세이브를 불러왔습니다!\n` +
             `- 主角 ${nMain} / 随从 ${nRole} / 离队 ${nLeave}\n` +
-            `- 背包洗髓丹: ${pillCount.toLocaleString()} 颗`
+            `- 背包세수단: ${pillCount.toLocaleString()} 颗`
         );
     }
 }
@@ -799,7 +799,7 @@ function handleSaveFileImport(file) {
 
 function upgradeZiZhi() {
     if (state.zizhi >= 154) {
-        alert("资质已达到最高阶段【空前绝后】，已解锁全部 4 个天赋槽！");
+        alert("자질 최고 단계 【공전절후】 도달! 재능 칸 4개를 모두 개방했습니다.");
         return;
     }
 
@@ -1963,7 +1963,7 @@ function renderExchangeSequence(role, candidate, n, result) {
     }
     if (grid) {
         grid.innerHTML = result.outputs.map(item =>
-            `<li data-index="${item.index}" data-source-wash-no="${item.sourceWashNo}" title="第 ${item.index} 条保底紫脉"><strong>${item.name}</strong></li>`
+            `<li data-index="${item.index}" data-source-wash-no="${item.sourceWashNo}" title="第 ${item.index} 条천장 자맥"><strong>${item.name}</strong></li>`
         ).join('');
         grid.hidden = false;
     }
@@ -2038,7 +2038,7 @@ function generateExchangeSequence() {
     clearExchangeSequenceResults('正在生成置换脉序…');
     if (status) {
         status.className = 'exchange-sequence-status';
-        status.textContent = candidate.isDirectPity ? '正在查看已固定的置换序列…' : '正在生成保底紫脉序列…';
+        status.textContent = candidate.isDirectPity ? '正在查看已固定的置换序列…' : '正在生成천장 자맥序列…';
     }
     requestAnimationFrame(() => {
         try {
@@ -3259,7 +3259,7 @@ function readableWashCopy(value) {
         ['源码规则', '洗脉规则'], ['源码状态机', '洗脉规则'],
         ['状态机回放', '逐步核对操作'], ['回放验证', '逐步核对'],
         ['欧气种子', '置换序列'], ['洗髓种子', '原始脉序'],
-        ['因此零丹无法取得完整目标', '因此当前条件下还需要消耗洗髓丹才能达到全部目标'], ['零丹', '추가 세수단 불필요'], ['当前四槽起点', '从当前四栏开始'],
+        ['因此零丹无法取得完整目标', '因此当前条件下还需要消耗세수단才能达到全部目标'], ['零丹', '추가 세수단 불필요'], ['当前四槽起点', '从当前四栏开始'],
     ];
     let text = String(value ?? '');
     for (const [before, after] of replacements) text = text.split(before).join(after);
@@ -3642,7 +3642,7 @@ function renderAiSearchProgress(progress = {}) {
 function aiCostBreakdownHtml(route) {
     const labels = AI_COST_BUCKET_LABELS;
     const entries = Object.entries(route.costBreakdown || {}).filter(([, value]) => Number(value) > 0);
-    if (!entries.length) return '<div class="ai-result-empty">本路线无需额外洗髓丹</div>';
+    if (!entries.length) return '<div class="ai-result-empty">本路线无需额外세수단</div>';
     const total = Math.max(1, Number(route.totalPills) || 1);
     const segments = entries.map(([key, value]) => {
         const width = Math.max(4, Number(value) / total * 100);
@@ -3707,17 +3707,17 @@ function aiRouteResultHtml(route, index) {
             <span class="ai-route-total">${Number(route.totalPills).toLocaleString()} 丹<small>${Number(route.totalWashes).toLocaleString()} 次洗脉</small></span>
         </summary>
         <div class="ai-route-body">
-            ${Number(route.totalPills) === 0 ? '<p class="ai-route-zero-cost"><strong>无需额外洗髓丹</strong>：这条路线不需要继续洗髓，请按下方步骤调整现有天赋；如需开天赋栏，资质材料仍要另外准备。</p>' : ''}
+            ${Number(route.totalPills) === 0 ? '<p class="ai-route-zero-cost"><strong>无需额外세수단</strong>：这条路线不需要继续洗髓，请按下方步骤调整现有天赋；如需开天赋栏，资质材料仍要另外准备。</p>' : ''}
             <div class="ai-route-metrics">
                 <div class="ai-route-metric"><b>${Number(route.totalPills).toLocaleString()}</b><span>总丹耗</span></div>
                 <div class="ai-route-metric"><b>${Number(route.totalWashes).toLocaleString()}</b><span>洗髓次数</span></div>
                 <div class="ai-route-metric"><b>${Number(route.totalTalentBars).toLocaleString()}</b><span>累计洗出天赋</span></div>
                 <div class="ai-route-metric"><b>${Number(route.exchangeCount).toLocaleString()}</b><span>置换次数</span></div>
-                <div class="ai-route-metric ${inventory.enough === false ? 'is-short' : ''}"><b>${escapeAiHtml(inventoryLabel)}</b><span>洗髓丹是否够用</span></div>
+                <div class="ai-route-metric ${inventory.enough === false ? 'is-short' : ''}"><b>${escapeAiHtml(inventoryLabel)}</b><span>세수단是否够用</span></div>
             </div>
             <p class="ai-visual-heading">路线图 · ${escapeAiHtml(upgradeLabel)}</p>
             ${aiRouteTimelineHtml(route)}
-            <p class="ai-visual-heading">洗髓丹消耗分解 · 合计 ${Number(route.totalPills).toLocaleString()} 丹</p>
+            <p class="ai-visual-heading">세수단消耗分解 · 合计 ${Number(route.totalPills).toLocaleString()} 丹</p>
             ${aiCostBreakdownHtml(route)}
             <p class="ai-visual-heading">详细路线与操作</p>
             ${aiOperationTableHtml(route)}
@@ -3810,7 +3810,7 @@ function buildAiSearchInput(ids, maxTotalPills) {
 function openWashOriginPreview() {
     const C=window.SBJCloud;if(!C)return;
     const manager=getAiSearchManager(),task=manager?.snapshot(),frozen=task?.status==='running'?manager.getInput():null;
-    if(!frozen&&!selectedAutoWashRoleEntry()){C.alert('请先选择人物');return;}
+    if(!frozen&&!selectedAutoWashRoleEntry()){C.alert('먼저 인물을 선택하세요');return;}
     const field=document.getElementById('aiMaxTotalPills'),budget=Number(frozen?.options?.maxTotalPills??field?.value);
     if(!Number.isSafeInteger(budget)||budget<0||!frozen&&!field?.value.trim()){C.alert('请先填写有效的耗丹上限');return;}
     const input=frozen||buildAiSearchInput([],budget),role=input.savedRole;
@@ -4128,9 +4128,9 @@ function equipAutoAttachPickerHtml(equip, selectedIds) {
         </button>`;
     }).join('');
     return `<div class="equip-auto-attach-field">
-        <span class="equip-auto-field-label">首次打造附加材料（可多选，分别计算）</span>
+        <span class="equip-auto-field-label">최초 제작 추가 재료(복수 선택 시 각각 독립 계산)</span>
         <div class="equip-auto-attach-picker" role="group" aria-label="首次打造附加材料多选">
-            <div class="equip-auto-attach-options">${buttons || '<span class="equip-auto-attach-empty">当前装备没有可用附加材料</span>'}</div>
+            <div class="equip-auto-attach-options">${buttons || '<span class="equip-auto-attach-empty">현재 장비에 사용할 수 있는 추가 재료가 없습니다</span>'}</div>
         </div>
     </div>`;
 }
@@ -4744,12 +4744,12 @@ function equipAutoAttachmentHtml(attachment) {
         </li>`;
     }).join('');
     return `<div class="equip-auto-attach-card">
-        <div class="equip-auto-refine-title"><strong>芒晶洗练 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><span class="equip-auto-attachment-value">${maximumSummary || '예측 범위에 유효한 추가 옵션이 나오지 않았습니다'}</span></div>
+        <div class="equip-auto-refine-title"><strong>망정 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><span class="equip-auto-attachment-value">${maximumSummary || '예측 범위에 유효한 추가 옵션이 나오지 않았습니다'}</span></div>
         <div class="equip-auto-attachment-maxima">${maxima.map(maximum => `<div class="equip-auto-attachment-maximum">
             <span>${escapeAiHtml(equipAutoPropertyLabel(maximum.prop))}</span>
             <span class="equip-auto-cost-line">消耗：芒晶×${maximum.recommendedIndex}</span>
         </div>`).join('')}</div>
-        ${sequence ? `<ol class="equip-auto-attach-sequence" aria-label="芒晶洗练逐次结果">${sequence}</ol>` : ''}
+        ${sequence ? `<ol class="equip-auto-attach-sequence" aria-label="망정逐次结果">${sequence}</ol>` : ''}
     </div>`;
 }
 
@@ -4786,7 +4786,7 @@ function equipAutoManualAttachHtml(candidate) {
     if (!candidate || !candidate.canSimulateSpecialAttach || !candidate.specialAttachEquips || !candidate.craftSpecialId) {
         return `<div class="equip-auto-manual-attach is-unavailable" data-candidate-id="${escapeAiHtml(candidateId)}">
             <p class="ai-visual-heading">附加属性</p>
-            <div class="equip-auto-attach-card"><strong>未进行首次打造附加</strong><p>图纸未选择附加材料，无法使用芒晶模拟。</p></div>
+            <div class="equip-auto-attach-card"><strong>未进行首次打造附加</strong><p>제작 도면에서 추가 재료를 선택하지 않아 이 방식으로는 망정을 계산할 수 없습니다.</p></div>
         </div>`;
     }
     const state = equipAutoManualAttachState(candidate);
@@ -4798,13 +4798,13 @@ function equipAutoManualAttachHtml(candidate) {
             <div class="equip-auto-refine-title"><strong>芒晶1次 · ${escapeAiHtml(candidate.craftSpecialName)}</strong><span class="equip-auto-attachment-stage">${firstStage}</span></div>
             <div class="equip-auto-crafted-special-value">${equipAutoFormatProps(candidate.special)}</div>
         </div>
-        <div class="equip-auto-manual-attach-controls" aria-label="后续芒晶洗练设置">
-            <div class="equip-auto-manual-stage" role="group" aria-label="芒晶洗练阶段">
+        <div class="equip-auto-manual-attach-controls" aria-label="后续망정设置">
+            <div class="equip-auto-manual-stage" role="group" aria-label="망정阶段">
                 <button type="button" data-manual-attach-action="stage" data-stage="before" class="${stage === 'before' ? 'is-active' : ''}" aria-pressed="${stage === 'before'}">升炼前</button>
                 <button type="button" data-manual-attach-action="stage" data-stage="after" class="${stage === 'after' ? 'is-active' : ''}" aria-pressed="${stage === 'after'}">升炼后</button>
             </div>
             <label>模拟次数<input class="equip-auto-manual-attach-count" type="number" min="1" max="5000" value="${state.count}"><span>次</span></label>
-            <button class="btn equip-auto-manual-attach-button" type="button" data-manual-attach-action="simulate">模拟芒晶洗练</button>
+            <button class="btn equip-auto-manual-attach-button" type="button" data-manual-attach-action="simulate">망정 시뮬레이션</button>
         </div>
         <p class="equip-auto-manual-attach-hint">최초 제작 재료 '${escapeAiHtml(candidate.craftSpecialName)}'의 능력치 목록을 사용합니다. 조회 전용이며 게임 내 망정 진행도를 변경하지 않습니다.</p>
         ${state.error ? `<div class="ai-result-error">${escapeAiHtml(state.error)}</div>` : result}
@@ -5136,7 +5136,7 @@ function equipAutoFindFavorite(candidateId) {
     return equipAutoFavorites.find(item => String(item.id) === String(candidateId)) || null;
 }
 
-/* 收藏前问一下要缓存多少详情：精炼条数 / 淬炼次数。
+/* 收藏前问一下要缓存多少详情：精炼条数 / 촉련次数。
    看其他NPC附加值不占用户决定，收藏时后台直接算好。 */
 function equipAutoAskCacheOptions() {
     return new Promise(function (resolve) {
@@ -5147,9 +5147,9 @@ function equipAutoAskCacheOptions() {
             + '<p class="equip-auto-fav-tip">收藏时会把详情一起存下来，之后换设备、换存档打开都能直接看。</p>'
             + '<label class="equip-auto-fav-field"><span>精炼数据</span>'
             + '<input type="number" id="favRefineRows" min="0" max="2000" step="50" value="500"><i>条</i></label>'
-            + '<label class="equip-auto-fav-field"><span>淬炼数据</span>'
+            + '<label class="equip-auto-fav-field"><span>촉련数据</span>'
             + '<input type="number" id="favForgeCount" min="0" max="2000" step="50" value="300"><i>次</i></label>'
-            + '<label class="equip-auto-fav-field"><span>芒晶洗练</span>'
+            + '<label class="equip-auto-fav-field"><span>망정</span>'
             + '<input type="number" id="favMangCount" min="0" max="5000" step="50" value="500"><i>次</i></label>'
             + '<p class="equip-auto-fav-tip">数字越大，收藏时算得越久、占的地方也越多。其他NPC附加值会自动算好。</p>'
             + '<div class="equip-auto-confirm-actions">'
@@ -5255,7 +5255,7 @@ function equipAutoAddFavorite(candidate, opts) {
     window.setTimeout(async function () {
         var previousOverride = equipAutoAttachScanOverride;
         try {
-            /* 芒晶洗练：按用户填的次数扫一遍（同时让卡片上的「芒晶第 N 次」也跟着这个次数走） */
+            /* 망정：按用户填的次数扫一遍（同时让卡片上的「芒晶第 N 次」也跟着这个次数走） */
             if (Number.isFinite(mangCount) && mangCount > 0) equipAutoAttachScanOverride = Math.min(5000, Math.round(mangCount));
             /* 卡片在这一步重渲染：上面的「芒晶前 N 次最高」要跟用户填的次数一致 */
             try { snapshot.html = equipAutoCandidateHtml(candidate, { forge: true, refine: true }); } catch (error) { }
@@ -5362,7 +5362,7 @@ function renderEquipAutoFavorites() {
         (equipAutoFavoriteTypeKey(a) - equipAutoFavoriteTypeKey(b))
         || (Number(a.craftIndex) - Number(b.craftIndex))
         || String(a.location || '').localeCompare(String(b.location || ''), 'zh'));
-    /* 老收藏升级：早期存下来的 html 没带「精炼数据 / 看淬炼」按钮，也没有详情数据，
+    /* 老收藏升级：早期存下来的 html 没带「精炼数据 / 看촉련」按钮，也没有详情数据，
        这里补渲染一次（纯数据渲染，不跑算法以外的重活）；补完存回去。 */
     let upgraded = false;
     equipAutoFavorites.forEach(item => {
@@ -5686,7 +5686,7 @@ function equipAutoCandidateHtml(candidate, options) {
                     <span class="equip-auto-actions-scroll">
                     <button type="button" class="equip-auto-region-compare" data-region-id="${escapeAiHtml(String(candidate.id))}" title="다른 장인에게 제작할 경우의 지역 추가 옵션 보기"><span class="act-full">看其他NPC附加值</span><span class="act-short">附加值</span></button>
                     ${options && options.refine ? '<button type="button" class="equip-auto-refine-seq" data-refine-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">정련 데이터</span><span class="act-short">精炼</span></button>' : ''}
-                    ${options && options.forge && equipAutoCanForge(candidate) ? '<button type="button" class="equip-auto-forge" data-forge-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">촉련 보기</span><span class="act-short">淬炼</span></button>' : ''}
+                    ${options && options.forge && equipAutoCanForge(candidate) ? '<button type="button" class="equip-auto-forge" data-forge-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">촉련 보기</span><span class="act-short">촉련</span></button>' : ''}
                     ${candidate && candidate.canSimulateSpecialAttach ? '<button type="button" class="equip-auto-mang" data-mang-id="' + escapeAiHtml(String(candidate.id)) + '" title="查看这件装备的망정 순서"><span class="act-full">망정 보기</span><span class="act-short">芒晶</span></button>' : ''}
                     </span>
                     <button type="button" class="equip-auto-fav${equipAutoFindFavorite(candidate.id) ? ' is-on' : ''}" data-fav-id="${escapeAiHtml(String(candidate.id))}" style="${equipAutoFindFavorite(candidate.id) ? 'background:linear-gradient(180deg,var(--sbj-c-660160d401,#b34433),#8f2a20);color:var(--sbj-c-e4902b41a0,#fffdf8);border:1px solid var(--sbj-c-cd06ff8d37,#8a291e);' : 'background:transparent;color:var(--sbj-c-3f9e5e18ed,#9c2f22);border:1px solid var(--sbj-c-29a04590dd,rgba(156,47,34,0.55));'}" title="${equipAutoFindFavorite(candidate.id) ? '즐겨찾기 취소' : '즐겨찾기에 저장'}">${equipAutoFindFavorite(candidate.id) ? '★ 즐겨찾기 등록됨' : '☆ 즐겨찾기'}</button>
@@ -7475,7 +7475,7 @@ function jianwangResourcesHtml(resources) {
             <thead><tr><th>材料</th><th>消耗</th><th>返还</th><th>净需求</th></tr></thead>
             <tbody>${bodyRows}</tbody>
         </table>
-        <p class="meta-text">首次铸进材料与 100 级后的芒晶附加是两笔账：芒晶附加每次需芒晶×10 加所选材料×1，请按页面“芒晶洗练”单独核对；本表不包含常规打造材料与银两。</p>
+        <p class="meta-text">首次铸进材料与 100 级后的芒晶附加是两笔账：芒晶附加每次需芒晶×10 加所选材料×1，请按页面“망정”单独核对；本表不包含常规打造材料与银两。</p>
     </details>`;
 }
 
@@ -7494,7 +7494,7 @@ function jianwangAttachEquipFor(equip) {
 function jianwangAttachPanelHtml(equip, key) {
     const normalized = jianwangAttachEquipFor(equip);
     if (!normalized || !Number.isSafeInteger(Number(normalized.MJSeed)) || Number(normalized.MJSeed) <= 0) {
-        return '<p class="meta-text">这把剑缺少芒晶洗练进度，暂时无法推演附加属性。</p>';
+        return '<p class="meta-text">这把剑缺少망정进度，暂时无法推演附加属性。</p>';
     }
     jianwangAttachEquips[key] = normalized;
     const mod = typeof EquipmentAutoOptimizer !== 'undefined' ? EquipmentAutoOptimizer : null;
@@ -7506,9 +7506,9 @@ function jianwangAttachPanelHtml(equip, key) {
         return '<option value="' + material.id + '"' + (isDefault ? ' selected' : '') + '>' + escapeAiHtml(material.name) + '</option>';
     }).join('');
     return '<details class="jianwang-attach-wrap" open>'
-        + '<summary><strong>100 级后 · 芒晶附加序列</strong>（每次 芒晶×10 + 所选材料×1；仅供查看，不推进游戏内进度）</summary>'
+        + '<summary><strong>100레벨 이후 · 망정 추가 옵션 순서</strong>（매회 망정×10 + 선택 재료×1 소모 기준 · 조회 전용으로 게임 진행도 변경 없음）</summary>'
         + '<div class="jianwang-attach-controls">'
-        + '<label>附加材料 <select data-jw-attach-material="' + key + '">' + options + '</select></label>'
+        + '<label>추가 재료 <select data-jw-attach-material="' + key + '">' + options + '</select></label>'
         + '<label>预览次数 <input type="number" min="1" max="200" value="100" data-jw-attach-count="' + key + '"></label>'
         + '<button type="button" class="btn btn-ai-predict" data-jw-attach-run="' + key + '">生成附加序列</button>'
         + '</div>'
