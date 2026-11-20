@@ -375,6 +375,7 @@ function wikiKoMap(){
  for(const [id,entry] of Object.entries(window.NANGMAN_STATUS_DICTIONARY_KO||{}))if(!m.has('buff:'+id))m.set('buff:'+id,entry);
  for(const [id,entry] of Object.entries(window.NANGMAN_STATUS_KO||{}))if(!m.has('buff:'+id))m.set('buff:'+id,entry);
  for(const [id,entry] of Object.entries(window.NANGMAN_STATUS_KO_BATCH_2||{}))m.set('buff:'+id,entry);
+ for(const [id,entry] of Object.entries(window.NANGMAN_STATUS_KO_BATCH_3||{}))m.set('buff:'+id,entry);
  for(const [id,entry] of Object.entries(window.NANGMAN_V620_BUFF_KO||{}))m.set('buff:'+id,{name:entry[0],desc:entry[1],icon:entry[2],source:'한국판 V6.20'});
  return m;
 }
@@ -556,6 +557,7 @@ window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.
 <script src="./data/wiki-status-dictionary-ko.js"></script>
 <script src="./data/wiki-status-ko.js"></script>
 <script src="./data/wiki-status-ko-256-315.js"></script>
+<script src="./data/wiki-status-ko-316-374.js"></script>
 <script src="./data/wiki-status-v620.js"></script>
 <script type="module">
 import {loadKoreanWikiNames} from './data/korean-wiki-index.js';
