@@ -2487,7 +2487,7 @@ function findAndShowNextConflict(afterSeq) {
     const stepsHtml = `
         <div class="nc-steps">
             세수 순서: 다음까지 세수 <b>${prevWashStr}</b> 锁定「<b>${item.earlier_conflict_name}</b>」
-            → 继续洗到「<b class="purple-bright">${item.talent_name}</b>」（脉序 #${item.wash_no}）后点置换
+            → 「<b class="purple-bright">${item.talent_name}</b>」까지 계속 세수한 뒤(맥 순서 #${item.wash_no}) 치환을 누르세요
             ${gapStr ? `（${gapStr}）` : ''}
         </div>
     `;
@@ -3818,7 +3818,7 @@ function openWashOriginPreview() {
     const d=C.modal(roleName+' · 初始脉');d.classList.add('wash-origin-dialog');
     if(d.ownerDocument!==document&&!d.ownerDocument.querySelector('link[data-wash-origin-style]')){const link=d.ownerDocument.createElement('link');link.rel='stylesheet';link.href=document.querySelector('link[href*="wash-compact.css"]')?.href||'/vendor/sanbujin/shared/wash-compact.css';link.dataset.washOriginStyle='true';d.ownerDocument.head.append(link);}
     const description=N('p',`맥 잠금이나 치환 없이 세수단 ${formatCount4(budget)}개 범위에서 직접 등장하는 자맥을 확인합니다. 모든 자맥을 동시에 유지할 수 있다는 뜻은 아닙니다.`);description.className='wash-origin-description';
-    const vip=N('p',`推演条件：VIP ${input.initialState.vip===0?'0':input.initialState.vip+'+'}（${input.vipConfirmed?'手动确认':'模拟等级，未确认'}），原档 ${slots} 栏。`);vip.className='wash-origin-note';
+    const vip=N('p',`예측 조건: VIP ${input.initialState.vip===0?'0':input.initialState.vip+'+'} (${input.vipConfirmed?'수동 확인':'시뮬레이션 등급, 미확인'}), 원본 ${slots}칸.`);vip.className='wash-origin-note';
     const label=N('label'),labelText=N('span','预览栏数'),select=N('select');label.className='wash-origin-slots';label.append(labelText);select.setAttribute('aria-label','初始脉预览栏数');
     if(slots===0){const zero=N('option','当前0栏（无法洗脉）');zero.value='0';select.append(zero);}
     for(let count=Math.max(1,slots);count<=4;count++){const option=N('option',count===slots?`현재 ${count}칸`:`먼저 ${count}칸까지 개방(재료 별도 계산)`);option.value=String(count);select.append(option);}
@@ -4504,7 +4504,7 @@ function handleEquipAutoPropertyClick(event) {
     else equipAutoSelectedProperties.delete(prop);
     renderEquipAutoProperties();
     renderEquipAutoPapers();
-    invalidateEquipAutoPrediction('목표 능력치已变化，请重新开始装备自动模拟。');
+    invalidateEquipAutoPrediction('목표 능력치가 변경되었습니다. 장비 자동 탐색을 다시 시작하세요.');
 }
 
 function buildEquipAutoBranches() {
@@ -4565,7 +4565,7 @@ function validateEquipAutoSelection() {
     });
     const skippedBranchCount = branches.length - compatibleBranches.length;
     if (branches.length && targetProps.length && !compatibleBranches.length) {
-        errors.push('所选图纸均不会出现当前목표 능력치，请更换图纸或属性');
+        errors.push('선택한 도면에서는 현재 목표 능력치가 나오지 않습니다. 도면이나 능력치를 변경하세요');
     }
     const message = document.getElementById('autoEquipSelectionMessage');
     if (message) {
@@ -4662,7 +4662,7 @@ function equipAutoFormatSilver(value) {
     const amount = Math.max(0, Math.trunc(Number(value) || 0));
     const liang = Math.floor(amount / 1000);
     const wen = amount % 1000;
-    return `${liang ? `${liang.toLocaleString()}两` : ''}${wen || !liang ? `${wen}文` : ''}`;
+    return `${liang ? `${liang.toLocaleString()}냥` : ''}${wen || !liang ? `${wen}문` : ''}`;
 }
 
 function equipAutoFormatCost(cost) {
@@ -5018,7 +5018,7 @@ function equipAutoAttachScanChipHtml(candidate) {
     const scan = equipAutoAttachScanSummary(candidate);
     if (!scan) return "";
     const bestText = equipAutoFormatProps([{ prop: scan.best.prop, value: scan.best.value }]);
-    const roundText = scan.best && scan.best.index != null ? ("第" + scan.best.index + "次") : "";
+    const roundText = scan.best && scan.best.index != null ? (scan.best.index + '회차') : "";
     return "<span class=\"equip-auto-chip is-scan\" title=\"芒晶前 " + scan.count + " 次（" + escapeAiHtml(scan.materialName) + "）中的最高附加" + (roundText ? "，出现在" + roundText : "") + "\"><span>芒晶" + (roundText || "附加") + "</span><strong>" + bestText + "</strong></span>";
 }
 
@@ -5464,17 +5464,17 @@ function exportEquipAutoFavorites() {
             .join('、');
         const scan = typeof equipAutoAttachScanSummary === 'function' ? equipAutoAttachScanSummary(candidate) : null;
         const scanText = scan && scan.best
-            ? (equipAutoPropertyLabel(scan.best.prop) + '+' + equipAutoFormatPropValue(scan.best.prop, scan.best.value) + '（第' + scan.best.index + '次）')
+            ? (equipAutoPropertyLabel(scan.best.prop) + '+' + equipAutoFormatPropValue(scan.best.prop, scan.best.value) + '(' + scan.best.index + '회차)')
             : '';
         const refineText = (candidate.refinements || []).map(refinement => {
             const label = equipAutoPropertyLabel(refinement.prop);
             const slots = [1, 2, 3].map(slot => {
                 const maximum = refinement.maxima && refinement.maxima[slot];
-                if (!maximum) return '词条' + slot + ' 无';
+                if (!maximum) return '옵션 ' + slot + ': 없음';
                 const indexes = (maximum.occurrences || []).map(item => item.source === 'original' ? '原有' : '#' + item.index).join('/');
                 return '词条' + slot + ' ' + equipAutoFormatPropValue(refinement.prop, maximum.value) + '（' + indexes + '）';
             }).join('；');
-            const cutoff = refinement.plan ? ('제 ' + refinement.plan.cutoff + ' 次') : '未达成';
+            const cutoff = refinement.plan ? (refinement.plan.cutoff + '회차') : '未达成';
             const replay = refinement.plan && refinement.plan.accepts
                 ? refinement.plan.accepts.map(item => '#' + item.index + '（词条' + item.slot + '）').join(' → ')
                 : '';
@@ -7549,7 +7549,7 @@ function renderJianwangAttachResult(key) {
         .map(item => jianwangAutoFormatExt({ prop: item.prop, value: item.value }) + '（第 ' + item.recommendedIndex + ' 次）')
         .join(' · ');
     box.innerHTML = '<p class="meta-text">' + escapeAiHtml(result.materialName) + ' · ' + count + ' 次 · 最高系数 '
-        + result.bestFactor + '%（第 ' + result.bestIndexes.join('、') + ' 次）· 推荐停在第 ' + result.recommendedIndex + ' 次</p>'
+        + result.bestFactor + '%（第 ' + result.bestIndexes.join('、') + '회) · 권장 종료 회차: ' + result.recommendedIndex + '회</p>'
         + '<table class="preview-table"><thead><tr><th>#</th><th>능력치</th><th>품질</th><th>망정 순서 번호</th><th></th></tr></thead><tbody>'
         + rows + '</tbody></table>'
         + (maxima ? '<p class="meta-text">각 능력치 최고 수치: ' + maxima + '</p>' : '');
