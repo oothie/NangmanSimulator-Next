@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.5.9</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.6.0</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -139,7 +139,7 @@ body{background:var(--bg)!important}
 @media(max-width:1000px){.top{height:auto;min-height:56px;padding:4px 16px}.nav button{height:42px;font-size:13px}.page{padding:0 16px 35px}.layout{grid-template-columns:240px minmax(0,1fr)}.work{padding-left:20px}.aside{padding-right:14px}}
 @media(max-width:700px){.page{padding:0 12px 30px}.heading{padding-top:17px}.aside{position:relative;top:auto;border-right:0;border-bottom:1px solid var(--wr-line);padding:12px 0}.work{padding:17px 0}.module-wrap{padding:17px 0}.module-columns{grid-template-columns:1fr;gap:0}.hero h2{font-size:24px}}
 
-/* v0.5.9: original yy-sim wiki image list + detail work area */
+/* v0.6.0: original yy-sim wiki image list + detail work area */
 .wiki-module{padding-top:18px}
 .wiki-main-heading{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
 .wiki-main-heading strong{font-size:16px}.wiki-main-heading span{font-size:12px;color:var(--sub)}
@@ -414,18 +414,18 @@ window.addEventListener('nangman-equip-init',async()=>{
  }catch(e){state.error='산부진 원본 계산 파일을 로드하지 못했습니다: '+e.message;}
  finally{state.loading=false;emit();}
 });
-window.addEventListener('nangman-equip-preview',e=>{
+window.addEventListener('nangman-equip-preview',async e=>{
  try{
   const req=makeRequest(e.detail);
-  const result=preview(req,e.detail.count);
+  const result=await preview(req,e.detail.count);
   state.result=JSON.stringify(result,null,2);
   state.error='';
  }catch(err){state.error=String(err.message||err);}
  emit();
 });
-window.addEventListener('nangman-save-changed',e=>{
+window.addEventListener('nangman-save-changed',async e=>{
  if(!state.ready)return;
- try{injectSave(e.detail);state.error='';}catch(err){state.error='산부진 MakeRnd 로드: '+err.message;}
+ try{await injectSave(e.detail);state.error='';}catch(err){state.error='산부진 MakeRnd 로드: '+err.message;}
  emit();
 });
 </script></body></html>
