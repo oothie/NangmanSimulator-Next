@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-sbj-feature="equip-manual">
-<head><script src="/__app/native.js?rev=92efd8f6f8f8"></script><script src="/suanbujin/shared/resource-entry.js?v=20261103253&rev=953c4fb6a9d5"></script><script src="/suanbujin/shared/player-messages.js?v=20261106messages&rev=4492da062cb4"></script><script data-feature-config>window.SBJ_FEATURE_PAGE="equip-manual";window.SBJ_FEATURE_TAB="make";</script><script>if(new URLSearchParams(location.search).get("tab")==="jianwang")location.replace("../jianwang-manual/index.html"+location.search);</script><script src="/suanbujin/shared/app/appearance.js?v=20261106sidebar&rev=4b5ed6a63801"></script><link rel="stylesheet" href="/suanbujin/shared/app/appearance.css?v=20261106319settings&rev=1c0b8d89065e"><script defer src="/suanbujin/shared/app/account-state.js?v=20261106323&rev=0e2f10034a35"></script>
+<head><script data-feature-config>window.SBJ_FEATURE_PAGE="equip-manual";window.SBJ_FEATURE_TAB="make";</script><script>if(new URLSearchParams(location.search).get("tab")==="jianwang")location.replace("../jianwang-manual/index.html"+location.search);</script>
 
     <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>装备 · 手动 · 算不尽</title>
+    <title>낭만강호 · 산부진 장비 원본</title>
     <meta name="description" content="原版游戏装备打造/精炼/淬炼序列预测">
-    <link rel="stylesheet" href="/suanbujin/shared/simulator.css?v=20261103262&rev=8123d9b39fea">
-    <link rel="stylesheet" href="/suanbujin/equip/equip.css?v=20261105314&rev=965180f1d70e">
-    <script src="/suanbujin/shared/page_bridge.js?v=20261103253&rev=c3f98dd43d4f"></script>
-    <link rel="stylesheet" href="/suanbujin/shell/shell.css?v=20261103262&rev=f4183c4b8ba6">
+    <link rel="stylesheet" href="../shared/simulator.css">
+    <link rel="stylesheet" href="./equip.css">
+    
+    
 
 
 
@@ -28,8 +28,12 @@
     <meta name="twitter:title" content="算不尽 · 原版游戏装备推演">
     <meta name="twitter:description" content="算不尽：原版游戏装备推演工具。导入存档，一键找出极品装备，自动模拟洗脉路线。">
     <meta name="twitter:image" content="https://tool.launch-ai.cloud/suanbujin/share-cover.jpg">
-    <link rel="image_src" href="https://tool.launch-ai.cloud/suanbujin/share-cover.jpg">
-<script defer src="/suanbujin/shared/app/chrome.js?v=20261106324&rev=e14338b92307"></script><link rel="stylesheet" data-sbj-theme href="/suanbujin/shared/app/theme.css?v=20261106319auth&rev=73b7e30491a2"><meta name="apple-mobile-web-app-title" content="算不尽"><script defer src="/suanbujin/shared/opencc-cn2t.js?v=20261103253&rev=d66d920069ab"></script><script defer src="/suanbujin/shared/i18n.js?v=20261103253&rev=c568b29f5605"></script><link rel="stylesheet" href="/suanbujin/shared/app/workbench.css?v=20261105314&rev=586fb5db1e0b"><script defer src="/suanbujin/shared/app/workbench.js?v=20261106324&rev=9231215b8216"></script><link data-feature-style rel="stylesheet" href="/suanbujin/shared/app/feature-page.css?v=20261105314&rev=7714563f4658"></head>
+    
+<meta name="apple-mobile-web-app-title" content="算不尽"><script defer src="../shared/i18n.js"></script><style>
+/* 낭만강호 통합 사이트 내부용: 원본 산부진 화면과 엔진 UI 보존 */
+html,body{max-width:100%;overflow-x:hidden}body{margin:0}
+body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
+</style></head>
 <body class="sbj-workbench" data-workbench="manual">
     <div class="app-container equip-app"><header class="feature-heading"><h1>装备</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/suanbujin/equip-quick/index.html">速查</a><a data-feature-mode="equip-auto" href="/suanbujin/equip-auto/index.html">自动</a><a data-feature-mode="equip-manual" href="/suanbujin/equip/index.html" aria-current="page">手动</a><a data-feature-mode="equip-orange" href="/suanbujin/equip-orange/index.html">橙装序列</a></nav></header>
 
@@ -475,20 +479,34 @@
         </section>
     </div>
 
-    <script src="/suanbujin/shared/version.js?v=20261106324&rev=fef1d3f34523"></script>
-    <script src="/suanbujin/shared/equip_data.js?v=20261103253&rev=0a3284d24ea3"></script>
-    <script src="/suanbujin/shared/wasm_data.js?v=20261103253&rev=3235c0384443"></script>
-    <script src="/suanbujin/shared/sequence_rules.js?v=20261103253&rev=406f89c8d043"></script>
-    <script src="/suanbujin/shared/core_glue.js?v=20261105314&rev=f42d00895211"></script>
-    <script src="/suanbujin/shared/pako.min.js?v=20261103253&rev=83a0cef96bef"></script>
-    <script src="/suanbujin/shared/save_decrypt.js?v=20261105314&rev=6199549ba1a8"></script>
-    <script src="/suanbujin/shared/archive_state.js?v=20261103253&rev=986981cab522"></script>
-    <script src="/suanbujin/shared/equip_favorites.js?v=20261103253&rev=cfd31ff0f954"></script>
-    <script src="/suanbujin/shared/equip_auto_optimizer.js?v=20261104268&rev=d5d1de7d1ede"></script>
-    <script src="/suanbujin/equip/equip.js?v=20261105314&rev=d827b9831710"></script>
-<script src="/suanbujin/equip/orange-sequences.js?v=20261105314&rev=60f1fbdd465f"></script>
-<script src="/suanbujin/mobile-capture.js?v=20261103253&rev=71d5687d3d06"></script><script src="/suanbujin/mobile-bridge.js?v=20261103253&rev=cbe08c2fca1a"></script>
-<script src="/suanbujin/shared/navigation.js?v=20261106324&rev=67841b0e583a"></script>
-<script src="/suanbujin/shell/shell.js?v=20261105314&rev=387cd57c00d4"></script>
-</body>
+    
+    <script src="../shared/equip_data.js"></script>
+    <script src="../shared/wasm_data.js"></script>
+    <script src="../shared/sequence_rules.js"></script>
+    <script src="../shared/core_glue.js"></script>
+    <script src="../shared/pako.min.js"></script>
+    <script src="../shared/save_decrypt.js"></script>
+    <script src="../shared/archive_state.js"></script>
+    <script src="../shared/equip_favorites.js"></script>
+    <script src="../shared/equip_auto_optimizer.js"></script>
+    <script src="./equip.js"></script>
+<script src="./orange-sequences.js"></script>
+
+
+
+<script>
+/* Same-origin save relay; data stays in user's browser. */
+(function(){
+let latest=null;
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==parent||event.data?.kind!=='nangman-save')return;
+ latest=event.data.save;
+ try{
+ if(typeof loadSaveData!=='function')throw Error('산부진 장비 원본 함수를 불러오지 못했습니다'); loadSaveData(latest);
+ parent.postMessage({kind:'nangman-embedded-status',module:'equip',status:'save-loaded'},location.origin);
+ }catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'equip',status:'error',message:String(err.message||err)},location.origin)}
+});
+window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'equip',status:'ready'},location.origin));
+})();
+</script></body>
 </html>
