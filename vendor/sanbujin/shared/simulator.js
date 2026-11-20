@@ -292,7 +292,7 @@ function renderTalents() {
 
         let exchangeBtn = '';
         if (conflict && conflict.canExchange && state.mode === 'seed') {
-            exchangeBtn = `<button class="talent-exchange-btn" type="button" onclick="exchangeTalent(${i})">置换</button>`;
+            exchangeBtn = `<button class="talent-exchange-btn" type="button" onclick="exchangeTalent(${i})">치환</button>`;
         }
 
         html += `
@@ -427,14 +427,14 @@ function buildLogEntryEl(result) {
 
     const tags = [];
     if (result.isExchange) {
-        tags.push('<span class="log-tag pity">置换</span>');
+        tags.push('<span class="log-tag pity">치환</span>');
         if (result.exchangedFrom && result.exchangedTo) {
             tags.push(`<span class="log-tag gap">${result.exchangedFrom}→${result.exchangedTo}</span>`);
         }
     } else if (result.wasPity) {
-        tags.push('<span class="log-tag pity">保底</span>');
+        tags.push('<span class="log-tag pity">천장</span>');
     } else if (result.gotGold) {
-        tags.push('<span class="log-tag purple">出紫</span>');
+        tags.push('<span class="log-tag purple">자맥 등장</span>');
     }
 
     if (result.gotGold && !result.isExchange) {
@@ -484,7 +484,7 @@ function renderHistoryPage() {
     const hist = state.washHistory;
     const total = hist.length;
     if (!total) {
-        log.innerHTML = '<div class="log-empty">尚未开始洗髓</div>';
+        log.innerHTML = '<div class="log-empty">세수 기록이 없습니다</div>';
         updateHistoryPager(0);
         return;
     }
@@ -2008,7 +2008,7 @@ async function compareFirstPurple() {
             try {
                 const result=runExchangeSequenceWasmSandbox(()=>buildExchangeSequence(role,candidate,n,1));
                 value.textContent=result.outputs[0]?.name || '찾지 못함';
-                const show=document.createElement('button');show.type='button';show.disabled=true;show.textContent='보기';show.setAttribute('aria-label',`查看${fixed?'현재 고정된 순서':`위치 ${n}`}의 전체 치환 순서`);
+                const show=document.createElement('button');show.type='button';show.disabled=true;show.textContent='보기';show.setAttribute('aria-label',`조회 ${fixed?'현재 고정된 순서':`위치 ${n}`}의 전체 치환 순서`);
                 show.onclick=()=>{const input=activeExchangeSequencePadInput(role);if(input)input.value=String(n);generateExchangeSequence();};action.append(show);
             } catch(error) {value.textContent=playerError(error);}
             line.append(position,value,action);body.append(line);
@@ -2133,7 +2133,7 @@ function openPurpleAnalysisModal() {
         document.body?.classList.add('modal-open');
     }
     const tbody = document.getElementById('purpleTableBody');
-    if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="loading-td">正在分析推演脉序中...</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="loading-td">맥 순서 분석 중...</td></tr>`;
     requestAnimationFrame(() => {
         ensurePurpleSequenceCache({ force: true });
         paintPurpleForecastTable();
@@ -2203,7 +2203,7 @@ function paintPurpleForecastTable() {
     let html = '';
     filtered.forEach((item, idx) => {
         const pityTag = item.was_pity
-            ? '<span class="tag-pity" title="잠금 없이 연속 세수했을 때의 천장 예측입니다. 중간에 맥을 잠그면 천장에서 나오는 자맥이 달라질 수 있습니다(게임과 동일).">保底</span>'
+            ? '<span class="tag-pity" title="잠금 없이 연속 세수했을 때의 천장 예측입니다. 중간에 맥을 잠그면 천장에서 나오는 자맥이 달라질 수 있습니다(게임과 동일).">천장</span>'
             : '-';
 
         let conflictText = '-';
@@ -2441,7 +2441,7 @@ function findAndShowNextConflict(afterSeq) {
                     : `다음 자맥 '${item.talent_name}'은 충돌맥 잠금 방식으로 치환할 수 없습니다.`));
         box.innerHTML = `
             <div class="nc-steps" style="color:var(--red)">잠글 수 있는 자맥 이외의 충돌맥을 찾지 못했습니다</div>
-            <div>下一紫：<b class="purple-bright">#${item.wash_no} ${item.talent_name}</b>${item.was_pity ? ' · 천장' : ''}</div>
+            <div>다음 자맥: <b class="purple-bright">#${item.wash_no} ${item.talent_name}</b>${item.was_pity ? ' · 천장' : ''}</div>
             <div class="nc-steps">${reason}</div>
             <div class="nc-actions">
                 <button type="button" class="btn btn-wash-custom" id="btnNcFindAfter" data-after="${item.wash_no}">이후 다음 자맥 조회</button>
@@ -2486,8 +2486,8 @@ function findAndShowNextConflict(afterSeq) {
 
     const stepsHtml = `
         <div class="nc-steps">
-            세수 순서: 다음까지 세수 <b>${prevWashStr}</b> 锁定「<b>${item.earlier_conflict_name}</b>」
-            → 「<b class="purple-bright">${item.talent_name}</b>」까지 계속 세수한 뒤(맥 순서 #${item.wash_no}) 치환을 누르세요
+            세수 순서: 다음까지 세수 <b>${prevWashStr}</b> 잠금 '<b>${item.earlier_conflict_name}</b>'
+            → 「<b class="purple-bright">${item.talent_name}</b>'까지 계속 세수한 뒤(맥 순서 #${item.wash_no}) 치환을 누르세요
             ${gapStr ? `（${gapStr}）` : ''}
         </div>
     `;
@@ -2495,12 +2495,12 @@ function findAndShowNextConflict(afterSeq) {
     const pastConflict = conflictTimes > 0 && curWash > conflictTimes && !hasConflictNow;
     box.innerHTML = `
         <div>
-            下一紫：<b class="purple-bright">#${item.wash_no} ${item.talent_name}</b>${pity}
-            <span class="text-muted">（洗髓第 ${item.wash_times || '-'} 次）</span>
+            다음 자맥: <b class="purple-bright">#${item.wash_no} ${item.talent_name}</b>${pity}
+            <span class="text-muted">(세수 ${item.wash_times || '-'}회차)</span>
         </div>
         <div>
-            最近冲突脉：
-            「<b style="color:var(--red)">${item.earlier_conflict_name}</b>」(${prevWashStr}${gapStr ? '，' + gapStr : ''})
+            최근 충돌맥: 
+            「<b style="color:var(--red)">${item.earlier_conflict_name}</b>'(${prevWashStr}${gapStr ? '，' + gapStr : ''})
         </div>
         ${statusHtml}
         ${stepsHtml}
@@ -2511,7 +2511,7 @@ function findAndShowNextConflict(afterSeq) {
                 <button type="button" class="btn btn-wash" id="btnNcWashAll">충돌맥 잠금 후 자맥까지 자동 세수</button>
             ` : ''}
             ${hasConflictNow && !conflictLocked ? `
-                <button type="button" class="btn btn-wash-gold" id="btnNcLockOnly">锁定「${item.earlier_conflict_name}」</button>
+                <button type="button" class="btn btn-wash-gold" id="btnNcLockOnly">'${item.earlier_conflict_name}' 잠금</button>
             ` : ''}
             <button type="button" class="btn btn-wash-custom" id="btnNcFindAfter" data-after="${item.wash_no}">이후 다음 자맥 조회</button>
         </div>
@@ -2744,7 +2744,7 @@ function renderExchangeAnalysisBlock() {
         } else if (item.earlier_conflict_name) {
             const prevWashStr = item.earlier_conflict_wash_no === 0 ? '시작 슬롯' : `#${item.earlier_conflict_wash_no}`;
             const gapStr = item.earlier_conflict_gap != null ? `${item.earlier_conflict_gap}개 맥 간격` : '';
-            conflictHtml = `冲突：「${item.earlier_conflict_name}」(${prevWashStr}${gapStr ? '，' + gapStr : ''})`;
+            conflictHtml = `충돌: '${item.earlier_conflict_name}'(${prevWashStr}${gapStr ? '，' + gapStr : ''})`;
         } else if (isShenmaiTalentId(item.talent_id)) {
             conflictHtml = '충돌: 잠금 유지(이전 신맥이 있으면 상호 충돌 치환)';
         } else {
@@ -2756,10 +2756,10 @@ function renderExchangeAnalysisBlock() {
                     <span class="card-title">#${idx + 1} ${roleLabel}：<b>#${item.wash_no} ${item.talent_name}</b></span>
                     <span class="card-conflict">${conflictHtml}</span>
                     ${lastHint}
-                    <button class="btn-remove-route-item btn-reset-role" data-washno="${item.wash_no}">移除</button>
+                    <button class="btn-remove-route-item btn-reset-role" data-washno="${item.wash_no}">제거</button>
                 </div>
                 <div class="exchange-stepper">
-                    <span class="step-result">置换结果：${resultHtml}</span>
+                    <span class="step-result">치환 결과: ${resultHtml}</span>
                 </div>
             </div>
         `;
@@ -2767,7 +2767,7 @@ function renderExchangeAnalysisBlock() {
 
     let tableHead = '<th>치환 맥 순서</th><th>추가 세수</th><th>마지막 칸</th>';
     routeItems.forEach((item, idx) => {
-        tableHead += `<th>#${item.wash_no} ${item.talent_name}${idx === 0 ? '' : ' <span class="th-fixed">固定</span>'}</th>`;
+        tableHead += `<th>#${item.wash_no} ${item.talent_name}${idx === 0 ? '' : ' <span class="th-fixed">고정</span>'}</th>`;
     });
 
     let tableBody = '';
@@ -2787,7 +2787,7 @@ function renderExchangeAnalysisBlock() {
         const padLabel = pad === 0 ? '바로 치환' : `자맥 잠금 후 ${pad}회 세수`;
         tableBody += `
             <tr class="route-pad-row ${isSel ? 'current-step' : ''}" data-pad="${pad}">
-                <td><b>第 ${pad + 1} 条</b></td>
+                <td><b>제 ${pad + 1}개</b></td>
                 <td>${padLabel}</td>
                 <td>${lastSlot}</td>
                 ${cells}
@@ -2798,7 +2798,7 @@ function renderExchangeAnalysisBlock() {
     }
 
     const errBanner = selected && selected.error
-        ? `<p class="modal-tip" style="color:var(--red)">推演警告：${selected.error}</p>`
+        ? `<p class="modal-tip" style="color:var(--red)">계산 경고: ${selected.error}</p>`
         : '';
 
     container.innerHTML = `
@@ -2807,9 +2807,9 @@ function renderExchangeAnalysisBlock() {
             ${errBanner}
 
             <div class="exchange-stepper route-pad-stepper">
-                <span>当前치환 맥 순서：</span>
+                <span>현재 치환 맥 순서: </span>
                 <button class="step-btn" id="btnRoutePadMinus" type="button">-</button>
-                <span class="step-val">第 ${routePadCount + 1} 条</span>
+                <span class="step-val">제 ${routePadCount + 1}개</span>
                 <button class="step-btn" id="btnRoutePadPlus" type="button">+</button>
                 <span class="pad-jump">
                     추가 세수로 이동
@@ -3020,7 +3020,7 @@ function renderAiSearchSnapshot(snapshot, restore = false) {
         }
     } else {
         const failed = snapshot.status === 'error';
-        const message = failed ? `查找失败：${snapshot.error || '계산 도중 오류가 발생했습니다. 다시 시도하세요.'}`
+        const message = failed ? `탐색 실패: ${snapshot.error || '계산 도중 오류가 발생했습니다. 다시 시도하세요.'}`
             : snapshot.stopReason === 'optimization-limit'
                 ? '이번 최적화는 계산량 상한에 도달했습니다. 소모량이 가장 적은 후보는 보존했으나 최적이라는 보장은 없습니다.'
             : snapshot.stopReason === 'resource-limit'
@@ -3152,7 +3152,7 @@ function renderAutoWashSaveGate() {
     if (status) {
         status.textContent = !hasSave
             ? '세이브를 불러오지 않았습니다.'
-            : (selected ? `已选择 · ${selected.tag} · ${selected.role.Name || '이름 없음'}` : `인물 ${roles.length}명의 정보를 불러왔습니다. 인물을 선택하세요.`);
+            : (selected ? `선택됨 · ${selected.tag} · ${selected.role.Name || '이름 없음'}` : `인물 ${roles.length}명의 정보를 불러왔습니다. 인물을 선택하세요.`);
     }
     if (pills) pills.textContent = state.hasBagPills ? `${state.bagPills.toLocaleString()}개` : '--';
     if (summary) {
@@ -3481,7 +3481,7 @@ function renderAiTalentChoices() {
         aiTargetPoolError = '';
         aiAvailableTalentIds = [];
         aiSelectedTalentIds = [];
-        container.innerHTML = '<span class="text-muted">选择人物后显示可用的紫脉、蓝脉和绿脉。</span>';
+        container.innerHTML = '<span class="text-muted">캐릭터를 선택하면 사용할 수 있는 자맥·청맥·녹맥이 표시됩니다.</span>';
         updateAiTargetChoiceState();
         return;
     }
@@ -3686,7 +3686,7 @@ function aiOperationTableHtml(route) {
         </tr>`;
     }).join('');
     return `<div class="ai-operation-wrap"><table class="ai-operation-table">
-        <thead><tr><th>#</th><th>操作</th><th>실제 조작 순서</th><th>세수 횟수</th><th>1회 세수단</th><th>이번 단계 세수단</th><th>累计丹</th><th>누적 세수</th><th>脉序(条)</th><th>조작 후 확인</th></tr></thead>
+        <thead><tr><th>#</th><th>작업</th><th>실제 조작 순서</th><th>세수 횟수</th><th>1회 세수단</th><th>이번 단계 세수단</th><th>누적 세수단</th><th>누적 세수</th><th>맥 순서(개)</th><th>조작 후 확인</th></tr></thead>
         <tbody>${rows}</tbody>
     </table></div>`;
 }
@@ -3722,11 +3722,11 @@ function aiRouteResultHtml(route, index) {
             <p class="ai-visual-heading">상세 경로 및 작업</p>
             ${aiOperationTableHtml(route)}
             <div class="ai-route-footer">
-                <span class="ai-final-talents">最终槽位：${escapeAiHtml(finalNames)}</span>
+                <span class="ai-final-talents">최종 슬롯: ${escapeAiHtml(finalNames)}</span>
             </div>
         </div>
     </details>
-    <button type="button" class="btn btn-reset ai-route-image ai-route-card-export" data-route-index="${index}" aria-label="${index+1}번째 경로 이미지 내보내기">一键导出路线图</button></div>`;
+    <button type="button" class="btn btn-reset ai-route-image ai-route-card-export" data-route-index="${index}" aria-label="${index+1}번째 경로 이미지 내보내기">경로 이미지 내보내기</button></div>`;
 }
 
 function renderAiPrediction(result, imageContext = {}) {
@@ -3744,7 +3744,7 @@ function renderAiPrediction(result, imageContext = {}) {
     result.routes.sort((a, b) => Number(a.totalPills) - Number(b.totalPills) || Number(a.totalWashes) - Number(b.totalWashes));
     container.innerHTML = `<div class="ai-result-summary">
         <span><strong>전체 목표를 만족하는 경로 ${result.routes.length}개 발견</strong> · 세수단 소모가 적은 순으로 정렬</span>
-        <span>目标：${escapeAiHtml((result.targetNames || []).join('、'))}</span>
+        <span>목표: ${escapeAiHtml((result.targetNames || []).join('、'))}</span>
         <span class="ai-best-cost">현재 최소 소모 <strong>세수단 ${formatCount4(result.routes[0].totalPills)}개</strong><small>경로 재현 검증 완료 · 전체 최적임은 아직 확인되지 않음</small></span>
         <span>경로는 탐색을 시작했을 때의 캐릭터 상태를 기준으로 합니다.</span>
     </div>${isAutomaticWashPage()?aiRouteResultHtml(result.routes[0],0)+(result.routes.length>1?`<details class="ai-more-routes" ${moreWasOpen?'open':''}><summary>다른 실행 가능 경로 ${result.routes.length-1}개</summary>${result.routes.slice(1).map((route,i)=>aiRouteResultHtml(route,i+1)).join('')}</details>`:''):result.routes.map(aiRouteResultHtml).join('')}`;
@@ -4711,11 +4711,11 @@ function equipAutoRefinementHtml(refinement, upgradeCost = null) {
     const accepts = plan ? plan.accepts.map(item => `#${item.index}(옵션 ${item.slot})`).join(' → ') : '없음';
     const totalCost = mergeEquipAutoCosts(upgradeCost, plan && plan.cost);
     return `<div class="equip-auto-refine-card">
-        <div class="equip-auto-refine-title"><strong>精炼 · ${escapeAiHtml(label)}</strong><span class="equip-auto-max-value">最高${escapeAiHtml(label)} ${escapeAiHtml(equipAutoFormatRefinementTotal(refinement))}</span></div>
+        <div class="equip-auto-refine-title"><strong>정련 · ${escapeAiHtml(label)}</strong><span class="equip-auto-max-value">최고 ${escapeAiHtml(label)} ${escapeAiHtml(equipAutoFormatRefinementTotal(refinement))}</span></div>
         <div class="equip-auto-slot-list">${slots}</div>
-        <div>状态回放：${accepts}${plan ? ` · ${plan.cutoff}회까지` : ''}</div>
-        <div class="equip-auto-cost-line">消耗（精炼消耗）：${plan ? equipAutoFormatCost(plan.cost) : '없음'}</div>
-        <div class="equip-auto-total-cost-line">总消耗（升炼 + 精炼）：${equipAutoFormatCost(totalCost)}</div>
+        <div>상태 재현: ${accepts}${plan ? ` · ${plan.cutoff}회까지` : ''}</div>
+        <div class="equip-auto-cost-line">소모량(정련): ${plan ? equipAutoFormatCost(plan.cost) : '없음'}</div>
+        <div class="equip-auto-total-cost-line">총 소모(승련 + 정련): ${equipAutoFormatCost(totalCost)}</div>
     </div>`;
 }
 
@@ -4724,7 +4724,7 @@ function equipAutoAttachmentHtml(attachment) {
     const levelText = Number(attachment.equipLevel) > 0 ? ` · ${Number(attachment.equipLevel)}레벨` : '';
     const stageHtml = `<span class="equip-auto-attachment-stage">${stageText}${levelText}</span>`;
     if (attachment.unavailable) {
-        return `<div class="equip-auto-attach-card"><strong>附加 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><div class="ai-result-error">附加不可用</div></div>`;
+        return `<div class="equip-auto-attach-card"><strong>추가 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><div class="ai-result-error">추가 옵션을 사용할 수 없습니다</div></div>`;
     }
     const maxima = (attachment.maxima || []).filter(item => item.recommendedIndex != null);
     const maximumSummary = maxima.map(maximum => `최고 ${escapeAiHtml(equipAutoPropertyLabel(maximum.prop))} ${escapeAiHtml(equipAutoFormatPropValue(maximum.prop, maximum.value))} · 제${maximum.indexes.join('、')}회`).join('；');
@@ -4740,14 +4740,14 @@ function equipAutoAttachmentHtml(attachment) {
             <span class="equip-auto-attach-sequence-index">${Number(item.index)}회차</span>
             ${property}
             <strong class="equip-auto-attach-sequence-value">${escapeAiHtml(value)}</strong>
-            ${isMaximum ? '<span class="equip-auto-attach-sequence-badge">最高</span>' : ''}
+            ${isMaximum ? '<span class="equip-auto-attach-sequence-badge">최고</span>' : ''}
         </li>`;
     }).join('');
     return `<div class="equip-auto-attach-card">
         <div class="equip-auto-refine-title"><strong>망정 · ${escapeAiHtml(attachment.materialName)} ${stageHtml}</strong><span class="equip-auto-attachment-value">${maximumSummary || '예측 범위에 유효한 추가 옵션이 나오지 않았습니다'}</span></div>
         <div class="equip-auto-attachment-maxima">${maxima.map(maximum => `<div class="equip-auto-attachment-maximum">
             <span>${escapeAiHtml(equipAutoPropertyLabel(maximum.prop))}</span>
-            <span class="equip-auto-cost-line">消耗：芒晶×${maximum.recommendedIndex}</span>
+            <span class="equip-auto-cost-line">소모량: 망정×${maximum.recommendedIndex}</span>
         </div>`).join('')}</div>
         ${sequence ? `<ol class="equip-auto-attach-sequence" aria-label="망정 회차별 결과">${sequence}</ol>` : ''}
     </div>`;
@@ -4785,23 +4785,23 @@ function equipAutoManualAttachHtml(candidate) {
         : '승련 전';
     if (!candidate || !candidate.canSimulateSpecialAttach || !candidate.specialAttachEquips || !candidate.craftSpecialId) {
         return `<div class="equip-auto-manual-attach is-unavailable" data-candidate-id="${escapeAiHtml(candidateId)}">
-            <p class="ai-visual-heading">附加属性</p>
-            <div class="equip-auto-attach-card"><strong>未进行首次打造附加</strong><p>제작 도면에서 추가 재료를 선택하지 않아 이 방식으로는 망정을 계산할 수 없습니다.</p></div>
+            <p class="ai-visual-heading">추가 능력치</p>
+            <div class="equip-auto-attach-card"><strong>첫 제작 추가 재료를 사용하지 않음</strong><p>제작 도면에서 추가 재료를 선택하지 않아 이 방식으로는 망정을 계산할 수 없습니다.</p></div>
         </div>`;
     }
     const state = equipAutoManualAttachState(candidate);
     const stage = state.stage === 'after' ? 'after' : 'before';
     const result = state.result ? equipAutoAttachmentHtml(state.result) : '';
     return `<div class="equip-auto-manual-attach" data-candidate-id="${escapeAiHtml(candidateId)}">
-        <p class="ai-visual-heading">附加属性</p>
+        <p class="ai-visual-heading">추가 능력치</p>
         <div class="equip-auto-attach-card equip-auto-crafted-special">
-            <div class="equip-auto-refine-title"><strong>芒晶1次 · ${escapeAiHtml(candidate.craftSpecialName)}</strong><span class="equip-auto-attachment-stage">${firstStage}</span></div>
+            <div class="equip-auto-refine-title"><strong>망정 1회 · ${escapeAiHtml(candidate.craftSpecialName)}</strong><span class="equip-auto-attachment-stage">${firstStage}</span></div>
             <div class="equip-auto-crafted-special-value">${equipAutoFormatProps(candidate.special)}</div>
         </div>
         <div class="equip-auto-manual-attach-controls" aria-label="이후 망정 설정">
             <div class="equip-auto-manual-stage" role="group" aria-label="망정 단계">
-                <button type="button" data-manual-attach-action="stage" data-stage="before" class="${stage === 'before' ? 'is-active' : ''}" aria-pressed="${stage === 'before'}">升炼前</button>
-                <button type="button" data-manual-attach-action="stage" data-stage="after" class="${stage === 'after' ? 'is-active' : ''}" aria-pressed="${stage === 'after'}">升炼后</button>
+                <button type="button" data-manual-attach-action="stage" data-stage="before" class="${stage === 'before' ? 'is-active' : ''}" aria-pressed="${stage === 'before'}">승련 전</button>
+                <button type="button" data-manual-attach-action="stage" data-stage="after" class="${stage === 'after' ? 'is-active' : ''}" aria-pressed="${stage === 'after'}">승련 후</button>
             </div>
             <label>예측 횟수<input class="equip-auto-manual-attach-count" type="number" min="1" max="5000" value="${state.count}"><span>회</span></label>
             <button class="btn equip-auto-manual-attach-button" type="button" data-manual-attach-action="simulate">망정 시뮬레이션</button>
@@ -5019,16 +5019,16 @@ function equipAutoAttachScanChipHtml(candidate) {
     if (!scan) return "";
     const bestText = equipAutoFormatProps([{ prop: scan.best.prop, value: scan.best.value }]);
     const roundText = scan.best && scan.best.index != null ? (scan.best.index + '회차') : "";
-    return "<span class=\"equip-auto-chip is-scan\" title=\"망정 전 " + scan.count + "회(" + escapeAiHtml(scan.materialName) + ") 중 최고 추가 능력치" + (roundText ? " · 등장 회차: " + roundText : "") + "\"><span>芒晶" + (roundText || "추가") + "</span><strong>" + bestText + "</strong></span>";
+    return "<span class=\"equip-auto-chip is-scan\" title=\"망정 전 " + scan.count + "회(" + escapeAiHtml(scan.materialName) + ") 중 최고 추가 능력치" + (roundText ? " · 등장 회차: " + roundText : "") + "\"><span>망정" + (roundText || "추가") + "</span><strong>" + bestText + "</strong></span>";
 }
 
 function equipAutoAttachScanDetailHtml(candidate) {
     const scan = equipAutoAttachScanSummary(candidate);
     if (!scan) return "";
     const rows = scan.maxima.filter(item => item.recommendedIndex != null).map(item => {
-        return "<div class=\"equip-auto-attach-scan-row\"><span>" + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + "</span><strong>+" + escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value)) + "(제 " + item.recommendedIndex + "次）</strong></div>";
+        return "<div class=\"equip-auto-attach-scan-row\"><span>" + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + "</span><strong>+" + escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value)) + "(제 " + item.recommendedIndex + "회)</strong></div>";
     }).join("");
-    return "<div class=\"equip-auto-detail-card equip-auto-attach-scan-card\"><strong>芒晶前 " + scan.count + " 회 내 최고</strong>" + (rows || "없음") + "</div>";
+    return "<div class=\"equip-auto-detail-card equip-auto-attach-scan-card\"><strong>망정 전 " + scan.count + " 회 내 최고</strong>" + (rows || "없음") + "</div>";
 }
 
 function equipAutoAddCost(map, id, name, amount) {
@@ -5145,7 +5145,7 @@ function equipAutoAskCacheOptions() {
         wrap.innerHTML = '<div class="equip-auto-confirm-card equip-auto-fav-options" role="dialog" aria-modal="true">'
             + '<h3 class="equip-auto-fav-title">收藏到云盘</h3>'
             + '<p class="equip-auto-fav-tip">즐겨찾기 시 상세 결과도 저장되므로 다른 기기나 세이브에서도 확인할 수 있습니다.</p>'
-            + '<label class="equip-auto-fav-field"><span>精炼数据</span>'
+            + '<label class="equip-auto-fav-field"><span>정련 데이터</span>'
             + '<input type="number" id="favRefineRows" min="0" max="2000" step="50" value="500"><i>개</i></label>'
             + '<label class="equip-auto-fav-field"><span>촉련 데이터</span>'
             + '<input type="number" id="favForgeCount" min="0" max="2000" step="50" value="300"><i>회</i></label>'
@@ -5153,8 +5153,8 @@ function equipAutoAskCacheOptions() {
             + '<input type="number" id="favMangCount" min="0" max="5000" step="50" value="500"><i>회</i></label>'
             + '<p class="equip-auto-fav-tip">조회 횟수가 많을수록 저장 시간과 용량이 늘어납니다. 다른 장인의 지역 옵션도 자동 계산합니다.</p>'
             + '<div class="equip-auto-confirm-actions">'
-            + '<button type="button" class="equip-auto-confirm-cancel">取消</button>'
-            + '<button type="button" class="equip-auto-confirm-ok">开始收藏</button>'
+            + '<button type="button" class="equip-auto-confirm-cancel">취소</button>'
+            + '<button type="button" class="equip-auto-confirm-ok">즐겨찾기 저장</button>'
             + '</div></div>';
         document.body.appendChild(wrap);
 
@@ -5354,7 +5354,7 @@ function renderEquipAutoFavorites() {
     if (count) count.textContent = equipAutoFavorites.length + ' 개';
     if (!container || container.closest('[hidden]')) return;
     if (!equipAutoFavorites.length) {
-        container.innerHTML = '<p class="ai-result-empty">在结果里点 ☆ 收藏，装备会出现在这里。</p>';
+        container.innerHTML = '<p class="ai-result-empty">결과에서 ☆ 즐겨찾기를 누르면 장비가 여기에 표시됩니다.</p>';
         return;
     }
     /* 同类型装备排在一起：先按装备类型，再按打造次数 */
@@ -7238,7 +7238,7 @@ async function runEquipAutoSimulation() {
     } catch (error) {
         console.error('장비 자동 시뮬레이션 실패:', error);
         if (runToken === equipAutoRunToken && results) {
-            results.innerHTML = `<div class="ai-result-error">计算失败：${escapeAiHtml(error?.message || error)}</div>`;
+            results.innerHTML = `<div class="ai-result-error">계산 실패: ${escapeAiHtml(error?.message || error)}</div>`;
         }
         const progress = document.getElementById('autoEquipProgress');
         if (progress) progress.hidden = true;
@@ -7509,7 +7509,7 @@ function jianwangAttachPanelHtml(equip, key) {
         + '<summary><strong>100레벨 이후 · 망정 추가 옵션 순서</strong> (매회 망정×10 + 선택 재료×1 소모 기준 · 조회 전용으로 게임 진행도 변경 없음）</summary>'
         + '<div class="jianwang-attach-controls">'
         + '<label>추가 재료 <select data-jw-attach-material="' + key + '">' + options + '</select></label>'
-        + '<label>预览次数 <input type="number" min="1" max="200" value="100" data-jw-attach-count="' + key + '"></label>'
+        + '<label>미리보기 횟수 <input type="number" min="1" max="200" value="100" data-jw-attach-count="' + key + '"></label>'
         + '<button type="button" class="btn btn-ai-predict" data-jw-attach-run="' + key + '">추가 옵션 순서 생성</button>'
         + '</div>'
         + '<div class="jianwang-attach-result" data-jw-attach-result="' + key + '"></div>'
@@ -7559,7 +7559,7 @@ function renderJianwangAutoResult(result) {
     const container = document.getElementById('autoJianwangResults');
     if (!container) return;
     if (!result) {
-        container.innerHTML = '<div class="ai-result-empty">暂无结果。</div>';
+        container.innerHTML = '<div class="ai-result-empty">결과가 없습니다.</div>';
         return;
     }
     if (result.status === 'cancelled') {
@@ -7590,7 +7590,7 @@ function renderJianwangAutoResult(result) {
             }).join('') : '<li class="jianwang-auto-path-step"><div class="jianwang-auto-step-head"><b>시작 상태에서 이미 목표 달성</b></div></li>';
             return `<details class="jianwang-auto-path-wrap" ${matchIndex === 0 ? 'open' : ''}>
                 <summary><strong>동일 옵션 3개 달성 ${matchIndex + 1}번째</strong> · ${escapeAiHtml(swordText)} · ${escapeAiHtml(match.finalAction || '')}</summary>
-                <div class="jianwang-auto-final"><strong>词条</strong><span>${jianwangAutoFormatExts(match.finalEquip?.exts || [])}</span></div>
+                <div class="jianwang-auto-final"><strong>옵션</strong><span>${jianwangAutoFormatExts(match.finalEquip?.exts || [])}</span></div>
                 ${jianwangAttachPanelHtml(match.finalEquip, 'm' + matchIndex)}
                 <ol class="jianwang-auto-path">${steps}</ol>
             </details>`;
@@ -7606,8 +7606,8 @@ function renderJianwangAutoResult(result) {
             <div><b>${Number(metrics.shatter90 || 0).toLocaleString()}</b><span>90레벨 검 분해</span></div>
             <div><b>${Number(metrics.shatter100 || 0).toLocaleString()}</b><span>100레벨 검 분해</span></div>
             <div><b>${Number(metrics.grows || 0).toLocaleString()}</b><span>승급</span></div>
-            <div><b>${Number(metrics.reforges || 0).toLocaleString()}</b><span>重铸</span></div>
-            <div><b>${Number(metrics.keeps || 0).toLocaleString()}</b><span>保留</span></div>
+            <div><b>${Number(metrics.reforges || 0).toLocaleString()}</b><span>재주조</span></div>
+            <div><b>${Number(metrics.keeps || 0).toLocaleString()}</b><span>보존</span></div>
         </div>
         <div class="jianwang-auto-path-wrap"><h3>동일 옵션 3개 달성 기록 (최대 ${Number(result.successLimit || 10)}회)</h3></div>
         ${jianwangResourcesHtml(result.resources)}
@@ -7618,7 +7618,7 @@ function renderJianwangAutoResult(result) {
         const metrics = result.metrics || {};
         container.innerHTML = `<div class="jianwang-auto-summary is-limit">
             <strong>${escapeAiHtml(result.reason || '최대 계산 횟수에 도달했습니다.')}</strong>
-            <span>90레벨 검 분해：${Number(metrics.shatter90 || 0).toLocaleString()} · 100레벨 검 분해：${Number(metrics.shatter100 || 0).toLocaleString()} · 승급：${Number(metrics.grows || 0).toLocaleString()} · 重铸：${Number(metrics.reforges || 0).toLocaleString()} · 保留：${Number(metrics.keeps || 0).toLocaleString()}</span>
+            <span>90레벨 검 분해：${Number(metrics.shatter90 || 0).toLocaleString()} · 100레벨 검 분해：${Number(metrics.shatter100 || 0).toLocaleString()} · 승급：${Number(metrics.grows || 0).toLocaleString()} · 재주조: ${Number(metrics.reforges || 0).toLocaleString()} · 보존: ${Number(metrics.keeps || 0).toLocaleString()}</span>
         </div>`;
         return;
     }
@@ -7646,7 +7646,7 @@ function renderJianwangAutoResult(result) {
     }).join('') : '<li class="jianwang-auto-path-step"><div class="jianwang-auto-step-head"><b>시작 상태에서 이미 목표 달성</b></div></li>';
     container.innerHTML = `<div class="jianwang-auto-summary">
         <div><span class="ai-route-strength">결과 발견</span><strong>${escapeAiHtml(result.routeName || '')} · 목표 ${targetCount}개${escapeAiHtml(result.targetName || '')}</strong></div>
-        <p>${escapeAiHtml(swordText)}达成 · ${escapeAiHtml(result.finalAction || '')}</p>
+        <p>${escapeAiHtml(swordText)}달성 · ${escapeAiHtml(result.finalAction || '')}</p>
         <p class="jianwang-auto-start-line">시작점: ${escapeAiHtml(result.startSwordLabel || '')}</p>
     </div>
     <div class="jianwang-auto-metrics">
@@ -7654,8 +7654,8 @@ function renderJianwangAutoResult(result) {
         <div><b>${Number(metrics.shatter90 || 0).toLocaleString()}</b><span>90레벨 검 분해</span></div>
         <div><b>${Number(metrics.shatter100 || 0).toLocaleString()}</b><span>100레벨 검 분해</span></div>
         <div><b>${Number(metrics.grows || 0).toLocaleString()}</b><span>승급</span></div>
-        <div><b>${Number(metrics.reforges || 0).toLocaleString()}</b><span>重铸</span></div>
-        <div><b>${Number(metrics.keeps || 0).toLocaleString()}</b><span>保留</span></div>
+        <div><b>${Number(metrics.reforges || 0).toLocaleString()}</b><span>재주조</span></div>
+        <div><b>${Number(metrics.keeps || 0).toLocaleString()}</b><span>보존</span></div>
     </div>
     <div class="jianwang-auto-final"><strong>최종 옵션</strong><span>${finalExts}</span></div>
     ${jianwangResourcesHtml(result.resources)}
@@ -7744,7 +7744,7 @@ async function runJianwangAutoSimulation() {
     } catch (error) {
         console.error('검왕각 자동 시뮬레이션 실패:', error);
         if (runToken === jianwangAutoRunToken && results) {
-            results.innerHTML = `<div class="ai-result-error">计算失败：${escapeAiHtml(error?.message || error)}</div>`;
+            results.innerHTML = `<div class="ai-result-error">계산 실패: ${escapeAiHtml(error?.message || error)}</div>`;
         }
         const progress = document.getElementById('autoJianwangProgress');
         if (progress) progress.hidden = true;
