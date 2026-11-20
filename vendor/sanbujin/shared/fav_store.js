@@ -88,6 +88,21 @@
         oversea: '해외 서버', korea: '한국 서버', japan: '일본 서버', windows: 'Windows', older: '구버전', test: '테스트 서버'
     };
 
+    // 구버전 즐겨찾기 출처에 저장된 중국어 채널명은 표시할 때만 변환한다.
+    // 원본 origin.channel 값은 수정하지 않아 세이브 식별·복원을 유지한다.
+    var CHANNEL_LABELS = {
+        '官服': '공식 서버', '官方服': '공식 서버', '官方': '공식 서버',
+        '华为': '화웨이', '华为服': '화웨이 서버',
+        '国际服': '국제 서버', '國際服': '국제 서버',
+        '先行服': '사전 서버', '测试服': '테스트 서버', '測試服': '테스트 서버',
+        '韩服': '한국 서버', '韓服': '한국 서버', '日服': '일본 서버'
+    };
+
+    function channelLabel(value) {
+        var raw = String(value || '').trim();
+        return CHANNEL_LABELS[raw] || PLATFORM_LABELS[raw.toLowerCase()] || raw;
+    }
+
     function day(ts) {
         if (!ts) return '';
         var d = new Date(Number(ts));
@@ -103,7 +118,7 @@
         if (o.role) parts.push(o.role);
         var platform = String(o.platform || '').toLowerCase();
         var channel = String(o.channel || '');
-        if (channel) parts.push(channel);                      /* 官服 / 华为 / 国际服 … */
+        if (channel) parts.push(channelLabel(channel));                      /* 官服 / 华为 / 国际服 … */
         else if (PLATFORM_LABELS[platform]) parts.push(PLATFORM_LABELS[platform]);
         else parts.push('채널 정보 없음');
         if (o.server) {
