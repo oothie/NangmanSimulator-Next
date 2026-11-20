@@ -2207,7 +2207,7 @@ function renderSpecialAttachPage() {
         <td>${escapeHtml(item.equipName)}</td>
         <td>${escapeHtml(item.materialName)}</td>
         <td class="special-attach-value">${escapeHtml(propLabel(item.prop))}+${formatPropValue(item.prop, item.value)}</td>
-        <td>${item.factor}% · 범위 ${item.factorMin}–${item.factorMax}%${item.isBest ? ' · 最高' : ''}</td>
+        <td>${item.factor}% · 범위 ${item.factorMin}–${item.factorMax}%${item.isBest ? ' · 최고' : ''}</td>
         <td>${item.seedBefore} → ${item.seedAfter}</td>
     </tr>`).join('');
     updatePreviewPager(items.length);
@@ -2327,7 +2327,7 @@ function renderJianwangPage() {
             <td>${escapeHtml(item.equipName)}</td>
             <td>${escapeHtml(item.materialName)}</td>
             <td class="special-attach-value">${escapeHtml(propLabel(item.prop))}+${formatPropValue(item.prop, item.value)}</td>
-            <td>${item.factor}% · 범위 ${item.factorMin}–${item.factorMax}%${item.isBest ? ' · 最高' : ''}</td>
+            <td>${item.factor}% · 범위 ${item.factorMin}–${item.factorMax}%${item.isBest ? ' · 최고' : ''}</td>
             <td>${item.seedBefore} → ${item.seedAfter}</td>
         </tr>`).join('');
     } else if (blankKind) {
@@ -2428,7 +2428,7 @@ function renderJianwangPreview(items, kind = 'state') {
 
 function equipOptionLabel(e, mode) {
     const owner = String(e._owner || e._source || '').trim();
-    const wear = e._crafted ? '모의 제작' : (e._equipped ? `已装备${owner ? `：${owner}` : ''}` : '미착용');
+    const wear = e._crafted ? '모의 제작' : (e._equipped ? `착용 중${owner ? `: ${owner}` : ''}` : '미착용');
     const color = COLOR_NAMES[e.color] || e.color;
     const mark = e._mark ? `「${e._mark}」` : '';
     if (mode === 'strong') {
@@ -3824,7 +3824,7 @@ function doMakeOnce() {
     setMakeAdvanceNotice(r, crafted, 1);
     const markTip = crafted?._mark ? ` · 표시 「${crafted._mark}」` : '';
     const bagTip = crafted
-        ? ` · 已入模拟背包(#${crafted.only_id})${markTip}`
+        ? ` · 시뮬레이션 가방에 추가됨(#${crafted.only_id})${markTip}`
         : '';
     appendLog(`[打造] ${r.name} · ${COLOR_NAMES[r.color] || r.color} · ${r.pity ? '천장' : r.seed_kind === 'lucky' ? '천장 순서' : '일반'}${bagTip}`);
     fillEquipSelects();
