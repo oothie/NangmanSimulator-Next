@@ -44,6 +44,24 @@
     const menu=document.createElement('nav');menu.className='nm-main-links';
     main.forEach(([name,url])=>menu.appendChild(link(name,url,name==='장비')));top.appendChild(menu);
     const note=document.createElement('span');note.className='nm-note';note.textContent='산부진 APK 장비 엔진';top.appendChild(note);
+    const sharedSave=document.createElement('button');
+    sharedSave.type='button';sharedSave.textContent='통합 세이브 적용';
+    sharedSave.style.cssText='padding:6px 10px;border:1px solid #b5a387;background:#fff9ed;border-radius:5px;font-size:12px;cursor:pointer';
+    const saved=sessionStorage.getItem('nangman_shared_save_v1');
+    if(saved)sharedSave.onclick=async()=>{
+      try{
+        if(typeof window.handleSaveFileImport==='function'){
+          await window.handleSaveFileImport(new File([saved],'nangman_save.json',{type:'application/json'}));
+        }else if(typeof window.loadSaveData==='function'){
+          window.loadSaveData(JSON.parse(saved));
+        }else{
+          throw Error('원본 계산기의 세이브 가져오기 함수가 아직 준비되지 않았습니다. 화면의 원본 가져오기 메뉴를 이용하세요.');
+        }
+        sharedSave.textContent='세이브 적용 요청 완료';
+      }catch(err){sharedSave.textContent='적용 오류 (원본 가져오기 이용)';console.error('공유 세이브',err);}
+    };
+    else {sharedSave.textContent='원본 가져오기로 세이브 선택';sharedSave.disabled=true}
+    top.appendChild(sharedSave);
     const sub=document.createElement('nav');sub.className='nm-sub';
     subtabs.forEach(([name,url,key])=>sub.appendChild(link(name,url,current===key)));
     h.append(top,sub);document.body.prepend(h);
