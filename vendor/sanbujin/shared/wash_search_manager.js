@@ -21,7 +21,7 @@
     function keyFor(value) {
         const text = typeof value === 'string' ? value : JSON.stringify(value);
         if (OPAQUE_KEY.test(text || '')) return text;
-        if (!text) throw new Error('未能确定本次查找，请重新选择人物后重试');
+        if (!text) throw new Error('현재 탐색을 확인할 수 없습니다. 캐릭터를 다시 선택하세요.');
         let first = 2166136261;
         let second = 2246822507;
         for (let index = 0; index < text.length; index += 1) {
@@ -243,7 +243,7 @@
                     state.result.routes = state.result.routes.filter(route => route.totalPills <= state.firstRoutePills);
                 }
                 if (saved.status === 'running') {
-                    state.progress = { ...state.progress, phase: 'stopped', message: '上次查找已停止，可以重新开始。' };
+                    state.progress = { ...state.progress, phase: 'stopped', message: '이전 탐색이 중단됐습니다. 다시 시작할 수 있습니다.' };
                     state.stopReason = 'page-reloaded';
                 }
                 if (state.status === 'complete' && !state.result?.routes?.length) state = idle();
@@ -297,8 +297,8 @@
                 ...state, status, updatedAt: now, completedAt: now,
                 error: error || '',
                 progress: status === 'complete'
-                    ? { ...(state.progress || {}), phase: 'complete', done: 1, total: 1, message: '已找到符合目标的路线' }
-                    : { ...(state.progress || {}), phase: status, message: error || '已停止查找' },
+                    ? { ...(state.progress || {}), phase: 'complete', done: 1, total: 1, message: '목표를 만족하는 경로를 찾았습니다.' }
+                    : { ...(state.progress || {}), phase: status, message: error || '탐색을 중지했습니다.' },
             };
             notify(true);
         }
@@ -351,23 +351,23 @@
             generation += 1;
             input = null;
             const now = Date.now();
-            state = { ...idle(), status: 'running', taskKey, view: displayView(config?.view), startedAt: now, updatedAt: now, progress: { phase: 'worker-start', done: 0, total: 1, message: '正在启动本地查找' } };
+            state = { ...idle(), status: 'running', taskKey, view: displayView(config?.view), startedAt: now, updatedAt: now, progress: { phase: 'worker-start', done: 0, total: 1, message: '로컬 경로 탐색 시작 중' } };
             let worker;
             let blobUrl;
             try {
-                if (!config?.input || typeof config.input !== 'object') throw new Error('洗脉起点缺失，请重新选择人物');
+                if (!config?.input || typeof config.input !== 'object') throw new Error('세수 시작 상태가 없습니다. 캐릭터를 다시 선택하세요.');
                 input = clone(config.input);
-                if (!Array.isArray(input.targetIds) || !input.targetIds.length || input.targetIds.some(id => !Number.isFinite(Number(id)))) throw new Error('请先选择目标天赋');
+                if (!Array.isArray(input.targetIds) || !input.targetIds.length || input.targetIds.some(id => !Number.isFinite(Number(id)))) throw new Error('목표 재능을 먼저 선택하세요.');
                 input.automatic = true;
                 input.options = { ...(input.options || {}), automatic: true, mode: 'automatic' };
-                if (input.savedRole && !input.ruleContextUrl) throw new Error('洗脉资料不完整，请刷新页面后重试');
+                if (input.savedRole && !input.ruleContextUrl) throw new Error('세수 데이터가 불완전합니다. 새로고침 후 다시 시도하세요.');
                 if (input.ruleContextUrl) {
                     const helperUrl = new owner.URL(input.ruleContextUrl, owner.location.href);
-                    if (helperUrl.origin !== owner.location.origin) throw new Error('洗脉规则必须与当前工具同源，请刷新后重试');
+                    if (helperUrl.origin !== owner.location.origin) throw new Error('세수 규칙은 현재 도구와 같은 출처여야 합니다. 새로고침 후 다시 시도하세요.');
                     input.ruleContextUrl = helperUrl.href;
                 }
                 const bundle = config.bundle || root.WASH_ROUTE_WORKER_BUNDLE || owner.WASH_ROUTE_WORKER_BUNDLE;
-                if (!bundle || typeof bundle.src !== 'string' || !bundle.src || typeof bundle.hash !== 'string') throw new Error('本地查找资源未加载完整，请刷新后重试');
+                if (!bundle || typeof bundle.src !== 'string' || !bundle.src || typeof bundle.hash !== 'string') throw new Error('로컬 탐색 리소스가 완전히 로드되지 않았습니다. 새로고침 후 다시 시도하세요.');
                 const saved = config.restart ? null : resumable(taskKey, bundle.hash);
                 if (config.restart) { delete checkpoints[taskKey]; try { owner.sessionStorage.setItem(checkpointKey,JSON.stringify(checkpoints)); } catch (_) {} }
                 if (saved) {
@@ -411,10 +411,10 @@
                             } else if (result) {
                                 finish('complete', result, '');
                             } else {
-                                finish('error', null, '后台查找提前结束，未返回完整核验路线，请刷新后重试');
+                                finish('error', null, '백그라운드 탐색이 일찍 종료되어 검증된 전체 경로를 받지 못했습니다. 새로고침 후 다시 시도하세요.');
                             }
                         } else if (message.type === 'error') {
-                            finish('error', null, String(message.error || '后台查找失败，请刷新后重试'));
+                            finish('error', null, String(message.error || '백그라운드 탐색 실패. 새로고침 후 다시 시도하세요.'));
                         }
                     } catch (error) {
                         finish('error', null, `백그라운드 경로 데이터 오류: ${error?.message || '새로고침 후 다시 시도하세요'}`);
@@ -432,7 +432,7 @@
                     try { worker?.terminate(); } catch (_) { /* No live worker. */ }
                     try { owner.URL.revokeObjectURL(blobUrl); } catch (_) { /* No live URL. */ }
                 }
-                finish('error', null, String(error?.message || error || '后台查找失败'));
+                finish('error', null, String(error?.message || error || '백그라운드 탐색 실패'));
             }
             return snapshot();
         }
@@ -448,15 +448,15 @@
             start, cancel, snapshot, keyFor,
             resumable,
             importCheckpoint(taskKey, bundleHash, checkpoint) {
-                if (state.status === 'running') throw new Error('请先停止当前查找，再导入路线');
+                if (state.status === 'running') throw new Error('진행 중인 탐색을 중지한 뒤 경로를 불러오세요.');
                 const saved = clone(checkpoint);
-                if (!saved?.route?.replay || !Array.isArray(saved.route.replay.groups)) throw new Error('云盘路线数据不完整');
+                if (!saved?.route?.replay || !Array.isArray(saved.route.replay.groups)) throw new Error('클라우드 경로 데이터가 불완전합니다.');
                 checkpoints[keyFor(taskKey)] = {...saved,hash:bundleHash};
                 try { const raw=JSON.stringify(checkpoints); if(raw.length<2*1024*1024)owner.sessionStorage.setItem(checkpointKey,raw); } catch (_) {}
             },
             getInput: () => clone(input),
             subscribe(listener) {
-                if (typeof listener !== 'function') throw new TypeError('查找订阅回调必须为函数');
+                if (typeof listener !== 'function') throw new TypeError('탐색 알림 콜백은 함수여야 합니다.');
                 listeners.add(listener);
                 try { listener(snapshot()); } catch (_) { /* Isolate each view. */ }
                 return () => listeners.delete(listener);
@@ -492,19 +492,19 @@
             if (owner[LOADING]) return owner[LOADING];
             const loading = new Promise((resolve, reject) => {
                 try {
-                    if (!scriptSource) throw new Error('后台任务管理资源地址缺失，请刷新后重试');
+                    if (!scriptSource) throw new Error('백그라운드 작업 관리 리소스 주소가 없습니다. 새로고침 후 다시 시도하세요.');
                     const url = new owner.URL(scriptSource, root.location.href);
-                    if (url.origin !== owner.location.origin) throw new Error('后台任务管理资源必须与当前工具同源');
+                    if (url.origin !== owner.location.origin) throw new Error('백그라운드 작업 리소스는 현재 도구와 같은 출처여야 합니다.');
                     const script = owner.document.createElement('script');
                     script.src = url.href;
                     script.async = true;
                     script.onload = () => {
                         if (owner.WashSearchManager?._getLocal) resolve(owner.WashSearchManager._getLocal());
-                        else reject(new Error('后台任务管理资源加载不完整，请刷新后重试'));
+                        else reject(new Error('백그라운드 작업 관리 리소스가 완전히 로드되지 않았습니다. 새로고침 후 다시 시도하세요.'));
                     };
-                    script.onerror = () => reject(new Error('后台任务管理资源加载失败，请刷新后重试'));
+                    script.onerror = () => reject(new Error('백그라운드 작업 관리 리소스 로드 실패. 새로고침 후 다시 시도하세요.'));
                     const head = owner.document.head || owner.document.documentElement;
-                    if (!head) throw new Error('后台任务宿主尚未就绪，请刷新后重试');
+                    if (!head) throw new Error('백그라운드 작업 실행기가 준비되지 않았습니다. 새로고침 후 다시 시도하세요.');
                     head.appendChild(script);
                 } catch (error) { reject(error); }
             });
