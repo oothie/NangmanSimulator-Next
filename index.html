@@ -376,6 +376,7 @@ function wikiKoMap(){
  for(const [id,entry] of Object.entries(window.NANGMAN_STATUS_KO||{}))if(!m.has('buff:'+id))m.set('buff:'+id,entry);
  for(const [id,entry] of Object.entries(window.NANGMAN_STATUS_KO_BATCH_2||{}))m.set('buff:'+id,entry);
  for(const [id,entry] of Object.entries(window.NANGMAN_STATUS_KO_BATCH_3||{}))m.set('buff:'+id,entry);
+ for(const [id,entry] of Object.entries(window.NANGMAN_54506_SKILLS_KO||{}))m.set((Number(entry[2])===1?'crafts:':'arts:')+id,{name:entry[0],desc:entry[1],source:'한국판 54506'});
  for(const [id,entry] of Object.entries(window.NANGMAN_54506_BUFF_KO||{}))m.set('buff:'+id,{name:entry[0],desc:entry[1],icon:entry[2],source:'한국판 54506'});
  for(const [id,entry] of Object.entries(window.NANGMAN_V620_BUFF_KO||{}))m.set('buff:'+id,{name:entry[0],desc:entry[1],icon:entry[2],source:'한국판 V6.20'});
  return m;
@@ -559,6 +560,7 @@ window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.
 <script src="./data/wiki-status-ko.js"></script>
 <script src="./data/wiki-status-ko-256-315.js"></script>
 <script src="./data/wiki-status-ko-316-374.js"></script>
+<script src="./data/wiki-skills-54506-ko.js"></script>
 <script src="./data/wiki-status-54506-ko.js"></script>
 <script src="./data/wiki-status-v620.js"></script>
 <script type="module">
