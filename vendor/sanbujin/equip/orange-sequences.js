@@ -149,7 +149,7 @@
             const paper = EQUIP_DATA.papers[paperSelect.value], npc = EQUIP_DATA.craftsman[npcSelect.value], padPaper = EQUIP_DATA.papers[paddingSelect.value];
             const paddingCount = EQUIP_DATA.equipment[paper?.dz_equip]?.lv >= 100 ? 0 : Number($('orangePaddingCount').value);
             if (!paper || !npc) { status.textContent = '도면과 장인을 선택하세요.';return; }
-            if (!Number.isSafeInteger(paddingCount) || paddingCount < 0 || paddingCount > 5000) { status.textContent = '선행 제작 횟수必须是0–5000的整数';return; }
+            if (!Number.isSafeInteger(paddingCount) || paddingCount < 0 || paddingCount > 5000) { status.textContent = '선행 제작 횟수는 0~5000의 정수여야 합니다';return; }
             if (paddingCount && !padPaper) { status.textContent = '동일 등급·종류의 일반 제작 도면을 선택하세요.';return; }
             const targetRequest = request(paper, npc, forgeMaterial.value), padRequest = padPaper ? request(padPaper, npc) : null;
             invalidate();const ticket = generation, state = clone(wasmMakeGetState());startFingerprint = JSON.stringify(state);
