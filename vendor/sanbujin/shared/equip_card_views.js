@@ -89,14 +89,14 @@
                     cost: plan && plan.cost || null, upgradeCost: candidate.upgradeCost || null, rows: [] };
                 if (!cutoff) return route;
                 try {
-                    if (typeof wasmXilianPlan !== 'function' || cutoff > MAX_REFINE_ROWS) throw new Error('保留规划回放尚未保存');
+                    if (typeof wasmXilianPlan !== 'function' || cutoff > MAX_REFINE_ROWS) throw new Error('보존 계획의 재계산 기록이 저장되지 않았습니다');
                     var flags = Array(cutoff).fill(false);
                     (plan.accepts || []).forEach(function (keep) { if (Number(keep.index) >= 1 && Number(keep.index) <= cutoff) flags[Number(keep.index) - 1] = true; });
                     var replay = wasmXilianPlan(equip, flags);
-                    if (replay.error || !replay.equip || !replay.items || replay.items.length !== cutoff) throw new Error(replay.error || '保留规划回放不完整');
+                    if (replay.error || !replay.equip || !replay.items || replay.items.length !== cutoff) throw new Error(replay.error || '보존 계획의 재계산 기록이 불완전합니다');
                     var spent = replay.items.reduce(function (sum, item) { return sum + (Number(item.cost_mult) || 1); }, 0);
                     var total = (replay.equip.exts || []).reduce(function (sum, item) { return sum + (item.prop === refinement.prop ? Number(item.value) || 0 : 0); }, 0);
-                    if (spent !== Number(plan.cost && plan.cost.lianjin) || Math.abs(total - Number(refinement.total)) > 1e-9) throw new Error('这份旧规划与当前回放不一致，请重新推演后收藏');
+                    if (spent !== Number(plan.cost && plan.cost.lianjin) || Math.abs(total - Number(refinement.total)) > 1e-9) throw new Error('이전 계획과 현재 재계산 결과가 일치하지 않습니다. 다시 계산한 뒤 즐겨찾기에 등록하세요');
                     route.rows = refineRows(replay.items, refinement.prop, cutoff);
                 } catch (error) { route.error = String(error.message || error); }
                 return route;
