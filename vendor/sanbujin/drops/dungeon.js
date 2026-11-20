@@ -1,6 +1,7 @@
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
+  const ko = value => window.SBJ_KOREAN?.translate?.(String(value ?? '')) || String(value ?? '');
   const engine = window.SBJDungeonDrop, catalog = window.SBJDungeonCatalog;
   const groups = [...new Set(catalog.map(event => event.dungeon))];
   const area = $('dungeonArea'), boss = $('dungeonBoss');
@@ -37,7 +38,7 @@
     const shown = $('dungeonOnlyHits').checked ? rows.filter(row => row.item) : rows;
     $('dungeonStatus').textContent = '예측 완료 ' + rows.length + '회 · ' + rows.filter(row => row.item).length + '회 일반 장비 드랍';
     $('dungeonResults').replaceChildren(...shown.map(row => record(
-      '제 ' + row.index + '회 · ' + (row.item ? (EQUIP_DATA.equipment[row.item]?.name || '장비 #' + row.item) : '일반 장비 없음'),
+      '제 ' + row.index + '회 · ' + (row.item ? (EQUIP_DATA.equipment[row.item]?.koName || ko(EQUIP_DATA.equipment[row.item]?.name) || '장비 #' + row.item) : '일반 장비 없음'),
       row.item ? [colors[row.color], row.kind === 'weapon' ? '일반 무기' : '일반 장비'].filter(Boolean).join(' · ') : ''
     )));
     if (!shown.length) $('dungeonResults').append(record('이 구간에서 일반 장비가 예측되지 않았습니다.'));
@@ -56,7 +57,7 @@
       const result = engine.orange(input, drop);
       const labels = {owned: '획득 완료', locked: '이번 회차 드랍 확정', estimated: '예상 제 ' + result.round + '회차 드랍',
         notFound: '앞선 ' + result.round + '회 동안 드랍 예상 없음', missing: '현재 자료가 부족해 드랍 회차를 확정할 수 없습니다'};
-      return record(EQUIP_DATA.equipment[drop.id]?.name || drop.name, labels[result.kind]);
+      return record(EQUIP_DATA.equipment[drop.id]?.koName || ko(EQUIP_DATA.equipment[drop.id]?.name || drop.name), labels[result.kind]);
     }));
   }
   function fillBosses() {
@@ -64,7 +65,7 @@
     const inArea = catalog.filter(event => event.dungeon === area.value);
     inArea.forEach(event => {
       const duplicate = inArea.filter(other => other.boss === event.boss).length > 1;
-      boss.add(new Option(event.boss + (duplicate ? ' · ' + event.variant : '') +
+      boss.add(new Option(ko(event.boss) + (duplicate ? ' · ' + ko(event.variant) : '') +
         (event.outer ? '' : ' · 전용 주황 장비'), catalog.indexOf(event)));
     });
     renderBoss();
@@ -84,7 +85,7 @@
       renderBoss();
     }
   }
-  groups.forEach((group, i) => area.add(new Option(group, group, i === 0)));
+  groups.forEach((group, i) => area.add(new Option(ko(group), group, i === 0)));
   area.onchange = fillBosses;
   boss.onchange = renderBoss;
   $('dungeonOnlyHits').onchange = () => { if (rows.length) render(); };
