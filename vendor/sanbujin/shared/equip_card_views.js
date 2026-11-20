@@ -61,8 +61,8 @@
             cumulative += Number(item.cost_mult) || 1;
             var oldText = item.old_prop ? label(item.old_prop.prop) + '+' + fmtValue(item.old_prop.prop, item.old_prop.value) : '—';
             var newText = label(item.prop && item.prop.prop) + '+' + fmtValue(item.prop && item.prop.prop, item.prop && item.prop.value);
-            var action = !item.accepted ? '不保留' : item.prop && item.prop.prop === target && lastKeeps[item.slot] === item.index ? '目标保留' : '临时锁定';
-            if (cutoff && Number(item.index) === cutoff) action += ' · 终止';
+            var action = !item.accepted ? '유지 안 함' : item.prop && item.prop.prop === target && lastKeeps[item.slot] === item.index ? '목표 유지' : '임시 잠금';
+            if (cutoff && Number(item.index) === cutoff) action += ' · 종료';
             return [Number(item.index) || 0, Number(item.slot) || 0, oldText, newText, Number(item.cost_mult) || 1,
                 (item.xl_level_before == null ? '-' : item.xl_level_before) + '→' + (item.xl_level == null ? '-' : item.xl_level), action, cumulative];
         });
@@ -246,7 +246,7 @@
             var shown = rows.filter(function (row) { return (!slot || String(row[1]) === slot) && (!prop || String(row[3] || '').indexOf(prop + '+') === 0); });
             meta.textContent = '표시 ' + shown.length + ' / ' + rows.length + '개';
             tbody.innerHTML = shown.length ? shown.map(function (row) {
-                return '<tr class="' + (String(row[6]).indexOf('保留') >= 0 || String(row[6]).indexOf('锁定') >= 0 ? 'row-keep' : '') + '"><td>제 ' + esc(row[0]) + '회</td><td>슬롯 ' + esc(row[1]) + '</td><td>' + esc(row[2]) + ' → ' + esc(row[3]) + '</td><td>' + esc(row[6] || '유지 안 함') + '</td><td>×' + esc(row[4]) + '</td><td>' + esc(row[7] == null ? '—' : row[7]) + '</td><td>' + esc(row[5]) + '</td></tr>';
+                return '<tr class="' + (/^(?:목표 유지|임시 잠금|目标保留|临时锁定)/.test(String(row[6] || '')) ? 'row-keep' : '') + '"><td>제 ' + esc(row[0]) + '회</td><td>슬롯 ' + esc(row[1]) + '</td><td>' + esc(row[2]) + ' → ' + esc(row[3]) + '</td><td>' + esc(row[6] || '유지 안 함') + '</td><td>×' + esc(row[4]) + '</td><td>' + esc(row[7] == null ? '—' : row[7]) + '</td><td>' + esc(row[5]) + '</td></tr>';
             }).join('') : '<tr><td colspan="7">' + esc(route && route.error ? route.error : route && !route.cutoff ? '새로 유지할 옵션이 필요하지 않습니다. 현재 옵션을 유지합니다' : '검색 조건에 맞는 정련 기록이 없습니다') + '</td></tr>';
         }
         function selectRoute() {
@@ -254,7 +254,7 @@
             rows = route ? route.rows || [] : data.rows;
             if (route && route.error) summary.textContent = route.error;
             else if (route) {
-                var ending = rows.filter(function (row) { return String(row[6] || '').indexOf('不保留') !== 0; }).map(function (row) { return '#' + row[0] + '(슬롯 ' + row[1] + ')'; }).join(' → ') || '추가로 유지할 옵션 없음';
+                var ending = rows.filter(function (row) { return ! /^(?:不保留|유지 안 함)/.test(String(row[6] || '')); }).map(function (row) { return '#' + row[0] + '(슬롯 ' + row[1] + ')'; }).join(' → ') || '추가로 유지할 옵션 없음';
                 summary.textContent = '상태 재현: ' + ending + (route.cutoff ? ', 제' + route.cutoff + '회까지 진행' : '') + '\n정련 소모: ' + refineCostText(route.cost) + '\n총 소모(승련+정련): ' + refineCostText(route.cost, route.upgradeCost);
             } else summary.textContent = routes.length ? '원본 순서에는 옵션 유지 계획이 적용되지 않았습니다. 실제 경로는 다를 수 있습니다' : '기존 즐겨찾기에는 원본 순서만 저장되어 옵션 유지 계획을 확인할 수 없습니다';
             summary.style.whiteSpace = 'pre-line';
