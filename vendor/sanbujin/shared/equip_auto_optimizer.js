@@ -71,7 +71,7 @@
 
     function requireData(data) {
         if (!data || !data.equipment || !data.papers || !data.craftsman) {
-            throw new TypeError('装备数据表未加载完整');
+            throw new TypeError('장비 데이터가 완전히 로드되지 않았습니다.');
         }
         return data;
     }
@@ -153,11 +153,11 @@
     function craftedMJSeedFromMakeResult(result, paperId) {
         const czSeed = result && (result.CZSeed != null ? result.CZSeed : result.cz_seed);
         if (!Number.isSafeInteger(paperId) || paperId <= 0) {
-            throw new TypeError(`打造图纸 ID 必须是正安全整数，实际为 ${String(paperId)}`);
+            throw new TypeError(`제작 도면 ID는 양의 안전 정수여야 합니다. 입력값: ${String(paperId)}`);
         }
         const offset = paperId * CRAFTED_MJ_SEED_PAPER_MULTIPLIER;
         if (!Number.isSafeInteger(czSeed) || czSeed <= offset) {
-            throw new TypeError(`这件装备的打造进度不完整，请重新导入存档后再试`);
+            throw new TypeError(`장비 제작 진행도가 불완전합니다. 세이브를 다시 불러온 후 시도하세요.`);
         }
         return czSeed - offset;
     }
@@ -400,11 +400,11 @@
     function prepareRefinementEvaluation(bridge, eq, count) {
         const toOnce = equip => {
             const response = bridge.xilianPlan(toWasmEquip(equip), [false]);
-            if (response?.error || !response?.equip || !response.items?.[0]) throw new Error(response?.error || '无法生成精炼结果');
+            if (response?.error || !response?.equip || !response.items?.[0]) throw new Error(response?.error || '정련 결과를 생성하지 못했습니다.');
             return { equip: response.equip, result: response.items[0] };
         };
         const basePlan = bridge.xilianPlan(toWasmEquip(eq), Array(count).fill(false));
-        if (basePlan.error || basePlan.items?.length !== count) throw new Error(basePlan.error || '精炼序列不完整，请重试');
+        if (basePlan.error || basePlan.items?.length !== count) throw new Error(basePlan.error || '정련 순서가 불완전합니다. 다시 시도하세요.');
         const seedBefore = [];
         let seedProbe = JSON.parse(JSON.stringify(toWasmEquip(eq)));
         for (let i = 0; i < count; i++) {
@@ -435,7 +435,7 @@
         let budgetExhausted = false;
         const once = equip => {
             const response = bridge.xilianPlan(toWasmEquip(equip), [false]);
-            if (response?.error || !response?.equip || !response.items?.[0]) throw new Error(response?.error || '无法生成精炼结果');
+            if (response?.error || !response?.equip || !response.items?.[0]) throw new Error(response?.error || '정련 결과를 생성하지 못했습니다.');
             return { equip: response.equip, result: response.items[0] };
         };
 
@@ -493,7 +493,7 @@
             if (Math.abs(totalA - totalB) > 1e-12) return totalB - totalA;
             return compareXilianPlanMeta(a, b);
         });
-        if (!candidates.length) throw new Error('没有找到可用的精炼规划');
+        if (!candidates.length) throw new Error('사용 가능한 정련 계획을 찾지 못했습니다.');
         const maxTotal = candidates[0].values.reduce((sum, v) => sum + v, 0);
 
         function minimizeTargetPath(targetValues, enabledMask) {
@@ -594,10 +594,10 @@
         // Price the executable path only to its final keep, never sum independent
         // per-slot previews or charge an extra multiplier on that final operation.
         const replay = bridge.xilianPlan(toWasmEquip(equip), result.accepts.slice(0, result.lastStep));
-        if (replay?.error || !replay?.equip || replay.items?.length !== result.lastStep) throw new Error(replay?.error || '精炼规划回放不完整');
+        if (replay?.error || !replay?.equip || replay.items?.length !== result.lastStep) throw new Error(replay?.error || '정련 계획 재현이 완료되지 않았습니다.');
         const accepted = replay.items.filter(item => item.accepted).map(item => ({ index: item.index, slot: item.slot, prop: item.prop?.prop, value: item.prop?.value }));
         const actualTotal = xilianTargetTotal(replay.equip.exts, targetProp);
-        if (Math.abs(actualTotal - result.total) > 1e-9) throw new Error('精炼方案与逐步推演的结果不一致，请重新查找');
+        if (Math.abs(actualTotal - result.total) > 1e-9) throw new Error('정련 계획과 단계별 계산 결과가 일치하지 않습니다. 다시 탐색하세요.');
         for (let slot = 1; slot <= 3; slot++) {
             const prop = replay.equip.exts?.[slot - 1];
             if (prop?.prop !== targetProp) { maxima[slot] = null; continue; }
@@ -606,7 +606,7 @@
             maxima[slot] = { slot, value: occurrence.value, occurrences: [occurrence], ...(kept ? {} : { source: 'original' }) };
         }
         const cost = refinementCost(equip, replay.items, result.lastStep, data);
-        if (cost.lianjin !== result.cutoffLianjin) throw new Error('精炼方案的材料消耗未能核对，请重新查找');
+        if (cost.lianjin !== result.cutoffLianjin) throw new Error('정련 계획의 재료 소모량을 검증하지 못했습니다. 다시 탐색하세요.');
         return { prop: targetProp, maxima, total: actualTotal, plan: { accepts: accepted, accepted, cutoff: result.lastStep, cost }, previewCount: count, budgetExhausted: result.budgetExhausted, consumedLianjin: cost.lianjin };
     }
 
@@ -625,7 +625,7 @@
             const cutoff = result.plan?.cutoff || 0, accepts = new Set((result.plan?.accepted || []).map(x => x.index));
             const flags = Array.from({length:cutoff}, (_, i) => accepts.has(i + 1));
             const replay = cutoff ? bridge.xilianPlan(toWasmEquip(equip), flags) : {equip:toWasmEquip(equip),items:[]};
-            if (replay?.error || !replay?.equip || replay.items?.length !== cutoff) throw new Error(replay?.error || '组合路线回放不完整');
+            if (replay?.error || !replay?.equip || replay.items?.length !== cutoff) throw new Error(replay?.error || '조합 경로 재현이 완료되지 않았습니다.');
             if (wanted.some((v, i) => v && replay.equip.exts?.[i]?.prop !== v)) return null;
             return {targets:wanted, slots:wanted.map((v,i)=>v?{slot:i+1,prop:v,value:Number(replay.equip.exts[i].value)||0}:null), cutoff, cost:result.plan?.cost || refinementCost(equip, [], 0, data), items:replay.items};
         }
@@ -669,24 +669,24 @@
         if (!best) return null;
         const flags = Array(best.lastStep).fill(false); for (const step of best.steps) flags[step - 1] = true;
         const replay = best.lastStep ? bridge.xilianPlan(toWasmEquip(equip), flags) : {equip:toWasmEquip(equip),items:[]};
-        if (replay?.error || !replay?.equip || replay.items?.length !== best.lastStep) throw new Error('组合路线回放不完整');
+        if (replay?.error || !replay?.equip || replay.items?.length !== best.lastStep) throw new Error('조합 경로 재현이 완료되지 않았습니다.');
         const slots = wanted.map((prop, i) => prop ? {slot:i+1, prop, value:Number(replay.equip.exts?.[i]?.value)||0} : null);
-        if (wanted.some((prop,i) => prop && replay.equip.exts?.[i]?.prop !== prop)) throw new Error('组合路线回放未达到目标');
+        if (wanted.some((prop,i) => prop && replay.equip.exts?.[i]?.prop !== prop)) throw new Error('조합 경로 재현 결과가 목표에 미달했습니다.');
         const cost = refinementCost(equip, replay.items, best.lastStep, data);
-        if (cost.lianjin !== best.cutoffLianjin) throw new Error('组合路线消耗核对失败');
+        if (cost.lianjin !== best.cutoffLianjin) throw new Error('조합 경로 소모량 검증에 실패했습니다.');
         return {targets:wanted, slots, cutoff:best.lastStep, cost, items:replay.items};
     }
 
     function requirePositiveInteger(value, field) {
         if (!Number.isSafeInteger(value) || value < 1) {
-            throw new TypeError(`${field}必须是正整数，实际为 ${String(value)}`);
+            throw new TypeError(`${field}는 양의 정수여야 합니다. 입력값: ${String(value)}`);
         }
         return value;
     }
 
     function drawWhaleInt(seed, maximum) {
-        const validSeed = requirePositiveInteger(seed, '序列数据');
-        const validMaximum = requirePositiveInteger(maximum, '随机上限');
+        const validSeed = requirePositiveInteger(seed, '순서 데이터');
+        const validMaximum = requirePositiveInteger(maximum, '난수 상한');
         const mixed = BigInt.asUintN(64, (BigInt(validSeed) + BigInt(validMaximum)) * WHALE_MULTIPLIER + WHALE_INCREMENT);
         const raw = (mixed >> 17n) & WHALE_MASK;
         const nextSeed = Number((raw < WHALE_REDUCTION_LIMIT ? raw : raw - WHALE_REDUCTION_LIMIT) + 1n);
@@ -699,7 +699,7 @@
             return weight;
         });
         const total = validWeights.reduce((sum, value) => sum + value, 0);
-        requirePositiveInteger(total, `${context}总权重`);
+        requirePositiveInteger(total, `${context} 총 가중치`);
         const draw = drawWhaleInt(seed, total);
         let cumulative = 0;
         const index = validWeights.findIndex(weight => {
@@ -720,7 +720,7 @@
     }
 
     function specialMaterialBaseValue(material, equipLevel, propertyIndex) {
-        const raw = material.lvs && material.lvs[`lv${requirePositiveInteger(equipLevel, '装备等级')}`];
+        const raw = material.lvs && material.lvs[`lv${requirePositiveInteger(equipLevel, '장비 레벨')}`];
         const value = Array.isArray(raw) ? raw[propertyIndex] : raw;
         if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
             throw new TypeError(`추가 재료 '${material.name}'에 현재 장비 레벨의 수치가 없습니다.`);
@@ -742,16 +742,16 @@
 
     function predictSpecialAttachSequence(equip, material, count) {
         if (!specialMaterialSupportsEquip(material, equip)) {
-            throw new RangeError(`特殊材料「${material && material.name || material && material.id}」不适用于装备「${equip && equip.name}」`);
+            throw new RangeError(`특수 재료 '${material && material.name || material && material.id}'는 장비 '${equip && equip.name}'에 사용할 수 없습니다.`);
         }
         const properties = specialMaterialProperties(material);
-        let seed = requirePositiveInteger(equip.MJSeed, `装备「${equip.name}」的芒晶洗练进度`);
+        let seed = requirePositiveInteger(equip.MJSeed, `장비 '${equip.name}'의 망정 진행도`);
         const items = [];
-        for (let index = 1; index <= requirePositiveInteger(count, '附加次数'); index += 1) {
+        for (let index = 1; index <= requirePositiveInteger(count, '추가 횟수'); index += 1) {
             const seedBefore = seed;
-            const propertyDraw = drawWeightedIndex(seed, properties.map(item => item.weight), '材料属性');
+            const propertyDraw = drawWeightedIndex(seed, properties.map(item => item.weight), '재료 능력치');
             seed = propertyDraw.seed;
-            const qualityDraw = drawWeightedIndex(seed, SPECIAL_QUALITY_WEIGHTS, '材料品质');
+            const qualityDraw = drawWeightedIndex(seed, SPECIAL_QUALITY_WEIGHTS, '재료 품질');
             seed = qualityDraw.seed;
             const range = SPECIAL_QUALITY_RANGES[qualityDraw.index];
             const factorDraw = drawWhaleInt(seed, range[1] - range[0] + 1);
@@ -835,8 +835,8 @@
         const craftsman = data.craftsman[String(branch.npcId)];
         const paper = data.papers[String(branch.paperId)];
         const equip = paper && data.equipment[String(paper.dz_equip)];
-        if (!craftsman) throw new Error(`未找到打造地点 ${branch.npcId}`);
-        if (!paper || !equip) throw new Error(`未找到图纸 ${branch.paperId}`);
+        if (!craftsman) throw new Error(`제작 지역을 찾지 못했습니다: ${branch.npcId}`);
+        if (!paper || !equip) throw new Error(`도면을 찾지 못했습니다: ${branch.paperId}`);
         const available = craftsmanCanCraftPaper(craftsman, paper, data);
         if (!available && !(options && options.forceLocation)) {
             throw new Error(`'${craftsman.place || craftsman.name}'에서는 '${paper.name}' 도면으로 제작할 수 없습니다.`);
@@ -871,7 +871,7 @@
         if (!freePaper) materials.push({ id: paper.id, name: paper.name, amount: count });
         materials.push({
             id: paper.dz_mat,
-            name: data.itemNames && data.itemNames[String(paper.dz_mat)] || `材料${paper.dz_mat}`,
+            name: data.itemNames && data.itemNames[String(paper.dz_mat)] || `재료 ${paper.dz_mat}`,
             amount: finiteNumber(paper.dz_num) * count,
         });
         if (finiteNumber(branch.specialId)) {
@@ -920,13 +920,13 @@
         const bridge = input && input.bridge;
         if (!bridge || typeof bridge.getMakeState !== 'function' || typeof bridge.setMakeState !== 'function'
             || typeof bridge.makePreview !== 'function' || typeof bridge.xilianPlan !== 'function') {
-            throw new TypeError('装备模拟桥接接口不完整');
+            throw new TypeError('장비 시뮬레이션 연결 기능이 불완전합니다.');
         }
         const options = normalizeOptions(input.options);
         const requestedBranches = (input.branches || []).map(branch => ({ ...branch, key: makeBranchKey(branch) }));
         const targetProps = Array.from(new Set((input.targetProps || []).filter(prop => TARGET_PROPERTIES.includes(prop))));
-        if (!requestedBranches.length) throw new Error('请至少选择一个地点和一张可打造图纸');
-        if (!targetProps.length) throw new Error('请至少选择一个目标属性');
+        if (!requestedBranches.length) throw new Error('제작 지역과 제작 가능한 도면을 각각 하나 이상 선택하세요.');
+        if (!targetProps.length) throw new Error('목표 능력치를 하나 이상 선택하세요.');
         const branchPlans = requestedBranches.map(branch => {
             const meta = validateBranch(branch, data, options);
             const compatibleTargetProps = supportedTargetProperties(meta.equip, data, targetProps);
@@ -947,13 +947,13 @@
             equipId: plan.meta.equip.id,
             equipName: plan.meta.equip.name,
             targetProps: targetProps.slice(),
-            reason: '该装备的数据属性池不会出现任何所选目标属性',
+            reason: '해당 장비의 옵션 후보에는 선택한 목표 능력치가 없습니다.',
         }));
         if (activeBranchPlans.length * options.craftCount > options.maxCraftWork) {
             throw new Error(`탐색 범위가 너무 큽니다. 총 ${(activeBranchPlans.length * options.craftCount).toLocaleString()}회 제작을 예측해야 하므로 지역·도면·제작 횟수를 줄이세요.`);
         }
         const initialMakeState = clone(input.initialMakeState || bridge.getMakeState());
-        if (!initialMakeState) throw new Error('存档中没有可用的 MakeRnd 打造状态');
+        if (!initialMakeState) throw new Error('세이브에 사용 가능한 MakeRnd 제작 상태가 없습니다.');
         const shouldCancel = typeof input.shouldCancel === 'function' ? input.shouldCancel : () => false;
         const onProgress = typeof input.onProgress === 'function' ? input.onProgress : () => {};
         const yieldControl = typeof input.yieldControl === 'function'
@@ -1119,7 +1119,7 @@
             detailed.sort(compareCandidates);
             const displayCandidates = selectDisplayCandidates(detailed, options.resultLimit);
             return {
-                strength: '当前输入范围内按打造次数排序',
+                strength: '현재 입력 범위에서 제작 횟수 순으로 정렬',
                 objective: ['craft_index', 'location', 'paper', 'target_total', 'region_hits', 'refine_cost'],
                 targetProps,
                 options,
