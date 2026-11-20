@@ -6943,6 +6943,8 @@ async function runEquipAutoSweep() {
                         qualityKey: rating.key,
                         props: equipAutoSweepProps(candidate),
                         region: equipAutoSweepRegion(candidate),
+                        detailCandidate: candidate,
+                        detailRefinement: refinement,
                     });
                 });
             });
@@ -6981,6 +6983,8 @@ async function runEquipAutoSweep() {
                             try { return equipAutoSweepRegion(item); } catch (e) { return []; }
                         })(),
                         mine: true,
+                        detailCandidate: item,
+                        detailRefinement: refinement,
                     });
                 });
                 } catch (e) { }
@@ -7013,9 +7017,13 @@ async function runEquipAutoSweep() {
     }
 }
 
+var equipAutoSweepDetailRows = [];
+var equipAutoSweepLastList = [];
 function renderEquipAutoSweepResults(list) {
     var box = document.getElementById('equipAutoSweepResults');
     if (!box) return;
+    equipAutoSweepLastList = list;
+    equipAutoSweepDetailRows = [];
     var byPaper = new Map();
     list.forEach(function (item) {
         if (!byPaper.has(item.paperId)) byPaper.set(item.paperId, new Map());
@@ -7036,7 +7044,8 @@ function renderEquipAutoSweepResults(list) {
                 + '<th>NPC</th><th>第几次</th><th>地区附加</th><th>' + propName + '</th><th>连金泥总消耗</th><th>品质</th>'
                 + '</tr></thead><tbody>';
             items.forEach(function (item) {
-                html += '<tr>'
+                const detailIndex = equipAutoSweepDetailRows.push(item) - 1;
+                html += '<tr tabindex="0" role="button" aria-label="장비 상세 정보 보기" data-sweep-item="' + detailIndex + '">'
                     + '<td>' + item.npc + '</td>'
                     + '<td>' + item.craftIndex + '</td>'
                     + '<td>' + item.region + '</td>'
@@ -7050,6 +7059,44 @@ function renderEquipAutoSweepResults(list) {
         html += '</div>';
     });
     box.innerHTML = html;
+    if (!box.dataset.sweepDetailBound) {
+        box.dataset.sweepDetailBound = '1';
+        box.addEventListener('click', function(event) {
+            const back = event.target.closest('[data-sweep-back]');
+            if (back) { renderEquipAutoSweepResults(equipAutoSweepLastList);return; }
+            if (event.target.closest('[data-refine-id],[data-mang-id],[data-forge-id],[data-region-id],[data-fav-id]')) {
+                handleEquipAutoFavoriteClick(event);return;
+            }
+            const row = event.target.closest('[data-sweep-item]');
+            if (!row) return;
+            const picked = equipAutoSweepDetailRows[Number(row.dataset.sweepItem)];
+            if (!picked || !picked.detailCandidate || !picked.detailRefinement) return;
+            const source = picked.detailCandidate;
+            const detail = Object.assign({}, source, {
+                refinements: [picked.detailRefinement], allRefinements: false,
+                region: Array.isArray(source.region) ? source.region : [],
+                exts: Array.isArray(source.exts) ? source.exts : [],
+                special: Array.isArray(source.special) ? source.special : []
+            });
+            equipAutoLastResult = {candidates: [detail]};
+            try {
+                let card = equipAutoCandidateHtml(detail, {forge: true, refine: true});
+                card = card.replace('<details class="equip-auto-candidate', '<details open class="equip-auto-candidate');
+                box.innerHTML = '<button type="button" class="btn" data-sweep-back>← 빠른 조회 목록으로</button>'
+                    + '<p class="meta-text">선택한 정련 능력치: ' + escapeAiHtml(equipAutoPropertyLabel(picked.prop))
+                    + ' · 이 능력치의 독립 정련 계획과 승련·정련 소모량을 표시합니다.</p>' + card;
+                box.scrollIntoView({block: 'start', behavior: 'smooth'});
+            } catch(error) {
+                box.innerHTML = '<button type="button" class="btn" data-sweep-back>← 목록으로</button><p role="alert">상세 조회 실패: '
+                    + escapeAiHtml(error?.message || String(error)) + '</p>';
+            }
+        });
+        box.addEventListener('keydown', function(event) {
+            if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-sweep-item]')) {
+                event.preventDefault();event.target.click();
+            }
+        });
+    }
 }
 
 async function runEquipAutoSimulation() {
