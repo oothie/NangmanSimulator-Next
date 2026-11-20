@@ -25,6 +25,20 @@
             .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
+    function koText(value) {
+        var text = String(value == null ? '' : value);
+        try { return root.SBJ_KOREAN?.translate?.(text) || text; }
+        catch (error) { return text; }
+    }
+    function koEquipName(candidate) {
+        try {
+            var id = candidate && (candidate.equipId ?? candidate.equip_id);
+            var equipment = root.EQUIP_DATA?.equipment?.[String(id)];
+            if (equipment?.koName) return equipment.koName;
+        } catch (error) { }
+        return koText(candidate?.equipName || '장비');
+    }
+
     function label(prop) {
         try {
             if (typeof equipAutoPropertyLabel === 'function') return equipAutoPropertyLabel(prop);
@@ -237,7 +251,7 @@
             + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table" style="min-width:760px">'
             + '<thead><tr><th>횟수</th><th>슬롯</th><th>옵션 변경</th><th>처리</th><th>배율</th><th>누적 연금니</th><th>레벨</th></tr></thead><tbody></tbody></table></div>';
         var old = document.querySelector('.equip-auto-forge-modal'); if (old) old.remove();
-        var wrap = modal('정련 상세 · ' + (candidate.equipName || '장비'), '장비의 옵션 유지 계획에 따라 종료 회차까지 정련 순서를 표시합니다.', body);
+        var wrap = modal('정련 상세 · ' + koEquipName(candidate), '장비의 옵션 유지 계획에 따라 종료 회차까지 정련 순서를 표시합니다.', body);
         var tbody = wrap.querySelector('tbody'), meta = wrap.querySelector('#cvRefineMeta'), summary = wrap.querySelector('#cvRefineSummary');
         var routeSel = wrap.querySelector('#cvRefineRoute'), slotSel = wrap.querySelector('#cvRefineSlot'), propSel = wrap.querySelector('#cvRefineProp');
         var rows = [], route = null;
@@ -282,7 +296,7 @@
                     }).join('')
                     : '<tr><td colspan="3">다른 장인에게서 이 장비를 제작할 수 없습니다</td></tr>'))
             + '</tbody></table></div>';
-        modal('다른 장인의 추가 옵션 · ' + (candidate.equipName || '장비'), '저장된 계산 결과를 표시합니다', body);
+        modal('다른 장인의 추가 옵션 · ' + koEquipName(candidate), '저장된 계산 결과를 표시합니다', body);
         return true;
     }
 
@@ -451,7 +465,7 @@
 
             var levelText = data.level ? (esc(data.level) + '레벨') : '';
             var parts = [];
-            if (data.materialName) parts.push('재료: ' + esc(data.materialName));
+            if (data.materialName) parts.push('재료: ' + esc(koText(data.materialName)));
             if (levelText) parts.push(levelText);
             body = '<p class="equip-auto-forge-meta">망정 ' + esc(data.count || items.length) + '회 계산 결과'
                 + (parts.length ? '（' + parts.join(' · ') + '）' : '')
@@ -478,7 +492,7 @@
                 + '<thead><tr><th>능력치</th><th>최고 수치</th><th>획득 횟수</th></tr></thead><tbody>' + mrows + '</tbody></table></div>';
         }
 
-        modal('망정 · ' + (candidate.equipName || '장비'), '해당 장비의 망정 예측 결과', body);
+        modal('망정 · ' + koEquipName(candidate), '해당 장비의 망정 예측 결과', body);
         return true;
     }
 
