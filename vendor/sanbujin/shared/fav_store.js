@@ -108,7 +108,7 @@
         else parts.push('渠道未记录');
         if (o.server) {
             var s = String(o.server);
-            parts.push(/服$/.test(s) ? s : s + '服');           /* 区服，和渠道并列 */
+            parts.push(/(?:服|서버)$/.test(s) ? s.replace(/服$/, '서버') : s + '서버');           /* 区服，和渠道并列 */
         }
         var saveDay = day(o.saveAt || o.importedAt);   /* UploadTime（存档时点）优先，导入时间兜底 */
         if (saveDay) parts.push(saveDay + ' 存档');
