@@ -2814,15 +2814,15 @@ function renderExchangeAnalysisBlock() {
                 <span class="pad-jump">
                     추가 세수로 이동
                     <input type="number" id="routePadInput" min="0" max="${maxPad}" value="${routePadCount}" />
-                    发
+                    회
                 </span>
-                <span class="step-result">（${routePadCount === 0 ? '直接置换' : '锁紫再洗 ' + routePadCount + ' 次'}）</span>
+                <span class="step-result">(${routePadCount === 0 ? '즉시 치환' : '자맥 잠금 후 세수 ' + routePadCount + '회'})</span>
             </div>
 
             <div class="route-nodes-summary">${nodesSummaryHtml}</div>
 
             <div class="multi-exchange-section">
-                <p class="modal-tip">点击下表切换脉序。마지막 칸为置换前最后一格天赋（社区常用来标记序列）。多环다시 충돌时可「展开」查看<b>中途保留某一环</b>时后续目标紫的置换结果（默认主列为완성다시 충돌）。神脉并存时列出各神脉置换；前序已获同名显示「跳过」。</p>
+                <p class="modal-tip">아래 표에서 맥 순서를 전환할 수 있습니다. 마지막 칸은 치환 직전 마지막 재능입니다. 여러 단계에서 다시 충돌할 때는 펼치기를 눌러<b>중간 단계 유지</b>시 이후 목표 자맥의 치환 결과를 확인하세요(기본 열은 전체 충돌 완료 기준). 신맥이 여럿이면 각각의 치환을 표시하고, 이전에 같은 재능을 얻었다면 건너뜀으로 표시합니다.</p>
                 <div class="route-pad-table-wrap">
                     <table class="route-pad-table">
                         <thead><tr>${tableHead}</tr></thead>
@@ -3710,9 +3710,9 @@ function aiRouteResultHtml(route, index) {
             ${Number(route.totalPills) === 0 ? '<p class="ai-route-zero-cost"><strong>추가 세수단 불필요</strong>：이 경로에서는 추가 세수가 필요하지 않습니다. 아래 단계에 따라 재능을 조정하세요. 칸 개방 재료는 따로 준비해야 합니다.</p>' : ''}
             <div class="ai-route-metrics">
                 <div class="ai-route-metric"><b>${Number(route.totalPills).toLocaleString()}</b><span>총 세수단 소모</span></div>
-                <div class="ai-route-metric"><b>${Number(route.totalWashes).toLocaleString()}</b><span>洗髓次数</span></div>
-                <div class="ai-route-metric"><b>${Number(route.totalTalentBars).toLocaleString()}</b><span>누적 세수出天赋</span></div>
-                <div class="ai-route-metric"><b>${Number(route.exchangeCount).toLocaleString()}</b><span>置换次数</span></div>
+                <div class="ai-route-metric"><b>${Number(route.totalWashes).toLocaleString()}</b><span>세수 횟수</span></div>
+                <div class="ai-route-metric"><b>${Number(route.totalTalentBars).toLocaleString()}</b><span>누적 획득 재능</span></div>
+                <div class="ai-route-metric"><b>${Number(route.exchangeCount).toLocaleString()}</b><span>치환 횟수</span></div>
                 <div class="ai-route-metric ${inventory.enough === false ? 'is-short' : ''}"><b>${escapeAiHtml(inventoryLabel)}</b><span>세수단 수량 충족 여부</span></div>
             </div>
             <p class="ai-visual-heading">경로도 · ${escapeAiHtml(upgradeLabel)}</p>
@@ -5028,7 +5028,7 @@ function equipAutoAttachScanDetailHtml(candidate) {
     const rows = scan.maxima.filter(item => item.recommendedIndex != null).map(item => {
         return "<div class=\"equip-auto-attach-scan-row\"><span>" + escapeAiHtml(equipAutoPropertyLabel(item.prop)) + "</span><strong>+" + escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value)) + "（第" + item.recommendedIndex + "次）</strong></div>";
     }).join("");
-    return "<div class=\"equip-auto-detail-card equip-auto-attach-scan-card\"><strong>芒晶前 " + scan.count + " 회 내 최고</strong>" + (rows || "无") + "</div>";
+    return "<div class=\"equip-auto-detail-card equip-auto-attach-scan-card\"><strong>芒晶前 " + scan.count + " 회 내 최고</strong>" + (rows || "없음") + "</div>";
 }
 
 function equipAutoAddCost(map, id, name, amount) {
