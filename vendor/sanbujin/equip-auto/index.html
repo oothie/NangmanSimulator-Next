@@ -912,7 +912,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 </script>
 
 
-<script>(function(){window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-save')return;try{const d=e.data.save;if(typeof loadParsedSaveData!=='function')throw Error('자동 장비 로더 미준비');loadParsedSaveData(d,false);parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'save-loaded'},location.origin)}catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'error',message:String(err.message||err)},location.origin)}});window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'ready'},location.origin));})();</script><script id="nangman-integrated-equipment-bridge">
+<script>(function(){window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-save')return;try{const d=e.data.save;if(typeof loadParsedSaveData!=='function')throw Error('자동 장비 로더 미준비');loadParsedSaveData(d,true);parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'save-loaded'},location.origin)}catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'error',message:String(err.message||err)},location.origin)}});window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'ready'},location.origin));})();</script><script id="nangman-integrated-equipment-bridge">
 (function(){
  const moduleName="equip-auto",isAuto=true;
  let saved=null,requestedVersion=0,confirmedVersion=-1,running=false,retryTimer=null;
@@ -932,7 +932,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
      if(isAuto&&typeof loadParsedSaveData==='function'){
       const hasRole=(root.MainRole&&root.MainRole.ID!=null)||(Array.isArray(root.Roles)&&root.Roles.some(v=>v?.ID!=null))||(Array.isArray(root.Leavers)&&root.Leavers.some(v=>v?.ID!=null));
       if(!hasRole)throw Error('한국판 세이브의 MainRole/Roles/Leavers 데이터가 없습니다.');
-      const r=loadParsedSaveData(root,false);if(r&&typeof r.then==='function')await r;
+      const r=loadParsedSaveData(root,true);if(r&&typeof r.then==='function')await r;
       if(!window.state?.saveRoles?.length)throw Error('산부진 계산기의 캐릭터 목록 적용이 확인되지 않았습니다.');
       worked=true;break;
      }
