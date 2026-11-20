@@ -105,19 +105,19 @@
   }
 
   function predict(input, options) {
-    if (input.level < 30) throw Error('主角达到 30 级后才会触发寻宝。');
-    if (!usable(input.seed)) throw Error('当前存档没有藏宝掉落序列，可先在游戏里打一次野怪并重新提档。');
+    if (input.level < 30) throw Error('주인공이 30레벨 이상이어야 보물찾기가 발동합니다.');
+    if (!usable(input.seed)) throw Error('세이브에 보물찾기 드랍 순서가 없습니다. 게임에서 필드 사냥을 한 번 진행한 뒤 세이브를 다시 추출하세요.');
     if (!Number.isInteger(input.status) || input.status < 0 || input.status > 5) {
-      throw Error('当前存档的寻宝状态无法识别，请完成手头的寻宝后重新提档。');
+      throw Error('현재 보물찾기 진행 상태를 확인할 수 없습니다. 진행 중인 보물찾기를 완료한 뒤 세이브를 다시 추출하세요.');
     }
     if (!Number.isInteger(options.count) || options.count < 1 || options.count > 500 ||
       !Number.isInteger(options.refreshes) || options.refreshes < 0 || options.refreshes > 60) {
-      throw Error('场次可填 1–500，每日刷新可填 0–60 次。');
+      throw Error('사냥 횟수는 1~500회, 일일 갱신 횟수는 0~60회까지 입력할 수 있습니다.');
     }
     const random = rolls(input.seed, 1010, options.count);
     const needsTomb = input.status === 5 || options.site === 'tomb' && options.oil;
     if (needsTomb && !usable(input.tombSeed)) {
-      throw Error('当前存档缺少帝陵外殿的敌人序列，可先在游戏里打一次外殿野怪并重新提档。');
+      throw Error('세이브에 제릉 외전 몬스터 순서가 없습니다. 외전에서 필드 사냥을 한 번 진행한 뒤 세이브를 다시 추출하세요.');
     }
     const enemies = needsTomb ? tombEnemies(input, options.count) : [];
     if (!options.optimize) return fixedSequence(input, options, random, enemies);
