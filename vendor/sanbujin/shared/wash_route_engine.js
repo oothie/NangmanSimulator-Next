@@ -168,7 +168,7 @@
 
     function luaRandom(seed, upper) {
         const limit = BigInt(Math.trunc(Number(upper)));
-        if (limit <= 0n) throw new Error('洗脉序列数据无效，请重新导入存档');
+        if (limit <= 0n) throw new Error('세수 순서 데이터가 올바르지 않습니다. 세이브를 다시 불러오세요.');
         const seed32 = BigInt.asUintN(32, BigInt(Math.trunc(Number(seed))));
         let state = ((seed32 << 16n) | 0x330en) & WHALE_MASK48;
         state = (state * WHALE_MULTIPLIER + WHALE_INCREMENT) & WHALE_MASK48;
@@ -185,7 +185,7 @@
             cumulative += weights[index];
             if (point <= cumulative) return [index, nextSeed];
         }
-        throw new Error('未能生成本次天赋，请重新导入存档');
+        throw new Error('현재 재능을 생성하지 못했습니다. 세이브를 다시 불러오세요.');
     }
 
     function numeric(value, fallback = 0) {
@@ -325,14 +325,14 @@
             const result = this.resolveEligibility({...state, talents: talents.slice()});
             if (Object.prototype.toString.call(result) === '[object Set]') return result;
             if (Array.isArray(result)) return new Set(result.map(Number));
-            throw new Error('原始角色可用天赋池解析失败');
+            throw new Error('원본 캐릭터의 재능 후보를 분석하지 못했습니다.');
         }
 
         upgradeToSlots(sourceState, slots) {
             const state = cloneState(sourceState);
             const target = Math.trunc(Number(slots));
             if (!Number.isFinite(target) || target < 1 || target > SLOT_COUNT) {
-                throw new Error('开脉数量必须为 1–4 槽');
+                throw new Error('맥 슬롯 수는 1~4칸이어야 합니다.');
             }
             if (state.zizhi >= 150 + target) return state;
             // Opening a slot changes eligibility, draw count and wash cost,
@@ -373,7 +373,7 @@
         }
 
         name(id) {
-            return this.config.get(numeric(id))?.name || `天赋 #${id}`;
+            return this.config.get(numeric(id))?.name || `재능 #${id}`;
         }
 
         draw(seed, purple, saltOffset = 0) {
@@ -387,9 +387,9 @@
             const state = cloneState(sourceState);
             const rule = ZZ_RULES[state.zizhi] || ZZ_RULES[154];
             const slotCount = rule.slots;
-            if (!slotCount) throw new Error('当前资质没有可洗脉槽位');
+            if (!slotCount) throw new Error('현재 자질에는 세수 가능한 칸이 없습니다.');
             const kept = keepPositions.map(index => state.talents[index]);
-            if (kept.length >= slotCount) throw new Error('全部槽位已锁定，无法继续洗脉');
+            if (kept.length >= slotCount) throw new Error('모든 맥이 잠겨 있어 세수를 계속할 수 없습니다.');
             const need = slotCount - kept.length;
             const talents = kept.slice();
             // JHZiZhiUtils.randTalent clears unlocked slots, then computes the
@@ -413,7 +413,7 @@
                     if (this.useBornRC) bornRC += 1;
                 }
                 draws += 1;
-                if (draws > 100000) throw new Error('本次洗脉未能得到结果，请重新导入存档后重试');
+                if (draws > 100000) throw new Error('이번 세수 결과를 계산하지 못했습니다. 세이브를 다시 불러온 뒤 시도하세요.');
                 if (!(operationAllowed ? operationAllowed.has(candidate) : this.isAllowedAt(candidate, state.zizhi))
                     || talents.includes(candidate)) continue;
                 if (this.quality(candidate) === 4 && newPurple) continue;
@@ -469,7 +469,7 @@
         replace(sourceState, position, lockedIds = []) {
             const state = cloneState(sourceState);
             if (!this.replaceablePositions(state, lockedIds).includes(position)) {
-                throw new Error('置换失败：普通紫脉必须在已锁定的前置非紫冲突脉之后刷出');
+                throw new Error('치환 실패: 일반 자맥은 앞서 잠근 자색 이외의 충돌맥 이후에 등장해야 합니다.');
             }
             const talents = state.talents.slice();
             const removedId = talents.splice(position, 1)[0];
@@ -482,7 +482,7 @@
                 let candidate;
                 [candidate, luck] = this.draw(luck, true);
                 draws += 1;
-                if (draws > 100000) throw new Error('本次置换未能得到结果，请重新导入存档后重试');
+                if (draws > 100000) throw new Error('이번 치환 결과를 계산하지 못했습니다. 세이브를 다시 불러온 뒤 시도하세요.');
                 if ((operationAllowed ? operationAllowed.has(candidate) : this.isAllowedAt(candidate, state.zizhi))
                     && !talents.includes(candidate)) {
                     talents.push(candidate);
