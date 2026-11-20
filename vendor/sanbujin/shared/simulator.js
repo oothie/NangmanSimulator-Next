@@ -2230,7 +2230,7 @@ function paintPurpleForecastTable() {
             <tr data-washno="${item.wash_no}">
                 <td>#${idx + 1}</td>
                 <td><b>#${item.wash_no}</b><div class="conflict-wash-no">세수 ${item.wash_times || '-'}회</div></td>
-                <td><b class="purple-bright">${item.talent_name}</b></td>
+                <td><b class="purple-bright">${nangmanAutoDisplay(item.talent_name)}</b></td>
                 <td>${pityTag}</td>
                 <td>${conflictText}</td>
                 <td>${actionBtn}</td>
@@ -2441,7 +2441,7 @@ function findAndShowNextConflict(afterSeq) {
                     : `다음 자맥 '${item.talent_name}'은 충돌맥 잠금 방식으로 치환할 수 없습니다.`));
         box.innerHTML = `
             <div class="nc-steps" style="color:var(--red)">잠글 수 있는 자맥 이외의 충돌맥을 찾지 못했습니다</div>
-            <div>다음 자맥: <b class="purple-bright">#${item.wash_no} ${item.talent_name}</b>${item.was_pity ? ' · 천장' : ''}</div>
+            <div>다음 자맥: <b class="purple-bright">#${item.wash_no} ${nangmanAutoDisplay(item.talent_name)}</b>${item.was_pity ? ' · 천장' : ''}</div>
             <div class="nc-steps">${reason}</div>
             <div class="nc-actions">
                 <button type="button" class="btn btn-wash-custom" id="btnNcFindAfter" data-after="${item.wash_no}">이후 다음 자맥 조회</button>
@@ -2486,8 +2486,8 @@ function findAndShowNextConflict(afterSeq) {
 
     const stepsHtml = `
         <div class="nc-steps">
-            세수 순서: 다음까지 세수 <b>${prevWashStr}</b> 잠금 '<b>${item.earlier_conflict_name}</b>'
-            → 「<b class="purple-bright">${item.talent_name}</b>'까지 계속 세수한 뒤(맥 순서 #${item.wash_no}) 치환을 누르세요
+            세수 순서: <b>${prevWashStr}</b>까지 세수한 뒤 '<b>${nangmanAutoDisplay(item.earlier_conflict_name)}</b>' 잠금
+            → '<b class="purple-bright">${nangmanAutoDisplay(item.talent_name)}</b>'까지 계속 세수한 뒤(맥 순서 #${item.wash_no}) 치환을 누르세요
             ${gapStr ? `（${gapStr}）` : ''}
         </div>
     `;
@@ -2495,12 +2495,12 @@ function findAndShowNextConflict(afterSeq) {
     const pastConflict = conflictTimes > 0 && curWash > conflictTimes && !hasConflictNow;
     box.innerHTML = `
         <div>
-            다음 자맥: <b class="purple-bright">#${item.wash_no} ${item.talent_name}</b>${pity}
+            다음 자맥: <b class="purple-bright">#${item.wash_no} ${nangmanAutoDisplay(item.talent_name)}</b>${pity}
             <span class="text-muted">(세수 ${item.wash_times || '-'}회차)</span>
         </div>
         <div>
             최근 충돌맥: 
-            「<b style="color:var(--red)">${item.earlier_conflict_name}</b>'(${prevWashStr}${gapStr ? '，' + gapStr : ''})
+            '<b style="color:var(--red)">${nangmanAutoDisplay(item.earlier_conflict_name)}</b>'(${prevWashStr}${gapStr ? ', ' + gapStr : ''})
         </div>
         ${statusHtml}
         ${stepsHtml}
@@ -2744,7 +2744,7 @@ function renderExchangeAnalysisBlock() {
         } else if (item.earlier_conflict_name) {
             const prevWashStr = item.earlier_conflict_wash_no === 0 ? '시작 슬롯' : `#${item.earlier_conflict_wash_no}`;
             const gapStr = item.earlier_conflict_gap != null ? `${item.earlier_conflict_gap}개 맥 간격` : '';
-            conflictHtml = `충돌: '${item.earlier_conflict_name}'(${prevWashStr}${gapStr ? '，' + gapStr : ''})`;
+            conflictHtml = `충돌: '${item.earlier_conflict_name}'(${prevWashStr}${gapStr ? ', ' + gapStr : ''})`;
         } else if (isShenmaiTalentId(item.talent_id)) {
             conflictHtml = '충돌: 잠금 유지(이전 신맥이 있으면 상호 충돌 치환)';
         } else {
@@ -2753,7 +2753,7 @@ function renderExchangeAnalysisBlock() {
         return `
             <div class="selected-exchange-card ${idx === 0 ? '' : 'fixed-node'}">
                 <div class="card-header">
-                    <span class="card-title">#${idx + 1} ${roleLabel}：<b>#${item.wash_no} ${item.talent_name}</b></span>
+                    <span class="card-title">#${idx + 1} ${roleLabel}：<b>#${item.wash_no} ${nangmanAutoDisplay(item.talent_name)}</b></span>
                     <span class="card-conflict">${conflictHtml}</span>
                     ${lastHint}
                     <button class="btn-remove-route-item btn-reset-role" data-washno="${item.wash_no}">제거</button>
@@ -3391,7 +3391,7 @@ function validateAiTargetSelection({ showMessage = true } = {}) {
         if (showMessage && message) {
             message.classList.toggle('is-error', !result.valid);
             message.textContent = result.valid
-                ? '최종적으로 다음 맥을 모두 포함하는 경로 탐색 중: ' + result.ids.map(id => TALENT_DATA[String(id)]?.name || id).join('、') + ' 경로.'
+                ? '최종적으로 다음 맥을 모두 포함하는 경로 탐색 중: ' + result.ids.map(id => nangmanAutoDisplay(TALENT_DATA[String(id)]?.name || id)).join(' · ') + ' 경로.'
                 : (result.errors[0] || '현재 탐색 목표를 사용할 수 없습니다.');
         }
         return result;
@@ -3425,12 +3425,12 @@ function validateAiTargetSelection({ showMessage = true } = {}) {
     const unavailable = result.ids.filter(id => !aiAvailableTalentIds.includes(id));
     if (unavailable.length) {
         result.valid = false;
-        result.errors.push(`현재 인물 또는 4칸 자질에서 사용할 수 없는 맥: ${unavailable.map(id => TALENT_DATA[String(id)]?.name || id).join('、')}`);
+        result.errors.push(`현재 인물 또는 4칸 자질에서 사용할 수 없는 맥: ${unavailable.map(id => nangmanAutoDisplay(TALENT_DATA[String(id)]?.name || id)).join(' · ')}`);
     }
     if (showMessage && message) {
         message.classList.toggle('is-error', !result.valid);
         message.textContent = result.valid
-            ? `최종적으로 '${result.ids.map(id => TALENT_DATA[String(id)].name).join('、')}'을 모두 포함하는 경로를 찾습니다.`
+            ? `최종적으로 '${result.ids.map(id => nangmanAutoDisplay(TALENT_DATA[String(id)].name)).join(' · ')}'을 모두 포함하는 경로를 찾습니다.`
             : (result.errors[0] || '목표 맥을 선택하세요.');
     }
     return result;
@@ -3440,7 +3440,7 @@ function updateAiTargetChoiceState() {
     const count = document.getElementById('aiTargetCount');
     if (count) count.textContent = `${aiSelectedTalentIds.length}/4`;
     const selectedSummary=document.getElementById('aiSelectedTargetSummary');
-    if(selectedSummary){selectedSummary.replaceChildren();if(!aiSelectedTalentIds.length)selectedSummary.textContent='최종적으로 보존할 맥 선택';else for(const id of aiSelectedTalentIds){const chip=document.createElement('span');chip.className='wash-target-chip';chip.dataset.quality=String(Number(TALENT_DATA[String(id)]?.pinzhi??TALENT_DATA[String(id)]?.weight));chip.textContent=TALENT_DATA[String(id)]?.name||String(id);chip.title=({2:'녹맥',3:'청맥',4:'자맥'})[chip.dataset.quality]+' · '+chip.textContent;chip.setAttribute('aria-label',chip.title);selectedSummary.append(chip);}}
+    if(selectedSummary){selectedSummary.replaceChildren();if(!aiSelectedTalentIds.length)selectedSummary.textContent='최종적으로 보존할 맥 선택';else for(const id of aiSelectedTalentIds){const chip=document.createElement('span');chip.className='wash-target-chip';chip.dataset.quality=String(Number(TALENT_DATA[String(id)]?.pinzhi??TALENT_DATA[String(id)]?.weight));chip.textContent=nangmanAutoDisplay(TALENT_DATA[String(id)]?.name||String(id));chip.title=({2:'녹맥',3:'청맥',4:'자맥'})[chip.dataset.quality]+' · '+chip.textContent;chip.setAttribute('aria-label',chip.title);selectedSummary.append(chip);}}
     document.querySelectorAll('#aiTalentChoices .ai-talent-choice').forEach(label => {
         const id = Number(label.dataset.talentId);
         const checked = aiSelectedTalentIds.includes(id);
@@ -3552,7 +3552,7 @@ function paintAiTalentChoices(targetIds) {
     const expandedQualities = new Set(Array.from(container.querySelectorAll('details[open]')).map(el => Number(el.dataset.talentQualitySection)));
     const choiceHtml = id => {
         const item = TALENT_DATA[String(id)] || {};
-        const name = item.name || `재능 #${id}`;
+        const name = nangmanAutoDisplay(item.name || `재능 #${id}`);
         const quality = Number(item.pinzhi ?? item.weight);
         const qualityName = ({2: '녹', 3: '청', 4: '자'})[quality] || '';
         return `<label class="ai-talent-choice" data-talent-id="${id}" data-talent-name="${escapeAiHtml(name)}" data-talent-quality="${quality}">
@@ -3838,13 +3838,13 @@ function openWashOriginPreview() {
     function dispose(){if(worker){worker.terminate();worker=null;}if(blobUrl){URL.revokeObjectURL(blobUrl);blobUrl=null;}}
     function paint(result){
         exportImage.disabled=false;exportImage.onclick=()=>{try{if(!window.WashRouteImage?.buildOriginModel)throw Error('내보내기 기능이 로드되지 않았습니다. 새로고침 후 다시 시도하세요.');const model=window.WashRouteImage.buildOriginModel(result,{roleName,vip:input.initialState.vip,vipConfirmed:input.vipConfirmed});window.WashRouteImage.show(model,{returnFocus:exportImage,autoSave:true})}catch(error){C.alert(playerError(error))}};
-        rows.replaceChildren();note.textContent=result.existingPurples.length?'시작 상태에 있는 자맥(세수단 0개): '+result.existingPurples.map(x=>x.name).join('、'):'시작 상태에 자맥이 없습니다.';
+        rows.replaceChildren();note.textContent=result.existingPurples.length?'시작 상태에 있는 자맥(세수단 0개): '+result.existingPurples.map(x=>nangmanAutoDisplay(x.name)).join(' · '):'시작 상태에 자맥이 없습니다.';
         if(result.firstFixedAtPills!==null)note.textContent+=` 이 미리보기 경로는 세수단 ${formatCount4(result.firstFixedAtPills)}개 소모 시 천장이 발동하고 치환 순서가 고정됩니다. 원본 세이브의 자격에는 영향을 주지 않습니다.`;
         status.textContent=`세수단 ${formatCount4(result.spentPills)}/${formatCount4(budget)}개 계산 · 자맥 ${result.rows.length}회 등장`+(result.complete?'설정한 범위의 횟수를 모두 확인했습니다.':result.stopReason==='cancelled'?'검색을 중단했습니다. 확인한 부분만 표시합니다.':'계산량 제한에 도달해 확인한 범위만 표시합니다. 검색 범위를 줄여 다시 시도하세요.');
         if(result.openedSlots)note.textContent+=` 이번 미리보기에서는 먼저 ${result.previewSlots}칸을 개방한 것으로 가정합니다. 개방 재료는 별도 계산합니다.`;
         if(!result.rows.length){rows.append(N('p',result.complete?'현재 미리보기 범위에서 자맥이 등장하지 않았습니다.':'확인한 범위에서는 자맥이 등장하지 않았습니다.'));return;}
         const table=N('table');table.className='wash-origin-table';table.setAttribute('aria-label','초기 자맥 미리보기: 간격은 이전 자맥과의 세수단 소모 차이이며 첫 자맥은 —로 표시합니다.');const head=N('thead'),tr=N('tr');for(const name of ['회차','누적 세수단','세수단 간격','자맥','출처']){const th=N('th',name);th.scope='col';if(name==='세수단 간격')th.title='이전 자맥과의 세수단 차이입니다. 첫 자맥은 —로 표시합니다.';tr.append(th);}head.append(tr);const body=N('tbody');table.append(head,body);rows.append(table);let shown=0;
-        const more=N('button','더 보기');more.type='button';function next(){for(let index=shown;index<Math.min(shown+50,result.rows.length);index++){const row=result.rows[index],interval=index===0?'—':formatCount4(row.totalPills-result.rows[index-1].totalPills),line=N('tr');for(const text of [formatCount4(row.washNo),formatCount4(row.totalPills),interval,row.name,row.kind==='pity'?'천장 자맥':'일반 자맥'])line.append(N('td',text));body.append(line);}shown+=50;more.hidden=shown>=result.rows.length;}more.onclick=next;rows.append(more);next();
+        const more=N('button','더 보기');more.type='button';function next(){for(let index=shown;index<Math.min(shown+50,result.rows.length);index++){const row=result.rows[index],interval=index===0?'—':formatCount4(row.totalPills-result.rows[index-1].totalPills),line=N('tr');for(const text of [formatCount4(row.washNo),formatCount4(row.totalPills),interval,nangmanAutoDisplay(row.name),row.kind==='pity'?'천장 자맥':'일반 자맥'])line.append(N('td',text));body.append(line);}shown+=50;more.hidden=shown>=result.rows.length;}more.onclick=next;rows.append(more);next();
     }
     function start(){
         dispose();const token=++generation,previewSlots=Number(select.value);rows.replaceChildren();note.textContent='';stop.hidden=true;exportImage.disabled=true;
