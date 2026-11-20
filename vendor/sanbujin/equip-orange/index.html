@@ -42,7 +42,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 .sbj-site-header,.sbj-site-nav{display:none!important}
 </style></head>
 <body class="sbj-workbench" data-workbench="manual">
-    <div class="app-container equip-app"><header class="feature-heading"><h1>장비</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html">빠른 조회</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html">자동</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html">수동</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html" aria-current="page">주황 장비 순서</a></nav></header>
+    <div class="app-container equip-app"><header class="feature-heading"><h1>장비</h1><nav class="feature-mode-nav" aria-label="유사 기능 전환"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html">빠른 조회</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html">자동</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html">수동</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html" aria-current="page">주황 장비 순서</a></nav></header>
 
         <div id="yyhxLegacyState" hidden style="display:none!important;">
             <div class="archive-summary-info">
@@ -56,7 +56,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 </div>
             </div>
             <div class="archive-summary-actions">
-                <label class="check-row archive-reset-check" title="重置状态时一并清空模拟背包">
+                <label class="check-row archive-reset-check" title="상태 초기화 시 시뮬레이션 가방도 함께 비우기">
                     <input type="checkbox" id="resetClearCrafted" checked>
                     <span>모의 가방 비우기</span>
                 </label>
@@ -82,7 +82,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 <div class="panel-header"><h2>주황 장비 도면 순서</h2></div>
                 <p class="meta-text">선행 제작 0~N회의 모든 결과를 한 번에 조회합니다. 각 경우는 동일한 세이브 시드에서 시작하며, 같은 등급·종류의 일반 도면을 먼저 제작한 뒤 목표 주황 장비를 한 번 제작합니다. 조회만으로 세이브 시드는 진행되지 않습니다.</p>
                 <div class="config-row">
-                    <div class="config-group grow"><label for="orangePaperSearch">주황 장비 도면</label><input id="orangePaperSearch" type="search" placeholder="搜索图纸或装备，如黑泷" autocomplete="off"><select id="orangePaperSelect" aria-label="橙装图纸"></select></div>
+                    <div class="config-group grow"><label for="orangePaperSearch">주황 장비 도면</label><input id="orangePaperSearch" type="search" placeholder="도면·장비 검색(예: 흑롱)" autocomplete="off"><select id="orangePaperSelect" aria-label="주황 장비 도면"></select></div>
                     <div class="config-group grow"><label for="orangeNpcSelect">제작 장인</label><select id="orangeNpcSelect"></select></div>
                 </div>
                 <div class="config-row">
@@ -98,7 +98,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
             </section>
             <div id="orangeSequenceResults" class="orange-npc-grid"></div>
             <dialog id="orangeSequenceDialog" class="orange-sequence-dialog">
-                <div class="orange-dialog-heading"><h2 id="orangeDetailTitle"></h2><button id="orangeDetailClose" type="button" class="btn btn-reset" aria-label="关闭序列详情">닫기</button></div>
+                <div class="orange-dialog-heading"><h2 id="orangeDetailTitle"></h2><button id="orangeDetailClose" type="button" class="btn btn-reset" aria-label="시퀀스 상세 닫기">닫기</button></div>
                 <p id="orangeDetailOrigin" class="meta-text"></p>
                 <p class="meta-text">망정은 기존 특수 재료의 적색 추가 옵션을 교체하며 중첩되지 않습니다. 결과 예측만 수행하고 실제 게임 재료는 소모하지 않습니다.</p><label for="orangeMangjingMaterial">망정 재료</label><select id="orangeMangjingMaterial"></select>
                 <p id="orangeMangjingCost" class="meta-text"></p>
@@ -122,7 +122,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 <div class="config-row">
                     <div class="config-group grow">
                         <label>목표 장비 / 도면</label>
-                        <input type="search" id="paperFilter" placeholder="输入名称筛选，如 巽风" autocomplete="off">
+                        <input type="search" id="paperFilter" placeholder="이름으로 필터링(예: 손풍)" autocomplete="off">
                         <select id="paperSelect"></select>
                     </div>
                 </div>
@@ -137,8 +137,8 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 <div class="config-row">
                     <div class="config-group grow">
                         <label>기본 표시(가방에 추가할 때 적용)</label>
-                        <input type="text" id="makeDefaultMark" maxlength="40" placeholder="如：紫满攻 / 备选1" autocomplete="off">
-                        <label class="check-row" id="makeAutoShenglianRow" title="仅对预测结果中的“推进到此”生效">
+                        <input type="text" id="makeDefaultMark" maxlength="40" placeholder="예: 자색 최대 공격 / 후보 1" autocomplete="off">
+                        <label class="check-row" id="makeAutoShenglianRow" title="예측 결과의 ‘여기까지 진행’에만 적용됩니다.">
                             <input type="checkbox" id="makeAutoShenglian">
                             <span>'여기까지 진행' 후 자동 승련(90→100)</span>
                         </label>
@@ -207,7 +207,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                     </div>
                     <div class="config-group grow">
                         <label>텍스트 필터</label>
-                        <input type="search" id="shenglianTextFilter" placeholder="名称 / 角色 / 标记 / 部位" autocomplete="off">
+                        <input type="search" id="shenglianTextFilter" placeholder="이름 / 캐릭터 / 표시 / 부위" autocomplete="off">
                     </div>
                 </div>
                 <div id="shenglianHint" class="cost-hint">90레벨 주황·적색 장비가 아니고 다음 등급(equ_next)이 존재하면 100레벨로 승련할 수 있습니다. 승련 후 정련할 수 있습니다.</div>
@@ -243,7 +243,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                     </div>
                     <div class="config-group grow">
                         <label>텍스트 필터</label>
-                        <input type="search" id="xilianTextFilter" placeholder="名称 / 角色 / 标记 / 品质" autocomplete="off">
+                        <input type="search" id="xilianTextFilter" placeholder="이름 / 캐릭터 / 표시 / 품질" autocomplete="off">
                     </div>
                 </div>
                 <div id="xilianHint" class="cost-hint">100레벨 녹색·청색·자색 장비만 정련할 수 있습니다. 90레벨 장비는 먼저 승련해야 합니다.</div>
@@ -277,7 +277,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 
         <section id="panelStrong" class="tab-panel" hidden>
             <section class="config-panel">
-                <label class="check-row" id="strongResetOriginRow" title="硫华晶会把淬炼层数清零，但保留当前随机进度；这里只做模拟，不改存档">
+                <label class="check-row" id="strongResetOriginRow" title="유화정은 촉련 단계를 0으로 만들지만 현재 RNG 진행 상태는 유지합니다. 이곳에서는 시뮬레이션만 실행하며 세이브는 변경하지 않습니다.">
                     <input type="checkbox" id="strongResetOrigin">
                     유화정을 사용한 상태로 0단계부터 예측합니다. 모의 계산만 진행하며 현재 난수 진행도는 보존합니다.
                 </label>
@@ -302,7 +302,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                     </div>
                     <div class="config-group grow">
                         <label>텍스트 필터</label>
-                        <input type="search" id="strongTextFilter" placeholder="名称 / 角色 / 标记 / 部位" autocomplete="off">
+                        <input type="search" id="strongTextFilter" placeholder="이름 / 캐릭터 / 표시 / 부위" autocomplete="off">
                     </div>
                 </div>
                 <div class="config-row" style="margin-top:0.65rem;">
@@ -365,7 +365,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                     </div>
                 </div>
                 <div id="jianwangHint" class="cost-hint">세이브를 불러오면 검왕각 장비 ID 5707~5717의 실제 보유품을 자동으로 추립니다.</div>
-                <div class="jianwang-rule-grid" aria-label="剑王阁专武规则摘要">
+                <div class="jianwang-rule-grid" aria-label="검왕각 전용 무기 규칙 요약">
                     <div><strong>장비 검색 범위</strong><span>주인공·동료·이탈 캐릭터·가방·창고에서 ID 5707~5717 검색</span></div>
                     <div><strong>성장 / 재주조</strong><span>현재 전용무기 상태에서 계속 시뮬레이션합니다. 옵션 유지는 난수 진행 순서를 바꾸지 않습니다.</span></div>
                     <div><strong>검 파괴 반복</strong><span>현재 검이 90레벨 미만이면 선택한 90레벨 경로까지 먼저 진행합니다. 100레벨 신병은 분해 후 다음 반복으로 넘어갑니다.</span></div>
