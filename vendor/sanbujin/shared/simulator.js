@@ -3143,7 +3143,7 @@ function renderAutoWashSaveGate() {
         const placeholder = hasSave ? '캐릭터를 선택하세요.' : '선택 가능한 캐릭터 없음';
         select.innerHTML = `<option value="">${placeholder}</option>` + ['主角','随从','离队'].map(tag=>{
             const group=roles.filter(entry=>entry.tag===tag);if(!group.length)return '';
-            return `<optgroup label="${tag}">`+group.map(entry=>`<option value="${escapeAiHtml(entry.key)}">${escapeAiHtml(entry.role.Name||'이름 없음')}</option>`).join('')+'</optgroup>';
+            return `<optgroup label="${window.SBJ_KOREAN?.translate?.(tag) || tag}">`+group.map(entry=>`<option value="${escapeAiHtml(entry.key)}">${escapeAiHtml(entry.role.Name||'이름 없음')}</option>`).join('')+'</optgroup>';
         }).join('');
         select.disabled = !hasSave || aiSearchRunning;
         select.value = selected ? selected.key : '';
