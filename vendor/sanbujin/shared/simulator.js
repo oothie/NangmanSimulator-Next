@@ -6328,11 +6328,78 @@ function openEquipAutoMang(candidateId) {
     const candidate = (equipAutoLastResult && equipAutoLastResult.candidates || []).find(item => String(item.id) === id)
         || (equipAutoFavorites || []).find(item => String(item.id) === id);
     if (!candidate) return;
+    if (typeof EquipCardViews === 'undefined' || !EquipCardViews.openMang) {
+        window.alert('망정 상세 화면을 불러오지 못했습니다.');
+        return;
+    }
     let summary = null;
-    try { summary = equipAutoAttachScanSummary(candidate); } catch (error) { summary = null; }
-    if (!summary) { window.alert('这件装备没有可模拟的芒晶附加属性。'); return; }
-    if (typeof EquipCardViews === 'undefined' || !EquipCardViews.openMang) return;
-    EquipCardViews.openMang(candidate, { mang: summary });
+    try { summary = equipAutoAttachScanSummary(candidate); }
+    catch(error) { console.warn('망정 시퀀스 미리보기 오류',error); }
+    if (summary && Array.isArray(summary.items) && summary.items.length) {
+        EquipCardViews.openMang(candidate, { mang: summary });
+        return;
+    }
+    // Quick search can omit the first forging material. In that case
+    // the source candidate still carries its actual MJSeed: let users select
+    // a compatible material and calculate from that unchanged seed.
+    const paper = EQUIP_DATA.papers[String(candidate.paperId)];
+    const beforeCfg = paper && EQUIP_DATA.equipment[String(paper.dz_equip)];
+    const afterCfg = EQUIP_DATA.equipment[String(candidate.equipId)] || beforeCfg;
+    const baseCfg = beforeCfg || afterCfg;
+    if (!baseCfg) { window.alert('망정에 필요한 장비 도면 데이터를 찾지 못했습니다.'); return; }
+    const rawBefore = candidate.specialAttachEquips && candidate.specialAttachEquips.before;
+    const rawAfter = candidate.specialAttachEquips && candidate.specialAttachEquips.after;
+    const initial = rawBefore || {
+        id: baseCfg.id, name: baseCfg.name, typ: baseCfg.type,
+        need_lv: baseCfg.lv, MJSeed: candidate.MJSeed
+    };
+    const levels = [{label:'승련 전 · '+initial.need_lv+'레벨',value:'before',context:initial}];
+    if (rawAfter) levels.push({label:'승련 후 · '+rawAfter.need_lv+'레벨',value:'after',context:rawAfter});
+    const materials = EquipmentAutoOptimizer.specialMaterialsForEquip(EQUIP_DATA,initial);
+    if (!materials.length) { window.alert('이 장비에 사용할 수 있는 망정 재료가 없습니다.'); return; }
+    const oldModal = document.querySelector('#nangmanQuickMangModal');
+    if(oldModal) oldModal.remove();
+    const backdrop = document.createElement('div');
+    backdrop.id='nangmanQuickMangModal';
+    backdrop.className='equip-auto-confirm equip-auto-forge-modal';
+    backdrop.innerHTML='<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="망정 상세 조회">'
+      +'<div class="equip-auto-forge-head"><div><strong>망정 보기 · '+escapeAiHtml(candidate.equipName||baseCfg.name)+'</strong>'
+      +'<span>장비의 망정 시드를 기준으로 선택한 재료의 순서를 계산합니다.</span></div>'
+      +'<button type="button" class="equip-auto-forge-close" data-close-mang>×</button></div>'
+      +'<div class="equip-auto-forge-controls"><label>망정 재료<select data-mang-material>'
+      +materials.map(m=>'<option value="'+escapeAiHtml(String(m.id))+'">'+escapeAiHtml(m.name)+'</option>').join('')
+      +'</select></label><label>단계<select data-mang-stage>'
+      +levels.map(l=>'<option value="'+l.value+'">'+escapeAiHtml(l.label)+'</option>').join('')
+      +'</select></label><label>조회 횟수<input data-mang-count type="number" value="100" min="1" max="5000" step="1"></label></div>'
+      +'<p class="meta-text">세이브의 장비 시드를 변경하거나 망정 재료를 소모하지 않습니다. 최초 제작 재료를 선택하지 않았던 결과도 조회할 수 있습니다.</p>'
+      +'<p data-mang-error role="status" aria-live="polite"></p>'
+      +'<div class="equip-auto-forge-footer"><button type="button" class="btn primary" data-mang-calculate>망정 순서 조회</button>'
+      +'<button type="button" class="btn" data-close-mang>닫기</button></div></div>';
+    document.body.appendChild(backdrop);
+    const defaultMaterial = String(candidate.craftSpecialId||'2021');
+    if(materials.some(m=>String(m.id)===defaultMaterial))backdrop.querySelector('[data-mang-material]').value=defaultMaterial;
+    const close=()=>backdrop.remove();
+    backdrop.querySelectorAll('[data-close-mang]').forEach(btn=>btn.addEventListener('click',close));
+    backdrop.addEventListener('click',e=>{if(e.target===backdrop)close()});
+    backdrop.querySelector('[data-mang-calculate]').addEventListener('click',()=>{
+        const material=EQUIP_DATA.special[backdrop.querySelector('[data-mang-material]').value];
+        const stage=backdrop.querySelector('[data-mang-stage]').value;
+        const context=levels.find(l=>l.value===stage)?.context||initial;
+        const count=Number(backdrop.querySelector('[data-mang-count]').value);
+        const status=backdrop.querySelector('[data-mang-error]');
+        try{
+            if(!Number.isSafeInteger(count)||count<1||count>5000)throw Error('조회 횟수는 1~5000의 정수여야 합니다.');
+            if(!Number.isSafeInteger(Number(context.MJSeed))||Number(context.MJSeed)<=0)
+                throw Error('이 장비의 실제 망정 시드를 확인할 수 없습니다.');
+            const result=EquipmentAutoOptimizer.predictSpecialAttachSequence(context,material,count);
+            if(!result||!Array.isArray(result.items)||!result.items.length)throw Error('조회 가능한 망정 결과가 없습니다.');
+            const maxima=result.maxima||[];
+            const best=result.items.reduce((a,b)=>!a||Number(b.value)>Number(a.value)?b:a,null);
+            const view={count,stage,level:context.need_lv,materialName:material.name,best,maxima,items:result.items};
+            close();
+            if(!EquipCardViews.openMang(candidate,{mang:view}))window.alert('망정 결과 창을 열 수 없습니다.');
+        }catch(error){status.textContent='망정 조회 실패: '+String(error?.message||error);}
+    });
 }
 
 function handleEquipAutoFavoriteClick(event) {
@@ -7083,6 +7150,13 @@ function renderEquipAutoSweepResults(list) {
             equipAutoLastResult = {candidates: [detail]};
             try {
                 let card = equipAutoCandidateHtml(detail, {forge: true, refine: true});
+                // Show mangjeong for quick-search candidates even if no first
+                // special material was selected during crafting.
+                if (!detail.canSimulateSpecialAttach) {
+                    const mangId=escapeAiHtml(String(detail.id));
+                    card=card.replace('<span class="equip-auto-actions-scroll">',
+                        '<span class="equip-auto-actions-scroll"><button type="button" class="equip-auto-mang" data-mang-id="'+mangId+'">망정 보기</button>');
+                }
                 card = card.replace('<details class="equip-auto-candidate', '<details open class="equip-auto-candidate');
                 box.innerHTML = '<button type="button" class="btn" data-sweep-back>← 빠른 조회 목록으로</button>'
                     + '<p class="meta-text">선택한 정련 능력치: ' + escapeAiHtml(equipAutoPropertyLabel(picked.prop))
