@@ -902,12 +902,12 @@ function mainPropDisplay(eq, xlLevel) {
     if (base.gq_base > 0) {
         const bonus = xlMainBonus(xlLevel, 'gq_base');
         const v = Math.min(200, Math.floor(base.gq_base + bonus));
-        out.push({ key: 'gq_base', label: '罡气', base: base.gq_base, value: v, bonus });
+        out.push({ key: 'gq_base', label: '강기', base: base.gq_base, value: v, bonus });
     }
     if (base.neijin > 0) {
         const bonus = xlMainBonus(xlLevel, 'neijin');
         const v = Math.min(300, Math.floor(base.neijin + bonus));
-        out.push({ key: 'neijin', label: '内劲', base: base.neijin, value: v, bonus });
+        out.push({ key: 'neijin', label: '내기', base: base.neijin, value: v, bonus });
     }
     return out;
 }
@@ -919,7 +919,7 @@ let xilianAutoPlan = null;
 
 let strongPlanCache = null;
 
-const STONE_NAMES = { 3027: '白炼石', 3028: '绿炼石', 3029: '蓝炼石', 3030: '紫炼石' };
+const STONE_NAMES = { 3027: '백련석', 3028: '녹련석', 3029: '남련석', 3030: '자련석' };
 const STONE_WEIGHT = { 3027: 1, 3028: 1e4, 3029: 1e8, 3030: 1e12 };
 
 function resetXilianSession() {
