@@ -115,7 +115,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 .sbj-site-header,.sbj-site-nav{display:none!important}
 </style></head>
 <body class="sbj-workbench" data-workbench="auto">
-    <div class="app-container"><header class="feature-heading"><h1>장비</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html?rev=98938bd19cc9">빠른 조회</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html" aria-current="page">자동</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html">수동</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html">주황 장비 순서</a></nav></header>
+    <div class="app-container"><header class="feature-heading"><h1>장비</h1><nav class="feature-mode-nav" aria-label="유사 기능 전환"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html?rev=98938bd19cc9">빠른 조회</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html" aria-current="page">자동</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html">수동</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html">주황 장비 순서</a></nav></header>
 
         <div id="yyhxLegacyState" hidden style="display:none!important;">
             <div class="archive-summary-info">
@@ -262,8 +262,8 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 </div>
             </section>
 
-            <section class="config-panel auto-mode-switcher auto-simulator-only" aria-label="自动模拟类型">
-                <div class="auto-mode-tabs" role="tablist" aria-label="自动模拟类型">
+            <section class="config-panel auto-mode-switcher auto-simulator-only" aria-label="자동 시뮬레이션 유형">
+                <div class="auto-mode-tabs" role="tablist" aria-label="자동 시뮬레이션 유형">
                     <button id="btnAutoEquipMode" class="auto-mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="autoEquipModePanel">장비</button>
                     <button id="btnAutoJianwangMode" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoJianwangModePanel">검왕각</button>
                     <button id="btnAutoHengshanMode" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoHengshanModePanel">항산파 제자</button>
@@ -271,7 +271,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 </div>
             </section>
 
-                <details class="equip-auto-sweep-card" id="autoEquipSweepCard" aria-label="装备速查" open>
+                <details class="equip-auto-sweep-card" id="autoEquipSweepCard" aria-label="장비 빠른 조회" open>
                 <summary class="equip-auto-sweep-head">
                     <strong>장비 빠른 조회<span class="equip-auto-sweep-tag">최상급 장비 한 번에 찾기</span></strong>
                     <span class="equip-auto-sweep-state" aria-hidden="true">
@@ -285,12 +285,12 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                             <span class="equip-auto-sweep-props-label">정련 능력치</span>
                             <button type="button" id="btnEquipAutoSweepAllProps" class="equip-auto-sweep-allprops">모두 선택</button>
                         </div>
-                        <div id="equipAutoSweepProps" class="equip-auto-sweep-prop-list" role="group" aria-label="选择要统计的精炼属性"></div>
+                        <div id="equipAutoSweepProps" class="equip-auto-sweep-prop-list" role="group" aria-label="집계할 정련 능력치 선택"></div>
                     </div>
                     <div class="equip-auto-sweep-controls">
                         <div class="equip-auto-sweep-filters">
 <label>연금니 소모 ≤
-                            <input type="number" id="autoEquipSweepLianjin" min="0" max="100000" value="300" title="只做过滤：每件装备按需消耗，单属性最多花到第 4 步的「每属性精炼」次数">
+                            <input type="number" id="autoEquipSweepLianjin" min="0" max="100000" value="300" title="필터에만 적용: 장비별 실제 소모량을 반영하며 단일 능력치는 4단계까지의 ‘능력치별 정련’ 횟수로 제한합니다">
                         </label>
                         <label>제작 횟수 ≤
                             <input type="number" id="autoEquipSweepCrafts" min="1" max="5000" value="40">
@@ -339,7 +339,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                             <div><span>01</span><strong>제작 지역 선택</strong></div>
                             <span id="autoEquipLocationCount" class="ai-target-count">0개 선택</span>
                         </summary>
-                        <div id="autoEquipLocationChoices" class="equip-auto-location-groups" role="group" aria-label="选择打造地点">
+                        <div id="autoEquipLocationChoices" class="equip-auto-location-groups" role="group" aria-label="제작 지역 선택">
                             <span class="text-muted">장비표를 불러오면 제작 지역이 표시됩니다</span>
                         </div>
                     </details>
@@ -350,7 +350,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                             <span id="autoEquipPaperCount" class="ai-target-count">0개 선택</span>
                         </summary>
 
-                        <div id="autoEquipPaperChoices" class="equip-auto-paper-list" role="group" aria-label="选择图纸">
+                        <div id="autoEquipPaperChoices" class="equip-auto-paper-list" role="group" aria-label="도면 선택">
                             <span class="text-muted">제작 지역을 하나 이상 선택하세요</span>
                         </div>
                         <p class="equip-auto-help">각 도면에서 최초 제작 재료를 여러 개 선택할 수 있습니다. 재료별로 독립된 제작 분기가 생성되며, 재료를 선택하지 않으면 일반 제작으로 계산합니다.</p>
@@ -371,7 +371,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                                     <span>회</span>
                                 </label>
                             </div>
-                            <label class="equip-auto-inline-field" title="每件候选按首次打造材料推演这么多条芒晶附加，并按所选等级取区间内最高值">망정 순서
+                            <label class="equip-auto-inline-field" title="후보 장비마다 최초 제작 재료를 기준으로 이 수만큼 망정 추가 옵션을 예측하고 선택한 등급 구간의 최댓값을 사용합니다">망정 순서
                                 <input type="number" id="autoEquipAttachScan" min="1" max="5000" value="100">
                                 <span>회</span>
                                 <select id="autoEquipAttachLevel">
@@ -381,7 +381,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                             </label>
                         </div>
                         <label class="equip-auto-blue-option"><input type="checkbox" id="autoEquipIncludeBlue" checked> 청색 장비도 함께 예측</label>
-                        <div id="autoEquipPropertyChoices" class="equip-auto-property-grid" role="group" aria-label="选择芒晶材料"></div>
+                        <div id="autoEquipPropertyChoices" class="equip-auto-property-grid" role="group" aria-label="망정 재료 선택"></div>
                         <p>설정한 횟수만큼 장비별 정련 결과를 예측하고 결과에서 능력치를 선택할 수 있습니다. 능력치별 계획은 각각 계산되므로 중첩할 수 없습니다. 정련은 승련이 끝난 100레벨 장비를 기준으로 계산합니다.</p>
 
 
@@ -413,8 +413,8 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                         <summary class="equip-auto-section-head">
                             <div><span>06</span><strong>즐겨찾기 목록</strong></div>
                             <span class="equip-auto-favorites-actions">
-                                <button type="button" id="btnBackupFavorites" class="equip-auto-export" title="把整份收藏导出成 JSON，换链接/清缓存后可以再导回来">백업</button>
-                                <button type="button" id="btnRestoreFavorites" class="equip-auto-export" title="从 JSON 备份里恢复，按装备合并，不覆盖现有收藏">복원</button>
+                                <button type="button" id="btnBackupFavorites" class="equip-auto-export" title="즐겨찾기 전체를 JSON으로 내보냅니다. 주소 변경이나 캐시 삭제 후 다시 가져올 수 있습니다">백업</button>
+                                <button type="button" id="btnRestoreFavorites" class="equip-auto-export" title="JSON 백업에서 복원합니다. 장비별로 병합하며 기존 즐겨찾기를 덮어쓰지 않습니다">복원</button>
                                 <input type="file" id="favoritesRestoreInput" accept=".json,application/json" hidden>
                                 <button type="button" id="btnExportFavorites" class="equip-auto-export">표 내보내기</button>
                                 <span id="autoEquipFavoriteCount" class="ai-target-count">0개</span>
@@ -485,7 +485,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                             <strong id="hsSaveStatus">불러오지 않음</strong>
                         </div>
                     </header>
-                    <nav class="hs-tabs" role="tablist" aria-label="恒山功能切换" hidden>
+                    <nav class="hs-tabs" role="tablist" aria-label="항산파 기능 전환" hidden>
                         <button type="button" role="tab" data-tab="manual" aria-selected="true" aria-controls="panelManual">제자 시뮬레이션</button>
                         <button type="button" role="tab" data-tab="shop" aria-selected="false" aria-controls="panelShop">제자 상점</button>
                         <button type="button" role="tab" data-tab="auto" aria-selected="false" aria-controls="panelAuto">자동 시뮬레이션</button>
@@ -588,17 +588,17 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                             </div>
                             <p class="hs-note">현재 버전은 세이브의 장문령 수량을 정확하게 식별하지 못합니다. 기본적으로 현재 20개·일일 10개·상한 99개로 계산하므로 연구 효과·보물·실제 상태에 맞춰 수정하세요.</p>
                             <div class="hs-row">
-                                <select id="autoTalentCategory" aria-label="筛选天赋分类">
+                                <select id="autoTalentCategory" aria-label="재능 분류 필터">
                                     <option value="combat">전투 유형</option>
                                     <option value="dispatch">파견 유형</option>
                                     <option value="commission">의뢰 유형</option>
                                     <option value="utility">기능 유형</option>
                                     <option value="all" selected>전체</option>
                                 </select>
-                                <input id="autoTalentSearch" type="search" placeholder="输入天赋名称" autocomplete="off">
+                                <input id="autoTalentSearch" type="search" placeholder="재능 이름 입력" autocomplete="off">
                                 <span id="autoTargetCount" class="hs-badge">0 / 3개 선택됨</span>
                             </div>
-                            <div id="autoTalentChoices" class="hs-choices" role="group" aria-label="选择目标天赋"></div>
+                            <div id="autoTalentChoices" class="hs-choices" role="group" aria-label="목표 재능 선택"></div>
                             <div class="hs-row">
                                 <button type="button" id="btnAutoRun" class="hs-btn is-primary">항산파 자동 탐색 시작</button>
                             </div>
@@ -639,11 +639,11 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 </div>
                 <div class="ai-target-toolbar">
                     <label for="aiTalentSearch"><span class="auto-step-number">02</span> 목표 맥 선택</label>
-                    <input type="search" id="aiTalentSearch" placeholder="输入脉名称" autocomplete="off">
+                    <input type="search" id="aiTalentSearch" placeholder="맥 이름 입력" autocomplete="off">
                     <span id="aiTargetCount" class="ai-target-count">0 / 4개 선택됨</span>
                 </div>
                 <p class="ai-target-quality-help">자맥·청맥·녹맥 중 최대 4개를 선택할 수 있습니다.</p>
-                <div id="aiTalentChoices" class="ai-talent-choices" role="group" aria-label="选择最终目标脉：紫脉、蓝脉、绿脉">
+                <div id="aiTalentChoices" class="ai-talent-choices" role="group" aria-label="최종 목표 맥 선택: 자맥·청맥·녹맥">
                     <span class="text-muted">캐릭터 선택 후 사용할 수 있는 자맥·청맥·녹맥을 표시합니다</span>
                 </div>
                 <p class="ai-network-note">온라인 탐색은 선택한 캐릭터의 세수 상태와 관련 육성 데이터만 전송하며 현재 세이브는 변경하지 않습니다.</p>
@@ -665,7 +665,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                         <span id="aiProgressText">탐색 중입니다. 다른 페이지로 이동해도 됩니다.</span>
                         <b id="aiProgressPercent"></b>
                     </div>
-                    <div class="ai-progress-track" role="progressbar" aria-label="路线查找进度"><div id="aiProgressFill" class="ai-progress-fill"></div></div>
+                    <div class="ai-progress-track" role="progressbar" aria-label="경로 탐색 진행도"><div id="aiProgressFill" class="ai-progress-fill"></div></div>
                 </div>
                 <div id="aiPredictionResults" class="ai-prediction-results" aria-live="polite">
                     <div class="ai-result-empty">캐릭터와 목표 맥을 선택한 후 '경로 탐색 시작'을 누르세요.</div>
@@ -757,7 +757,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                     <div class="purple-pane purple-pane-seq">
                         <div class="modal-toolbar">
                             <div class="search-box">
-                                <input type="text" id="purpleSearchInput" placeholder="搜索紫脉或冲突脉...">
+                                <input type="text" id="purpleSearchInput" placeholder="자맥 또는 충돌맥 검색...">
                             </div>
                             <div class="filter-box">
                                 <label><input type="checkbox" id="filterExchangeOnly"> 치환 가능만</label>
