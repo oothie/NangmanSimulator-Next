@@ -334,7 +334,7 @@ import {loadKoreanWikiNames} from './data/korean-wiki-index.js';
 loadKoreanWikiNames().then(rows=>window.dispatchEvent(new CustomEvent('nangman-wiki-loaded',{detail:rows}))).catch(e=>console.error('한국판 백과 번역 대조표 오류',e));
 const js=document.createElement('script');
 js.src='https://yy-sim.pages.dev/wiki_data.js';
-js.onload=()=>window.dispatchEvent(new CustomEvent('nangman-wiki-source-ready',{detail:window.WIKI_DATA||null}));
+js.onload=()=>{if(window.WIKI_DATA&&Array.isArray(window.WIKI_DATA.items))window.dispatchEvent(new CustomEvent('nangman-wiki-source-ready',{detail:window.WIKI_DATA}));else window.dispatchEvent(new Event('nangman-wiki-source-error'));};
 js.onerror=()=>window.dispatchEvent(new Event('nangman-wiki-source-error'));
 document.head.append(js);
 </script></body></html>
