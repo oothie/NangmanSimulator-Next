@@ -31,6 +31,13 @@ function walk(node){if(!node)return;if(node.nodeType===3){txt(node);return}if(no
 function set(locale){var next=normalize(locale)||CN;try{localStorage.setItem(KEY,next)}catch(e){}try{var u=new URL(location.href);if(u.searchParams.has('lang')){u.searchParams.set('lang',next);history.replaceState({},'',u)}}catch(e){}if(next!==current)location.reload();return next}
 var scheduled=false;function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;if(applying)return;applying=true;try{walk(document.documentElement)}finally{applying=false}})}
 function ready(){document.documentElement.lang=current;document.documentElement.dataset.locale=current;
+ // The host already displays shared-save state. Do not repeat a save-success
+ // banner at the top of each embedded equipment calculator.
+ if(w.parent!==w&&document.documentElement.hasAttribute('data-sbj-feature')){
+   var frameStyle=document.createElement('style');
+   frameStyle.textContent='.archive-summary-item:has(#saveStatus){display:none!important}';
+   document.head.appendChild(frameStyle);
+ }
  document.querySelectorAll('[data-language-choice]').forEach(function(el){el.setAttribute('aria-pressed',String(el.getAttribute('data-language-choice')===current));el.addEventListener('click',function(){set(el.getAttribute('data-language-choice'))})});
  if(current===KO||current===TW){schedule();if(typeof MutationObserver==='function'){new MutationObserver(function(ms){if(applying)return;for(var m of ms){if(m.type==='childList'||m.type==='characterData'||m.type==='attributes'){schedule();break}}}).observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['placeholder','aria-label','title','alt']})}}
  w.dispatchEvent(new CustomEvent('yyjh:language-ready',{detail:{locale:current}}))}
