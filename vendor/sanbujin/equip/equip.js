@@ -87,14 +87,14 @@ function propLabel(key) {
     return PROP_NAMES[key] || key;
 }
 
-function truncateAttributeDecimal(value, decimals = 2) {
+function truncateAttributeDecimal(value, decimals = 1) {
     const number = Number(value);
     if (!Number.isFinite(number)) return number;
     const factor = 10 ** decimals;
     return Math.floor(number * factor + 1e-8) / factor;
 }
 
-function formatAttributeDecimal(value, decimals = 2) {
+function formatAttributeDecimal(value, decimals = 1) {
     const truncated = truncateAttributeDecimal(value, decimals);
     if (!Number.isFinite(truncated)) return String(value);
     return Number(truncated.toFixed(decimals)).toString();
