@@ -6,7 +6,7 @@
   const area = $('dungeonArea'), boss = $('dungeonBoss');
   const sections = {wild: $('wildDrop'), dungeon: $('dungeonDrop'), treasure: $('treasureDrop')};
   const links = {wild: $('dropWildLink'), dungeon: $('dropDungeonLink'), treasure: $('dropTreasureLink')};
-  const colors = ['', '白装', '绿装', '蓝装', '紫装'];
+  const colors = ['', '백색 장비', '녹색 장비', '청색 장비', '자색 장비'];
   let input, rows = [];
 
   function switchMode(current) {
@@ -35,12 +35,12 @@
   }
   function render() {
     const shown = $('dungeonOnlyHits').checked ? rows.filter(row => row.item) : rows;
-    $('dungeonStatus').textContent = '已推演 ' + rows.length + ' 次 · ' + rows.filter(row => row.item).length + ' 次有普通装备';
+    $('dungeonStatus').textContent = '예측 완료 ' + rows.length + '회 · ' + rows.filter(row => row.item).length + '회 일반 장비 드랍';
     $('dungeonResults').replaceChildren(...shown.map(row => record(
-      '第 ' + row.index + ' 次 · ' + (row.item ? (EQUIP_DATA.equipment[row.item]?.name || '装备 #' + row.item) : '无普通装备'),
-      row.item ? [colors[row.color], row.kind === 'weapon' ? '普通武器' : '普通装备'].filter(Boolean).join(' · ') : ''
+      '제 ' + row.index + '회 · ' + (row.item ? (EQUIP_DATA.equipment[row.item]?.name || '장비 #' + row.item) : '일반 장비 없음'),
+      row.item ? [colors[row.color], row.kind === 'weapon' ? '일반 무기' : '일반 장비'].filter(Boolean).join(' · ') : ''
     )));
-    if (!shown.length) $('dungeonResults').append(record('这段序列未预测到普通装备。'));
+    if (!shown.length) $('dungeonResults').append(record('이 구간에서 일반 장비가 예측되지 않았습니다.'));
   }
   function renderBoss() {
     reset();
@@ -49,13 +49,13 @@
     $('dungeonRun').disabled = !ready;
     $('dungeonCount').disabled = $('dungeonOnlyHits').disabled = !event.outer;
     $('dungeonHint').textContent = ready
-      ? '按所选首领的结算段独立推演。扫荡、其他首领或活动共用序列时，实战结果可能变化。'
-      : event.outer ? '当前存档缺少该首领所需的随机序列。' : '此首领目前可查专属橙装资料与存档状态。';
+      ? '선택한 우두머리의 보상 판정 구간을 독립적으로 예측합니다. 소탕·다른 우두머리·이벤트가 같은 순서를 사용하면 실제 결과가 달라질 수 있습니다.'
+      : event.outer ? '현재 세이브에 해당 우두머리의 난수 순서가 없습니다.' : '이 우두머리는 현재 전용 주황 장비 정보와 세이브 상태를 조회할 수 있습니다.';
     $('dungeonOrange').hidden = !event.orange.length;
     $('dungeonOrangeList').replaceChildren(...event.orange.map(drop => {
       const result = engine.orange(input, drop);
-      const labels = {owned: '已获得', locked: '本场已锁定掉落', estimated: '预计第 ' + result.round + ' 次掉落',
-        notFound: '前 ' + result.round + ' 次未预测到掉落', missing: '当前资料不足，暂无法确定掉落次数'};
+      const labels = {owned: '획득 완료', locked: '이번 회차 드랍 확정', estimated: '예상 제 ' + result.round + '회차 드랍',
+        notFound: '앞선 ' + result.round + '회 동안 드랍 예상 없음', missing: '현재 자료가 부족해 드랍 회차를 확정할 수 없습니다'};
       return record(EQUIP_DATA.equipment[drop.id]?.name || drop.name, labels[result.kind]);
     }));
   }
@@ -65,7 +65,7 @@
     inArea.forEach(event => {
       const duplicate = inArea.filter(other => other.boss === event.boss).length > 1;
       boss.add(new Option(event.boss + (duplicate ? ' · ' + event.variant : '') +
-        (event.outer ? '' : ' · 专属橙装'), catalog.indexOf(event)));
+        (event.outer ? '' : ' · 전용 주황 장비'), catalog.indexOf(event)));
     });
     renderBoss();
   }
