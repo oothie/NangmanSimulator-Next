@@ -590,7 +590,7 @@ function renderFavList() {
     const prev = targetSel?.value || '';
     if (targetSel) {
         targetSel.innerHTML = props.size
-            ? '<option value="">选择目标属性</option>' + [...props].sort((a, b) => propLabel(a).localeCompare(propLabel(b), 'zh')).map(p =>
+            ? '<option value="">목표 능력치 선택</option>' + [...props].sort((a, b) => propLabel(a).localeCompare(propLabel(b), 'zh')).map(p =>
                 `<option value="${escapeHtml(p)}">${escapeHtml(propLabel(p))}</option>`).join('')
             : '<option value="">먼저 정련 가능한 장비를 즐겨찾기에 등록하세요</option>';
         targetSel.disabled = !props.size;
@@ -649,11 +649,11 @@ async function runFavBatchRefine() {
     const count = Math.max(1, Math.min(500, Number(document.getElementById('favBatchCount')?.value) || 100));
     const status = document.getElementById('favBatchStatus');
     const button = document.getElementById('btnFavBatchRefine');
-    if (!target) { alert('请选择目标属性'); return; }
+    if (!target) { alert('목표 능력치를 선택하세요'); return; }
     const archiveId = equipFavoritesArchiveId();
     const favs = EquipFavorites.list(archiveId);
     if (!favs.length) { alert('还没有收藏装备'); return; }
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
 
     favBatchRunning = true;
     if (button) { button.disabled = true; button.textContent = '正在批量规划…'; }
@@ -1420,7 +1420,7 @@ function fillMakePropFilter(items) {
         }
     }
     const sorted = [...keys].sort((a, b) => propLabel(a).localeCompare(propLabel(b), 'zh'));
-    sel.innerHTML = '<option value="">全部</option>'
+    sel.innerHTML = '<option value="">전체</option>'
         + sorted.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(propLabel(k))}</option>`).join('');
     if (prev && keys.has(prev)) sel.value = prev;
 }
@@ -3079,7 +3079,7 @@ function updateStrongHint() {
         ? `유화정 예측: 촉련 전 상태에서 이 장비의 촉련 순서를 그대로 사용하며 세이브를 변경하지 않습니다· `
         : '';
     if (Number(preview.level) >= 15) {
-        el.textContent = `이미 +15까지 촉련되어 이후 결과가 없습니다${userMark}；想重新规划请勾选「使用硫华晶后从 0 层预测」`;
+        el.textContent = `이미 +15까지 촉련되어 이후 결과가 없습니다${userMark}; 다시 예측하려면 「유화정 사용 후 0단계부터 예측」을 선택하세요`;
         return;
     }
     const c = strongAttemptCost(eq.need_lv || 90, preview.level);
@@ -3101,7 +3101,7 @@ function fillXilianPropFilter(items) {
     const props = [...new Set((items || []).map(it => it.prop?.prop).filter(Boolean))].sort((a, b) => {
         return propLabel(a).localeCompare(propLabel(b), 'zh');
     });
-    sel.innerHTML = '<option value="">全部</option>' + props.map(p =>
+    sel.innerHTML = '<option value="">전체</option>' + props.map(p =>
         `<option value="${escapeHtml(p)}">${escapeHtml(propLabel(p))}</option>`
     ).join('');
     if (prev && props.includes(prev)) sel.value = prev;
@@ -3116,7 +3116,7 @@ function fillXilianTargetProps(eq, items) {
         ...(eq?.exts || []).map(p => p?.prop),
         ...(items || []).map(it => it.prop?.prop),
     ].filter(Boolean))].sort((a, b) => propLabel(a).localeCompare(propLabel(b), 'zh'));
-    sel.innerHTML = '<option value="">选择目标属性</option>' + props.map(p =>
+    sel.innerHTML = '<option value="">목표 능력치 선택</option>' + props.map(p =>
         `<option value="${escapeHtml(p)}">${escapeHtml(propLabel(p))}</option>`
     ).join('');
     if (prev && props.includes(prev)) sel.value = prev;
@@ -3140,13 +3140,13 @@ async function optimizeXilianPlan() {
     const target = document.getElementById('xilianTargetProp')?.value || '';
     const key = document.getElementById('xilianEquipSelect')?.value || '';
     const eq = getRuntimeEquip(key);
-    if (!eq || !xilianAcceptFlags.length) { alert('请先预测精炼序列'); return; }
-    if (!target) { alert('请选择目标属性'); return; }
+    if (!eq || !xilianAcceptFlags.length) { alert('먼저 정련 순서를 계산하세요'); return; }
+    if (!target) { alert('목표 능력치를 선택하세요'); return; }
 
-    const oldText = button?.textContent || '规划合计最大';
+    const oldText = button?.textContent || '최대 합계 계획';
     if (button) {
         button.disabled = true;
-        button.textContent = '规划中…';
+        button.textContent = '계획 계산 중…';
     }
     await new Promise(resolve => setTimeout(resolve, 0));
     try {
@@ -3337,7 +3337,7 @@ function refreshXilianPlan() {
         : '—';
 
     const lianjinTotal = plan.total_lianjin != null ? plan.total_lianjin : (total['连金泥'] || 0);
-    const mainTxt = main.map(m => m.label + m.value).join(' · ') || '无罡气/内劲基础';
+    const mainTxt = main.map(m => m.label + m.value).join(' · ') || '강기·내경 기본 옵션 없음';
     const cutoffLine = cutoffTotal
         ? `<div><strong>종료 회차까지 소모량</strong>（제${lastKeepNo}회까지 총 정련 ${lastKeepIdx + 1}회, 옵션 유지 ${keepN}회）：${cutoffTxt}</div>`
         : '';
@@ -3345,13 +3345,13 @@ function refreshXilianPlan() {
     if (xilianAutoPlan && xilianAutoPlan.equipKey === key) {
         const target = xilianAutoPlan.target;
         const naturalSteps = xilianAutoPlan.steps.map(step => xilianPlanItems[step - 1]?.index ?? step);
-        const pathText = naturalSteps.length ? naturalSteps.map(no => `제${no}회`).join(' → ') : '无需新增保留';
+        const pathText = naturalSteps.length ? naturalSteps.map(no => `제${no}회`).join(' → ') : '추가 유지 불필요';
         const targetSlots = exts.map((p, i) => {
             const value = p?.prop === target ? Number(p.value) || 0 : 0;
             return `슬롯 ${i + 1}=${formatPropValue(target, value)}`;
         }).join(' · ');
         autoLine = `
-            <div class="xilian-opt-total"><strong>${escapeHtml(propLabel(target))} 최대 합계</strong>：${formatPropValue(target, xilianAutoPlan.total)}（${targetSlots || '无词条'}）</div>
+            <div class="xilian-opt-total"><strong>${escapeHtml(propLabel(target))} 최대 합계</strong>：${formatPropValue(target, xilianAutoPlan.total)}（${targetSlots || '옵션 없음'}）</div>
             <div><strong>자동 유지 경로</strong>：${pathText}</div>
         `;
     }
@@ -3483,7 +3483,7 @@ function renderPathChipsHtml(accepts, names, which) {
     const pager = total > PATH_PAGE_SIZE
         ? `<div class="path-pager" data-which="${which}">
             <button type="button" class="btn btn-reset path-prev" ${page <= 1 ? 'disabled' : ''}>上一页</button>
-            <span>第 ${page}/${pages} 页 · 共 ${total} 次</span>
+            <span>${page}/${pages}페이지 · 총 ${total}회</span>
             <button type="button" class="btn btn-reset path-next" ${page >= pages ? 'disabled' : ''}>下一页</button>
            </div>`
         : '';
@@ -3494,7 +3494,7 @@ function formatPlanCard(title, plan, names, tag, which) {
     if (!plan?.ok) {
         return `<article class="advice-card fail">
             <div class="advice-card-head"><h3>${title}</h3></div>
-            <div>${escapeHtml(plan?.reason || '不可用')}</div>
+            <div>${escapeHtml(plan?.reason || '사용할 수 없음')}</div>
         </article>`;
     }
     const deg = plan.value / 2;
@@ -3570,8 +3570,8 @@ function renderStrongPage() {
                 <td>${it.index}</td>
                 <td class="grade-${it.grade}">${it.grade_name}</td>
                 <td>+${deg}%(동일 단계 참고)</td>
-                <td class="${minSet.has(it.index) ? 'advice-yes' : 'advice-no'}">${minSet.has(it.index) ? '接受' : '—'}</td>
-                <td class="${bestSet.has(it.index) ? 'advice-yes' : 'advice-no'}">${bestSet.has(it.index) ? '接受' : '—'}</td>
+                <td class="${minSet.has(it.index) ? 'advice-yes' : 'advice-no'}">${minSet.has(it.index) ? '수락' : '—'}</td>
+                <td class="${bestSet.has(it.index) ? 'advice-yes' : 'advice-no'}">${bestSet.has(it.index) ? '수락' : '—'}</td>
             </tr>`;
         }).join('');
     }
@@ -3600,7 +3600,7 @@ function renderStrongPreview(resp, eq) {
     const startLevel = eq.level || 0;
     const target = Number(document.getElementById('strongTargetLevel')?.value) || Math.min(15, startLevel + 3);
     const minG = strongMinGrade();
-    const names = { 1: '一般', 2: '良好', 3: '优秀', 4: '完美' };
+    const names = { 1: '일반', 2: '양호', 3: '우수', 4: '완벽' };
 
     const plans = planStrongPath(grades, startLevel, target, minG, eq.need_lv || 90);
     strongPlanCache = plans;
@@ -3612,8 +3612,8 @@ function renderStrongPreview(resp, eq) {
         + (resp.resetOrigin ? ` · 유화정 시뮬레이션(기존 +${resp.originLevel}단계, 무작위 진행도 유지)` : '');
 
     advice.innerHTML = [
-        formatPlanCard('消耗最少', plans.minCost, names, '희귀 촉련석 소모 최소화 우선', 'min'),
-        formatPlanCard('数值最优', plans.maxValue, names, '높은 촉련도 우선', 'max'),
+        formatPlanCard('소모 최소', plans.minCost, names, '희귀 촉련석 소모 최소화 우선', 'min'),
+        formatPlanCard('수치 최적', plans.maxValue, names, '높은 촉련도 우선', 'max'),
         '<div class="advice-note">※ 유지하지 않아도 정련석이 소모됩니다. 같은 결과라면 소모량이 적은 단계에서 시도하세요. 등급은 자색·청색·녹색·백색 순입니다. 아래 버튼을 누르면 해당 유지 회차가 강조됩니다.</div>',
     ].join('');
     bindPathPagers();
@@ -3681,7 +3681,7 @@ function loadSaveData(json) {
     window.OrangeForgeUI?.invalidate();
     clearMakeAdvanceNotice();
     resetXilianSession();
-    document.getElementById('saveStatus').textContent = '导入成功';
+    document.getElementById('saveStatus').textContent = '세이브 적용 완료';
     if (typeof renderArchiveState === 'function') renderArchiveState(json);
     fillEquipSelects();
     renderCraftedBagList();
@@ -3760,7 +3760,7 @@ function switchTab(tab) {
         updateJianwangHint();
         clearPreview('选择存档中的剑胚 / 专武和流程后，点击「预览当前流程」');
     } else {
-        clearPreview('点击预测查看结果');
+        clearPreview('예측을 눌러 결과 확인');
     }
 }
 
@@ -3769,22 +3769,22 @@ let makePreviewWorker=null,makePreviewId=0,makePreviewPending=new Map(),makePrev
 function backgroundMakePreview(request,count,state,paddingRequest=null,paddingCount=null){if(location.protocol==='file:'||typeof Worker!=='function'){const before=wasmMakeGetState();try{if(!wasmMakeSetState(state))throw Error('打造状态无效');return Promise.resolve(paddingCount!=null?wasmMakePaddedOnce(request,paddingRequest,paddingCount):paddingRequest?wasmMakePaddingPreview(request,paddingRequest,count):wasmMakePreview(request,count));}finally{wasmMakeSetState(before);}}return new Promise((resolve,reject)=>{clearTimeout(makePreviewIdle);try{if(!makePreviewWorker){makePreviewWorker=new Worker(new URL('/vendor/sanbujin/equip/preview-worker.js?v=20261105314&rev=c7c6fbd21c6d',location.href));makePreviewWorker.onmessage=event=>{const m=event.data,p=makePreviewPending.get(m.id);if(!p)return;clearTimeout(p.timer);makePreviewPending.delete(m.id);m.error?p.reject(Error(m.error)):p.resolve(m.result);if(!makePreviewPending.size)makePreviewIdle=setTimeout(()=>{makePreviewWorker?.terminate();makePreviewWorker=null;},30000);};makePreviewWorker.onerror=()=>{for(const p of makePreviewPending.values()){clearTimeout(p.timer);p.reject(Error('\u540e\u53f0\u63a8\u6f14\u672a\u80fd\u52a0\u8f7d\uff0c\u8bf7\u91cd\u8bd5'));}makePreviewPending.clear();makePreviewWorker?.terminate();makePreviewWorker=null;};}const id=++makePreviewId,timer=setTimeout(()=>{makePreviewWorker?.terminate();makePreviewWorker=null;for(const p of makePreviewPending.values()){clearTimeout(p.timer);p.reject(Error('\u63a8\u6f14\u8d85\u65f6\uff0c\u8bf7\u51cf\u5c11\u6b21\u6570\u540e\u91cd\u8bd5'));}makePreviewPending.clear();},60000);makePreviewPending.set(id,{resolve,reject,timer});makePreviewWorker.postMessage({id,request,count,state,paddingRequest,paddingCount});}catch(error){reject(error);}});}
 window.addEventListener('pagehide',()=>{makePreviewWorker?.terminate();makePreviewWorker=null;});
 function doMakePreview() {
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
     const req = requireCurrentMakeRequest();
     if (!req) return;
     const n = Math.max(1, Math.min(PREVIEW_MAX, Number(document.getElementById('previewCount').value) || 20));
     const meta = document.getElementById('previewMeta');
     const button = document.getElementById('btnPreview');
     const originalLabel = button ? button.textContent : '';
-    if (meta) meta.textContent = '正在推演 ' + n + ' 次…';
-    if (button) { button.disabled = true; button.textContent = '推演中…'; }
+    if (meta) meta.textContent = '예측 중 ' + n + ' 次…';
+    if (button) { button.disabled = true; button.textContent = '예측 중…'; }
     /* 让浏览器先把“推演中”画出来，再开始占用主线程 */
     window.setTimeout(async function () {
         try {
             const snapshot=wasmMakeGetState(),result=await backgroundMakePreview(req,n,snapshot);if(JSON.stringify(wasmMakeGetState())!==JSON.stringify(snapshot)||JSON.stringify(currentMakeRequest())!==JSON.stringify(req)){if(meta)meta.textContent='\u914d\u7f6e\u6216\u5b58\u6863\u5df2\u6539\u53d8\uff0c\u8bf7\u91cd\u65b0\u63a8\u6f14\u3002';return;}renderMakePreview(result);
             updateMakeHints();
         } catch (error) {
-            if (meta) meta.textContent = '推演出错：' + String(error && error.message || error).slice(0, 60);
+            if (meta) meta.textContent = '예측 오류: ' + String(error && error.message || error).slice(0, 60);
         } finally {
             if (button) { button.disabled = false; button.textContent = originalLabel; }
         }
@@ -3792,7 +3792,7 @@ function doMakePreview() {
 }
 
 function doSpecialAttachPreview() {
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
     const equipKey = document.getElementById('specialAttachEquipSelect')?.value || '';
     const materialId = document.getElementById('specialAttachMaterialSelect')?.value || '';
     const equip = saveEquips.find(item => runtimeKey(item) === equipKey);
@@ -3813,7 +3813,7 @@ function doSpecialAttachPreview() {
 }
 
 function doMakeOnce() {
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
     const req = requireCurrentMakeRequest();
     if (!req) return;
     const r = wasmMakeOnce(req);
@@ -3833,7 +3833,7 @@ function doMakeOnce() {
 }
 
 function doMakeAdvanceTo(targetIndex, mark) {
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
     const req = requireCurrentMakeRequest();
     if (!req) return;
     const autoShenglianCheckbox = document.getElementById('makeAutoShenglian');
@@ -3875,7 +3875,7 @@ function doMakeAdvanceTo(targetIndex, mark) {
 }
 
 function doShengLianOnce() {
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
     const sel = document.getElementById('shenglianEquipSelect');
     const key = sel?.value;
     if (!key) { alert('请选择可升炼装备'); return; }
@@ -3905,24 +3905,24 @@ function doShengLianOnce() {
 }
 
 function doXilianPreview() {
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
     const key = document.getElementById('xilianEquipSelect').value;
     const eq = getRuntimeEquip(key);
-    if (!eq) { alert('请选择装备'); return; }
+    if (!eq) { alert('장비를 선택하세요'); return; }
     const n = Math.max(1, Math.min(XILIAN_MAX, Number(document.getElementById('xilianCount').value) || 20));
     renderXilianPreview(n);
     updateXilianHint();
 }
 
 function doStrongPreview() {
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
     const key = document.getElementById('strongEquipSelect').value;
     const eq = getRuntimeEquip(key);
-    if (!eq) { alert('请选择装备'); return; }
+    if (!eq) { alert('장비를 선택하세요'); return; }
     const preview = strongPreviewEquip(eq);
     fillStrongTargetLevels(preview);
     if (Number(preview.level) >= 15) {
-        clearPreview('已满 +15：当前最多淬炼至 +15，暂无后续结果；想重新规划请勾选「使用硫华晶后从 0 层预测」');
+        clearPreview('已满 +15：当前最多淬炼至 +15，暂无后续结果; 다시 예측하려면 「유화정 사용 후 0단계부터 예측」을 선택하세요');
         updateStrongHint();
         return;
     }
@@ -3943,7 +3943,7 @@ function clearPreview(msg) {
     if (head) head.innerHTML = '';
     if (meta) meta.textContent = '';
     if (body) {
-        body.innerHTML = `<tr><td class="empty-row">${escapeHtml(msg || '点击预测查看结果')}</td></tr>`;
+        body.innerHTML = `<tr><td class="empty-row">${escapeHtml(msg || '예측을 눌러 결과 확인')}</td></tr>`;
     }
     const advice = document.getElementById('strongAdvice');
     if (advice) advice.innerHTML = '';
@@ -4003,7 +4003,7 @@ function resetAll() {
 }
 
 function doJianwangCyclePreview() {
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
     const equipKey = document.getElementById('jianwangEquipSelect')?.value || '';
     const base = saveEquips.find(item => runtimeKey(item) === equipKey);
     const equip = base ? (getRuntimeEquip(equipKey) || base) : null;
@@ -4031,7 +4031,7 @@ function doJianwangCyclePreview() {
 }
 
 function doJianwangPreview() {
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
     const equipKey = document.getElementById('jianwangEquipSelect')?.value || '';
     const action = document.getElementById('jianwangActionSelect')?.value || '';
     const materialId = document.getElementById('jianwangMaterialSelect')?.value || '';
@@ -4076,7 +4076,7 @@ function doJianwangPreview() {
 }
 
 function doJianwangApplyOnce() {
-    if (!saveLoaded) { alert('请先导入存档'); return; }
+    if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
     const equipKey = document.getElementById('jianwangEquipSelect')?.value || '';
     const action = document.getElementById('jianwangActionSelect')?.value || '';
     const base = saveEquips.find(item => runtimeKey(item) === equipKey);
@@ -4148,8 +4148,8 @@ async function initApp() {
     }
 
     const ok = await initWasm();
-    if (!ok) { alert('装备资料加载失败，暂时无法推演；仍可正常导入存档，请刷新后重试。'); return; }
-    if (!wasmMakeInitTables(EQUIP_DATA)) { alert('装备表注入失败'); return; }
+    if (!ok) { alert('장비 데이터를 불러오지 못해 현재 예측할 수 없습니다. 세이브 불러오기는 가능합니다. 새로고침 후 다시 시도하세요.'); return; }
+    if (!wasmMakeInitTables(EQUIP_DATA)) { alert('장비 데이터 적용 실패'); return; }
 
     if (typeof loadShareStore === 'function') {
         const shared = loadShareStore();
@@ -4400,7 +4400,7 @@ async function initApp() {
     });
     document.getElementById('makeAutoShenglian')?.addEventListener('change', persistMakeAutoShenglian);
     document.getElementById('btnResetAll')?.addEventListener('click', () => {
-        if (!saveLoaded) { alert('请先导入存档'); return; }
+        if (!saveLoaded) { alert('먼저 세이브를 불러오세요'); return; }
         resetAll();
     });
     document.getElementById('btnPreviewPrev')?.addEventListener('click', () => {
