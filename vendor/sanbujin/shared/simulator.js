@@ -3129,7 +3129,7 @@ function renderAutoWashSaveGate() {
             const ids = (original.talents || []).map(item => Number(item && item.id != null ? item.id : item));
             summary.textContent = (zz.zz_name || zz.name || ('资质 ' + original.zizhi))
                 + '（' + Number(zz.num_talent || 0) + ' 栏） · 当前天赋：'
-                + (ids.map(id => TALENT_DATA[String(id)]?.name || '未知天赋').join('、') || '无')
+                + (ids.map(id => TALENT_DATA[String(id)]?.name || '未知天赋').join('、') || '없음')
                 ;
         }
         return;
@@ -4648,13 +4648,13 @@ function equipAutoPropertyLabel(prop) {
 }
 
 function equipAutoFormatProps(items) {
-    if (!items || !items.length) return '无';
+    if (!items || !items.length) return '없음';
     return items.map(item => `${escapeAiHtml(equipAutoPropertyLabel(item.prop))}+${escapeAiHtml(equipAutoFormatPropValue(item.prop, item.value))}`).join('、');
 }
 
 function equipAutoFormatBase(base) {
     const entries = Object.entries(base || {});
-    if (!entries.length) return '无';
+    if (!entries.length) return '없음';
     return entries.map(([prop, value]) => `${escapeAiHtml(EQUIP_DATA.propNames[prop] || prop)}+${escapeAiHtml(equipAutoFormatPropValue(prop, value))}`).join('、');
 }
 
@@ -4666,13 +4666,13 @@ function equipAutoFormatSilver(value) {
 }
 
 function equipAutoFormatCost(cost) {
-    if (!cost) return '无';
+    if (!cost) return '없음';
     const parts = (cost.materials || []).filter(item => Number(item.amount) > 0)
         .map(item => `${escapeAiHtml(item.name)}×${Number(item.amount).toLocaleString()}`);
     if (cost.mainMaterial && cost.mainAmount) parts.push(`${escapeAiHtml(cost.mainMaterial.name)}×${Number(cost.mainAmount).toLocaleString()}`);
     if (cost.lianjin) parts.push(`连金泥×${Number(cost.lianjin).toLocaleString()}`);
     if (cost.silver) parts.push(`银两${equipAutoFormatSilver(cost.silver)}`);
-    return parts.join(' · ') || '无';
+    return parts.join(' · ') || '없음';
 }
 
 function mergeEquipAutoCosts(...costs) {
@@ -4708,13 +4708,13 @@ function equipAutoRefinementHtml(refinement, upgradeCost = null) {
         return `<span>옵션 ${slot}：${escapeAiHtml(equipAutoFormatPropValue(refinement.prop, maximum.value))}<small>（${occurrences}）</small></span>`;
     }).join('');
     const plan = refinement.plan;
-    const accepts = plan ? plan.accepts.map(item => `#${item.index}（词条${item.slot}）`).join(' → ') : '无';
+    const accepts = plan ? plan.accepts.map(item => `#${item.index}（词条${item.slot}）`).join(' → ') : '없음';
     const totalCost = mergeEquipAutoCosts(upgradeCost, plan && plan.cost);
     return `<div class="equip-auto-refine-card">
         <div class="equip-auto-refine-title"><strong>精炼 · ${escapeAiHtml(label)}</strong><span class="equip-auto-max-value">最高${escapeAiHtml(label)} ${escapeAiHtml(equipAutoFormatRefinementTotal(refinement))}</span></div>
         <div class="equip-auto-slot-list">${slots}</div>
         <div>状态回放：${accepts}${plan ? `，제 ${plan.cutoff} 次为止` : ''}</div>
-        <div class="equip-auto-cost-line">消耗（精炼消耗）：${plan ? equipAutoFormatCost(plan.cost) : '无'}</div>
+        <div class="equip-auto-cost-line">消耗（精炼消耗）：${plan ? equipAutoFormatCost(plan.cost) : '없음'}</div>
         <div class="equip-auto-total-cost-line">总消耗（升炼 + 精炼）：${equipAutoFormatCost(totalCost)}</div>
     </div>`;
 }
@@ -5493,10 +5493,10 @@ function exportEquipAutoFavorites() {
             equipAutoFormatProps(candidate.exts),
             equipAutoFormatProps(candidate.region),
             scanText,
-            candidate.craftSpecialName ? (candidate.craftSpecialName + ' ' + equipAutoFormatProps(candidate.special)) : '无',
+            candidate.craftSpecialName ? (candidate.craftSpecialName + ' ' + equipAutoFormatProps(candidate.special)) : '없음',
             totalProps,
             equipAutoFormatCost(candidate.craftCost),
-            candidate.upgradeCost ? equipAutoFormatCost(candidate.upgradeCost) : '无',
+            candidate.upgradeCost ? equipAutoFormatCost(candidate.upgradeCost) : '없음',
             refineText,
             equipAutoFormatCost(refineCost),
             equipAutoFormatCost(totalCost),
@@ -5673,7 +5673,7 @@ function equipAutoCandidateHtml(candidate, options) {
             </span>
             <span class="equip-auto-candidate-main">
                 <span class="equip-auto-candidate-head">
-                    <b class="equip-auto-paper${paperTone}">${escapeAiHtml(paperLabel)}</b><span class="equip-auto-round">第 ${candidate.craftIndex} 次</span>
+                    <b class="equip-auto-paper${paperTone}">${escapeAiHtml(paperLabel)}</b><span class="equip-auto-round">제작 ${candidate.craftIndex}회차</span>
                     ${locationChip}
                 </span>
                 <span class="equip-auto-chips">${targetChips}${equipAutoAttachScanChipHtml(candidate)}${regionChip}</span>
@@ -5802,7 +5802,7 @@ function equipAutoResultFilterOptionsHtml(candidates) {
         <section class="equip-auto-combo-filter" aria-label="정련 조합">
             <div class="equip-auto-combo-heading"><strong>정련 조합</strong><span>옵션 1을 선택하면 나머지 두 항목이 자동 입력되며 각각 변경할 수 있습니다</span></div>
             <div class="equip-auto-combo-controls">
-                ${[0,1,2].map(i => `<label class="equip-auto-combo-field"><span>옵션 ${i+1}</span><select data-combo-slot="${i}" aria-label="词条 ${i+1}목표 능력치"><option value="">不限</option>${comboEntries.map(([prop,label]) => `<option value="${escapeAiHtml(prop)}">${escapeAiHtml(label)}</option>`).join('')}</select></label>`).join('')}
+                ${[0,1,2].map(i => `<label class="equip-auto-combo-field"><span>옵션 ${i+1}</span><select data-combo-slot="${i}" aria-label="옵션 ${i+1} 목표 능력치"><option value="">제한 없음</option>${comboEntries.map(([prop,label]) => `<option value="${escapeAiHtml(prop)}">${escapeAiHtml(label)}</option>`).join('')}</select></label>`).join('')}
                 <button type="button" id="btnEquipAutoCombo" class="btn">조합 필터</button>
             </div><p class="equip-auto-combo-help">제한 없음은 해당 옵션에 조건을 적용하지 않는다는 뜻입니다. 검색 결과는 장비별로 재현하여 검증합니다.</p><p id="equipAutoComboStatus" role="status" aria-live="polite"></p>
         </section>
@@ -6165,8 +6165,8 @@ function openEquipAutoRefineSequence(candidateId) {
     const wrap = document.createElement('div');
     wrap.className = 'equip-auto-confirm equip-auto-forge-modal';
     wrap.innerHTML = '<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="정련 순서">'
-        + '<div class="equip-auto-forge-head"><div><strong>정련 데이터 · ' + escapeAiHtml(String(candidate.equipName || '装备')) + '</strong>'
-        + '<span id="equipAutoRefineRange">第 1～' + count + '회 · 조회 전용, 세이브 진행 없음</span></div>'
+        + '<div class="equip-auto-forge-head"><div><strong>정련 데이터 · ' + escapeAiHtml(String(candidate.equipName || '장비')) + '</strong>'
+        + '<span id="equipAutoRefineRange">1~' + count + '회 · 조회 전용, 세이브 진행 없음</span></div>'
         + '<button type="button" class="equip-auto-forge-close" aria-label="닫기" title="닫기">×</button></div>'
         + '<p class="equip-auto-forge-meta">목표 능력치：' + escapeAiHtml(targets) + ' · 조회 횟수를 설정하고 옵션 슬롯과 능력치로 필터링할 수 있습니다.</p>'
         + '<div class="equip-auto-refine-controls">'
@@ -6213,7 +6213,7 @@ function openEquipAutoRefineSequence(candidateId) {
             && (!prop || String(item.prop && item.prop.prop) === prop));
         metaEl.textContent = '표시 ' + shown.length + ' / ' + items.length + '건';
         if (!shown.length) {
-            tbody.innerHTML = '<tr><td colspan="5">没有符合筛选条件的精炼记录</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5">필터 조건에 맞는 정련 기록이 없습니다</td></tr>';
             return;
         }
         tbody.innerHTML = shown.map(item => {
@@ -6222,8 +6222,8 @@ function openEquipAutoRefineSequence(candidateId) {
                 : '—';
             const newProp = equipAutoPropertyLabel(item.prop && item.prop.prop) + '+' + equipAutoFormatPropValue(item.prop && item.prop.prop, item.prop && item.prop.value);
             return '<tr>'
-                + '<td>第 ' + escapeAiHtml(String(item.index || '-')) + ' 次</td>'
-                + '<td>槽 ' + escapeAiHtml(String(item.slot || '-')) + '</td>'
+                + '<td>' + escapeAiHtml(String(item.index || '-')) + '회차</td>'
+                + '<td>슬롯 ' + escapeAiHtml(String(item.slot || '-')) + '</td>'
                 + '<td>' + escapeAiHtml(oldProp) + ' → ' + escapeAiHtml(newProp) + '</td>'
                 + '<td>×' + escapeAiHtml(String(item.cost_mult || 1)) + '</td>'
                 + '<td>' + escapeAiHtml(String(item.xl_level_before == null ? '-' : item.xl_level_before)) + ' → ' + escapeAiHtml(String(item.xl_level == null ? '-' : item.xl_level)) + '</td>'
@@ -6236,7 +6236,7 @@ function openEquipAutoRefineSequence(candidateId) {
         if (!Number.isFinite(n)) n = count;
         n = Math.max(1, Math.min(2000, n));
         countInput.value = n;
-        rangeEl.textContent = '第 1～' + n + '회 · 조회 전용, 세이브 진행 없음';
+        rangeEl.textContent = '1~' + n + '회 · 조회 전용, 세이브 진행 없음';
         try {
             if (typeof wasmXilianPreview !== 'function') throw new Error('장비 데이터가 아직 로드되지 않았습니다. 새로고침 후 다시 시도하세요');
             const preview = wasmXilianPreview(equip, n);
@@ -6279,7 +6279,7 @@ function openEquipAutoRegionCompare(candidateId) {
     const wrap = document.createElement('div');
     wrap.className = 'equip-auto-confirm equip-auto-forge-modal';
     wrap.innerHTML = '<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="지역 추가 옵션 비교">'
-        + '<div class="equip-auto-forge-head"><div><strong>다른 장인 추가 옵션 · ' + escapeAiHtml(String(candidate.equipName || '装备')) + '</strong>'
+        + '<div class="equip-auto-forge-head"><div><strong>다른 장인 추가 옵션 · ' + escapeAiHtml(String(candidate.equipName || '장비')) + '</strong>'
         + '<span>같은 옵션과 같은 수치 · 조회 전용으로 세이브는 진행되지 않습니다.</span></div>'
         + '<button type="button" class="equip-auto-forge-close" aria-label="닫기" title="닫기">×</button></div>'
         + '<p class="equip-auto-forge-meta">동일 도면·제작 진행도에서 다른 장인별로 제작을 예측합니다: ' + limit + '회, '
@@ -6317,7 +6317,7 @@ function openEquipAutoRegionCompare(candidateId) {
         }
         tbody.innerHTML = simulated.rows.map(row => '<tr>'
             + '<td>' + escapeAiHtml(row.place + (row.name && row.name !== row.place ? ' · ' + row.name : '')) + '</td>'
-            + '<td>' + (row.index ? '第 ' + row.index + ' 次' : '-') + '</td>'
+            + '<td>' + (row.index ? row.index + '회차' : '-') + '</td>'
             + '<td>' + fmt(row.region) + '</td></tr>').join('') || '<tr><td colspan="3">같은 장비를 제작할 다른 장인이 없습니다.</td></tr>';
     }, 30);
 }
@@ -6541,7 +6541,7 @@ function handleEquipAutoResultClick(event) {
                 };
             } catch (error) {
                 state.result = null;
-                state.error = `模拟失败：${error?.message || error}`;
+                state.error = `시뮬레이션 실패: ${error?.message || error}`;
             }
             rerenderEquipAutoManualAttach(candidate, container);
             return;
@@ -6640,10 +6640,10 @@ function renderEquipAutoResults(result) {
             container.innerHTML = `<div class="ai-result-error">설정한 옵션 조합을 만족하지 못하는 청색·자색 장비 ${filteredBySlot}개를 제외했습니다. 일부 슬롯을 비운 다음 다시 시도하세요.</div>`;
             return;
         }
-        container.innerHTML = `<div class="ai-result-error">현재 범위에서는 청색·자색 장비가 제작되지 않았습니다. 제작 횟수나 지역·도면·재료를 변경하세요.${skipped ? ` 已跳过 ${skipped} 个属性不兼容分支。` : ''}</div>`;
+        container.innerHTML = `<div class="ai-result-error">현재 범위에서는 청색·자색 장비가 제작되지 않았습니다. 제작 횟수나 지역·도면·재료를 변경하세요.${skipped ? `능력치가 호환되지 않는 분기 ${skipped}개를 건너뛰었습니다.` : ''}</div>`;
         return;
     }
-    container.innerHTML = `${(result.skippedBranches || []).length ? `<details class="equip-auto-skipped-branches"><summary>查看跳过的 ${result.skippedBranches.length} 个分支</summary>${result.skippedBranches.map(branch => `<div>${escapeAiHtml(branch.location)} · ${escapeAiHtml(branch.paperName)}：${escapeAiHtml(branch.reason)}</div>`).join('')}</details>` : ''}
+    container.innerHTML = `${(result.skippedBranches || []).length ? `<details class="equip-auto-skipped-branches"><summary>건너뛴 분기 ${result.skippedBranches.length}개 보기</summary>${result.skippedBranches.map(branch => `<div>${escapeAiHtml(branch.location)} · ${escapeAiHtml(branch.paperName)}：${escapeAiHtml(branch.reason)}</div>`).join('')}</details>` : ''}
     <div class="equip-auto-result-toolbar" aria-label="장비 후보 필터 및 개수">
         ${equipAutoResultFilterOptionsHtml(result.candidates)}
         <p id="equipAutoCandidatePageHeading" class="equip-auto-result-count"></p>
@@ -6743,7 +6743,7 @@ function syncAllPropsButton() {
     if (!button || !box) return;
     var buttons = Array.prototype.slice.call(box.querySelectorAll('[data-sweep-prop]'));
     var allOn = buttons.length > 0 && buttons.every(function (b) { return b.classList.contains('is-on'); });
-    button.textContent = allOn ? '清空' : '一键全选';
+    button.textContent = allOn ? '초기화' : '모두 선택';
 }
 
 function equipAutoSweepSelectedProps() {
@@ -6796,7 +6796,7 @@ function renderEquipAutoSweepPaperPicker() {
     var inputs = Array.prototype.slice.call(box.querySelectorAll('[data-sweep-paper]'));
     var selectedCount = 0;
     function sync() {
-        if (count) count.textContent = '已选 ' + selectedCount + ' / ' + inputs.length;
+        if (count) count.textContent = '선택 ' + selectedCount + ' / ' + inputs.length;
     }
     box.addEventListener('change', function (event) {
         var input = event.target;
@@ -6913,15 +6913,15 @@ async function runEquipAutoSweep() {
     renderEquipAutoSweepPaperPicker();
     var allPapers = equipAutoSweepPapers();
     var papers = equipAutoSweepSelectedPapers();
-    if (!papers.length) { setStatus('请至少选择一张图纸。'); return; }
+    if (!papers.length) { setStatus('도면을 하나 이상 선택하세요.'); return; }
     renderEquipAutoSweepProps();
     var chosenProps = equipAutoSweepSelectedProps();
-    if (!chosenProps.length) { setStatus('至少选一个精炼属性。'); return; }
+    if (!chosenProps.length) { setStatus('정련 능력치를 하나 이상 선택하세요.'); return; }
     var allProps = chosenProps;
     var chosenPropSet = new Set(chosenProps);
 
     equipAutoSweepRunning = true;
-    if (button) { button.disabled = true; button.textContent = '查找中…'; }
+    if (button) { button.disabled = true; button.textContent = '검색 중…'; }
     var paperFieldset = document.getElementById('equipAutoSweepPaperFieldset');
     if (paperFieldset) paperFieldset.disabled = true;
     if (results) results.innerHTML = '';
@@ -6938,7 +6938,7 @@ async function runEquipAutoSweep() {
     var qualitySelect = document.getElementById('autoEquipSweepQuality');
     var minQuality = qualitySelect ? Number(qualitySelect.value) || 0 : 91;
     var qualityLabel = qualitySelect && qualitySelect.selectedOptions && qualitySelect.selectedOptions[0]
-        ? qualitySelect.selectedOptions[0].textContent : '所选等级';
+        ? qualitySelect.selectedOptions[0].textContent : '선택한 등급';
 
     try {
         for (var index = 0; index < papers.length; index += 1) {
@@ -7075,12 +7075,12 @@ async function runEquipAutoSweep() {
         setStatus('找到 ' + found.length + ' 개。');
         renderEquipAutoSweepResults(found);
     } catch (error) {
-        setStatus('查找失败：' + (error && error.message ? error.message : error));
+        setStatus('검색 실패: ' + (error && error.message ? error.message : error));
     } finally {
         setProgress(papers.length, papers.length);
         equipAutoSweepRunning = false;
         if (paperFieldset) paperFieldset.disabled = false;
-        if (button) { button.disabled = false; button.textContent = '一键查找'; }
+        if (button) { button.disabled = false; button.textContent = '빠른 조회'; }
     }
 }
 
@@ -7189,15 +7189,15 @@ async function runEquipAutoSimulation() {
     const results = document.getElementById('autoEquipResults');
     if (predict) {
         predict.disabled = true;
-        predict.textContent = '正在计算装备路线…';
+        predict.textContent = '장비 제작 경로 계산 중…';
     }
     if (cancel) {
         cancel.hidden = false;
         cancel.disabled = false;
-        cancel.textContent = '取消计算';
+        cancel.textContent = '계산 취소';
     }
     if (results) results.innerHTML = '<div class="ai-result-empty">독립된 세이브 경로별 제작·정련 결과 계산 중…</div>';
-    renderEquipAutoProgress({ phase: 'craft', done: 0, total: validation.branches.length, message: '正在保存原始打造状态' });
+    renderEquipAutoProgress({ phase: 'craft', done: 0, total: validation.branches.length, message: '원본 제작 상태 저장 중' });
     try {
         const result = await EquipmentAutoOptimizer.simulateEquipmentRoutes({
             data: EQUIP_DATA,
@@ -7233,7 +7233,7 @@ async function runEquipAutoSimulation() {
             if (progress) progress.hidden = true;
             return;
         }
-        renderEquipAutoProgress({ phase: 'refine', done: 1, total: 1, message: '打造与精炼分析完成' });
+        renderEquipAutoProgress({ phase: 'refine', done: 1, total: 1, message: '제작·정련 분석 완료' });
         renderEquipAutoResults(result);
     } catch (error) {
         console.error('装备自动模拟失败:', error);
@@ -7248,7 +7248,7 @@ async function runEquipAutoSimulation() {
             setEquipAutoInputsDisabled(false);
             if (predict) {
                 predict.disabled = false;
-                predict.textContent = '重新装备自动模拟';
+                predict.textContent = '장비 자동 탐색 다시 실행';
             }
             if (cancel) cancel.hidden = true;
         }
@@ -7262,9 +7262,9 @@ function cancelEquipAutoSimulation() {
     const text = document.getElementById('autoEquipProgressText');
     if (button) {
         button.disabled = true;
-        button.textContent = '正在停止…';
+        button.textContent = '중지 중…';
     }
-    if (text) text.textContent = '当前批次结束后停止并恢复原始打造状态…';
+    if (text) text.textContent = '현재 회차가 끝나면 중지하고 원본 제작 상태를 복원합니다…';
 }
 
 function jianwangAutoModule() {
@@ -7330,9 +7330,9 @@ function updateJianwangAutoStartHint() {
             }
             return;
         }
-        hint.textContent = '当前没有可用的剑王阁实物；首剑生成接口已预留，但本版本未启用，也不会猜测第一把剑的序列。';
+        hint.textContent = '현재 세이브에 사용 가능한 검왕각 실물 장비가 없습니다. 첫 검 생성 기능은 아직 지원하지 않으며 첫 검 순서를 추측하지 않습니다.';
         if (message) {
-            message.textContent = '请先导入含剑王阁实物的存档。';
+            message.textContent = '검왕각 실물 장비가 포함된 세이브를 불러오세요.';
             message.classList.add('is-error');
         }
         return;
@@ -7419,19 +7419,19 @@ function renderJianwangAutoProgress(progress) {
     const done = Math.max(0, Number(progress?.done || 0));
     const value = Math.max(0, Math.min(100, Math.round(done / total * 100)));
     panel.hidden = false;
-    if (text) text.textContent = progress?.message || '正在搜索…';
+    if (text) text.textContent = progress?.message || '탐색 중…';
     if (percent) percent.textContent = `${value}%`;
     if (fill) fill.style.width = `${value}%`;
 }
 
 function jianwangAutoFormatExt(ext) {
     if (!ext) return '';
-    const label = EQUIP_DATA?.propNames?.[ext.prop] || ext.prop || '未知词条';
+    const label = EQUIP_DATA?.propNames?.[ext.prop] || ext.prop || '알 수 없는 옵션';
     return `${escapeAiHtml(label)}+${escapeAiHtml(equipAutoFormatPropValue(ext.prop, ext.value))}`;
 }
 
 function jianwangAutoFormatExts(exts) {
-    if (!Array.isArray(exts) || !exts.length) return '无';
+    if (!Array.isArray(exts) || !exts.length) return '없음';
     return exts.slice(0, 4).map(jianwangAutoFormatExt).join('、');
 }
 
@@ -7568,14 +7568,14 @@ function renderJianwangAutoResult(result) {
         return;
     }
     if (result.status === 'unreachable') {
-        container.innerHTML = `<div class="ai-result-error">${escapeAiHtml(result.reason || '当前序列无法达成所选目标。')}</div>`;
+        container.innerHTML = `<div class="ai-result-error">${escapeAiHtml(result.reason || '현재 순서에서는 선택한 목표를 달성할 수 없습니다.')}</div>`;
         return;
     }
     if (result.status === 'multi-success') {
         const metrics = result.metrics || {};
         const matches = Array.isArray(result.matches) ? result.matches : [];
         const cards = matches.map((match, matchIndex) => {
-            const swordText = match.startedFromCurrent ? '当前起始剑' : `새 검 제${Number(match.swordOrdinal || 0).toLocaleString()}자루`;
+            const swordText = match.startedFromCurrent ? '현재 시작 검' : `새 검 제${Number(match.swordOrdinal || 0).toLocaleString()}자루`;
             const path = Array.isArray(match.path) ? match.path : [];
             const steps = path.length ? path.map((step, index) => {
                 const keepText = step.kept ? `保留 ${jianwangAutoFormatExt(step.kept)}` : '유지 안 함';
@@ -7623,12 +7623,12 @@ function renderJianwangAutoResult(result) {
         return;
     }
     if (result.status !== 'success') {
-        container.innerHTML = `<div class="ai-result-error">${escapeAiHtml(result.reason || '计算未返回可用结果。')}</div>`;
+        container.innerHTML = `<div class="ai-result-error">${escapeAiHtml(result.reason || '계산에서 사용 가능한 결과를 반환하지 않았습니다.')}</div>`;
         return;
     }
     const metrics = result.metrics || {};
     const targetCount = Number(result.targetCount || 4) === 3 ? 3 : 4;
-    const swordText = result.startedFromCurrent ? '当前起始剑' : `새 검 제${Number(result.swordOrdinal || 0).toLocaleString()}자루`;
+    const swordText = result.startedFromCurrent ? '현재 시작 검' : `새 검 제${Number(result.swordOrdinal || 0).toLocaleString()}자루`;
     const finalExts = jianwangAutoFormatExts(result.finalEquip?.exts || []);
     const path = Array.isArray(result.path) ? result.path : [];
     const steps = path.length ? path.map((step, index) => {
@@ -7669,7 +7669,7 @@ function renderJianwangAutoResult(result) {
 function validateJianwangAutoSelection() {
     const optimizer = jianwangAutoModule();
     if (!optimizer) throw new Error('剑王阁自动模拟模块未加载');
-    if (!state.saveData) throw new Error('请先导入存档');
+    if (!state.saveData) throw new Error('먼저 세이브를 불러오세요');
     const routeId = Number(document.getElementById('autoJianwangRoute')?.value || 0);
     const targetProp = String(document.getElementById('autoJianwangTargetProp')?.value || '');
     const targetCount = Number(document.getElementById('autoJianwangTargetCount')?.value || 4);
@@ -7715,12 +7715,12 @@ async function runJianwangAutoSimulation() {
     setJianwangAutoInputsDisabled(true);
     if (predict) {
         predict.disabled = true;
-        predict.textContent = '正在搜索…';
+        predict.textContent = '탐색 중…';
     }
     if (cancel) {
         cancel.hidden = false;
         cancel.disabled = false;
-        cancel.textContent = '取消计算';
+        cancel.textContent = '계산 취소';
     }
     renderJianwangAutoProgress({ done: 0, total: input.maxSwords, message: '正在检查起始剑并准备搜索…' });
     const results = document.getElementById('autoJianwangResults');
@@ -7759,7 +7759,7 @@ async function runJianwangAutoSimulation() {
             if (cancel) {
                 cancel.hidden = true;
                 cancel.disabled = false;
-                cancel.textContent = '取消计算';
+                cancel.textContent = '계산 취소';
             }
         }
     }
@@ -7772,7 +7772,7 @@ function cancelJianwangAutoSimulation() {
     const text = document.getElementById('autoJianwangProgressText');
     if (button) {
         button.disabled = true;
-        button.textContent = '正在停止…';
+        button.textContent = '중지 중…';
     }
     if (text) text.textContent = '当前剑计算结束后停止…';
 }
@@ -8147,25 +8147,25 @@ window.addEventListener('load', () => { const help=document.getElementById('btnW
 window.addEventListener('load', () => window.WashCloudRoutes?.mount({
     current() {
         const manager=getAiSearchManager(),snapshot=manager?.snapshot(),hash=window.WASH_ROUTE_WORKER_BUNDLE?.hash;
-        if(!manager||!snapshot||snapshot.taskKey!==aiAttachedTaskKey)throw Error('请先选择已找到路线的人物和目标');
+        if(!manager||!snapshot||snapshot.taskKey!==aiAttachedTaskKey)throw Error('탐색된 경로의 캐릭터와 목표를 먼저 선택하세요');
         return {input:manager.getInput(),snapshot,checkpoint:manager.resumable(snapshot.taskKey,hash),version:window.WASH_ROUTE_WORKER_BUNDLE.algorithmVersion};
     },
     async restore(payload) {
         const manager=await window.WashSearchManager.ready();
-        if(manager.snapshot().status==='running')throw Error('请先停止当前查找，再导入云盘路线');
-        if(payload.vip!==undefined&&payload.vip!==normalizeVipLevel(state.vip))throw Error('云盘路线与当前选择的游戏VIP不同，请先核对VIP等级后再导入；没有自动修改VIP');
-        if(payload.algorithmVersion!==window.WASH_ROUTE_WORKER_BUNDLE.algorithmVersion)throw Error('这条路线使用旧版算法，请在对应版本核对或重新查找后保存');
+        if(manager.snapshot().status==='running')throw Error('현재 탐색을 중지한 후 저장된 경로를 불러오세요');
+        if(payload.vip!==undefined&&payload.vip!==normalizeVipLevel(state.vip))throw Error('저장된 경로와 현재 VIP 등급이 다릅니다. VIP 등급을 확인한 후 불러오세요. VIP 설정은 자동 변경되지 않습니다');
+        if(payload.algorithmVersion!==window.WASH_ROUTE_WORKER_BUNDLE.algorithmVersion)throw Error('이 경로는 이전 계산 방식을 사용합니다. 해당 버전에서 확인하거나 다시 탐색하여 저장하세요');
         const started=Date.now();while(!(state.saveRoles||[]).length&&Date.now()-started<10000)await new Promise(r=>setTimeout(r,100));
-        if(!(state.saveRoles||[]).some(entry=>entry.key===payload.roleKey))throw Error('请先导入包含该人物的原始存档，再读取这条云盘路线');
+        if(!(state.saveRoles||[]).some(entry=>entry.key===payload.roleKey))throw Error('해당 캐릭터가 포함된 원본 세이브를 불러온 후 저장된 경로를 읽으세요');
         selectAutoWashRole(payload.roleKey);
         aiSelectedTalentIds=payload.targetIds.map(Number);aiDefaultTargetsPending=false;renderAiTalentChoices();
         const budget=Number(payload.maxTotalPills);
-        if(!Number.isSafeInteger(budget)||budget<0||payload.route.totalPills>budget)throw Error('云盘路线的耗丹上限无效');
+        if(!Number.isSafeInteger(budget)||budget<0||payload.route.totalPills>budget)throw Error('저장된 경로의 세수단 소모 상한이 올바르지 않습니다');
         document.getElementById('aiMaxTotalPills').value=String(budget);
         const waiting=Date.now();while(aiTargetPoolLoading&&Date.now()-waiting<15000)await new Promise(r=>setTimeout(r,100));
-        const validation=validateAiTargetSelection();if(!validation.valid)throw Error('目标脉或人物资料尚不可用，请确认当前存档后重试');
+        const validation=validateAiTargetSelection();if(!validation.valid)throw Error('목표 맥 또는 캐릭터 정보가 없습니다. 현재 세이브를 확인하고 다시 시도하세요');
         const input=buildAiSearchInput(payload.targetIds,budget);
-        if(await WashCloudRoutes.fingerprint(input,payload.algorithmVersion)!==payload.context)throw Error('当前人物起点与云盘路线不一致，请导入当时的原始存档；没有套用旧路线');
+        if(await WashCloudRoutes.fingerprint(input,payload.algorithmVersion)!==payload.context)throw Error('현재 캐릭터의 시작 상태가 저장된 경로와 다릅니다. 당시의 원본 세이브를 불러오세요. 이전 경로는 적용하지 않았습니다');
         manager.importCheckpoint(aiSearchTaskKey(input),window.WASH_ROUTE_WORKER_BUNDLE.hash,{route:payload.route,round:payload.round});
         await runAiPrediction(false);
     }
