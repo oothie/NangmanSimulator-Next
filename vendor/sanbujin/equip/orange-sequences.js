@@ -113,7 +113,7 @@
                 if (response.error) throw Error(response.error);
                 strong.innerHTML = table('무기 촉련 순서 · 처음 20회 (동일 단계 기준)', ['횟수', '결과', '상승폭'],
                     response.items.map(r => [r.index, escapeHtml(r.grade_name), '+' + r.add_lv_prop / 2 + '%']))
-                    + '<p class="meta-text">按新武器初始层数展示；接受결과会改变层数，后续상승폭以实际层数为准。</p>';
+                    + '<p class="meta-text">새 무기의 최초 촉련 단계를 기준으로 표시합니다. 결과를 적용하면 다음 촉련 단계가 달라집니다.</p>';
             }
             dialog.showModal();if (kind === 'strong') strong.scrollIntoView({ block: 'start' });
         }
@@ -123,8 +123,8 @@
             const card = document.createElement('section');card.className = 'config-panel orange-query-result';card.dataset.npc = npc.id;
             card.innerHTML = '<h2>' + escapeHtml(cfg.name) + ' · ' + escapeHtml(npcName(npc)) + '</h2><p>'
                 + '선행 제작 0~' + maximum + '회, 총 ' + items.length + '개 결과입니다. 같은 세이브에서 시작하여 '
-                + escapeHtml(padPaper?.name || '일반 장비') + ' 제작 이후 주황 장비를 1회 제작합니다.</p><p>고정 옵션: ' + props(items[0]?.exts, '无固定词条')
-                + '</p><div class="table-wrap orange-result-table-wrap"><table class="preview-table orange-query-table"><thead><tr><th>垫刀횟수</th><th>지역 추가 옵션</th><th>제작 후 적색 옵션</th><th>상세 순서</th></tr></thead><tbody></tbody></table></div>';
+                + escapeHtml(padPaper?.name || '일반 장비') + ' 제작 이후 주황 장비를 1회 제작합니다.</p><p>고정 옵션: ' + props(items[0]?.exts, '고정 옵션 없음')
+                + '</p><div class="table-wrap orange-result-table-wrap"><table class="preview-table orange-query-table"><thead><tr><th>선행 제작 횟수</th><th>지역 추가 옵션</th><th>제작 후 적색 옵션</th><th>상세 순서</th></tr></thead><tbody></tbody></table></div>';
             results.replaceChildren(card);const body = card.querySelector('tbody');resultCache = [];
             card.addEventListener('click', event => {
                 const button = event.target.closest('[data-orange-detail]');if (!button) return;
@@ -149,11 +149,11 @@
             const paper = EQUIP_DATA.papers[paperSelect.value], npc = EQUIP_DATA.craftsman[npcSelect.value], padPaper = EQUIP_DATA.papers[paddingSelect.value];
             const paddingCount = EQUIP_DATA.equipment[paper?.dz_equip]?.lv >= 100 ? 0 : Number($('orangePaddingCount').value);
             if (!paper || !npc) { status.textContent = '도면과 장인을 선택하세요.';return; }
-            if (!Number.isSafeInteger(paddingCount) || paddingCount < 0 || paddingCount > 5000) { status.textContent = '垫刀횟수必须是0–5000的整数';return; }
+            if (!Number.isSafeInteger(paddingCount) || paddingCount < 0 || paddingCount > 5000) { status.textContent = '선행 제작 횟수必须是0–5000的整数';return; }
             if (paddingCount && !padPaper) { status.textContent = '동일 등급·종류의 일반 제작 도면을 선택하세요.';return; }
             const targetRequest = request(paper, npc, forgeMaterial.value), padRequest = padPaper ? request(padPaper, npc) : null;
             invalidate();const ticket = generation, state = clone(wasmMakeGetState());startFingerprint = JSON.stringify(state);
-            $('btnOrangePreview').disabled = true;$('btnOrangeCancel').hidden = false;status.textContent = '선행 제작 ' + paddingCount + '次后的打造결과…';
+            $('btnOrangePreview').disabled = true;$('btnOrangeCancel').hidden = false;status.textContent = '선행 제작 ' + paddingCount + '회 이후 제작 결과 계산 중…';
             try {
                 const response = await backgroundMakePreview(targetRequest, paddingCount + 1, state, padRequest);
                 if (ticket !== generation) return;
