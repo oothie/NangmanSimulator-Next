@@ -919,7 +919,7 @@ function resetXilianSession() {
     const box = document.getElementById('xilianPlanSummary');
     if (box) {
         box.classList.add('empty');
-        box.innerHTML = '预测后勾选「保留」查看总花费与最终属性';
+        box.innerHTML = '결과를 예측한 후 유지할 항목을 선택하면 총 소모와 최종 옵션을 확인할 수 있습니다';
     }
     const bar = document.getElementById('xilianFilterBar');
     if (bar) bar.hidden = true;
@@ -2108,7 +2108,7 @@ function renderMakeAdvanceNotice() {
     const seed = result.pity ? '保底' : (result.seed_kind === 'lucky' ? '幸运' : '普通');
     const middle = n > 1 ? `前 ${n - 1} 件只推进、未加入背包；` : '';
     const bag = onlyId ? `已加入模拟背包 #${onlyId}` : '已完成推进';
-    const markText = mark ? ` · 标记「${escapeHtml(mark)}」` : '';
+    const markText = mark ? ` · 표시 「${escapeHtml(mark)}」` : '';
     box.innerHTML = `<div class="make-advance-notice-head">
         <span class="make-advance-notice-title">本次推进结果：${escapeHtml(result.name)} · <span class="color-${result.color}">${escapeHtml(String(color))}</span> · ${escapeHtml(seed)}${markText}</span>
         <span class="make-advance-notice-sequence">${middle}第 ${n} 件${bag}；下表从下一件重新编号</span>
@@ -2955,11 +2955,11 @@ function updateJianwangCycleHint() {
 
 function emptyEquipTip(which) {
     const source = getSourceFilter(which);
-    if (source === 'crafted') return '（无匹配的模拟打造装备；可改来源或文本筛选）';
-    if (source === 'equipped') return '（无已装备匹配项；可改「仅模拟打造」或「全部」）';
-    if (which === 'shenglian') return '（无 90 级可升炼装备）';
-    if (which === 'strong') return '（无可淬炼武器）';
-    return '（无 100 级可精炼装备；90 级请先升炼）';
+    if (source === 'crafted') return '(일치하는 모의 제작 장비가 없습니다. 출처나 검색어를 변경하세요)';
+    if (source === 'equipped') return '(일치하는 장착 장비가 없습니다. 출처를 변경하세요)';
+    if (which === 'shenglian') return '(승련 가능한 90레벨 장비가 없습니다)';
+    if (which === 'strong') return '(촉련 가능한 무기가 없습니다)';
+    return '(정련 가능한 100레벨 장비가 없습니다. 90레벨 장비는 승련하세요)';
 }
 
 function fillEquipSelects(preserveSelection = true) {
@@ -3003,25 +3003,25 @@ function updateShenglianHint() {
     const key = sel.value;
     const base = key ? saveEquips.find(e => runtimeKey(e) === key) : null;
     if (!base) {
-        el.textContent = '90 级非橙红装且存在下一档（equ_next）可升炼至 100 级，之后才能精炼';
+        el.textContent = '다음 등급이 존재하는 90레벨 일반 장비는 100레벨까지 승련할 수 있습니다. 정련은 승련 후 가능합니다';
         if (box) {
             box.classList.add('empty');
-            box.textContent = '选择装备后显示 90→100 对照';
+            box.textContent = '장비 선택 시 90→100레벨 변화가 표시됩니다';
         }
         return;
     }
     const cfg = EQUIP_DATA.equipment[String(base.id)] || {};
     const next = EQUIP_DATA.equipment[String(cfg.equ_next)] || {};
     const cost = calcShengLianCost(base);
-    el.textContent = `消耗提示：${formatCostList(cost)}（仅提示，不扣背包）`;
+    el.textContent = `예상 소모: ${formatCostList(cost)}(안내 전용, 가방에서 차감하지 않음)`;
     if (box) {
         box.classList.remove('empty');
         const typ = TYPE_NAMES[base.typ] || base.typ;
-        const mark = base._mark ? ` · 标记「${escapeHtml(base._mark)}」` : '';
+        const mark = base._mark ? ` · 표시 「${escapeHtml(base._mark)}」` : '';
         box.innerHTML = `
-            <div><strong>当前</strong>：${escapeHtml(base.name)} · ${base.need_lv}级 · ${COLOR_NAMES[base.color] || base.color} · ${escapeHtml(String(typ))} · 词条${base.exts.length}${mark}</div>
-            <div><strong>升炼后</strong>：${escapeHtml(next.name || '?')} · ${next.lv || 100}级 · 表ID ${cfg.equ_next}</div>
-            <div class="warn">升炼会保留现有词条、淬炼等级、后续序列与标记；升炼后可在精炼页用来源「仅模拟打造」筛选</div>
+            <div><strong>현재</strong>：${escapeHtml(base.name)} · ${base.need_lv}级 · ${COLOR_NAMES[base.color] || base.color} · ${escapeHtml(String(typ))} · 옵션 ${base.exts.length}개${mark}</div>
+            <div><strong>승련 후</strong>：${escapeHtml(next.name || '?')} · ${next.lv || 100}级 · 장비 ID ${cfg.equ_next}</div>
+            <div class="warn">승련 시 기존 옵션, 촉련 단계, 이후 순서와 표시가 유지됩니다. 승련 후 정련 화면에서 출처를 모의 제작으로 설정해 찾을 수 있습니다</div>
         `;
     }
 }
@@ -3032,12 +3032,12 @@ function updateXilianInitialExts(key) {
     const baseEq = key ? saveEquips.find(e => runtimeKey(e) === key) : null;
     if (!baseEq) {
         el.classList.add('empty');
-        el.innerHTML = '<span class="xilian-initial-label">打造时初始词条</span><span class="xilian-initial-values">请选择装备</span>';
+        el.innerHTML = '<span class="xilian-initial-label">제작 당시 초기 옵션</span><span class="xilian-initial-values">장비를 선택하세요</span>';
         return;
     }
     const initialExts = baseEq._initial_exts?.length ? baseEq._initial_exts : (baseEq.exts || []);
     el.classList.remove('empty');
-    el.innerHTML = `<span class="xilian-initial-label">打造时初始词条</span><span class="xilian-initial-values">${formatProps(initialExts)}</span>`;
+    el.innerHTML = `<span class="xilian-initial-label">제작 당시 초기 옵션</span><span class="xilian-initial-values">${formatProps(initialExts)}</span>`;
 }
 
 function updateXilianHint() {
@@ -3046,7 +3046,7 @@ function updateXilianHint() {
     const eq = key ? getRuntimeEquip(key) : null;
     updateXilianInitialExts(key);
     if (!eq) {
-        el.textContent = '仅 100 级绿/蓝/紫装可精炼；90 级请先升炼；来源可选「仅模拟打造」，支持按标记筛选';
+        el.textContent = '100레벨 녹색·청색·자색 장비만 정련할 수 있습니다. 90레벨 장비는 승련하세요. 모의 제작 장비만 골라 보거나 표시별로 필터링할 수 있습니다';
         return;
     }
     const marks = eq.xilian_marks || [];
@@ -3059,7 +3059,7 @@ function updateXilianHint() {
         .map(m => `${m.label}${m.value}`)
         .join(' · ');
     const baseEq = saveEquips.find(e => runtimeKey(e) === key);
-    const userMark = baseEq?._mark ? ` · 标记「${baseEq._mark}」` : '';
+    const userMark = baseEq?._mark ? ` · 표시 「${baseEq._mark}」` : '';
     el.textContent = `정련 레벨 ${eq.XLLevel} · 표시한 옵션 슬롯: ${marks.join(',') || '없음'} · 다음 회차 소모: ${formatCostList(cost.mats)} · ${main || '강기/내경 없음'} · 옵션 ${slots || '—'}${userMark}`;
 }
 
@@ -3068,18 +3068,18 @@ function updateStrongHint() {
     const key = document.getElementById('strongEquipSelect').value;
     const eq = key ? getRuntimeEquip(key) : null;
     if (!eq) {
-        el.textContent = '仅武器可淬炼；来源选「仅模拟打造」可专看打造武器，支持按标记筛选';
+        el.textContent = '촉련은 무기만 가능합니다. 출처를 모의 제작으로 제한하거나 표시별로 필터링할 수 있습니다';
         return;
     }
     const preview = strongPreviewEquip(eq);
     fillStrongTargetLevels(preview);
     const baseEq = saveEquips.find(e => runtimeKey(e) === key);
-    const userMark = baseEq?._mark ? ` · 标记「${baseEq._mark}」` : '';
+    const userMark = baseEq?._mark ? ` · 표시 「${baseEq._mark}」` : '';
     const resetNote = isStrongResetOrigin()
-        ? `硫华晶推演：从未淬炼开始，沿用这件装备的淬炼序列，不改动存档· `
+        ? `유화정 예측: 촉련 전 상태에서 이 장비의 촉련 순서를 그대로 사용하며 세이브를 변경하지 않습니다· `
         : '';
     if (Number(preview.level) >= 15) {
-        el.textContent = `已淬炼至 +15，暂无后续淬炼结果${userMark}；想重新规划请勾选「使用硫华晶后从 0 层预测」`;
+        el.textContent = `이미 +15까지 촉련되어 이후 결과가 없습니다${userMark}；想重新规划请勾选「使用硫华晶后从 0 层预测」`;
         return;
     }
     const c = strongAttemptCost(eq.need_lv || 90, preview.level);
@@ -3090,7 +3090,7 @@ function updateStrongHint() {
 function setXilianHead() {
     setPreviewTableKind('xilian');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>保留</th><th>#</th><th>槽</th><th>原→新</th><th>倍率</th><th>精炼等级</th>
+        <th>유지</th><th>#</th><th>슬롯</th><th>이전→신규</th><th>배율</th><th>정련 등급</th>
     </tr>`;
 }
 
@@ -3131,7 +3131,7 @@ function xilianTargetTotal(exts, target) {
 }
 
 function buildXilianMaxPlan(eq, count, target) {
-    if (typeof EquipmentAutoOptimizer === 'undefined' || typeof EquipmentAutoOptimizer.buildRefinementMaxPlan !== 'function') throw new Error('精炼规划模块尚未加载，请刷新重试');
+    if (typeof EquipmentAutoOptimizer === 'undefined' || typeof EquipmentAutoOptimizer.buildRefinementMaxPlan !== 'function') throw new Error('정련 계획 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도하세요');
     return EquipmentAutoOptimizer.buildRefinementMaxPlan({ xilianPlan: (equip, accepts) => wasmXilianPlan(equip, accepts) }, eq, count, target);
 }
 
@@ -3152,10 +3152,10 @@ async function optimizeXilianPlan() {
     try {
         const result = buildXilianMaxPlan(eq, xilianAcceptFlags.length, target);
         const verified = wasmXilianPlan(toWasmEquip(eq), result.accepts);
-        if (verified.error || !verified.equip) throw new Error(verified.error || '规划复算失败');
+        if (verified.error || !verified.equip) throw new Error(verified.error || '계획 재계산 실패');
         const actualTotal = xilianTargetTotal(verified.equip.exts, target);
         if (Math.abs(actualTotal - result.total) > 1e-9) {
-            throw new Error(`规划校验不一致：计算 ${result.total}，复算 ${actualTotal}`);
+            throw new Error(`계획 검증 불일치：计算 ${result.total}，复算 ${actualTotal}`);
         }
         xilianAcceptFlags = result.accepts;
         xilianAutoPlan = { ...result, total: actualTotal, equipKey: key };
@@ -3173,7 +3173,7 @@ async function optimizeXilianPlan() {
         }
     } catch (err) {
         xilianAutoPlan = null;
-        alert(`自动规划失败：${err.message || err}`);
+        alert(`자동 계획 실패：${err.message || err}`);
     } finally {
         if (button) {
             button.textContent = oldText;
@@ -3230,7 +3230,7 @@ function renderXilianPage() {
             return `<tr class="${kept ? 'row-keep' : ''}" data-idx="${idx}">
                 <td><input type="checkbox" class="xl-keep" data-idx="${idx}" ${kept ? 'checked' : ''}></td>
                 <td>${it.index}</td>
-                <td>槽 ${it.slot}</td>
+                <td>슬롯 ${it.slot}</td>
                 <td>${oldTxt} → ${newTxt}</td>
                 <td>×${it.cost_mult}</td>
                 <td>${it.xl_level_before}→${it.xl_level}</td>
@@ -3282,7 +3282,7 @@ function refreshXilianPlan() {
     if (!eq || !xilianAcceptFlags.length) {
         if (box) {
             box.classList.add('empty');
-            box.innerHTML = '预测后勾选「保留」查看总花费与最终属性';
+            box.innerHTML = '결과를 예측한 후 유지할 항목을 선택하면 총 소모와 최종 옵션을 확인할 수 있습니다';
         }
         return;
     }
@@ -3351,20 +3351,20 @@ function refreshXilianPlan() {
             return `슬롯 ${i + 1}=${formatPropValue(target, value)}`;
         }).join(' · ');
         autoLine = `
-            <div class="xilian-opt-total"><strong>${escapeHtml(propLabel(target))}合计最大</strong>：${formatPropValue(target, xilianAutoPlan.total)}（${targetSlots || '无词条'}）</div>
-            <div><strong>自动保留路径</strong>：${pathText}</div>
+            <div class="xilian-opt-total"><strong>${escapeHtml(propLabel(target))} 최대 합계</strong>：${formatPropValue(target, xilianAutoPlan.total)}（${targetSlots || '无词条'}）</div>
+            <div><strong>자동 유지 경로</strong>：${pathText}</div>
         `;
     }
 
     box.classList.remove('empty');
     box.innerHTML = `
         ${autoLine}
-        <div><strong>总花费</strong>（完整序列共 ${accepts.length} 次精炼）：${costTxt}</div>
+        <div><strong>총 소모</strong>（完整序列共 ${accepts.length} 次精炼）：${costTxt}</div>
         ${cutoffLine}
         <div>连金泥合计 ${lianjinTotal} · 最终 精炼等级=${xl} · 标记槽数 ${simMarks}</div>
         <div>${mainTxt}</div>
-        <div class="swap-line"><strong>最终附加</strong>：${extTxt}</div>
-        <div class="warn">※ 每次精炼均消耗；仅勾选「保留」的结果会替换对应槽并标记（后续消耗翻倍）。勾选后「종료 회차까지 소모량」按最后一条保留记录统计。</div>
+        <div class="swap-line"><strong>최종 추가 옵션</strong>：${extTxt}</div>
+        <div class="warn">※ 정련 시 매회 재료가 소모됩니다. 유지하기로 선택한 결과만 해당 슬롯을 교체하며 이후 소모량은 2배가 됩니다. 종료 회차까지 소모량은 마지막으로 유지한 회차까지 계산합니다.</div>
     `;
 
     fillXilianPropFilter(xilianPlanItems);
@@ -3413,7 +3413,7 @@ function renderXilianPreview(n) {
 function setStrongHead() {
     setPreviewTableKind('strong');
     document.getElementById('previewHead').innerHTML = `<tr>
-        <th>#</th><th>档位</th><th>淬炼度</th><th>消耗最少</th><th>数值最优</th>
+        <th>#</th><th>품질</th><th>촉련도</th><th>소모 최소</th><th>수치 최적</th>
     </tr>`;
 }
 
@@ -3508,12 +3508,12 @@ function formatPlanCard(title, plan, names, tag, which) {
             <span class="tag">${tag}</span>
         </div>
         <div class="advice-metrics">
-            <div class="advice-metric"><span class="v">${plan.attempts}</span><span class="k">尝试次数</span></div>
-            <div class="advice-metric"><span class="v">+${deg}%</span><span class="k">淬炼度</span></div>
-            <div class="advice-metric"><span class="v">+${atk}%</span><span class="k">约属性</span></div>
+            <div class="advice-metric"><span class="v">${plan.attempts}</span><span class="k">시도 횟수</span></div>
+            <div class="advice-metric"><span class="v">+${deg}%</span><span class="k">촉련도</span></div>
+            <div class="advice-metric"><span class="v">+${atk}%</span><span class="k">예상 능력치</span></div>
         </div>
         <div class="advice-costs">${formatCostChips(plan.bag)}</div>
-        <div class="advice-path-label">接受路径（共 ${accepts.length} 次升层）</div>
+        <div class="advice-path-label">수락 경로(단계 상승 ${accepts.length}회)</div>
         <div class="advice-path-wrap">${renderPathChipsHtml(accepts, names, which)}</div>
     </article>`;
 }
@@ -3569,7 +3569,7 @@ function renderStrongPage() {
             return `<tr data-idx="${it.index}">
                 <td>${it.index}</td>
                 <td class="grade-${it.grade}">${it.grade_name}</td>
-                <td>+${deg}%（同层参考）</td>
+                <td>+${deg}%(동일 단계 참고)</td>
                 <td class="${minSet.has(it.index) ? 'advice-yes' : 'advice-no'}">${minSet.has(it.index) ? '接受' : '—'}</td>
                 <td class="${bestSet.has(it.index) ? 'advice-yes' : 'advice-no'}">${bestSet.has(it.index) ? '接受' : '—'}</td>
             </tr>`;
@@ -3608,12 +3608,12 @@ function renderStrongPreview(resp, eq) {
     pathPages = { min: 1, max: 1 };
 
     const perfect = items.filter(i => i.grade === 4).length;
-    meta.textContent = `序列 ${items.length} · 完美 ${perfect} · 当前 +${startLevel} → 期望 +${target} · 最低 ${names[minG]}`
+    meta.textContent = `순서 ${items.length}개 · 완벽 ${perfect}개 · 현재 +${startLevel} → 목표 +${target} · 최저 ${names[minG]}`
         + (resp.resetOrigin ? ` · 유화정 시뮬레이션(기존 +${resp.originLevel}단계, 무작위 진행도 유지)` : '');
 
     advice.innerHTML = [
-        formatPlanCard('消耗最少', plans.minCost, names, '优先省稀有炼石', 'min'),
-        formatPlanCard('数值最优', plans.maxValue, names, '优先高淬炼度', 'max'),
+        formatPlanCard('消耗最少', plans.minCost, names, '희귀 촉련석 소모 최소화 우선', 'min'),
+        formatPlanCard('数值最优', plans.maxValue, names, '높은 촉련도 우선', 'max'),
         '<div class="advice-note">※ 유지하지 않아도 정련석이 소모됩니다. 같은 결과라면 소모량이 적은 단계에서 시도하세요. 등급은 자색·청색·녹색·백색 순입니다. 아래 버튼을 누르면 해당 유지 회차가 강조됩니다.</div>',
     ].join('');
     bindPathPagers();
@@ -3822,7 +3822,7 @@ function doMakeOnce() {
     const mark = getDefaultMakeMark();
     const crafted = addCraftedFromMakeResult(r, mark, req.select_id);
     setMakeAdvanceNotice(r, crafted, 1);
-    const markTip = crafted?._mark ? ` · 标记「${crafted._mark}」` : '';
+    const markTip = crafted?._mark ? ` · 표시 「${crafted._mark}」` : '';
     const bagTip = crafted
         ? ` · 已入模拟背包(#${crafted.only_id})${markTip}`
         : '';
@@ -3856,7 +3856,7 @@ function doMakeAdvanceTo(targetIndex, mark) {
     }
     const crafted = addCraftedFromMakeResult(last, mark != null ? mark : getDefaultMakeMark(), req.select_id);
     setMakeAdvanceNotice(last, crafted, n);
-    const markTip = crafted?._mark ? ` · 标记「${crafted._mark}」` : '';
+    const markTip = crafted?._mark ? ` · 표시 「${crafted._mark}」` : '';
     let shenglianTip = '';
     if (autoShenglian && crafted) {
         const result = applyShengLian(runtimeKey(crafted));
@@ -3881,7 +3881,7 @@ function doShengLianOnce() {
     if (!key) { alert('请选择可升炼装备'); return; }
     const result = applyShengLian(key);
     if (result.error) { alert(result.error); return; }
-    const markTip = result.equip?._mark ? ` · 标记「${result.equip._mark}」` : '';
+    const markTip = result.equip?._mark ? ` · 표시 「${result.equip._mark}」` : '';
     appendLog(`[升炼] ${result.from} → ${result.to}${markTip}`);
     fillEquipSelects();
     renderCraftedBagList();
