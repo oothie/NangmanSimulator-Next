@@ -7073,11 +7073,13 @@ function renderEquipAutoSweepResults(list) {
             if (!picked || !picked.detailCandidate || !picked.detailRefinement) return;
             const source = picked.detailCandidate;
             const detail = Object.assign({}, source, {
-                refinements: [picked.detailRefinement], allRefinements: false,
+                refinements: [picked.detailRefinement], allRefinements: true,
                 region: Array.isArray(source.region) ? source.region : [],
                 exts: Array.isArray(source.exts) ? source.exts : [],
                 special: Array.isArray(source.special) ? source.special : []
             });
+            equipAutoComboActive = false;
+            equipAutoResultPropFilter = String(picked.prop);
             equipAutoLastResult = {candidates: [detail]};
             try {
                 let card = equipAutoCandidateHtml(detail, {forge: true, refine: true});
