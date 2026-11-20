@@ -4504,7 +4504,7 @@ function handleEquipAutoPropertyClick(event) {
     else equipAutoSelectedProperties.delete(prop);
     renderEquipAutoProperties();
     renderEquipAutoPapers();
-    invalidateEquipAutoPrediction('目标属性已变化，请重新开始装备自动模拟。');
+    invalidateEquipAutoPrediction('목표 능력치已变化，请重新开始装备自动模拟。');
 }
 
 function buildEquipAutoBranches() {
@@ -4565,7 +4565,7 @@ function validateEquipAutoSelection() {
     });
     const skippedBranchCount = branches.length - compatibleBranches.length;
     if (branches.length && targetProps.length && !compatibleBranches.length) {
-        errors.push('所选图纸均不会出现当前目标属性，请更换图纸或属性');
+        errors.push('所选图纸均不会出现当前목표 능력치，请更换图纸或属性');
     }
     const message = document.getElementById('autoEquipSelectionMessage');
     if (message) {
@@ -4705,7 +4705,7 @@ function equipAutoRefinementHtml(refinement, upgradeCost = null) {
         const maximum = refinement.maxima[slot];
         if (!maximum) return `<span>옵션 ${slot}: 없음</span>`;
         const occurrences = maximum.occurrences.map(item => item.source === 'original' ? '原有' : `#${item.index}`).join('、');
-        return `<span>词条 ${slot}：${escapeAiHtml(equipAutoFormatPropValue(refinement.prop, maximum.value))}<small>（${occurrences}）</small></span>`;
+        return `<span>옵션 ${slot}：${escapeAiHtml(equipAutoFormatPropValue(refinement.prop, maximum.value))}<small>（${occurrences}）</small></span>`;
     }).join('');
     const plan = refinement.plan;
     const accepts = plan ? plan.accepts.map(item => `#${item.index}（词条${item.slot}）`).join(' → ') : '无';
@@ -4713,7 +4713,7 @@ function equipAutoRefinementHtml(refinement, upgradeCost = null) {
     return `<div class="equip-auto-refine-card">
         <div class="equip-auto-refine-title"><strong>精炼 · ${escapeAiHtml(label)}</strong><span class="equip-auto-max-value">最高${escapeAiHtml(label)} ${escapeAiHtml(equipAutoFormatRefinementTotal(refinement))}</span></div>
         <div class="equip-auto-slot-list">${slots}</div>
-        <div>状态回放：${accepts}${plan ? `，做到第 ${plan.cutoff} 次为止` : ''}</div>
+        <div>状态回放：${accepts}${plan ? `，제 ${plan.cutoff} 次为止` : ''}</div>
         <div class="equip-auto-cost-line">消耗（精炼消耗）：${plan ? equipAutoFormatCost(plan.cost) : '无'}</div>
         <div class="equip-auto-total-cost-line">总消耗（升炼 + 精炼）：${equipAutoFormatCost(totalCost)}</div>
     </div>`;
@@ -5474,7 +5474,7 @@ function exportEquipAutoFavorites() {
                 const indexes = (maximum.occurrences || []).map(item => item.source === 'original' ? '原有' : '#' + item.index).join('/');
                 return '词条' + slot + ' ' + equipAutoFormatPropValue(refinement.prop, maximum.value) + '（' + indexes + '）';
             }).join('；');
-            const cutoff = refinement.plan ? ('做到第 ' + refinement.plan.cutoff + ' 次') : '未达成';
+            const cutoff = refinement.plan ? ('제 ' + refinement.plan.cutoff + ' 次') : '未达成';
             const replay = refinement.plan && refinement.plan.accepts
                 ? refinement.plan.accepts.map(item => '#' + item.index + '（词条' + item.slot + '）').join(' → ')
                 : '';
@@ -5669,7 +5669,7 @@ function equipAutoCandidateHtml(candidate, options) {
         <summary>
             <span class="equip-auto-leading">
             <span class="equip-auto-rating is-${rating.key}" title="${combo ? '조합 품질: 선택한 슬롯별 달성률의 평균' : '정련 품질: 세 슬롯의 이론상 최대 수치 기준'} ${rating.label} ${rating.roundedPercent}%"><strong>${rating.label}</strong><small>${rating.roundedPercent}%</small></span>
-            <span class="equip-auto-expand-hint" aria-hidden="true">详情<i>›</i></span>
+            <span class="equip-auto-expand-hint" aria-hidden="true">상세<i>›</i></span>
             </span>
             <span class="equip-auto-candidate-main">
                 <span class="equip-auto-candidate-head">
@@ -5684,25 +5684,25 @@ function equipAutoCandidateHtml(candidate, options) {
             </span>
             <span class="equip-auto-card-actions" data-card-v="4">
                     <span class="equip-auto-actions-scroll">
-                    <button type="button" class="equip-auto-region-compare" data-region-id="${escapeAiHtml(String(candidate.id))}" title="다른 장인에게 제작할 경우의 지역 추가 옵션 보기"><span class="act-full">看其他NPC附加值</span><span class="act-short">附加值</span></button>
-                    ${options && options.refine ? '<button type="button" class="equip-auto-refine-seq" data-refine-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">정련 데이터</span><span class="act-short">精炼</span></button>' : ''}
+                    <button type="button" class="equip-auto-region-compare" data-region-id="${escapeAiHtml(String(candidate.id))}" title="다른 장인에게 제작할 경우의 지역 추가 옵션 보기"><span class="act-full">다른 장인 추가 옵션</span><span class="act-short">추가 옵션</span></button>
+                    ${options && options.refine ? '<button type="button" class="equip-auto-refine-seq" data-refine-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">정련 데이터</span><span class="act-short">정련</span></button>' : ''}
                     ${options && options.forge && equipAutoCanForge(candidate) ? '<button type="button" class="equip-auto-forge" data-forge-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">촉련 보기</span><span class="act-short">촉련</span></button>' : ''}
-                    ${candidate && candidate.canSimulateSpecialAttach ? '<button type="button" class="equip-auto-mang" data-mang-id="' + escapeAiHtml(String(candidate.id)) + '" title="查看这件装备的망정 순서"><span class="act-full">망정 보기</span><span class="act-short">芒晶</span></button>' : ''}
+                    ${candidate && candidate.canSimulateSpecialAttach ? '<button type="button" class="equip-auto-mang" data-mang-id="' + escapeAiHtml(String(candidate.id)) + '" title="이 장비의 망정 순서 보기"><span class="act-full">망정 보기</span><span class="act-short">망정</span></button>' : ''}
                     </span>
                     <button type="button" class="equip-auto-fav${equipAutoFindFavorite(candidate.id) ? ' is-on' : ''}" data-fav-id="${escapeAiHtml(String(candidate.id))}" style="${equipAutoFindFavorite(candidate.id) ? 'background:linear-gradient(180deg,var(--sbj-c-660160d401,#b34433),#8f2a20);color:var(--sbj-c-e4902b41a0,#fffdf8);border:1px solid var(--sbj-c-cd06ff8d37,#8a291e);' : 'background:transparent;color:var(--sbj-c-3f9e5e18ed,#9c2f22);border:1px solid var(--sbj-c-29a04590dd,rgba(156,47,34,0.55));'}" title="${equipAutoFindFavorite(candidate.id) ? '즐겨찾기 취소' : '즐겨찾기에 저장'}">${equipAutoFindFavorite(candidate.id) ? '★ 즐겨찾기 등록됨' : '☆ 즐겨찾기'}</button>
             </span>
         </summary>
         <div class="equip-auto-candidate-body">
             <div class="equip-auto-detail-grid">
-                <div class="equip-auto-detail-card"><strong>装备品质</strong>${Number(candidate.color) === 3 ? '청색' : '자색'} · ${candidate.exts.length} 词条</div>
-                <div class="equip-auto-detail-card"><strong>基础属性</strong>${equipAutoFormatBase(candidate.base)}</div>
-                <div class="equip-auto-detail-card"><strong>蓝/紫词条</strong>${equipAutoFormatProps(candidate.exts)}</div>
-                <div class="equip-auto-detail-card equip-auto-region-card"><strong>地区附加</strong>${equipAutoFormatProps(candidate.region)}</div>
+                <div class="equip-auto-detail-card"><strong>장비 품질</strong>${Number(candidate.color) === 3 ? '청색' : '자색'} · ${candidate.exts.length}개 옵션</div>
+                <div class="equip-auto-detail-card"><strong>기본 능력치</strong>${equipAutoFormatBase(candidate.base)}</div>
+                <div class="equip-auto-detail-card"><strong>청색·자색 옵션</strong>${equipAutoFormatProps(candidate.exts)}</div>
+                <div class="equip-auto-detail-card equip-auto-region-card"><strong>지역 추가 옵션</strong>${equipAutoFormatProps(candidate.region)}</div>
                 ${equipAutoAttachScanDetailHtml(candidate)}
-                <div class="equip-auto-detail-card equip-auto-material-cost"><strong>打造消耗</strong>${equipAutoCandidateCostHtml(candidate)}</div>
+                <div class="equip-auto-detail-card equip-auto-material-cost"><strong>제작 소모</strong>${equipAutoCandidateCostHtml(candidate)}</div>
             </div>
-            <p class="ai-visual-heading">精炼属性${candidate.allRefinements && !equipAutoResultPropFilter && !combo ? '（능력치별 정련 계획은 독립적이며 중복 적용할 수 없습니다）' : ''}</p>
-            ${combo ? '<div class="equip-auto-refine-card"><strong>조합 경로</strong><div>做到第 ' + combo.cutoff + ' 次 · 정련 소모: ' + equipAutoFormatCost(combo.cost) + '</div><div>정련 데이터를 눌러 회차별 작업을 확인하세요.</div></div>' : visibleRefinements.map(refinement => equipAutoRefinementHtml(refinement, candidate.upgradeCost)).join('')}
+            <p class="ai-visual-heading">정련 옵션${candidate.allRefinements && !equipAutoResultPropFilter && !combo ? '（능력치별 정련 계획은 독립적이며 중복 적용할 수 없습니다）' : ''}</p>
+            ${combo ? '<div class="equip-auto-refine-card"><strong>조합 경로</strong><div>제 ' + combo.cutoff + '회까지 정련 · 소모: ' + equipAutoFormatCost(combo.cost) + '</div><div>정련 데이터를 눌러 회차별 작업을 확인하세요.</div></div>' : visibleRefinements.map(refinement => equipAutoRefinementHtml(refinement, candidate.upgradeCost)).join('')}
             ${equipAutoManualAttachHtml(candidate)}
         </div>
     </details>`;
@@ -5798,69 +5798,69 @@ function equipAutoResultFilterOptionsHtml(candidates) {
         });
     });
     const regionEntries = Array.from(regionMap.entries()).sort((a, b) => String(a[1]).localeCompare(String(b[1]), 'zh'));
-    return `<div class="equip-auto-result-filters" aria-label="装备候选筛选与排序">
-        <section class="equip-auto-combo-filter" aria-label="精炼组合">
-            <div class="equip-auto-combo-heading"><strong>精炼组合</strong><span>选择词条 1 后自动填入其余两项，可单独调整</span></div>
+    return `<div class="equip-auto-result-filters" aria-label="장비 후보 필터 및 정렬">
+        <section class="equip-auto-combo-filter" aria-label="정련 조합">
+            <div class="equip-auto-combo-heading"><strong>정련 조합</strong><span>옵션 1을 선택하면 나머지 두 항목이 자동 입력되며 각각 변경할 수 있습니다</span></div>
             <div class="equip-auto-combo-controls">
-                ${[0,1,2].map(i => `<label class="equip-auto-combo-field"><span>词条 ${i+1}</span><select data-combo-slot="${i}" aria-label="词条 ${i+1}目标属性"><option value="">不限</option>${comboEntries.map(([prop,label]) => `<option value="${escapeAiHtml(prop)}">${escapeAiHtml(label)}</option>`).join('')}</select></label>`).join('')}
-                <button type="button" id="btnEquipAutoCombo" class="btn">筛选组合</button>
+                ${[0,1,2].map(i => `<label class="equip-auto-combo-field"><span>옵션 ${i+1}</span><select data-combo-slot="${i}" aria-label="词条 ${i+1}목표 능력치"><option value="">不限</option>${comboEntries.map(([prop,label]) => `<option value="${escapeAiHtml(prop)}">${escapeAiHtml(label)}</option>`).join('')}</select></label>`).join('')}
+                <button type="button" id="btnEquipAutoCombo" class="btn">조합 필터</button>
             </div><p class="equip-auto-combo-help">제한 없음은 해당 옵션에 조건을 적용하지 않는다는 뜻입니다. 검색 결과는 장비별로 재현하여 검증합니다.</p><p id="equipAutoComboStatus" role="status" aria-live="polite"></p>
         </section>
         <div class="equip-auto-control-row">
-            <span class="equip-auto-control-label">筛选</span>
+            <span class="equip-auto-control-label">필터</span>
             <div class="equip-auto-filter-grid">
-            <label class="equip-auto-filter-field" for="equipAutoResultLocationFilter"><span class="equip-auto-filter-sr">地点</span>
+            <label class="equip-auto-filter-field" for="equipAutoResultLocationFilter"><span class="equip-auto-filter-sr">지역</span>
                 <select id="equipAutoResultLocationFilter">
-                    <option value="">地点：全部</option>
-                    ${locations.map(location => `<option value="${escapeAiHtml(location)}">地点：${escapeAiHtml(location)}</option>`).join('')}
+                    <option value="">지역: 전체</option>
+                    ${locations.map(location => `<option value="${escapeAiHtml(location)}">지역: ${escapeAiHtml(location)}</option>`).join('')}
                 </select>
             </label>
-            <label class="equip-auto-filter-field" for="equipAutoResultPaperFilter"><span class="equip-auto-filter-sr">图纸</span>
+            <label class="equip-auto-filter-field" for="equipAutoResultPaperFilter"><span class="equip-auto-filter-sr">도면</span>
                 <select id="equipAutoResultPaperFilter">
-                    <option value="">图纸：全部</option>
-                    ${paperEntries.map(([key, name]) => `<option value="${escapeAiHtml(key)}">图纸：${escapeAiHtml(name)}</option>`).join('')}
+                    <option value="">도면: 전체</option>
+                    ${paperEntries.map(([key, name]) => `<option value="${escapeAiHtml(key)}">도면: ${escapeAiHtml(name)}</option>`).join('')}
                 </select>
             </label>
-            <label class="equip-auto-filter-field" for="equipAutoResultSeedFilter"><span class="equip-auto-filter-sr">打造序列</span>
+            <label class="equip-auto-filter-field" for="equipAutoResultSeedFilter"><span class="equip-auto-filter-sr">제작 순서</span>
                 <select id="equipAutoResultSeedFilter">
-                    <option value="">序列：全部</option>
-                    <option value="普通">序列：普通</option>
-                    <option value="幸运">序列：幸运</option>
-                    <option value="保底">序列：保底</option>
+                    <option value="">순서: 전체</option>
+                    <option value="普通">순서: 일반</option>
+                    <option value="幸运">순서: 행운</option>
+                    <option value="保底">순서: 천장</option>
                 </select>
             </label>
-            <label class="equip-auto-filter-field" for="equipAutoResultPropFilter"><span class="equip-auto-filter-sr">精炼属性</span>
+            <label class="equip-auto-filter-field" for="equipAutoResultPropFilter"><span class="equip-auto-filter-sr">정련 능력치</span>
                 <select id="equipAutoResultPropFilter">
-                    <option value="">精炼：全部</option>
-                    ${propEntries.map(([prop, label]) => `<option value="${escapeAiHtml(prop)}">精炼：${escapeAiHtml(label)}</option>`).join('')}
+                    <option value="">정련: 전체</option>
+                    ${propEntries.map(([prop, label]) => `<option value="${escapeAiHtml(prop)}">정련: ${escapeAiHtml(label)}</option>`).join('')}
                 </select>
             </label>
-            <label class="equip-auto-filter-field" for="equipAutoResultRegionFilter"><span class="equip-auto-filter-sr">地区附加</span>
+            <label class="equip-auto-filter-field" for="equipAutoResultRegionFilter"><span class="equip-auto-filter-sr">지역 추가 옵션</span>
                 <select id="equipAutoResultRegionFilter">
-                    <option value="">地区：全部</option>
-                    <option value="any">地区：有</option>
-                    <option value="none">地区：无</option>
-                    ${regionEntries.map(([key, label]) => `<option value="${escapeAiHtml(key)}">地区：${escapeAiHtml(label)}</option>`).join('')}
+                    <option value="">지역: 전체</option>
+                    <option value="any">지역: 있음</option>
+                    <option value="none">지역: 없음</option>
+                    ${regionEntries.map(([key, label]) => `<option value="${escapeAiHtml(key)}">지역: ${escapeAiHtml(label)}</option>`).join('')}
                 </select>
             </label>
-            <label class="equip-auto-filter-field" for="equipAutoResultBlueMode" title="仅=只看蓝装；无=不显示蓝装；包含=蓝装与紫装一起显示">
-                <span class="equip-auto-filter-sr">蓝装备</span>
+            <label class="equip-auto-filter-field" for="equipAutoResultBlueMode" title="청색만=청색 장비만 표시; 제외=청색 장비 숨김; 포함=청색·자색 함께 표시">
+                <span class="equip-auto-filter-sr">청색 장비</span>
                 <select id="equipAutoResultBlueMode">
-                    <option value="only">蓝装：仅看</option>
-                    <option value="none">蓝装：不看</option>
-                    <option value="include">蓝装：包含</option>
+                    <option value="only">청색: 단독</option>
+                    <option value="none">청색: 제외</option>
+                    <option value="include">청색: 포함</option>
                 </select>
             </label>
             <div class="equip-auto-filter-field">
-                <span class="equip-auto-filter-sr">品质</span>
+                <span class="equip-auto-filter-sr">품질</span>
                 <div class="equip-auto-quality-row">
-                    <select id="equipAutoResultQualityFilter" aria-label="品质">
-                        <option value="">品质：全部</option>
-                        ${[...EQUIP_AUTO_RATING_LEVELS].reverse().map(level => `<option value="${level.key}">品质：${level.label}</option>`).join('')}
+                    <select id="equipAutoResultQualityFilter" aria-label="품질">
+                        <option value="">품질: 전체</option>
+                        ${[...EQUIP_AUTO_RATING_LEVELS].reverse().map(level => `<option value="${level.key}">품질: ${level.label}</option>`).join('')}
                     </select>
-                    <label class="equip-auto-quality-toggle" for="equipAutoResultQualityAtLeast" title="同时显示所选品质及更高品质">
+                    <label class="equip-auto-quality-toggle" for="equipAutoResultQualityAtLeast" title="선택한 품질과 더 높은 품질을 함께 표시">
                         <input id="equipAutoResultQualityAtLeast" type="checkbox" checked>
-                        <span>及以上</span>
+                        <span>이상</span>
                     </label>
                 </div>
             </div>
@@ -5868,13 +5868,13 @@ function equipAutoResultFilterOptionsHtml(candidates) {
             </div>
         </div>
         <div class="equip-auto-control-row is-sort">
-            <span class="equip-auto-control-label">排序</span>
-            <div class="equip-auto-sort-chips" role="group" aria-label="结果排序方式">
-                <button type="button" class="equip-auto-sort-chip${equipAutoResultSort === 'cost' ? ' is-active' : ''}" data-sort-chip="cost" title="按连金泥消耗从少到多">连金泥</button>
-                <button type="button" class="equip-auto-sort-chip${equipAutoResultSort === 'props' ? ' is-active' : ''}" data-sort-chip="props" title="按总属性从高到低">总属性</button>
-                <button type="button" class="equip-auto-sort-chip${equipAutoResultSort === 'refine' ? ' is-active' : ''}" data-sort-chip="refine" title="按精炼数值从高到低">精炼数值</button>
+            <span class="equip-auto-control-label">정렬</span>
+            <div class="equip-auto-sort-chips" role="group" aria-label="결과 정렬 기준">
+                <button type="button" class="equip-auto-sort-chip${equipAutoResultSort === 'cost' ? ' is-active' : ''}" data-sort-chip="cost" title="연금니 소모가 적은 순">연금니</button>
+                <button type="button" class="equip-auto-sort-chip${equipAutoResultSort === 'props' ? ' is-active' : ''}" data-sort-chip="props" title="총 능력치가 높은 순">총 능력치</button>
+                <button type="button" class="equip-auto-sort-chip${equipAutoResultSort === 'refine' ? ' is-active' : ''}" data-sort-chip="refine" title="정련 수치가 높은 순">정련 수치</button>
             </div>
-            <span class="equip-auto-sort-hint">再点取消</span>
+            <span class="equip-auto-sort-hint">다시 누르면 해제</span>
         </div>
     </div>`;
 }
@@ -6001,8 +6001,8 @@ function equipAutoConfirm(message) {
         wrap.innerHTML = '<div class="equip-auto-confirm-card" role="dialog" aria-modal="true">'
             + '<p class="equip-auto-confirm-text">' + escapeAiHtml(message) + '</p>'
             + '<div class="equip-auto-confirm-actions">'
-            + '<button type="button" class="equip-auto-confirm-cancel">关闭</button>'
-            + '<button type="button" class="equip-auto-confirm-ok">取消收藏</button>'
+            + '<button type="button" class="equip-auto-confirm-cancel">닫기</button>'
+            + '<button type="button" class="equip-auto-confirm-ok">즐겨찾기 해제</button>'
             + '</div></div>';
         document.body.appendChild(wrap);
         var done = function (value) {
@@ -6057,10 +6057,10 @@ function equipAutoRegionSimulate(candidate, limit) {
             if (mr) equipAutoInitialMakeState = JSON.parse(JSON.stringify(mr));
         } catch (error) { }
     }
-    if (!equipAutoInitialMakeState) return { rows: [], error: '没有可用的打造初始状态，请先导入存档并重新模拟一次' };
+    if (!equipAutoInitialMakeState) return { rows: [], error: '제작 초기 상태가 없습니다. 세이브를 불러오고 다시 시뮬레이션하세요' };
     const paper = EQUIP_DATA.papers[String(candidate.paperId)];
     const equip = paper ? EQUIP_DATA.equipment[String(paper.dz_equip)] : null;
-    if (!paper || !equip) return { rows: [], error: '找不到这张图纸对应的装备' };
+    if (!paper || !equip) return { rows: [], error: '해당 도면에 대응하는 장비를 찾지 못했습니다' };
     const parts = String(candidate.branchKey || '').split(':');
     const currentNpc = String(parts[0] || '');
     const specialId = Number(parts[2]) || 0;
@@ -6078,7 +6078,7 @@ function equipAutoRegionSimulate(candidate, limit) {
         .map(item => item[0] + '=' + Number(item[1]).toFixed(4))
         .join('|');
     const targetKey = extsKey(candidate.exts);
-    if (!targetKey) return { rows: [], error: '这件装备没有词条，无法做同词条比对' };
+    if (!targetKey) return { rows: [], error: '이 장비는 옵션이 없어 동일 옵션을 비교할 수 없습니다' };
     const rows = [];
     let lastError = '';
     Object.values(EQUIP_DATA.craftsman || {}).filter(cm => equipAutoCanCraftWith(cm, paper, equip)).forEach(cm => {
@@ -6130,14 +6130,14 @@ function equipAutoComboRefineView(candidate, combo) {
         return (items || []).map(item => {
             cumulative += Number(item.cost_mult) || 1;
             const text = prop => prop && prop.prop ? equipAutoPropertyLabel(prop.prop) + '+' + equipAutoFormatPropValue(prop.prop, prop.value) : '—';
-            let action = !item.accepted ? '不保留' : (targets[Number(item.slot)-1] && item.prop?.prop === targets[Number(item.slot)-1] ? '目标保留' : '临时锁定');
-            if (cutoff && Number(item.index) === cutoff) action += ' · 终止';
+            let action = !item.accepted ? '유지 안 함' : (targets[Number(item.slot)-1] && item.prop?.prop === targets[Number(item.slot)-1] ? '목표 유지' : '임시 잠금');
+            if (cutoff && Number(item.index) === cutoff) action += ' · 종료';
             return [Number(item.index)||0, Number(item.slot)||0, text(item.old_prop), text(item.prop), Number(item.cost_mult)||1,
                 (item.xl_level_before == null ? '-' : item.xl_level_before) + '→' + (item.xl_level == null ? '-' : item.xl_level), action, cumulative];
         });
     };
     return {schema:2, count:(candidate.refineSequence || []).length, rows:rows(candidate.refineSequence, [], 0), routes:[{
-        title:'组合属性', cutoff:combo.cutoff, cost:combo.cost, upgradeCost:candidate.upgradeCost || null,
+        title:'조합 능력치', cutoff:combo.cutoff, cost:combo.cost, upgradeCost:candidate.upgradeCost || null,
         rows:rows(combo.items, combo.targets, combo.cutoff)
     }]};
 }
@@ -6164,21 +6164,21 @@ function openEquipAutoRefineSequence(candidateId) {
     if (old) old.remove();
     const wrap = document.createElement('div');
     wrap.className = 'equip-auto-confirm equip-auto-forge-modal';
-    wrap.innerHTML = '<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="精炼序列">'
-        + '<div class="equip-auto-forge-head"><div><strong>精炼数据 · ' + escapeAiHtml(String(candidate.equipName || '装备')) + '</strong>'
-        + '<span id="equipAutoRefineRange">第 1～' + count + ' 次 · 只读预览，不推进存档</span></div>'
+    wrap.innerHTML = '<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="정련 순서">'
+        + '<div class="equip-auto-forge-head"><div><strong>정련 데이터 · ' + escapeAiHtml(String(candidate.equipName || '装备')) + '</strong>'
+        + '<span id="equipAutoRefineRange">第 1～' + count + '회 · 조회 전용, 세이브 진행 없음</span></div>'
         + '<button type="button" class="equip-auto-forge-close" aria-label="닫기" title="닫기">×</button></div>'
-        + '<p class="equip-auto-forge-meta">目标属性：' + escapeAiHtml(targets) + ' · 조회 횟수를 설정하고 옵션 슬롯과 능력치로 필터링할 수 있습니다.</p>'
+        + '<p class="equip-auto-forge-meta">목표 능력치：' + escapeAiHtml(targets) + ' · 조회 횟수를 설정하고 옵션 슬롯과 능력치로 필터링할 수 있습니다.</p>'
         + '<div class="equip-auto-refine-controls">'
-        + '<label>查看次数 <input id="equipAutoRefineCount" type="number" min="1" max="2000" step="1" value="' + count + '"></label>'
-        + '<label>槽位 <select id="equipAutoRefineSlot"><option value="">全部</option><option value="1">槽 1</option><option value="2">槽 2</option><option value="3">槽 3</option></select></label>'
-        + '<label>属性 <select id="equipAutoRefineProp"><option value="">全部</option></select></label>'
+        + '<label>조회 횟수 <input id="equipAutoRefineCount" type="number" min="1" max="2000" step="1" value="' + count + '"></label>'
+        + '<label>슬롯 <select id="equipAutoRefineSlot"><option value="">전체</option><option value="1">슬롯 1</option><option value="2">슬롯 2</option><option value="3">슬롯 3</option></select></label>'
+        + '<label>능력치 <select id="equipAutoRefineProp"><option value="">전체</option></select></label>'
         + '<span class="equip-auto-refine-meta" id="equipAutoRefineMeta"></span>'
         + '</div>'
         + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
         + '<thead><tr><th>횟수</th><th>슬롯</th><th>기존 옵션 → 새 옵션</th><th>배율</th><th>정련 레벨</th></tr></thead>'
-        + '<tbody><tr><td colspan="5">正在计算精炼序列…</td></tr></tbody></table></div>'
-        + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close">关闭</button></div>'
+        + '<tbody><tr><td colspan="5">정련 순서를 계산하는 중…</td></tr></tbody></table></div>'
+        + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close">닫기</button></div>'
         + '</div>';
     document.body.appendChild(wrap);
     const close = () => { document.removeEventListener('keydown', onKey); wrap.remove(); };
@@ -6211,7 +6211,7 @@ function openEquipAutoRefineSequence(candidateId) {
         const prop = String(propSelect.value || '');
         const shown = items.filter(item => (!slot || String(item.slot) === slot)
             && (!prop || String(item.prop && item.prop.prop) === prop));
-        metaEl.textContent = '显示 ' + shown.length + ' / ' + items.length + ' 条';
+        metaEl.textContent = '표시 ' + shown.length + ' / ' + items.length + '건';
         if (!shown.length) {
             tbody.innerHTML = '<tr><td colspan="5">没有符合筛选条件的精炼记录</td></tr>';
             return;
@@ -6236,9 +6236,9 @@ function openEquipAutoRefineSequence(candidateId) {
         if (!Number.isFinite(n)) n = count;
         n = Math.max(1, Math.min(2000, n));
         countInput.value = n;
-        rangeEl.textContent = '第 1～' + n + ' 次 · 只读预览，不推进存档';
+        rangeEl.textContent = '第 1～' + n + '회 · 조회 전용, 세이브 진행 없음';
         try {
-            if (typeof wasmXilianPreview !== 'function') throw new Error('装备资料尚未加载，请刷新页面后重试');
+            if (typeof wasmXilianPreview !== 'function') throw new Error('장비 데이터가 아직 로드되지 않았습니다. 새로고침 후 다시 시도하세요');
             const preview = wasmXilianPreview(equip, n);
             if (preview && preview.error && !(preview.items || []).length) throw new Error(preview.error);
             items = (preview && preview.items || []).slice(0, n);
@@ -6248,14 +6248,14 @@ function openEquipAutoRefineSequence(candidateId) {
                 const key = String(item.prop && item.prop.prop || '');
                 if (key && !props.has(key)) props.set(key, equipAutoPropertyLabel(key));
             });
-            propSelect.innerHTML = '<option value="">全部</option>'
+            propSelect.innerHTML = '<option value="">전체</option>'
                 + Array.from(props, ([value, label]) => '<option value="' + escapeAiHtml(value) + '">' + escapeAiHtml(label) + '</option>').join('');
             propSelect.value = props.has(current) ? current : '';
             paint();
         } catch (error) {
             items = [];
             tbody.innerHTML = '<tr><td colspan="5">' + escapeAiHtml(error && error.message || String(error)) + '</td></tr>';
-            metaEl.textContent = '计算失败';
+            metaEl.textContent = '계산 실패';
         }
     }
 
@@ -6278,16 +6278,16 @@ function openEquipAutoRegionCompare(candidateId) {
     if (old) old.remove();
     const wrap = document.createElement('div');
     wrap.className = 'equip-auto-confirm equip-auto-forge-modal';
-    wrap.innerHTML = '<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="地区附加对照">'
-        + '<div class="equip-auto-forge-head"><div><strong>其他NPC附加值 · ' + escapeAiHtml(String(candidate.equipName || '装备')) + '</strong>'
+    wrap.innerHTML = '<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="지역 추가 옵션 비교">'
+        + '<div class="equip-auto-forge-head"><div><strong>다른 장인 추가 옵션 · ' + escapeAiHtml(String(candidate.equipName || '装备')) + '</strong>'
         + '<span>같은 옵션과 같은 수치 · 조회 전용으로 세이브는 진행되지 않습니다.</span></div>'
         + '<button type="button" class="equip-auto-forge-close" aria-label="닫기" title="닫기">×</button></div>'
-        + '<p class="equip-auto-forge-meta">동일 도면·제작 진행도에서 다른 장인별로 제작을 예측합니다: ' + limit + ' 次，'
+        + '<p class="equip-auto-forge-meta">동일 도면·제작 진행도에서 다른 장인별로 제작을 예측합니다: ' + limit + '회, '
         + '추가 옵션 종류·개수·수치가 모두 같은 장비의 첫 제작을 찾습니다. 없으면 -로 표시합니다.</p>'
         + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
         + '<thead><tr><th>장인 / 지역</th><th>제작 회차</th><th>지역 추가 옵션</th></tr></thead>'
         + '<tbody><tr><td colspan="3">장비 제작 시뮬레이션 중…</td></tr></tbody></table></div>'
-        + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close">关闭</button></div>'
+        + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close">닫기</button></div>'
         + '</div>';
     document.body.appendChild(wrap);    const close = () => { document.removeEventListener('keydown', onKey); wrap.remove(); };
     const onKey = event => { if (event.key === 'Escape') close(); };
@@ -6438,7 +6438,7 @@ function handleEquipAutoFavoriteClick(event) {
     const id = button.dataset.favId;
     const inFavorites = !!button.closest('#autoEquipFavorites');
     if (inFavorites && equipAutoFindFavorite(id)) {
-        equipAutoConfirm('取消收藏这件装备？').then(function (ok) {
+        equipAutoConfirm('이 장비를 즐겨찾기에서 제거하시겠습니까?').then(function (ok) {
             if (ok) equipAutoToggleFavorite(id);
         });
         return;
@@ -6455,15 +6455,15 @@ async function runEquipAutoComboFilter() {
     const status = document.getElementById('equipAutoComboStatus');
     if (equipAutoComboRunning) {
         equipAutoComboToken++; equipAutoComboRunning = false;
-        if (button) { button.disabled = false; button.textContent = '筛选组合'; }
+        if (button) { button.disabled = false; button.textContent = '조합 필터'; }
         document.querySelectorAll('[data-combo-slot]').forEach(input => { input.disabled = false; });
-        if (status) status.textContent = '已停止组合筛选。';
+        if (status) status.textContent = '조합 필터를 중지했습니다.';
         return;
     }
     const wanted = equipAutoComboDraft.slice();
     if (!wanted.some(Boolean)) {
         resetEquipAutoCombo(); equipAutoResultPage = 1;
-        if (status) status.textContent = '已清除组合条件。';
+        if (status) status.textContent = '조합 조건을 초기화했습니다.';
         renderEquipAutoResultPage(); return;
     }
     const candidates = equipAutoLastResult?.candidates || [];
@@ -6471,7 +6471,7 @@ async function runEquipAutoComboFilter() {
     if (!count || !candidates.length) return;
     const plans = new Map(), token = ++equipAutoComboToken;
     equipAutoComboRunning = true;
-    if (button) button.textContent = '停止筛选';
+    if (button) button.textContent = '필터 중지';
     document.querySelectorAll('[data-combo-slot]').forEach(input => { input.disabled = true; });
     try {
         for (let i = 0; i < candidates.length; i++) {
@@ -6489,12 +6489,12 @@ async function runEquipAutoComboFilter() {
         renderEquipAutoResultPage();
     } catch (error) {
         resetEquipAutoCombo();
-        if (status) status.textContent = '组合筛选未完成：' + (error?.message || error);
+        if (status) status.textContent = '조합 필터를 완료하지 못했습니다: ' + (error?.message || error);
         renderEquipAutoResultPage();
     } finally {
         if (token === equipAutoComboToken) {
             equipAutoComboRunning = false;
-            if (button) button.textContent = '筛选组合';
+            if (button) button.textContent = '조합 필터';
             document.querySelectorAll('[data-combo-slot]').forEach(input => { input.disabled = false; });
         }
     }
@@ -6568,7 +6568,7 @@ function handleEquipAutoResultControlChange(event) {
             }
         }
         resetEquipAutoCombo(); equipAutoResultSort = 'default'; equipAutoResultPage = 1;
-        const status = document.getElementById('equipAutoComboStatus'); if (status) status.textContent = '条件已修改，点击“筛选组合”开始回放。';
+        const status = document.getElementById('equipAutoComboStatus'); if (status) status.textContent = '조건이 변경되었습니다. 조합 필터를 눌러 결과를 재현하세요.';
         renderEquipAutoResultPage(); return;
     }
     if (event.target.classList?.contains('equip-auto-manual-attach-count')) {
@@ -6644,17 +6644,17 @@ function renderEquipAutoResults(result) {
         return;
     }
     container.innerHTML = `${(result.skippedBranches || []).length ? `<details class="equip-auto-skipped-branches"><summary>查看跳过的 ${result.skippedBranches.length} 个分支</summary>${result.skippedBranches.map(branch => `<div>${escapeAiHtml(branch.location)} · ${escapeAiHtml(branch.paperName)}：${escapeAiHtml(branch.reason)}</div>`).join('')}</details>` : ''}
-    <div class="equip-auto-result-toolbar" aria-label="装备候选筛选与数量">
+    <div class="equip-auto-result-toolbar" aria-label="장비 후보 필터 및 개수">
         ${equipAutoResultFilterOptionsHtml(result.candidates)}
         <p id="equipAutoCandidatePageHeading" class="equip-auto-result-count"></p>
     </div>
     <div id="equipAutoCandidatePage"></div>
-    <div class="pager-bar equip-auto-result-pager" aria-label="装备候选分页">
+    <div class="pager-bar equip-auto-result-pager" aria-label="장비 후보 페이지 이동">
         <div class="equip-auto-pager-controls">
             <span id="equipAutoCandidatePageInfo" class="meta-text"></span>
-            <button id="btnEquipAutoResultPrev" class="btn equip-auto-pager-button" type="button">上一页</button>
-            <button id="btnEquipAutoResultNext" class="btn equip-auto-pager-button" type="button">下一页</button>
-            <label class="pager-size" for="equipAutoResultPageSize">每页
+            <button id="btnEquipAutoResultPrev" class="btn equip-auto-pager-button" type="button">이전 페이지</button>
+            <button id="btnEquipAutoResultNext" class="btn equip-auto-pager-button" type="button">다음 페이지</button>
+            <label class="pager-size" for="equipAutoResultPageSize">페이지당 
                 <select id="equipAutoResultPageSize">
                     ${EQUIP_AUTO_RESULT_PAGE_SIZES.map(size => `<option value="${size}" ${size === equipAutoResultPageSize ? 'selected' : ''}>${size}</option>`).join('')}
                 </select>
@@ -7578,7 +7578,7 @@ function renderJianwangAutoResult(result) {
             const swordText = match.startedFromCurrent ? '当前起始剑' : `새 검 제${Number(match.swordOrdinal || 0).toLocaleString()}자루`;
             const path = Array.isArray(match.path) ? match.path : [];
             const steps = path.length ? path.map((step, index) => {
-                const keepText = step.kept ? `保留 ${jianwangAutoFormatExt(step.kept)}` : '不保留';
+                const keepText = step.kept ? `保留 ${jianwangAutoFormatExt(step.kept)}` : '유지 안 함';
                 const seedText = step.type === 'blank'
                     ? `碎剑后已推进剑胚序列 · 新剑胚可继续成长或重铸`
                     : `重铸序列编号 ${Number(step.seedBefore || 0)} → ${Number(step.seedAfter || 0)}`;
@@ -7634,7 +7634,7 @@ function renderJianwangAutoResult(result) {
     const steps = path.length ? path.map((step, index) => {
         const keepText = step.kept
             ? `保留 ${jianwangAutoFormatExt(step.kept)}`
-            : '不保留';
+            : '유지 안 함';
         const seedText = step.type === 'blank'
             ? `碎剑后已推进剑胚序列 · 新剑胚可继续成长或重铸`
             : `重铸序列编号 ${Number(step.seedBefore || 0)} → ${Number(step.seedAfter || 0)}`;
