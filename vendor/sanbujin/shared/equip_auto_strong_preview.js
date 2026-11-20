@@ -164,10 +164,10 @@
             + '<div class="equip-auto-forge-metrics">'
             + '<div><b>' + plan.attempts + '</b><span>시도 횟수</span></div>'
             + '<div><b>+' + (plan.value / 2) + '%</b><span>촉련도</span></div>'
-            + '<div><b>+' + (Math.round(plan.value / 10 * 10) / 10) + '%</b><span>约属性</span></div>'
+            + '<div><b>+' + (Math.round(plan.value / 10 * 10) / 10) + '%</b><span>예상 능력치</span></div>'
             + '</div>'
             + '<div class="equip-auto-forge-costs">' + costChips(plan.bag) + '</div>'
-            + '<p class="equip-auto-forge-path-label">수락 경로（共 ' + accepts.length + ' 회 단계 상승）</p>'
+            + '<p class="equip-auto-forge-path-label">수락 경로 (총 ' + accepts.length + '회 단계 상승)</p>'
             + '<div class="equip-auto-forge-paths">' + pathChips(accepts) + '</div>'
             + '</article>';
     }
@@ -233,23 +233,23 @@
         });
         card.innerHTML = '<div class="equip-auto-forge-head"><div><strong>' + escapeHtml(state.candidate.equipName || '장비') + '</strong>'
             + '<span>촉련 순서 미리보기 · 조회 전용, 순서 진행 없음</span></div>'
-            + '<button type="button" class="equip-auto-forge-close" aria-label="关闭" title="关闭">×</button></div>'
+            + '<button type="button" class="equip-auto-forge-close" aria-label="닫기" title="닫기">×</button></div>'
             + '<div class="equip-auto-forge-controls">'
             + '<label>순서 길이<input type="number" class="equip-auto-forge-n" min="10" max="2000" value="' + state.n + '"></label>'
             + '<label>목표 촉련 단계<select class="equip-auto-forge-target">' + targetOptions + '</select></label>'
             + '<label>허용할 최저 등급<select class="equip-auto-forge-grade">' + gradeOptions + '</select></label>'
             + '<button type="button" class="equip-auto-forge-run">다시 예측</button>'
             + '</div>'
-            + '<p class="equip-auto-forge-meta">현재 +' + state.level + ' · 순서 ' + items.length + '개 · 완벽 ' + perfect + ' 条</p>';
+            + '<p class="equip-auto-forge-meta">현재 +' + state.level + ' · 순서 ' + items.length + '개 · 완벽 ' + perfect + '개</p>';
         if (state.error && !items.length) {
             card.innerHTML += '<p class="equip-auto-forge-empty">' + escapeHtml(state.error) + '</p>';
         } else {
-            card.innerHTML += '<div class="equip-auto-forge-plans">' + planCard('소모 최소', plans.minCost, '희귀 촉련석 소모 최소화 우선') + planCard('수치 최적', plans.maxValue, '优先高촉련도') + '</div>'
-                + '<div class="equip-auto-forge-actions"><button type="button" class="equip-auto-forge-hl" data-hl="min">高亮 · 소모 최소</button>'
-                + '<button type="button" class="equip-auto-forge-hl" data-hl="best">高亮 · 수치 최적</button></div>'
+            card.innerHTML += '<div class="equip-auto-forge-plans">' + planCard('소모 최소', plans.minCost, '희귀 촉련석 소모 최소화 우선') + planCard('수치 최적', plans.maxValue, '높은 촉련도 우선') + '</div>'
+                + '<div class="equip-auto-forge-actions"><button type="button" class="equip-auto-forge-hl" data-hl="min">강조 · 소모 최소</button>'
+                + '<button type="button" class="equip-auto-forge-hl" data-hl="best">강조 · 수치 최적</button></div>'
                 + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table"><thead><tr><th>#</th><th>품질</th><th>동일 단계 참고</th><th>최소</th><th>최적</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
                 + '<p class="equip-auto-forge-note">※ 취소해도 촉련석이 소모됩니다. 같은 결과라면 더 저렴한 단계에서 시도하도록 계산합니다. 조회 전용으로 세이브나 촉련 순서는 변경되지 않습니다.</p>'
-                + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close">关闭</button></div>';
+                + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close">닫기</button></div>';
         }
         card.querySelector('.equip-auto-forge-close').addEventListener('click', close);
         var footClose = card.querySelector('.equip-auto-forge-foot-close');
