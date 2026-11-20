@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.5.5</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.5.6</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -138,6 +138,38 @@ body{background:var(--bg)!important}
 .muted-ui{opacity:.65;pointer-events:none}
 @media(max-width:1000px){.top{height:auto;min-height:56px;padding:4px 16px}.nav button{height:42px;font-size:13px}.page{padding:0 16px 35px}.layout{grid-template-columns:240px minmax(0,1fr)}.work{padding-left:20px}.aside{padding-right:14px}}
 @media(max-width:700px){.page{padding:0 12px 30px}.heading{padding-top:17px}.aside{position:relative;top:auto;border-right:0;border-bottom:1px solid var(--wr-line);padding:12px 0}.work{padding:17px 0}.module-wrap{padding:17px 0}.module-columns{grid-template-columns:1fr;gap:0}.hero h2{font-size:24px}}
+
+/* v0.5.6: original yy-sim wiki image list + detail work area */
+.wiki-module{padding-top:18px}
+.wiki-main-heading{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
+.wiki-main-heading strong{font-size:16px}.wiki-main-heading span{font-size:12px;color:var(--sub)}
+.wiki-category-bar{display:flex;overflow:auto;gap:4px;border-bottom:1px solid var(--border);margin:0 0 14px}
+.wiki-category-bar button{font-size:13px;white-space:nowrap;border:0;border-bottom:2px solid transparent;background:transparent;padding:9px 12px}
+.wiki-category-bar button.active{border-color:var(--gold);font-weight:700}
+.wiki-browser{display:grid;grid-template-columns:minmax(220px,32%) minmax(0,1fr);gap:16px;min-height:520px}
+.wiki-list-column{min-width:0;border-right:1px solid var(--border);padding-right:12px}
+.wiki-search-label input{font-size:13px;margin-bottom:8px;background:#faf5ea70}
+.wiki-result-count{font-size:12px;color:var(--sub);padding:6px 4px}
+.wiki-list-scroll{max-height:65vh;overflow:auto}
+.wiki-result-row{width:100%;display:flex;align-items:center;gap:10px;padding:8px 5px;text-align:left;border:1px solid transparent;background:transparent;border-radius:5px}
+.wiki-result-row.selected{background:#b69c6524;border-color:var(--border)}
+.wiki-result-row:hover{background:#b69c651b}
+.wiki-result-row span{min-width:0;flex:1}.wiki-result-row strong,.wiki-result-row small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wiki-result-row strong{font-size:13px;font-weight:600}.wiki-result-row small{font-size:11px;color:var(--sub)}
+.wiki-art{object-fit:contain;width:40px;height:40px;flex-shrink:0;image-rendering:auto}
+.wiki-art.large{height:66px;width:66px}
+.wiki-pager{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;padding:12px 4px;color:var(--sub)}
+.wiki-pager button{background:var(--panel);border:1px solid var(--border);padding:6px 9px;border-radius:4px}
+.wiki-browser-detail{min-width:0;padding:4px 3px;max-height:72vh;overflow:auto}
+.wiki-detail-head{display:flex;align-items:center;gap:15px;border-bottom:1px solid var(--border);padding:9px 0 18px}
+.wiki-detail-head h2{font-size:22px;margin:0 0 5px}.wiki-detail-head p{margin:0;color:var(--sub);font-size:13px}
+.wiki-detail-head small{color:var(--green);font-size:11px}
+.wiki-description{padding:18px 0;line-height:1.8;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere;border-bottom:1px solid var(--border)}
+.wiki-detail-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:8px;padding-top:17px}
+.wiki-field{border:1px solid var(--border);padding:9px;border-radius:4px;overflow-wrap:anywhere;font-size:12px}
+.wiki-field span{display:block;color:var(--sub);margin-bottom:5px}.wiki-field b{font-weight:500}
+.wiki-footnote{margin-top:18px}
+@media(max-width:690px){.wiki-browser{grid-template-columns:1fr}.wiki-list-column{border-right:0;border-bottom:1px solid var(--border);padding-right:0;padding-bottom:12px}.wiki-list-scroll{max-height:260px}.wiki-browser-detail{max-height:none}}
 </style></head>
 <body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터</small></div><nav class="nav" id="nav"></nav><div class="tools"><button id="saveLink" class="save-link">세이브</button><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
 <main class="page"><div class="heading"><h1 id="title">세수 시뮬레이션</h1><span class="micro" id="status">세이브 미연결</span><div class="session-meta"><span class="session-label">보유 세수단 <b id="washBag">—</b></span><button id="import" class="btn">세이브 불러오기</button><input id="file" type="file" accept=".json,application/json" hidden></div></div><div id="view"></div></main><footer class="foot">독립 사이트 v0.5.0 · yy-sim 화면 구성 참고 · 한국판 계산 엔진 검증 후 연결</footer></div>
@@ -245,68 +277,84 @@ function equipView(){
 }
 
 
-let koreanWiki=[],wikiQuery='',wikiSelectedCategory='all',wikiDetail=null,wikiOffset=0,wikiSource=null,wikiSourceError='';
+
+let koreanWiki=[],wikiQuery='',wikiSelectedCategory='misc',wikiDetail=null,wikiOffset=0,wikiSource=null,wikiSourceError='';
 const wikiCategories=[
- ['all','전체'],['misc','잡항'],['equip','장비'],['medicine','단약'],['food','음식·술'],
+ ['misc','잡항'],['equip','장비'],['medicine','단약'],['food','음식·술'],
  ['secret','비급'],['material','재료'],['martial','무학'],['craft','생활기술'],
  ['arts','비기'],['buff','상태'],['quest','임무']
 ];
 window.addEventListener('nangman-wiki-loaded',e=>{koreanWiki=e.detail;if(v==='wiki')render()});
 window.addEventListener('nangman-wiki-source-ready',e=>{wikiSource=e.detail;wikiSourceError='';if(v==='wiki')render()});
-window.addEventListener('nangman-wiki-source-error',()=>{wikiSourceError='yy-sim 원본 백과 데이터 파일을 불러오지 못했습니다. 원본 데이터의 자체 호스팅이 필요합니다.';if(v==='wiki')render()});
+window.addEventListener('nangman-wiki-source-error',()=>{wikiSourceError='yy-sim 원본 백과 데이터를 불러오지 못했습니다.';if(v==='wiki')render()});
 function wikiRows(){
  if(!wikiSource)return [];
+ const rows=[];
  const sources=[['items',wikiSource.items],['equips',wikiSource.equips],['martial',wikiSource.martial],['crafts',wikiSource.crafts],['arts',wikiSource.arts]];
- let rows=[];
- for(const [source,list] of sources){
-  for(const obj of (Array.isArray(list)?list:[])){
-   let cat=source==='items'?(obj.cat||'misc'):({equips:'equip',martial:'martial',crafts:'craft',arts:'arts'}[source]||'misc');
-   rows.push({obj,id:String(obj.id??''),cat,source});
+ for(const [source,arr] of sources){
+  for(const obj of (Array.isArray(arr)?arr:[])){
+   const cat=source==='items'?(obj.cat||'misc'):{equips:'equip',martial:'martial',crafts:'craft',arts:'arts'}[source];
+   rows.push({obj,id:String(obj.id??''),cat,source,key:source+':'+String(obj.id??'')});
   }
  }
  return rows;
 }
 function wikiKoMap(){
  const m=new Map();
- // NangmanGame 60014 데이터의 정확히 일치하는 ID만 이름·설명을 교체
- for(const e of koreanWiki)m.set(String(e.id),e);
+ // IMPORTANT: IDs collide across different game tables. Apply only to matching skill class.
+ for(const e of koreanWiki){
+  if(['외공','내공','경공'].includes(e.category))m.set('martial:'+String(e.id),e);
+ }
  return m;
 }
-function wikiView(){
- const cats=wikiCategories;
- const ko=wikiKoMap();
- const src=wikiRows();
- const q=wikiQuery.trim().toLowerCase();
- const rows=src.filter(x=>{
-  if(wikiSelectedCategory!=='all'&&x.cat!==wikiSelectedCategory)return false;
-  if(!q)return true;
-  const translated=ko.get(x.id);
-  return (x.id+' '+(translated?.name||'')+' '+(x.obj.n||'')).toLowerCase().includes(q);
- });
- const shown=rows.slice(wikiOffset,wikiOffset+60);
- const n=src.length;
- const head='<div class="module-wrap">'+moduleHero('백과','yy-sim 원본 백과 분류·데이터·상세 필드를 유지하고, 동일 ID의 한국판 표기만 대조 적용합니다.');
- const category='<nav class="simple-tabs">'+cats.map(([id,label])=>'<button data-wiki-cat="'+id+'" class="'+(id===wikiSelectedCategory?'active':'')+'">'+label+'</button>').join('')+'</nav>';
- const search='<input id="wikiSearch" class="module-search" type="search" placeholder="이름 또는 ID 검색 (한국어·중국어)" value="'+escape(wikiQuery)+'">';
- const status='<p class="micro">yy-sim 원본 '+n+'건 · 한국판 용어 대조 '+koreanWiki.length+'건 · 검색 '+rows.length+'건'+(wikiSourceError?' · 로딩 오류':'')+'</p>';
- const table='<div style="max-height:57vh;overflow:auto"><table class="module-table"><thead><tr><th>ID</th><th>이름</th><th>분류</th><th>상세</th></tr></thead><tbody>'+
- (shown.length?shown.map(x=>{
-   const koItem=ko.get(x.id); const name=koItem?.name||x.obj.n||'이름 없음';
-   const catName=cats.find(c=>c[0]===x.cat)?.[1]||x.cat;
-   return '<tr><td>'+escape(x.id)+'</td><td>'+escape(name)+(koItem?'':' <small class="micro">[번역 대기]</small>')+'</td><td>'+escape(catName)+'</td><td><button class="btn" data-wiki-detail="'+escape(x.source)+':'+escape(x.id)+'">보기</button></td></tr>';
- }).join(''):'<tr><td colspan="4">'+(wikiSourceError?escape(wikiSourceError):!wikiSource?'yy-sim 원본 백과 데이터를 불러오는 중입니다.':'검색 결과가 없습니다.')+'</td></tr>')+'</tbody></table></div>';
- const pages='<div class="actions"><button class="btn" data-wiki-paging="prev" '+(wikiOffset===0?'disabled':'')+'>이전</button><span class="micro">'+(rows.length?wikiOffset+1:0)+'–'+Math.min(wikiOffset+60,rows.length)+' / '+rows.length+'</span><button class="btn" data-wiki-paging="next" '+(wikiOffset+60>=rows.length?'disabled':'')+'>다음</button></div>';
- let details='';
- if(wikiDetail){
-  const x=src.find(x=>x.source+':'+x.id===wikiDetail);
-  if(x){
-   const k=ko.get(x.id),o=x.obj;
-   const desc=k?.desc||o.desc||'설명 없음';
-   const fields=Object.entries(o).filter(([key])=>!['n','desc','id'].includes(key)).slice(0,30);
-   details='<section class="module-panel"><div class="section-header"><h3>'+escape(k?.name||o.n||x.id)+' · '+escape(x.id)+'</h3><button class="btn" id="closeWikiDetail">닫기</button></div><p class="micro">'+(k?'한국판 번역 적용':'원본 중국어 · 한국판 번역 대기')+'</p><p style="white-space:pre-wrap">'+escape(desc)+'</p><table class="module-table"><tbody>'+fields.map(([field,val])=>'<tr><th>'+escape(field)+'</th><td style="overflow-wrap:anywhere">'+escape(typeof val==='object'?JSON.stringify(val):val)+'</td></tr>').join('')+'</tbody></table></section>';
-  }
+function wikiName(x,ko){const k=ko.get(x.key);return k?.name||x.obj.n||'이름 없음'}
+function wikiImage(x){
+ if(!x)return '';
+ const o=x.obj;
+ // Match yy-sim's actual icon helpers: yr() item, vf() equipment, tb() status
+ const base='https://yy-sim.pages.dev/icons/';
+ let folder='item',icon=Number(o.icon||o.id)||9999;
+ if(x.source==='equips'){folder='equip';icon=Number(o.icon||o.id)||9999}
+ if(x.source==='martial'){folder='item';icon=Number(o.pic||1000)||1000}
+ if(x.cat==='buff'){
+   folder='buff';icon=String(o.icon||'icon_buff_empty').split('/').pop().replace(/\.png$/i,'');
+   if(!/^[a-zA-Z0-9_-]+$/.test(icon))icon='icon_buff_empty';
  }
- return head+category+search+status+table+pages+details+'<p class="micro">백과 항목과 데이터 필드 구조는 yy-sim 기준. 한국판 대응이 없는 항목은 임의 번역하지 않고 원문과 번역 대기 상태를 표시합니다.</p></div>';
+ return base+folder+'/'+icon+'.png';
+}
+function wikiImgTag(x,large=false){
+ const fallback='https://yy-sim.pages.dev/icons/item/9999.png';
+ return '<img class="wiki-art '+(large?'large':'')+'" loading="lazy" alt="" src="'+escape(wikiImage(x))+'" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src=\''+fallback+'\'}else this.style.opacity=\'.24\'">';
+}
+function wikiFormatField(key,v){
+ const labels={lv:'요구 레벨',grade:'등급',type:'종류',cat:'분류',kind:'무학 유형',clan:'문파',atk:'공격',parry:'방어·막기',prop:'내공 속성',icon:'아이콘',pic:'이미지',fx:'효과',kf:'연결 무학',zhao_ids:'초식 ID',suoshu:'소속'};
+ const value=(v&&typeof v==='object')?JSON.stringify(v):String(v);
+ return '<div class="wiki-field"><span>'+escape(labels[key]||key)+'</span><b>'+escape(value)+'</b></div>';
+}
+function wikiView(){
+ const ko=wikiKoMap(),src=wikiRows(),q=wikiQuery.trim().toLowerCase();
+ const rows=src.filter(x=>{
+  if(x.cat!==wikiSelectedCategory)return false;
+  if(!q)return true;
+  return (x.id+' '+wikiName(x,ko)+' '+(x.obj.n||'')+' '+(x.obj.desc||'')).toLowerCase().includes(q);
+ });
+ const selected=src.find(x=>x.key===wikiDetail)||rows[0]||null;
+ const catLabel=wikiCategories.find(x=>x[0]===wikiSelectedCategory)?.[1]||'백과';
+ const catbar='<nav class="wiki-category-bar">'+wikiCategories.map(([id,label])=>'<button data-wiki-cat="'+id+'" class="'+(id===wikiSelectedCategory?'active':'')+'">'+label+'</button>').join('')+'</nav>';
+ const search='<label class="wiki-search-label"><input id="wikiSearch" type="search" placeholder="이름 · ID · 원문 검색" value="'+escape(wikiQuery)+'"></label>';
+ const list='<section class="wiki-browser-list"><div class="wiki-result-count">'+catLabel+' · '+rows.length+'건</div><div class="wiki-list-scroll">'+(rows.slice(wikiOffset,wikiOffset+120).map(x=>'<button class="wiki-result-row '+(selected?.key===x.key?'selected':'')+'" data-wiki-detail="'+escape(x.key)+'">'+wikiImgTag(x)+'<span><strong>'+escape(wikiName(x,ko))+'</strong><small>#'+escape(x.id)+' · '+escape(x.obj.n||'')+'</small></span></button>').join('')||'<div class="blank">'+(wikiSourceError?escape(wikiSourceError):'일치하는 항목이 없습니다.')+'</div>')+'</div><div class="wiki-pager"><button data-wiki-paging="prev" '+(wikiOffset===0?'disabled':'')+'>이전</button><span>'+(rows.length?wikiOffset+1:0)+'–'+Math.min(rows.length,wikiOffset+120)+' / '+rows.length+'</span><button data-wiki-paging="next" '+(wikiOffset+120>=rows.length?'disabled':'')+'>다음</button></div></section>';
+ let detail='<div class="wiki-detail-empty">항목을 선택하면 원본 이미지·설명·효과가 표시됩니다.</div>';
+ if(selected){
+  const k=ko.get(selected.key),o=selected.obj;
+  const title=wikiName(selected,ko);
+  const desc=(k?.desc||o.desc||'설명이 없습니다.');
+  detail='<article class="wiki-browser-detail"><div class="wiki-detail-head">'+wikiImgTag(selected,true)+'<div><h2>'+escape(title)+'</h2><p>'+escape(catLabel)+' · #'+escape(selected.id)+(o.lv?' · '+escape(o.lv)+'레벨':'')+'</p>'+(k?'<small>한국판 명칭 적용</small>':'')+'</div></div><div class="wiki-description">'+escape(desc)+'</div>'+
+  '<div class="wiki-detail-fields">'+Object.entries(o).filter(([key])=>!['id','n','desc'].includes(key)).map(([key,val])=>wikiFormatField(key,val)).join('')+'</div></article>';
+ }
+ return '<div class="module-wrap wiki-module">'+
+ '<div class="wiki-main-heading"><strong>백과</strong><span>'+escape(catLabel)+' '+rows.length+'건 · yy-sim 원본 데이터 / 한국판 명칭 연결</span></div>'+
+ catbar+'<div class="wiki-browser"><aside class="wiki-list-column">'+search+list+'</aside>'+detail+'</div>'+
+ '<p class="micro wiki-footnote">원본 yy-sim 이미지 경로를 사용합니다. 한국판 자료와 같은 ID·종류인 항목만 이름을 대체하며, 설명은 해당 ID의 한국판 설명이 확보된 경우에만 대체합니다.</p></div>';
 }
 function dailyView(){
  const opts=[['ghost','귀시'],['merchant','행상'],['drop','드랍']];
@@ -325,7 +373,7 @@ function others(){
  const [name,desc]=info[v];
  return '<div class="module-wrap">'+moduleHero(name,desc)+'<div class="module-panel"><h3>기능 준비 중</h3><p class="micro">'+desc+'</p></div></div>';
 }
-function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);render()});if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.5.5',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?60:-60));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;render()}}
+function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);render()});if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.5.5',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;render()}}
 $('saveLink').onclick=()=>{v='save';render()};$('import').onclick=()=>$('file').click();$('file').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{if(f.size>50e6)throw Error('파일 용량 50MB 초과');let obj=JSON.parse(await f.text());let root=obj?.data?.MainRole?obj.data:obj?.save?.MainRole?obj.save:obj;if(!root||typeof root!=='object'||Array.isArray(root))throw Error('JSON 최상위 객체가 아닙니다');save=root;filename=f.name;roles=getRoles(root);selected=0;render()}catch(err){alert('불러오기 실패: '+err.message)}};function theme(t){document.documentElement.dataset.theme=t;$('paper').classList.toggle('on',t==='paper');$('ink').classList.toggle('on',t==='ink');try{localStorage.setItem('nangman-theme',t)}catch{}}$('paper').onclick=()=>theme('paper');$('ink').onclick=()=>theme('ink');try{theme(localStorage.getItem('nangman-theme')==='ink'?'ink':'paper')}catch{theme('paper')}render()
 })();
 </script>
