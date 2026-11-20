@@ -104,7 +104,7 @@ html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-contr
     
 <meta name="apple-mobile-web-app-title" content="算不尽"><script defer src="../shared/i18n.js"></script><style>html,body{max-width:100%;overflow-x:hidden}body{font-family:system-ui,"Malgun Gothic",sans-serif}img{max-width:100%}.sbj-site-header,.sbj-side-nav{display:none!important}</style></head>
 <body class="sbj-workbench" data-workbench="auto">
-    <div class="app-container"><header class="feature-heading"><h1>装备</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/suanbujin/equip-quick/index.html?rev=98938bd19cc9">速查</a><a data-feature-mode="equip-auto" href="/suanbujin/equip-auto/index.html" aria-current="page">自动</a><a data-feature-mode="equip-manual" href="/suanbujin/equip/index.html">手动</a><a data-feature-mode="equip-orange" href="/suanbujin/equip-orange/index.html">橙装序列</a></nav></header>
+    <div class="app-container"><header class="feature-heading"><h1>装备</h1><nav class="feature-mode-nav" aria-label="同类功能切换"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html?rev=98938bd19cc9">速查</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html" aria-current="page">自动</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html">手动</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html">橙装序列</a></nav></header>
 
         <div id="yyhxLegacyState" hidden style="display:none!important;">
             <div class="archive-summary-info">
@@ -118,7 +118,7 @@ html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-contr
                 </div>
             </div>
             <div class="archive-summary-actions">
-                <a id="archiveImportButton" class="btn btn-archive-action" href="/suanbujin/index.html">导入数据</a>
+                <a id="archiveImportButton" class="btn btn-archive-action" href="/vendor/sanbujin/index.html">导入数据</a>
                 <button id="btnExportTable" class="btn btn-archive-action" type="button">导出表格</button>
                 <button id="btnResetWebsite" class="btn btn-archive-action" type="button" aria-live="polite">重置网页</button>
             </div>
@@ -901,5 +901,5 @@ html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-contr
 </script>
 
 
-<script>(function(){window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-save')return;try{const d=e.data.save;if(typeof loadParsedSaveData!=='function')throw Error('자동 장비 로더 미준비');loadParsedSaveData(d,false);parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'save-loaded'},location.origin)}catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'error',message:String(err.message||err)},location.origin)}});window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'ready'},location.origin));})();</script></body>
+<script>(function(){window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-save')return;try{const d=e.data.save;if(typeof loadParsedSaveData!=='function')throw Error('자동 장비 로더 미준비');loadParsedSaveData(d,false);parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'save-loaded'},location.origin)}catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'error',message:String(err.message||err)},location.origin)}});window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'ready'},location.origin));})();</script><script defer src="/engine/native-equipment-navigation.js"></script></body>
 </html>
