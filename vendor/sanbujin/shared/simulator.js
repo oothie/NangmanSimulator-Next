@@ -1441,7 +1441,7 @@ function annotateExchangeSequenceShenmaiPairs(purples, initialTalents) {
 
 function runExchangeSequenceWasmSandbox(callback) {
     try {
-        if (!wasmInitEngine(TALENT_DATA, ZZ_DATA)) throw new Error('치환 맥 순서引擎初始化失败');
+        if (!wasmInitEngine(TALENT_DATA, ZZ_DATA)) throw new Error('치환 맥 순서 계산기를 초기화하지 못했습니다.');
         return callback();
     } finally {
         wasmInitEngine(TALENT_DATA, _buildZZDataForWasm());
@@ -1524,9 +1524,9 @@ function updateExchangeSequenceSelection() {
     }
     const fixed = role.seedStatus === 'fixed_luck_seed';
     if (seedSource) {
-        seedSource.textContent = fixed ? '置换序列已固定' : '尚未置换，可比较不同추가 세수方案';
+        seedSource.textContent = fixed ? '置换序列已固定' : '아직 치환 전이므로 추가 세수 횟수별 경로를 비교할 수 있습니다.';
     }
-    if (selectedLabel) selectedLabel.textContent = role.directPitySequence ? '所选첫 천장 자맥' : '所选置换首紫';
+    if (selectedLabel) selectedLabel.textContent = role.directPitySequence ? '선택한 첫 천장 자맥' : '所选置换首紫';
     if (initialLabel) initialLabel.textContent = '本次置换起点';
     if (selectedPurple) selectedPurple.textContent = candidate ? `#${candidate.washNo} ${candidate.name}` : '无可选首紫';
 }
@@ -1568,7 +1568,7 @@ async function populateExchangeSequencePurples() {
         select.disabled = true;
         if (status) {
             status.className = 'exchange-sequence-status is-error';
-            status.textContent = '测试服含额外保底累计规则，当前暂不支持치환 맥 순서生成。';
+            status.textContent = '테스트 서버에는 추가 천장 누적 규칙이 있어 현재 치환 맥 순서 생성을 지원하지 않습니다.';
         }
         updateExchangeSequenceGenerateButton(role, null);
         return;
@@ -1619,7 +1619,7 @@ function populateExchangeSequenceRoles() {
         clearExchangeSequenceResults('请先导入共享存档');
         if (status) {
             status.className = 'exchange-sequence-status is-error';
-            status.textContent = '请先在首页导入存档，再生成치환 맥 순서。';
+            status.textContent = '먼저 첫 화면에서 세이브를 불러온 뒤 치환 맥 순서를 생성하세요.';
         }
         updateExchangeSequenceSelection();
         return;
@@ -1722,10 +1722,10 @@ function initializeExchangeSequenceSeed(role, candidate, n) {
 
     if (directPity) {
         const { targetState, targetWash } = findTargetPurpleSnapshot(20000);
-        if (!targetWash.was_pity) throw new Error('첫 천장 자맥定位结果不是保底脉');
+        if (!targetWash.was_pity) throw new Error('첫 천장 자맥을 찾은 결과가 천장맥이 아닙니다.');
         const luckSeed = Number(targetState?.luck_seed);
         if (!targetState?.luck_seed_inited || !Number.isFinite(luckSeed)) {
-            throw new Error('无法读取첫 천장 자맥的置换序列，请重新导入存档');
+            throw new Error('첫 천장 자맥의 치환 순서를 읽지 못했습니다. 세이브를 다시 불러오세요.');
         }
         return { base, luckSeed, fixed: false, directPity: true };
     }
@@ -1895,7 +1895,7 @@ function initializeExchangeSequenceSeed(role, candidate, n) {
     if (n > 0 && (wasmWashMulti(n) || []).length !== n) throw new Error(`첫 자맥 잠금 이후 ${n}회 갱신을 완료하지 못했습니다`);
     const initializedState = wasmGetState();
     const luckSeed = Number(initializedState?.seed);
-    if (!Number.isFinite(luckSeed)) throw new Error('无法读取所选首紫及추가 세수位置对应的置换序列');
+    if (!Number.isFinite(luckSeed)) throw new Error('선택한 첫 자맥과 추가 세수 위치에 해당하는 치환 순서를 읽지 못했습니다.');
     return {
         base,
         luckSeed,
@@ -1997,7 +1997,7 @@ async function compareFirstPurple() {
     const last = fixed ? 0 : limit, token = ++exchangeCompareToken;
     exchangeSequenceRunning = true;updateExchangeSequenceGenerateButton(role,candidate);host.replaceChildren();
     const table = document.createElement('table');table.className = 'exchange-compare-table';const head = document.createElement('thead'), header = document.createElement('tr');
-    for (const label of [fixed ? '置换条件' : isExchangeSequenceFourSlotRole(role) ? '首紫后脉序位置' : '锁紫后추가 세수次数','首次置换结果','完整序列']) { const th=document.createElement('th');th.scope='col';th.textContent=label;header.append(th); }head.append(header);table.append(head);const body=document.createElement('tbody');table.append(body);host.append(table);
+    for (const label of [fixed ? '置换条件' : isExchangeSequenceFourSlotRole(role) ? '首紫后脉序位置' : '자맥 잠금 후 추가 세수 횟수','首次置换结果','完整序列']) { const th=document.createElement('th');th.scope='col';th.textContent=label;header.append(th); }head.append(header);table.append(head);const body=document.createElement('tbody');table.append(body);host.append(table);
     try {
         for (let n=0;n<=last;n++) {
             if (token!==exchangeCompareToken || document.getElementById('exchangeSequenceModal')?.hidden || selectedExchangeSequenceRole()!==role || selectedExchangeSequenceCandidate(role)!==candidate) return;
@@ -2013,7 +2013,7 @@ async function compareFirstPurple() {
             } catch(error) {value.textContent=playerError(error);}
             line.append(position,value,action);body.append(line);
         }
-        if(token===exchangeCompareToken)status.textContent=fixed?'置换序列已固定，추가 세수不会改变置换结果。':`${last+1}개 위치를 비교했습니다. '보기'를 누르면 해당 치환 순서를 생성합니다.`;
+        if(token===exchangeCompareToken)status.textContent=fixed?'치환 순서가 고정됐으므로 추가 세수를 해도 치환 결과가 변하지 않습니다.':`${last+1}개 위치를 비교했습니다. '보기'를 누르면 해당 치환 순서를 생성합니다.`;
     } finally { if(token===exchangeCompareToken){exchangeSequenceRunning=false;host.querySelectorAll('button').forEach(button=>{button.disabled=false});updateExchangeSequenceGenerateButton();} }
 }
 
@@ -2035,7 +2035,7 @@ function generateExchangeSequence() {
     if (countInput) countInput.value = String(count);
     exchangeSequenceRunning = true;
     updateExchangeSequenceGenerateButton(role, candidate);
-    clearExchangeSequenceResults('正在生成치환 맥 순서…');
+    clearExchangeSequenceResults('치환 맥 순서 생성 중…');
     if (status) {
         status.className = 'exchange-sequence-status';
         status.textContent = candidate.isDirectPity ? '正在查看已固定的置换序列…' : '천장 자맥 순서를 생성하는 중…';
@@ -2470,7 +2470,7 @@ function findAndShowNextConflict(afterSeq) {
     const conflictLocked = hasConflictNow && state.talents[findTalentSlotIndexByName(item.earlier_conflict_name)]?.locked;
     const hasPurpleNow = findTalentSlotIndexByName(item.talent_name) >= 0;
 
-    let statusHtml = `<div class="nc-steps">当前：脉序 <b>#${curBars}</b>（已洗 ${curWash} 次）`;
+    let statusHtml = `<div class="nc-steps">현재 맥 순서 <b>#${curBars}</b>(세수 ${curWash}회 완료)`;
     if (hasPurpleNow) {
         statusHtml += ` · '${item.talent_name}' 등장 완료, 바로 치환할 수 있습니다.`;
     } else if (conflictLocked) {
@@ -2640,9 +2640,9 @@ function formatNodeExchangeResult(node) {
         : '';
     let main;
     if (chain.length === 1 && from && chain[0] !== from) {
-        main = `<span class="text-muted">置${from} 치환${conf}</span> ➔ <b class="purple-bright">${chain[0]}</b>`;
+        main = `<span class="text-muted">${from} 치환${conf}</span> ➔ <b class="purple-bright">${chain[0]}</b>`;
     } else {
-        main = `<span class="text-muted">置${from} 치환${conf}</span> ➔ ${formatExchangeChainHtml(chain)}`;
+        main = `<span class="text-muted">${from} 치환${conf}</span> ➔ ${formatExchangeChainHtml(chain)}`;
     }
     return `${main}${formatChainStopAltsHtml(node)}`;
 }
@@ -2737,10 +2737,10 @@ function renderExchangeAnalysisBlock() {
         const lastHint = nodeSim && nodeSim.last_slot_name
             ? `<span class="card-last-slot">마지막 칸: ${nodeSim.last_slot_name}</span>`
             : '';
-        const roleLabel = idx === 0 ? '首紫（可추가 세수）' : `제${idx + 1}자맥(잠금 후 고정)`;
+        const roleLabel = idx === 0 ? '첫 자맥(추가 세수 가능)' : `제${idx + 1}자맥(잠금 후 고정)`;
         let conflictHtml;
         if (nodeSim && nodeSim.conflict_name) {
-            conflictHtml = `冲突：${nodeSim.conflict_name}`;
+            conflictHtml = `충돌: ${nodeSim.conflict_name}`;
         } else if (item.earlier_conflict_name) {
             const prevWashStr = item.earlier_conflict_wash_no === 0 ? '初始槽位' : `#${item.earlier_conflict_wash_no}`;
             const gapStr = item.earlier_conflict_gap != null ? `${item.earlier_conflict_gap}개 맥 간격` : '';
@@ -3707,7 +3707,7 @@ function aiRouteResultHtml(route, index) {
             <span class="ai-route-total">${Number(route.totalPills).toLocaleString()} 丹<small>${Number(route.totalWashes).toLocaleString()} 次洗脉</small></span>
         </summary>
         <div class="ai-route-body">
-            ${Number(route.totalPills) === 0 ? '<p class="ai-route-zero-cost"><strong>无需额外세수단</strong>：이 경로에서는 추가 세수가 필요하지 않습니다. 아래 단계에 따라 재능을 조정하세요. 칸 개방 재료는 따로 준비해야 합니다.</p>' : ''}
+            ${Number(route.totalPills) === 0 ? '<p class="ai-route-zero-cost"><strong>추가 세수단 불필요</strong>：이 경로에서는 추가 세수가 필요하지 않습니다. 아래 단계에 따라 재능을 조정하세요. 칸 개방 재료는 따로 준비해야 합니다.</p>' : ''}
             <div class="ai-route-metrics">
                 <div class="ai-route-metric"><b>${Number(route.totalPills).toLocaleString()}</b><span>总丹耗</span></div>
                 <div class="ai-route-metric"><b>${Number(route.totalWashes).toLocaleString()}</b><span>洗髓次数</span></div>
@@ -6167,7 +6167,7 @@ function openEquipAutoRefineSequence(candidateId) {
     wrap.innerHTML = '<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="精炼序列">'
         + '<div class="equip-auto-forge-head"><div><strong>精炼数据 · ' + escapeAiHtml(String(candidate.equipName || '装备')) + '</strong>'
         + '<span id="equipAutoRefineRange">第 1～' + count + ' 次 · 只读预览，不推进存档</span></div>'
-        + '<button type="button" class="equip-auto-forge-close" aria-label="关闭" title="关闭">×</button></div>'
+        + '<button type="button" class="equip-auto-forge-close" aria-label="닫기" title="닫기">×</button></div>'
         + '<p class="equip-auto-forge-meta">目标属性：' + escapeAiHtml(targets) + ' · 조회 횟수를 설정하고 옵션 슬롯과 능력치로 필터링할 수 있습니다.</p>'
         + '<div class="equip-auto-refine-controls">'
         + '<label>查看次数 <input id="equipAutoRefineCount" type="number" min="1" max="2000" step="1" value="' + count + '"></label>'
@@ -6281,11 +6281,11 @@ function openEquipAutoRegionCompare(candidateId) {
     wrap.innerHTML = '<div class="equip-auto-forge-card" role="dialog" aria-modal="true" aria-label="地区附加对照">'
         + '<div class="equip-auto-forge-head"><div><strong>其他NPC附加值 · ' + escapeAiHtml(String(candidate.equipName || '装备')) + '</strong>'
         + '<span>같은 옵션과 같은 수치 · 조회 전용으로 세이브는 진행되지 않습니다.</span></div>'
-        + '<button type="button" class="equip-auto-forge-close" aria-label="关闭" title="关闭">×</button></div>'
-        + '<p class="equip-auto-forge-meta">按同一张图纸、同一打造进度，在其他 NPC 各模拟打造 ' + limit + ' 次，'
+        + '<button type="button" class="equip-auto-forge-close" aria-label="닫기" title="닫기">×</button></div>'
+        + '<p class="equip-auto-forge-meta">동일 도면·제작 진행도에서 다른 장인별로 제작을 예측합니다: ' + limit + ' 次，'
         + '추가 옵션 종류·개수·수치가 모두 같은 장비의 첫 제작을 찾습니다. 없으면 -로 표시합니다.</p>'
         + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
-        + '<thead><tr><th>NPC / 地点</th><th>第几次</th><th>地区附加</th></tr></thead>'
+        + '<thead><tr><th>장인 / 지역</th><th>제작 회차</th><th>지역 추가 옵션</th></tr></thead>'
         + '<tbody><tr><td colspan="3">장비 제작 시뮬레이션 중…</td></tr></tbody></table></div>'
         + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close">关闭</button></div>'
         + '</div>';
@@ -7645,7 +7645,7 @@ function renderJianwangAutoResult(result) {
         </li>`;
     }).join('') : '<li class="jianwang-auto-path-step"><div class="jianwang-auto-step-head"><b>起始状态已满足目标</b></div></li>';
     container.innerHTML = `<div class="jianwang-auto-summary">
-        <div><span class="ai-route-strength">找到结果</span><strong>${escapeAiHtml(result.routeName || '')} · ${targetCount}条${escapeAiHtml(result.targetName || '')}</strong></div>
+        <div><span class="ai-route-strength">找到结果</span><strong>${escapeAiHtml(result.routeName || '')} · 목표 ${targetCount}개${escapeAiHtml(result.targetName || '')}</strong></div>
         <p>${escapeAiHtml(swordText)}达成 · ${escapeAiHtml(result.finalAction || '')}</p>
         <p class="jianwang-auto-start-line">起点：${escapeAiHtml(result.startSwordLabel || '')}</p>
     </div>
