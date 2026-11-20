@@ -424,7 +424,7 @@ if($('nativeEngineFrame')){
  frame.onload=()=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};
 }
 document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));
-if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;equipmentStatus[equipTab]='세이브가 해제됐습니다.';try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()}}
+if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;clearEquipmentSessions();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()}}
 
 const equipmentStatus=Object.create(null);
 const equipmentFrames=new Map();
@@ -433,6 +433,12 @@ function sendSaveToEquipment(frame){
  if(!save||!frame?.contentWindow)return;
  try{frame.contentWindow.postMessage({kind:'nangman-equip-save',version:equipSaveVersion,save},location.origin)}
  catch(err){equipmentStatus[equipTab]='공통 세이브 전송 실패: '+err.message}
+}
+function clearEquipmentSessions(){
+ for(const frame of equipmentFrames.values()){try{frame.parentElement.remove()}catch(e){}}
+ equipmentFrames.clear();
+ for(const key of Object.keys(equipmentStatus))delete equipmentStatus[key];
+ equipSaveVersion++;
 }
 function broadcastEquipmentSave(){
  equipSaveVersion++;
