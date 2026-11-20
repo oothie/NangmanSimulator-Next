@@ -7410,7 +7410,7 @@ function initializeJianwangAutoControls() {
     const routeSelect = document.getElementById('autoJianwangRoute');
     if (!optimizer || !routeSelect || typeof EQUIP_DATA === 'undefined') return;
     routeSelect.innerHTML = '';
-    optimizer.routeOptions(EQUIP_DATA).forEach(route => routeSelect.appendChild(new Option(route.name, String(route.id))));
+    optimizer.routeOptions(EQUIP_DATA).forEach(route => routeSelect.appendChild(new Option(EQUIP_DATA.equipment?.[String(route.id)]?.koName || nangmanAutoDisplay(route.name), String(route.id))));
     if (routeSelect.options.length) routeSelect.value = routeSelect.options[0].value;
     refreshJianwangAutoTargetProps(false);
     refreshJianwangAutoSwords(false);
@@ -7449,7 +7449,7 @@ function renderJianwangAutoProgress(progress) {
 
 function jianwangAutoFormatExt(ext) {
     if (!ext) return '';
-    const label = EQUIP_DATA?.propNames?.[ext.prop] || ext.prop || '알 수 없는 옵션';
+    const label = nangmanAutoDisplay(EQUIP_DATA?.propNames?.[ext.prop] || ext.prop || '알 수 없는 옵션');
     return `${escapeAiHtml(label)}+${escapeAiHtml(equipAutoFormatPropValue(ext.prop, ext.value))}`;
 }
 
@@ -7459,15 +7459,15 @@ function jianwangAutoFormatExts(exts) {
 }
 
 function jianwangAutoStepLabel(step) {
-    if (step.type === 'blank') return `검 분해 후 ${step.toName || '60레벨 검 배아'} 생성`;
+    if (step.type === 'blank') return `검 분해 후 ${nangmanAutoDisplay(step.toName || '60레벨 검 배아')} 생성`;
     if (step.type === 'reforge') return `재주조 제${Number(step.reforgeAttempt || 0)}회`;
-    return `${step.fromName || step.fromId} → ${step.toName || step.toId}`;
+    return `${nangmanAutoDisplay(step.fromName || step.fromId)} → ${nangmanAutoDisplay(step.toName || step.toId)}`;
 }
 
 function jianwangMaterialName(itemId) {
     try {
-        if (typeof ITEM_NAMES !== 'undefined' && ITEM_NAMES[String(itemId)]) return ITEM_NAMES[String(itemId)];
-        if (typeof ITEM_NAMES !== 'undefined' && ITEM_NAMES[Number(itemId)]) return ITEM_NAMES[Number(itemId)];
+        if (typeof ITEM_NAMES !== 'undefined' && ITEM_NAMES[String(itemId)]) return nangmanAutoDisplay(ITEM_NAMES[String(itemId)]);
+        if (typeof ITEM_NAMES !== 'undefined' && ITEM_NAMES[Number(itemId)]) return nangmanAutoDisplay(ITEM_NAMES[Number(itemId)]);
     } catch (error) { /* 忽略 */ }
     return `아이템 ${itemId}`;
 }
@@ -7483,7 +7483,7 @@ function jianwangResourcesHtml(resources) {
     }).join('');
     const onlyReturnedRows = Object.entries(resources.returned || {})
         .filter(([id, count]) => Number(count) > 0 && !(Number(resources.spent?.[id]) > 0))
-        .map(([id, count]) => `<tr><td>${escapeAiHtml(jianwangMaterialName(id))}</td><td>0</td><td>${Number(count).toLocaleString()}</td><td><strong>−${Number(count).toLocaleString()}（남은 재료 반환）</strong></td></tr>`)
+        .map(([id, count]) => `<tr><td>${escapeAiHtml(jianwangMaterialName(id))}</td><td>0</td><td>${Number(count).toLocaleString()}</td><td><strong>−${Number(count).toLocaleString()}(남은 재료 반환)</strong></td></tr>`)
         .join('');
     const bodyRows = netRows + onlyReturnedRows
         || '<tr><td colspan="4" class="empty-row">이 경로에서 소모한 재료는 없습니다.</td></tr>';
@@ -7571,7 +7571,7 @@ function renderJianwangAttachResult(key) {
     const maxima = result.maxima.filter(item => item.recommendedIndex != null)
         .map(item => jianwangAutoFormatExt({ prop: item.prop, value: item.value }) + '(제 ' + item.recommendedIndex + '회)')
         .join(' · ');
-    box.innerHTML = '<p class="meta-text">' + escapeAiHtml(result.materialName) + ' · ' + count + '회 · 최고 계수 '
+    box.innerHTML = '<p class="meta-text">' + escapeAiHtml(nangmanAutoDisplay(result.materialName)) + ' · ' + count + '회 · 최고 계수 '
         + result.bestFactor + '%(제 ' + result.bestIndexes.join('、') + '회) · 권장 종료 회차: ' + result.recommendedIndex + '회</p>'
         + '<table class="preview-table"><thead><tr><th>#</th><th>능력치</th><th>품질</th><th>망정 순서 번호</th><th></th></tr></thead><tbody>'
         + rows + '</tbody></table>'
@@ -7619,7 +7619,7 @@ function renderJianwangAutoResult(result) {
             </details>`;
         }).join('');
         container.innerHTML = `<div class="jianwang-auto-summary">
-            <div><span class="ai-route-strength">동일 옵션 3개 결과</span><strong>${escapeAiHtml(result.routeName || '')} · ${escapeAiHtml(result.targetName || '')}</strong></div>
+            <div><span class="ai-route-strength">동일 옵션 3개 결과</span><strong>${escapeAiHtml(nangmanAutoDisplay(result.routeName || ''))} · ${escapeAiHtml(nangmanAutoDisplay(result.targetName || ''))}</strong></div>
             <p>${escapeAiHtml(result.reason || `동일 옵션 3개 결과 ${matches.length}회 발견`)}</p>
             <p class="jianwang-auto-start-line">시작점: ${escapeAiHtml(result.startSwordLabel || '')}</p>
         </div>
@@ -7668,7 +7668,7 @@ function renderJianwangAutoResult(result) {
         </li>`;
     }).join('') : '<li class="jianwang-auto-path-step"><div class="jianwang-auto-step-head"><b>시작 상태에서 이미 목표 달성</b></div></li>';
     container.innerHTML = `<div class="jianwang-auto-summary">
-        <div><span class="ai-route-strength">결과 발견</span><strong>${escapeAiHtml(result.routeName || '')} · 목표 ${targetCount}개${escapeAiHtml(result.targetName || '')}</strong></div>
+        <div><span class="ai-route-strength">결과 발견</span><strong>${escapeAiHtml(nangmanAutoDisplay(result.routeName || ''))} · 목표 ${targetCount}개${escapeAiHtml(nangmanAutoDisplay(result.targetName || ''))}</strong></div>
         <p>${escapeAiHtml(swordText)}달성 · ${escapeAiHtml(result.finalAction || '')}</p>
         <p class="jianwang-auto-start-line">시작점: ${escapeAiHtml(result.startSwordLabel || '')}</p>
     </div>
