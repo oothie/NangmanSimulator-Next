@@ -2478,7 +2478,7 @@ function findAndShowNextConflict(afterSeq) {
     } else if (hasConflictNow) {
         statusHtml += ` · 현재 칸에 '${item.earlier_conflict_name}'이 있습니다. 잠근 다음 계속 세수하세요.`;
     } else if (conflictTimes > 0 && curWash < conflictTimes) {
-        statusHtml += ` · 예상 추가 세수 <b>${toConflictWash}</b> 회 후 충돌맥 등장, 자맥까지 추가 약 <b>${toPurpleWash}</b> 次`;
+        statusHtml += ` · 예상 추가 세수 <b>${toConflictWash}</b> 회 후 충돌맥 등장, 자맥까지 추가 약 <b>${toPurpleWash}</b>회`;
     } else if (conflictTimes > 0 && curWash > conflictTimes) {
         statusHtml += ` · 충돌맥 세수 회차 ${conflictTimes}(맥 순서 #${conflictSeq})를 지나갔습니다. 이 경로는 세이브를 되돌리거나 초기화해야 합니다.`;
     }
@@ -2611,10 +2611,10 @@ function formatChainStopAltsHtml(node) {
     const rows = alts.map(alt => {
         const tag = alt.is_full_chain
             ? '<span class="reconflict-tag">완성</span>'
-            : `<span class="reconflict-tag">第${Number(alt.stop_at) + 1}번째 순환에서 종료</span>`;
+            : `<span class="reconflict-tag">제${Number(alt.stop_at) + 1}번째 순환에서 종료</span>`;
         return `<div class="chain-stop-row">
-            保留「<b class="purple-bright">${alt.keep_name}</b>」${tag}
-            → 后续 ${formatFollowingNodesBrief(alt.following_nodes)}
+            유지 <b class="purple-bright">${alt.keep_name}</b>${tag}
+            → 이후 ${formatFollowingNodesBrief(alt.following_nodes)}
         </div>`;
     }).join('');
     return `
@@ -3650,9 +3650,9 @@ function aiCostBreakdownHtml(route) {
             ${escapeAiHtml(labels[key] || key)} ${Number(value).toLocaleString()}
         </div>`;
     }).join('');
-    const legend = entries.map(([key, value]) => `<span>${escapeAiHtml(labels[key] || key)}：<b>${Number(value).toLocaleString()}</b> 丹</span>`).join('');
-    return `<div class="ai-cost-bar" role="img" aria-label="丹耗分解：${escapeAiHtml(entries.map(([key, value]) => `${labels[key] || key}${value}丹`).join('，'))}">${segments}</div>
-        <div class="ai-cost-legend">${legend}<span>开四脉 / 置换：<b>0</b> 丹</span></div>`;
+    const legend = entries.map(([key, value]) => `<span>${escapeAiHtml(labels[key] || key)}：<b>${Number(value).toLocaleString()}</b>개</span>`).join('');
+    return `<div class="ai-cost-bar" role="img" aria-label="세수단 소모 구성: ${escapeAiHtml(entries.map(([key, value]) => `${labels[key] || key} ${value}개`).join('，'))}">${segments}</div>
+        <div class="ai-cost-legend">${legend}<span>4칸 개방 / 치환: <b>0</b> 丹</span></div>`;
 }
 
 function aiRouteTimelineHtml(route) {
@@ -5148,9 +5148,9 @@ function equipAutoAskCacheOptions() {
             + '<label class="equip-auto-fav-field"><span>精炼数据</span>'
             + '<input type="number" id="favRefineRows" min="0" max="2000" step="50" value="500"><i>条</i></label>'
             + '<label class="equip-auto-fav-field"><span>촉련 데이터</span>'
-            + '<input type="number" id="favForgeCount" min="0" max="2000" step="50" value="300"><i>次</i></label>'
+            + '<input type="number" id="favForgeCount" min="0" max="2000" step="50" value="300"><i>회</i></label>'
             + '<label class="equip-auto-fav-field"><span>망정</span>'
-            + '<input type="number" id="favMangCount" min="0" max="5000" step="50" value="500"><i>次</i></label>'
+            + '<input type="number" id="favMangCount" min="0" max="5000" step="50" value="500"><i>회</i></label>'
             + '<p class="equip-auto-fav-tip">조회 횟수가 많을수록 저장 시간과 용량이 늘어납니다. 다른 장인의 지역 옵션도 자동 계산합니다.</p>'
             + '<div class="equip-auto-confirm-actions">'
             + '<button type="button" class="equip-auto-confirm-cancel">取消</button>'
@@ -5450,7 +5450,7 @@ function exportEquipAutoFavorites() {
     }
     const rows = [[
         '类型', '装备', '图纸', '打造次数', '地点', '品质',
-        '基础属性', '蓝/紫词条', '地区附加', '芒晶前N회 내 최고', '首次附加材料',
+        '基础属性', '蓝/紫词条', '地区附加', '망정 N회 내 최고', '首次附加材料',
         '总属性', '打造消耗', '升炼消耗',
         '精炼（词条最高 / 做到第几次 / 状态回放）', '精炼消耗',
         '总消耗（升炼+精炼）',
