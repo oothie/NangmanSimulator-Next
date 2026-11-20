@@ -15,8 +15,8 @@
         var liang = Math.floor(wen / 1000);
         var rest = wen % 1000;
         var s = '';
-        if (liang > 0) s += liang + '两';
-        if (rest > 0 || !s) s += rest + '文';
+        if (liang > 0) s += liang + '냥';
+        if (rest > 0 || !s) s += rest + '문';
         return s;
     }
 
