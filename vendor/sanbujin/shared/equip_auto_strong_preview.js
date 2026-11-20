@@ -1,8 +1,8 @@
-/* 自动装备 · 看淬炼：只读淬炼序列预览（对齐装备-淬炼页的功能） */
+/* 自动장비 · 看淬炼：只读淬炼序列预览（对齐장비-淬炼页的功能） */
 (function () {
-    var STONE_NAMES = { 3027: '白炼石', 3028: '绿炼石', 3029: '蓝炼石', 3030: '紫炼石' };
+    var STONE_NAMES = { 3027: '백련석', 3028: '녹련석', 3029: '청련석', 3030: '자련석' };
     var STONE_WEIGHT = { 3027: 1, 3028: 1e4, 3029: 1e8, 3030: 1e12 };
-    var GRADE_NAMES = { 1: '一般', 2: '良好', 3: '优秀', 4: '完美' };
+    var GRADE_NAMES = { 1: '일반', 2: '양호', 3: '우수', 4: '완벽' };
     var state = null;
 
     function escapeHtml(value) {
@@ -116,7 +116,7 @@
                 var f = st3.from;
                 if (f.action === 'accept') {
                     accepts[f.seq + 1] = true;
-                    steps.push({ index: f.seq + 1, action: '接受', level: f.level, grade: f.grade });
+                    steps.push({ index: f.seq + 1, action: '수락', level: f.level, grade: f.grade });
                     i3 = f.i; k3 = f.k;
                 } else if (f.action === 'skip') {
                     steps.push({ index: f.seq + 1, action: '取消', level: f.level, grade: f.grade });
@@ -140,7 +140,7 @@
             var n = (bag.stones || {})[id] || 0;
             if (n) parts.push('<span class="equip-auto-forge-chip">' + STONE_NAMES[id] + '×' + n + '</span>');
         });
-        if (bag.silver) parts.push('<span class="equip-auto-forge-chip">银两' + formatSilver(bag.silver) + '</span>');
+        if (bag.silver) parts.push('<span class="equip-auto-forge-chip">은냥' + formatSilver(bag.silver) + '</span>');
         return parts.join('') || '<span class="equip-auto-forge-chip">—</span>';
     }
 
@@ -157,17 +157,17 @@
     function planCard(title, plan, tag) {
         if (!plan || !plan.ok) {
             return '<article class="equip-auto-forge-plan is-fail"><header><h4>' + title + '</h4></header>'
-                + '<p>' + escapeHtml((plan && plan.reason) || '不可用') + '</p></article>';
+                + '<p>' + escapeHtml((plan && plan.reason) || '사용 불가') + '</p></article>';
         }
-        var accepts = plan.steps.filter(function (s) { return s.action === '接受'; });
+        var accepts = plan.steps.filter(function (s) { return s.action === '수락'; });
         return '<article class="equip-auto-forge-plan"><header><h4>' + title + '</h4><span>' + tag + '</span></header>'
             + '<div class="equip-auto-forge-metrics">'
-            + '<div><b>' + plan.attempts + '</b><span>尝试次数</span></div>'
-            + '<div><b>+' + (plan.value / 2) + '%</b><span>淬炼度</span></div>'
+            + '<div><b>' + plan.attempts + '</b><span>시도 횟수</span></div>'
+            + '<div><b>+' + (plan.value / 2) + '%</b><span>촉련도</span></div>'
             + '<div><b>+' + (Math.round(plan.value / 10 * 10) / 10) + '%</b><span>约属性</span></div>'
             + '</div>'
             + '<div class="equip-auto-forge-costs">' + costChips(plan.bag) + '</div>'
-            + '<p class="equip-auto-forge-path-label">接受路径（共 ' + accepts.length + ' 次升层）</p>'
+            + '<p class="equip-auto-forge-path-label">수락 경로（共 ' + accepts.length + ' 회 단계 상승）</p>'
             + '<div class="equip-auto-forge-paths">' + pathChips(accepts) + '</div>'
             + '</article>';
     }
@@ -220,8 +220,8 @@
             return '<tr class="' + cls + '"><td>' + idx + '</td>'
                 + '<td><span class="equip-auto-forge-grade g' + grade + '">' + (GRADE_NAMES[grade] || it.grade_name || '') + '</span></td>'
                 + '<td>' + pct + '%</td>'
-                + '<td class="' + (minAccepts[idx] ? 'is-yes' : '') + '">' + (minAccepts[idx] ? '接受' : '—') + '</td>'
-                + '<td class="' + (bestAccepts[idx] ? 'is-yes' : '') + '">' + (bestAccepts[idx] ? '接受' : '—') + '</td></tr>';
+                + '<td class="' + (minAccepts[idx] ? 'is-yes' : '') + '">' + (minAccepts[idx] ? '수락' : '—') + '</td>'
+                + '<td class="' + (bestAccepts[idx] ? 'is-yes' : '') + '">' + (bestAccepts[idx] ? '수락' : '—') + '</td></tr>';
         }).join('');
         var targetOptions = '';
         for (var lv = 1; lv <= 15; lv++) {
@@ -229,26 +229,26 @@
         }
         var gradeOptions = '';
         [1, 2, 3, 4].forEach(function (g) {
-            gradeOptions += '<option value="' + g + '"' + (g === Number(state.minGrade) ? ' selected' : '') + '>' + GRADE_NAMES[g] + '及以上</option>';
+            gradeOptions += '<option value="' + g + '"' + (g === Number(state.minGrade) ? ' selected' : '') + '>' + GRADE_NAMES[g] + ' 이상</option>';
         });
-        card.innerHTML = '<div class="equip-auto-forge-head"><div><strong>' + escapeHtml(state.candidate.equipName || '装备') + '</strong>'
-            + '<span>淬炼序列预览 · 只读，不推进序列</span></div>'
+        card.innerHTML = '<div class="equip-auto-forge-head"><div><strong>' + escapeHtml(state.candidate.equipName || '장비') + '</strong>'
+            + '<span>촉련 순서 미리보기 · 조회 전용, 순서 진행 없음</span></div>'
             + '<button type="button" class="equip-auto-forge-close" aria-label="关闭" title="关闭">×</button></div>'
             + '<div class="equip-auto-forge-controls">'
-            + '<label>序列长度<input type="number" class="equip-auto-forge-n" min="10" max="2000" value="' + state.n + '"></label>'
-            + '<label>期望淬炼层数<select class="equip-auto-forge-target">' + targetOptions + '</select></label>'
-            + '<label>可接受最低档<select class="equip-auto-forge-grade">' + gradeOptions + '</select></label>'
-            + '<button type="button" class="equip-auto-forge-run">重新推演</button>'
+            + '<label>순서 길이<input type="number" class="equip-auto-forge-n" min="10" max="2000" value="' + state.n + '"></label>'
+            + '<label>목표 촉련 단계<select class="equip-auto-forge-target">' + targetOptions + '</select></label>'
+            + '<label>허용할 최저 등급<select class="equip-auto-forge-grade">' + gradeOptions + '</select></label>'
+            + '<button type="button" class="equip-auto-forge-run">다시 예측</button>'
             + '</div>'
-            + '<p class="equip-auto-forge-meta">当前 +' + state.level + ' · 序列 ' + items.length + ' 条 · 完美 ' + perfect + ' 条</p>';
+            + '<p class="equip-auto-forge-meta">현재 +' + state.level + ' · 순서 ' + items.length + '개 · 완벽 ' + perfect + ' 条</p>';
         if (state.error && !items.length) {
             card.innerHTML += '<p class="equip-auto-forge-empty">' + escapeHtml(state.error) + '</p>';
         } else {
-            card.innerHTML += '<div class="equip-auto-forge-plans">' + planCard('消耗最少', plans.minCost, '优先省稀有炼石') + planCard('数值最优', plans.maxValue, '优先高淬炼度') + '</div>'
-                + '<div class="equip-auto-forge-actions"><button type="button" class="equip-auto-forge-hl" data-hl="min">高亮 · 消耗最少</button>'
-                + '<button type="button" class="equip-auto-forge-hl" data-hl="best">高亮 · 数值最优</button></div>'
-                + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table"><thead><tr><th>#</th><th>品质</th><th>同层参考</th><th>最少</th><th>最优</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
-                + '<p class="equip-auto-forge-note">※ 取消也耗炼石；同结果尽量把尝试留在更便宜的层。只读预览，不改存档、不推进序列。</p>'
+            card.innerHTML += '<div class="equip-auto-forge-plans">' + planCard('소모 최소', plans.minCost, '희귀 촉련석 소모 최소화 우선') + planCard('수치 최적', plans.maxValue, '优先高촉련도') + '</div>'
+                + '<div class="equip-auto-forge-actions"><button type="button" class="equip-auto-forge-hl" data-hl="min">高亮 · 소모 최소</button>'
+                + '<button type="button" class="equip-auto-forge-hl" data-hl="best">高亮 · 수치 최적</button></div>'
+                + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table"><thead><tr><th>#</th><th>품질</th><th>동일 단계 참고</th><th>최소</th><th>최적</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+                + '<p class="equip-auto-forge-note">※ 취소해도 촉련석이 소모됩니다. 같은 결과라면 더 저렴한 단계에서 시도하도록 계산합니다. 조회 전용으로 세이브나 촉련 순서는 변경되지 않습니다.</p>'
                 + '<div class="equip-auto-forge-footer"><button type="button" class="equip-auto-forge-foot-close">关闭</button></div>';
         }
         card.querySelector('.equip-auto-forge-close').addEventListener('click', close);
