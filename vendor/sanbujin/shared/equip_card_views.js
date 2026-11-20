@@ -235,7 +235,7 @@
             + '<span class="equip-auto-forge-meta" id="cvRefineMeta"></span></div>'
             + '<div class="equip-auto-forge-meta" id="cvRefineSummary"></div>'
             + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table" style="min-width:760px">'
-            + '<thead><tr><th>횟수</th><th>槽位</th><th>옵션 변경</th><th>操作</th><th>배율</th><th>누적 연금니</th><th>等级</th></tr></thead><tbody></tbody></table></div>';
+            + '<thead><tr><th>횟수</th><th>슬롯</th><th>옵션 변경</th><th>처리</th><th>배율</th><th>누적 연금니</th><th>레벨</th></tr></thead><tbody></tbody></table></div>';
         var old = document.querySelector('.equip-auto-forge-modal'); if (old) old.remove();
         var wrap = modal('정련 상세 · ' + (candidate.equipName || '장비'), '장비의 옵션 유지 계획에 따라 종료 회차까지 정련 순서를 표시합니다.', body);
         var tbody = wrap.querySelector('tbody'), meta = wrap.querySelector('#cvRefineMeta'), summary = wrap.querySelector('#cvRefineSummary');
@@ -254,13 +254,13 @@
             rows = route ? route.rows || [] : data.rows;
             if (route && route.error) summary.textContent = route.error;
             else if (route) {
-                var ending = rows.filter(function (row) { return String(row[6] || '').indexOf('不保留') !== 0; }).map(function (row) { return '#' + row[0] + '（词条' + row[1] + '）'; }).join(' → ') || '无需新增保留';
-                summary.textContent = '상태 재현: ' + ending + (route.cutoff ? ', 제' + route.cutoff + '회까지 진행' : '') + '\n정련 소모: ' + refineCostText(route.cost) + '\n总消耗（升炼 + 精炼）：' + refineCostText(route.cost, route.upgradeCost);
+                var ending = rows.filter(function (row) { return String(row[6] || '').indexOf('不保留') !== 0; }).map(function (row) { return '#' + row[0] + '(슬롯 ' + row[1] + ')'; }).join(' → ') || '추가로 유지할 옵션 없음';
+                summary.textContent = '상태 재현: ' + ending + (route.cutoff ? ', 제' + route.cutoff + '회까지 진행' : '') + '\n정련 소모: ' + refineCostText(route.cost) + '\n총 소모(승련+정련): ' + refineCostText(route.cost, route.upgradeCost);
             } else summary.textContent = routes.length ? '원본 순서에는 옵션 유지 계획이 적용되지 않았습니다. 실제 경로는 다를 수 있습니다' : '기존 즐겨찾기에는 원본 순서만 저장되어 옵션 유지 계획을 확인할 수 없습니다';
             summary.style.whiteSpace = 'pre-line';
-            var slots = {}, props = {}; rows.forEach(function (row) { slots[String(row[1])] = '槽 ' + row[1]; var name = String(row[3] || '').split('+')[0]; if (name) props[name] = name; });
-            slotSel.innerHTML = '<option value="">全部</option>' + Object.keys(slots).sort().map(function (key) { return '<option value="' + esc(key) + '">' + esc(slots[key]) + '</option>'; }).join('');
-            propSel.innerHTML = '<option value="">全部</option>' + Object.keys(props).sort().map(function (key) { return '<option value="' + esc(key) + '">' + esc(key) + '</option>'; }).join('');
+            var slots = {}, props = {}; rows.forEach(function (row) { slots[String(row[1])] = '슬롯 ' + row[1]; var name = String(row[3] || '').split('+')[0]; if (name) props[name] = name; });
+            slotSel.innerHTML = '<option value="">전체</option>' + Object.keys(slots).sort().map(function (key) { return '<option value="' + esc(key) + '">' + esc(slots[key]) + '</option>'; }).join('');
+            propSel.innerHTML = '<option value="">전체</option>' + Object.keys(props).sort().map(function (key) { return '<option value="' + esc(key) + '">' + esc(key) + '</option>'; }).join('');
             paint();
         }
         routeSel.value = routes.length ? '0' : 'raw'; routeSel.addEventListener('change', selectRoute); slotSel.addEventListener('change', paint); propSel.addEventListener('change', paint); selectRoute();
@@ -271,9 +271,9 @@
         var data = views && views.region;
         if (!data) return false;
         var body = '<p class="equip-auto-forge-meta">按同一张图纸、同一打造进度，在其他 NPC 各模拟打造 1000 次，'
-            + '找第一次出现与这件装备「词条、数量、数值完全相同」的打造。</p>'
+            + '옵션 종류·개수·수치가 완전히 같은 장비가 처음 등장하는 회차를 찾습니다.</p>'
             + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
-            + '<thead><tr><th>NPC / 地点</th><th>횟수</th><th>地区附加</th></tr></thead><tbody>'
+            + '<thead><tr><th>장인 / 지역</th><th>횟수</th><th>지역 추가 옵션</th></tr></thead><tbody>'
             + (data.error && !(data.rows || []).length
                 ? '<tr><td colspan="3">' + esc(data.error) + '</td></tr>'
                 : ((data.rows || []).length
@@ -355,10 +355,10 @@
                 });
             } catch (error) { }
             var text = capped
-                ? '최대 사용 가능 ' + items.length + ' 次（收藏时缓存的量），想更长请回「自动推演」重新收藏并填更大的数字。'
-                : '이번 계산에 사용한 횟수 ' + limit + ' 次，最长 ' + items.length + ' 次。';
+                ? '최대 사용 가능 ' + items.length + '회까지 계산 가능합니다. 더 긴 순서는 자동 탐색에서 다시 계산한 뒤 즐겨찾기에 저장하세요.'
+                : '이번 계산에 사용한 횟수 ' + limit + '회, 최대 ' + items.length + '회.';
             if (capped && plansFailed) {
-                text += ' 现在够不到你选的层数，可以把「期望淬炼层数」调低或「可接受最低档」放宽再试。';
+                text += ' 현재 조건으로 목표 촉련 단계에 도달할 수 없습니다. 목표 단계를 낮추거나 허용 등급을 완화하세요.';
             }
             note.textContent = text;
             if (capped) {
@@ -457,11 +457,11 @@
                 + (parts.length ? '（' + parts.join(' · ') + '）' : '')
                 + '. 능력치별 상위 3개 결과입니다.</p>'
                 + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
-                + '<thead><tr><th>순위</th><th>属性</th><th>数值</th><th>횟수</th></tr></thead>'
+                + '<thead><tr><th>순위</th><th>능력치</th><th>수치</th><th>횟수</th></tr></thead>'
                 + '<tbody>' + topHtml + '</tbody></table></div>'
                 + '<details class="equip-auto-mang-all"><summary>展开全部 ' + items.length + ' 次明细</summary>'
                 + '<div class="equip-auto-forge-table-wrap" style="margin-top:.5rem"><table class="equip-auto-forge-table">'
-                + '<thead><tr><th>횟수</th><th>属性</th><th>数值</th></tr></thead>'
+                + '<thead><tr><th>횟수</th><th>능력치</th><th>수치</th></tr></thead>'
                 + '<tbody>' + allRows + '</tbody></table></div></details>';
         } else {
             maxima.sort(function (a, b) { return Number(b.value) - Number(a.value); });
@@ -469,13 +469,13 @@
                 ? maxima.map(function (item) {
                     return '<tr><td>' + esc(label(item.prop)) + '</td>'
                         + '<td>+' + esc(fmtValue(item.prop, item.value)) + '</td>'
-                        + '<td>제 ' + esc(item.recommendedIndex) + ' 次</td></tr>';
+                        + '<td>제 ' + esc(item.recommendedIndex) + '회</td></tr>';
                 }).join('')
                 : '<tr><td colspan="3">这件装备没有可洗出的附加属性</td></tr>';
             body = '<p class="equip-auto-forge-meta">这件收藏得比较早，只存了每个属性的최고 수치（共 '
                 + esc(data.count || '') + '회). 자동 탐색에서 다시 즐겨찾기에 등록하면 상세 순서를 확인할 수 있습니다.</p>'
                 + '<div class="equip-auto-forge-table-wrap"><table class="equip-auto-forge-table">'
-                + '<thead><tr><th>属性</th><th>최고 수치</th><th>在횟수</th></tr></thead><tbody>' + mrows + '</tbody></table></div>';
+                + '<thead><tr><th>능력치</th><th>최고 수치</th><th>획득 횟수</th></tr></thead><tbody>' + mrows + '</tbody></table></div>';
         }
 
         modal('망정 · ' + (candidate.equipName || '장비'), '해당 장비의 망정 예측 결과', body);
