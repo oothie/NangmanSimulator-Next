@@ -13,7 +13,7 @@ function plan(route,nameIds={}){
   if(route.estimatedWashes===0&&route.exchanges===0&&route.estimatedPills===0&&route.pad===0)return [];
   throw Error('실행 단계가 누락되어 경로를 재생할 수 없습니다');
  }
- const allowed=new Set(['lock','unlock','wash_to','exchange','keep','skip','open_slot']);
+ const allowed=new Set(['lock','unlock','wash_to','wash_until','exchange','keep','skip','open_slot']);
  const planned=[];
  let washes=0,exchanges=0;
  for(const [i,action] of actions.entries()){
@@ -35,11 +35,14 @@ function plan(route,nameIds={}){
    const id=resolve(action.talent);
    if(id===null)throw Error('잠금·해제의 원본 재능 이름이 없습니다');
    planned.push({kind,id});
-  }else if(kind==='wash_to'){
+  }else if(kind==='wash_to'||kind==='wash_until'){
    const target=integer(action.wash_no);
    if(target===null||target<washes||target>5000)
     throw Error('원본 세수 회차가 역행하거나 범위를 벗어났습니다');
-   planned.push({kind,count:target-washes,target});
+   const id=kind==='wash_until'?resolve(action.talent):null;
+   if(kind==='wash_until'&&id===null)
+    throw Error('원본 목표 세수 재능 ID 매핑을 확인할 수 없습니다');
+   planned.push({kind,count:target-washes,target,id});
    washes=target;
   }else if(kind==='exchange'){
    if(Array.isArray(action.chain)&&action.chain.length>1)
@@ -104,6 +107,17 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
       throw Error('세수단 부족 또는 원본 실행 회차 불일치');
      remaining-=count;
      ensureSession();
+    }
+   }else if(step.kind==='wash_until'){
+    if(step.count===0){
+     if(!state.talents.some(t=>Number(t.id)===step.id))
+      throw Error('추가 세수 0회 경로인데 목표 재능이 존재하지 않습니다');
+    }else{
+     const response=await call('until-talent-any',{talentId:step.id,count:step.count});
+     ensureSession();
+     if(!response?.found||response.performed!==step.count||
+        !response?.state?.talents?.some(t=>Number(t.id)===step.id))
+      throw Error('원본 WASM 순차 목표 세수 회차나 결과가 탐색 경로와 일치하지 않습니다');
     }
    }else if(step.kind==='exchange'){
     const conflicts=await call('talent-constraints');
