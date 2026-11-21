@@ -25,6 +25,14 @@ assert.equal(results[0].used,1);
 assert.equal(results[1].used,2);
 assert.deepEqual(JSON.parse(JSON.stringify(results[0].items)),
  JSON.parse(JSON.stringify(state.getPaid(1,{vip:5})[0].items)));
+const baseline=state.timed(2);
+const baselineCopy=state.timed(2,{vip:5,paidSteps:0});
+assert.deepEqual(JSON.parse(JSON.stringify(baseline)),
+ JSON.parse(JSON.stringify(baselineCopy)),'no-paid automatic rotation must be unchanged');
+const afterPaid=state.timed(2,{vip:5,paidSteps:2});
+assert.notDeepEqual(JSON.parse(JSON.stringify(afterPaid[0].items)),
+ JSON.parse(JSON.stringify(baseline[0].items)),
+ 'simulated paid refresh must advance the seed before automatic rotation');
 assert.equal(JSON.stringify(save),original);
 assert.equal(state.nextTime,1795258800,
  'the next automatic rotation for 2026-11-21 19:53 KST is 20:00 KST');
