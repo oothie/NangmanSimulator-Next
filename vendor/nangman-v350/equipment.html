@@ -11790,28 +11790,28 @@ function paintOwnedDetailPage(m,e){showDetailTop233(e,'owned')}
 window.nangman350FocusEquipment=function(snapshot,initialTab){
  if(!snapshot)return {ok:false,message:'장비 정보가 없습니다'};
  syncOwned();
- const id=Number(snapshot.ID??snapshot.id),onlyId=Number(snapshot.OnlyID??snapshot.only_id??snapshot.onlyId??0);
- let matches=R.owned.filter(e=>Number(e.id)===id);
+ const id=Number(snapshot.ID??snapshot.id??snapshot.equip_id??snapshot.equipId),onlyId=Number(snapshot.OnlyID??snapshot.only_id??snapshot.onlyId??0);
+ const catalogOnly=!!snapshot.catalogOnly;
+ let matches=catalogOnly?[]:R.owned.filter(e=>Number(e.id)===id);
  if(onlyId)matches=matches.filter(e=>Number(e.only_id??e.onlyId??e.OnlyID)===onlyId);
  for(const [raw,key] of [['CZSeed','CZSeed'],['MJSeed','MJSeed'],['S','S']]){
   if(snapshot[raw]!=null)matches=matches.filter(e=>Number(e[key])===Number(snapshot[raw]));
+ }
+ // Complete external RNG snapshots must not silently select an unrelated saved item.
+ const hasSeedSnapshot=snapshot.CZSeed!=null&&snapshot.MJSeed!=null&&snapshot.S!=null&&
+   (Array.isArray(snapshot.EnExts)||Array.isArray(snapshot.exts))&&
+   (snapshot.Color!=null||snapshot.color!=null);
+ if(hasSeedSnapshot){
+  const cfg=EQUIP_DATA.equipment[String(id)];
+  if(!cfg)return {ok:false,message:'장비 데이터가 없습니다.'};
+  const predicted=toEquipInstance(snapshot,'계산 결과 · 전달된 시드',false);
+  showDetailTop233(predicted,'owned',initialTab||'route');
+  return {ok:true,source:'snapshot'};
  }
  if(matches.length!==1){
   if(matches.length>1)return {ok:false,message:'같은 장비가 여러 개 있습니다. 고유 번호 또는 시드로 선택해야 합니다.'};
   const cfg=EQUIP_DATA.equipment[String(id)];
   if(!cfg)return {ok:false,message:'장비 데이터가 없습니다.'};
-  // Future drop/finder integration: use verified complete snapshot seeds only.
-  // Never invent RNG state from an item ID or quality alone.
-  const complete=Number.isFinite(Number(snapshot.CZSeed))&&snapshot.CZSeed!=null&&
-    Number.isFinite(Number(snapshot.MJSeed))&&snapshot.MJSeed!=null&&
-    Number.isFinite(Number(snapshot.S))&&snapshot.S!=null&&
-    (Array.isArray(snapshot.EnExts)||Array.isArray(snapshot.exts))&&
-    (snapshot.Color!=null||snapshot.color!=null);
-  if(complete){
-   const predicted=toEquipInstance(snapshot,'계산 결과 · 전달된 시드',false);
-   showDetailTop233(predicted,'owned',initialTab||'route');
-   return {ok:true,source:'snapshot'};
-  }
   R.sel=null;
   const target=q('#rmain');
   if(target)target.innerHTML=`<section class="rb-detail233"><h2>${esc(ename(cfg))}</h2><div class="meta">${esc(Number(cfg.lv||0))}급 · ${esc(tname(cfg.type))} · 장비 #${esc(id)}</div><p class="note218">장비 정보와 상세 페이지를 표시합니다. 이 장비의 개별 정련·망정·촉련 결과는 실제 아이템 시드와 추가 옵션이 있어야 계산할 수 있습니다. 현재는 해당 세이브 인스턴스가 없으므로 임의의 예측을 표시하지 않습니다.</p><div class="tabs218"><button type="button" class="on">장비 정보</button><button type="button" disabled>정련</button><button type="button" disabled>망정</button><button type="button" disabled>촉련</button></div></section>`;
@@ -11964,4 +11964,4 @@ html[data-nangman-theme="dark"] body{--rbg:#171c23;--rc:#252c35;--rl:#47515d;--r
 html[data-nangman-theme="dark"] #rk218{background:#171c23!important;color:#eef2f5!important}
 @media(max-width:700px){#rk218{padding:0!important}#rk218 .rsel{min-width:0}}
 </style>
-<script defer src="./embedded-bridge.js?rev=v091"></script>
+<script defer src="./embedded-bridge.js?rev=v092"></script>
