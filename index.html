@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.19</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.20</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -196,7 +196,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.7.19: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.7.20: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -979,12 +979,20 @@ function characterWashView(role,root){
 function characterBattleSupport(role){
  const id=String(role?.id||''),person=(window.CHAR_DATA||{})[id];
  const talentId=Number(person?.talent)||0,ability=(window.BATTLE_TALENT_DATA||{})[String(talentId)];
- if(!talentId||!ability)return '<p class="micro">yy-sim 지원 재능 데이터가 확인되지 않았습니다. 저장되지 않은 지원 효과는 추정하지 않습니다.</p>';
- const name=characterTalentName(talentId);
+ if(!talentId||!ability)return '<p class="micro">yy-sim 인물 ID와 지원 재능 원본을 연결할 수 없습니다. 다른 재능의 이름이나 효과를 대신 표시하지 않습니다.</p>';
+ const named=(window.NANGMAN_BATTLE_TALENTS_KO||{})[String(talentId)];
+ const name=typeof named==='string'&&named&&!wikiHasChinese(named)?named:'지원 재능 #'+talentId;
+ const props={atk:'공격',def:'방어',hp:'기혈',hit:'명중',dodge:'회피',speed:'속도',def_ign:'방어 관통',dmg_off:'피해면역'};
+ const effects=['effect1','effect2'].map(key=>{
+  const raw=ability[key];
+  if(!Array.isArray(raw)||raw.length<3)return '';
+  const prop=String(raw[1]||'');
+  return (props[prop]||'효과 코드 '+prop)+' · 원본 계수 '+escape(raw[2]);
+ }).filter(Boolean);
  return '<div class="wiki-detail-fields">'+
  '<div class="wiki-field"><span>인물 고유 지원 재능</span><b>'+escape(name)+' <small>#'+talentId+'</small></b></div>'+
- '<div class="wiki-field"><span>지원 재능 원본 데이터</span><b>확인됨</b></div>'+
- '</div><p class="micro">yy-sim CHAR_DATA의 인물 ID와 BATTLE_TALENT_DATA를 연결했습니다. 정확한 전투 효과 합산은 아직 연결하지 않았습니다.</p>';
+ '<div class="wiki-field"><span>지원 재능 원본 데이터</span><b>연결됨</b></div>'+
+ '</div><p class="micro">'+(effects.length?effects.join(' · '):'정량 효과 계수가 없는 지원 재능')+' · 원본 계수는 전투 적용 수치가 아닙니다.</p>';
 }
 function characterTrainingView(raw){
  const branches=[['WXXW1','권법'],['WXXW2','검법'],['WXXW3','도법'],['WXXW4','창·곤'],['WXXWng','내공'],['WXXWqg','경공']];
