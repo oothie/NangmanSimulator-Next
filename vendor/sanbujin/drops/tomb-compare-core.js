@@ -43,5 +43,39 @@ function diff(before,after){
  warnings.push('다른 활동·시드 초기화·아이템 판매·장비 제작이 포함되었다면 제릉 사냥만의 효과를 분리할 수 없습니다.');
  return {seeds,flags,streamChanges,gearPool:GEAR_IDS,warnings};
 }
-root.SBJTombSaveCompare={diff,WATCH_SEEDS,WATCH_FLAGS,GEAR_IDS};
+function reconcile(before,after,count){
+ if(!Number.isInteger(count)||count<1||count>500)throw Error('사냥 횟수는 1~500회로 입력하세요.');
+ const observed=diff(before,after),tomb=root.SBJTombDrop;
+ if(!tomb?.trace)return {...observed,count,cases:[],message:'제릉 실험 엔진이 연결되지 않았습니다.'};
+ const start=tomb.open(rootSave(before));
+ if(!tomb.ready(start))return {...observed,count,cases:[],
+  message:'사냥 전 세이브의 제릉 난수 시드나 필수 조건 변수가 누락되어 예측 가설을 비교할 수 없습니다.'};
+ const end=rootSave(after),endSeeds=seedMap(end),endFlags=flagMap(end);
+ const cases=['descending','ascending'].map(order=>{
+  const result=tomb.trace(start,{count,order});
+  const forecast={
+   rollenemy_tomb:result.final.encounterSeed,
+   seed_35256:result.final.equipmentSeed,
+   rollenemy_tomb2:result.final.flags.rollenemy_tomb2
+  };
+  const checks=Object.entries(forecast).map(([key,expected])=>{
+   const actual=num(key==='rollenemy_tomb2'?endFlags[key]:endSeeds[key]);
+   return {key,expected,actual,status:actual==null?'누락':actual===expected?'일치':'불일치'};
+  });
+  return {order,checks,
+   matches:checks.filter(x=>x.status==='일치').length,
+   mismatches:checks.filter(x=>x.status==='불일치').length,
+   missing:checks.filter(x=>x.status==='누락').length,
+   forecastEvents:result.rows.filter(x=>x.spawn).length,
+   forecastGear:result.rows.filter(x=>x.color).map(x=>({serial:x.serial,id:x.itemId,color:x.color}))};
+ });
+ const matching=cases.filter(x=>x.mismatches===0&&x.missing===0);
+ const conclusion=matching.length===1?'한 가지 계산 가설만 관측 시드와 일치합니다. 다른 활동이 없었는지 확인해야 합니다.':
+  matching.length===2?'두 가설 모두 시드와 일치합니다. 이 자료만으로 분기 순서를 구분할 수 없습니다.':
+  matching.length===0?'두 가설 모두 관측 시드를 설명하지 못하거나 필수 시드가 누락됐습니다.':
+  '분기 순서를 판정할 수 없습니다.';
+ return {...observed,count,cases,conclusion,
+  warnings:[...observed.warnings,'가설 일치는 계산상 시드 재현일 뿐, 실제 장비 ID·색상·옵션의 적중 확정이 아닙니다.']};
+}
+root.SBJTombSaveCompare={diff,reconcile,WATCH_SEEDS,WATCH_FLAGS,GEAR_IDS};
 })(window);
