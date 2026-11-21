@@ -399,7 +399,7 @@ function invalidateWashLink(nextRoleId){
  if(!state)return;
  if(nextRoleId!=null&&state.origin==='save'&&state.linkedRoleId===nextRoleId)return;
  state.generation=(state.generation||0)+1;
- state.active=false;state.origin=null;state.linkedRoleId=null;state.bagPills=null;state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.constraints=null;state.constraintsDisplay='';state.liveTalents=[];
+ state.active=false;state.origin=null;state.linkedRoleId=null;state.lastConflict=null;state.bagPills=null;state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.constraints=null;state.constraintsDisplay='';state.liveTalents=[];
  state.undoStates=[];state.log=[];state.output='선택 캐릭터 또는 세이브가 변경되었습니다. WASM을 다시 연결하세요.';
 }
 function yyWashStateFromSave(root,role,original){
@@ -434,6 +434,9 @@ function washSandbox(){
  const state=window.__washRuntime||{ready:false,active:false,error:'',log:[]};
  const canEdit=state.active&&state.origin==='save'&&state.linkedRoleId===roles[selected]?.id&&!state.loading;
  const items=Array.isArray(state.liveTalents)?state.liveTalents:[];
+ const collision=state.lastConflict,collisionSlot=Number(collision?.index);
+ const canApply=canEdit&&collision?.can_exchange===true&&Number.isInteger(collisionSlot)&&
+  collisionSlot>=0&&collisionSlot<items.length&&!items[collisionSlot]?.locked;
  const slots=items.length?'<div class="section-header"><h3>WASM 모의 재능 슬롯 · 잠금·치환</h3></div><div class="talents">'+
  items.slice(0,4).map((t,index)=>'<div class="talent"><span class="talent-slot">'+(index+1)+'</span><div class="talent-text"><b>'+escape(characterTalentName(t.id))+' (#'+escape(t.id)+')</b><small>WASM 사본 · '+(t.locked?'잠금':'해제')+'</small></div>'+
  '<button type="button" class="btn" data-wash-lock="'+index+'" '+(!canEdit?'disabled':'')+'>'+(t.locked?'잠금 해제':'잠금')+'</button>'+
@@ -454,6 +457,7 @@ function washSandbox(){
  '<button id="washEngineOnce" class="btn primary" '+(!state.active?'disabled':'')+'>1회 세수</button>'+
  '<button id="washEngineMulti" class="btn" '+(!state.active?'disabled':'')+'>연속 세수</button>'+
  '<button id="washSlotUndo" class="btn" '+(!(state.active&&state.undoStates?.length)?'disabled':'')+'>직전 WASM 작업 되돌리기</button></div>'+
+ (canApply?'<div class="actions"><button class="btn primary" id="washApplyConflict">최근 발견한 '+(collisionSlot+1)+'번 충돌 슬롯 치환 (WASM 검증)</button></div>':'')+
  (state.error?'<div class="notice">'+escape(state.error)+'</div>':'')+
  '<div class="history" style="max-height:280px;overflow:auto;white-space:pre-wrap">'+escape(state.output||'엔진 초기화 → 시험 상태 설정 → 세수 실행 순서로 진행하세요.')+'</div>'+slots+'</section>';
 }
@@ -2404,6 +2408,12 @@ if($('washPreviewExport'))$('washPreviewExport').onclick=()=>{
 };
 if($('washPreview'))$('washPreview').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEnginePreview',count:$('washPreviewCount')?.value||'900'}}));document.querySelectorAll('[data-wash-lock]').forEach(el=>el.onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineToggleLock',index:Number(el.dataset.washLock)}})));
+if($('washApplyConflict'))$('washApplyConflict').onclick=()=>{
+ const found=window.__washRuntime?.lastConflict;
+ if(!found?.can_exchange)return;
+ window.dispatchEvent(new CustomEvent('nangman-wash-command',{
+  detail:{op:'washEngineExchangeTalent',index:Number(found.index),requireConflict:true}}));
+};
 document.querySelectorAll('[data-wash-exchange]').forEach(el=>el.onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineExchangeTalent',index:Number(el.dataset.washExchange)}})));
 for(const [id,key] of [['washPathSort','pathSort'],['washPathFilter','pathFilter']]){
@@ -2624,7 +2634,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    throw Error('불러오기 도중 세이브나 캐릭터가 바뀌었습니다. 다시 연결하세요.');
   if(Number(applied?.role_id)!==Number(source.role.id)||Number(applied?.seed)!==mapped.seed)
    throw Error('WASM에서 세이브 시드·캐릭터가 일치하지 않아 실행을 중단했습니다.');
-  state.origin='save';state.linkedRoleId=source.role.id;state.active=true;state.liveTalents=applied.talents||[];syncWasmBag(applied);
+  state.origin='save';state.linkedRoleId=source.role.id;state.lastConflict=null;state.active=true;state.liveTalents=applied.talents||[];syncWasmBag(applied);
   state.seed=String(mapped.seed);state.roleId=String(mapped.role_id);state.zizhi=String(mapped.zizhi);
   state.log=[];state.undoStates=[];state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.output='현재 인물 세이브 상태를 WASM에 적용했습니다. 이 결과는 실게임 검증 전 독립 시뮬레이션입니다.\n'+
    JSON.stringify({roleId:applied.role_id,zizhi:applied.zizhi,sex:applied.sex,locked:applied.talents?.filter(x=>x.locked).length,
@@ -2668,7 +2678,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    throw Error('WASM 재능 슬롯을 확인할 수 없습니다.');
   if(op==='washEngineExchangeTalent'&&snapshot.talents[index].locked)
    throw Error('잠금 슬롯은 치환할 수 없습니다.');
-  const action=op==='washEngineToggleLock'?'toggle-lock':'exchange-talent';
+  const action=op==='washEngineToggleLock'?'toggle-lock':e.detail.requireConflict===true?'exchange-matched':'exchange-talent';
   const result=await washEngine.call(action,{index});
   ensureSession();
   if(!result?.state||!Array.isArray(result.state.talents))
@@ -2677,7 +2687,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    state.undoStates.push(snapshot);
    state.log.push({kind:action,index,...result});
   }
-  state.liveTalents=result.state.talents;syncWasmBag(result.state);state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';
+  state.lastConflict=null;state.liveTalents=result.state.talents;syncWasmBag(result.state);state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';
   state.output=(action==='toggle-lock'?'원본 WASM 잠금 변경':'원본 WASM 치환 실행')+
    ' · 슬롯 '+(index+1)+' · 실게임과 무관한 가상 상태\\n'+JSON.stringify(result,null,2);
  }else if(op==='washEngineConstraints'){
@@ -2772,6 +2782,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   }
   state.liveTalents=result.state.talents||[];
   syncWasmBag(result.state);
+  state.lastConflict=result.found?result.conflict:null;
   const conflictIndex=Number(result.conflict?.index);
   const earlierIndex=Number(result.conflict?.earlier_index);
   const currentTalent=result.found?result.state.talents?.[conflictIndex]:null;
@@ -2808,7 +2819,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   ensureSession();
   if(Number(restored?.role_id)!==Number(snapshot.role_id)||Number(restored?.seed)!==Number(snapshot.seed))
    throw Error('되돌리기 WASM 상태 검증 실패');
-  state.undoStates.pop();state.log.pop();state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.liveTalents=restored?.talents||[];syncWasmBag(restored);state.output='직전 모의 세수 실행 묶음을 되돌렸습니다.\n'+JSON.stringify({
+  state.undoStates.pop();state.log.pop();state.lastConflict=null;state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.liveTalents=restored?.talents||[];syncWasmBag(restored);state.output='직전 모의 세수 실행 묶음을 되돌렸습니다.\n'+JSON.stringify({
    roleId:restored.role_id,talLucky:restored.tal_lucky,undoRemaining:state.undoStates.length},null,2);
  }else if(op==='washEngineOnce'||op==='washEngineMulti'){
   if(!state.active)throw Error('WASM 실행 상태를 먼저 설정하세요');
@@ -2830,7 +2841,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    state.log.push(result);
    state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';
   }
-  state.liveTalents=result.state.talents||[];syncWasmBag(result.state);
+  state.lastConflict=null;state.liveTalents=result.state.talents||[];syncWasmBag(result.state);
   state.output=performed?'원본 WASM 모의 세수 '+performed+'회 실행'+
    (result.partial?' · 요청 '+count+'회 중 일부만 실행':'')+' · 되돌리기 '+state.undoStates.length+'묶음\n'+
    JSON.stringify(result,null,2):
