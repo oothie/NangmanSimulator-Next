@@ -3216,7 +3216,8 @@ const openDetail=(eq,source)=>{
   history.pushState({equipmentDetail:true,previousView:v,previousTab:equipTab},'','#equip-detail');
  }
  equipDetail={eq,source,count:equipDetail?.count||20,mode:null};
- v='equip';render();window.scrollTo(0,0);
+ equipmentLastOriginalTab=null;
+ v='equip';render();sendEquipmentFocus();window.scrollTo(0,0);
 };
 document.querySelectorAll('[data-character-equip-open]').forEach(x=>x.onclick=()=>{
  const role=roles[selected],catalog=equipCatalog();
@@ -3502,7 +3503,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
 if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.8.7',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
-window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;render()}});
+window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;equipmentLastOriginalTab=null;render()}});
 function sendEquipmentFocus(force=false){
  const frame=equipmentFrames.get('nangman-v350');
  if(!equipDetail||!frame?.contentWindow)return false;
@@ -3672,7 +3673,7 @@ window.addEventListener('message',event=>{
   history.pushState({equipmentDetail:true,previousView:v,previousTab:equipTab},'','#equip-detail');
  }
  equipDetail={eq:item,source:chosen?.source||'장비 계산 결과',count:20,mode:null};
- v='equip';render();window.scrollTo(0,0);
+ equipmentLastOriginalTab=null;v='equip';render();sendEquipmentFocus();window.scrollTo(0,0);
 });
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.data?.kind!=='nangman-equip-navigate')return;
