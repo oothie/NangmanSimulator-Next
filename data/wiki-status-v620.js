@@ -1,4 +1,4 @@
-// 한국판 V6.20 원본 상태 이름/설명/아이콘 ID/원본 효과 메타데이터. 원본 판정 로직 불변.
+// 한국판 V6.20 원본 상태 ID 대응 한국어 텍스트/아이콘/효과 메타데이터.
 window.NANGMAN_V620_BUFF_KO={
  "201": [
   "조급",
@@ -16498,6 +16498,36 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "dmg_off_count"
   }
  ],
+ "3413": [
+  "편파",
+  "영운시검에서 후차박피의 영항으로 공격력이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_4111",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.2,
+   "buff_type_1": "atk"
+  }
+ ],
+ "3414": [
+  "저쪽을 홀대함",
+  "영운시검에서 후차박피의 영향으로 공격력이 {buff_fudu_1} 됩니다.",
+  "icon_buff_4121",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": -0.06,
+   "buff_type_1": "atk"
+  }
+ ],
+ "3415": [
+  "선발제인",
+  "영운시검에서 기선을 제압하여 속도가 {buff_fudu_1} 증가합니다.",
+  "",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.15,
+   "buff_type_1": "speed"
+  }
+ ],
  "3416": [
   "팔방관찰",
   "영운시검에서 팔방을 살피니 명중이 {buff_fudu_1} 증가합니다.",
@@ -16855,6 +16885,55 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "def"
   }
  ],
+ "4027": [
+  "분정결",
+  "정사로 담금질해 한봉을 벼리니, 일념은 재가 되고 일념은 붉게 타오른다. 이 사람의 체내에 들어오는 그 어떤 진기도 모두 불타 없어집니다.",
+  "icon_buff_110",
+  {
+   "buff_fudu_2": 0.4,
+   "buff_type_1": "skilldmg_ign",
+   "buff_round": -1,
+   "buff_type_2": "dmg_off80"
+  }
+ ],
+ "4028": [
+  "분정결 제거",
+  "",
+  "",
+  {
+   "buff_round": 0
+  }
+ ],
+ "4029": [
+  "온타케",
+  "이 사람은 도진이 모이는 곳에 위치하여 피해면역이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_155",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.01,
+   "buff_type_1": "dmg_off"
+  }
+ ],
+ "4030": [
+  "파봉",
+  "이 사람은 도진의 도움을 받아 자신의 방어 관통이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_154",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "def_ign"
+  }
+ ],
+ "4031": [
+  "치료",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "hp"
+  }
+ ],
  "4035": [
   "무극의 III",
   "세 갈래 무극의 뜻이 융합되어 종잡을 수 없는 힘을 발산합니다. 공격력이 {buff_fudu_1} 증가하고, 방어 관통이 {buff_fudu_2} 증가하며, 회피공격이 {buff_fudu_3} 증가합니다.",
@@ -17072,6 +17151,54 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": 1
   }
  ],
+ "5007": [
+  "북악 3",
+  "",
+  "",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "hp"
+  }
+ ],
+ "5008": [
+  "북악 4",
+  "",
+  "",
+  {
+   "buff_round": 1
+  }
+ ],
+ "5009": [
+  "북악 5",
+  "",
+  "",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "hp"
+  }
+ ],
+ "5010": [
+  "천변천파기",
+  "홀수 파초",
+  "",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.2,
+   "buff_type_1": "po_parry"
+  }
+ ],
+ "5011": [
+  "천변천파우",
+  "회피 간파",
+  "",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.2,
+   "buff_type_1": "po_dodge"
+  }
+ ],
  "5014": [
   "은신",
   "보행에 뜻을 싣고 신체로 형을 펼치며, 공격을 받아 멀리 피하며 형세로 몸을 숨깁니다. 단계마다 피해면역이 {buff_fudu_1} 증가합니다.",
@@ -17080,6 +17207,16 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1,
    "buff_fudu_1": 0.01,
    "buff_type_1": "dmg_off"
+  }
+ ],
+ "5015": [
+  "벽하보계",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_fudu_1": 10,
+   "buff_type_1": "mp"
   }
  ],
  "5016": [
@@ -17343,6 +17480,49 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_2": "dmg_off"
   }
  ],
+ "5048": [
+  "검기",
+  "검이 예리한 빛을 띠어 수족처럼 다룹니다. 단계마다 공격이 {buff_fudu_1}, 속도가 {buff_fudu_2} 증가합니다.",
+  "icon_buff_4156",
+  {
+   "buff_type_2": "speed",
+   "buff_fudu_2": 0.02,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "atk",
+   "buff_round": 4
+  }
+ ],
+ "5049": [
+  "검상",
+  "검기가 근골과 장부를 상하게 하여, 강기 단계마다 {buff_fudu_1}, 내기 {buff_fudu_2} 증가합니다. 처음으로 5/10단계에 도달했을 때, 피격 시 검상이 폭발하여 근골과 내장을 상하게 합니다. (단 1회 발동)",
+  "icon_buff_4157",
+  {
+   "buff_fudu_2": -0.02,
+   "buff_fudu_1": -0.02,
+   "buff_type_1": "gangqiper",
+   "buff_round": -1,
+   "buff_type_2": "neijper"
+  }
+ ],
+ "5050": [
+  "연타 선행",
+  "",
+  "",
+  {
+   "buff_round": 1
+  }
+ ],
+ "5052": [
+  "경외",
+  "이 사람은 날카로운 검기에 겁에 질려 일반 공격을 할 수 없으며 방어력이 크게 감소합니다.",
+  "icon_buff_4158",
+  {
+   "buff_round": 2,
+   "buff_type_2": "def",
+   "buff_fudu_2": -2000,
+   "buff_type_1": "noattack"
+  }
+ ],
  "5053": [
   "검갑",
   "이 사람은 날카로운 검기가 갑옷의 형세를 이루어, 단계마다 방어가 {buff_fudu_1}, 상태 이상 저항이 {buff_fudu_2} 증가합니다. 최초로 5/10단계에 도달 시 기를 방패로 전환하여 자신을 증폭합니다. (1회만 발동)",
@@ -17562,6 +17742,46 @@ window.NANGMAN_V620_BUFF_KO={
   {
    "buff_fudu_1": 1.0001,
    "buff_type_1": "renxing",
+   "buff_round": -1
+  }
+ ],
+ "6012": [
+  "대작",
+  "이일진과 대작하여 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_6009",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 1.0001,
+   "buff_type_1": "atk"
+  }
+ ],
+ "6013": [
+  "파부침주",
+  "상호건이 포효하며 전의를 드높였습니다. 아군 전체의 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_6010",
+  {
+   "buff_fudu_1": 1.0001,
+   "buff_type_1": "atk",
+   "buff_round": -1
+  }
+ ],
+ "6014": [
+  "늠름한 여걸",
+  "진무쌍의 여중호걸 위세가 가해져 모든 여성 동료의 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_6011",
+  {
+   "buff_fudu_1": 1.0001,
+   "buff_type_1": "atksex2",
+   "buff_round": -1
+  }
+ ],
+ "6015": [
+  "호담강권",
+  "탁발준의 권법 강경 관주로 아군 전체의 권법 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_6004",
+  {
+   "buff_fudu_1": 1.0001,
+   "buff_type_1": "atktp1",
    "buff_round": -1
   }
  ],
@@ -18046,6 +18266,78 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "dodge"
   }
  ],
+ "7206": [
+  "천비우",
+  "이 사람은 마조의 가호를 받아 온몸을 파도가 감싸 보호하는 듯합니다. 피해 감소가 {buff_fudu_1}, 회피가 {buff_fudu_2}, 막기가 {buff_fudu_3} 증가합니다.",
+  "icon_buff_7206",
+  {
+   "buff_type_3": "parry",
+   "buff_round": -1,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "dmg_off",
+   "buff_fudu_2": 0.05,
+   "buff_type_2": "dodge",
+   "buff_fudu_3": 0.05
+  }
+ ],
+ "7207": [
+  "정도",
+  "이 사람은 마음이 고요한 연못과 같아 적의 어떤 움직임도 한눈에 간파합니다. 막기가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_7204",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.25,
+   "buff_type_1": "parry"
+  }
+ ],
+ "7208": [
+  "식랑",
+  "이 사람은 몸이 노니는 용과 같아 적의 공세를 여유롭게 받아내며, 회피가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_7205",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.25,
+   "buff_type_1": "dodge"
+  }
+ ],
+ "7209": [
+  "천비우만",
+  "",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
+ "7210": [
+  "천비우만",
+  "",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
+ "7211": [
+  "바람과 파도가 잔잔하다",
+  "이 사람은 거센 풍파를 잠재워 현재 매우 평온한 상태이며, 회피가 {buff_fudu_1} 증가하고, 막기가 {buff_fudu_2} 증가합니다.",
+  "icon_buff_7211",
+  {
+   "buff_fudu_2": 0.25,
+   "buff_fudu_1": 0.25,
+   "buff_type_1": "dodge",
+   "buff_round": 2,
+   "buff_type_2": "parry"
+  }
+ ],
+ "7212": [
+  "모래에 빠지다",
+  "모래바람의 영향을 받아 모래에 빠져 이동속도가 {buff_fudu_1}입니다.",
+  "icon_buff_190",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": -0.2,
+   "buff_type_1": "map_move"
+  }
+ ],
  "7213": [
   "어풍",
   "어풍환을 복용하자, 지금 자신의 근맥이 이완되는 것이 느껴집니다.",
@@ -18305,6 +18597,47 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1,
    "buff_fudu_1": -0.1,
    "buff_type_1": "rating"
+  }
+ ],
+ "7426": [
+  "연진미만",
+  "천장이 내려앉으며 일시에 연무가 자욱해져 앞을 분간할 수 없으니, 이곳에서는 일반 공격을 할 수 없습니다.",
+  "icon_buff_7425",
+  {
+   "buff_round": -1,
+   "buff_type_1": "noattack"
+  }
+ ],
+ "7427": [
+  "폭발 표식",
+  "",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
+ "7428": [
+  "물",
+  "흑살존자가 명천수를 시전하자 신체 내부에 흑살내경이 잔류하게 되었으며, 동종의 만사지법을 시전할 때 위력의 공명을 일으킨다.",
+  "icon_buff_7428",
+  {
+   "buff_round": 2
+  }
+ ],
+ "7429": [
+  "침",
+  "흑살존자가 귀갈침을 시전하여 신체 내부에 흑살내경이 잔류하며, 동일한 유형의 만사의 법 시전 시 위력의 공명을 유발합니다.",
+  "icon_buff_7429",
+  {
+   "buff_round": 2
+  }
+ ],
+ "7430": [
+  "대",
+  "흑살존자가 흑간을 내보냈습니다. 신체 내부에 흑살내경이 한 줄기 잔류하게 되며, 같은 유형의 만사의 법 시전 시 위력의 공명을 일으킵니다.",
+  "icon_buff_7430",
+  {
+   "buff_round": 2
   }
  ],
  "7431": [
@@ -18617,6 +18950,54 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1
   }
  ],
+ "7472": [
+  "가도",
+  "야천자가 도신을 세워 자세를 취하고 초식을 대폭 높입니다.",
+  "icon_buff_7472",
+  {
+   "buff_round": -1,
+   "buff_type_2": "dmg_off",
+   "buff_fudu_1": 10000000000,
+   "buff_fudu_2": 0.3,
+   "buff_type_1": "parry"
+  }
+ ],
+ "7473": [
+  "소리",
+  "이 사람의 공격은 잔우 방울을 서로 부딪히게 하여 방어를 방해하며, 야천자의 주목을 받게 됩니다.",
+  "icon_buff_7473",
+  {
+   "buff_round": 5,
+   "buff_fudu_1": -0.05,
+   "buff_type_2": "dmg_off",
+   "buff_type_1": "def",
+   "buff_fudu_2": -0.05
+  }
+ ],
+ "7474": [
+  "성문",
+  "이 사람의 몸에 있는 방울이 맑게 부딪치는 소리를 냈고, 딸랑거리는 소리가 온 전장에 울려 퍼졌습니다.",
+  "icon_buff_7474",
+  {
+   "buff_fudu_2": -0.05,
+   "buff_fudu_1": -0.05,
+   "buff_type_1": "def",
+   "buff_round": -1,
+   "buff_type_2": "dmg_off"
+  }
+ ],
+ "7475": [
+  "잔우",
+  "이 사람의 공격은 잔우 방울을 서로 부딪히게 하여 방어를 방해하며, 야천자의 주목을 받게 됩니다.",
+  "icon_buff_7471",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": -0.05,
+   "buff_type_2": "dmg_off",
+   "buff_type_1": "def",
+   "buff_fudu_2": -0.05
+  }
+ ],
  "7476": [
   "주시",
   "야천자가 사영을 격퇴한 자를 응시하고 있다.",
@@ -18753,6 +19134,33 @@ window.NANGMAN_V620_BUFF_KO={
   {
    "buff_round": -1,
    "buff_type_1": "noattack"
+  }
+ ],
+ "7495": [
+  "비사과경",
+  "황사가 휩쓸고 지나가며 공기 중에는 모래 먼지가 가득합니다.",
+  "icon_buff_7495",
+  {
+   "buff_round": 2
+  }
+ ],
+ "7496": [
+  "유영",
+  "풍운이 급변하자 야천자는 틈을 타 어둠 속으로 은신해 자신의 상태를 회복하며, 동시에 제자리에 여러 겹의 유영을 남겨 이를 이용해 공세를 펼칠 기회를 엿봅니다.",
+  "icon_buff_3103",
+  {
+   "buff_round": -1,
+   "buff_type_2": "antiblood",
+   "buff_fudu_2": -1,
+   "buff_type_1": "bossyun"
+  }
+ ],
+ "7497": [
+  "간파",
+  "어둠이 짙어 앞이 보이지 않는 긴 밤, 예천자가 상대의 허점을 포착하여 초식 '옥문'의 공격력을 대폭 강화합니다.",
+  "icon_buff_7497",
+  {
+   "buff_round": -1
   }
  ],
  "7498": [
@@ -19049,6 +19457,26 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "parry"
   }
  ],
+ "7538": [
+  "산",
+  "군진은 「흩을 산」입니다. 「사격」 진형을 상대할 때 모든 공격을 회피할 수 있으며, 공격 시 반드시 연속공격이 발생합니다.",
+  "icon_buff_7533",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 100000000,
+   "buff_type_1": "dodge"
+  }
+ ],
+ "7539": [
+  "공포",
+  "이 사람은 공격을 받아 기혈이 혼란해지고 칼을 쥐는 것이 불안정해져 공격력이 {buff_fudu_1} 됩니다.",
+  "icon_buff_412",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": -0.005,
+   "buff_type_1": "atk"
+  }
+ ],
  "7540": [
   "npc",
   "",
@@ -19263,6 +19691,16 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "def"
   }
  ],
+ "7566": [
+  "풍식",
+  "이 사람은 풍경이 흩어져 풍식으로 변함에 따라 체내 기운이 완전히 흐트러졌으며, 취기 속도가 대폭 감소합니다.",
+  "icon_buff_7568",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": -0.5,
+   "buff_type_1": "mp_back"
+  }
+ ],
  "7567": [
   "윈드 필드 회수",
   "이 자는 현재 역풍과 공감하고 있으며, 염풍의 식을 익혔다면 이번 턴 첫 공격 시 상대 진영에 흩어진 풍경을 끌어올 수 있습니다.",
@@ -19295,6 +19733,16 @@ window.NANGMAN_V620_BUFF_KO={
   "",
   {
    "buff_round": -1
+  }
+ ],
+ "7575": [
+  "화살 상처",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_fudu_1": -0.03,
+   "buff_type_1": "hp"
   }
  ],
  "7576": [
@@ -19335,6 +19783,38 @@ window.NANGMAN_V620_BUFF_KO={
   "",
   {
    "buff_round": 1
+  }
+ ],
+ "7581": [
+  "사기",
+  "병사들의 사기가 충천합니다! 공격력이 {buff_fudu_1} 증가하고, 막기 간파가 {buff_fudu_2} 증가하며, 회피공격이 {buff_fudu_3} 증가합니다.",
+  "icon_buff_7581",
+  {
+   "buff_type_2": "po_parry",
+   "buff_type_3": "po_dodge",
+   "buff_fudu_2": 0.01,
+   "buff_fudu_1": 0.005,
+   "buff_type_1": "atk",
+   "buff_round": -1,
+   "buff_fudu_3": 0.01
+  }
+ ],
+ "7582": [
+  "사기 체력 회복",
+  "",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
+ "7583": [
+  "전상",
+  "이 사람은 적의 공격으로 부상을 입어 전투 기세가 크게 약화되었으며, 방어가 {buff_fudu_1} 감소하고 다시 친위대의 합격을 받으면 추가 하향 효과를 받습니다.",
+  "icon_buff_3043",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": -0.05,
+   "buff_type_1": "def"
   }
  ],
  "7584": [
@@ -19718,6 +20198,38 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1
   }
  ],
+ "7821": [
+  "풍질전체",
+  "창은 바람 같고 기세는 뇌전 같으니, 이 사람이 적을 명중시킬 때마다 1회 동안 피해면역이 {buff_fudu_1} 증가하고 회피가 {buff_fudu_2} 증가합니다.",
+  "icon_buff_2872",
+  {
+   "buff_fudu_2": 3000,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "dmg_off",
+   "buff_round": 1,
+   "buff_type_2": "dodge"
+  }
+ ],
+ "7822": [
+  "풍운제회",
+  "창은 질풍과 같고 기세는 뇌전과 같으니, 모든 「풍치전체」를 전환하여 공격이 {buff_fudu_1} 증가하고 거의 모든 초식을 회피할 수 있게 됩니다.",
+  "icon_buff_3135",
+  {
+   "buff_type_2": "dodge",
+   "buff_fudu_2": 999999,
+   "buff_fudu_1": 0.2,
+   "buff_type_1": "atk",
+   "buff_round": -1
+  }
+ ],
+ "7823": [
+  "감시 버프",
+  "",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
  "7835": [
   "종횡",
   "싸울수록 용감해져 단계마다 기세 공격이 {buff_fudu_1} 증가하고, 반격 확률이 {buff_fudu_2} 증가합니다.",
@@ -19788,6 +20300,16 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "mp_back",
    "buff_fudu_2": -0.3,
    "buff_fudu_3": -0.3
+  }
+ ],
+ "7841": [
+  "눈부시다",
+  "이 사람은 쌍간의 강한 빛에 상처를 입어 명중이 대폭 감소합니다.",
+  "icon_buff_15",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": -0.99,
+   "buff_type_1": "hit"
   }
  ],
  "7842": [
@@ -20148,6 +20670,526 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "atk"
   }
  ],
+ "28803": [
+  "평사낙안Ⅲ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_201",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.045,
+   "buff_type_1": "atk"
+  }
+ ],
+ "28804": [
+  "평사낙안Ⅳ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_201",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.06,
+   "buff_type_1": "atk"
+  }
+ ],
+ "28805": [
+  "평사낙안Ⅴ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_201",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.075,
+   "buff_type_1": "atk"
+  }
+ ],
+ "28806": [
+  "평사낙안Ⅵ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_201",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.085,
+   "buff_type_1": "atk"
+  }
+ ],
+ "28807": [
+  "평사낙안Ⅶ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_201",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.095,
+   "buff_type_1": "atk"
+  }
+ ],
+ "28811": [
+  "소상수운I",
+  "음율의 효과를 받아 결투에서 모든 동료들의 방어가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_202",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "def"
+  }
+ ],
+ "28812": [
+  "소상수운Ⅱ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 방어가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_202",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.04,
+   "buff_type_1": "def"
+  }
+ ],
+ "28813": [
+  "소상수운Ⅲ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 방어가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_202",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.06,
+   "buff_type_1": "def"
+  }
+ ],
+ "28814": [
+  "소상수운Ⅳ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 방어가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_202",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.08,
+   "buff_type_1": "def"
+  }
+ ],
+ "28815": [
+  "소상수운Ⅴ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 방어가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_202",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "def"
+  }
+ ],
+ "28816": [
+  "소상수운Ⅵ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 방어가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_202",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.11,
+   "buff_type_1": "def"
+  }
+ ],
+ "28817": [
+  "소상수운Ⅶ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 방어가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_202",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.12,
+   "buff_type_1": "def"
+  }
+ ],
+ "28823": [
+  "어초문답Ⅲ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_203",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.06,
+   "buff_type_1": "hp_max"
+  }
+ ],
+ "28824": [
+  "어초문답Ⅳ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_203",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.08,
+   "buff_type_1": "hp_max"
+  }
+ ],
+ "28825": [
+  "어초문답Ⅴ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_203",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "hp_max"
+  }
+ ],
+ "28826": [
+  "어초문답Ⅵ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_203",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.11,
+   "buff_type_1": "hp_max"
+  }
+ ],
+ "28827": [
+  "어초문답Ⅶ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_203",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.12,
+   "buff_type_1": "hp_max"
+  }
+ ],
+ "28831": [
+  "주광 I",
+  "음율의 효과를 받아 결투에서 모든 동료들의 집기 속도가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_206",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "mp_back"
+  }
+ ],
+ "28832": [
+  "주광Ⅱ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 집기 속도가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_206",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.06,
+   "buff_type_1": "mp_back"
+  }
+ ],
+ "28833": [
+  "주광 Ⅲ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 집기 속도가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_206",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.09,
+   "buff_type_1": "mp_back"
+  }
+ ],
+ "28834": [
+  "주광Ⅳ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 집기 속도가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_206",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.12,
+   "buff_type_1": "mp_back"
+  }
+ ],
+ "28835": [
+  "주광Ⅴ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 집기 속도가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_206",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.15,
+   "buff_type_1": "mp_back"
+  }
+ ],
+ "28836": [
+  "주광Ⅵ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 집기 속도가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_206",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.17,
+   "buff_type_1": "mp_back"
+  }
+ ],
+ "28837": [
+  "주광Ⅶ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 집기 속도가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_206",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.2,
+   "buff_type_1": "mp_back"
+  }
+ ],
+ "28841": [
+  "취어창만I",
+  "음율의 효과를 받아 결투에서 모든 동료들의 명중이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_205",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "hit"
+  }
+ ],
+ "28844": [
+  "취어창만Ⅳ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 명중이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_205",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.12,
+   "buff_type_1": "hit"
+  }
+ ],
+ "28845": [
+  "취어창만Ⅴ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 명중이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_205",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.15,
+   "buff_type_1": "hit"
+  }
+ ],
+ "28846": [
+  "취어창만Ⅵ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 명중이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_205",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.16,
+   "buff_type_1": "hit"
+  }
+ ],
+ "28847": [
+  "취어창만Ⅶ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 명중이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_205",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.17,
+   "buff_type_1": "hit"
+  }
+ ],
+ "28851": [
+  "고산유수I",
+  "음율의 효과를 받아 결투에서 모든 동료들의 초기 진원이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_423",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 5,
+   "buff_type_1": "mp_f"
+  }
+ ],
+ "28852": [
+  "고산유수Ⅱ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 초기 진원이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_423",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 10,
+   "buff_type_1": "mp_f"
+  }
+ ],
+ "28853": [
+  "고산유수Ⅲ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 초기 진원이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_423",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 15,
+   "buff_type_1": "mp_f"
+  }
+ ],
+ "28856": [
+  "고산유수Ⅵ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 초기 진원이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_423",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 26,
+   "buff_type_1": "mp_f"
+  }
+ ],
+ "28857": [
+  "고산유수Ⅶ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 초기 진원이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_423",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 27,
+   "buff_type_1": "mp_f"
+  }
+ ],
+ "28861": [
+  "매화삼롱I",
+  "음율의 효과를 받아 결투에서 모든 동료들의 회피가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_215",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "dodge"
+  }
+ ],
+ "28862": [
+  "매화삼롱Ⅱ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 회피가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_215",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.04,
+   "buff_type_1": "dodge"
+  }
+ ],
+ "28863": [
+  "매화삼롱Ⅲ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 회피가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_215",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.06,
+   "buff_type_1": "dodge"
+  }
+ ],
+ "28864": [
+  "매화삼롱Ⅳ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 회피가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_215",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.08,
+   "buff_type_1": "dodge"
+  }
+ ],
+ "28865": [
+  "매화삼롱Ⅴ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 회피가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_215",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "dodge"
+  }
+ ],
+ "28867": [
+  "취운용상",
+  "이 사람은 향기를 맡고 정신이 맑아졌습니다. 다음 전투에서 명중이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_22",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "hit"
+  }
+ ],
+ "28871": [
+  "양관삼첩I",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈 회복이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_204",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 100,
+   "buff_type_1": "hp_back"
+  }
+ ],
+ "28872": [
+  "양관삼첩Ⅱ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈 회복이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_204",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 150,
+   "buff_type_1": "hp_back"
+  }
+ ],
+ "28873": [
+  "양관삼첩Ⅲ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈 회복이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_204",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 200,
+   "buff_type_1": "hp_back"
+  }
+ ],
+ "28874": [
+  "양관삼첩Ⅳ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈 회복이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_204",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 250,
+   "buff_type_1": "hp_back"
+  }
+ ],
+ "28875": [
+  "양관삼첩Ⅴ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈 회복이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_204",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 300,
+   "buff_type_1": "hp_back"
+  }
+ ],
+ "28876": [
+  "양관삼첩Ⅵ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈 회복이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_204",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 400,
+   "buff_type_1": "hp_back"
+  }
+ ],
+ "28877": [
+  "양관삼첩Ⅶ",
+  "음율의 효과를 받아 결투에서 모든 동료들의 기혈 회복이 {buff_fudu_1}점 증가합니다.",
+  "icon_buff_204",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 500,
+   "buff_type_1": "hp_back"
+  }
+ ],
+ "28901": [
+  "연마",
+  "이 사람이 들고 있는 병기는 장인의 손을 거쳐 공격이 2% 증가합니다.",
+  "icon_buff_154",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "atk"
+  }
+ ],
+ "28902": [
+  "중후",
+  "이 사람이 들고 있는 병기는 장인의 손을 거쳐 막기가 3% 증가합니다.",
+  "icon_buff_155",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "parry"
+  }
+ ],
+ "28903": [
+  "경량화I",
+  "이 사람이 들고 있는 병기는 장인의 손을 거쳐 명중이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_156",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "hit"
+  }
+ ],
+ "28904": [
+  "경량화II",
+  "이 사람이 들고 있는 병기는 장인의 손을 거쳐 명중이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_156",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "hit"
+  }
+ ],
+ "28905": [
+  "경량화III",
+  "이 사람이 들고 있는 병기는 장인의 손을 거쳐 명중이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_156",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.07,
+   "buff_type_1": "hit"
+  }
+ ],
  "28906": [
   "연마",
   "이 사람이 들고 있는 병기는 장인의 손을 거쳐 공격이 3% 증가하고 흡혈 효과를 획득합니다.",
@@ -20332,6 +21374,118 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "atk"
   }
  ],
+ "31007": [
+  "전의",
+  "루운계가 정신을 집중해 전의를 드높였습니다. 공세가 점점 날카로워집니다. 공격이 {buff_fudu_1}, 속도가 {buff_fudu_2} 증가합니다",
+  "icon_buff_218",
+  {
+   "buff_round": 5,
+   "buff_type_2": "speed",
+   "buff_fudu_1": 0.5,
+   "buff_fudu_2": 0.3,
+   "buff_type_1": "atk"
+  }
+ ],
+ "31008": [
+  "피로",
+  "이 사람은 무거운 물건을 옮기고 있어 빠르게 움직일 수 없어 이동속도가 {buff_fudu_1}입니다.",
+  "icon_buff_57",
+  {
+   "buff_round": 3.5,
+   "buff_fudu_1": -0.5,
+   "buff_type_1": "map_move"
+  }
+ ],
+ "31009": [
+  "청명 버드나무",
+  "이건 소미가 당신에게 주는 버드나무 가지입니다. 신기한 효험이 있다고 합니다! 공격이 {buff_fudu_1}, 방어가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_361",
+  {
+   "buff_round": 3,
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.08,
+   "buff_fudu_2": 0.08,
+   "buff_type_1": "atk"
+  }
+ ],
+ "31010": [
+  "설역행자",
+  "이 사람은 흰족제비의 길 안내로 눈밭을 거침없이 나아가 이동속도가 {buff_fudu_1} 됩니다.",
+  "icon_buff_74",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.2,
+   "buff_type_1": "map_move"
+  }
+ ],
+ "31011": [
+  "백주우담",
+  "이 사람은 꽃향기에 휩싸여 혈기왕성한 때로 기혈 회복이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_31011",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "hp_back"
+  }
+ ],
+ "31012": [
+  "난항",
+  "이 사람은 늪에서 배를 몰아 이동속도가 {buff_fudu_1}입니다.",
+  "icon_buff_16",
+  {
+   "buff_round": 1800,
+   "buff_fudu_1": -0.5,
+   "buff_type_1": "map_move"
+  }
+ ],
+ "31014": [
+  "간월",
+  "이 사람의 몸은 제비처럼 가볍고 발걸음은 추성간월과 같아 전혀 맞출 수 없습니다.",
+  "icon_buff_132",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": 100000000,
+   "buff_type_1": "dodge"
+  }
+ ],
+ "31015": [
+  "주화입마",
+  "진종은 극도의 비분강개로 주화입마에 빠져 광폭화 상태가 되었습니다. 공격, 방어, 인내가 각 100% 증가합니다.",
+  "icon_buff_44",
+  {
+   "buff_round": -1,
+   "buff_type_3": "hp_max",
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.99,
+   "buff_type_1": "atk",
+   "buff_fudu_2": 0.99,
+   "buff_fudu_3": 0.5
+  }
+ ],
+ "31016": [
+  "구름이 몰아치고 비가 쏟아짐",
+  "이 사람은 운분우취를 사용하여 몸이 제비처럼 가볍고 걸음걸이가 날아갈 듯 빠르며, 그 기세가 막을 수 없어 초식을 펼치고 대응함이 자유자재입니다. 속도가 {buff_fudu_2} 증가하고, 회피가 {buff_fudu_1} 증가하며, 명중이 {buff_fudu_3} 증가합니다.",
+  "icon_buff_251",
+  {
+   "buff_round": 1,
+   "buff_type_3": "rating",
+   "buff_type_2": "speed",
+   "buff_fudu_1": 0.2,
+   "buff_type_1": "dodge",
+   "buff_fudu_2": 0.15,
+   "buff_fudu_3": 0.25
+  }
+ ],
+ "31017": [
+  "강기 호체",
+  "공격 없이 오로지 방어만 하며 상대의 초식을 낱낱이 관찰하고, 불변으로써 만변에 대응합니다.",
+  "icon_buff_62",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 0.3,
+   "buff_type_1": "dun"
+  }
+ ],
  "31018": [
   "기혈 부족",
   "이 사람은 웬일인지 체력이 허약하고 내식이 불안정하며 출혈이 멎지 않아 매회 기혈 {buff_fudu_1} 감소합니다.",
@@ -20430,6 +21584,102 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "jinghuarand"
   }
  ],
+ "31029": [
+  "절검",
+  "이 사람은 중상을 입어 공격이 {buff_fudu_1} 됩니다.",
+  "icon_buff_70",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": -0.2,
+   "buff_type_1": "atk"
+  }
+ ],
+ "31030": [
+  "입하차",
+  "이 사람은 갓 맑은 차를 마셔 혈기왕성한 때입니다. 공격이 {buff_fudu_1} 증가했습니다.",
+  "icon_buff_31030",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "atk"
+  }
+ ],
+ "31031": [
+  "입하차",
+  "이 사람은 갓 맑은 차를 마셔 혈기왕성한 때입니다. 공격이 {buff_fudu_1} 증가했습니다.",
+  "icon_buff_31030",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "atk"
+  }
+ ],
+ "31032": [
+  "단 쫑쯔",
+  "이 사람은 막 쫑쯔를 다 먹어 혈기왕성한 때로 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_31031",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "atk"
+  }
+ ],
+ "31033": [
+  "짠 쫑쯔",
+  "이 사람은 막 쫑쯔를 다 먹어 혈기왕성한 때로 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_31032",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "atk"
+  }
+ ],
+ "31034": [
+  "중독",
+  "중독된 불곰에게 공격당해 극독에 중독됐습니다. {buff_round}회 지속.",
+  "icon_buff_09",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": -0.06,
+   "buff_type_2": "atk",
+   "buff_type_1": "hp",
+   "buff_fudu_2": -0.1
+  }
+ ],
+ "31035": [
+  "주화입마",
+  "도연은 내단도 수련 중 주화입마에 빠져 광폭화 상태가 되었습니다. 공격, 방어 각 100% 증가합니다.",
+  "icon_buff_44",
+  {
+   "buff_round": -1,
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.99,
+   "buff_fudu_2": 0.99,
+   "buff_type_1": "atk"
+  }
+ ],
+ "31036": [
+  "전의",
+  "전투의지가 높아 기세가 대단해 공격이 점점 더 강력하게 퍼붓습니다. 공격력 {buff_fudu_1} 증가합니다.",
+  "icon_buff_218",
+  {
+   "buff_round": 5,
+   "buff_fudu_1": 0.5,
+   "buff_type_1": "atk"
+  }
+ ],
+ "31037": [
+  "대길Ⅰ",
+  "이 사람은 부처님의 가호를 받아 기혈 상한이 {buff_fudu_1} 증가하고, 명중이 {buff_fudu_2} 증가합니다.",
+  "icon_buff_31037",
+  {
+   "buff_round": 10,
+   "buff_fudu_1": 0.04,
+   "buff_type_2": "rating",
+   "buff_type_1": "hp_max",
+   "buff_fudu_2": 0.04
+  }
+ ],
  "31038": [
   "대길 Ⅱ",
   "이 사람은 부처의 가호를 받아 기혈 상한이 {buff_fudu_1} 증가하고, 명중이 {buff_fudu_3} 증가합니다.",
@@ -20496,6 +21746,26 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": 3,
    "buff_fudu_1": 100,
    "buff_type_1": "hp_back"
+  }
+ ],
+ "40014": [
+  "금조한광",
+  "금빛 손톱의 서늘한 빛은 그 날카로움을 당해낼 길 없으니, 자신의 치명타 확률이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_40014",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "xx_prob"
+  }
+ ],
+ "40015": [
+  "금조한광",
+  "금조의 한광은 그 날카로움을 막기 힘들어, 자신의 방어 관통이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_40015",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "def_ign"
   }
  ],
  "40017": [
@@ -20614,6 +21884,46 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "gangqi",
    "buff_round": -1,
    "buff_type_2": "neij"
+  }
+ ],
+ "40029": [
+  "건곤역전",
+  "기경의 층마다 공격력 증가 효과가 중첩되며, 다음 초식 시전 시 추가 공격 피해를 입힙니다.",
+  "icon_buff_40029",
+  {
+   "buff_round": -1
+  }
+ ],
+ "40030": [
+  "분노를 담아",
+  "버프 취소",
+  "",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.0035,
+   "buff_type_1": "atk"
+  }
+ ],
+ "40031": [
+  "천행건",
+  "단계마다 자신의 방어 관통이 {buff_fudu_1} 증가하고 상대의 피해 감소를 {buff_fudu_2} 무시합니다.",
+  "icon_buff_40031",
+  {
+   "buff_round": 3,
+   "buff_type_2": "dmgoffign",
+   "buff_fudu_1": 0.01,
+   "buff_fudu_2": 0.01,
+   "buff_type_1": "def_ign"
+  }
+ ],
+ "40032": [
+  "지양 대기시간",
+  "",
+  "",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 1,
+   "buff_type_1": "wgcd"
   }
  ],
  "40038": [
@@ -20776,6 +22086,44 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1,
    "buff_fudu_1": 0.05,
    "buff_type_1": "stick_add"
+  }
+ ],
+ "41010": [
+  "두건",
+  "",
+  "",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 150,
+   "buff_type_1": "renxing"
+  }
+ ],
+ "41011": [
+  "폭발효과",
+  "",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
+ "41012": [
+  "주작 선행",
+  "",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
+ "41013": [
+  "주작 실제",
+  "",
+  "",
+  {
+   "buff_round": 1,
+   "buff_type_2": "po_parry",
+   "buff_fudu_2": 0.8,
+   "buff_fudu_1": 0.8,
+   "buff_type_1": "po_dodge"
   }
  ],
  "43408": [
