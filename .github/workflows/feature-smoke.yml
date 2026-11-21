@@ -8,8 +8,10 @@ on:
       - 'engine/equipment-detail-bridge.js'
       - 'engine/quest-branch.js'
       - 'vendor/sanbujin/equip/**'
+      - 'vendor/nangman-v350/**'
       - 'vendor/sanbujin/equip-auto/**'
       - 'tests/equipment-detail-bridge-smoke.cjs'
+      - 'tests/nangman-v350-equipment-smoke.cjs'
       - 'tests/quest-branch-smoke.cjs'
       - 'tests/character-source-smoke.cjs'
       - 'tests/character-layout-smoke.cjs'
@@ -36,5 +38,7 @@ jobs:
         run: node tests/quest-branch-smoke.cjs
       - name: Equipment sequence and save identity
         run: node tests/equipment-detail-bridge-smoke.cjs
+      - name: Native NangmanSimulator v3.50 equipment engine
+        run: node tests/nangman-v350-equipment-smoke.cjs
       - name: Static script syntax
         run: node tests/html-inline-syntax.cjs
