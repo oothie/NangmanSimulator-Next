@@ -106,7 +106,10 @@
   let tombForecastSummary=[];
   const forecastHost=$('tombForecastOutput'),forecastStatus=$('tombForecastStatus');
   const forecastCount=$('tombForecastCount'),forecastPad=$('tombForecastPad');
-  const forecastCsv=$('tombForecastCsv');
+  const forecastCsv=$('tombForecastCsv'),eighthEvidence=$('tombEvidenceEighth');
+  const isOriginal1121=input=>input?.encounterSeed===1456365169&&
+    input?.equipmentSeed===492075794&&input?.flags?.get('eat_2659')===9&&
+    input?.flags?.get('rollenemy_tomb2')===200;
   const colorName=n=>color[n]||'등급 미확인';
   const gearName=id=>EQUIP_DATA.equipment?.[id]?.koName||
     ko(EQUIP_DATA.equipment?.[id]?.name||'장비 #'+id);
@@ -192,8 +195,15 @@
     forecastStatus.textContent='예측에 필요한 세이브 데이터 누락: '+missing.join(', ');return;
    }
    try{
-    // Do NOT equate an actual 9th field battle with 35255 event call #9.
-    const search=tomb.fitObservations(current,[],{count:count+pad});
+    // A user-observed battle #8 must NOT silently become event-call #8.
+    // The only optional fit is explicit and guarded to the exact pre-hunt
+    // 1121 RNG state; other saves must use unconditioned predictions.
+    if(eighthEvidence.checked&&!isOriginal1121(current)){
+      forecastStatus.textContent='8회차 실측 조건은 1121.json 사냥 전 난수 상태에만 적용할 수 있습니다. 현재 세이브에는 적용하지 않았습니다.';
+      return;
+    }
+    const constraints=eighthEvidence.checked?[{serial:8,spawn:true,itemId:4009,color:1}]:[];
+    const search=tomb.fitObservations(current,constraints,{count:Math.max(count+pad,8)});
     if(!search.matches.length){
       forecastStatus.textContent='현재 모델에 맞는 보상 후보가 없습니다. 실제 일반 사냥 회차와 35255 조우 호출 회차를 동일하다고 가정하지 마세요.';
       return;
@@ -203,13 +213,14 @@
     const missing=Object.values(current.eds||{}).length===0?' · 장비별 Eds 저장이 없어 옵션 시드는 일부 미연결입니다.':'';
     forecastStatus.textContent=count+'회 35255 원본 조우 이벤트 가설 · '+search.matches.length+
       '/'+search.tested+'개 분기 순서 후보'+
+      (eighthEvidence.checked?' · 1121 원본 시드에서 8번째 조우=실제 8회차라는 추가 가정 적용':' · 별도의 실측 조건 미적용')+
       ' · 실제 필드 사냥 횟수와 이벤트 호출 횟수의 매핑 미확정'+
       (current.gate3007Unknown?' · 진행 조건 3007 미기록 (통과 가정)':'')+missing;
     forecastCsv.disabled=false;
    }catch(error){forecastStatus.textContent='제릉 계산 오류: '+String(error.message||error);}
   }
   // Source-scope audit, deliberately NOT labelled '50 wild hunts'.
-  // The 9th actual battle's white 4009 cannot be equated to gate call #9
+  // The 8th actual battle's white 4009 cannot automatically be equated to gate call #8
   // without the missing 35255 combat -> walk-event invocation schedule.
   function renderTombGateAudit(){
    const status=$('tombGateStatus'),out=$('tombGateOutput');
@@ -242,9 +253,9 @@
     const body=node('tbody','');
     for(const r of diagnostic.encounters){
      const tr=node('tr','','');
-     if(r.call===9)tr.classList.add('tomb-gate-mismatch');
+     if(r.call===8)tr.classList.add('tomb-gate-mismatch');
      if(r.spawn)tr.classList.add('tomb-special');
-     forecastCell(tr,r.call+'번'+(r.call===9?' · 실측 9회와 직접 비교 불가':''));
+     forecastCell(tr,r.call+'번'+(r.call===8?' · 실측 8회와 직접 비교 불가':''));
      forecastCell(tr,r.encounterRoll==null?'게이트 미호출':String(r.encounterRoll));
      forecastCell(tr,r.thresholdBefore==null?'—':String(r.effectiveRoll)+' ≤ '+r.thresholdBefore);
      forecastCell(tr,r.spawn?'35256 등장':'35256 미등장');
@@ -252,12 +263,12 @@
      body.append(tr);
     }
     table.append(body);out.append(table);
-    out.append(node('p','이 표는 실제 9번째 전투에서 수라장갑(4009) 백색을 얻었다는 실측을 취소하거나 설명하지 않습니다. 실제 일반 사냥과 35255 이벤트 호출 사이 관계를 원본 소스로 확인하기 전까지 드랍 회차 확정은 중단합니다.','progress-note'));
+    out.append(node('p','이 표는 실제 8번째 거령 병용 전투에서 수라장갑(4009) 백색을 얻었다는 실측을 취소하거나 설명하지 않습니다. 실제 일반 사냥과 35255 이벤트 호출 사이 관계를 원본 소스로 확인하기 전까지 드랍 회차 확정은 중단합니다.','progress-note'));
    }catch(error){status.textContent='제릉 조우 진단 오류: '+String(error.message||error);}
   }
   $('tombGateRun').onclick=renderTombGateAudit;
   $('tombForecastRun').onclick=runTombForecast;
-  for(const e of [forecastCount,forecastPad])e.addEventListener('change',forecastReset);
+  for(const e of [forecastCount,forecastPad,eighthEvidence])e.addEventListener('change',forecastReset);
   forecastCsv.onclick=()=>{
    if(!tombForecastSummary.length)return;
    window.SBJDropExport.save('Nangman_Diling_Candidate_Consensus',[
