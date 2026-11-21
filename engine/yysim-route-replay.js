@@ -24,7 +24,9 @@ function plan(route,nameIds={}){
    if(name==null||name==='')return null;
    const mapped=integer(nameIds[String(name)]);
    const numeric=/^\d+$/.test(String(name))?integer(name):null;
-   const id=mapped??numeric;
+   const localized=Object.entries(root.NANGMAN_TALENT_NAMES_KO||{})
+    .filter(([,label])=>label===String(name)).map(([key])=>integer(key));
+   const id=mapped??numeric??(localized.length===1?localized[0]:null);
    if(id===null||id<1)throw Error('원본 재능 이름과 ID 매핑이 없어 경로를 안전하게 실행할 수 없습니다: '+String(name));
    return id;
   };
