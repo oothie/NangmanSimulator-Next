@@ -16,3 +16,18 @@ body.region-craft-view>.app-container.equip-app{position:absolute!important;left
 #regionBrowser thead th{position:sticky;top:0;background:var(--n-yy-paper,var(--bg-secondary))!important}
 @media(max-width:800px){#regionBrowser .region-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){#regionBrowser .region-controls{grid-template-columns:1fr}}
+
+#regionBrowser .region-controls{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important;gap:14px}
+#regionBrowser .region-controls label[hidden]{display:none!important}
+#regionBrowser .region-controls label{font-size:15px;font-weight:600}
+#regionBrowser .region-controls select{font-size:16px!important;min-height:46px}
+#regionBrowser .region-quality{display:inline-block;padding:3px 11px;border-radius:15px;font-weight:750;font-size:14px}
+#regionBrowser .region-quality-1{background:#e8e8e8;color:#313137}
+#regionBrowser .region-quality-2{background:#d6efd9;color:#216538}
+#regionBrowser .region-quality-3{background:#d9eaff;color:#225a98}
+#regionBrowser .region-quality-4{background:#ead8fb;color:#6b398c}
+#regionBrowser .region-quality-5{background:#ffe3c1;color:#925118}
+#regionBrowser .region-scroll table{min-width:640px}
+#regionBrowser .region-scroll :is(td,th){padding:12px 14px!important;font-size:15px!important}
+#regionBrowser .region-detail{background:var(--n-yy-soft)!important}
+#regionBrowser .region-result{max-height:750px}
