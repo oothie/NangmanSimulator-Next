@@ -1,4 +1,4 @@
-// 한국판 NangmanGame V6.20 원본 ID별 상태 명칭/설명/icon_buff/효과 메타(읽기 전용).
+// NangmanGame V6.20 한국판 원본 ID별 상태 이름/설명/icon_buff/효과. 읽기 전용.
 window.NANGMAN_V620_BUFF_KO={
  "201": [
   "조급",
@@ -6674,6 +6674,20 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "dmg_off"
   }
  ],
+ "1247": [
+  "극악무도",
+  "이 사람은 악마와 같은 형상으로 시전하는 초식의 위력이 대폭 증가합니다.",
+  "icon_buff_44",
+  {
+   "buff_type_2": "hit",
+   "buff_type_3": "dmg_off",
+   "buff_round": -1,
+   "buff_fudu_1": 0.45,
+   "buff_type_1": "atk",
+   "buff_fudu_2": 0.9,
+   "buff_fudu_3": 0.5
+  }
+ ],
  "1250": [
   "혈응!",
   "이 사람은 혈액이 뱀독에 의해 응고되어 기혈 회복이 감소하고 속도가 감소합니다.",
@@ -7136,6 +7150,75 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": 1
   }
  ],
+ "1509": [
+  "용연",
+  "잠자고 있던 용이 깨어나듯 단전에 집결되었던 내공이 뿜어져 나옵니다. 집기 속도가 {buff_fudu_1}, 방어가 {buff_fudu_2} 증가하고 잠깐동안 역효과에 대한 저항속성이 대폭 증가 됩니다. ",
+  "icon_buff_287",
+  {
+   "buff_round": 3,
+   "buff_type_3": "kang_debuff",
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.3,
+   "buff_type_1": "mp_back",
+   "buff_fudu_2": 0.2,
+   "buff_fudu_3": 0.8
+  }
+ ],
+ "1510": [
+  "획린",
+  "이 사람은 거대한 힘에 충돌해 거대한 충돌로 인해 기절 효과를 받으며, 피해 면제가 {buff_fudu_1}입니다.",
+  "icon_buff_288",
+  {
+   "buff_type_2": "yun",
+   "buff_fudu_1": -0.07,
+   "buff_type_1": "dmg_off",
+   "buff_round": 1
+  }
+ ],
+ "1511": [
+  "약점",
+  "이 사람은 상대에게 틈새를 보였습니다. 회피 간파가 {buff_fudu_1}, 막기 간파가 {buff_fudu_2}, 공격이 {buff_fudu_3}입니다.",
+  "icon_buff_289",
+  {
+   "buff_type_3": "atk",
+   "buff_fudu_2": -0.2,
+   "buff_fudu_1": -0.2,
+   "buff_type_1": "po_parry",
+   "buff_round": 4,
+   "buff_type_2": "po_dodge",
+   "buff_fudu_3": -0.06
+  }
+ ],
+ "1512": [
+  "화어",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_type_2": "jinghuahp",
+   "buff_fudu_2": 0.05,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "hp"
+  }
+ ],
+ "1513": [
+  "호호주",
+  "이 사람은 호호주를 마셔 전신의 골격이 강화되고 기혈이 증가했습니다.",
+  "icon_buff_290",
+  {
+   "buff_round": 1200
+  }
+ ],
+ "1514": [
+  "종결",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_fudu_1": 20,
+   "buff_type_1": "mp"
+  }
+ ],
  "1515": [
   "금준",
   "종잡을 수 없는 움직임으로 적의 경맥 급소를 공격해 적의 집기 속도가 {buff_fudu_1}, 방어가 {buff_fudu_2}입니다.",
@@ -7326,6 +7409,52 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_fudu_2": 0.1
   }
  ],
+ "1532": [
+  "적소",
+  "이 사람은 열검진 적소검 위치에 있어 검진과 하나가 되었습니다. 검법 공격이 {buff_fudu_1} 증가하고 피해면역이 {buff_fudu_2}입니다.",
+  "icon_buff_322",
+  {
+   "buff_round": -1,
+   "buff_type_2": "dmg_ref",
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "atk",
+   "buff_fudu_2": 0.06
+  }
+ ],
+ "1533": [
+  "태아",
+  "이 사람은 열검진 태아검 위치에 있어 검진과 하나가 되었습니다. 검법 공격이 {buff_fudu_1} 증가하고 회피 간파가 {buff_fudu_2}입니다.",
+  "icon_buff_323",
+  {
+   "buff_round": -1,
+   "buff_type_2": "po_dodge",
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "atk",
+   "buff_fudu_2": 0.08
+  }
+ ],
+ "1534": [
+  "어창",
+  "이 사람은 열검진 어장검 위치에 있어 검진과 하나가 되었습니다. 검법 공격이 {buff_fudu_1} 증가합니다",
+  "icon_buff_324",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1535": [
+  "공보",
+  "이 사람은 열검진 공보검 위치에 있어 검진과 하나가 되었습니다. 검법 공격이 {buff_fudu_1} 증가하고 방어가 {buff_fudu_2}입니다.",
+  "icon_buff_325",
+  {
+   "buff_round": -1,
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "atk",
+   "buff_fudu_2": 0.1
+  }
+ ],
  "1537": [
   "역맥",
   "이 사람은 경맥에 외력이 가해져 진기가 흩어지고 집기 속도가 대폭 감소합니다.",
@@ -7404,6 +7533,18 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": 4,
    "buff_type_2": "po_parry",
    "buff_fudu_3": 0.2
+  }
+ ],
+ "1544": [
+  "용연",
+  "잠룡이 못에서 나와 고개를 들었습니다. 단전에 축적한 내기가 퍼져 나와 방어가 {buff_fudu_1}, 공격이 {buff_fudu_2} 증가합니다.",
+  "icon_buff_287",
+  {
+   "buff_round": 4,
+   "buff_type_2": "atk",
+   "buff_fudu_1": 0.3,
+   "buff_type_1": "def",
+   "buff_fudu_2": 0.15
   }
  ],
  "1545": [
@@ -7986,6 +8127,54 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "po_dodge"
   }
  ],
+ "1609": [
+  "천잠변",
+  "천잠신공은 매우 기묘하고 비범하여 천잠변을 겪을 때마다 공격이 {buff_fudu_1}, 방어가 {buff_fudu_2} 증가합니다.",
+  "icon_buff_425",
+  {
+   "buff_type_2": "def",
+   "buff_fudu_2": 0.03,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "atk",
+   "buff_round": -1
+  }
+ ],
+ "1611": [
+  "잠사",
+  "이 사람의 경맥은 근성이 강한 실 모양의 내력에 침입을 받아 단계마다 취기 속도가 {buff_fudu_1}, 명중이 {buff_fudu_2} 됩니다.",
+  "icon_buff_427",
+  {
+   "buff_fudu_2": -0.05,
+   "buff_fudu_1": -0.05,
+   "buff_type_1": "mp_back",
+   "buff_round": 2,
+   "buff_type_2": "rating"
+  }
+ ],
+ "1612": [
+  "팔방",
+  "이 사람은 팔보간선의 절묘한 신법을 시전하여 적의 공세를 막아낼 때마다 자신의 피해면역이 {buff_fudu_1}, 인내가 {buff_fudu_2} 증가합니다.",
+  "icon_buff_428",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": 0.01,
+   "buff_type_2": "renxing",
+   "buff_type_1": "dmg_off",
+   "buff_fudu_2": 0.02
+  }
+ ],
+ "1613": [
+  "몰우",
+  "단단한 돌에 꽂히는 화살, 이를 몰우라고 합니다. 치료효과 {buff_fudu_1}, 받는 치료효과 {buff_fudu_1}.",
+  "icon_buff_429",
+  {
+   "buff_round": 2,
+   "buff_type_2": "cure_sj",
+   "buff_fudu_1": -0.2,
+   "buff_type_1": "cure",
+   "buff_fudu_2": -0.2
+  }
+ ],
  "1614": [
   "몰우",
   "단단한 돌에 꽂히는 화살, 이를 몰우라고 합니다. 취기 속도가 {buff_fudu_1}, 치료효과가 {buff_fudu_2}, 받는 치료효과가 {buff_fudu_3} 됩니다.",
@@ -8152,6 +8341,32 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": 0,
    "buff_fudu_1": -999999,
    "buff_type_1": "hp"
+  }
+ ],
+ "1634": [
+  "화시장경",
+  "화시장경, 내력을 축적했다가 발산합니다. 공격이 {buff_fudu_1}, 회피 간파가 {buff_fudu_2} 증가합니다.",
+  "icon_buff_87",
+  {
+   "buff_type_3": "hit",
+   "buff_fudu_2": 0.03,
+   "buff_fudu_1": 0.04,
+   "buff_type_1": "atk",
+   "buff_round": 4,
+   "buff_type_2": "po_dodge",
+   "buff_fudu_3": 0.05
+  }
+ ],
+ "1635": [
+  "천잠변",
+  "천잠신공은 매우 기묘하고 비범하여 천잠변을 겪을 때마다 공격이 {buff_fudu_1}, 피해면역이 {buff_fudu_2} 증가합니다.",
+  "icon_buff_425",
+  {
+   "buff_type_2": "dmg_off",
+   "buff_fudu_2": 0.05,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "atk",
+   "buff_round": -1
   }
  ],
  "1636": [
@@ -8406,6 +8621,51 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1,
    "buff_fudu_1": 0.05,
    "buff_type_1": "def"
+  }
+ ],
+ "1666": [
+  "봉신금침",
+  "홍지선 머리에 봉신금침 3개가 꽂혀 경맥이 막히면서 실력에 금제가 걸립니다. 방어와 회피가 대폭 감소합니다.",
+  "icon_buff_446",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": -0.1,
+   "buff_type_2": "dodge",
+   "buff_type_1": "def",
+   "buff_fudu_2": -0.33
+  }
+ ],
+ "1667": [
+  "화산",
+  "이 사람의 경맥은 홍지선이 주입한 내력에 손상을 입어 2턴간 봉맥됩니다.",
+  "icon_buff_112",
+  {
+   "buff_round": 2,
+   "buff_type_1": "tuojiu"
+  }
+ ],
+ "1668": [
+  "현호제세",
+  "이 사람은 조롱박의 도움을 받아 3턴간 전체 하향 효과 저항이 {buff_fudu_1}, 치료효과가 {buff_fudu_2} 증가합니다.",
+  "icon_buff_448",
+  {
+   "buff_round": 3,
+   "buff_type_2": "cure",
+   "buff_fudu_1": 0.06,
+   "buff_type_1": "kang_debuff",
+   "buff_fudu_2": 0.1
+  }
+ ],
+ "1669": [
+  "화독",
+  "이 사람은 나마화독에 당해 뜨거운 열기에 휩싸여 화경이 체내에 침투했습니다. 기혈 회복이 {buff_fudu_1}, 방어가 {buff_fudu_2}입니다.",
+  "icon_buff_09",
+  {
+   "buff_type_2": "def",
+   "buff_fudu_2": -0.03,
+   "buff_fudu_1": -30,
+   "buff_type_1": "hp_back",
+   "buff_round": -1
   }
  ],
  "1670": [
@@ -8896,6 +9156,19 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "kang_2"
   }
  ],
+ "1731": [
+  "창랑결",
+  "이 사람은 창랑결 내공을 지녀 자신이 보유한 하향 효과에 따라 회복력이 증가합니다.",
+  "icon_buff_77",
+  {
+   "buff_round": -1,
+   "buff_type_3": "atk",
+   "buff_type_2": "noattack",
+   "buff_fudu_1": 1,
+   "buff_fudu_3": 0.5,
+   "buff_type_1": "kang_2"
+  }
+ ],
  "1732": [
   "축여",
   "이 사람은 축여를 복용하여 공력이 대폭 증가합니다.",
@@ -9218,6 +9491,53 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "atk"
   }
  ],
+ "1765": [
+  "관찰",
+  "이 사람은 적을 관찰하고 있으며 공격하지 않고 적에게 목표로 설정되지 않습니다.",
+  "icon_buff_217",
+  {
+   "buff_round": -1,
+   "buff_type_1": "wudi"
+  }
+ ],
+ "1766": [
+  "XX",
+  "",
+  "",
+  {
+   "buff_round": 0
+  }
+ ],
+ "1767": [
+  "삼귀서혼",
+  "삼귀서혼심법을 수련하여 매회 다른 효과를 얻습니다. 이번 회 공격이 증가합니다.",
+  "icon_buff_146",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.2,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1768": [
+  "삼귀서혼",
+  "이 사람은 삼귀서혼심법을 연마하여 매 턴마다 서로 다른 보너스를 획득합니다. 이번 턴에는 막기와 회피가 증가합니다.",
+  "icon_buff_146",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.5,
+   "buff_type_2": "parry",
+   "buff_type_1": "dodge",
+   "buff_fudu_2": 0.5
+  }
+ ],
+ "1769": [
+  "삼귀서혼",
+  "이 사람은 삼귀서혼심법을 수련하여 매 턴마다 서로 다른 추가 효과를 얻습니다. 이번 턴에는 피격될 때마다 도기가 1단계씩 쌓입니다.",
+  "icon_buff_146",
+  {
+   "buff_round": 1
+  }
+ ],
  "1770": [
   "설응도기",
   "설응도기가 자신을 감싸며 자신에게 방어 보너스를 제공합니다.",
@@ -9383,6 +9703,54 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": 0,
    "buff_fudu_1": 2,
    "buff_type_1": "wgcd"
+  }
+ ],
+ "1790": [
+  "음의 기운",
+  "이 사람은 검 속의 내력을 얻어 공격이 {buff_fudu_1} 증가했습니다.",
+  "icon_buff_1777",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.15,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1791": [
+  "양의 기운",
+  "이 사람은 검의 내력을 얻어 치료 효과가 {buff_fudu_1}, 피해 면역이 {buff_fudu_2} 증가합니다.",
+  "icon_buff_1778",
+  {
+   "buff_round": -1,
+   "buff_type_2": "dmg_off",
+   "buff_fudu_1": 0.2,
+   "buff_fudu_2": 0.1,
+   "buff_type_1": "cure"
+  }
+ ],
+ "1792": [
+  "음양경",
+  "이 사람이 검의 내력을 얻어 매 턴 시작 시 최대 기혈의 5%를 추가로 회복합니다.",
+  "icon_buff_1779",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "hp"
+  }
+ ],
+ "1794": [
+  "파도 감시",
+  "",
+  "",
+  {
+   "buff_round": 1
+  }
+ ],
+ "1795": [
+  "3단계 감시",
+  "",
+  "",
+  {
+   "buff_round": -1
   }
  ],
  "1796": [
@@ -9730,6 +10098,18 @@ window.NANGMAN_V620_BUFF_KO={
   "icon_buff_2499",
   {
    "buff_round": -1
+  }
+ ],
+ "1839": [
+  "강량·공",
+  "강량화형, 살신강림. 앙만이 강량의 비호를 받아 공격이 15% 증가하고, 명중이 15% 증가합니다.",
+  "icon_buff_1839",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.15,
+   "buff_type_2": "hit",
+   "buff_fudu_2": 0.15,
+   "buff_type_1": "atk"
   }
  ],
  "1840": [
@@ -10663,6 +11043,28 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1
   }
  ],
+ "1964": [
+  "주천",
+  "기문 아래에서 주천이 운용됩니다. 단계마다 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_3148",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1965": [
+  "작열",
+  "이 사람은 열화로 화상을 입어 기혈이 {buff_fudu_1} 감소하고 인내가 {buff_fudu_2} 감소합니다.",
+  "icon_buff_30",
+  {
+   "buff_fudu_2": -0.2,
+   "buff_fudu_1": -0.03,
+   "buff_type_1": "hp",
+   "buff_round": 2,
+   "buff_type_2": "renxing"
+  }
+ ],
  "1966": [
   "호미향",
   "이 사람은 독약 호미향의 영향을 받아 진기 회복이 {buff_fudu_1} 되고, 능동 초식 사용 시 반서를 당합니다.",
@@ -10894,6 +11296,41 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": 0,
    "buff_fudu_1": -999999,
    "buff_type_1": "hp"
+  }
+ ],
+ "1992": [
+  "진기",
+  "이뢰운은 《고멸성제경》에 의지해 잠시 목숨을 부지하고 있으며 치료를 위해 막대한 진기가 필요하지만, 진기가 지나치게 요동치면 내상을 입을 수 있습니다.",
+  "icon_buff_2286",
+  {
+   "buff_round": -1
+  }
+ ],
+ "1993": [
+  "진기 부족",
+  "이뇌운의 체내 진기가 부족하여 방어가 증가하지만 초식이 더 위축됩니다.",
+  "icon_buff_1995",
+  {
+   "buff_type_3": "atk",
+   "buff_type_2": "dmg_off",
+   "buff_fudu_2": 0.1,
+   "buff_fudu_1": 1000,
+   "buff_type_1": "gangqi",
+   "buff_round": -1,
+   "buff_fudu_3": -0.15
+  }
+ ],
+ "1994": [
+  "진기 충만",
+  "이뇌운의 몸속 진기가 안정되어 역효과와 내경의 영향을 받지 않습니다.",
+  "icon_buff_1994",
+  {
+   "buff_type_3": "dmg_off",
+   "buff_type_2": "neij_invalid",
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "hp",
+   "buff_round": -1,
+   "buff_fudu_3": 0.1
   }
  ],
  "1995": [
@@ -11131,6 +11568,14 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1,
    "buff_fudu_1": -0.3,
    "buff_type_1": "mp_back"
+  }
+ ],
+ "2026": [
+  "약력 흡수",
+  "진경백은 매 턴 보단의 약력을 1단계씩 흡수하며, 많이 흡수할수록 돌파 후 더욱 강력해집니다.",
+  "icon_buff_3162",
+  {
+   "buff_round": -1
   }
  ],
  "2027": [
@@ -11641,6 +12086,56 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_fudu_3": -0.2
   }
  ],
+ "2094": [
+  "빈사 폭격",
+  "자신의 혈량에 따라 치명타 배율을 전환합니다.",
+  "",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.01,
+   "buff_type_1": "losthp_xxup"
+  }
+ ],
+ "2095": [
+  "마타",
+  "속도에 따라 방어 관통 증가",
+  "",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.001,
+   "buff_type_1": "defignspd100"
+  }
+ ],
+ "2096": [
+  "혈마 체력 감소",
+  "순간 능동 체력 감소",
+  "",
+  {
+   "buff_round": 0,
+   "buff_fudu_1": -0.1,
+   "buff_type_1": "hp_n"
+  }
+ ],
+ "2098": [
+  "갈혈 제거 1",
+  "",
+  "",
+  {
+   "buff_round": 0
+  }
+ ],
+ "2100": [
+  "웅패",
+  "무쌍성 비기를 시전해 공격력이 대폭 증가합니다.",
+  "icon_buff_04",
+  {
+   "buff_round": 5,
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.12,
+   "buff_fudu_2": 0.15,
+   "buff_type_1": "atk"
+  }
+ ],
  "2101": [
   "무쌍",
   "이 사람은 무쌍성 비기를 시전해 방어력이 대폭 증가합니다.",
@@ -11945,6 +12440,16 @@ window.NANGMAN_V620_BUFF_KO={
   "icon_buff_35",
   {
    "buff_round": -1
+  }
+ ],
+ "2133": [
+  "상급 파",
+  "방어가 감소해 다음 피격 시 추가 피해를 받습니다.",
+  "icon_buff_35",
+  {
+   "buff_round": 0,
+   "buff_fudu_1": -0.3,
+   "buff_type_1": "hp"
   }
  ],
  "2135": [
@@ -12252,6 +12757,27 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_2": "def",
    "buff_type_1": "parry",
    "buff_fudu_2": -0.05
+  }
+ ],
+ "2165": [
+  "연난단",
+  "이 사람은 심경과 적도결이 합쳐져 자신의 방어가 {buff_fudu_2} 감소하고 공격력이 {buff_fudu_1} 증가합니다. 최대 5단계까지 중첩됩니다",
+  "icon_buff_378",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.06,
+   "buff_type_2": "def",
+   "buff_type_1": "atk",
+   "buff_fudu_2": -0.08
+  }
+ ],
+ "2166": [
+  "불휘군",
+  "심경에 혼란이 생겨 어떠한 초식 시전도 불가합니다. ",
+  "icon_buff_379",
+  {
+   "buff_round": 2,
+   "buff_type_1": "tuojiu"
   }
  ],
  "2167": [
@@ -12911,6 +13437,20 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "yun"
   }
  ],
+ "2251": [
+  "위압",
+  "연전연승하여 기세가 올라 공격이 {buff_fudu_1} 증가하고, 방어가 {buff_fudu_2} 증가하며 매턴 최대 기혈을 {buff_fudu_3} 회복합니다.",
+  "icon_buff_355",
+  {
+   "buff_type_3": "hp",
+   "buff_fudu_2": 0.1,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "atk",
+   "buff_round": -1,
+   "buff_type_2": "def",
+   "buff_fudu_3": 0.01
+  }
+ ],
  "2252": [
   "일월쌍상",
   "이 사람은 중격을 받아 몸속의 경맥이 응고되어 봉내 상태에 빠져 운기할 수 없습니다.",
@@ -13129,6 +13669,33 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "def",
    "buff_round": -1,
    "buff_type_2": "cure_sj"
+  }
+ ],
+ "2274": [
+  "응맥",
+  "천예독이 몸을 감싸 이 사람의 몸속에서 기운을 흡수해 방어가 {buff_fudu_1} 감소하고 집기 속도가 {buff_fudu_3} 감소하며 받는 치료 효과가 감소합니다.",
+  "icon_buff_2274",
+  {
+   "buff_type_3": "mp_back",
+   "buff_fudu_2": -0.5,
+   "buff_fudu_1": -0.15,
+   "buff_type_1": "def",
+   "buff_round": -1,
+   "buff_type_2": "cure_sj",
+   "buff_fudu_3": -0.5
+  }
+ ],
+ "2275": [
+  "최심",
+  "천예독이 당신의 몸에서 피어올랐습니다. 당신은 독성으로 인해 감각을 잃은 것 같습니다...",
+  "icon_buff_2275",
+  {
+   "buff_round": -1,
+   "buff_type_3": "mp_back",
+   "buff_type_1": "tuojiu",
+   "buff_fudu_2": -1,
+   "buff_type_2": "cure_sj",
+   "buff_fudu_3": -1
   }
  ],
  "2276": [
@@ -13593,6 +14160,28 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_fudu_1": -0.1,
    "buff_fudu_2": -0.1,
    "buff_type_1": "hit"
+  }
+ ],
+ "2335": [
+  "내상",
+  "이 사람은 권경에 의해 중상을 입어 단전이 손상됐습니다. 초식을 사용할 때마다 기혈이 {buff_fudu_1} 소실됩니다.",
+  "icon_buff_16",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": -0.06,
+   "buff_type_1": "neis"
+  }
+ ],
+ "2336": [
+  "질전",
+  "이 사람은 주먹의 속도가 바람처럼 빠르고 권세가 대단합니다. 막기 간파가 {buff_fudu_1}, 공격이 {buff_fudu_2} 증가합니다",
+  "icon_buff_2336",
+  {
+   "buff_round": 4,
+   "buff_type_2": "atk",
+   "buff_fudu_1": 0.02,
+   "buff_fudu_2": 0.02,
+   "buff_type_1": "po_parry"
   }
  ],
  "2339": [
@@ -14175,6 +14764,27 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1
   }
  ],
+ "2428": [
+  "호심갑 ",
+  "이 사람은 매우 단단한 호심갑을 착용하여 방어가 대폭 증가합니다.",
+  "icon_buff_214",
+  {
+   "buff_round": -1,
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.5,
+   "buff_fudu_2": 10000,
+   "buff_type_1": "dmg_off"
+  }
+ ],
+ "2429": [
+  "축력",
+  "소매가 강력한 사격을 준비하고 있습니다.",
+  "icon_buff_2499",
+  {
+   "buff_round": -1,
+   "buff_type_1": "yun"
+  }
+ ],
  "2430": [
   "2427 제거",
   "",
@@ -14527,6 +15137,22 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": 0
   }
  ],
+ "2485": [
+  "검기유전",
+  "소실한 기혈이 란월노파의 검기로 전환되고 란월노파는 검기 수에 따라 다양한 검술 기예를 시전합니다.",
+  "icon_buff_2477",
+  {
+   "buff_round": -1
+  }
+ ],
+ "2486": [
+  "제거",
+  "",
+  "",
+  {
+   "buff_round": 0
+  }
+ ],
  "2487": [
   "야차Ⅰ",
   "이 살마은 야차의 비호를 받아 실력이 증가합니다. 공격과 방어가 5% 증가하고 집기가 10% 증가합니다.",
@@ -14563,6 +15189,18 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_fudu_2": -0.05,
    "buff_fudu_1": -0.05,
    "buff_type_1": "atk"
+  }
+ ],
+ "2490": [
+  "소검식",
+  "란월노파가 적군의 초식을 경계하고 있습니다. ",
+  "icon_buff_2490",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": -750,
+   "buff_type_2": "missskill",
+   "buff_type_1": "dodge",
+   "buff_fudu_2": 100
   }
  ],
  "2492": [
@@ -14917,6 +15555,45 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1
   }
  ],
+ "2529": [
+  "고멸성체",
+  "잔구를 불살라 하늘과 명을 다투노라. 수명이 줄어들수록 이 사람의 전투력은 더욱 강해질 것입니다.",
+  "icon_buff_2440",
+  {
+   "buff_type_2": "def",
+   "buff_fudu_2": -0.02,
+   "buff_fudu_1": -0.05,
+   "buff_type_1": "atk",
+   "buff_round": -1
+  }
+ ],
+ "2530": [
+  "고멸성체",
+  "잔구를 불살라 하늘과 명을 다투노라. 수명이 줄어들수록 이 사람의 전투력은 더욱 강해질 것입니다.",
+  "icon_buff_2440",
+  {
+   "buff_type_3": "atk",
+   "buff_fudu_2": 0.1,
+   "buff_fudu_1": 1000,
+   "buff_type_1": "gangqi",
+   "buff_round": -1,
+   "buff_type_2": "dmg_off80",
+   "buff_fudu_3": -0.15
+  }
+ ],
+ "2531": [
+  "고멸성체",
+  "잔구를 불살라 하늘과 명을 다투노라. 수명이 줄어들수록 이 사람의 전투력은 더욱 강해질 것입니다.",
+  "icon_buff_2440",
+  {
+   "buff_type_3": "dmg_off",
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "hp",
+   "buff_round": -1,
+   "buff_type_2": "neij_invalid",
+   "buff_fudu_3": 0.1
+  }
+ ],
  "2532": [
   "고멸성체",
   "잔구를 불살라 하늘과 명을 다투노라. 수명이 줄어들수록 이 사람의 전투력은 더욱 강해질 것입니다.",
@@ -15155,6 +15832,16 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_2": "hp",
    "buff_type_1": "atk",
    "buff_fudu_2": -0.05
+  }
+ ],
+ "2557": [
+  "검도",
+  "검객이 무정해지려면 먼저 자신을 베어야 합니다. 검기 단계마다 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_1782",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "atk"
   }
  ],
  "2558": [
@@ -15921,6 +16608,30 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "parry"
   }
  ],
+ "2652": [
+  "능동 감시",
+  "곤세 기간 동안 능동적인 감시를 받습니다.",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
+ "2653": [
+  "피로",
+  "이 사람은 현재 피로에 빠져 있습니다. 이번 회차에 공격을 강행한다면 반드시 역풍을 맞게 됩니다.",
+  "icon_buff_367",
+  {
+   "buff_round": -1
+  }
+ ],
+ "2654": [
+  "갈등",
+  "모순의 씨앗이 싹을 틔우고 있습니다.",
+  "icon_buff_2654",
+  {
+   "buff_round": -1
+  }
+ ],
  "2655": [
   "적양화조",
   "적양신공호체, 이 사람은 상대의 경력을 자신의 것으로 만듭니다.",
@@ -16114,6 +16825,18 @@ window.NANGMAN_V620_BUFF_KO={
   "icon_buff_3075",
   {
    "buff_round": -1
+  }
+ ],
+ "2677": [
+  "적화경",
+  "이 사람은 적양경에 의해 피해를 입어 단계마다 방어와 받는 치료효과가 {buff_fudu_1} 됩니다.",
+  "icon_buff_46",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": -0.02,
+   "buff_type_2": "cure_sj",
+   "buff_type_1": "def",
+   "buff_fudu_2": -0.02
   }
  ],
  "2678": [
@@ -17581,6 +18304,18 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "mp"
   }
  ],
+ "2904": [
+  "통원",
+  "이 사람은 살육 속에서 자신을 강화하여, 효과 기간 동안 공격이 {buff_fudu_1}, 흡혈이 {buff_fudu_2} 증가합니다.",
+  "icon_buff_2904",
+  {
+   "buff_round": 2,
+   "buff_type_2": "blood",
+   "buff_fudu_1": 0.15,
+   "buff_fudu_2": 0.15,
+   "buff_type_1": "atk"
+  }
+ ],
  "2905": [
   "검우동귀",
   "",
@@ -17871,6 +18606,71 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1,
    "buff_fudu_1": -0.8,
    "buff_type_1": "map_move"
+  }
+ ],
+ "2952": [
+  "지원 가드",
+  "병용은 극위를 원호하며, 진격 시 극위를 따라 적을 추격하고 방어 시 극위를 위해 적을 차단합니다!",
+  "icon_buff_2952",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 1,
+   "buff_type_1": "protect_35240"
+  }
+ ],
+ "2953": [
+  "비틀거리다",
+  "이 사람은 강력한 일격을 받아 비틀거리며, 방어가 {buff_fudu_1}, 회피가 {buff_fudu_2}입니다.",
+  "icon_buff_2953",
+  {
+   "buff_round": 4,
+   "buff_type_2": "dodge",
+   "buff_fudu_1": -0.25,
+   "buff_fudu_2": -0.5,
+   "buff_type_1": "def"
+  }
+ ],
+ "2954": [
+  "정금불괴",
+  "병용의 체표는 정철처럼 단단하여, 일반적인 수단으로는 그 방어를 뚫기 어렵다.",
+  "icon_buff_41",
+  {
+   "buff_round": 3,
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.4,
+   "buff_fudu_2": 8000,
+   "buff_type_1": "dmg_off"
+  }
+ ],
+ "2955": [
+  "세상이 빙글빙글 돌다",
+  "이 사람은 거대 기물에 중격을 받아 어지러운 상태이며, 다시 중격을 받으면 기절하게 됩니다.",
+  "icon_buff_10",
+  {
+   "buff_fudu_2": -0.1,
+   "buff_fudu_1": -0.1,
+   "buff_type_1": "speed",
+   "buff_round": 3,
+   "buff_type_2": "dodge"
+  }
+ ],
+ "2956": [
+  "눈에 별이 보이다",
+  "이 사람은 기절 상태에 빠집니다...",
+  "icon_buff_06",
+  {
+   "buff_round": 2,
+   "buff_type_1": "yun"
+  }
+ ],
+ "2957": [
+  "관통",
+  "몸에 관통상을 입어 출혈이 멈추지 않아 매회 기혈이 {buff_fudu_1}점 감소합니다.",
+  "icon_buff_19",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": -0.1,
+   "buff_type_1": "hp"
   }
  ],
  "2958": [
@@ -18556,6 +19356,45 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_fudu_3": 0.4
   }
  ],
+ "3034": [
+  "허약",
+  "이뢰운이 흡수한 구계주의 내력이 모두 소진되어 이미 강노지말입니다.",
+  "icon_buff_10",
+  {
+   "buff_type_3": "dodge",
+   "buff_round": -1,
+   "buff_type_2": "parry",
+   "buff_fudu_1": -0.6,
+   "buff_type_1": "def",
+   "buff_fudu_2": -0.8,
+   "buff_fudu_3": -0.8
+  }
+ ],
+ "3035": [
+  "기란역맥",
+  "이 사람은 내력이 지나치게 넘쳐 내경의 습격을 받아 기맥이 어지러워졌으며, 일시적으로 움직일 수 없습니다.",
+  "icon_buff_3035",
+  {
+   "buff_type_3": "hp_back",
+   "buff_type_2": "cure_sj",
+   "buff_fudu_2": -1,
+   "buff_round": -1,
+   "buff_fudu_3": -1,
+   "buff_type_1": "yunmax"
+  }
+ ],
+ "3036": [
+  "지속 유혈",
+  "아대의 날카로운 부분에 상처를 입어 출혈이 지속되고 있으며, 매회 기혈 {buff_fudu_1}, 속도가 {buff_fudu_2} 감소합니다.",
+  "icon_buff_02",
+  {
+   "buff_fudu_2": -0.1,
+   "buff_fudu_1": -0.06,
+   "buff_type_1": "hp",
+   "buff_round": 3,
+   "buff_type_2": "speed"
+  }
+ ],
  "3037": [
   "내력 진동",
   "",
@@ -18808,6 +19647,34 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "dodge"
   }
  ],
+ "3065": [
+  "부상",
+  "이 사람은 살점이 뭉개지고 오혈이 낭자하여, 자신의 치유 효과가 {buff_fudu_1}, 기혈 회복 효과가 {buff_fudu_2}이며 초식을 시전하면 기혈이 {buff_fudu_3}.",
+  "icon_buff_3065",
+  {
+   "buff_type_3": "neis",
+   "buff_type_2": "hp_back",
+   "buff_fudu_2": -0.04,
+   "buff_fudu_1": -0.05,
+   "buff_type_1": "cure_sj",
+   "buff_round": -1,
+   "buff_fudu_3": -0.1
+  }
+ ],
+ "3066": [
+  "피육파열",
+  "이 사람은 상처가 아직 아물지 않아 받는 치유 효과 {buff_fudu_1}, 기혈 회복 효과 {buff_fudu_2}이며 초식을 시전하면 기혈이 {buff_fudu_3} 됩니다.",
+  "icon_buff_3066",
+  {
+   "buff_type_3": "neis",
+   "buff_fudu_2": -0.03,
+   "buff_fudu_1": -0.03,
+   "buff_type_1": "cure_sj",
+   "buff_round": 3,
+   "buff_type_2": "hp_back",
+   "buff_fudu_3": -0.08
+  }
+ ],
  "3067": [
   "노기상승",
   "이 사람은 분노를 억누르지 못해 분노가 치밀어 오를수록 눈의 총기가 사라지고, 초식이 더욱 거칠어져 막아내기 힘들어졌습니다. 회피공격이 {buff_fudu_1} 증가합니다.",
@@ -18955,6 +19822,35 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_round": -1,
    "buff_fudu_1": 0.1,
    "buff_type_1": "atk"
+  }
+ ],
+ "3083": [
+  "부저추신",
+  "이 사람은 잠시 진안이 되어 진 속의 사람들과 받는 피해를 분담하지 않지만, 자신의 한계를 돌파하여 초식을 시전할 수 있습니다.",
+  "icon_buff_3083",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "atk"
+  }
+ ],
+ "3084": [
+  "파부침주",
+  "이 사람은 잠시 진안이 되어 진 속의 사람들과 받는 피해를 분담하지 않지만, 자신의 한계를 돌파하여 초식을 시전할 수 있습니다.",
+  "icon_buff_3084",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "atk"
+  }
+ ],
+ "3086": [
+  "진안만변",
+  "진중의 인물들의 기운이 조화를 이루어, 받는 피해를 각 진위의 캐릭터들과 균등하게 나눕니다.",
+  "icon_buff_3086",
+  {
+   "buff_round": -1,
+   "buff_type_1": "sharesubhp1"
   }
  ],
  "3087": [
@@ -19261,6 +20157,61 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "xx_prob"
   }
  ],
+ "3127": [
+  "솟구치는 내경",
+  "이 사람은 내기를 사지에 응축해 다음 공격 시 내기가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_2499",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.5,
+   "buff_type_1": "neijper"
+  }
+ ],
+ "3128": [
+  "예측할 수 없는",
+  "허실과 진가, 유현하여 헤아릴 수 없으니, 야천자가 어둠 속에서 기세를 모아 대성하여 공격력이 상승했습니다.",
+  "icon_buff_338",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.5,
+   "buff_type_1": "atk"
+  }
+ ],
+ "3129": [
+  "불사",
+  "",
+  "icon_buff_139",
+  {
+   "buff_round": 1,
+   "buff_type_1": "lockhp"
+  }
+ ],
+ "3131": [
+  "의식불명",
+  "금침이 뇌 속 깊이 박혔고, 극심한 통증에 홍지선은 정신을 조금 차린 듯했습니다...",
+  "icon_buff_443",
+  {
+   "buff_round": -1,
+   "buff_type_2": "atk",
+   "buff_fudu_1": -0.15,
+   "buff_fudu_2": 0.15,
+   "buff_type_1": "def"
+  }
+ ],
+ "3132": [
+  "속성 보정",
+  "",
+  "",
+  {
+   "buff_type_3": "dmg_off",
+   "buff_type_2": "def",
+   "buff_fudu_2": 0.35,
+   "buff_round": -1,
+   "buff_fudu_1": 0.25,
+   "buff_fudu_3": 0.05,
+   "buff_type_1": "atk"
+  }
+ ],
  "3133": [
   "회피 보정",
   "",
@@ -19463,6 +20414,30 @@ window.NANGMAN_V620_BUFF_KO={
   "응축 공격 대기",
   "상대의 과도한 공격으로 빈틈이 드러났으니, 이 사람은 곧 기회를 엿보아 공격할 것입니다!",
   "icon_buff_280",
+  {
+   "buff_round": -1
+  }
+ ],
+ "3156": [
+  "검의 극의",
+  "검법 피해를 입을 때마다 검법에 대한 피해 감면을 획득하며, 검을 든 상대를 공격할 때 무기를 낙하시킬 확률이 더 높아집니다.",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
+ "3157": [
+  "권의 극의",
+  "이 사람은 권법의 모든 이치를 통달하여 권법 초식으로 받는 피해가 감소하고, 권법을 시전하는 적에게 입히는 피해가 증가합니다.",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
+ "3158": [
+  "도의 극의",
+  "도법의 흐름이 이 사람에게 모두 간파되어 도법 초식을 더 쉽게 막아내며, 도법으로 입히는 피해가 점차 감소합니다.",
+  "",
   {
    "buff_round": -1
   }
@@ -20074,6 +21049,44 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "atk"
   }
  ],
+ "3235": [
+  "무경의 진리",
+  "제갈장공은 무경을 깨달아 모든 초식에 대응 수단을 갖췄으며, 피격 7회마다 적을 제압하는 초식을 펼칩니다!",
+  "icon_buff_3235",
+  {
+   "buff_round": -1
+  }
+ ],
+ "3236": [
+  "적을 무찌름",
+  "제갈장공은 습격해오는 초식의 약점을 점차 분석해 냈습니다...",
+  "icon_buff_3138",
+  {
+   "buff_round": -1
+  }
+ ],
+ "3237": [
+  "천인합일",
+  "이곳의 만물과 모든 기운은 제갈장공의 손아귀에 있으며, 그의 기운은 여전히 끊임없이 강화되고 있다...",
+  "",
+  {
+   "buff_round": -1
+  }
+ ],
+ "3238": [
+  "격수식",
+  "이 사람은 초식이 파훼되어 2회 동안 막기와 회피가 감소하며, 매회 기혈이 {buff_fudu_1} 감소합니다.",
+  "icon_buff_3238",
+  {
+   "buff_type_2": "dodge",
+   "buff_type_3": "parry",
+   "buff_round": 2,
+   "buff_fudu_1": -0.05,
+   "buff_type_1": "hp",
+   "buff_fudu_2": -0.3,
+   "buff_fudu_3": -0.3
+  }
+ ],
  "3239": [
   "파봉식",
   "이 사람은 초식이 파훼되어 2회 동안 치명타 확률이 감소하고 공격력이 {buff_fudu_2} 감소합니다.",
@@ -20220,6 +21233,69 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_1": "hp_back",
    "buff_round": -1,
    "buff_fudu_3": 0.05
+  }
+ ],
+ "3254": [
+  "풍·화",
+  "이 사람의 몸속에서 풍화의 기가 융합되어 체력 회복이 {buff_fudu_1} 증가하고 공격력이 {buff_fudu_2} 증가하며 피해 감소가 {buff_fudu_3} 증가하고, 공격 시 고정 피해를 입힙니다.",
+  "icon_buff_408",
+  {
+   "buff_type_3": "dmg_off",
+   "buff_fudu_2": 0.05,
+   "buff_type_2": "atk",
+   "buff_fudu_1": 1000,
+   "buff_type_1": "hp_back",
+   "buff_round": -1,
+   "buff_fudu_3": 0.05
+  }
+ ],
+ "3255": [
+  "임·화",
+  "이 사람의 몸 안에서 임과 화의 두 기운이 융합되어 방어력이 {buff_fudu_1} 증가하고 공격력이 {buff_fudu_2} 증가하며 피해 감소가 {buff_fudu_3} 증가하고, 공격 시 봉맥 효과를 부여합니다.",
+  "icon_buff_408",
+  {
+   "buff_type_3": "dmg_off",
+   "buff_fudu_2": 0.05,
+   "buff_type_2": "atk",
+   "buff_fudu_1": 0.15,
+   "buff_type_1": "def",
+   "buff_round": -1,
+   "buff_fudu_3": 0.05
+  }
+ ],
+ "3256": [
+  "풍·림",
+  "이 사람은 몸 안 두 내기의 융합으로 경맥이 역행하여 치료효과가 대폭 감소하며, 매회 기혈이 {buff_fudu_3} 감소합니다.",
+  "icon_buff_2863",
+  {
+   "buff_type_3": "hp",
+   "buff_type_2": "cure",
+   "buff_fudu_2": -0.99,
+   "buff_fudu_1": -0.99,
+   "buff_type_1": "cure_sj",
+   "buff_round": 2,
+   "buff_fudu_3": -0.1
+  }
+ ],
+ "3257": [
+  "풍·화",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_fudu_1": -0.05,
+   "buff_type_1": "hp"
+  }
+ ],
+ "3258": [
+  "임·화",
+  "이 사람은 몸안 두 내기의 융합으로 경맥이 역행하여 짧은 시간 동안 내력을 사용할 수 없으며, 피해 감소 {buff_fudu_2}.",
+  "icon_buff_2865",
+  {
+   "buff_fudu_2": -0.1,
+   "buff_type_1": "tuojiu",
+   "buff_round": 2,
+   "buff_type_2": "dmg_off"
   }
  ],
  "3259": [
@@ -20705,6 +21781,14 @@ window.NANGMAN_V620_BUFF_KO={
   "삼라",
   "육합의 기세를 빌어 만물의 형상을 담고, 진기가 근골 사이를 유주하니 기세가 종횡하도다.",
   "icon_buff_3346",
+  {
+   "buff_round": -1
+  }
+ ],
+ "3347": [
+  "만상",
+  "천지의 조화를 모두 빼앗아 한 몸에 갈무리하니, 기혈이 모두 열려 체내의 진기가 둑이 터진 물처럼 광포하게 휘몰아쳤다.",
+  "icon_buff_3347",
   {
    "buff_round": -1
   }
