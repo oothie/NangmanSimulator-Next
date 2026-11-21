@@ -74,7 +74,7 @@ try{
      new Set(ids).size!==ids.length||
      ids.some(id=>!Number.isInteger(id)||!TALENT_DATA[String(id)]?.name||
        ![2,3,4].includes(TALENT_DATA[String(id)].pinzhi)||
-       TALENT_DATA[String(id)].name==='备用天赋'))
+       TALENT_DATA[String(id)].name==='备用天赋'||[244,245,408].includes(id)))
    throw Error('원본 데이터에 존재하는 서로 다른 녹맥·파맥·자맥 1~4개만 선택하세요');
   const original=wasmGetState();
   if(!original||!Array.isArray(original.talents))throw Error('원본 WASM 세수 상태를 읽을 수 없습니다');
@@ -107,7 +107,10 @@ try{
       let aptitude=Number(initial.zizhi);
       if(!Number.isInteger(aptitude)||aptitude<150||aptitude>154)
        throw Error('원본 WASM 자질 단계 확인 실패');
-      while(Number(ZZ_DATA[String(aptitude)]?.num_talent)<order.length){
+      const initialLocked=initial.talents.filter(t=>t.locked===true).length;
+      const needsFreeSlot=order.some(id=>!initial.talents.some(t=>Number(t.id)===id));
+      const requiredSlots=Math.min(4,Math.max(order.length,initialLocked+(needsFreeSlot?1:0)));
+      while(Number(ZZ_DATA[String(aptitude)]?.num_talent)<requiredSlots){
        if(aptitude>=154)throw Error('최대 자질에서 목표 슬롯 부족');
        const current=wasmGetState();
        const next={...current,zizhi:aptitude+1,
