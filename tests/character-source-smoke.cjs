@@ -100,6 +100,19 @@ assert.equal(sword.weaponKey,'sword_add','active sword type from source table');
 assert(Math.abs(sword.weaponBonus-.07025)<1e-9,'sword attack percentage across all equipment');
 const noActive=context.characterEquipCombatSplit({Taolus:[{ID:21470,Active:false}],Equips:[{ID:7283}]});
 assert.equal(noActive.weaponBonus,null,'no invented active weapon type');
+
+context.window.EQUIP_DATA.equipment['7201']={type:2};
+const mixed=context.characterEquipCombatSplit({Taolus:[{ID:21470,Active:true}],
+ Equips:[{ID:7283,Atk:100,Hit:300},{ID:7201,Atk:75,Hit:220}]});
+assert.equal(mixed.weapon.atk,175,'all weapons contribute attack independent of active type');
+assert.equal(mixed.weapon.hit,300,'incompatible blade hit excluded when active martial is sword');
+assert.equal(mixed.rawWeaponHit,520,'raw equipment hit preserved for audit');
+assert.equal(mixed.excludedWeaponHit.length,1,'excluded weapon shown');
+assert.equal(mixed.excludedWeaponHit[0].id,7201,'excluded ID preserved');
+const unknownType=context.characterEquipCombatSplit({Equips:[{ID:7283,Hit:300},{ID:7201,Hit:220}]});
+assert.equal(unknownType.weapon.hit,520,'unknown active type does not claim excluded hit');
+assert.equal(unknownType.weaponHitEligibilityKnown,false,'unknown subtype explicitly flagged');
+
 assert.match(context.characterEquipCombatSplitView({Taolus:[{ID:21470,Active:true}],
  Equips:[{ID:5015,EnExts:[{Key:'sword_add',Value:0.02275}]}]}),/2.275%/);
 
