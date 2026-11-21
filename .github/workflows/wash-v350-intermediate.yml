@@ -11,6 +11,7 @@ on:
       - 'tests/v350-wash-source-bridge-smoke.cjs'
       - 'tests/wash-ui-theme-regression.cjs'
       - 'tests/yysim-real-wasm-boot-smoke.cjs'
+      - 'tests/yysim-wasm-restoration-probe.cjs'
       - '.github/workflows/wash-v350-intermediate.yml'
   workflow_dispatch:
 jobs:
@@ -23,6 +24,8 @@ jobs:
           node-version: '22'
       - name: Actual yy-sim embedded WASM initialization
         run: node tests/yysim-real-wasm-boot-smoke.cjs
+      - name: Native WASM restoration probe
+        run: node tests/yysim-wasm-restoration-probe.cjs
       - name: Intermediate goal and rollback
         run: node tests/yysim-intermediate-search-smoke.cjs
       - name: Original yy-sim automatic route adapter
