@@ -3453,7 +3453,8 @@ function questView(){
     ['추적',task?(data.trace?'추적 중':'추적 안 함'):'기록 없음'],
     ['수락 기록',task?receivedLabel:'기록 없음']
    ].map(([label,value])=>'<div class="wiki-field"><span>'+escape(label)+'</span><b>'+escape(value)+'</b></div>').join('')+'</div>'+
-   (matched?.description?'<p>'+escape(matched.description)+'</p>':'')+
+   (matched?.description?'<p class="quest-catalog-description">'+escape(matched.description)+'</p>':'')+
+   (matched?.source==='60014'?'<button type="button" class="btn" data-quest-open="'+escape(matched.id)+'">한국판 임무 상세에서 보기</button>':'')+
    questRecordDetails(task)+'<p class="micro">저장된 단계·상태값만 추가로 보여줍니다. 누락된 게임 목표나 완료 조건을 임의 생성하지 않습니다.</p>')+
    card('진행 중인 임무·이벤트',current.length?
     '<div class="quest-result-list">'+current.map(x=>
@@ -3539,7 +3540,7 @@ if($('questSearch'))$('questSearch').oninput=e=>{questSearch=e.target.value;ques
 document.querySelectorAll('[data-quest-filter]').forEach(el=>el.onclick=()=>{questBranchFilter=el.dataset.questFilter;questVisibleLimit=200;render()});
 document.querySelectorAll('[data-quest-more]').forEach(el=>el.onclick=()=>{if(el.dataset.questMore==='branch')questVisibleLimit+=200;else questCatalogLimit+=150;render()});
 document.querySelectorAll('[data-quest-category]').forEach(el=>el.onclick=()=>{questCategory=el.dataset.questCategory;questFocusedId=null;questCatalogLimit=150;render()});
-document.querySelectorAll('[data-quest-open]').forEach(el=>el.onclick=()=>{questCategory='all';questSearch='';questFocusedId=String(el.dataset.questOpen);questCatalogLimit=150;render();const row=document.querySelector('.quest-catalog-item');if(row){row.open=true;row.scrollIntoView({block:'nearest'})}});
+document.querySelectorAll('[data-quest-open]').forEach(el=>el.onclick=()=>{questTab='catalog';questCategory='all';questSearch='';questFocusedId=String(el.dataset.questOpen);questCatalogLimit=150;render();const row=document.querySelector('.quest-catalog-item');if(row){row.open=true;row.scrollIntoView({block:'nearest'})}});
 if($('questClearFocus'))$('questClearFocus').onclick=()=>{questFocusedId=null;questSearch='';questCategory='all';questCatalogLimit=150;render()};
 if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  const csv=window.NangmanQuest.csv(window.NangmanQuest.model(save));
