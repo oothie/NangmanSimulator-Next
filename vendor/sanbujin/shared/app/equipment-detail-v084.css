@@ -1,0 +1,14 @@
+/* v0.8.4 shared equipment detail */
+.nangman-equipment-backdrop{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;padding:16px;background:rgba(8,10,14,.75)}
+.nangman-equipment-dialog{width:min(96vw,1050px);max-height:92vh;overflow:auto;border:1px solid var(--n-yy-line,var(--border));border-radius:14px;background:var(--n-yy-surface,var(--panel));color:var(--n-yy-text,var(--text));box-shadow:0 18px 80px rgba(0,0,0,.35);padding:22px}
+.nangman-equipment-dialog header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:15px;border-bottom:1px solid var(--n-yy-line,var(--border))}
+.nangman-equipment-dialog h2{margin:4px 0;font-size:24px}
+.nangman-equipment-dialog header small,.nangman-equipment-dialog header span{color:var(--n-yy-sub,var(--sub));font-size:14px}
+.nangman-detail-close{border:1px solid var(--n-yy-line,var(--border));background:var(--n-yy-paper,var(--paper));color:inherit;border-radius:9px;width:43px;height:43px;font-size:26px}
+.nangman-detail-content{padding-top:16px}
+.nangman-detail-status{display:grid;grid-template-columns:85px 1fr;gap:14px;padding:14px 12px;border-bottom:1px solid var(--n-yy-line,var(--border));font-size:16px}
+.nangman-detail-status b{font-size:17px}
+.nangman-detail-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.nangman-detail-actions button{font:inherit;font-size:16px;min-height:46px;padding:10px 19px;background:var(--n-yy-selected,var(--paper));color:var(--n-yy-selected-text,var(--text));border:1px solid var(--n-yy-gold,var(--gold));border-radius:8px}
+.nangman-detail-note{font-size:14px;color:var(--n-yy-sub,var(--sub));margin-top:16px}
+@media(max-width:600px){.nangman-equipment-dialog{padding:14px}.nangman-detail-status{grid-template-columns:64px 1fr;gap:8px}}
