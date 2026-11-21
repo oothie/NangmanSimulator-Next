@@ -175,7 +175,10 @@ const path=require('node:path');
     nativePurpleCount:purple?.result?.routes?.length,
     nativePurpleFirst:purple?.result?.routes?.[0],
     purpleReplay:replayDiagnostic,
-    warnings:result?.warnings,partial:result?.result?.partial};
+    warnings:result?.warnings,partial:result?.result?.partial,
+    maxGoals:result?.result?.maxGoals,maxGoalsAt:result?.result?.maxGoalsAt,
+    maxActive:result?.result?.maxActive,exchangeSuccesses:result?.result?.exchangeSuccesses,
+    washesExecuted:result?.result?.washesExecuted};
   });
   console.log('DIAGNOSTIC: four targets from scratch, 3 purple + green',JSON.stringify(freshGoals));
   const retryPage=await browser.newPage();
