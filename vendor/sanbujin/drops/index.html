@@ -110,10 +110,11 @@ let latest=null;
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==parent||event.data?.kind!=='nangman-save')return;
  latest=event.data.save;
+ const version=event.data.version;
  try{
  window.loadShareStore=()=>({data:latest});document.dispatchEvent(new Event('yyjh-save'));
- parent.postMessage({kind:'nangman-embedded-status',module:'drops',status:'save-loaded'},location.origin);
- }catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'drops',status:'error',message:String(err.message||err)},location.origin)}
+ parent.postMessage({kind:'nangman-embedded-status',module:'drops',status:'save-loaded',version},location.origin);
+ }catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'drops',status:'error',version,message:String(err.message||err)},location.origin)}
 });
 window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'drops',status:'ready'},location.origin));
 })();
