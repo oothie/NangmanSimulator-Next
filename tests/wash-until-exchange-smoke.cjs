@@ -44,7 +44,7 @@ async function command(op,payload){
  const stationary=await command('until-exchange',{count:6});
  assert(stationary.ok&&!stationary.data.found&&stationary.data.stopReason==='limit');
  assert(html.includes('id="washMainNextConflict"'));
- assert(html.includes("washEngine.call('until-exchange',{count})"));
+ assert(html.includes("washEngine.call('until-exchange',{count,talentId})"));
  assert(html.includes('state.undoStates.push(snapshot);state.log.push(result)'));
  assert(!html.includes('washVerifyRun'),'removed A/B comparison does not return');
  console.log('PASS: native wash-until-exchange conflict stopping, input bounds, rollback and UI connection');
