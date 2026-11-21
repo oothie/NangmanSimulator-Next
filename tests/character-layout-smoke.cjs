@@ -16,6 +16,11 @@ assert(root.includes('role-page-aside'),'original group selector');
 assert(root.includes('role-page-main'),'original main content');
 assert(root.includes('wr-hero'),'original character header');
 assert(root.includes('wr-slot'),'original detail/equipment slots');
+assert(root.includes('function yyRoleActiveLoadout('),'source active martial set');
+assert(root.includes('function yyRoleSavedCultivationSummary('),'six-track cultivation visible on main panel');
+assert(root.includes('function yyRoleBaseIntermediate('),'verified base values visible on main panel');
+assert(source.includes("['WXXW2','도법']"),'WXXW2 must be blade cultivation');
+assert(source.includes("['WXXW3','검법']"),'WXXW3 must be sword cultivation');
 assert(root.includes('role-grid stat-grid'),'original stat cards');
 assert(source.includes("if($('characterSearch'))"),'role selector search callback');
 assert(source.includes('data-character-role'),'role switching callback');
@@ -114,5 +119,30 @@ const audit=yyCultivationAudit([{r:{name:'검증 동료',raw:{
  Taolus:[{ID:20010,Level:10,Chong:10},{ID:999999,Level:10,Chong:10}],Neis:[],Qings:[]}},
  stats:{records:[]}}]);
 assert(audit.some(x=>x.id==='999999'&&x.issues.includes('기본 무학 ID 미연결')),'detect martial IDs outside source table');
+
+
+const activeChunk=source.slice(source.indexOf('function yyRoleActiveLoadout('),source.indexOf('function yyRolePanel('));
+const activeMock=new Function('characterEntries','yyRoleSection','yyRoleSlot','wikiHasChinese','window',activeChunk+';return yyRoleActiveLoadout')(
+ v=>Array.isArray(v)?v:v&&typeof v==='object'?Object.values(v):[],
+ (name,content)=>'<section>'+name+content+'</section>',
+ (name,desc,tail)=>'<div>'+name+' · '+desc+' · '+tail+'</div>',
+ x=>/[\u3400-\u9fff]/.test(x),
+ {NANGMAN_54506_MARTIAL_KO:{'21470':['무예',null,null]}}
+);
+const activeHtml=activeMock({raw:{Taolus:[{ID:21470,Active:true,Chong:13,Level:3},{ID:20010,Active:false}],
+ Neis:[],Qings:[]}});
+assert(activeHtml.includes('무예 · 정진 13 · 수련 3'),'active martial name and levels');
+assert(!activeHtml.includes('무학 #20010'),'non-equipped martial excluded');
+assert(activeHtml.includes('현재 장착 기록 없음'),'not equipped categories represented');
+const baseChunk=source.slice(source.indexOf('function characterSourceBaseStats('),source.indexOf('function characterTrainingView('));
+const baseApi=new Function('escape',baseChunk+';return {characterSourceBaseStats,characterSourceBasePanel}')(
+ x=>String(x));
+const sample={Level:90,GrowDefence:5,ExtDefence:89,GrowHit:2,ExtHit:279,ExtParry:98,
+ GrowGangqi:15,ExtGangqi:0,GrowNeijin:20,ExtNeijin:0};
+const byName=Object.fromEntries(baseApi.characterSourceBaseStats(sample).map(x=>[x.label,x.value]));
+assert.equal(byName['방어 기본값'],551,'shared base defense');
+assert.equal(byName['명중 기본값'],549,'shared base hit');
+assert.equal(byName['초식방어 기본값'],236,'shared base parry');
+assert(baseApi.characterSourceBasePanel(sample).includes('551'),'detail references shared calculation');
 
 console.log('PASS: yy-sim role page structure, all 9 tabs, selector wiring and version labels');
