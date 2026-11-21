@@ -34,17 +34,35 @@
     };
   }
 
-  function predict(input, event, count) {
-    const step = stream(input);
-    const outer = event.outer.map(branch => branch[1]), color = event.color.map(branch => branch[1]);
-    return Array.from({length: count}, (_, i) => {
-      const [kind] = event.outer[step(event.outerSeed, outer)];
-      const pool = event[kind];
-      const item = pool?.ids[pool.random ? step(pool.seed, null, pool.max) - 1 : pool.max - 1] || 0;
-      const rollColor = !event.nested || kind === 'equip' || kind === 'weapon' && event.colorSeed;
-      const rolled = rollColor ? event.color[step(event.colorSeed, color)][0] : 0;
-      return {index: i + 1, kind, item, color: item ? rolled : 0};
-    });
+  function resolveEvent(step, event) {
+    const outer=event.outer.map(branch=>branch[1]),color=event.color.map(branch=>branch[1]);
+    const [kind]=event.outer[step(event.outerSeed,outer)];
+    const pool=event[kind];
+    const item=pool?.ids[pool.random?step(pool.seed,null,pool.max)-1:pool.max-1]||0;
+    const rollColor=!event.nested||kind==='equip'||kind==='weapon'&&event.colorSeed;
+    const rolled=rollColor?event.color[step(event.colorSeed,color)][0]:0;
+    return {kind,item,color:item?rolled:0};
+  }
+  function predict(input,event,count){
+    if(!Number.isInteger(count)||count<1||count>500)
+      throw Error('관문 보상 예측은 1~500회까지 가능합니다');
+    const step=stream(input);
+    return Array.from({length:count},(_,i)=>({index:i+1,...resolveEvent(step,event)}));
+  }
+  function predictSequence(input,events){
+    if(!Array.isArray(events)||events.length<1||events.length>500)
+      throw Error('관문 연속 보상은 1~500개 사건으로 입력하세요');
+    for(const event of events) {
+      if(!event?.outer||!event?.color||missing(input,event).length)
+       throw Error('연속 보상에 필요한 우두머리 난수 시드가 없습니다: '+String(event?.id||'미확인'));
+    }
+    // One shared map for all events: seed_byj and other repeated keys must
+    // advance between different bosses, not restart from the save on each call.
+    const step=stream(input);
+    return events.map((event,i)=>({
+      index:i+1,eventId:event.id,dungeon:event.dungeon,boss:event.boss,
+      ...resolveEvent(step,event)
+    }));
   }
 
   function orange(input, drop, count = 800) {
@@ -77,5 +95,5 @@
     return {kind: 'notFound', round: count};
   }
 
-  root.SBJDungeonDrop = {open, missing, predict, orange};
+  root.SBJDungeonDrop = {open, missing, predict, predictSequence, orange};
 })(window);
