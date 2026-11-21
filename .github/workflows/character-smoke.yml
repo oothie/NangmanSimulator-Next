@@ -78,6 +78,10 @@ jobs:
         run: node tests/yysim-korean-names-smoke.cjs
       - name: Verify original yy-sim wash main dashboard parity and live controls
         run: node tests/yysim-wash-main-parity.cjs
+      - name: Verify native yy-sim paginated wash event history
+        run: node tests/yysim-wash-history-parity.cjs
+      - name: Verify 1000-wash native batching and atomic undo
+        run: node tests/yysim-wash-custom-batch.cjs
       - name: Validate complete Korean wash talent ID name coverage
         run: node tests/wash-korean-names-smoke.cjs
       - name: Verify original yy-sim source-linked purple exchange sequence
