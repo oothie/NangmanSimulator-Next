@@ -1015,13 +1015,14 @@ if(sub==='auto'){
   const slots=x.finalSlots.map(a=>escape(talentName(a.id))+' (#'+escape(a.id)+')'+(a.locked?' 🔒':'')).join(' / ');
   return '<tr><td>'+escape(i+1)+'</td><td>'+escape(x.estimatedPills??'—')+'</td>'+
    '<td>'+escape(x.estimatedWashes??'—')+'</td><td>'+escape(x.exchanges??'—')+'</td>'+
-   '<td>'+escape(x.pad??'—')+'</td><td>'+(x.complete?'목표 '+x.matchedIds.length+'개 현재 보유':'미보유 '+x.missingIds.map(id=>escape(talent(id))).join(', '))+
+   '<td>'+escape(x.pad??'—')+'</td><td>'+(x.complete?'목표 '+x.matchedIds.length+'개 '+(x.intermediateGoals?'중간 획득 확인':'최종 보유'):'미보유 '+x.missingIds.map(id=>escape(talent(id))).join(', '))+
    '<div class="micro">'+(x.globallyOptimal?'원본 최적 판정':'탐색 범위 내 후보 · 최단 보장 없음')+'</div>'+
-    '<div class="micro">'+(usesColors?'원본 WASM 순차 세수 확장 · 최단 미보장':x.executable?'원본 실행 단계 제공됨':x.complete?'목표 충족 · 실행 단계 검증 필요':'목표 미충족')+'</div>'+
+    '<div class="micro">'+(usesColors?'실제 WASM 회차·중간 획득 검증 · 분기별 최소 비용':x.executable?'원본 실행 단계 제공됨':x.complete?'목표 충족 · 실행 단계 검증 필요':'목표 미충족')+'</div>'+
     (x.warnings.length?'<div class="micro">'+escape(x.warnings.join(' / '))+'</div>':'')+'</td>'+
    '<td><details '+(i===0?'open':'')+'><summary>원본 경로 '+(i+1)+' · 단계 '+x.actions.length+'개</summary>'+
    '<div class="micro">목표 획득 순서: '+(x.orderIds.length?x.orderIds.map(id=>escape(talent(id))).join(' → '):'원본 순서 미확인')+'</div>'+
-   '<div class="micro">최종 슬롯: '+slots+'</div>'+
+   '<div class="micro">최종 슬롯: '+slots+'</div>'+ 
+    (x.intermediateGoals?'<div class="micro">목표 맥 등장 회차: '+x.acquiredEvents.map(ev=>escape(talent(ev.id))+' · '+escape(ev.wash_no)+'회차').join(' / ')+'</div>':'')+
    (x.source?.luck_init?'<div class="micro">원본 행운 풀 초기화 지점: 시퀀스 '+escape(x.source.luck_init.roll_idx??'미확인')+
     ' · '+(x.source.luck_init.by==='exchange'?'치환 시 초기화':'원본 이벤트에 따른 초기화')+'</div>':'')+
    '<button type="button" class="btn" data-yy-copy-route="'+i+'">한국어 경로 복사</button>'+ 
@@ -1039,9 +1040,9 @@ if(sub==='auto'){
   '<p>'+escape(api.statusText(analyzed))+'</p>'+
   (usesColors&&analyzed.stats.complete===0&&Array.isArray(result?.warnings)&&result.warnings.length?'<p class="micro">원본 순차 세수 미발견 참고: '+[...new Set(result.warnings.map(w=>api.readableStep(w,mapNames,talentName)))].slice(0,3).map(escape).join(' / ')+'</p>':'')+
   (Array.isArray(result?.history)?'<p class="micro">확장 탐색: '+result.history.map(h=>h.index+'단계 · 선행 '+h.maxPad+' · 자맥 범위 '+h.horizon+
-  ' · 후보 '+h.routes+'개').join(' / ')+'</p>':''):'<p class="micro">자맥만 선택하면 자동 경로 탐색을 실행합니다. 녹맥·파맥 또는 혼합 목표에는 원본 WASM 세수 명령을 사용하는 확장 검색을 실행합니다.</p>';
+  ' · 후보 '+h.routes+'개').join(' / ')+'</p>':''):'<p class="micro">자맥만 선택하면 원본 자동 경로를 계산합니다. 녹맥·파맥은 각 회차의 중간 획득까지 검사하여 탐색 범위 내 최소 세수단 경로를 찾습니다.</p>';
  body='<section class="wash-section"><div class="section-header"><h3>자동 탐색</h3></div>'+
-  '<p class="micro">자맥만 선택하면 자동 경로 탐색을, 녹맥·파맥·혼합 목표는 원본 WASM 순차 세수 확장 탐색을 실행합니다. 목표는 합계 1~4개입니다. 혼합 목표는 모든 연쇄 치환 경로를 탐색하지 않으며 전역 최적을 보장하지 않습니다.</p>'+
+  '<p class="micro">자맥은 yysim 자동 경로 탐색을 사용합니다. 녹맥·파맥 혼합 목표는 yysim WASM의 실제 매 세수 결과를 추적하여 중간 획득을 인정하고 잠금 조합별 최소 비용을 비교합니다. 목표는 합계 1~4개이며, 전체 연쇄 치환에 대한 전역 최적을 보장하지 않습니다.</p>'+
   '<p class="micro">'+(r?'선택 인물 '+escape(r.name)+' · 계산 시 세이브 자동 연결':'먼저 세이브를 불러오세요')+'</p>'+ 
   '<p class="micro">녹맥·파맥의 일부 재능명은 원문을 직접 번역한 임시 한국어 표기입니다. 확인된 한국판 이름을 우선 사용합니다.</p>'+
   '<div class="section-header"><h3>목표 재능</h3></div>'+
@@ -3805,7 +3806,7 @@ if($('yyAutoRun'))$('yyAutoRun').onclick=()=>{
   const colorSelected=input.desiredIds.some(id=>catalog.some(g=>g.quality!==4&&g.items.some(t=>t.id===id)));
   runtime.autoOptions=input;runtime.autoProgress=null;runtime.autoResult=null;
   window.dispatchEvent(new CustomEvent('nangman-wash-command',{
-   detail:{op:colorSelected?'washEngineAutoColor':'washEngineAutoProgressive',...input}}));
+   detail:{op:colorSelected?'washEngineAutoIntermediate':'washEngineAutoProgressive',...input}}));
  }catch(error){alert(String(error.message||error))}
 };
 if($('yyAutoPreview'))$('yyAutoPreview').onclick=()=>{
@@ -4415,7 +4416,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    (output.pillsConsumed==null?' · 세수단 소비 검증 불가':' · 세수단 실제 소비 '+output.pillsConsumed+'개 일치')+
    (output.luckInitializedDuringReplay?' · 행운 풀 초기화 확인 ('+output.luckInitActionKinds.join(', ')+')':'')+
    ' · 실제 게임 세이브 불변 · 되돌리기 가능';
- }else if(op==='washEngineAutoSearch'||op==='washEngineAutoProgressive'||op==='washEngineAutoColor'){
+ }else if(op==='washEngineAutoSearch'||op==='washEngineAutoProgressive'||op==='washEngineAutoColor'||op==='washEngineAutoIntermediate'){
   const source=window.__nangmanWashSaveSource?.();
   if(!source?.save||!source.role)throw Error('먼저 캐릭터 세이브를 불러오세요');
   if(!state.active||state.origin!=='save'||state.linkedRoleId!==source.role.id){
@@ -4435,12 +4436,12 @@ window.addEventListener('nangman-wash-command',async e=>{
   }
   const api=window.YYWashAutoSearch;
   if(!api?.options)throw Error('원본 자동 탐색 표시 모듈이 로드되지 않았습니다');
-  const isColor=op==='washEngineAutoColor';
+  const isColor=op==='washEngineAutoColor'||op==='washEngineAutoIntermediate';
   const allowed=(window.YYWashTargetCatalog||[]).flatMap(g=>g.items.map(t=>t.id));
   const options=api.options(e.detail,isColor?allowed:
    [248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277]);
   state.autoProgress=null;
-  const result=isColor?await washEngine.call('auto-color-search',options):
+  const result=isColor?await washEngine.call(op==='washEngineAutoIntermediate'?'auto-intermediate-search':'auto-color-search',options):
    op==='washEngineAutoProgressive'?
    await window.YYWashProgressive.run({
     call:(name,payload)=>washEngine.call(name,payload),
@@ -4450,13 +4451,13 @@ window.addEventListener('nangman-wash-command',async e=>{
    await washEngine.call('auto-search',options);
   ensureSession();
   if(!result||!Array.isArray(result.result?.routes)||
-     !['wasmSearchWashRoutes','wasmColorSequentialSearch'].includes(result.nativeFunction))
+     !['wasmSearchWashRoutes','wasmColorSequentialSearch','wasmIntermediateTalentSearch'].includes(result.nativeFunction))
    throw Error('세수 자동 탐색 결과를 읽지 못했습니다');
   state.autoResult={...result,colorSearch:isColor};
   state.autoDesiredIds=options.desiredIds;
   state.autoOptions=options;
   const analysis=api.routeOutcome(result.result,result.desiredIds);
-  state.output=(isColor?'녹·파·자맥 WASM 순차 확장 탐색':'세수 자맥 자동 탐색')+' · 목표 '+options.desiredIds.map(id=>(window.__nangmanTalentKoName?.(id)||'재능 #'+id)).join(' / ')+
+  state.output=(isColor?'녹·파·자맥 WASM 중간 획득 탐색':'세수 자맥 자동 탐색')+' · 목표 '+options.desiredIds.map(id=>(window.__nangmanTalentKoName?.(id)||'재능 #'+id)).join(' / ')+
    ' · 검색 '+analysis.stats.scanned+'회 · 후보 '+analysis.stats.total+
    '개 · 현재 재능 목표 모두 달성 후보 '+analysis.stats.complete+
    '개 · 실제 세이브 변경 없음';
