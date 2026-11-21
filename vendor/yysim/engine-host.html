@@ -240,6 +240,32 @@ try{
   send(requestId,true,{results,targets:mapped,maxPad,nameIds});
   return
  }
+ if(op==='until-talent-any'){
+  // Replays only a specified recorded native wash_until_talent_name step.
+  const id=Number(payload?.talentId),limit=Number(payload?.count);
+  const talent=TALENT_DATA[String(id)];
+  if(!Number.isInteger(id)||!talent?.name||
+     ![2,3,4].includes(talent.pinzhi)||talent.name==='备用天赋'||
+     !Number.isInteger(limit)||limit<1||limit>5000)
+   throw Error('원본 녹맥·파맥·자맥과 최대 5000회 이하의 세수 한도가 필요합니다');
+  const before=wasmGetState();
+  if(!before?.talents)throw Error('원본 WASM 세수 상태 미확인');
+  try{
+   const batch=wasmWashUntilTalentName(talent.name,limit);
+   const after=wasmGetState();
+   if(!Array.isArray(batch)||!after?.talents)
+    throw Error('원본 WASM 목표 세수 결과가 올바르지 않습니다');
+   const found=after.talents.some(x=>Number(x.id)===id);
+   if(!found)throw Error('지정된 원본 경로 재능을 탐색 범위에서 확보하지 못했습니다');
+   send(requestId,true,{state:after,performed:batch.length,found,
+    talentId:id,sourceName:talent.name});
+  }catch(error){
+   if(!wasmSetState(before)||JSON.stringify(wasmGetState())!==JSON.stringify(before))
+    throw Error(String(error.message||error)+' / 목표 세수 실패 후 WASM 복구 검증 실패');
+   throw error;
+  }
+  return
+ }
  if(op==='until-talent'){
   const id=Number(payload?.talentId),limit=Number(payload?.count??1000);
   const entry=TALENT_DATA[String(id)];
