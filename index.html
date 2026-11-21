@@ -321,6 +321,7 @@ body{background:var(--bg)!important}
 <script src="./engine/wash-preview-model.js"></script>
 <script src="./engine/wash-conflict-model.js"></script>
 <script src="./engine/wash-chain-core.js"></script>
+<script src="./engine/wash-goal-audit.js"></script>
 <script src="./shared/sanbujin_meridian_data.js"></script>
 <script src="./shared/sanbujin_talent_names_ko.js"></script>
 <script src="./shared/sanbujin_cultivation_data.js"></script>
@@ -621,6 +622,20 @@ if(sub==='path'){
  }).join('')+'</tbody></table></div>':
  (reports?'<p class="micro">원본 엔진이 비용·경로 목록을 반환하지 않았습니다. 아래 원본 구조를 확인할 수 있습니다.</p>':'');
  const pairs=String(runtime.targetPairs??'').trim();
+ let goalAuditView='';
+ if(pairs&&runtime.active&&window.NangmanWashGoal&&Array.isArray(runtime.liveTalents)){
+  try{
+   const goals=window.NangmanWashGoal.parsePairs(pairs,purpleSourceIds);
+   const report=window.NangmanWashGoal.evaluate(runtime.liveTalents,goals);
+   goalAuditView='<div class="section-header"><h3>현재 모의 WASM의 목표 자맥 보유 현황</h3></div>'+
+    '<p class="micro">요청 목표 '+goals.length+'개 · 현재 슬롯에 있는 목표 '+report.found+'개 · 잠긴 목표 '+
+    report.locked+'개 · 미보유 '+report.missing.length+'개. 이 표는 원본 WASM의 현재 슬롯만 보여 주며 실제 게임 도맥법 완료 판정은 아닙니다.</p>'+
+    '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>목표 자맥</th><th>상태</th><th>현재 슬롯</th><th>잠금</th></tr></thead><tbody>'+
+    report.goals.map(x=>'<tr><td>'+escape(characterTalentName(x.purpleId))+' (#'+x.purpleId+')</td>'+
+     '<td>'+(x.present?'현재 보유':'미보유')+'</td><td>'+escape(x.slots.join(', ')||'—')+'</td>'+
+     '<td>'+(x.locked?'잠금':'잠금 없음')+'</td></tr>').join('')+'</tbody></table></div>';
+  }catch(err){goalAuditView='<p class="micro">목표 자맥 상태를 확인할 수 없습니다: '+escape(err.message||err)+'</p>'}
+ }
  const single=String(runtime.targetTalentId??'');
  const num=runtime.pathLimit??900;
  body='<section class="wash-section"><div class="section-header"><h3>도맥법 목표 자맥·충돌맥 탐색</h3></div>'+
@@ -631,7 +646,7 @@ if(sub==='path'){
  '<label>최대 탐색 횟수<input id="washPathLimit" type="number" min="1" max="5000" value="'+escape(num)+'"></label></div>'+
  '<div class="actions"><button class="btn primary" id="washPathRun" '+(!valid?'disabled':'')+'>원본 도맥법 경로 후보 조회</button>'+
  '<button class="btn" id="washConflictInspect" '+(!valid?'disabled':'')+'>현재 인물 충돌·가용 재능 조회</button></div>'+
- summary+pathTable+conflictsPanel+(runtime.constraints?'<details><summary>원본 WASM 세부 충돌 자료(JSON)</summary>'+
+ goalAuditView+summary+pathTable+conflictsPanel+(runtime.constraints?'<details><summary>원본 WASM 세부 충돌 자료(JSON)</summary>'+
  '<p class="micro">현재 인물 세수 WASM 상태에서 직접 조회한 자료입니다. 미확인 명칭은 재능 ID로 표시합니다.</p>'+
  '<pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(runtime.constraintsDisplay||'자료 없음')+'</pre></details>':'')+
  (reports?'<details><summary>원본 계산 결과 구조 확인</summary><pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(pathText.slice(0,18000))+'</pre></details>':'')+
@@ -2827,7 +2842,9 @@ window.addEventListener('nangman-wash-command',async e=>{
   }
   state.lastConflict=null;state.liveTalents=output.state.talents||[];
   syncWasmBag(output.state);
-  state.output='원본 WASM 연속 충돌·자동 치환'+(output.targeted?' · 요청 자맥 '+output.requestedTargets.join(', '):'')+' · 세수 '+output.totalWashes+
+  state.output='원본 WASM 연속 충돌·자동 치환'+(output.targeted?' · 요청 자맥 '+output.requestedTargets.join(', ')+
+   ' · 현재 보유 '+output.presentTargets.length+'/'+output.requestedTargets.length+
+   (output.goalsComplete?' · 전부 현재 보유':' · 미보유 '+output.missingTargets.join(', ')):'')+' · 세수 '+output.totalWashes+
    '회 · 실제 성공 치환 '+output.exchanges+'회 / 요청 '+output.requestedSteps+
    '단계 · 종료 '+(output.stopReason==='completed'?'지정 단계 완료':
    output.stopReason==='unchanged'?'세수 진행 불가':'추가 치환 충돌 미발견')+
