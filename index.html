@@ -2772,10 +2772,21 @@ window.addEventListener('nangman-wash-command',async e=>{
   }
   state.liveTalents=result.state.talents||[];
   syncWasmBag(result.state);
-  state.output='원본 WASM 치환·충돌 탐색'+(talentId==null?'':' · 목표 '+talentId)+' · 세수 '+performed+'회 · '+
-   (result.found?'치환 가능한 충돌맥 발견 · 슬롯 '+(Number(result.conflict.index)+1):
-    result.stopReason==='unchanged'?'더 진행할 세수 없음':'상한 내 치환 가능 충돌맥 미발견')+
-   ' · 게임 원본 세이브 변경 없음\n'+JSON.stringify(result,null,2);
+  const conflictIndex=Number(result.conflict?.index);
+  const earlierIndex=Number(result.conflict?.earlier_index);
+  const currentTalent=result.found?result.state.talents?.[conflictIndex]:null;
+  const earlierTalent=result.found?result.state.talents?.[earlierIndex]:null;
+  const collisionDescription=result.found?' · '+(conflictIndex+1)+'번 슬롯 '+
+   (currentTalent?.id!=null?window.__nangmanTalentKoName?.(currentTalent.id):'재능 미확인')+
+   ' ↔ '+(earlierIndex+1)+'번 슬롯 '+
+   (earlierTalent?.id!=null?window.__nangmanTalentKoName?.(earlierTalent.id):'재능 미확인'):'';
+  state.output='원본 WASM 치환·충돌 탐색'+(talentId==null?'':' · 목표 자맥 '+talentId)+
+   ' · 모의 세수 '+performed+'회 · '+
+   (result.found?'치환 가능한 충돌맥 발견':result.stopReason==='unchanged'?
+    '더 진행할 세수 없음':'설정한 한도까지 치환 가능한 충돌맥 미발견')+
+   collisionDescription+' · 게임 원본 세이브 변경 없음\n'+
+   JSON.stringify({requested:count,performed,found:result.found,stopReason:result.stopReason,
+    conflict:result.conflict,remainingPills:result.state?.bag_pills},null,2);
  }else if(op==='washEngineUntilGold'){
   if(!state.active||state.origin!=='save')throw Error('먼저 한국판 세이브를 WASM에 연결하세요.');
   if(window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
