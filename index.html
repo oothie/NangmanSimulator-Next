@@ -545,7 +545,10 @@ if(sub==='auto'){
    '<td>'+escape(x.pad??'—')+'</td><td>'+(x.complete?'목표 '+x.matchedIds.length+'개 현재 보유':'미보유 '+escape(x.missingIds.join(',')))+
    '<div class="micro">'+(x.globallyOptimal?'원본 최적 판정':'탐색 범위 내 후보 · 최단 보장 없음')+'</div></td>'+
    '<td><details '+(i===0?'open':'')+'><summary>원본 경로 '+(i+1)+' · 단계 '+x.actions.length+'개</summary>'+
+   '<div class="micro">목표 획득 순서: '+(x.orderIds.length?x.orderIds.map(id=>escape(talent(id))).join(' → '):'원본 순서 미확인')+'</div>'+
    '<div class="micro">최종 슬롯: '+slots+'</div>'+
+   (x.source?.luck_init?'<div class="micro">원본 행운 풀 초기화 지점: 시퀀스 '+escape(x.source.luck_init.roll_idx??'미확인')+
+    ' · '+(x.source.luck_init.by==='exchange'?'치환 시 초기화':'원본 이벤트에 따른 초기화')+'</div>':'')+
    '<button type="button" class="btn" data-yy-copy-route="'+i+'">한국어 경로 복사</button>'+
    (actions?'<ol style="padding-left:20px;margin:6px 0">'+actions+'</ol>':
     '<p class="micro">'+(x.complete&&x.estimatedWashes===0&&x.exchanges===0?
