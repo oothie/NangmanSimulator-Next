@@ -80,4 +80,6 @@ export class LocalEngine {
  }
 }
 export const washEngine=new LocalEngine('./vendor/yysim/engine-host.html','yysim-wash');
+// Search operates on an independent WASM instance: failed branches cannot mutate the current wash simulator.
+export const washSearchEngine=new LocalEngine('./vendor/yysim/engine-host.html','yysim-wash');
 export const equipmentEngine=new LocalEngine('./vendor/sanbujin/engine-host.html','sanbujin-equipment');
