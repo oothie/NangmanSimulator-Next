@@ -976,9 +976,9 @@ if(sub==='sim'){
  '<span class="micro">'+historyPage.page+' / '+historyPage.pages+' 페이지</span>'+
  '<button class="btn" id="washHistoryNext" '+(historyPage.page>=historyPage.pages?'disabled':'')+'>다음 페이지</button>'+
  '<label>페이지당 <select id="washHistorySize">'+[50,100,200].map(n=>'<option value="'+n+'" '+(historyPage.size===n?'selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+
- (visibleRuns.length?'<details><summary>마지막 실행 묶음 원본 자료</summary><pre class="history" style="white-space:pre-wrap;max-height:320px;overflow:auto">'+escape(JSON.stringify(visibleRuns.at(-1),null,2))+'</pre></details>':'')+
+ 
  '</section>';
- body=config+settings+skills+buttons+qualityPanel+nextPurple+history+'<details class="wash-section"><summary>고급 WASM 조작 및 진단</summary>'+washSandbox()+roleDataPanel()+diagnosticPanel()+'</details>';
+ body=config+settings+skills+buttons+qualityPanel+nextPurple+history;
 }
 if(sub==='auto'){
  const state=window.__washRuntime||{},api=window.YYWashAutoSearch;
@@ -1046,7 +1046,7 @@ if(sub==='auto'){
   '<p class="micro">녹맥·파맥의 일부 재능명은 원문을 직접 번역한 임시 한국어 표기입니다. 확인된 한국판 이름을 우선 사용합니다.</p>'+
   '<div class="section-header"><h3>목표 재능</h3></div>'+
   '<div class="fields wash-auto-search"><label>재능명·ID 검색<input type="search" id="yyAutoFilter" placeholder="찾을 재능명 또는 ID" value="'+escape(state.autoFilter||'')+'"></label></div><div class="wash-auto-groups">'+choices+'</div>'+
-  '<div class="actions"><button type="button" class="btn" id="yyAutoPreset" hidden>4자맥 기본 목표 적용</button>'+
+  '<div class="actions">'+
   '<button type="button" class="btn" id="yyAutoClear">선택 초기화</button><span class="micro">선택 '+selectedTargets.length+' / 4개</span></div>'+
   '<div class="section-header"><h3>계산</h3></div>'+
   '<div class="actions"><button type="button" class="btn primary" id="yyAutoRun" '+(!r||!save||state.loading||!selectedTargets.length?'disabled':'')+'>선택 재능 자동 계산</button></div>'+
@@ -2692,7 +2692,7 @@ function characterCombatFinal(role){
  '<details class="yy-combat-stage"><summary>추가 전투 효과</summary>'+panel(percents.map(x=>[...x,true]))+'</details>'+
  '<details class="yy-combat-stage"><summary>최종 사대 자질</summary>'+panel(four)+'</details>'+
  '<details class="yy-combat-stage"><summary>yy-sim 원본 계산 내역</summary>'+stages+'</details>'+
- '<details class="yy-combat-stage"><summary>이전 방식: 기본·장비·경맥 부분 합계 (비교용)</summary>'+characterCombatSubtotal(role)+'</details>'+
+ 
  '</section>';
 }
 function characterCombatSubtotal(role){
