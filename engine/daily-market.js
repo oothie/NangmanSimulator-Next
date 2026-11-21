@@ -157,7 +157,10 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
    }
    return out;
   },
-  findTargets(ids,maxPeriods=30){
+  findTargets(ids,maxPeriods=30,options={}){
+   const mode=options?.mode??'mixed';
+   if(!['mixed','timed-only','paid-now'].includes(mode))
+    throw Error('암시장 탐색 시나리오를 확인할 수 없습니다');
    const targets=new Set(ids.map(Number)),seen=new Set,events=[],test=(items,when,label,via)=>{
     for(const item of items)if(targets.has(item.id)&&!seen.has(item.id)){
      seen.add(item.id);events.push({item,when,label,via})
@@ -171,16 +174,20 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
     l=hit?threshold-100:threshold;
     return draw(r,available,true,hit,slots);
    };
-   for(let i=0;i<paidLeft;i++)test(paid(),now,'현재 원보 갱신 '+(i+1)+'회','paid');
+   if(mode!=='timed-only')
+    for(let i=0;i<paidLeft;i++)test(paid(),now,'현재 원보 갱신 '+(i+1)+'회','paid');
+   if(mode==='paid-now')return events;
    let lastDay=resetDay(now),remain=0;
    for(let i=1;i<=Math.min(180,Math.max(0,Math.floor(maxPeriods)))&&seen.size<targets.size;i++){
     const time=(halfDay(now)+i)*43200,day=resetDay(time);
     if(day>lastDay){remain=paidMax;lastDay=day}
     test(draw(r,available,false,false,slots),time,'정시 변경 '+i+'회','timed');
-    const allowance=remain;
-    for(let j=0;j<allowance&&seen.size<targets.size;j++){
-     test(paid(),time,'정시 변경 '+i+'회 후 원보 갱신 '+(j+1)+'회','paid');
-     remain--;
+    if(mode==='mixed'){
+     const allowance=remain;
+     for(let j=0;j<allowance&&seen.size<targets.size;j++){
+      test(paid(),time,'정시 변경 '+i+'회 후 원보 갱신 '+(j+1)+'회','paid');
+      remain--;
+     }
     }
    }
    return events;
