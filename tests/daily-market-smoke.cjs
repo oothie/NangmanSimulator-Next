@@ -39,7 +39,7 @@ assert.deepEqual(Array.from(times,x=>x.item.id),[10,40,4],
 assert.deepEqual(Array.from(times,x=>x.via),['current','paid','timed']);
 assert.equal(result.paidLeft,3,'forecast methods must not spend actual save refresh');
 assert.equal(JSON.stringify(save),before,'no save mutation after forecast');
-assert.equal(api.nextHalfDay(43200),86400,'time boundary 12-hour change');
+assert.equal(api.nextHalfDay(43200),82800,'next market rotation occurs at 08:00/20:00 Korea time');
 assert.equal(api.resetDay(86400-10801),0,'original daily reset before boundary');
 assert.equal(api.resetDay(86400-10800),1,'original daily reset at boundary');
 const real=api.predict(save,ctx.window.DAILY_DATA,now);
