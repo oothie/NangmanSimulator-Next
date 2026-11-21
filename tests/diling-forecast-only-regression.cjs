@@ -51,9 +51,10 @@ assert.equal(save.Rnds.Eds['4009'],245317680,'original Eds must remain unchanged
 assert.equal(JSON.stringify(save),original);
 const html=fs.readFileSync(path.join(base,'vendor/sanbujin/drops/index.html'),'utf8');
 const ui=fs.readFileSync(path.join(base,'vendor/sanbujin/drops/wild.js'),'utf8');
-for(const id of ['tombForecastRun','tombForecastCount','tombForecastPad','tombForecastOutput','tombForecastCsv','tombEvidenceApply']){
+for(const id of ['tombForecastRun','tombForecastCount','tombForecastPad','tombForecastOutput','tombForecastCsv']){
  assert(html.includes('id="'+id+'"'),'missing forecast control '+id);
 }
-assert(ui.includes('tomb.fitObservations(current,constraints'));
+assert(ui.includes('tomb.fitObservations(current,[],{count:count+pad})'));
+assert(!html.includes('id="tombEvidenceApply"'),'unsupported direct mapping from battle9 to call9 must not be offered');
 assert(html.includes('aria-label="제릉 세이브 전후 비교" hidden'));
 console.log('PASS: corrected ninth hunt has zero valid model candidates; 144 model orders all reject ninth spawn; no fabricated 50-hunt forecast');
