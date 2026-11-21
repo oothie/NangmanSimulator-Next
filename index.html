@@ -978,7 +978,7 @@ if(sub==='sim'){
  '<label>페이지당 <select id="washHistorySize">'+[50,100,200].map(n=>'<option value="'+n+'" '+(historyPage.size===n?'selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+
  
  '</section>';
- body=config+settings+skills+buttons+qualityPanel+nextPurple+history;
+ body='<section class="wash-section nangman-v350-wrap"><iframe id="washV350Frame" src="./vendor/nangman-v350/wash.html" title="낭만강호 v3.50 세수 엔진" loading="eager" style="display:block;width:100%;min-height:1250px;border:0;background:#f8f4eb;border-radius:8px"></iframe></section>';
 }
 if(sub==='auto'){
  const state=window.__washRuntime||{},api=window.YYWashAutoSearch;
@@ -3734,7 +3734,27 @@ if($('washChainAuto'))$('washChainAuto').onclick=()=>window.dispatchEvent(
  steps:Number($('washChainSteps')?.value||2),count:Number($('washChainLimit')?.value||500)}}));
 if($('washMainAutoConflict'))$('washMainAutoConflict').onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUntilExchangeAuto',count:500}}));
-if($('yyAutoFilter')){
+if($('washV350Frame')){
+  const frame=$('washV350Frame');
+  frame.onload=()=>{if(save&&roles[selected]){
+   frame.contentWindow?.postMessage({kind:'nangman-v350-load',save,roleId:roles[selected].id},location.origin);
+  }};
+  if(!window.__nangmanV350BridgeBound){
+   window.__nangmanV350BridgeBound=true;
+   window.addEventListener('message',event=>{
+    if(event.origin!==location.origin)return;
+    const target=document.getElementById('washV350Frame');
+    if(!target||event.source!==target.contentWindow)return;
+    if(event.data?.kind==='nangman-v350-height'){
+     const px=Math.max(950,Math.min(10000,Number(event.data.height)||1250));
+     if(Math.abs(target.offsetHeight-px)>10)target.style.height=px+'px';
+    }else if(event.data?.kind==='nangman-v350-error'){
+     console.error('3.50 세수 엔진 세이브 연결:',event.data.error);
+    }
+   });
+  }
+ }
+ if($('yyAutoFilter')){
  $('yyAutoFilter').oninput=()=>{
   const query=String($('yyAutoFilter')?.value||'').trim().toLocaleLowerCase();
   const runtime=window.__washRuntime||{};runtime.autoFilter=query;
