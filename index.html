@@ -1205,6 +1205,7 @@ function dailyMarketView(){
  const periods=Math.min(12,Math.max(1,Math.floor(Number(marketPeriods)||6)));
  const paid=state.seedOk?state.getPaid(Math.min(6,allowance.left),{vip:vipChoice}):[];
  const timed=state.seedOk?state.timed(periods):[];
+ const timedWithPaid=state.seedOk&&simSteps>0?state.timed(periods,{vip:vipChoice,paidSteps:simSteps}):[];
  const targetIds=marketQuery.trim()&&state.seedOk?lookup.map(x=>x.id).slice(0,25):[];
  const timedTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'timed-only'}):[];
  const paidTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'paid-now',vip:vipChoice}):[];
@@ -1259,7 +1260,11 @@ function dailyMarketView(){
  '<section class="market-section"><h4>앞으로 '+periods+'회 정시 교체 예상</h4>'+
  '<p class="micro">오늘 원보 갱신을 사용하지 않는 별도 시나리오입니다. 실제 원보 갱신을 하면 이후 시퀀스가 달라집니다.</p>'+
  timed.map(x=>'<details class="market-prediction"><summary>'+escape(marketDate(x.time))+' · '+x.items.length+'종</summary>'+
- marketItemTable(x.items,ko)+'</details>').join('')+'</section>':'')+
+ marketItemTable(x.items,ko)+'</details>').join('')+'</section>'+
+ (simSteps>0?'<section class="market-section"><h4>모의 원보 갱신 '+simSteps+'회 후 자동 상품 예상</h4>'+
+ '<p class="micro">선택 VIP의 모의 원보 갱신이 먼저 RNG를 소비했다고 가정한 별도 경로입니다. 위의 원보 미사용 예측은 변경되지 않습니다.</p>'+
+ timedWithPaid.map(x=>'<details class="market-prediction"><summary>'+escape(marketDate(x.time))+' · '+x.items.length+'종</summary>'+
+ marketItemTable(x.items,ko)+'</details>').join('')+'</section>':''):'')+
  '<section class="market-section"><h4>귀시 전체 상품 후보</h4>'+
  '<p class="micro">미출시·제한 상품이 포함될 수 있습니다. 개별 상품의 가중치는 구매 확률을 직접 의미하지 않습니다.</p>'+
  '<details><summary>현재 구매 가능한 후보 '+state.available.length+'종 · 품절 '+state.soldOut.length+'종</summary>'+
