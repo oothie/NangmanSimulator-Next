@@ -1413,8 +1413,8 @@ function wikiImgTag(x,large=false){
  // Keep a fixed image column. Missing images must never inherit the row text flex sizing.
  const blank='<span class="wiki-art-placeholder'+(large?' large':'')+'" aria-hidden="true"></span>';
  if(!url)return blank;
- const raw=String(wikiSourceIcon(x)||'').trim().replace(/\\\\/g,'/').split('/').pop().replace(/\\.png$/i,'');
- const fallbackUrls=x.cat==='buff'&&/^icon_buff_[\\w-]+$/i.test(raw)?[
+ const raw=String(wikiSourceIcon(x)||'').trim().replace(/\\/g,'/').split('/').pop().replace(/\.png$/i,'');
+ const fallbackUrls=x.cat==='buff'&&/^icon_buff_[\w-]+$/i.test(raw)?[
   './icons/buff/'+raw+'.png',
   './icons/buffs/'+raw+'.png',
   'https://yy-sim.pages.dev/buffs/'+raw+'.png',
