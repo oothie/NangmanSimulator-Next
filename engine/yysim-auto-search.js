@@ -76,6 +76,30 @@ function readableStep(value,known={},nameFor=()=>null){
  // Avoid presenting untranslated Chinese as verified Korean instructions.
  return text.replace(/[\u3400-\u9fff]+/g,'원본 지시 미번역');
 }
+function describeAction(action,nameIds={},nameFor=()=>null){
+ const number=int(action?.pills_after),wash=int(action?.wash_no),roll=int(action?.roll_idx);
+ const talent=(raw)=>{
+  if(!raw)return '재능 미확인';
+  const id=nameIds?.[String(raw)];
+  return id==null?'원본 재능 ID 미연결':String(nameFor(Number(id))||'재능 #'+id)+' (#'+id+')';
+ };
+ let label='원본 경로 단계',detail='';
+ switch(String(action?.kind||'')){
+  case 'lock':label='잠금';detail=talent(action.talent);break;
+  case 'unlock':label='잠금 해제';detail=talent(action.talent);break;
+  case 'open_slot':{
+   label='재능 슬롯 개방';
+   const hint=String(action?.note||'').match(/15[0-4]/);
+   detail=hint?'자질 '+hint[0]+' · 슬롯 '+(Number(hint[0])-150)+'칸':'자질·재료 조건을 게임에서 확인';
+   break;
+  }
+  case 'wash_to':label='모의 세수';detail=wash==null?'원본 지정 회차':wash+'회차까지';break;
+  case 'exchange':label='치환';detail=talent(action.from)+' → '+talent(action.to||action.talent);break;
+  case 'keep':label='재능 보존';detail=talent(action.talent);break;
+  case 'skip':label='건너뛰기';detail=talent(action.talent);break;
+ }
+ return {label,detail,pills:number,wash,roll,kind:String(action?.kind||'')};
+}
 const quality={248:true,249:true,250:true};
 function previewTarget(preview,selectedWashNos){
  const source=Array.isArray(preview?.purples)?preview.purples:[];
@@ -104,5 +128,5 @@ function previewPadLimit(washNos){
  return Math.max(0,Math.min(200,ids[1]-ids[0]-1));
 }
 root.YYWashAutoSearch={selectedIds,options,routeOutcome,statusText,readableStep,
- previewTarget,previewPadLimit};
+ describeAction,previewTarget,previewPadLimit};
 })(window);
