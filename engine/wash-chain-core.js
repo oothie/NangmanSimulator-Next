@@ -3,7 +3,7 @@
  * can_exchange events and retains one original-state rollback boundary. */
 (function(root){
 'use strict';
-async function run({call,ensureSession=()=>{},steps=2,maxWashes=500,targetId=null}={}){
+async function run({call,ensureSession=()=>{},steps=2,maxWashes=500,targetId=null,targets=null}={}){
  if(typeof call!=='function'||typeof ensureSession!=='function')
   throw Error('원본 WASM 연결 상태가 없습니다');
  if(!Number.isInteger(steps)||steps<1||steps>4||
@@ -11,6 +11,10 @@ async function run({call,ensureSession=()=>{},steps=2,maxWashes=500,targetId=nul
   throw Error('자동 치환은 최대 4단계, 단계별 세수는 1~1000회입니다');
  if(targetId!=null&&(!Number.isInteger(targetId)||targetId<1))
   throw Error('원본 자맥 ID를 확인하세요');
+ if(targets!=null&&(!Array.isArray(targets)||targets.length<1||targets.length>4||
+   targets.some(id=>!Number.isInteger(id)||id<1)||new Set(targets).size!==targets.length))
+  throw Error('선택 목표 자맥 ID는 중복 없는 1~4개의 원본 재능이어야 합니다');
+ if(targets&&targetId!=null)throw Error('자맥 단계별 목표와 단일 목표는 동시에 지정할 수 없습니다');
  ensureSession();
  const initial=await call('state');
  ensureSession();
@@ -22,8 +26,12 @@ async function run({call,ensureSession=()=>{},steps=2,maxWashes=500,targetId=nul
  try{
   for(let index=0;index<steps;index++){
    ensureSession();
+   const goalId=targets?targets[index]??null:targetId;
+   // A bounded goal list never silently exchanges an unrelated talent.
+   // Stop rather than free-running when all explicitly requested targets are processed.
+   if(targets&&index>=targets.length){stop='targets-completed';break}
    const result=await call('until-exchange-and-replace',{
-    count:maxWashes,talentId:targetId
+    count:maxWashes,talentId:goalId
    });
    ensureSession();
    if(!result?.state||!Array.isArray(result.results)||
@@ -33,9 +41,11 @@ async function run({call,ensureSession=()=>{},steps=2,maxWashes=500,targetId=nul
    if(result.autoExchanged===true&&(!result.found||result.exchange?.success!==true||
      result.conflict?.can_exchange!==true))
     throw Error('실제 치환 성공 상태와 충돌 판정이 일치하지 않습니다');
+   if(goalId!=null&&result.targetId!==goalId)
+    throw Error('원본 WASM이 요청한 목표 자맥과 다른 재능을 탐색했습니다');
    if(result.found===true&&result.autoExchanged!==true)
     throw Error('원본 WASM이 치환 가능이라고 표시했으나 치환하지 못했습니다');
-   actions.push({step:index+1,performed:result.performed,
+   actions.push({step:index+1,targetId:goalId,performed:result.performed,
      found:result.found===true,autoExchanged:result.autoExchanged===true,
      stopReason:result.stopReason,conflict:result.conflict,
      remainingPills:result.state.bag_pills??null,
@@ -52,6 +62,7 @@ async function run({call,ensureSession=()=>{},steps=2,maxWashes=500,targetId=nul
      Number(state.role_id)!==Number(initial.role_id))
    throw Error('자동 치환 종료 상태를 확인할 수 없습니다');
   return {initial,state,actions,totalWashes,exchanges,requestedSteps:steps,
+   targeted:!!targets,requestedTargets:targets?[...targets]:null,
    stopReason:stop,changed:JSON.stringify(initial)!==JSON.stringify(state)};
  }catch(error){
   // If the session has changed, do not restore the old role over a newly
