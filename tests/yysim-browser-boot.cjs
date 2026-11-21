@@ -89,7 +89,7 @@ const path=require('node:path');
 
   const retryPage=await browser.newPage();
   let failedAssets=0;
-  await retryPage.route(/\/wasm_data\.js\?rev=0\.10\.6/,async route=>{
+  await retryPage.route(/\/wasm_data\.js\?rev=0\.10\.7/,async route=>{
    if(failedAssets++===0)return route.abort('failed');
    return route.continue();
   });
