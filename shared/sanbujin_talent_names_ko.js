@@ -2,7 +2,7 @@
 // Priority: Korean 60014 extracted 'talent_data' translations from
 // NangmanGame_60014_COMPLETE_V6.20_SINGLE.html / 산부진_v9_한국어화_진행현황.csv.
 // Then community Korean '낭만강호/자질' terminology for remaining cases.
-// Korean 251 '일심겸용' is preserved pending the source's conflict (일심양용).
+// User-confirmed Korean in-game name: talent #251 = 일심겸용. This is canonical.
 // 202 사량발천근, 244 연기기, 245 기린비, 271 환생금선 and 266 술소기황
 // follow the previously approved nomenclature rather than source typos/spaces.
 // Original source IDs must never be shifted or changed.
