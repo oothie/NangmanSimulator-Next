@@ -9,7 +9,7 @@
 /* 낭만강호 통합 사이트 내부용: 원본 산부진 화면과 엔진 UI 보존 */
 html,body{max-width:100%;overflow-x:hidden}body{margin:0}
 body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
-</style><style>body{background:#f5f0e8;color:#2b2722;font-family:system-ui,"Malgun Gothic",sans-serif;padding:16px}button,input,select{font:inherit}button{cursor:pointer}nav.drop-modes{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}nav.drop-modes button{padding:8px 14px;border:1px solid #bba98e;border-radius:5px;background:#f8f5f0}.wild-form{padding:14px 0}.wild-fields{display:flex;gap:12px;flex-wrap:wrap}label{display:inline-grid;gap:6px;margin:4px}input,select{padding:7px;border:1px solid #b5a995;border-radius:5px}ol.wild-results{line-height:1.7}body{min-height:700px}</style><style>
+</style><style>#tombForecast{display:none!important}</style><style>body{background:#f5f0e8;color:#2b2722;font-family:system-ui,"Malgun Gothic",sans-serif;padding:16px}button,input,select{font:inherit}button{cursor:pointer}nav.drop-modes{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}nav.drop-modes button{padding:8px 14px;border:1px solid #bba98e;border-radius:5px;background:#f8f5f0}.wild-form{padding:14px 0}.wild-fields{display:flex;gap:12px;flex-wrap:wrap}label{display:inline-grid;gap:6px;margin:4px}input,select{padding:7px;border:1px solid #b5a995;border-radius:5px}ol.wild-results{line-height:1.7}body{min-height:700px}</style><style>
 .dungeon-coverage{padding:14px 16px;background:#fdfaf3;border:1px solid #cdbca5;border-radius:8px;margin:12px 0}
 .dungeon-coverage strong{font-size:16px}
 .dungeon-coverage p{margin:8px 0 0;font-size:13px;line-height:1.6}
@@ -59,7 +59,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   <button type="button" id="dropTreasureLink" aria-controls="treasureDrop">보물지도</button>
 </nav>
 <section id="wildDrop" class="wild-panel" aria-label="필드 드랍">
-<section id="tombForecast" aria-label="제릉 필드 사냥 전용 예측" class="tomb-forecast">
+<section id="tombForecast" aria-label="제릉 과거 순서 비교 (숨김)" class="tomb-forecast" hidden>
   <div class="tomb-forecast-heading"><div><h2>제릉 필드 · 35255 이벤트 순서 분석</h2>
     <p>현재 세이브에서 <strong>35255 조건부 조우 이벤트가 연속 호출될 때</strong>의 특수몹·장비 후보를 계산합니다. <strong>일반 필드 사냥 횟수와 이벤트 호출 횟수의 대응은 아직 미확정</strong>입니다.</p>
   </div><span class="tomb-forecast-tag">NPC 35256 · 일반 필드</span></div>
@@ -246,7 +246,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 </section>
 </main>
 <script defer src="../shared/equip_data.js"></script>
-<script defer src="./drop-export.js"></script><script defer src="./wild-data.js?rev=20261121a"></script><script defer src="./wild-core.js?rev=20261121a"></script><script defer src="./tomb-core.js?rev=20261121f"></script><script defer src="./tomb-compare-core.js"></script><script defer src="./tomb-compare.js"></script><script defer src="./wild.js?rev=20261121f"></script>
+<script defer src="./drop-export.js"></script><script defer src="./wild-data.js?rev=20261121a"></script><script defer src="./wild-core.js?rev=20261121a"></script><script defer src="./tomb-core.js?rev=20261121g"></script><script defer src="./tomb-compare-core.js"></script><script defer src="./tomb-compare.js"></script><script defer src="./wild.js?rev=20261121g"></script>
 <script defer src="./dungeon-data.js?rev=20261121a"></script><script defer src="./dungeon-orange.js"></script>
 <script defer src="./dungeon-core.js?rev=20261121a"></script><script defer src="./dungeon.js?rev=20261121a"></script>
 <script defer src="./shared-gear-core.js"></script><script defer src="./shared-gear.js"></script>
