@@ -170,7 +170,12 @@ try{
    applied.push({id,index});
   }
   if(applied.length){
-   if(!wasmSetState(copy))throw Error('원본 WASM 목표 슬롯 잠금 적용에 실패했습니다');
+   try{
+    if(!wasmSetState(copy))throw Error('원본 WASM 목표 슬롯 잠금 적용에 실패했습니다');
+   }catch(error){
+    wasmSetState(original);
+    throw error;
+   }
   }
   const state=wasmGetState();
   if(!state||!Array.isArray(state.talents)||
