@@ -32,13 +32,19 @@ async function call(op,config){
  assert.equal(res.globallyOptimal,false,'native optimal:false cannot mean guaranteed best globally');
  assert(res.progressive===true&&res.history.length===3);
  assert.equal(api.routeOutcome(res.result,[268]).routes[0].estimatedPills,7);
+ const alternative={...cheaper,steps:[{kind:'luck-reset',roll_idx:31}],luck_init:{roll_idx:31,by:'exchange'}};
+ const repeated={...cheaper,steps:[{kind:'luck-reset',roll_idx:32}],luck_init:{roll_idx:32,by:'exchange'}};
+ const alternate=await p.run({api,desiredIds:[268],maxPad:3,horizon:300,topN:8,
+  call:async()=>({nativeFunction:'wasmSearchWashRoutes',result:{routes:[alternative,repeated,alternative],scanned:3}})});
+ assert.equal(alternate.result.routes.length,2,'same cost/actions but different luck reset branches are distinct paths');
  await assert.rejects(()=>p.run({call:async()=>({}),api,desiredIds:[268],
   maxPad:3,horizon:300,topN:5}),/원본 WASM 자동 탐색/);
  await assert.rejects(()=>p.run({call:async()=>({}),api,desiredIds:[268,268],
   maxPad:3,horizon:300,topN:5}),/서로 다른/);
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
  assert(html.includes('./engine/yysim-auto-progressive.js'));
- assert(html.includes('id="yyAutoProgressive"'));
+ assert(!html.includes('id="yyAutoProgressive"'),'progressive search must be automatic, not a second UI button');
+ assert(html.includes("detail:{op:'washEngineAutoProgressive',...input}"));
  assert(html.includes("op==='washEngineAutoProgressive'"));
  assert(html.includes('state.autoProgress=progress;announce()'));
  console.log('PASS: progressive native yy-sim search scans 3 bounded levels, ranks real routes, dedupes, never falsely certifies optimal');
