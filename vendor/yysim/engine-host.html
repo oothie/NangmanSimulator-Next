@@ -83,11 +83,11 @@ try{
    if(!Array.isArray(candidates))throw Error('원본 WASM 충돌 판정 구조를 확인할 수 없습니다');
    return candidates.find(x=>{
     const index=Number(x?.index),earlier=Number(x?.earlier_index);
-    if(x?.can_exchange!==true||!Number.isInteger(index)||
+    if(x?.can_exchange!==true||x?.index==null||!Number.isInteger(index)||
        index<0||index>=current?.talents?.length||
        current.talents[index]?.locked===true)return false;
     return target==null||current.talents[index]?.id===target||
-       (Number.isInteger(earlier)&&earlier>=0&&current.talents[earlier]?.id===target);
+       (x.earlier_index!=null&&Number.isInteger(earlier)&&earlier>=0&&current.talents[earlier]?.id===target);
    })||null;
   };
   let matched=null,stopped='limit';
