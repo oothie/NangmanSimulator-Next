@@ -1383,6 +1383,8 @@ function wikiSourceIcon(x){
 function wikiImage(x){
  if(!x)return '';
  const id=String(x.id),raw=String(wikiSourceIcon(x)||'').trim();
+ const iconName=raw.replace(/\\\\/g,'/').split('/').pop().replace(/\\.png$/i,'');
+ if(x.cat==='buff'&&window.NANGMAN_BUFF_ICON_DATA?.[iconName])return window.NANGMAN_BUFF_ICON_DATA[iconName];
  const root='https://yy-sim.pages.dev/icons/';
  // The original skill PNGs are served at /icons/skill/<skill ID>.png.
  // Verified from the live source: 301 (음률) and 309 (오금희) are real PNGs.
@@ -1466,7 +1468,22 @@ function wikiFormatField(key,v){
  if(!value||wikiHasChinese(value))return '';
  return '<div class="wiki-field"><span>'+escape(labels[key])+'</span><b>'+escape(value)+'</b></div>';
 }
+function ensureWikiOriginalBuffIcons(){
+ if(window.__nangmanBuffIconsStarted)return;
+ window.__nangmanBuffIconsStarted=true;
+ const tasks=Array.from({length:19},(_,i)=>new Promise(resolve=>{
+  const script=document.createElement('script');
+  script.src='./data/wiki-buff-icons-'+String(i).padStart(2,'0')+'.js?rev=v090';
+  script.onload=()=>resolve(true);script.onerror=()=>resolve(false);
+  document.head.appendChild(script);
+ }));
+ Promise.all(tasks).then(result=>{
+  window.__nangmanBuffIconsLoaded=result.filter(Boolean).length;
+  if(v==='wiki')render();
+ });
+}
 function wikiView(){
+ ensureWikiOriginalBuffIcons();
  const ko=wikiKoMap(),src=wikiRows(),q=wikiQuery.trim().toLowerCase();
  const rows=src.filter(x=>{
   if(x.cat!==wikiSelectedCategory)return false;
