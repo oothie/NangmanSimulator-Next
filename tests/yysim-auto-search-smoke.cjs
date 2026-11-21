@@ -79,16 +79,17 @@ assert.equal(t[2].conflict_wash_no,0,'only first selected purple attaches confli
 assert.equal(api.previewPadLimit([21,76]),54);
 assert.equal(api.previewPadLimit([21]),30);
 const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
-for(const id of ['yyAutoRun','yyAutoPreset','yyAutoClear']){
+for(const id of ['yyAutoRun','yyAutoClear']){
  assert(html.includes('id="'+id+'"'),id);
 }
-assert(html.includes("['auto','원본 자동 탐색']"));
+assert(html.includes("['auto','자동 탐색']"));
 for(const id of ['yyAutoPad','yyAutoHorizon','yyAutoTopN','yyAutoConnect','yyAutoProgressive'])assert(!html.includes('id="'+id+'"'),'automatic search must not expose internal controls: '+id);
 assert(html.includes('선택 재능 자동 계산'));
-assert(html.includes("colorSelected?'washEngineAutoColor':'washEngineAutoProgressive'"),'single button dispatches correct native search mode');
+assert(html.includes("colorSelected?'washEngineAutoIntermediate':'washEngineAutoProgressive'"),'mixed-color selection uses intermediate WASM search');
 assert(html.includes('maxPad:30,horizon:3000,topN:12'),'bounded internal defaults are not user inputs');
 assert(html.includes("washEngine.call('auto-search',options)"));
 assert(html.includes('state.autoResult=null;'));
+assert(html.includes("'auto-intermediate-search'"));
 assert(html.includes('yy-sim WASM'));
 const host=fs.readFileSync(path.join(base,'vendor/yysim/engine-host.html'),'utf8');
 assert(host.includes('wasmSearchWashRoutes(search)'));
