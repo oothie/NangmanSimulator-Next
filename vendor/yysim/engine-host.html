@@ -21,7 +21,8 @@ try{
   const after=wasmGetState();
   if(!after||JSON.stringify(before)!==JSON.stringify(after))
    throw Error('재능 조회 중 WASM 상태가 변경됐습니다. 원본 결과를 적용하지 않습니다');
-  if(!Array.isArray(available)||!Array.isArray(conflicts))
+  if(!available||typeof available!=='object'||available.error||
+     !conflicts||typeof conflicts!=='object'||conflicts.error)
    throw Error('원본 WASM 재능·충돌 자료 구조를 확인할 수 없습니다');
   const nameIds=Object.fromEntries(Object.entries(TALENT_DATA).filter(([,x])=>x?.name).map(([id,x])=>[x.name,id]));
   send(requestId,true,{available,conflicts,nameIds});
@@ -56,8 +57,10 @@ try{
   const snapshot=wasmGetState();
   if(!snapshot)throw Error('원본 세수 상태를 읽지 못했습니다');
   const results=wasmWashUntilTalentName(entry.name,limit);
-  send(requestId,true,{results:Array.isArray(results)?results:[],state:wasmGetState(),limit,
-   talentId:id,sourceName:entry.name});
+  const state=wasmGetState();
+  if(!state||!results||typeof results!=='object'||results.error)
+   throw Error('원본 목표 자맥 세수 상태·결과를 읽지 못했습니다');
+  send(requestId,true,{results,state,limit,talentId:id,sourceName:entry.name});
   return
  }
  if(op==='toggle-lock'){
