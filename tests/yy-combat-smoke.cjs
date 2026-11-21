@@ -13,6 +13,10 @@ function load(file){
  vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file,timeout:20000});
 }
 load('vendor/sanbujin/shared/equip_data.js');
+const sanbujinEquip=ctx.EQUIP_DATA;
+load('vendor/yysim/equip_data.js');
+ctx.NANGMAN_YY_EQUIP_DATA=ctx.EQUIP_DATA;
+ctx.EQUIP_DATA=sanbujinEquip;
 load('vendor/yysim/life_hedao_data.js');
 load('vendor/yysim/data.js');
 load('vendor/yysim/extra_attr_data.js');
