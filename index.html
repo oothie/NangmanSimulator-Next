@@ -2166,7 +2166,7 @@ function characterBattleSupport(role){
  const localized=dict[String(talentId)];
  const name=localized&&!wikiHasChinese(localized)?localized:
   window.SBJ_KOREAN?.translate?.(String(ability.name||''))||String(ability.name||'');
- const cleanName=wikiHasChinese(name)?'지원 재능 #'+talentId:name;
+ const cleanName=!String(name||'').trim()||wikiHasChinese(name)?'지원 재능 #'+talentId:name;
  const props={atk:'공격',def:'방어',hp:'기혈',hit:'명중',dodge:'회피',speed:'속도',
   def_ign:'방어 관통',dmg_off:'피해면역',str:'완력',con:'근골',dex:'신법',int:'내식'};
  const effects=['effect1','effect2'].map(key=>{
