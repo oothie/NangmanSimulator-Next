@@ -1,0 +1,40 @@
+name: Recover Roboking source for equipment-only port
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/recover-roboking.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve official historical Roboking HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p vendor/roboking-reference
+          candidate="$(mktemp)"
+          for url in             'https://raw.githubusercontent.com/roboking123/jianghu-helper/main/index.html'             'https://raw.githubusercontent.com/roboking123/jianghu-helper/master/index.html'             'https://roboking123.github.io/jianghu-helper/'; do
+            if curl --fail --location --silent --show-error --connect-timeout 12 --max-time 90 "$url" -o "$candidate"; then
+              if python3 -c "import sys; p=sys.argv[1]; s=open(p,encoding='utf-8').read(); assert 100000<len(s)<5000000; assert '<html' in s.lower() or '<!doctype html' in s.lower(); assert 'eSet' in s and 'eDetail' in s and 'makeSequence' in s" "$candidate"; then
+                cp "$candidate" vendor/roboking-reference/index.html
+                sha256sum vendor/roboking-reference/index.html
+                echo "ROBOKING_SOURCE_URL=$url"
+                break
+              fi
+            fi
+          done
+          test -s vendor/roboking-reference/index.html || { echo 'Roboking original unavailable from all public URLs'; exit 1; }
+      - name: Store original source for audited migration, never load directly
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add vendor/roboking-reference/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'vendor(reference): pin Roboking original equipment simulator for audited migration'
+            git push
+          fi
