@@ -1,6 +1,6 @@
 /* Conservative yy-sim native search route replay. No simulated RNG guesses.
  * Operates only on a copied WASM state and rolls back all steps on failure.
- * Slot opening is only accepted when already fulfilled; resource-consuming opening is blocked.
+ * Original simulator aptitude upgrades are replayed in WASM; physical game resource consumption is not simulated.
  */
 (function(root){
 'use strict';
@@ -70,9 +70,21 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
    const state=await call('state');
    if(!state||!Array.isArray(state.talents))throw Error('현재 재능 슬롯을 읽을 수 없습니다');
    if(step.kind==='open_slot'){
-    // No guessed use of aptitude items: only an already-open slot is safe.
-    if(state.talents.length<step.requiredSlots)
-     throw Error('원본 경로가 재능 슬롯 '+step.requiredSlots+'칸 개방을 요구합니다. 자질 개방과 재료 소비는 아직 미지원입니다');
+    // The original yy-sim upgradeZiZhi changes aptitude and two gift fields.
+    // It is a virtual upgrade, not an assertion of consumable materials.
+    const requiredZizhi=150+step.requiredSlots;
+    let currentZizhi=integer(state.zizhi);
+    if(currentZizhi===null||currentZizhi<150||currentZizhi>154)
+     throw Error('현재 원본 WASM 자질을 확인할 수 없습니다');
+    while(currentZizhi<requiredZizhi){
+     const result=await call('upgrade-zizhi');
+     ensureSession();
+     if(!result?.state||result.source!=='original-upgradeZiZhi'||
+        result.inventoryDeducted!==false||
+        integer(result.state.zizhi)!==currentZizhi+1)
+      throw Error('원본 yy-sim 자질 개방 단계가 재현되지 않았습니다');
+     currentZizhi++;
+    }
    }else if(step.kind==='lock'||step.kind==='unlock'){
     const at=state.talents.findIndex(t=>Number(t.id)===step.id);
     if(at<0)throw Error('경로 재능이 현재 슬롯에 없습니다');
@@ -109,10 +121,11 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
   const state=await call('state');
   const missing=(route.goalIds||[]).filter(id=>!state?.talents?.some(t=>Number(t.id)===Number(id)));
   const finalSlots=Array.isArray(route.finalSlots)?route.finalSlots:[];
-  if(finalSlots.length&&finalSlots.length===state?.talents?.length&&
-    finalSlots.some((slot,index)=>Number(slot.id)!==Number(state.talents[index]?.id)||
-      (!!slot.locked)!==(!!state.talents[index]?.locked)))
-   throw Error('원본 경로 최종 슬롯 ID·잠금 상태와 실제 WASM 결과가 다릅니다');
+  if(finalSlots.length&&
+    (finalSlots.length!==state?.talents?.length||
+     finalSlots.some((slot,index)=>Number(slot.id)!==Number(state.talents[index]?.id)||
+      (!!slot.locked)!==(!!state.talents[index]?.locked))))
+   throw Error('원본 경로 최종 슬롯 수·재능 ID·잠금 상태와 실제 WASM 결과가 다릅니다');
   if(missing.length)throw Error('경로 재생 후 목표 자맥 미보유: '+missing.join(','));
   ensureSession();
   return {original,state,steps:applied,verified:true};
