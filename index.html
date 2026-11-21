@@ -450,7 +450,8 @@ function washSandbox(){
  '<div class="actions"><button id="washEngineInit" class="btn" '+(state.loading?'disabled':'')+'>'+ (state.ready?'WASM 준비 완료':'로컬 WASM 초기화')+'</button>'+
  '<button id="washEngineReset" class="btn" '+(!state.ready?'disabled':'')+'>시험 상태 설정</button>'+
  '<button id="washEngineOnce" class="btn primary" '+(!state.active?'disabled':'')+'>1회 세수</button>'+
- '<button id="washEngineMulti" class="btn" '+(!state.active?'disabled':'')+'>연속 세수</button></div>'+
+ '<button id="washEngineMulti" class="btn" '+(!state.active?'disabled':'')+'>연속 세수</button>'+
+ '<button id="washSlotUndo" class="btn" '+(!(state.active&&state.undoStates?.length)?'disabled':'')+'>직전 WASM 작업 되돌리기</button></div>'+
  (state.error?'<div class="notice">'+escape(state.error)+'</div>':'')+
  '<div class="history" style="max-height:280px;overflow:auto;white-space:pre-wrap">'+escape(state.output||'엔진 초기화 → 시험 상태 설정 → 세수 실행 순서로 진행하세요.')+'</div>'+slots+'</section>';
 }
@@ -534,7 +535,8 @@ if(sub==='path'){
  '<div class="section-header"><h3>목표 자맥까지 모의 세수</h3></div>'+
  '<p class="micro">원본 WASM의 <code>wash_until_talent_name</code> 실행을 사용합니다. 최대 5000회, 실행 전 상태 저장 후 되돌리기 가능. 현재 목표 자맥의 한국 서버 적중 여부는 미검증입니다.</p>'+
  '<div class="fields"><label>목표 자맥<select id="washTalentTarget"><option value="">선택</option>'+purpleSourceIds.map(id=>'<option value="'+id+'" '+(String(id)===single?'selected':'')+'>'+escape(characterTalentName(id))+' (#'+id+')</option>').join('')+'</select></label></div>'+
- '<div class="actions"><button id="washTalentRun" class="btn" '+(!valid?'disabled':'')+'>목표 자맥까지 모의 세수 (최대 1000회)</button></div>'+
+ '<div class="actions"><button id="washTalentRun" class="btn" '+(!valid?'disabled':'')+'>목표 자맥까지 모의 세수 (최대 1000회)</button>'+
+ '<button id="washPathUndo" class="btn" '+(!(valid&&runtime.undoStates?.length)?'disabled':'')+'>직전 WASM 작업 되돌리기</button></div>'+
  '<p class="micro">잠금 슬롯·충돌 치환 자동 조작은 아직 포함하지 않습니다. 목표에 일치하는 WASM 재능만 검색합니다.</p>'+
  '</section>';
 }
@@ -2327,6 +2329,10 @@ if($('washVerifyRun'))$('washVerifyRun').onclick=async()=>{
  }catch(err){runtime.verifyError=String(err.message||err);}
  render();
 };
+for(const id of ['washSlotUndo','washPathUndo']){
+ if($(id))$(id).onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',
+  {detail:{op:'washEngineUndo'}}));
+}
 if($('washPathAdd'))$('washPathAdd').onclick=()=>{
  const a=$('washPathPurplePick')?.value||'',b=$('washPathConflictPick')?.value||'';
  if(!a||!b){alert('자맥과 충돌맥을 먼저 선택하세요.');return;}
