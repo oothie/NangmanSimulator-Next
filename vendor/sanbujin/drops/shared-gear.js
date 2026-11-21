@@ -12,6 +12,16 @@ const gearName=id=>{
  return gear?.koName||ko(gear?.name||'장비 #'+id);
 };
 const colors={1:'흰색',2:'녹색',3:'청색',4:'자색'};
+const initialOptions=row=>{
+ if(!row.edsKnown)return 'Eds 미확인';
+ const arr=Array.isArray(row.initialAffixes)?row.initialAffixes:[];
+ if(!arr.length)return '최초 추가 옵션 없음';
+ return arr.map(a=>{
+  const label=ko(window.EQUIP_DATA?.propNames?.[a.prop]||a.prop);
+  const pct=Number(a.value)<1||a.prop==='atk_extend';
+  return label+' '+(pct?(Math.round(Number(a.value)*10000)/100)+'%':a.value);
+ }).join(' · ');
+};
 fieldCatalog.forEach((x,index)=>$('sharedWildTarget').add(new Option(
  ko(x.location)+' · '+ko(x.name)+' (NPC '+x.npcId+')',index)));
 dungeonCatalog.forEach((x,index)=>$('sharedDungeonTarget').add(new Option(
@@ -72,7 +82,8 @@ $('sharedGearForm').onsubmit=evt=>{
    tr.append(cell(row.step),cell(row.source==='field'?'필드 특수몹 보상':'관문 우두머리 보상'),
     cell(row.round),cell(row.itemId+' · '+gearName(row.itemId)),
     cell(colors[row.color]||'미확인'),cell('현재 세이브 이후 계획 내 '+row.inPlan+'번째'),
-    cell(row.edsKnown?'동일 ID '+row.edsDraw+'번째 · 생성 RNG 연결':'원본 Eds 없음 · 예측 보류'));
+    cell(row.edsKnown?'동일 ID '+row.edsDraw+'번째 · 생성 RNG 연결':'원본 Eds 없음 · 예측 보류'),
+    cell(initialOptions(row)));
    return tr;
   }));
   $('sharedTable').hidden=rows.length===0;
@@ -107,6 +118,7 @@ $('sharedExport').onclick=()=>{
    {title:'동일 장비의 계획 내 획득 순번',key:'inPlan'},
    {title:'장비 ID별 Eds 소비 순번',value:x=>x.edsKnown?x.edsDraw+'회차':'초기 시드 없음'},
    {title:'생성시드 계산 상태',value:x=>x.creationSeedStatus||'원본 정보 미확인'},
+   {title:'최초 추가 옵션 (완성 정련·망정 아님)',value:initialOptions},
    {title:'한계',value:()=> '현재 세이브 이후 선택한 가상 보상 순서에 한정 · 실게임 품질/정련/망정 미검증'}
   ];
   window.SBJDropExport.save('Nangman_Shared_Equipment_Order',columns,projected.equipment);
