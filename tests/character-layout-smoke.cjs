@@ -134,15 +134,26 @@ const activeHtml=activeMock({raw:{Taolus:[{ID:21470,Active:true,Chong:13,Level:3
 assert(activeHtml.includes('무예 · 정진 13 · 수련 3'),'active martial name and levels');
 assert(!activeHtml.includes('무학 #20010'),'non-equipped martial excluded');
 assert(activeHtml.includes('현재 장착 기록 없음'),'not equipped categories represented');
-const baseChunk=source.slice(source.indexOf('function characterSourceBaseStats('),source.indexOf('function characterTrainingView('));
+const baseChunk=source.slice(source.indexOf('function yyRoleBaseAptitudes(raw){'),source.indexOf('function characterTrainingView('));
 const baseApi=new Function('escape',baseChunk+';return {characterSourceBaseStats,characterSourceBasePanel}')(
  x=>String(x));
 const sample={Level:90,GrowDefence:5,ExtDefence:89,GrowHit:2,ExtHit:279,ExtParry:98,
- GrowGangqi:15,ExtGangqi:0,GrowNeijin:20,ExtNeijin:0};
+ GrowGangqi:15,ExtGangqi:0,GrowNeijin:20,ExtNeijin:0,
+ Str:107,Con:90,Dex:0,Int:90,BornStr:42,BornCon:38,BornDex:21,BornInt:39,
+ StrGift:5000,ConGift:1800,DexGift:5000,IntGift:5000,
+ StrAtk:2,ConHp:10,DexDodge:1.5,DexSpeed:1.5,ConRen:3,IntMpFirst:0.2,
+ GrowAttack:2,GrowHp:10,GrowDodge:1.4,GrowSpeed:2,
+ ExtAttack:118,ExtHp:1193,ExtDodge:183,ExtSpeed:176,ExtRen:206,ExtMpFirst:0};
 const byName=Object.fromEntries(baseApi.characterSourceBaseStats(sample).map(x=>[x.label,x.value]));
 assert.equal(byName['방어 기본값'],551,'shared base defense');
 assert.equal(byName['명중 기본값'],549,'shared base hit');
 assert.equal(byName['초식방어 기본값'],236,'shared base parry');
+assert.equal(byName['공격 초기값'],701,'initial unbuffed attack');
+assert.equal(byName['기혈 초기값'],3559,'initial unbuffed hp');
+assert.equal(byName['회피 초기값'],359,'initial unbuffed dodge');
+assert.equal(byName['속도 초기값'],496.5,'initial unbuffed speed');
+assert.equal(byName['인내 초기값'],629,'initial unbuffed resilience');
+assert.equal(byName['진원 초기값'],33.4,'initial unbuffed true-essence');
 assert(baseApi.characterSourceBasePanel(sample).includes('551'),'detail references shared calculation');
 
 console.log('PASS: yy-sim role page structure, all 9 tabs, selector wiring and version labels');
