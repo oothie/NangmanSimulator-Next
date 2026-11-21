@@ -72,4 +72,26 @@ for (const [label,expected] of Object.entries({
 })) assert.equal(subtotal[label], expected, 'gear partial '+label);
 assert.equal(subtotal['기혈'],118,'EnNoXLExts must be excluded');
 
-console.log('PASS: saved BornTalent lookup and yy-sim body formulas and equipment option subtotals');
+// Original wb() weapon-specific ATK/HIT split: weapon types 1-4, other equipment separate.
+const splitStart=html.indexOf('function characterEquipCombatSplit(raw){');
+const splitEnd=html.indexOf('function characterEquipSourceView(raw){',splitStart);
+assert(splitStart>0&&splitEnd>splitStart,'source split helpers should exist');
+context.window.EQUIP_DATA={equipment:{
+ '7283':{type:3},'5015':{type:6},'5409':{type:8}
+}};
+vm.runInContext(html.slice(splitStart,splitEnd),context);
+const split=context.characterEquipCombatSplit({Equips:[
+ {ID:7283,Atk:935,Hit:900,LvProp:129,EnExts:[{Key:'hit_add',Value:10}]},
+ {ID:5015,Hit:731,EnExts:[{Key:'atk_add',Value:96}]},
+ {ID:5409,Def:100},
+ {ID:999999,Atk:12}
+]});
+assert.equal(split.weapon.atk,1055,'weapon attack with LvProp');
+assert.equal(split.weapon.hit,1026,'weapon hit with LvProp and affix');
+assert.equal(split.other.atk,96,'nonweapon attack affix');
+assert.equal(split.other.hit,731,'nonweapon hit');
+assert.equal(split.unknown.length,1,'unknown weapon category not guessed');
+assert.equal(split.complete,false,'metadata incomplete');
+assert.match(context.characterEquipCombatSplitView({Equips:[{ID:999999,Atk:12}]}),/장비 분류 미확인/);
+
+console.log('PASS: saved BornTalent lookup and yy-sim body formulas and equipment option subtotals and weapon-specific attack/hit');
