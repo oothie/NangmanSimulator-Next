@@ -76,7 +76,7 @@ function routeOutcome(raw,selected){
 }
 function statusText(result){
  if(result.stats.complete)return '실제 WASM 세수에서 선택한 재능이 최종 슬롯에 모두 남는 경로를 찾았습니다. 세수단 오름차순으로 표시하며, 전체 가능한 치환 경로의 전역 최솟값은 아직 보장하지 않습니다.';
- if(result.stats.error)return '설정한 탐색 범위에서 목표 재능을 모두 확보하는 경로가 발견되지 않았습니다. 자동 탐색 범위 안에서 찾지 못한 결과이며, 목표 선택을 변경해 다시 확인할 수 있습니다.';
+ if(result.stats.error)return '선택한 맥이 최종 슬롯에 모두 남는 경로를 찾지 못했습니다. '+result.stats.error+' · 재능 잠금·치환을 포함한 전체 최적 탐색은 아직 지원 범위가 제한되어 있습니다.';
  return '현재 검색 조건의 원본 WASM 경로 후보가 없습니다.';
 }
 function readableStep(value,known={},nameFor=()=>null){
