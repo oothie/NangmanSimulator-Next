@@ -42,6 +42,11 @@ for(const file of ['wasm_data.js','core_glue.js','data.js']){
   {target_names:['转世金仙'],limit:20},
   {targets:['转世金仙'],limit:20},
   {wanted:[271],limit:20},
+  {desired_ids:[271],max_pad:0,horizon:20,top_n:3,allow_open_slot:false},
+  {desired_ids:[271,250],max_pad:0,horizon:30,top_n:3,allow_open_slot:false},
+  {desired_ids:[271,250,268],max_pad:1,horizon:25,top_n:3,allow_open_slot:false},
+  {desired_ids:[999],max_pad:0,horizon:20,top_n:3},
+
  ];
  for(const [i,query] of queries.entries()){
   context.query=query;
