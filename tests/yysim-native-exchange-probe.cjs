@@ -11,7 +11,7 @@ const invoke=s=>vm.runInContext(s,ctx);
  assert.equal(await invoke('initWasm()'),true);
  assert.equal(invoke('wasmInitEngine(TALENT_DATA,ZZ_DATA)'),true);
  const initial=invoke('wasmGetState()');
- ctx.setup={...initial,seed:'447882174',role_id:10044,zizhi:154,sex:1,vip:1,
+ ctx.setup={...initial,mode:'seed',seed:'447882174',role_id:10044,zizhi:154,sex:1,vip:1,
   talents:[{id:171,locked:false},{id:172,locked:false}],
   total_pills:0,total_wash:0,bag_pills:50000,has_bag_pills:true,
   global_vars:{nlliandu_tf:0,talent_LingYue:1,mh_tianfu_401:1}};
