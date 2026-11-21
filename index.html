@@ -333,6 +333,7 @@ body{background:var(--bg)!important}
 <script src="./engine/yysim-route-replay.js"></script>
 <script src="./engine/yysim-wash-dashboard.js"></script>
 <script src="./engine/yysim-wash-history.js"></script>
+<script src="./engine/yysim-wash-batch.js"></script>
 <script src="./shared/sanbujin_meridian_data.js"></script>
 <script src="./shared/sanbujin_talent_names_ko.js?v=0.7.90"></script>
 <script src="./shared/sanbujin_cultivation_data.js"></script>
@@ -544,7 +545,7 @@ if(sub==='sim'){
  '<button class="btn" id="washMainFive" '+(!canRun?'disabled':'')+'>5회 세수</button>'+
  '<button class="btn" id="washMainTen" '+(!canRun?'disabled':'')+'>10회 세수</button>'+
  '<button class="btn" id="washMainHundred" '+(!canRun?'disabled':'')+'>100회 세수</button>'+
- '<label>지정 횟수 <input id="washMainCount" type="number" min="1" max="100" value="'+escape(runtime.mainCount||10)+'" style="width:92px"></label>'+
+ '<label>지정 횟수 <input id="washMainCount" type="number" min="1" max="1000" value="'+escape(runtime.mainCount||10)+'" style="width:92px"></label>'+
  '<button class="btn" id="washMainMulti" '+(!canRun?'disabled':'')+'>횟수 지정 세수</button>'+
  '<button class="btn" id="washMainUndo" '+(!canUndo?'disabled':'')+'>직전 실행 되돌리기</button>'+
  '<button class="btn primary" id="washMainOnce" '+(!canRun?'disabled':'')+'>세수 1회</button>'+
@@ -2628,7 +2629,7 @@ if($('nativeEngineFrame')){
  const frame=$('nativeEngineFrame');
  frame.onload=()=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};
 }
-if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanTalentKoName=characterTalentName;window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainFive:'washEngineMulti',washMainTen:'washEngineMulti',washMainHundred:'washEngineMulti',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10':btn.id==='washMainHundred'?'100':($('washMainCount')?.value||'10')}})));if($('washMainCount'))$('washMainCount').onchange=()=>{const n=Number($('washMainCount').value);if(Number.isInteger(n)&&n>=1&&n<=100)(window.__washRuntime||{}).mainCount=n};
+if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanTalentKoName=characterTalentName;window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainFive:'washEngineMulti',washMainTen:'washEngineMulti',washMainHundred:'washEngineMulti',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10':btn.id==='washMainHundred'?'100':($('washMainCount')?.value||'10')}})));if($('washMainCount'))$('washMainCount').onchange=()=>{const n=Number($('washMainCount').value);if(Number.isInteger(n)&&n>=1&&n<=1000)(window.__washRuntime||{}).mainCount=n};
 document.querySelectorAll('[data-wash-main-lock]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineToggleLock',index:Number(el.dataset.washMainLock)}})));
 document.querySelectorAll('[data-wash-main-exchange]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineExchangeTalent',index:Number(el.dataset.washMainExchange),requireConflict:true}})));
 for(const id of ['washMainSex','washMainVip']){
@@ -3468,12 +3469,16 @@ window.addEventListener('nangman-wash-command',async e=>{
   if(state.origin==='save'&&window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
    throw Error('캐릭터가 변경되었습니다. 선택 인물의 세이브를 다시 연결하세요.');
   const parsed=Number(state.count??10);
-  if(op==='washEngineMulti'&&(!Number.isInteger(parsed)||parsed<1||parsed>100))
-   throw Error('연속 세수는 1~100회 정수로 입력하세요.');
+  if(op==='washEngineMulti'&&(!Number.isInteger(parsed)||parsed<1||parsed>1000))
+   throw Error('연속 세수는 1~1000회 정수로 입력하세요.');
   const count=op==='washEngineOnce'?1:parsed;
   const snapshot=await washEngine.call('state');
   if(!snapshot||!Number.isFinite(Number(snapshot.seed)))throw Error('WASM 세수 상태를 읽지 못했습니다.');
-  const result=await washEngine.call('wash',{count});
+  const result=op==='washEngineMulti'?
+   await window.YYWashBatch.run({
+    call:(name,payload)=>washEngine.call(name,payload),
+    count,initial:snapshot,ensureSession
+   }):await washEngine.call('wash',{count});
   ensureSession();
   if(!result?.state)throw Error('WASM 세수 결과 상태가 누락되어 되돌리기를 보장할 수 없습니다.');
   const performed=Number(result.performed??(Array.isArray(result.results)?result.results.length:result.results?1:0));
