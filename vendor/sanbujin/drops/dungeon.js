@@ -114,6 +114,55 @@
     }catch(err){$('dungeonStatus').textContent=String(err.message||err);}
   };
 
+  let sequenceRows=[];
+  const plan=$('dungeonSequencePlan'),seqStatus=$('dungeonSequenceStatus');
+  $('dungeonSequenceAdd').onclick=()=>{
+    const event=selected();
+    if(!event?.outer)return seqStatus.textContent='일반 장비 보상 함수가 있는 우두머리를 선택하세요';
+    const rows=plan.value.split(/[\s,;]+/).filter(Boolean);
+    if(rows.length>=500)return seqStatus.textContent='연속 보상 호출은 최대 500회입니다';
+    rows.push(event.id);
+    plan.value=rows.join(', ');
+  };
+  $('dungeonSequenceRun').onclick=()=>{
+    sequenceRows=[];
+    $('dungeonSequenceExport').disabled=true;
+    $('dungeonSequenceResults').replaceChildren();
+    try{
+      const ids=plan.value.split(/[\s,;]+/).filter(Boolean);
+      if(!ids.length||ids.length>500)throw Error('관문 우두머리 보상 ID를 1~500개 입력하세요');
+      const lookup=new Map(catalog.map(x=>[x.id,x]));
+      const events=ids.map(id=>{
+        const found=lookup.get(id);
+        if(!found?.outer)throw Error('알 수 없거나 일반 보상이 없는 관문 ID: '+id);
+        return found;
+      });
+      sequenceRows=engine.predictSequence(input,events);
+      const drops=sequenceRows.filter(x=>x.item),purple=drops.filter(x=>x.color===4);
+      seqStatus.textContent='연속 보상 '+sequenceRows.length+'회 · 일반 장비 '+drops.length+
+       '개 · 자색 '+purple.length+'개 · 동일 시드 공유 구간은 한 번씩 이어서 소비';
+      $('dungeonSequenceResults').replaceChildren(...sequenceRows.map(x=>record(
+       '#'+x.index+' · '+ko(x.dungeon)+' / '+ko(x.boss)+' · '+
+       (x.item?(EQUIP_DATA.equipment?.[x.item]?.koName||ko(EQUIP_DATA.equipment?.[x.item]?.name||'장비 #'+x.item)):'일반 장비 없음'),
+       x.item?(colors[x.color]||'색상 미확인')+' · '+x.eventId:'원본 보상 없음')));
+      $('dungeonSequenceExport').disabled=!sequenceRows.length;
+    }catch(error){seqStatus.textContent=String(error.message||error)}
+  };
+  $('dungeonSequenceExport').onclick=()=>{
+    if(!sequenceRows.length)return;
+    const columns=[
+      {title:'공유 RNG 보상 순번',key:'index'},
+      {title:'관문',value:x=>ko(x.dungeon)},
+      {title:'우두머리',value:x=>ko(x.boss)},
+      {title:'보상 함수 ID',key:'eventId'},
+      {title:'장비 ID',key:'item'},
+      {title:'한국판 장비명',value:x=>x.item?
+       (EQUIP_DATA.equipment?.[x.item]?.koName||ko(EQUIP_DATA.equipment?.[x.item]?.name||'장비 #'+x.item)):''},
+      {title:'예상 색상',value:x=>colors[x.color]||''},
+      {title:'예측 한계',value:()=> '공유 보상 RNG 순서 재현, 실전 추가 난수 소비 및 최종 정련/망정 검증 전'}
+    ];
+    window.SBJDropExport.save('Nangman_Dungeon_Shared_Boss_Sequence',columns,sequenceRows);
+  };
   $('dungeonCount').oninput = reset;
   $('dungeonForm').onsubmit = event => {
     event.preventDefault();
