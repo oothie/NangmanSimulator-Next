@@ -77,13 +77,21 @@ const path=require('node:path');
     desiredIds:[green,blue],horizon:Math.min(900,needed+50),topN:8});
    const retained=(checked.result?.routes||[]).filter(route=>
     [green,blue].every(id=>route.final_slots.some(slot=>Number(slot.id)===id)));
+   const ranked=window.YYWashAutoSearch.routeOutcome(checked.result,checked.desiredIds);
+   const route=ranked.routes.find(x=>x.complete&&x.executable);
+   if(!route)throw Error('No executable final-slot route: '+JSON.stringify(ranked.stats));
+   await washSearchEngine.call('set-state',seed);
+   const replay=await window.YYWashRouteReplay.run({
+    route,nameIds:checked.nameIds,call:(op,payload)=>washSearchEngine.call(op,payload)
+   });
    const unchanged=JSON.stringify(await washEngine.call('state'))===JSON.stringify(originalLive);
    return {green,blue,needed,scanned:checked.result?.scanned,
     routeCount:retained.length,cheapest:retained[0]?.pills,
     withinWitness:retained[0]?.washes<=needed,unchanged,
-    warnings:checked.warnings||[]};
+    replayVerified:replay?.verified===true,
+    replayPills:replay?.pillsConsumed,warnings:checked.warnings||[]};
   });
-  assert(finalSearch.routeCount>0&&finalSearch.scanned>=2&&finalSearch.withinWitness&&finalSearch.unchanged,
+  assert(finalSearch.routeCount>0&&finalSearch.scanned>=2&&finalSearch.withinWitness&&finalSearch.unchanged&&finalSearch.replayVerified,
    'native final green-blue minimum candidate: '+JSON.stringify(finalSearch));
   console.log('PASS: dynamically discovered green+blue stay simultaneously in final slots, min candidate <= observed path; live state intact',JSON.stringify(finalSearch));
 
