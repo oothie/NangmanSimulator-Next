@@ -85,7 +85,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
  let current=[{state:deepClone(prepared),actions:prepareActions,washes:0,exchanges:0}];
  const completed=[],warnings=[];
  let visited=0,expanded=0,stopReason=null,maxGoals=idsIn(original,ids).length,
-  maxGoalsAt=0,maxActive=1,exchangeSuccesses=0,possibleConflicts=0,exchangeAttempts=0,exchangeErrors={};
+  maxGoalsAt=0,maxActive=1,exchangeSuccesses=0,possibleConflicts=0,exchangeAttempts=0,exchangeErrors={},temporaryBranches=0,probeSlots=[];
  for(let washNo=1;washNo<=horizon;washNo++){
   const pool=[];
   for(const node of current){
@@ -190,11 +190,13 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
      const tickets=saved.state.talents.map((t,i)=>({t,i})).filter(({t,i})=>
       i<3&&!t.locked&&!ids.includes(Number(t.id))&&
       [1,2,3].includes(Number(qualityFor(Number(t.id)))));
+     if(washNo===4)probeSlots=saved.state.talents.map((t,i)=>[i,t.id,qualityFor(Number(t.id)),t.locked]);
      for(const {t,i} of tickets.slice(0,2)){
       const holding=deepClone(saved.state);holding.talents[i].locked=true;
       if(!setState(holding))continue;
       const actual=getState();
       if(!actual?.talents[i]?.locked)continue;
+      temporaryBranches++;
       pool.push({state:deepClone(actual),actions:actionsUntil(saved.actions,washNo).concat({
        kind:'lock',talent:Number(t.id),wash_no:washNo,
        note:'원본 임시 하위맥 잠금·치환 분기'}),
@@ -231,7 +233,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
  completed.sort((a,b)=>a.pills-b.pills||a.washes-b.washes||a.exchanges-b.exchanges);
  return {routes:completed.slice(0,topN),scanned:expanded,trajectories:visited,
   partial:!!stopReason,beamWidth,washesExecuted:visited,
-  maxGoals,maxGoalsAt,maxActive,exchangeSuccesses,possibleConflicts,exchangeAttempts,exchangeErrors,
+  maxGoals,maxGoalsAt,maxActive,exchangeSuccesses,possibleConflicts,exchangeAttempts,exchangeErrors,temporaryBranches,probeSlots,
   warnings:stopReason?[stopReason,...warnings]:warnings,
   error:completed.length?null:'WASM 치환 분기를 포함한 제한 탐색에서 목표 4맥을 최종 슬롯에 모두 보유한 경로가 발견되지 않았습니다'};
 }
