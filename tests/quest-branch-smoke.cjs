@@ -30,7 +30,7 @@ assert(!model.rows.find(x=>x.id==='dmqj_js').detail.includes('*****'),'Chinese p
 assert.equal(api.model({Branch:{'no-step':{recv:1791710508}}}).unknown,1,'missing step is not done');
 assert.equal(api.model({Branch:{foo:{step:-2}}}).unknown,1,'unknown negative step never considered done');
 const csv=api.csv(model);
-assert(csv.startsWith('\\uFEFF'),'Excel BOM');
+assert(csv.startsWith('\uFEFF'),'Excel BOM');
 const untrusted=api.csv({rows:[{id:'=1+1',name:' +SUM(1)',step:0,status:'진행 중',traced:false,received:null,detail:'-1+2'}]});
 assert(untrusted.includes('"\'=1+1"'),'CSV ID formula injection escaped');
 assert(untrusted.includes('"\' +SUM(1)"'),'CSV leading whitespace formula injection escaped');
