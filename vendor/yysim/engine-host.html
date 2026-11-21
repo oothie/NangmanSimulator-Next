@@ -29,7 +29,8 @@ try{
   const results=wasmPreviewExchangePads(mapped,maxPad);
   if(results==null||typeof results!=='object'||results.error)
    throw Error('원본 WASM 도맥법 경로 결과를 확인할 수 없습니다');
-  send(requestId,true,{results,targets:mapped,maxPad});
+  const nameIds=Object.fromEntries(Object.entries(TALENT_DATA).filter(([,item])=>item?.name).map(([id,item])=>[item.name,id]));
+  send(requestId,true,{results,targets:mapped,maxPad,nameIds});
   return
  }
  if(op==='until-talent'){
