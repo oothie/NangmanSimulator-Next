@@ -20,6 +20,20 @@ const invoke=s=>vm.runInContext(s,ctx);
  for(let n=1;n<=1200;n++){
   invoke('wasmDoWash()');
   const s=invoke('wasmGetState()');
+  if(n===664){
+   const candidates=['seed','save','save_seed','saveSeed','save-seed','archive',
+    'saved','save_seed_mode','seed_save','record','file','file_seed','save-seed-mode','saved_seed'];
+   for(const mode of candidates){
+    ctx.modeCase={...s,mode};
+    const set=invoke('wasmSetState(modeCase)');
+    const prepared=invoke('wasmGetState()');
+    const index=1;
+    const trial=invoke('wasmExchangeTalent('+index+')');
+    console.log('MODE_TRIAL',JSON.stringify({mode,set,readMode:prepared?.mode,
+     error:trial?.error,success:trial?.success,result:trial?.exchanged_to}).slice(0,1200));
+   }
+   ctx.previous=s;invoke('wasmSetState(previous)');
+  }
   const purple=s.talents.filter(t=>+[248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276].includes(+t.id));
   if(purple.length&&seen<12){
    seen++;
