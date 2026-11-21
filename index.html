@@ -313,7 +313,7 @@ if(sub==='sim'){
  Array.from({length:talentSlots.length},(_,i)=>{
   const t=talentSlots[i];
   return '<div class="talent"><span class="talent-slot">'+(i+1)+'</span><div class="talent-text"><b>'+(t?escape(characterTalentName(t.id))+' #'+escape(t.id):'빈 슬롯')+'</b><small>'+
-   (t?'원본 RC '+escape(t.rc??'—')+(t.time?' · 기록 '+escape(t.time):''):'저장된 재능 없음')+'</small></div>'+
+   (t?'원본 RC '+escape(t.rc??'—')+(t.time?' · '+escape(characterTalentTimeDisplay(t.time)):''):'저장된 재능 없음')+'</small></div>'+
    '<button class="btn lock" disabled>'+(t?(t.locked?'잠금':'해제'):'—')+'</button></div>';
  }).join('')+'</div><p class="micro">태생 재능: '+(r?.raw?.BornTalent?.ID?escape(characterTalentName(r.raw.BornTalent.ID))+' (#'+escape(r.raw.BornTalent.ID)+')':'기록 없음')+' · 잠금 변경과 세수 결과 예측은 아직 지원하지 않습니다.</p></section>';
  const buttons='<section class="wash-section"><div class="wash-ops"><div class="pity-area"><div class="micro">천장 진행도</div><div class="pity-track"><div class="pity-fill" style="width:0%"></div></div><div class="micro">— / 900 · 다음 자맥 계산 대기</div></div><div class="wash-buttons"><button class="btn" disabled>자맥까지 세수</button><button class="btn" disabled>연속 세수</button><button class="btn" disabled>되돌리기</button><button class="btn primary" disabled>세수</button></div></div><div class="micro">한국판 시드·잠금 매핑 전에는 잘못된 예측을 방지하기 위해 실행할 수 없습니다.</div></section>';
@@ -698,7 +698,7 @@ function characterEquipPropRows(value,label){
  return '<div class="micro">'+escape(label)+': '+list.map(x=>{
   const key=String(x.Key),v=Number(x.Value);
   const amount=Number.isFinite(v)?(characterEquipPercent.has(key)?Number((v*100).toFixed(1))+'%':Number(v.toFixed(1))):'—';
-  return escape(characterEquipProps[key]||key)+' +'+escape(amount);
+  return escape(characterEquipProps[key]||key)+(Number.isFinite(v)&&v<0?' ':' +')+escape(amount);
  }).join(' · ')+'</div>';
 }
 function characterEquipView(raw){
@@ -919,6 +919,12 @@ function characterTalentName(id){
  const ko=(window.NANGMAN_TALENT_NAMES_KO||{})[String(id)];
  return ko&&!wikiHasChinese(ko)?ko:'재능 #'+String(id);
 }
+function characterTalentTimeDisplay(raw){
+ const input=String(raw||'').trim();
+ const m=input.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(?:_(\d+))?$/);
+ if(!m)return input||'—';
+ return m[1]+'.'+m[2]+'.'+m[3]+' '+m[4]+':'+m[5]+':'+m[6]+(m[7]?' · 기록 #'+m[7]:'');
+}
 function characterWashTalents(role){
  const list=characterEntries(role?.raw?.Talents).filter(x=>x&&Number(x.ID)>0);
  return list.map((x,i)=>({slot:i+1,id:Number(x.ID),locked:x.Lock===true,
@@ -938,7 +944,7 @@ function characterWashView(role,root){
  '<div class="wiki-field"><span>태생 재능</span><b>'+escape(bornLabel)+'</b></div>'+
  '</div><h4>세수 재능 '+talents.length+'개</h4>'+
  (talents.length?'<table class="module-table"><thead><tr><th>슬롯</th><th>재능</th><th>잠금</th><th>원본 RC</th><th>기록 시각</th></tr></thead><tbody>'+
- talents.map(t=>'<tr><td>'+t.slot+'</td><td>'+escape(characterTalentName(t.id))+' <small>#'+t.id+'</small></td><td>'+(t.locked?'잠금':'해제')+'</td><td>'+escape(t.rc??'—')+'</td><td class="micro">'+escape(t.time||'—')+'</td></tr>').join('')+'</tbody></table>':
+ talents.map(t=>'<tr><td>'+t.slot+'</td><td>'+escape(characterTalentName(t.id))+' <small>#'+t.id+'</small></td><td>'+(t.locked?'잠금':'해제')+'</td><td>'+escape(t.rc??'—')+'</td><td class="micro">'+escape(characterTalentTimeDisplay(t.time))+'</td></tr>').join('')+'</tbody></table>':
  '<p class="micro">세수 재능이 저장되어 있지 않습니다.</p>')+'</section>';
 }
 function characterView(){
