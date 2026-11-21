@@ -3620,9 +3620,10 @@ const openDetail=(eq,source)=>{
  v='equip';render();sendEquipmentFocus();window.scrollTo(0,0);
 };
 document.querySelectorAll('[data-character-equip-open]').forEach(x=>x.onclick=()=>{
- const role=roles[selected],catalog=equipCatalog();
- const list=Object.values(role?.raw?.Equips||{}).filter(e=>e&&typeof e==='object'&&Number(e.ID)>0);
- list.sort((a,b)=>(Number(catalog[String(a.ID)]?.type)||99)-(Number(catalog[String(b.ID)]?.type)||99));
+ const role=roles[selected],catalog=equipCatalog(),fashions=window.EQUIP_DATA?.fashion||{};
+ const list=characterEntries(role?.raw?.Equips).filter(e=>e&&typeof e==='object'&&Number(e.ID)>0);
+ const type=e=>Number((catalog[String(e.ID)]||fashions[String(e.ID)]||{}).type)||99;
+ list.sort((a,b)=>type(a)-type(b));
  const eq=list[Number(x.dataset.characterEquipOpen)];if(eq)openDetail(eq,role.name+' · 착용');
 });
 document.querySelectorAll('[data-equip-id]').forEach(x=>x.onclick=()=>openDetail({ID:Number(x.dataset.equipId),catalogOnly:true},'장비 도감'));
