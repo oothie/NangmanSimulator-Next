@@ -731,14 +731,19 @@ function characterEquipBaseSummary(raw){
  '<p class="micro">부여 옵션 기록: 추가 '+count('EnExts')+'개 · 망정 '+count('EnMans')+'개 · 특수 '+count('EnSpecials')+'개 · 기타 '+count('EnNoXLExts')+'개 (중복 효과 합산 없음)</p></section>';
 }
 // yy-sim 원본 S1/Yt/Ia/Af/qf의 '장비 부여옵션' 구간만 추출한 읽기 전용 계산.
-// EnNoXLExts, EnFumos 및 EnStroys는 여기서 합산하지 않는다.
+// EnNoXLExts와 EnFumos는 여기서 합산하지 않는다.
 function characterEquipSourceStats(raw){
  const gear=characterEntries(raw?.Equips).filter(e=>e&&typeof e==='object'&&Number(e.ID)>0);
  const n=v=>{const x=Number(v);return Number.isFinite(x)?x:0};
  const list=v=>characterEntries(v).filter(x=>x&&typeof x==='object');
- const affixes=e=>['EnMans','EnExts','EnSpecials','exts'].flatMap(k=>list(e[k])).map(x=>({
-  key:String(x.Key??x.prop??x.key??''),value:n(x.Value??x.value)
- })).filter(x=>x.key);
+ const affixes=e=>{
+  const regular=['EnMans','EnExts','EnSpecials','exts'].flatMap(k=>list(e[k])).map(x=>({
+   key:String(x.Key??x.prop??x.key??''),value:n(x.Value??x.value)
+  })).filter(x=>x.key);
+  const story=list(e.EnStroys).filter(x=>typeof x.Buff==='string'&&x.Buff)
+   .map(x=>({key:x.Buff,value:n(x.Type)}));
+  return regular.concat(story);
+ };
  const scaled=(e,field)=>Math.floor(n(e[field])*(1+n(e.LvProp)/1000));
  const byKeys=(e,keys)=>affixes(e).reduce((sum,x)=>sum+(keys.includes(x.key)?x.value:0),0);
  const definitions=[
@@ -763,7 +768,7 @@ function characterEquipSourceView(raw){
  '<p class="micro">원본 Yt/Ia/Af/qf 산식 기준으로 장비 기본 수치, 강화 계수(LvProp), 부여옵션을 합산했습니다. 장비 훈련·마법 부여(부마)·무기 계열별 공격/명중 제한 및 전체 전투 보정은 제외한 부분 계산입니다.</p>'+
  '<table class="module-table"><thead><tr><th>능력치</th><th>기본·강화</th><th>부여옵션</th><th>부분 합계</th></tr></thead><tbody>'+
  rows.map(x=>'<tr><td>'+escape(x.label)+'</td><td>'+fmt(x.base)+'</td><td>'+fmt(x.affix)+'</td><td><b>'+fmt(x.base+x.affix)+'</b></td></tr>').join('')+
- '</tbody></table><p class="micro">부여옵션 출처: EnMans / EnExts / EnSpecials / exts. EnNoXLExts는 원본 S1에 포함되지 않아 제외합니다. 이 표는 게임의 최종 능력치가 아닙니다.</p></section>';
+ '</tbody></table><p class="micro">부여옵션 출처: EnMans / EnExts / EnSpecials / exts / EnStroys. EnNoXLExts는 원본 S1에 포함되지 않아 제외합니다. 이 표는 게임의 최종 능력치가 아닙니다.</p></section>';
 }
 function characterEquipView(raw){
  const list=characterEntries(raw.Equips).filter(x=>x&&typeof x==='object'&&Number(x.ID)>0);
