@@ -14,6 +14,7 @@ for(const file of ['wasm_data.js','core_glue.js','data.js'])
   talents:[{id:171,locked:false},{id:172,locked:false}],bag_pills:1200,has_bag_pills:true};
  ctx.input=input;assert.equal(vm.runInContext('wasmSetState(input)',ctx),true);
  const original=vm.runInContext('wasmGetState()',ctx);
+ console.log('BASELINE_SCHEMA',JSON.stringify(original).slice(0,6000));
  const attempt=(label,apply)=>{
   apply();const before=vm.runInContext('wasmGetState()',ctx);
   const valid=vm.runInContext('wasmSetState(inputOriginal)',ctx);
