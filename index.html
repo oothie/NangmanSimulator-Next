@@ -465,7 +465,8 @@ function wikiEffectDescription(x){
    const key=meta['buff_type_'+i],value=meta['buff_fudu_'+i];
    if(key!=null&&value!=null)pairs.push([key,value]);
   }
- }else if(Array.isArray(x.obj.fx))pairs=x.obj.fx;
+ }
+ if(!pairs.length&&Array.isArray(x.obj.fx))pairs=x.obj.fx;
  const percent=key=>/^(atk|def|hit|rating|dodge|parry|speed|hp|hp_max|hp_n|po_dodge|po_parry|dmg_off|dmg_ref|kang_debuff|cure_sj|map_move|weapon_add|blood)$/.test(key);
  const parts=pairs.map(([key,value])=>{
   const n=Number(value),label=names[key];
@@ -473,7 +474,7 @@ function wikiEffectDescription(x){
   const ratio=percent(String(key));
   let unit='원본 계수',num=Math.abs(n);
   if(ratio){unit='%';num=num*100}
-  else if(key==='mp_back'){unit='칸'}
+  else if(key==='mp_back'){unit='칸';if(Math.abs(num-Math.round(num))===0.01)num=Math.round(num)}
   else if(key==='hp_back'&&num>1){unit=''}
   else if(key==='renxing'&&num>1){unit=''}
   else if(key==='dun'||key==='hpdun'){unit='%';num=num*100}
