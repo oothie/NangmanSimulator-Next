@@ -2810,7 +2810,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    '회 · 실제 성공 치환 '+output.exchanges+'회 / 요청 '+output.requestedSteps+
    '단계 · 종료 '+(output.stopReason==='completed'?'지정 단계 완료':
    output.stopReason==='unchanged'?'세수 진행 불가':'추가 치환 충돌 미발견')+
-   ' · 실행 전 상태로 한 번에 되돌리기 가능\\n'+JSON.stringify(output.actions,null,2);
+   ' · 실행 전 상태로 한 번에 되돌리기 가능\n'+JSON.stringify(output.actions,null,2);
  }else if(op==='washEngineUntilExchange'||op==='washEngineUntilExchangeAuto'){
   if(!state.active||state.origin!=='save')throw Error('선택 인물의 세이브를 WASM에 연결하세요.');
   if(window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
