@@ -60,8 +60,26 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
   throw Error('WASM 분기 초기 상태를 검증하지 못했습니다');
  const initialLock=locked(original);
  if(initialLock>=4)return {routes:[],scanned:0,error:'잠금 슬롯이 가득 찼습니다'};
- const matched=idsIn(original,ids);
- let current=[{state:deepClone(original),actions:[],washes:0,exchanges:0}];
+ // The original native yy-sim route search opens missing slots virtually.
+ // Preserve its rule in this isolated fallback; never deduct game materials.
+ let prepared=getState(),aptitude=Number(prepared.zizhi);
+ const prepareActions=[];
+ if(!Number.isInteger(aptitude)||aptitude<150||aptitude>154)
+  throw Error('원본 WASM 자질 정보를 확인할 수 없습니다');
+ const required=Math.min(4,Math.max(ids.length,initialLock+ids.filter(id=>
+  !prepared.talents.some(t=>t.locked&&Number(t.id)===id)).length));
+ while(aptitude-150<required){
+  if(aptitude>=154)throw Error('목표 맥을 보유할 재능 슬롯이 부족합니다');
+  const next={...prepared,zizhi:aptitude+1,
+   str_gift:Number(prepared.str_gift||0)+100,
+   con_gift:Number(prepared.con_gift||0)+100};
+  if(!setState(next))throw Error('가상 자질 개방 WASM 적용 실패');
+  prepared=getState();
+  if(Number(prepared.zizhi)!==aptitude+1)throw Error('가상 자질 개방 WASM 검증 실패');
+  aptitude++;
+  prepareActions.push({kind:'open_slot',note:'가상 자질 '+aptitude+' ('+(aptitude-150)+'칸)',wash_no:0});
+ }
+ let current=[{state:deepClone(prepared),actions:prepareActions,washes:0,exchanges:0}];
  const completed=[],warnings=[];
  let visited=0,expanded=0,stopReason=null,maxGoals=idsIn(original,ids).length,
   maxGoalsAt=0,maxActive=1,exchangeSuccesses=0;
