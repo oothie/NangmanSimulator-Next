@@ -18,4 +18,9 @@ console.log('ERROR_NEARBY',JSON.stringify(strings(at-2200,at+2400)));
 const whole=data.toString('utf8');
 const relevant=[...whole.matchAll(/(?:target|purple|search|talent|selected|desired|route)[a-zA-Z_]{0,40}/gi)].map(x=>x[0]);
 console.log('SEARCH_SCHEMA_KEYS',JSON.stringify([...new Set(relevant)].slice(0,160)));
+for(const mark of ['SearchReqdesired_ids','SearchReqdesired_tc_ids','search_winsearch_beam','desired_in_recruit_pool']){
+ const pos=whole.indexOf(mark);
+ console.log('SCHEMA_CONTEXT',mark,pos,pos>=0?whole.slice(Math.max(0,pos-320),pos+880).replace(/[^\\x20-\\x7e]/g,'·'):null);
+}
+
 console.log('PASS: static WASM auto search validation strings inspected');
