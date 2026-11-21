@@ -1,6 +1,6 @@
 /* Conservative yy-sim native search route replay. No simulated RNG guesses.
  * Operates only on a copied WASM state and rolls back all steps on failure.
- * Unsupported native action kinds or slot opening are rejected before replay.
+ * Slot opening is only accepted when already fulfilled; resource-consuming opening is blocked.
  */
 (function(root){
 'use strict';
@@ -13,7 +13,7 @@ function plan(route,nameIds={}){
   if(route.estimatedWashes===0&&route.exchanges===0)return [];
   throw Error('실행 단계가 누락되어 경로를 재생할 수 없습니다');
  }
- const allowed=new Set(['lock','unlock','wash_to','exchange','keep','skip']);
+ const allowed=new Set(['lock','unlock','wash_to','exchange','keep','skip','open_slot']);
  const planned=[];
  let washes=0,exchanges=0;
  for(const [i,action] of actions.entries()){
@@ -26,8 +26,15 @@ function plan(route,nameIds={}){
    if(id===null||id<1)throw Error('원본 재능 이름과 ID 매핑이 없어 경로를 안전하게 실행할 수 없습니다: '+String(name));
    return id;
   };
-  if(kind==='lock'||kind==='unlock'){
-   planned.push({kind,id:resolve(action.talent)});
+  if(kind==='open_slot'){
+   const note=String(action.note||'');
+   const found=note.match(/15[1-4]/);
+   if(!found)throw Error('원본 슬롯 개방 자질 조건을 확인할 수 없습니다');
+   planned.push({kind,requiredSlots:Number(found[0])-150});
+  }else if(kind==='lock'||kind==='unlock'){
+   const id=resolve(action.talent);
+   if(id===null)throw Error('잠금·해제의 원본 재능 이름이 없습니다');
+   planned.push({kind,id});
   }else if(kind==='wash_to'){
    const target=integer(action.wash_no);
    if(target===null||target<washes||target>5000)
@@ -38,7 +45,9 @@ function plan(route,nameIds={}){
    if(Array.isArray(action.chain)&&action.chain.length>1)
     throw Error('연쇄 치환의 분기 조건은 아직 1:1 재생되지 않습니다');
    exchanges++;
-   planned.push({kind,from:resolve(action.from),to:resolve(action.to||action.talent)});
+   const from=resolve(action.from),to=resolve(action.to||action.talent);
+   if(from===null||to===null)throw Error('원본 치환 전후 재능을 확인할 수 없습니다');
+   planned.push({kind,from,to});
   }else planned.push({kind});
  }
  if(integer(route.estimatedWashes)!==washes)
@@ -60,7 +69,11 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
    ensureSession();
    const state=await call('state');
    if(!state||!Array.isArray(state.talents))throw Error('현재 재능 슬롯을 읽을 수 없습니다');
-   if(step.kind==='lock'||step.kind==='unlock'){
+   if(step.kind==='open_slot'){
+    // No guessed use of aptitude items: only an already-open slot is safe.
+    if(state.talents.length<step.requiredSlots)
+     throw Error('원본 경로가 재능 슬롯 '+step.requiredSlots+'칸 개방을 요구합니다. 자질 개방과 재료 소비는 아직 미지원입니다');
+   }else if(step.kind==='lock'||step.kind==='unlock'){
     const at=state.talents.findIndex(t=>Number(t.id)===step.id);
     if(at<0)throw Error('경로 재능이 현재 슬롯에 없습니다');
     const want=step.kind==='lock';
@@ -82,17 +95,24 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
    }else if(step.kind==='exchange'){
     const conflicts=await call('talent-constraints');
     const candidates=Array.isArray(conflicts?.conflicts)?conflicts.conflicts:[];
-    const at=candidates.find(row=>row?.can_exchange===true&&
-      state.talents[Number(row.index)]?.id===step.from);
+    const eligible=candidates.filter(row=>row?.can_exchange===true&&
+      Number.isInteger(Number(row.index))&&state.talents[Number(row.index)]?.id===step.from);
+    if(eligible.length!==1)throw Error('현재 원본 충돌과 치환 재능이 일대일 대응하지 않습니다');
+    const at=eligible[0];
     if(!at)throw Error('원본 경로의 치환 가능 슬롯이 현재 WASM 충돌과 다릅니다');
     const response=await call('exchange-matched',{index:Number(at.index)});
-    if(!response?.state?.talents?.some(t=>Number(t.id)===step.to))
+    if(!response?.result?.success||!response?.state?.talents?.some(t=>Number(t.id)===step.to))
      throw Error('원본 치환 결과에서 예상 재능을 확인하지 못했습니다');
    }
    applied=index+1;
   }
   const state=await call('state');
   const missing=(route.goalIds||[]).filter(id=>!state?.talents?.some(t=>Number(t.id)===Number(id)));
+  const finalSlots=Array.isArray(route.finalSlots)?route.finalSlots:[];
+  if(finalSlots.length&&finalSlots.length===state?.talents?.length&&
+    finalSlots.some((slot,index)=>Number(slot.id)!==Number(state.talents[index]?.id)||
+      (!!slot.locked)!==(!!state.talents[index]?.locked)))
+   throw Error('원본 경로 최종 슬롯 ID·잠금 상태와 실제 WASM 결과가 다릅니다');
   if(missing.length)throw Error('경로 재생 후 목표 자맥 미보유: '+missing.join(','));
   ensureSession();
   return {original,state,steps:applied,verified:true};
