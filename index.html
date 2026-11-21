@@ -810,7 +810,7 @@ function nativeCharacterPanel(role){
  return '<section class="card native-character-panel">'+
   '<div class="native-character-stage" id="nativeCharacterStage">'+
   (ready?'<canvas id="nativeCharacterCanvas" aria-label="'+escape(role.name)+' 인게임 캐릭터"></canvas>':
-  bodyMatch?'<div class="native-character-portrait native-character-fullbody"><img src="'+bodyMatch.src+'" alt="'+escape(role.name)+' 게임 전신 이미지"><span>저장된 인물·외형 ID 일치 · 한국판 정적 게임 이미지</span></div>':
+  bodyMatch?'<div class="native-character-portrait native-character-fullbody"><img src="'+bodyMatch.src+'" alt="'+escape(role.name)+' 게임 전신 이미지"><span>세이브 의상 매칭 · 원본 정적 렌더 (세부 외형 검증 중)</span></div>':
   portrait?'<div class="native-character-portrait"><img src="'+portrait+'" alt="'+escape(role.name)+' 게임 공식 인물 일러스트"><span>한국판 인물 일러스트 · 현재 착용 의상 미반영</span></div>':
   '<div class="native-character-unavailable"><strong>실제 캐릭터 조립 미리보기 준비 중</strong>'+
    '세이브의 외형 ID는 확인했습니다.<p class="micro">원본 게임 PNG 텍스처는 확보했습니다. 완성 외형에 필요한 부위별 위치·겹침 좌표는 아직 검증 중이라 임의로 합성하지 않습니다.</p></div>')+'</div>'+
@@ -819,7 +819,7 @@ function nativeCharacterPanel(role){
   '<p>이 필드는 세이브 파일에 실제로 저장된 외형 구성입니다. 리소스 연결 이후 선택한 캐릭터의 모습이 자동 조립됩니다.</p>'+
   '<div class="native-character-tags">'+tags+'</div>'+
   '<p class="micro">색상 설정: '+(data.Color?escape(JSON.stringify(data.Color)):'저장된 값 없음')+'</p>'+nativeSavedPartsView(data)+
-  '<p class="micro" id="nativeCharacterStatus">'+(ready?'원본 렌더러 연결 확인':bodyMatch?'원본 V6.24 정적 인게임 렌더 · 의상 ID #'+escape(bodyMatch.itemId)+' · 이미지 특징점 검증 '+escape(bodyMatch.matchPoints)+'점':'현재 세이브 조합에 대응하는 검증된 정적 전신 이미지가 없으면 인물 일러스트와 실제 부품을 표시합니다.')+'</p></div></section>';
+  '<p class="micro" id="nativeCharacterStatus">'+(ready?'원본 렌더러 연결 확인':bodyMatch?'원본 V6.24 참고 렌더 · 의상 텍스처 매칭 ID #'+escape(bodyMatch.itemId)+' · 이미지 특징점 검증 '+escape(bodyMatch.matchPoints)+'점':'현재 세이브 조합에 대응하는 검증된 정적 전신 이미지가 없으면 인물 일러스트와 실제 부품을 표시합니다.')+'</p></div></section>';
 }
 function nativeCharacterMount(){
  const canvas=$('nativeCharacterCanvas'),api=window.NangmanCharacterAppearance;
