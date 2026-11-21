@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.22</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.23</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -196,7 +196,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.7.22: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.7.23: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -730,6 +730,41 @@ function characterEquipBaseSummary(raw){
  (sums.length?'<div class="wiki-detail-fields">'+sums.map(({label,value})=>'<div class="wiki-field"><span>'+escape(label)+'</span><b>'+escape(Number(value.toFixed(3)))+'</b></div>').join('')+'</div>':'<p class="micro">장비 기본 수치 기록 없음</p>')+
  '<p class="micro">부여 옵션 기록: 추가 '+count('EnExts')+'개 · 망정 '+count('EnMans')+'개 · 특수 '+count('EnSpecials')+'개 · 기타 '+count('EnNoXLExts')+'개 (중복 효과 합산 없음)</p></section>';
 }
+// yy-sim 원본 S1/Yt/Ia/Af/qf의 '장비 부여옵션' 구간만 추출한 읽기 전용 계산.
+// EnNoXLExts, EnFumos 및 EnStroys는 여기서 합산하지 않는다.
+function characterEquipSourceStats(raw){
+ const gear=characterEntries(raw?.Equips).filter(e=>e&&typeof e==='object'&&Number(e.ID)>0);
+ const n=v=>{const x=Number(v);return Number.isFinite(x)?x:0};
+ const list=v=>characterEntries(v).filter(x=>x&&typeof x==='object');
+ const affixes=e=>['EnMans','EnExts','EnSpecials','exts'].flatMap(k=>list(e[k])).map(x=>({
+  key:String(x.Key??x.prop??x.key??''),value:n(x.Value??x.value)
+ })).filter(x=>x.key);
+ const scaled=(e,field)=>Math.floor(n(e[field])*(1+n(e.LvProp)/1000));
+ const byKeys=(e,keys)=>affixes(e).reduce((sum,x)=>sum+(keys.includes(x.key)?x.value:0),0);
+ const definitions=[
+  ['기혈','Hp',['hp_add','hp']],['방어','Def',['def_add','def']],
+  ['회피','Dodge',['dodge_add','dodge']],['초식방어','Parry',['parry_add','parry']],
+  ['속도','Speed',['speed_add','speed']],['인내','RenXing',['renxing']]
+ ];
+ const results=definitions.map(([label,key,keys])=>({
+  label,base:gear.reduce((sum,e)=>sum+scaled(e,key),0),
+  affix:gear.reduce((sum,e)=>sum+byKeys(e,keys),0)
+ }));
+ results.push({label:'강기',base:gear.reduce((sum,e)=>sum+n(e.Gangqi)+n(e.ExtraGangqi),0),
+  affix:gear.reduce((sum,e)=>sum+byKeys(e,['gangqi','gq_base']),0)});
+ results.push({label:'내경',base:gear.reduce((sum,e)=>sum+n(e.Neijin)+n(e.ExtraNeij),0),
+  affix:gear.reduce((sum,e)=>sum+byKeys(e,['neij','neijin']),0)});
+ return results;
+}
+function characterEquipSourceView(raw){
+ const rows=characterEquipSourceStats(raw);
+ const fmt=v=>Number(v.toFixed(3)).toLocaleString('ko-KR');
+ return '<section class="card"><h3>yy-sim 원본식 장비 기여분 · 부여옵션 포함</h3>'+
+ '<p class="micro">원본 Yt/Ia/Af/qf 산식 기준으로 장비 기본 수치, 강화 계수(LvProp), 부여옵션을 합산했습니다. 장비 훈련·마법 부여(부마)·무기 계열별 공격/명중 제한 및 전체 전투 보정은 제외한 부분 계산입니다.</p>'+
+ '<table class="module-table"><thead><tr><th>능력치</th><th>기본·강화</th><th>부여옵션</th><th>부분 합계</th></tr></thead><tbody>'+
+ rows.map(x=>'<tr><td>'+escape(x.label)+'</td><td>'+fmt(x.base)+'</td><td>'+fmt(x.affix)+'</td><td><b>'+fmt(x.base+x.affix)+'</b></td></tr>').join('')+
+ '</tbody></table><p class="micro">부여옵션 출처: EnMans / EnExts / EnSpecials / exts. EnNoXLExts는 원본 S1에 포함되지 않아 제외합니다. 이 표는 게임의 최종 능력치가 아닙니다.</p></section>';
+}
 function characterEquipView(raw){
  const list=characterEntries(raw.Equips).filter(x=>x&&typeof x==='object'&&Number(x.ID)>0);
  const cfg=window.EQUIP_DATA||{},available=cfg.equipment||{},fashions=cfg.fashion||{};
@@ -1032,9 +1067,9 @@ function characterView(){
     '<section class="card"><h3>인물 정보</h3>'+characterFields(raw,[['Level','레벨'],['MaxLevel','레벨 상한'],['ID','인물 ID'],['MenPai','문파 ID'],['Age','나이'],['ZiZhi','자질'],['ZiZhiExp','자질 경험치']])+'</section>'+
     '<section class="card"><h3>수련 상태</h3>'+characterFields(raw,[['GongLi','공력'],['Point','남은 수련점'],['TotalPoint','누적 수련점'],['Favour','호감도'],['TalLucky','세수 천장 저장값']])+'</section>'+
     '</div><section class="card"><h3>기본 자질</h3>'+characterFields(raw,[['Str','팔힘 배분'],['Dex','신법 배분'],['Con','근골 배분'],['Int','내식 배분'],['BornStr','태생 팔힘'],['BornDex','태생 신법'],['BornCon','태생 근골'],['BornInt','태생 내식'],['StrGift','팔힘 잠재력'],['DexGift','신법 잠재력'],['ConGift','근골 잠재력'],['IntGift','내식 잠재력']])+'</section>'+
-    characterSourceBasePanel(raw)+characterEquipBaseSummary(raw)+
+    characterSourceBasePanel(raw)+characterEquipSourceView(raw)+
     '<p class="micro"yy-sim 원본의 최종 전투 능력치 계산은 아직 연결되지 않아, 실제 세이브에 기록된 값만 표시합니다.</p>';
-  }else if(characterTab==='equip')body=characterEquipBaseSummary(raw)+characterEquipView(raw);
+  }else if(characterTab==='equip')body=characterEquipSourceView(raw)+characterEquipView(raw);
   else if(characterTab==='meridians')body=characterMeridianView(raw);
   else if(characterTab==='craft')body=characterLifeView(raw);
   else if(characterTab==='wash-info')body=characterWashView(role,save);
