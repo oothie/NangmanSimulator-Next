@@ -35,6 +35,8 @@ const role={name:'시험 인물',raw:{
 }};
 let htmlEquip=vm.runInContext('characterEquipView',context)(role.raw);
 assert.match(htmlEquip,/한국판 완갑/);assert.match(htmlEquip,/4\.8%/);assert.match(htmlEquip,/공격 \+69/);
+assert.match(vm.runInContext('characterEquipView',context)({Equips:[{ID:7163,Level:0}]}),/청조가랑/);
+assert.match(vm.runInContext('characterEquipView',context)({Equips:[{ID:5015,EnExts:[{Key:'atk_add',Value:-10}]}]}),/공격 -10/);
 let htmlMer=vm.runInContext('characterMeridianView',context)(role.raw);
 assert.match(htmlMer,/수소음경/);assert.match(htmlMer,/10 \/ 10/);assert.match(htmlMer,/음맥/);
 assert.match(htmlMer,/공격 [+]50/);assert.match(htmlMer,/선택 보너스: 완력 [+]5/);
@@ -43,6 +45,7 @@ assert.match(htmlLife,/음률/);assert.match(htmlLife,/기예 · 1개/);assert.m
 let htmlWash=vm.runInContext('characterWashView',context)(role,{XiSui:3273});
 assert.match(htmlWash,/3273/);assert.match(htmlWash,/79/);assert.match(htmlWash,/병기 애호/);
 assert.equal(vm.runInContext('characterWashTalents',context)(role).length,3);
+assert.equal(vm.runInContext('characterTalentTimeDisplay',context)('20251213130814_3225'),'2025.12.13 13:08:14 · 기록 #3225');
 context.wikiSource=null;context.wikiFallbackSource=null;
 vm.runInContext(section('function wikiRows(){','function wikiKoMap(){'),context);
 const rows=vm.runInContext('wikiRows',context)();
