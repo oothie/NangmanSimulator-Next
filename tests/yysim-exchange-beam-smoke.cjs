@@ -4,7 +4,7 @@ const ctx={window:{},console};vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname,'../engine/yysim-exchange-beam-search.js'),'utf8'),ctx);
 const search=ctx.window.YYWashExchangeBeamSearch;
 const clone=x=>JSON.parse(JSON.stringify(x));
-const original={seed:0,total_wash:0,total_pills:0,bag_pills:200,has_bag_pills:true,
+const original={seed:0,zizhi:154,total_wash:0,total_pills:0,bag_pills:200,has_bag_pills:true,
  luck_seed:0,luck_seed_inited:false,exchange_count:0,
  talents:[{id:171,locked:false},{id:172,locked:false},{id:173,locked:false},{id:197,locked:false}]};
 let state=clone(original);
@@ -12,6 +12,8 @@ const rawPurple=[263,262,264,184];
 const exchangeMap={263:271,262:272,264:250};
 const getState=()=>clone(state),setState=s=>(state=clone(s),true);
 const doWash=()=>{
+ while(state.talents.length<state.zizhi-150)
+  state.talents.push({id:170,locked:false});
  const slot=state.talents.findLastIndex(t=>!t.locked);
  if(slot<0)return {error:'no free slot'};
  const id=rawPurple[state.total_wash%rawPurple.length];
@@ -42,5 +44,14 @@ const doExchange=index=>{
  assert.equal(ops.filter(x=>x==='lock').length,3);
  assert.equal(ops.at(-1),'wash_to');
  assert(!best.optimal,'bounded beam must never claim proof of global optimality');
+ const three={...clone(original),zizhi:153,talents:clone(original.talents).slice(0,3)};
+ state=clone(three);
+ const widened=await search.run({ids:[271,272,250,184],horizon:8,topN:8,
+  getState,setState,doWash,getConflicts,doExchange,
+  qualityFor:id=>[263,262,264,271,272,250].includes(id)?4:2,
+  beamWidth:16,freshBranch:async input=>{state=clone(input);return getState();}});
+ assert(widened.routes.length>0,'native fallback must open the fourth aptitude slot');
+ assert(widened.routes[0].actions.some(x=>x.kind==='open_slot'&&/154/.test(x.note)));
+ assert.equal(widened.routes[0].pills,12,'virtual aptitude opening does not consume wash pills');
  console.log('PASS: native WASM mixed green+3 purple exchange beam, final 4 slots, 12 real pills, chronological route');
 })().catch(e=>{console.error(e);process.exitCode=1});
