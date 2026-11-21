@@ -619,17 +619,60 @@ function characterProgressView(root,role,kind){
  return '<div class="wiki-field"><span>'+escape(name)+'</span><b>'+escape(current)+' / '+max+' '+escape(unit)+'</b></div>';
  }).join('')+'</div></section>';
 }
+
+// 산부진 role_status_data.js 수련 구조: 6개 계열의 별도 WXXW 잔액, 각 1500 상한.
+// 무학의 기여치는 KONGFU_DATA.rate/taolu/nei/qing 미확보 시 임의 합산하지 않는다.
+const sanbujinCultivationKinds=[
+ ['권법',1,'Taolus','jlgcc_'],['도법',2,'Taolus',null],['검법',3,'Taolus','jwgjz_'],
+ ['창·곤',4,'Taolus',null],['내공','ng','Neis',null],['경공','qg','Qings',null]
+];
+function characterSanbujinCultivation(root,raw,role){
+ const id=String(role.id);
+ const entries=sanbujinCultivationKinds.map(([name,kind,source,fixedKey])=>{
+  const value=raw['WXXW'+kind];
+  const extra=(value!==undefined&&value!==null&&value!==''&&Number.isFinite(Number(value)))?Number(value):null;
+  const fixed=fixedKey?characterGlobalNumber(root,fixedKey+id):0;
+  const transferable=extra===null||fixed===null?null:Math.max(0,extra-fixed);
+  const count=Array.isArray(raw[source])?raw[source].length:null;
+  return {name,kind,extra,fixed,transferable,count};
+ });
+ const total=entries.every(x=>x.transferable!==null)?entries.reduce((sum,x)=>sum+x.transferable,0):null;
+ return '<section class="card"><h3>무학 수련치 · 6계열</h3><p class="micro">산부진 원본 WXXW 잔액과 검왕각·극락곡 대련 고정 수련치를 기준으로, 전환 가능한 추가 수련치만 계산합니다. 전체 무학 수련치 1500 상한까지의 합산은 한국판 무학 등급별 기여율 검증 후 연결합니다.</p>'+
+ '<table class="module-table"><thead><tr><th>계열</th><th>추가 수련치</th><th>전환 불가</th><th>전환 가능</th></tr></thead><tbody>'+
+ entries.map(x=>'<tr><td>'+escape(x.name)+'</td><td>'+(x.extra===null?'—':x.extra)+'</td><td>'+(x.fixed===null?'—':x.fixed)+'</td><td>'+(x.transferable===null?'—':x.transferable)+'</td></tr>').join('')+
+ '</tbody></table><p class="micro">전환 가능 합계: '+(total===null?'자료 부족':total+'점')+' · 실제 전환 시 받는 인물의 수련 상한을 따릅니다.</p></section>';
+}
+function characterSanbujinMetrics(root,role){
+ const id=String(role.id),isMain=role.type==='주인공';
+ const sources=[
+ ['혈지',isMain?['2660_atk','2660_hp','2660_def','2660_dodge','2660_hit','2660_speed','2660_parry','2660_renxing']:['2660_atk_'+id,'2660_hp_'+id,'2660_def_'+id,'2660_renxing_'+id],isMain?[50,200,100,80,80,80,80,80]:[50,200,100,100]],
+ ...(isMain?[['육선문 용투',['3255_atk','3255_hp','3255_def','3255_dodge','3255_hit','3255_speed','3255_parry','3255_renxing'],[50,200,100,80,80,80,80,80]]]:[])
+ ];
+ const labels=['공격','기혈','방어','회피','명중','속도','막기','인내'];
+ const make=(name,keys,maxes)=>'<section class="card"><h3>'+escape(name)+' · 영구 속성</h3><div class="wiki-detail-fields">'+keys.map((key,i)=>{
+  const n=characterGlobalNumber(root,key);return '<div class="wiki-field"><span>'+escape(labels[isMain?i:([0,1,2,7][i])])+'</span><b>'+(n===null?'기록 없음':Math.max(0,Math.min(n,maxes[i])))+' / '+maxes[i]+'</b></div>';
+ }).join('')+'</div></section>';
+ const y=['YiChuStr','YiChuDex','YiChuCon','YiChuInt'],names=['팔힘','신법','근골','내식'];
+ return sources.map(x=>make(...x)).join('')+'<section class="card"><h3>파장단 · 자질 한계 확장</h3><div class="wiki-detail-fields">'+y.map((key,i)=>{
+  const value=role.raw?.[key],n=value===undefined||value===null?null:Number(value);
+  return '<div class="wiki-field"><span>'+names[i]+'</span><b>'+(n===null||!Number.isFinite(n)?'기록 없음':Math.max(0,Math.min(30,n)))+' / 30</b></div>';
+ }).join('')+'</div></section>';
+}
 function characterView(){
- const opts=[['overview','캐릭터 개요'],['growth','육성'],['martial','무학·재능'],['equipment','착용 장비'],['meridians','경맥·기록'],['training','지역 수련'],['consumable','단약·음식']];
+ const opts=[['overview','캐릭터 개요'],['growth','육성'],['martial','무학·재능'],['equipment','착용 장비'],['meridians','경맥·기록'],['training','지역 수련'],['consumable','단약·음식'],['cultivation','수련치'],['permanent','영구 속성']];
  const role=roles[selected]||roles[0]||null,raw=role?.raw||{};
  const selector=roles.length?'<nav class="simple-tabs" aria-label="캐릭터 선택">'+roles.map((r,i)=>'<button data-character-role="'+i+'" class="'+(i===selected?'active':'')+'">'+escape(r.name)+' · '+escape(r.level||'—')+'레벨</button>').join('')+'</nav>':'';
  let body='<p class="micro">상단에서 한국판 JSON 세이브를 불러오세요.</p>';
  if(role){
   if(characterTab==='overview'){
-   body='<section class="card"><h3>'+escape(role.name)+' · '+escape(role.type)+'</h3>'+characterFields(raw,[['Level','레벨'],['ID','인물 ID'],['Str','팔힘 원본값'],['Dex','신법 원본값'],['Con','체질 원본값'],['Int','내경 원본값'],['ZiZhi','자질 원본값'],['Point','미분배 포인트'],['TotalPoint','누적 포인트'],['GongLi','공력 원본값']])+'</section>';
+   body='<section class="card"><h3>'+escape(role.name)+' · '+escape(role.type)+'</h3>'+characterFields(raw,[['Level','레벨'],['ID','인물 ID'],['Str','팔힘 원본값'],['Dex','신법 원본값'],['Con','체질 원본값'],['Int','내식 원본값'],['ZiZhi','자질 원본값'],['Point','미분배 포인트'],['TotalPoint','누적 포인트'],['GongLi','공력 원본값']])+'</section>';
   }else if(characterTab==='growth'){
    body='<section class="card"><h3>육성 세이브 수치</h3><p class="micro">아래 수치는 세이브에 저장된 원본 필드이며 전투 최종 능력치로 환산한 값이 아닙니다.</p>'+
    characterFields(raw,[['GrowHp','성장 기혈'],['GrowAttack','성장 공격'],['GrowDefence','성장 방어'],['GrowHit','성장 명중'],['GrowDodge','성장 회피'],['GrowSpeed','성장 속도'],['GrowRen','성장 인내'],['ExtHp','추가 기혈'],['ExtAttack','추가 공격'],['ExtDefence','추가 방어'],['ExtHit','추가 명중'],['ExtDodge','추가 회피'],['ExtSpeed','추가 속도'],['ExtRen','추가 인내']])+'</section>';
+  }else if(characterTab==='cultivation'){
+   body=characterSanbujinCultivation(save,raw,role);
+  }else if(characterTab==='permanent'){
+   body=characterSanbujinMetrics(save,role);
   }else if(characterTab==='training'||characterTab==='consumable'){
    body=characterProgressView(save,role,characterTab);
   }else if(characterTab==='equipment'||characterTab==='meridians'){
