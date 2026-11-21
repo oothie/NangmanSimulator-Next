@@ -95,14 +95,24 @@ try{
    throw Error('중간 목표 세수 탐색 모듈이 준비되지 않았습니다');
   const result=await window.YYWashIntermediateSearch.run({
    ids,horizon,topN,getState:wasmGetState,setState:wasmSetState,
-   doWash:wasmDoWash,
+   doWash:wasmDoWash,isolated:true,
+   freshBranch:async initial=>{
+    // Reinstantiate the genuine yy-sim WASM on every lock branch rather
+    // than reverting a mutated WASM engine via set_state.
+    const initialized=await initWasm();
+    if(!initialized||!wasmInitEngine(TALENT_DATA,ZZ_DATA))
+     throw Error('새 탐색 분기 WASM 초기화 실패: '+(window.__yyWasmInitError||'원본 데이터 불일치'));
+    if(!wasmSetState(initial))throw Error('새 WASM 분기 초기 상태 주입 실패');
+    return wasmGetState();
+   },
    yieldControl:()=>new Promise(resolve=>setTimeout(resolve,0))
   });
   const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
    .filter(([,x])=>x?.name&&x.name!=='备用天赋')
    .map(([id,x])=>[x.name,Number(id)]));
   send(requestId,true,{nativeFunction:'wasmIntermediateTalentSearch',
-   desiredIds:ids,horizon,topN,nameIds,result,intermediateSearch:true});
+   desiredIds:ids,horizon,topN,nameIds,result,intermediateSearch:true,
+   warnings:result.warnings});
   return
  }
  if(op==='auto-color-search'){
