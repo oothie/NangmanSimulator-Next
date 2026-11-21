@@ -227,7 +227,7 @@ const path=require('node:path');
   console.log('DIAGNOSTIC: four targets from scratch, 3 purple + green',JSON.stringify(freshGoals));
   const retryPage=await browser.newPage();
   let failedAssets=0;
-  await retryPage.route(/\/wasm_data\.js\?rev=0\.10\.9/,async route=>{
+  await retryPage.route(/\/wasm_data\.js\?rev=0\.10\.10/,async route=>{
    if(failedAssets++===0)return route.abort('failed');
    return route.continue();
   });
