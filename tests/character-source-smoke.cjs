@@ -118,4 +118,29 @@ assert.match(context.characterEquipCombatSplitView({Taolus:[{ID:21470,Active:tru
 
 assert.match(context.characterEquipCombatSplitView({Equips:[{ID:999999,Atk:12}]}),/장비 분류 미확인/);
 
-console.log('PASS: saved BornTalent lookup and yy-sim body formulas and equipment option subtotals and weapon-specific attack/hit');
+// yy-sim original u0()/Od() training combat bonus, independently sourced from cultivation table.
+const trainingBegin=html.indexOf('function yyOriginalCultivationEffects(raw){');
+const trainingEnd=html.indexOf('function yyRoleSavedCultivationSummary(role){',trainingBegin);
+assert(trainingBegin>0 && trainingEnd>trainingBegin,'original cultivation effects functions present');
+context.yyRoleSection=(name,content)=>'<section>'+name+content+'</section>';
+vm.runInContext(html.slice(trainingBegin,trainingEnd),context);
+context.window.KONGFU_DATA={rate:{'39':{'kf_1':1,'kf_2':1,'kf_3':1}},taolu:{
+ '20010':{type:1,wxxw:10,grade:1},'20020':{type:2,wxxw:20,grade:2}
+},nei:{'22010':{wxxw:40,grade:3}},qing:{'24010':{wxxw:30,grade:2}}};
+const cultivation=context.yyOriginalCultivationEffects({WXXW1:1485,WXXW2:10,WXXW3:0,WXXW4:0,
+ WXXWng:970,WXXWqg:0,QuanGift:2,DaoGift:1.5,NGGift:1.2,QGGift:1,
+ Taolus:[{ID:20010,Chong:10,Level:2},{ID:20020,Chong:10,Level:2}],
+ Neis:[{ID:22010,Chong:10,Level:2}],Qings:[{ID:24010,Chong:10,Level:2}]});
+const byKind=Object.fromEntries(cultivation.map(x=>[x.id,x]));
+assert.equal(byKind['1'].current,1495,'cultivation skill + saved WXXW');
+assert.equal(byKind['1'].bonusPct,74.75,'gift coefficient * 0.025');
+assert.equal(byKind['2'].current,30,'blade cultivation independent of sword');
+assert.equal(byKind['ng'].current,1010,'inner cultivation');
+assert.equal(byKind['ng'].mpBack,1,'inner cultivation 1000-point recovery threshold');
+assert.equal(byKind['qg'].current,30,'lightness cultivation');
+const capped=context.yyOriginalCultivationEffects({WXXW1:1501,Taolus:[],Neis:[],Qings:[]});
+assert.equal(capped[0].current,1500,'per-kind cap 1500');
+assert.equal(capped[0].bonusPct,37.5,'gift falls back to source default 1');
+assert(context.yyOriginalCultivationEffectsView({raw:{WXXW1:10,Taolus:[]}}).includes('yy-sim 원본 수련 전투 보정'));
+
+console.log('PASS: saved BornTalent lookup and yy-sim body formulas and equipment option subtotals and weapon-specific attack/hit and cultivation percentage');
