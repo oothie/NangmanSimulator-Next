@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.75</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.76</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -196,7 +196,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.7.75: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.7.76: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -308,7 +308,7 @@ body{background:var(--bg)!important}
 .quest-branch-item>span{font-size:12px;white-space:nowrap;color:var(--sub)}
 </style></head>
 <body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터</small></div><nav class="nav" id="nav"></nav><div class="tools"><button id="saveLink" class="save-link">세이브</button><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
-<main class="page"><div class="heading"><h1 id="title">세수 시뮬레이션</h1><span class="micro" id="status">세이브 미연결</span><div class="session-meta"><span class="session-label">보유 세수단 <b id="washBag">—</b></span><button id="import" class="btn">세이브 불러오기</button><input id="file" type="file" accept=".json,application/json" hidden></div></div><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="산부진 장비 계산 영역"></section><section id="dropWorkspace" class="drop-workspace" hidden aria-label="산부진 드랍 계산 영역"></section></main><footer class="foot">독립 사이트 v0.7.75 · yy-sim 화면 구성 참고 · 한국판 계산 엔진 검증 후 연결</footer></div>
+<main class="page"><div class="heading"><h1 id="title">세수 시뮬레이션</h1><span class="micro" id="status">세이브 미연결</span><div class="session-meta"><span class="session-label">보유 세수단 <b id="washBag">—</b></span><button id="import" class="btn">세이브 불러오기</button><input id="file" type="file" accept=".json,application/json" hidden></div></div><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="산부진 장비 계산 영역"></section><section id="dropWorkspace" class="drop-workspace" hidden aria-label="산부진 드랍 계산 영역"></section></main><footer class="foot">독립 사이트 v0.7.76 · yy-sim 화면 구성 참고 · 한국판 계산 엔진 검증 후 연결</footer></div>
 <script src="./vendor/sanbujin/shared/equip_data.js"></script>
 <script src="./vendor/yysim/char_data.js"></script>
 <script src="./vendor/yysim/born_talent_data.js"></script>
@@ -525,9 +525,7 @@ if(sub==='auto'){
  const mapNames=result?.nameIds||{};
  const talent=id=>characterTalentName(id)+' (#'+id+')';
  const searchOptions=state.autoOptions||{};
- const optionsHtml='<div class="fields"><label>선행 세수 탐색 한도<input id="yyAutoPad" type="number" min="0" max="200" value="'+escape(searchOptions.maxPad??20)+'"></label>'+
-  '<label>자맥 탐색 범위<input id="yyAutoHorizon" type="number" min="20" max="5000" value="'+escape(searchOptions.horizon??900)+'"></label>'+
-  '<label>최대 경로 후보<input id="yyAutoTopN" type="number" min="1" max="20" value="'+escape(searchOptions.topN??10)+'"></label></div>';
+ const optionsHtml='';
  const choices='<div class="fields" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px">'+
  supported.map(id=>'<label style="display:flex;align-items:center;gap:7px"><input type="checkbox" data-yy-auto-id="'+id+'" '+checked(id)+'> '+escape(talent(id))+'</label>').join('')+'</div>';
  const card=analyzed?.routes?.length?'<div class="yy-account-scroll"><table class="module-table"><thead><tr>'+
@@ -566,15 +564,12 @@ if(sub==='auto'){
   ' · 후보 '+h.routes+'개').join(' / ')+'</p>':''):'<p class="micro">원본 yy-sim의 <code>search_wash_routes</code>로 선택한 자맥 1~4개의 자동 경로를 계산합니다. 자맥 ID를 직접 충돌맥과 조합할 필요 없이 목표만 선택하세요.</p>';
  body='<section class="wash-section"><div class="section-header"><h3>yy-sim 원본 세수 자동 탐색</h3></div>'+
   '<p class="micro">실제 yy-sim WASM의 자동 탐색 함수로 목표 자맥에 도달하는 경로 후보를 구합니다. 목표 재능은 1~4개 선택할 수 있으며 비용은 경로별 누적 세수단입니다. 한국판 실게임 결과 검증 전이며 전역 최적은 보장하지 않습니다.</p>'+
-  '<div class="actions"><button type="button" class="btn" id="yyAutoConnect" '+(!r||state.loading?'disabled':'')+'>선택 인물 세이브를 원본 WASM에 연결</button>'+
-  '<span class="micro">'+(valid?'현재 인물 연결됨':'먼저 현재 인물을 연결해야 검색할 수 있습니다')+'</span></div>'+
+  '<p class="micro">'+(r?'선택 인물 '+escape(r.name)+' · 계산 시 세이브 자동 연결':'먼저 세이브를 불러오세요')+'</p>'+
   '<div class="section-header"><h3>1. 목표 자맥 선택</h3></div>'+choices+
   '<div class="actions"><button type="button" class="btn" id="yyAutoPreset">4자맥 기본 목표 적용</button>'+
   '<button type="button" class="btn" id="yyAutoClear">선택 초기화</button><span class="micro">선택 '+selectedTargets.length+' / 4개</span></div>'+
-  '<div class="section-header"><h3>2. 자동 탐색 범위</h3></div>'+optionsHtml+
-  '<div class="actions"><button type="button" class="btn primary" id="yyAutoRun" '+(!valid?'disabled':'')+'>원본 WASM 자동 경로 검색</button>'+
-  '<button type="button" class="btn" id="yyAutoProgressive" '+(!valid?'disabled':'')+'>범위 단계별 자동 확장 검색</button>'+
-  '<button type="button" class="btn" id="yyAutoPreview" '+(!valid?'disabled':'')+'>원본 자맥 시퀀스 3000회 조회</button></div>'+
+  '<div class="section-header"><h3>2. 자동 탐색</h3></div>'+
+  '<div class="actions"><button type="button" class="btn primary" id="yyAutoRun" '+(!r||!save||state.loading||!selectedTargets.length?'disabled':'')+'>선택 자맥 자동 계산</button></div>'+
   (state.autoProgress?'<p class="micro">단계별 탐색 '+escape(state.autoProgress.phase)+' / '+
     escape(state.autoProgress.total)+' · 현재 후보 최소 세수단 '+
     escape(state.autoProgress.bestPills??'미발견')+'개 (최단 보장 없음)</p>':'')+
@@ -791,7 +786,7 @@ function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><div class="micro">낭만강호 · 한국판 통합 시뮬레이터</div><h2>'+name+'</h2></div><span class="micro">v0.7.75</span></div><p class="module-lead">'+lead+'</p>'
+return '<div class="module-head"><div><div class="micro">낭만강호 · 한국판 통합 시뮬레이터</div><h2>'+name+'</h2></div><span class="micro">v0.7.76</span></div><p class="module-lead">'+lead+'</p>'
 }
 
 function embeddedEngine(url,label,caption){
@@ -2528,7 +2523,7 @@ if($('questExportCsv'))$('questExportCsv').onclick=()=>{
  const url=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));
  const link=document.createElement('a');link.href=url;link.download='Nangman_Quest_Npc_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch=''}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.7.75',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch=''}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.7.76',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 if($('nativeEngineFrame')){
  const frame=$('nativeEngineFrame');
  frame.onload=()=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};
@@ -2591,9 +2586,7 @@ if($('yyAutoRun'))$('yyAutoRun').onclick=()=>{
   const runtime=window.__washRuntime||{};
   const input=window.YYWashAutoSearch.options({
    desiredIds:runtime.autoDesiredIds||[],
-   maxPad:Number($('yyAutoPad')?.value??20),
-   horizon:Number($('yyAutoHorizon')?.value??900),
-   topN:Number($('yyAutoTopN')?.value??10)
+   maxPad:20,horizon:900,topN:10
   },[248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277]);
   runtime.autoOptions=input;
   window.dispatchEvent(new CustomEvent('nangman-wash-command',{
@@ -2605,9 +2598,7 @@ if($('yyAutoProgressive'))$('yyAutoProgressive').onclick=()=>{
   const runtime=window.__washRuntime||{};
   const config=window.YYWashAutoSearch.options({
    desiredIds:runtime.autoDesiredIds||[],
-   maxPad:Number($('yyAutoPad')?.value??20),
-   horizon:Number($('yyAutoHorizon')?.value??900),
-   topN:Number($('yyAutoTopN')?.value??10)
+   maxPad:20,horizon:900,topN:10
   },[248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277]);
   runtime.autoOptions=config;runtime.autoProgress=null;
   window.dispatchEvent(new CustomEvent('nangman-wash-command',{
@@ -2761,7 +2752,7 @@ if($('washTalentRun'))$('washTalentRun').onclick=()=>{
  if(window.__washRuntime)window.__washRuntime.targetTalentId=talentId;
  window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUntilTalent',talentId,count:1000}}));
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const log=window.__washRuntime?.log||[];const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.7.75',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const log=window.__washRuntime?.log||[];const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.7.76',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()}}
 
 const equipmentStatus=Object.create(null);
@@ -3016,10 +3007,23 @@ window.addEventListener('nangman-wash-command',async e=>{
   state.output='선택 인물 원본 WASM 가용 재능 '+countEntries(result.available)+
    '개 항목 · 충돌 관계 '+countEntries(result.conflicts)+'개 항목을 확인했습니다. 모의 세수 상태는 변경되지 않습니다.';
  }else if(op==='washEngineAutoSearch'||op==='washEngineAutoProgressive'){
-  if(!state.active||state.origin!=='save')
-   throw Error('먼저 선택 인물의 세이브를 yy-sim WASM에 불러오세요');
-  if(window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
-   throw Error('자동 탐색 도중 캐릭터가 변경되어 WASM 연결이 무효화되었습니다');
+  const source=window.__nangmanWashSaveSource?.();
+  if(!source?.save||!source.role)throw Error('먼저 캐릭터 세이브를 불러오세요');
+  if(!state.active||state.origin!=='save'||state.linkedRoleId!==source.role.id){
+   if(!state.ready){await washEngine.call('init');state.ready=true}
+   const before=await washEngine.call('state');
+   const mapped=window.__nangmanBuildWashState(source.save,source.role,before);
+   const applied=await washEngine.call('set-state',mapped);
+   ensureSession();
+   if(window.__nangmanWashSaveSource?.()?.save!==source.save||
+      window.__nangmanWashSaveSource?.()?.role?.id!==source.role.id)
+    throw Error('자동 연결 중 캐릭터가 변경되었습니다');
+   if(Number(applied?.role_id)!==Number(source.role.id)||Number(applied?.seed)!==mapped.seed)
+    throw Error('자동 탐색 WASM 세이브 연결 실패');
+   state.origin='save';state.linkedRoleId=source.role.id;state.active=true;
+   state.liveTalents=applied.talents||[];syncWasmBag(applied);
+   state.log=[];state.undoStates=[];state.lastConflict=null;
+  }
   const api=window.YYWashAutoSearch;
   if(!api?.options)throw Error('원본 자동 탐색 표시 모듈이 로드되지 않았습니다');
   const options=api.options(e.detail,[248,249,250,251,261,262,263,264,
@@ -3273,7 +3277,7 @@ window.addEventListener('message',e=>{
  }
 });
 </script>
-<!-- v0.7.75: read-only localization audit with hidden dialogs, select choices and element paths. -->
+<!-- v0.7.76: read-only localization audit with hidden dialogs, select choices and element paths. -->
 <script>
 (function(){
   const hanja=/[\u3400-\u9fff]/;
