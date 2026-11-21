@@ -9,6 +9,10 @@ export class LocalEngine {
       e.data?.kind!==this.kind)return;
    const p=this.pending.get(e.data.requestId);
    if(!p)return;
+   if(e.data.progress===true){
+    if(typeof p.onProgress==='function')p.onProgress(e.data.data);
+    return;
+   }
    this.pending.delete(e.data.requestId);
    e.data.ok?p.resolve(e.data.data):p.reject(Error(e.data.data?.error||'계산 실패'));
   };
@@ -35,7 +39,7 @@ export class LocalEngine {
    throw error;
   }finally{this.mountPromise=null}
  }
- async call(op,payload){
+ async call(op,payload,onProgress){
   const isBoot=op==='init';
   // Searches can take longer when the actual WASM enumerates locked branches.
   const timeLimit=op==='auto-intermediate-search'||op==='auto-color-search'?180000:60000;
@@ -48,6 +52,7 @@ export class LocalEngine {
      reject(Error('엔진 응답 시간 초과 ('+Math.round(timeLimit/1000)+'초)'));
     },timeLimit);
     this.pending.set(requestId,{
+     onProgress,
      resolve:value=>{clearTimeout(timeout);resolve(value)},
      reject:error=>{clearTimeout(timeout);reject(error)}
     });
