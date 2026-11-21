@@ -290,16 +290,31 @@ function wash(){
 const r=roles[selected];
 const groups=['주인공','동료','이탈'];
 const aside='<aside class="aside"><div class="aside-title"><strong>캐릭터 선택 (총 '+roles.length+'명)</strong></div><input type="search" id="search" placeholder="이름 / 태그 / 소속 / ID 검색" value="'+escape(filter)+'"><div class="roles">'+roleList()+'</div></aside>';
-const meta=r?('ID '+escape(r.id)+' · '+escape(r.level?r.level+'레벨':'레벨 미확인')+' · '+escape(r.type)+' · 보유 세수단 —'):'한국판 JSON 세이브를 불러오세요';
-const fig='<div class="figures"><div class="fig"><b>—<small>/900</small></b><span>천장 진행도</span></div><div class="fig"><b>—</b><span>세수 횟수</span></div><div class="fig"><b>—</b><span>소모 세수단</span></div><div class="fig"><b>—</b><span>자맥 등장</span></div></div>';
+const meta=r?('ID '+escape(r.id)+' · '+escape(r.level?r.level+'레벨':'레벨 미확인')+' · '+escape(r.type)+' · 세수 저장값 '+escape(r.raw.RXiSui??'—')+''):'한국판 JSON 세이브를 불러오세요';
+const fig='<div class="figures">'+[
+ ['세수 누적값 (XiSui)',save?.XiSui??'—'],
+ ['선택 인물 기록 (RXiSui)',r?.raw?.RXiSui??'—'],
+ ['현재 재능',r?characterWashTalents(r).length:'—'],
+ ['자질',r?.raw?.ZiZhi??'—']
+].map(([label,value])=>'<div class="fig"><b>'+escape(value)+'</b><span>'+label+'</span></div>').join('')+'</div>'
 const hero='<header class="hero"><div><h2>'+escape(r?.name||'캐릭터 미선택')+'</h2><div class="micro">'+meta+' · <button class="text-action" type="button" disabled>캐릭터 초기화</button></div></div>'+fig+'</header>';
 const tabbar='<nav class="tabs">'+[['sim','세수'],['exchange','치환 시퀀스'],['path','경로 탐색']].map(([id,t])=>'<button data-sub="'+id+'" class="'+(sub===id?'active':'')+'">'+t+'</button>').join('')+'</nav>';
 let body='';
 if(sub==='sim'){
- const config='<section class="wash-config"><div class="config-item"><span>성별</span><button class="select-mock" disabled>— <i>⌄</i></button></div><div class="config-item"><span>VIP</span><button class="select-mock" disabled>— <i>⌄</i></button></div><div class="config-item"><span>자질</span><button class="select-mock" disabled>— <i>⌄</i></button></div><div class="zizhi">'+[['완력','—'],['근골','—'],['신법','—'],['내식','—'],['총합','—']].map(([k,v])=>'<span>'+k+' <b>'+v+'</b></span>').join('')+'</div></section>';
- const skills='<section class="wash-section"><div class="section-header"><h3>현재 재능</h3><span class="micro">4칸 · 실제 세이브 연결 전</span></div><div class="talents">'+[1,2,3,4].map((n)=>'<div class="talent"><span class="talent-slot">'+n+'</span><div class="talent-text"><b>미확인 재능</b><small>한국판 세수 데이터를 연결하면 표시됩니다.</small></div><button class="btn lock" disabled>잠금</button></div>').join('')+'</div></section>';
+ const attrs=[['Str','완력'],['Con','근골'],['Dex','신법'],['Int','내식']];
+ const config='<section class="wash-config"><div class="config-item"><span>성별</span><b>'+escape(r?.raw?.Sex===1?'남성':r?.raw?.Sex===2?'여성':'미확인')+'</b></div>'+
+ '<div class="config-item"><span>자질</span><b>'+escape(r?.raw?.ZiZhi??'—')+'</b></div>'+
+ '<div class="zizhi">'+attrs.map(([key,label])=>'<span>'+label+' <b>'+escape(r?.raw?.[key]??'—')+'</b></span>').join('')+'</div></section>';
+ const talentSlots=r?characterWashTalents(r):[];
+ const skills='<section class="wash-section"><div class="section-header"><h3>현재 세수 재능</h3><span class="micro">실제 세이브 '+talentSlots.length+'개 · BornTalent 포함</span></div><div class="talents">'+
+ Array.from({length:Math.max(4,talentSlots.length)},(_,i)=>{
+  const t=talentSlots[i];
+  return '<div class="talent"><span class="talent-slot">'+(i+1)+'</span><div class="talent-text"><b>'+(t?'재능 #'+escape(t.id):'빈 슬롯')+'</b><small>'+
+   (t?'원본 RC '+escape(t.rc??'—')+(t.time?' · 기록 '+escape(t.time):''):'저장된 재능 없음')+'</small></div>'+
+   '<button class="btn lock" disabled>'+(t?(t.locked?'잠금':'해제'):'—')+'</button></div>';
+ }).join('')+'</div><p class="micro">잠금은 현재 저장값 표시만 가능하며, 실제 변경·예측은 아직 지원하지 않습니다.</p></section>';
  const buttons='<section class="wash-section"><div class="wash-ops"><div class="pity-area"><div class="micro">천장 진행도</div><div class="pity-track"><div class="pity-fill" style="width:0%"></div></div><div class="micro">— / 900 · 다음 자맥 계산 대기</div></div><div class="wash-buttons"><button class="btn" disabled>자맥까지 세수</button><button class="btn" disabled>연속 세수</button><button class="btn" disabled>되돌리기</button><button class="btn primary" disabled>세수</button></div></div><div class="micro">한국판 시드·잠금 매핑 전에는 잘못된 예측을 방지하기 위해 실행할 수 없습니다.</div></section>';
- const history='<section class="wash-section"><div class="section-header"><h3>세수 기록</h3><div><button class="text-action" disabled>핵심 기록 내보내기</button><button class="text-action" disabled>전체 기록 내보내기</button><button class="text-action" disabled>비우기</button></div></div><div class="history">세수 기록이 없습니다.</div></section>';
+ const history='<section class="wash-section"><div class="section-header"><h3>세수 시뮬레이션 기록</h3><div><button class="text-action" disabled>핵심 기록 내보내기</button><button class="text-action" disabled>전체 기록 내보내기</button><button class="text-action" disabled>비우기</button></div></div><div class="history">이번 화면에서 진행한 시뮬레이션 기록이 없습니다. 실제 저장된 세수 재능과 횟수는 위에 표시합니다.</div></section>';
  body=config+skills+buttons+history+washSandbox()+roleDataPanel()+diagnosticPanel();
 }
 if(sub==='exchange')body='<section class="wash-section"><div class="section-header"><h3>치환 시퀀스</h3><button class="btn" disabled>+2,000회</button></div><div class="fields"><label>미리보기 슬롯<input disabled value="4칸"></label><label>탐색 상한<input disabled value="5000"></label></div><div class="notice">원본 yy-sim의 치환 시퀀스 패널 배치를 반영했습니다. 계산 결과는 엔진 연결 후 표시됩니다.</div><div class="history">자맥 후보 · 충돌맥 · 간격 · 천장 여부 표시 영역</div></section>';
