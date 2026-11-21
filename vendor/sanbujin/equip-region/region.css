@@ -1,0 +1,18 @@
+/* Embedded regional browser driven by the same native MakeRnd core. */
+body.region-craft-view{padding:12px!important}
+body.region-craft-view>.app-container.equip-app{position:absolute!important;left:-100000px!important;top:-100000px!important;width:1px!important;height:1px!important;overflow:hidden!important;visibility:hidden!important;pointer-events:none!important}
+#regionBrowser{max-width:100%;margin:0 auto;padding:10px;color:var(--n-yy-text,var(--text-primary))}
+#regionBrowser h2{margin:0 0 15px;font-size:19px;font-weight:700}
+#regionBrowser .region-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#regionBrowser label{display:grid;gap:5px;font-size:13px}
+#regionBrowser select{width:100%;min-width:0;padding:9px}
+#regionBrowser .region-actions{margin:15px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#regionBrowser button{padding:9px 17px;border:1px solid var(--n-yy-line,var(--border-color));border-radius:7px;cursor:pointer;background:var(--n-yy-paper,var(--bg-card));color:inherit}
+#regionBrowser .region-result{overflow-x:auto}
+#regionBrowser .region-scroll{max-height:710px;overflow:auto}
+#regionBrowser table{width:100%;border-collapse:collapse;min-width:570px;font-size:13px}
+#regionBrowser td,#regionBrowser th{padding:9px 10px;border:1px solid var(--n-yy-line,var(--border-color));text-align:left;vertical-align:top}
+#regionBrowser td small{display:block;margin-top:4px;color:var(--n-yy-sub,var(--text-secondary));line-height:1.5}
+#regionBrowser thead th{position:sticky;top:0;background:var(--n-yy-paper,var(--bg-secondary))!important}
+@media(max-width:800px){#regionBrowser .region-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#regionBrowser .region-controls{grid-template-columns:1fr}}
