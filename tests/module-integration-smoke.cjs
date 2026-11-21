@@ -51,6 +51,9 @@ assert(source.includes('JSON.stringify(result.state)!==JSON.stringify(snapshot)'
 const wasmHost=fs.readFileSync(path.join(__dirname,'..','vendor','yysim','engine-host.html'),'utf8');
 assert(wasmHost.includes("op==='preview'"),'WASM host exposes read-only preview');
 assert(wasmHost.includes('wasmPreviewSequence(count)'),'WASM host forwards exact original sequence operation');
+const dropHost=fs.readFileSync(path.join(__dirname,'..','vendor','sanbujin','drops','index.html'),'utf8');
+assert(dropHost.includes("event.data?.kind!=='nangman-drop-mode'"),'same-origin Sanbujin drop mode bridge');
+assert(dropHost.includes("dungeon:'dropDungeonLink'"),'dungeon navigation mapped to original controls');
 assert(wasmHost.includes("op==='until-gold'"),'yy-sim original next purple wasm operation available');
 assert(wasmHost.includes('wasmWashUntilGold(limit)'),'host calls the original native until-gold API');
 assert(wasmHost.includes('limit>5000'),'until-gold hard execution cap');
@@ -90,7 +93,7 @@ const doc={createElement(name){assert.equal(name,'iframe');return {
 }}};
 const win={addEventListener(key,fn){events[key]=fn}};
 const dropAPI=new Function('document','window','location','$','v','save',dropSource+
- ';return {updateDropVisibility,sendSaveToDrop,setView:val=>v=val,setSave:val=>{save=val;dropSaveVersion++}}')(
+ ';return {updateDropVisibility,sendSaveToDrop,sendDropMode,setMode:val=>dropSelectedMode=val,setView:val=>v=val,setSave:val=>{save=val;dropSaveVersion++}}')(
  doc,win,{origin:'https://sim.example'},k=>elements[k],'drop',null);
 dropAPI.updateDropVisibility();
 assert.equal(host.children.length,1,'creates drop iframe once');
@@ -99,9 +102,11 @@ assert.equal(posts.length,0,'load event alone cannot confirm engine ready');
 const dropWindow=host.children[0].contentWindow;
 events.message({origin:'https://sim.example',source:dropWindow,data:{
  kind:'nangman-embedded-status',module:'drops',status:'ready'}});
-assert.equal(posts.length,1,'send first payload only after ready confirmation');
+assert.equal(posts.length,2,'send save and selected mode only after ready confirmation');
 assert.equal(posts[0][0].kind,'nangman-save');
 assert.equal(posts[0][0].version,0,'initial drop save revision');
+assert.equal(posts[1][0].kind,'nangman-drop-mode','selected drop mode forwarded');
+assert.equal(posts[1][0].mode,'wild','initial drop mode remains field');
 events.message({origin:'https://sim.example',source:dropWindow,data:{
  kind:'nangman-embedded-status',module:'drops',status:'save-loaded',version:0}});
 assert.match(elements.dropRuntimeStatus.textContent,/세이브 미연결/,'versioned empty save ack');
@@ -109,6 +114,10 @@ dropAPI.setView('character');dropAPI.updateDropVisibility();
 assert.equal(host.hidden,true);
 dropAPI.setView('drop');dropAPI.updateDropVisibility();
 assert.equal(host.children.length,1,'keeps iframe and results across tab changes');
+dropAPI.setMode('dungeon');dropAPI.sendDropMode();
+assert.equal(posts.at(-1)[0].kind,'nangman-drop-mode','switches existing iframe mode without recreation');
+assert.equal(posts.at(-1)[0].mode,'dungeon','dungeon tab bridged');
+assert.equal(host.children.length,1,'switching drop mode keeps iframe');
 dropAPI.setSave({MainRole:{ID:1}});dropAPI.updateDropVisibility();
 assert.equal(posts.at(-1)[0].save.MainRole.ID,1,'transfers newly imported save');
 assert.equal(posts.at(-1)[0].version,1,'save revision increments on import');
