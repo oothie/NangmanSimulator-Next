@@ -5,7 +5,7 @@ const root=path.resolve(__dirname,'..'),html=fs.readFileSync(path.join(root,'ind
 const host=fs.readFileSync(path.join(root,'vendor/yysim/engine-host.html'),'utf8');
 const match=host.match(/<script>([\s\S]*?)<\/script>/);
 assert(match,'original native WASM host script is available');
-let callback,seed=100,steps=0,conflictAfter=3,throwAt=-1,freeze=false;const sent=[];
+let callback,seed=100,steps=0,conflictAfter=3,throwAt=-1,freeze=false,exchangeFails=false;const sent=[];
 const parent={postMessage(payload){sent.push(payload)}};
 const talents=[{id:248,locked:false},{id:249,locked:false},{id:250,locked:false}];
 const context={window:{addEventListener(type,fn){if(type==='message')callback=fn}},
@@ -14,7 +14,7 @@ const context={window:{addEventListener(type,fn){if(type==='message')callback=fn
  initWasm:async()=>true,wasmInitEngine:()=>true,
  wasmGetState(){return {seed,role_id:10044,talents:talents.map(x=>({...x})),total_wash:steps}},
  wasmSetState(x){seed=x.seed;steps=x.total_wash;return true},
- wasmExchangeTalent(index){return {success:true,changed:index}},
+ wasmExchangeTalent(index){return exchangeFails?{success:false}:{success:true,changed:index}},
  wasmDoWash(){steps++;if(steps===throwAt)throw Error('mock WASM failure');
   if(!freeze)seed++;return {wash_no:steps,pills_used:3}},
  wasmGetConflicts(){return steps>=conflictAfter?[{index:2,earlier_index:0,can_exchange:true}]:[null,null,null]}
@@ -32,6 +32,17 @@ async function command(op,payload){
  assert.equal(result.data.conflict.index,2);
  assert.equal(result.data.stopReason,'conflict');
  assert.equal(seed,103,'native WASM copy advances only three times');
+ // Atomic search + exchange should make one success, and restore all washes on failure.
+ seed=100;steps=0;
+ const atomic=await command('until-exchange-and-replace',{count:10});
+ assert(atomic.ok&&atomic.data.performed===3&&atomic.data.autoExchanged===true);
+ assert(atomic.data.exchange.success===true);
+ seed=100;steps=0;exchangeFails=true;
+ const refused=await command('until-exchange-and-replace',{count:10});
+ assert.equal(refused.ok,false,'native exchange refusal aborts the transaction');
+ assert.equal(seed,100,'failed exchange rolls back all previous washes');
+ assert.equal(steps,0,'failed exchange rolls back count');
+ exchangeFails=false;seed=103;steps=3;
  const strict=await command('exchange-matched',{index:2});
  assert(strict.ok&&strict.data.result.success===true,'strict native exchange with current collision');
  const rejected=await command('exchange-matched',{index:0});
@@ -49,11 +60,14 @@ async function command(op,payload){
  const stationary=await command('until-exchange',{count:6});
  assert(stationary.ok&&!stationary.data.found&&stationary.data.stopReason==='limit');
  assert(html.includes('id="washMainNextConflict"'));
+ assert(html.includes('id="washMainAutoConflict"'));
+ assert(html.includes('id="washNextTargetAuto"'));
+ assert(html.includes("autoExchange?'until-exchange-and-replace':'until-exchange'"));
  assert(html.includes('id="washApplyConflict"'));
  assert(html.includes('id="washPathApplyCollision"'));
  assert(html.includes('requireConflict:true'),'source matching guard applies in both wash panels');
  assert(html.includes("e.detail.requireConflict===true?'exchange-matched'"));
- assert(html.includes("washEngine.call('until-exchange',{count,talentId})"));
+ assert(html.includes("autoExchange?'until-exchange-and-replace':'until-exchange'"));
  assert(html.includes('state.undoStates.push(snapshot);state.log.push(result)'));
  assert(!html.includes('washVerifyRun'),'removed A/B comparison does not return');
  console.log('PASS: native wash-until-exchange conflict stopping, input bounds, rollback and UI connection');
