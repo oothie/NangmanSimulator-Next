@@ -2,7 +2,7 @@
 
 배포 사이트: https://nangman-sim.pages.dev/
 
-현재 UI 버전: **v0.7.21**
+현재 UI 버전: **v0.7.22**
 
 ## 설계 기준
 - yy-sim 화면 구조를 참고해 한국어 UI를 자체 구현합니다.
@@ -264,3 +264,11 @@
 ### 회귀 검사 스크립트
 - `tests/character-source-smoke.cjs` 추가: Node.js에서 `node tests/character-source-smoke.cjs` 실행 시 저장된 태생 재능 ID 우선 조회, 원본 지원 재능 ID 충돌 방지, 방어/명중/초식방어 기본값 (551/549/236)을 검사하도록 구성했습니다.
 - GitHub에 스크립트 추가 및 코드 구문 검사는 완료했습니다. 저장소 전체를 로컬 Node로 구동하는 실 실행 검증은 별도 단계입니다.
+
+## v0.7.22 yy-sim 원본 중간 계산식 추가
+- 원본 `computeFinalStats`에 명시된 강기(`ExtGangqi`, `GrowGangqi`)·내경(`ExtNeijin`, `GrowNeijin`) 기본 산식을 연결했습니다. 원본 상수 `ko=93`을 보존했습니다.
+- 강기 성장: 레벨 93부터 `(레벨-92)*GrowGangqi` 가산. 내경 성장: 레벨 93부터 `max(0, ExtNeijin+(레벨-90)*GrowNeijin)` 계산. 93레벨 미만은 추가 기본값만 표시합니다.
+- 원본 `body.mp_back` 초기 상수 2를 '기 회복 기본값'으로 별도 표시했습니다. 모두 합산 이전 단계이므로 최종 전투 수치로 표기하지 않습니다.
+- 보관 세이브 주인공(90레벨, GrowGangqi=15, GrowNeijin=20, ExtGangqi=0, ExtNeijin=0)에서는 강기/내경 성장 반영이 모두 0이고, 93레벨을 가정한 단위 시험에서는 15/60, 94레벨에서는 30/80입니다. 93/94레벨 수치는 세이브 변경을 가정한 코드 테스트이며 실제 게임 검증값은 아닙니다.
+- `tests/character-source-smoke.cjs`에 임계레벨 92·93·94와 기 회복 초기 상수 회귀 검사를 추가했습니다. 자바스크립트 구문 검사 및 도구 내부에서 총 11개 단위 체크가 통과했습니다. 저장소 Node 스크립트를 직접 실행한 E2E 결과는 아직 미확인입니다.
+- 전체 `computeFinalStats`는 보조 테이블·장비·무학·재능·경맥 의존성이 남아 있어 여전히 미이식입니다. Cloudflare Pages 실제 배포 확인도 미완료입니다.
