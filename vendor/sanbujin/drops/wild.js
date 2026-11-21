@@ -29,12 +29,14 @@
     $('wildPadLabel').textContent=storyCalls?'선행 특수몹 보상 함수 호출 횟수':'선행 사냥 횟수';
     $('wildCountLabel').textContent=storyCalls?'특수몹 보상 함수 예측 호출 횟수':'예측 횟수';
     $('wildBaitField').hidden = !tiger;
-    $('wildTombOrderField').hidden = !isTomb;
+    // The previous two simplistic sort options failed actual Diling hunting.
+    // Keep the legacy comparison input hidden; use the 144-order panel above.
+    $('wildTombOrderField').hidden = true;
     $('wildTiming').hidden = !timed;
     $('wildTime').disabled = $('wildInterval').disabled = !timed;
     const ready = isTomb ? tomb.ready(input) : engine.usable(input.seed) && (!tiger || engine.usable(input.tigerSeed));
-    $('wildRun').disabled = !ready;
-    const label = isTomb ? '제릉 일반 필드의 100레벨 특수몹 NPC 35256이 드랍하는 90레벨 장비 8종을 원본 60014 분석 자료로 계산합니다. '+(input.gate3007Unknown?'실제 원본 진행 조건 3007이 세이브에 없어, 이후 결과는 해당 조건을 통과했다고 가정한 조건부 가설입니다. ':'')+'분기 순서는 실험 가설이며 실게임 예측은 미검증입니다. NPC 35255 일반 전투에는 90레벨 장비를 임의 지급하지 않습니다.' : tiger
+    $('wildRun').disabled = !ready || isTomb;
+    const label = isTomb ? '제릉은 위의 전용 예측 화면에서 계산하세요. 기존 오름차순/내림차순 두 결과는 10회차 수라장갑 백색 실측과 불일치해 단독 예측을 중지했습니다. 시각 대신 저장된 90레벨 장비별 Eds를 옵션 순서에 활용하며, 분기 순서는 아직 검증되지 않았습니다.' : tiger
       ? '원본 실행 순서에 따라 호랑이 종류와 호골 천장을 예측합니다. 현재 호골 연속 미획득 ' + input.drought + '회.'
       : timed ? '드랍 여부와 품질은 세이브 순서로 예측합니다. 장비 옵션은 입력한 판정 시각에 따라 달라집니다.'
         : '원본 보상 함수를 직접 호출하는 특수몹 드랍 시뮬레이션입니다. 표시 회차는 전체 일반 필드 사냥 횟수가 아닙니다. 별도 특수몹 출현 순서가 연결되기 전까지 일반 사냥 1회당 이 함수를 한 번 호출한다고 해석하면 안 됩니다.';
@@ -271,6 +273,7 @@
     const interval = Number($('wildInterval').value), bait = $('wildBait').value;
     const time = Math.floor(Date.parse($('wildTime').value + '+08:00') / 1000);
     try {
+      if (target.kind === 'tomb') throw Error('제릉은 위의 전용 144분기 후보 예측을 사용하세요. 이전 두 가설은 실측과 불일치합니다.');
       if (target.kind === 'aidrop' && !engine.usable(time)) throw Error('올바른 첫 사냥 판정 시각을 입력하세요.');
       rows = target.kind === 'tomb' ? tomb.predict(input, {pad, count, order: $('wildTombOrder').value}) : engine.predict(input, target, {pad, count, interval, bait, time}, EQUIP_DATA.equipment);
       render();
