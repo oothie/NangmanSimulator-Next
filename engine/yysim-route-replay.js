@@ -15,7 +15,7 @@ function plan(route,nameIds={}){
  }
  const allowed=new Set(['lock','unlock','wash_to','exchange','keep','skip']);
  const planned=[];
- let washes=0;
+ let washes=0,exchanges=0;
  for(const [i,action] of actions.entries()){
   const kind=String(action?.kind||'');
   if(!allowed.has(kind))
@@ -37,11 +37,14 @@ function plan(route,nameIds={}){
   }else if(kind==='exchange'){
    if(Array.isArray(action.chain)&&action.chain.length>1)
     throw Error('연쇄 치환의 분기 조건은 아직 1:1 재생되지 않습니다');
+   exchanges++;
    planned.push({kind,from:resolve(action.from),to:resolve(action.to||action.talent)});
   }else planned.push({kind});
  }
  if(integer(route.estimatedWashes)!==washes)
   throw Error('원본 경로의 총 세수 횟수와 단계별 세수 횟수가 다릅니다');
+ if(integer(route.exchanges)!==exchanges)
+  throw Error('원본 경로의 총 치환 횟수와 실행 단계가 일치하지 않습니다');
  return planned;
 }
 async function run({route,nameIds,call,ensureSession=()=>{}}={}){
