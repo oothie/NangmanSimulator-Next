@@ -1055,7 +1055,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='find',equipSearch='',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
+let equipTab='find',equipSearch='',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questBranchFilter='active';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
@@ -3002,16 +3002,10 @@ function questSaveModel(root){
  const data=root&&typeof root==='object'?root:{};
  const current=data.Task&&typeof data.Task==='object'?data.Task:null;
  const delegated=data.WeiTuoTask&&typeof data.WeiTuoTask==='object'?data.WeiTuoTask:{};
- const npc=data.SoloNpc&&typeof data.SoloNpc==='object'?data.SoloNpc:{};
- const npcRecords=Object.entries(npc).filter(([id,x])=>x&&typeof x==='object').map(([id,x])=>({
-  id,map:typeof x.m==='string'?x.m:'',x:x.x==null?null:Number(x.x),y:x.y==null?null:Number(x.y),
-  located:typeof x.m==='string'&&x.m.length>0&&x.x!=null&&x.y!=null&&
-    Number.isFinite(Number(x.x))&&Number.isFinite(Number(x.y))
- }));
  return {current,trace:current?.trace===true,delegated:{
   accepted:Array.isArray(delegated.accept)?delegated.accept:[],
   recorded:Array.isArray(delegated.task)?delegated.task:[]
- },npcRecords,located:npcRecords.filter(x=>x.located)};
+ }};
 }
 
 function questBranchView(){
@@ -3040,34 +3034,16 @@ function questBranchView(){
  (rows.length>200?'<p class="micro">처음 200건만 표시합니다. 검색어를 입력해 결과를 좁혀 주세요.</p>':''));
 }
 function questCatalogRows(){
- const ko=wikiKoMap();
- return wikiRows().filter(x=>x.cat==='quest').map(x=>({
-  id:String(x.id),name:wikiName(x,ko),
-  description:String(ko.get(x.key)?.desc||x.obj?.desc||'').trim()
- }));
-}
-
-function questAreaSummary(model){
- const map=new Map();
- for(const entry of model.located){
-  const row=map.get(entry.map)||{code:entry.map,count:0};
-  row.count++;map.set(entry.map,row);
+ const ko=wikiKoMap(),index=new Map();
+ // Localized mission names confirmed from the original Branch-save ledger.
+ for(const [id,row] of Object.entries(window.NangmanQuest?.verified||{})){
+  index.set(String(id),{id:String(id),name:row[0],description:row[1]||'세이브에 기록된 임무·이벤트'});
  }
- return [...map.values()].sort((a,b)=>b.count-a.count||a.code.localeCompare(b.code));
-}
-function questExportCsv(model,selectedArea=''){
- const rows=[['구분','NPC 또는 임무 ID','지도 코드','X','Y','기록']];
- const task=model.current;
- if(task?.id!=null)rows.push(['현재 임무',task.id,'','','',task.trace===true?'추적 중':'추적 안 함']);
- for(const kind of [['위탁 수락',model.delegated.accepted],['위탁 기록',model.delegated.recorded]]){
-  for(const value of kind[1])rows.push([kind[0],value,'','','','원본 저장값']);
+ for(const x of wikiRows().filter(x=>x.cat==='quest')){
+  const id=String(x.id),title=wikiName(x,ko);
+  if(!index.has(id))index.set(id,{id,name:title,description:String(ko.get(x.key)?.desc||x.obj?.desc||'').trim()});
  }
- for(const npc of model.npcRecords){
-  if(selectedArea&&npc.map!==selectedArea)continue;
-  rows.push(['NPC 위치',npc.id,npc.map,npc.located?npc.x:'',npc.located?npc.y:'',npc.located?'좌표 저장됨':'좌표 미확인']);
- }
- const csv=rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
- return '\uFEFF'+csv+'\r\n';
+ return [...index.values()];
 }
 
 function questRecordDetails(record){
@@ -3116,7 +3092,7 @@ function questView(){
     ['수락 기록',task?receivedLabel:'기록 없음']
    ].map(([label,value])=>'<div class="wiki-field"><span>'+escape(label)+'</span><b>'+escape(value)+'</b></div>').join('')+'</div>'+
    (matched?.description?'<p>'+escape(matched.description)+'</p>':'')+
-   '<p class="micro">세이브의 임무 ID·수락 시간만 표시합니다. 저장되지 않은 목표를 추정하지 않습니다.</p>')+
+   questRecordDetails(task)+'<p class="micro">저장된 단계·상태값만 추가로 보여줍니다. 누락된 게임 목표나 완료 조건을 임의 생성하지 않습니다.</p>')+
    card('진행 중인 임무·이벤트',current.length?
     '<div class="quest-result-list">'+current.map(x=>
     '<details '+(x.traced?'open':'')+'><summary><strong>'+escape(x.name)+'</strong> <small>단계 '+escape(x.step)+
@@ -3131,9 +3107,9 @@ function questView(){
  }else if(questTab==='catalog'){
   const visible=catalog.filter(x=>(x.id+' '+x.name+' '+x.description).toLowerCase().includes(q));
   content=card('한국판 임무 자료',
-   '<p class="micro">기존 백과에서 임무로 분류된 한국판 항목만 조회합니다. 백과 원본에 임무 데이터가 없으면 이름이나 좌표를 만들어 표시하지 않습니다.</p>'+
+   '<p class="micro">원본 임무 진행 기록에서 대조된 한국어 명칭을 우선 제공하며, 백과의 확인된 임무 설명을 함께 검색합니다. 확인되지 않은 이름·진행 조건은 생성하지 않습니다.</p>'+
    '<label class="wiki-search-label"><input type="search" id="questSearch" placeholder="임무 이름·ID·설명 검색" value="'+escape(questSearch)+'"></label>'+
-   '<p class="micro">원본 임무 항목 '+catalog.length+'건 · 검색 결과 '+visible.length+'건</p>'+
+   '<p class="micro">한국어로 대조된 임무·이벤트 '+catalog.length+'건 · 검색 결과 '+visible.length+'건</p>'+
    (visible.length?'<div class="quest-result-list">'+visible.slice(0,150).map(x=>
     '<details><summary><strong>'+escape(x.name)+'</strong> <small>#'+escape(x.id)+'</small></summary><p class="micro">'+escape(x.description||'원본 설명 없음')+'</p></details>').join('')+'</div>':
     '<div class="notice">조회 가능한 임무 항목이 없습니다. 기존 백과에 연결된 임무 데이터만 검색합니다.</div>')+
@@ -3187,7 +3163,7 @@ if($('marketAutoNext'))$('marketAutoNext').onclick=()=>{marketAutoStep++;render(
 if($('marketAutoReset'))$('marketAutoReset').onclick=()=>{marketAutoStep=0;render()};
 if($('marketSimReset'))$('marketSimReset').onclick=()=>{marketSimStep=0;render()};
 
-if($('questSearch'))$('questSearch').oninput=e=>{questSearch=e.target.value;const pos=e.target.selectionStart;render();const field=$('questSearch');if(field){field.focus();field.setSelectionRange(pos,pos)}};if($('questLocatedOnly'))$('questLocatedOnly').onchange=e=>{questLocatedOnly=e.target.checked;render()};
+if($('questSearch'))$('questSearch').oninput=e=>{questSearch=e.target.value;const pos=e.target.selectionStart;render();const field=$('questSearch');if(field){field.focus();field.setSelectionRange(pos,pos)}};
 document.querySelectorAll('[data-quest-filter]').forEach(el=>el.onclick=()=>{questBranchFilter=el.dataset.questFilter;render()});
 if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  const csv=window.NangmanQuest.csv(window.NangmanQuest.model(save));
@@ -3195,13 +3171,8 @@ if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  const link=document.createElement('a');link.href=url;
  link.download='Nangman_Quest_Branches_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-};document.querySelectorAll('[data-quest-map]').forEach(el=>el.onclick=()=>{questSearch=el.dataset.questMap;questLocatedOnly=true;render()});
-if($('questExportCsv'))$('questExportCsv').onclick=()=>{
- const data=questSaveModel(save),content=questExportCsv(data);
- const url=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));
- const link=document.createElement('a');link.href=url;link.download='Nangman_Quest_Npc_'+new Date().toISOString().slice(0,10)+'.csv';
- document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch=''}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.8.5',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+};
+document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch=''}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.8.5',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 
 if($('equipSearch'))$('equipSearch').oninput=e=>{equipSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipSearch');x.focus();x.setSelectionRange(p,p)};
 if($('equipOwnSearch'))$('equipOwnSearch').oninput=e=>{equipOwnSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipOwnSearch');x.focus();x.setSelectionRange(p,p)};
