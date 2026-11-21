@@ -34,6 +34,34 @@ function render(data){
   }
  }
  output.append(table);
+ if(data.cases?.length){
+  const title=node('h3','제릉 보상 가중치 분기 가설 비교 (실게임 검증 전)');
+  output.append(title);
+  const hypotheses=document.createElement('table');
+  hypotheses.style.width='100%';
+  const header=document.createElement('tr');
+  for(const col of ['가설','시드/변수','계산상 다음 상태','실제 사냥 후','대조'])header.append(node('th',col));
+  hypotheses.append(header);
+  for(const hypothesis of data.cases){
+   for(const check of hypothesis.checks){
+    const tr=document.createElement('tr');
+    for(const cell of [hypothesis.order==='descending'?'가중치 내림차순':'가중치 오름차순',
+     check.key,check.expected,check.actual??'누락',check.status]){
+     const td=node('td',cell);
+     td.style.padding='5px 8px';
+     td.style.borderBottom='1px solid #c7bda9';
+     tr.append(td);
+    }
+    hypotheses.append(tr);
+   }
+  }
+  output.append(hypotheses);
+  output.append(node('p',data.conclusion));
+  for(const hypothesis of data.cases){
+   const name=hypothesis.order==='descending'?'내림차순':'오름차순';
+   output.append(node('p',name+' · 특수몹 등장 예상 '+hypothesis.forecastEvents+'회 · 90레벨 장비 예상 '+hypothesis.forecastGear.length+'회 (가설 단계)'));
+  }
+ }else if(data.message)output.append(node('p',data.message));
  for(const warning of data.warnings){
   const p=node('p',warning);
   p.className='progress-note';
@@ -46,9 +74,9 @@ $('tombCompareRun').addEventListener('click',async()=>{
  try{
   const before=await load($('tombBefore').files?.[0]);
   const after=await load($('tombAfter').files?.[0]);
-  const result=api.diff(before,after);
+  const result=api.reconcile(before,after,Number($('tombCompareCount').value));
   render(result);
-  status.textContent='비교 완료 · 제릉 RNG 시드 변화 '+result.streamChanges.length+'개. 드랍 적중 여부 확정 검사는 아닙니다.';
+  status.textContent='전후 비교 완료 · '+result.count+'회 사냥 가정 · 제릉 RNG 시드 변화 '+result.streamChanges.length+'개. 장비 적중 여부 확정 검사는 아닙니다.';
  }catch(err){status.textContent=String(err.message||err);}
 });
 })();
