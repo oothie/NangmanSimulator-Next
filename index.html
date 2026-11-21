@@ -342,7 +342,7 @@ window.addEventListener('nangman-v620-wiki-loaded',e=>{
  wikiFallbackSource={
   items:Object.entries(v620Wiki.items||{}).map(([id,info])=>({id:Number(id),n:info[0],desc:info[1]||'',cat:info[2]||'misc',icon:info[3]||Number(id)})),
   equips:Object.entries(v620Wiki.equips||{}).map(([id,info])=>({id:Number(id),n:info[0],desc:info[1]||'',type:info[2]||0,icon:info[3]||Number(id)})),
-  martial:koreanWiki.filter(entry=>['외공','내공','경공'].includes(entry.category)).map(entry=>({id:entry.id,n:entry.name,kind:entry.category,desc:''})),crafts:[],arts:[],buff:[]
+  martial:koreanWiki.filter(entry=>['외공','내공','경공'].includes(entry.category)).map(entry=>({id:entry.id,n:entry.name,kind:entry.category,desc:''})),crafts:[],arts:[],buff:Object.entries(window.NANGMAN_V620_BUFF_KO||{}).map(([id,entry])=>({id:Number(id),n:entry[0],desc:entry[1]||'',icon:entry[2]||''}))
  };
  if(v==='wiki')render();
 });
@@ -352,7 +352,7 @@ function wikiRows(){
  const sourceData=wikiSource||wikiFallbackSource;
  if(!sourceData)return [];
  const rows=[];
- const sources=[['items',sourceData.items],['equips',sourceData.equips],['martial',sourceData.martial],['crafts',sourceData.crafts],['arts',sourceData.arts],['buff',sourceData.buff]];
+ const sources=[['items',sourceData.items],['equips',sourceData.equips],['martial',sourceData.martial],['crafts',sourceData.crafts],['arts',sourceData.arts],['buff',(Array.isArray(sourceData.buff)&&sourceData.buff.length)?sourceData.buff:Object.entries(window.NANGMAN_V620_BUFF_KO||{}).map(([id,entry])=>({id:Number(id),n:entry[0],desc:entry[1]||'',icon:entry[2]||''}))]];
  for(const [source,arr] of sources){
   for(const obj of (Array.isArray(arr)?arr:[])){
    const cat=source==='items'?(obj.cat||'misc'):{equips:'equip',martial:'martial',crafts:'craft',arts:'arts',buff:'buff'}[source];
