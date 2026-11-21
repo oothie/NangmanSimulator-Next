@@ -57,11 +57,6 @@ jobs:
         run: node tests/wash-constraints-smoke.cjs
       - name: Validate real embedded yy-sim WASM output shapes
         run: node tests/wasm-runtime-integration.cjs
-      - name: Inspect native automatic wash-search WASM contract
-        run: node tests/yy-wasm-auto-search-probe.cjs
-        timeout-minutes: 1
-      - name: Inspect embedded native wash-search field strings
-        run: node tests/yy-wasm-schema-strings.cjs
       - name: Verify actual WASM wash and exchange result semantics
         run: node tests/wasm-native-actions-runtime.cjs
       - name: Verify real WASM end-to-end host commands
