@@ -1087,21 +1087,40 @@ const equipmentTabs=[
 function equipCatalog(){return window.EQUIP_DATA?.equipment||{}}
 function equipName(id){const e=equipCatalog()[String(id)]||{};return e.koName||'#'+id}
 function equipInventory(){
- const result=[],seen=new WeakSet(),known=equipCatalog();
- const walk=(obj,source,depth)=>{
-  if(!obj||typeof obj!=='object'||depth>5||seen.has(obj))return;seen.add(obj);
-  if(Array.isArray(obj)){obj.forEach(x=>walk(x,source,depth+1));return}
-  if(known[String(obj.ID)]&&(obj.Color!=null||obj.EnExts!=null||obj.EnMans!=null||obj.Level!=null||obj.UniqueID!=null)){
-   result.push({eq:obj,source});return;
+ const rows=[],seen=new WeakSet(),known=equipCatalog();
+ const containers=new Set(['Equips','Bag','Bags','EquipBag','Equipment','Equipments','Items','Depot','Depots','EncryptDepots','Warehouse','Warehouses','Storage','StorageItems','RecoverEquips']);
+ function walk(node,source,depth,allowMap){
+  if(!node||typeof node!=='object'||depth>9||seen.has(node))return;
+  seen.add(node);
+  if(Array.isArray(node)){
+   node.forEach(entry=>walk(entry,source,depth+1,true));
+   return;
   }
-  for(const key of ['Equips','Bag','Bags','EquipBag','Equipment','Equipments','Items','Depot','Depots','EncryptDepots','Warehouse','Warehouses','Storage','StorageItems','RecoverEquips']){
-   if(obj[key]&&typeof obj[key]==='object')walk(obj[key],source,depth+1);
+  const id=Number(node.ID??node.id);
+  const instance=node.Color!=null||node.CZSeed!=null||node.MJSeed!=null||node.S!=null||
+    node.OnlyID!=null||node.EnExts!=null||node.EnMans!=null||node.LvProp!=null;
+  if(Number.isInteger(id)&&known[String(id)]&&instance){
+   rows.push({eq:node,source});
+   return;
   }
- };
- for(const r of roles)walk(r.raw?.Equips,r.name+' · 착용',0);
- for(const k of ['Equips','Bag','Bags','EquipBag','Equipment','Equipments','Items','Depot','Depots','EncryptDepots','Warehouse','Warehouses','Storage','StorageItems','RecoverEquips'])
-  if(save?.[k])walk(save[k],k,0);
- return result;
+  for(const [key,value] of Object.entries(node)){
+   if(!value||typeof value!=='object')continue;
+   if(containers.has(key)){
+    walk(value,source==='가방'?'가방':source+' · '+({EncryptDepots:'창고',Depots:'창고',Equips:'장비',Items:'보관함'}[key]||key),depth+1,true);
+   }else if(allowMap&&(/^\d+$/.test(key)||value?.ID!=null||value?.id!=null||value?.Depots!=null||value?.Items!=null)){
+    const label=typeof value?.Desp==='string'?value.Desp:typeof value?.Name==='string'?value.Name:'';
+    walk(value,label||source,depth+1,true);
+   }
+  }
+ }
+ for(const role of roles)walk(role.raw?.Equips,role.name+' · 착용',0,true);
+ for(const [key,label] of [['Equips','가방'],['Bag','가방'],['Bags','가방'],['EquipBag','가방'],
+  ['Equipment','가방'],['Equipments','가방'],['Items','가방'],['Depot','창고'],['Depots','창고'],
+  ['EncryptDepots','창고'],['Warehouse','창고'],['Warehouses','창고'],['Storage','창고'],
+  ['StorageItems','창고'],['RecoverEquips','회수 장비']]){
+  if(save?.[key])walk(save[key],label,0,true);
+ }
+ return rows;
 }
 
 function equipFinder(){
@@ -1113,7 +1132,6 @@ function equipFinder(){
  ).sort((a,b)=>Number(b.lv)-Number(a.lv)||Number(a.type)-Number(b.type)||Number(a.id)-Number(b.id));
  const options=(arr,value)=>arr.map(([id,name])=>'<option value="'+id+'" '+(id===value?'selected':'')+'>'+name+'</option>').join('');
  const types=[['all','전체 부위'],...Object.entries(characterEquipTypes).filter(([id])=>Number(id)<=9).map(([id,label])=>[id,label])];
- const levels=[['all','전체 레벨'],...new Set(catalog.map(x=>Number(x.lv)).filter(Number.isFinite))].filter(Boolean);
  const levelOptions=[['all','전체 레벨'],...[...new Set(catalog.map(x=>Number(x.lv)).filter(Number.isFinite))].sort((a,b)=>b-a).map(x=>[String(x),x+'레벨'])];
  return '<section class="equip-directory"><p class="micro">Roboking 형식의 장비 검색·상세 이동 화면. 장비를 선택하면 해당 장비의 저장 옵션과 시퀀스 계산으로 연결합니다.</p>'+
  '<div class="equip-directory-toolbar"><input type="search" id="equipSearch" placeholder="한국판 장비 이름 / ID" value="'+escape(equipSearch)+'">'+
@@ -1134,7 +1152,7 @@ function equipOwned(){
  '<input type="search" id="equipOwnSearch" placeholder="장비 이름 / ID / 소유자 검색" value="'+escape(equipOwnSearch)+'">'+
  '<div class="equip-directory-list">'+all.map((item,i)=>({...item,i})).filter(item=>(equipName(item.eq.ID)+' '+item.eq.ID+' '+item.source).toLowerCase().includes(q)).map(item=>
  '<button class="equip-directory-item" data-equip-owned="'+item.i+'"><strong>'+escape(equipName(item.eq.ID))+'</strong>'+
- '<small>'+escape(item.source)+' · #'+escape(item.eq.ID)+' · 강화 +'+escape(item.eq.Level||0)+'</small></button>').join('')+'</div>'+
+ '<small>'+escape(item.source)+' · #'+escape(item.eq.ID)+' · 촉련 +'+escape(item.eq.Level||0)+'</small></button>').join('')+'</div>'+
  '<p class="micro">가방 구조가 다른 세이브에서는 일부 장비가 누락될 수 있으며, 가상의 장비는 추가하지 않습니다.</p></section>';
 }
 
