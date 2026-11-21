@@ -39,7 +39,8 @@ assert.match(htmlLife,/음률/);assert.match(htmlLife,/기예 · 1개/);assert.m
 let htmlWash=vm.runInContext('characterWashView',context)(role,{XiSui:3273});
 assert.match(htmlWash,/3273/);assert.match(htmlWash,/79/);assert.match(htmlWash,/재능 #285/);
 assert.equal(vm.runInContext('characterWashTalents',context)(role).length,4);
-vm.runInContext(section('function wikiRows(){','function wikiKoMap(){'),{...context,wikiSource:null,wikiFallbackSource:null});
+context.wikiSource=null;context.wikiFallbackSource=null;
+vm.runInContext(section('function wikiRows(){','function wikiKoMap(){'),context);
 const rows=vm.runInContext('wikiRows',context)();
 assert.equal(rows.filter(x=>x.cat==='craft').length,1);
 assert.equal(rows.filter(x=>x.cat==='arts').length,1);
