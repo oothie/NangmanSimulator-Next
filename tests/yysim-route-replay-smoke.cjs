@@ -11,7 +11,7 @@ assert.equal(api.plan(route([{kind:'open_slot',note:'开槽至 154（4 格）'}]
 assert.throws(()=>api.plan(route([{kind:'exchange',from:'旧',to:'新'}],0,1),{}),/매핑/);
 assert.throws(()=>api.plan(route([{kind:'wash_to',wash_no:2}],3)),/총 세수/);
 assert.throws(()=>api.plan(route([{kind:'wash_to',wash_no:1}],1,1)),/총 치환/);
-const raw={seed:3,role_id:10044,talents:[{id:271,locked:false}]};
+const raw={seed:3,role_id:10044,zizhi:151,str_gift:30,con_gift:50,talents:[{id:271,locked:false}]};
 let current=JSON.parse(JSON.stringify(raw)),fail=false;
 const clone=x=>JSON.parse(JSON.stringify(x));
 const call=async(op,p)=>{
@@ -21,6 +21,10 @@ const call=async(op,p)=>{
   current.seed+=p.count;return {performed:p.count,state:clone(current)};
  }
  if(op==='set-state'){current=clone(p);return clone(current)}
+ if(op==='upgrade-zizhi'){
+  current.zizhi++;current.str_gift+=100;current.con_gift+=100;
+  return {state:clone(current),source:'original-upgradeZiZhi',inventoryDeducted:false};
+ }
  if(op==='toggle-lock'){
   current.talents[p.index].locked=!current.talents[p.index].locked;
   return {state:clone(current)};
@@ -40,14 +44,20 @@ const call=async(op,p)=>{
  const present=await api.run({route:empty,call});assert(present.verified);
  const alreadyOpen=await api.run({route:route([{kind:'open_slot',note:'开槽至 151'}]),call});
  assert(alreadyOpen.verified,'an already-open slot is an audited no-op');
- const beforeClosed=clone(current);
- await assert.rejects(()=>api.run({route:route([{kind:'open_slot',note:'开槽至 154'}]),call}),/자질 개방/);
- assert.deepEqual(current,beforeClosed,'unsupported slot opening never consumes materials');
+ const beforeUpgrade=clone(current);
+ const upgraded=await api.run({route:route([{kind:'open_slot',note:'开槽至 154'}]),call});
+ assert(upgraded.verified);
+ assert.equal(current.zizhi,154,'three sequential aptitude upgrades from 151 to 154');
+ assert.equal(current.str_gift,beforeUpgrade.str_gift+300);
+ assert.equal(current.con_gift,beforeUpgrade.con_gift+300);
+ current=clone(beforeUpgrade);
  await assert.rejects(()=>api.run({route:{...empty,finalSlots:[{id:999,locked:false}]},call}),/최종 슬롯/);
- assert.deepEqual(current,beforeClosed,'mismatched native final state must be restored');
+ assert.deepEqual(current,beforeUpgrade,'mismatched native final state must be restored');
+ await assert.rejects(()=>api.run({route:{...empty,finalSlots:[{id:271,locked:false},{id:268,locked:false}]},call}),/최종 슬롯/);
+ assert.deepEqual(current,beforeUpgrade,'wrong native final slot count must be restored');
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
  assert(html.includes('data-yy-replay-route'));
  assert(html.includes('washEngineReplayRoute'));
  assert(html.includes('./engine/yysim-route-replay.js'));
- console.log('PASS: strict native replay preflight, goal verification, undo snapshot, atomic error rollback');
+ console.log('PASS: original yy-sim aptitude slot upgrades, target outcome, undo snapshot, atomic rollback');
 })().catch(error=>{console.error(error);process.exitCode=1});
