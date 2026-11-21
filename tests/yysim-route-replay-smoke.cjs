@@ -9,6 +9,7 @@ const route=(actions,washes=0,exchanges=0)=>({complete:true,executable:true,
 assert.throws(()=>api.plan(route([{kind:'open_slot'}])),/자질 조건/);
 assert.equal(api.plan(route([{kind:'open_slot',note:'开槽至 154（4 格）'}]))[0].requiredSlots,4);
 assert.throws(()=>api.plan(route([{kind:'exchange',from:'旧',to:'新'}],0,1),{}),/매핑/);
+assert.equal(api.plan(route([{kind:'lock',talent:'251'}]))[0].id,251,'numeric native talent ID is resolved before replay');
 assert.throws(()=>api.plan(route([{kind:'wash_to',wash_no:2}],3)),/총 세수/);
 assert.throws(()=>api.plan(route([{kind:'wash_to',wash_no:1}],1,1)),/총 치환/);
 assert.throws(()=>api.plan({...route([],0,0),estimatedPills:1}),/실행 단계/);
