@@ -307,6 +307,41 @@ body{background:var(--bg)!important}
 .market-compare-scroll table{width:100%;min-width:560px;border-collapse:collapse;text-align:left;font-size:12px}
 .market-compare-scroll th,.market-compare-scroll td{padding:8px 9px;border-bottom:1px solid var(--border)}
 .market-compare-scroll tr.selected{background:var(--paper);font-weight:700}
+.market-strategy-dashboard{padding:12px 0}
+.market-goal-top{display:flex;align-items:start;justify-content:space-between;gap:14px}
+.market-goal-top h4{margin:0 0 4px;font-size:19px}
+.market-goal-state{white-space:nowrap;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12px}
+.market-goal-controls{display:grid;grid-template-columns:minmax(190px,2fr) minmax(130px,1fr) auto;gap:9px;align-items:end;margin:14px 0}
+.market-goal-controls label{display:grid;gap:6px;font-size:12px}
+.market-goal-controls select{width:100%;min-width:0;padding:10px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px}
+.market-goal-controls button{min-height:40px}
+.market-target-summary{display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:8px;background:var(--panel);padding:11px}
+.market-target-summary>div{display:grid;gap:5px}
+.market-target-summary small{color:var(--sub);font-size:12px}
+.market-plan-hint{padding:15px 10px;border-bottom:1px solid var(--border);font-size:13px}
+.market-plan-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:14px 0;gap:8px}
+.market-plan-summary>div{display:grid;gap:5px;border:1px solid var(--border);border-radius:6px;padding:11px}
+.market-plan-summary span{font-size:11px;color:var(--sub)}
+.market-plan-summary b{font-size:13px}
+.market-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.market-plan-card{border:1px solid var(--border);border-radius:9px;background:var(--panel);padding:15px;min-width:0}
+.market-plan-heading{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.market-plan-heading strong{font-size:16px}
+.market-plan-heading small{color:var(--sub);font-size:11px}
+.market-plan-date{font-size:17px;font-weight:750;margin:13px 0 11px}
+.market-plan-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:13px}
+.market-plan-meta span{border:1px solid var(--border);border-radius:5px;padding:7px 10px}
+.market-plan-route{margin-top:13px}
+.market-plan-route summary{cursor:pointer;font-size:13px;border-top:1px solid var(--border);padding:13px 0}
+.market-route-list{list-style:none;padding:0;margin:5px 0 10px;display:grid;gap:8px}
+.market-route-list li{display:flex;gap:9px;align-items:start}
+.market-route-number{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;flex:0 0 23px;border-radius:100%;background:var(--paper);border:1px solid var(--border);font-size:12px}
+.market-route-list li div{display:grid;gap:4px}
+.market-route-list li b{font-size:13px}
+.market-route-list li small{font-size:11px;color:var(--sub)}
+.market-vip-comparison{border:1px solid var(--border);border-radius:7px;padding:12px;margin:10px 0}
+.market-vip-comparison summary{cursor:pointer;font-size:13px;font-weight:650}
+@media(max-width:700px){.market-plan-grid{grid-template-columns:1fr}.market-goal-controls{grid-template-columns:1fr}.market-plan-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .market-strategy{padding:16px;border:1px solid var(--border);border-radius:8px;background:var(--paper);margin-bottom:16px}
 .market-strategy-controls{display:flex;align-items:end;gap:9px;flex-wrap:wrap}
 .market-slots-control{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0}
@@ -914,7 +949,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='quick',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='refresh',marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
+let equipTab='quick',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='strategy',marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
@@ -1229,69 +1264,74 @@ function marketDate(ts){
  return new Date(ts*1000).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
 }
 function marketStrategyMarkup(state,ko){
- // The imported save is the ONLY live calculation source. The second/fourth
- // server snapshots are regression fixtures, never default runtime data.
- const strategySave=save;
- const sourceLabel='현재 불러온 세이브';
- const featured=[223,224,222,225];
- const available=state.available||[],soldOut=state.soldOut||[];
- const all=[...available,...soldOut],soldSet=new Set(soldOut.map(x=>x.id));
- const rare=all.filter(x=>x.rare===1&&!featured.includes(Number(x.id)));
- const sorted=[...featured.map(id=>all.find(x=>Number(x.id)===id)).filter(Boolean),...rare];
- const choices=sorted.map(item=>'<option value="'+item.id+'" '+(marketStrategyTarget===item.id?'selected':'')+'>'+escape(marketCatalogName(item,ko))+(soldSet.has(item.id)?' · 판매 상한 도달':'')+' · 상품 #'+item.id+'</option>').join('');
- const selected=all.find(x=>Number(x.id)===marketStrategyTarget);
- const limited=selected&&soldSet.has(selected.id);
- const countRaw=save?.RandShop?.Counts;
- const purchased=selected?(Array.isArray(countRaw)?(countRaw.find(x=>Number(x.One)===selected.id)?.Two||0):Number(countRaw?.[selected.id]||0)):0;
- const views=marketStrategyResults?.save===save&&marketStrategyResults?.slots===marketSlotsOverride&&marketStrategyResults?.target===marketStrategyTarget&&marketStrategyResults?.periods===marketStrategyPeriods?marketStrategyResults:null;
- const display=views?.byVip?.[marketVipOverride]||views;
- const result=views?'<div class="market-strategy-results">'+[
-  ['cheapest','최소 원보 소모'],['fastest','가장 빠른 획득']
- ].map(([key,label])=>{
-  const r=display?.[key];
-  if(!r?.found)return '<div class="market-strategy-card"><strong>'+label+'</strong><p class="micro">'+escape(r?.error||'계산 결과 없음')+' · 검색 상태 '+(r?.expanded||0)+'개</p></div>';
-  const steps=r.steps||[],grouped=[];
-  for(const entry of steps){
-   if(entry.kind==='paid'&&grouped.length&&grouped[grouped.length-1].kind==='paid'&&grouped[grouped.length-1].time===entry.time){
-    grouped[grouped.length-1].count++;
-   }else grouped.push({...entry,count:1});
+ const all=[...state.available,...state.soldOut],soldSet=new Set(state.soldOut.map(x=>x.id));
+ const targets=[223,224,222,225], featured=targets.map(id=>all.find(x=>x.id===id)).filter(Boolean);
+ const rest=all.filter(x=>x.rare===1&&!targets.includes(x.id));
+ const sorted=[...featured,...rest];
+ const target=all.find(x=>x.id===marketStrategyTarget);
+ const counts=window.NangmanMarket.countsMap(save?.RandShop?.Counts);
+ const purchased=target?Number(counts[target.id]||0):0;
+ const remaining=target?.stock==null?null:Math.max(0,target.stock-purchased);
+ const exhausted=target&&soldSet.has(target.id);
+ const views=marketStrategyResults?.save===save&&
+    marketStrategyResults?.slots===marketSlotsOverride&&
+    marketStrategyResults?.target===marketStrategyTarget&&
+    marketStrategyResults?.periods===marketStrategyPeriods?marketStrategyResults:null;
+ const display=views?.byVip?.[marketVipOverride];
+ const label=id=>marketCatalogName(all.find(x=>x.id===id),ko);
+ const plan=(mode,title,subtitle)=>{
+  const r=display?.[mode];
+  if(!r)return '<div class="market-plan-card"><strong>'+title+'</strong><p class="micro">계산 전</p></div>';
+  if(!r.found)return '<div class="market-plan-card"><strong>'+title+'</strong><p class="market-plan-result">'+escape(r.error||'해당 범위 내 미발견')+'</p></div>';
+  const steps=(r.steps||[]).filter(x=>x.kind!=='reset'||(r.steps||[]).some(y=>y.kind==='paid'&&y.time>=x.time));
+  const actions=[];
+  for(const x of steps){
+    if(x.kind==='paid'&&actions.length&&actions[actions.length-1].kind==='paid'&&actions[actions.length-1].time===x.time){
+      actions[actions.length-1].count++;
+    }else actions.push({...x,count:1});
   }
-  return '<div class="market-strategy-card"><strong>'+label+'</strong>'+
-   '<div class="market-strategy-metrics"><b>'+escape(marketDate(r.when))+'</b><span>원보 갱신 '+r.paid+'회 · 갱신비 '+r.cost+'원보</span></div>'+
-   '<p class="micro">대상: '+escape(marketCatalogName(r.item,ko))+' · 상품 자체 구매 가격은 별도입니다.</p>'+
-   '<ol class="market-strategy-steps">'+grouped.map(x=>'<li>'+
-    (x.kind==='current'?'현재 상품에서 구매':
-     x.kind==='reset'?'일일 갱신 횟수 초기화 · '+escape(marketDate(x.time)):
-     x.kind==='auto'?'자동 교체 · '+escape(marketDate(x.time))+' 후 확인':
-     escape(marketDate(x.time))+' 이후 원보 갱신 '+x.count+'회')+'</li>').join('')+'</ol>'+
-   '<small class="micro">탐색 '+r.expanded+'개 상태 · 예측 모델 내 계산 경로</small></div>';
- }).join('')+'</div>':'<p class="micro">상품을 선택한 뒤 계산을 누르면 VIP 0~5의 두 전략을 비교합니다.</p>';
- const comparison=views?.byVip?'<div class="market-strategy-compare">'+
-   '<h5>VIP별 갱신 전략 비교</h5>'+
-   '<div class="market-compare-scroll"><table><thead><tr><th>VIP</th><th>최소 갱신</th><th>최소 비용 등장</th><th>가장 빠른 등장</th><th>최단 전략 갱신</th></tr></thead><tbody>'+
-   [0,1,2,3,4,5].map(level=>{
-    const r=views.byVip[level],cheap=r?.cheapest,fast=r?.fastest;
-    return '<tr class="'+(marketVipOverride===level?'selected':'')+'"><td>VIP '+level+'</td>'+
-      '<td>'+(cheap?.found?cheap.paid+'회 ('+cheap.cost+'원보)':'미확정')+'</td>'+
-      '<td>'+(cheap?.found?escape(marketDate(cheap.when)):'미확정')+'</td>'+
-      '<td>'+(fast?.found?escape(marketDate(fast.when)):'미확정')+'</td>'+
-      '<td>'+(fast?.found?fast.paid+'회 ('+fast.cost+'원보)':'미확정')+'</td></tr>';
-   }).join('')+'</tbody></table></div>'+
-   '<p class="micro">아래 상세 경로는 현재 선택한 VIP '+marketVipOverride+' 기준입니다. 다른 VIP의 경로를 보려면 원보 갱신 탭에서 VIP를 바꿔 주세요.</p></div>':'';
- return '<div class="market-strategy">'+
-  '<h4>한정 상품 갱신 전략 찾기</h4>'+
-  '<p class="micro">계산 기준: '+sourceLabel+' · 실제 저장 '+state.saveSlots+'칸 → 예측 '+state.slots+'칸 · 06시 횟수 초기화 · 08/20시 자동 교체 · 원보 갱신 20원보/회 (상품 가격 별도)</p>'+ (views?'<p class="micro">전략 계산 시작: '+escape(marketDate(views.anchor))+' · 이후 실제 갱신이나 구매를 했다면 세이브를 다시 불러오세요.</p>':'')+
-  (marketSlotsOverride>state.saveSlots?
-    '<p class="market-limit-note">실제 세이브는 '+state.saveSlots+'칸입니다. 예측 '+state.slots+'칸은 슬롯을 추가 개방했다고 가정한 별도 결과입니다.</p>':'')+
-  (selected?.stock!=null?'<p class="market-limit-note">'+escape(marketCatalogName(selected,ko))+' 누적 구매 '+purchased+'/'+selected.stock+'개 · '+(limited?'판매 상한 도달':('남은 구매 가능 '+Math.max(0,selected.stock-purchased)+'개'))+'</p>':'')+
-  '<div class="market-strategy-controls">'+
-   '<label>목표 상품 <select id="marketStrategyTarget">'+choices+'</select></label>'+
-   '<label>탐색 범위 <select id="marketStrategyPeriods">'+[4,8,12,20,28].map(x=>
-    '<option value="'+x+'" '+(marketStrategyPeriods===x?'selected':'')+'>'+x+'회 자동 교체</option>').join('')+'</select></label>'+
-   '<button id="marketStrategyRun" class="btn primary" '+(!state.seedOk||!selected?'disabled':'')+'>VIP 0~5 전략 비교</button>'+
-  '</div>'+comparison+result+
-  '<p class="micro">최적 결과는 표시한 기간과 원본 RNG 계산 모형 안에서만 유효합니다. 탐색 상태 상한에 도달한 VIP는 미확정으로 표시합니다. 실제 판매 내역 및 게임 패치에 따라 달라질 수 있습니다.</p>'+
- '</div>';
+  const actionable=actions.filter(x=>x.kind!=='reset'||actions.some(y=>y.kind==='paid'&&y.time>=x.time));
+  return '<article class="market-plan-card"><div class="market-plan-heading"><strong>'+title+'</strong><small>'+subtitle+'</small></div>'+
+   '<div class="market-plan-date">'+escape(marketDate(r.when))+'</div>'+
+   '<div class="market-plan-meta"><span><b>'+r.paid+'회</b> 원보 갱신</span><span><b>'+r.cost+'</b> 원보</span></div>'+
+   '<details class="market-plan-route" '+(mode==='cheapest'?'open':'')+'><summary>언제 무엇을 해야 하나요? <b>'+actionable.length+'단계</b></summary>'+
+   '<ol class="market-route-list">'+actionable.map((x,i)=>{
+     const action=x.kind==='current'?'현재 진열 상품을 확인하여 구매':
+       x.kind==='reset'?'일일 원보 갱신 한도 초기화':
+       x.kind==='auto'?'암시장 자동 교체 후 상품 확인':
+       '원보 갱신 '+x.count+'회 연속 실행';
+     return '<li><span class="market-route-number">'+(i+1)+'</span><div><b>'+escape(action)+'</b><small>'+escape(marketDate(x.time))+'</small></div></li>';
+   }).join('')+'</ol></details>'+
+   '<p class="micro">목표 상품 구매에 필요한 원보·은화는 갱신비와 별도입니다.</p></article>';
+ };
+ const rows=views?.byVip?[0,1,2,3,4,5].map(vip=>{
+  const a=views.byVip[vip]?.cheapest,b=views.byVip[vip]?.fastest;
+  return '<tr class="'+(vip===marketVipOverride?'selected':'')+'"><td>VIP '+vip+'</td>'+
+   '<td>'+(a?.found?a.paid+'회 / '+a.cost+'원보':'미확정')+'</td>'+
+   '<td>'+(a?.found?escape(marketDate(a.when)):'—')+'</td>'+
+   '<td>'+(b?.found?escape(marketDate(b.when)):'—')+'</td>'+
+   '<td>'+(b?.found?b.paid+'회':'미확정')+'</td></tr>';
+ }).join(''):'';
+ return '<div class="market-strategy-dashboard">'+
+  '<div class="market-goal-top"><div><h4>한정 상품 획득 전략</h4><p class="micro">내 세이브의 시드로 비용 최소와 가장 빠른 획득 경로를 비교합니다.</p></div>'+
+   '<span class="market-goal-state">VIP '+marketVipOverride+' · '+state.slots+'칸</span></div>'+
+  '<div class="market-goal-controls">'+
+   '<label>목표 상품<select id="marketStrategyTarget">'+sorted.map(x=>'<option value="'+x.id+'" '+(x.id===marketStrategyTarget?'selected':'')+'>'+escape(marketCatalogName(x,ko))+(soldSet.has(x.id)?' · 구매 완료':'')+'</option>').join('')+'</select></label>'+
+   '<label>예측 기간<select id="marketStrategyPeriods">'+[4,8,12,20,28].map(x=>'<option value="'+x+'" '+(x===marketStrategyPeriods?'selected':'')+'>'+x+'회 자동 교체</option>').join('')+'</select></label>'+
+   '<button class="btn primary" id="marketStrategyRun" '+(!state.seedOk||!target||exhausted?'disabled':'')+'>최소 비용·최단 기간 계산</button></div>'+
+  (target?'<div class="market-target-summary">'+marketImage(target)+'<div><b>'+escape(label(target.id))+'</b>'+
+    '<small>상품 #'+target.id+' · '+(remaining===null?'구매 상한 없음':'누적 '+purchased+'/'+target.stock+' · 남은 구매 '+remaining+'개')+'</small></div></div>':'')+
+  (exhausted?'<p class="market-limit-note">이 세이브에서 해당 상품의 누적 구매 상한에 도달했습니다. 다른 세이브를 불러오면 다시 계산할 수 있습니다.</p>':'')+
+  (!views&&!exhausted?'<p class="market-plan-hint">위의 <b>계산</b> 버튼을 누르면 두 추천 경로와 날짜별 행동 순서가 표시됩니다.</p>':'')+
+  (views?'<div class="market-plan-summary"><div><span>선택 VIP</span><b>VIP '+marketVipOverride+'</b></div>'+
+    '<div><span>예측 슬롯</span><b>'+state.slots+'칸</b></div>'+
+    '<div><span>탐색 시작</span><b>'+escape(marketDate(views.anchor))+'</b></div></div>'+
+    '<div class="market-plan-grid">'+plan('cheapest','원보 최소 소모','비용 먼저 줄이기')+plan('fastest','최대한 빠른 획득','날짜 먼저 앞당기기')+'</div>'+
+    '<details class="market-vip-comparison"><summary>VIP 0~5 전체 결과 비교하기</summary>'+
+     '<div class="market-compare-scroll"><table><thead><tr><th>VIP</th><th>최소 갱신</th><th>최소 비용 등장</th><th>가장 빠른 등장</th><th>최단 경로 갱신</th></tr></thead><tbody>'+
+     rows+'</tbody></table></div><p class="micro">다른 VIP의 단계별 경로를 보려면 원보 갱신 탭에서 VIP 등급을 선택하세요.</p></details>':'')+
+  (state.slots>state.saveSlots?'<p class="micro">주의: 이 세이브는 실제 '+state.saveSlots+'칸입니다. '+state.slots+'칸 계산은 슬롯을 추가 개방하는 가상 조건입니다.</p>':'')+
+  '<p class="micro">08시·20시 자동 교체, 06시 일일 갱신 초기화 기준. 탐색 범위나 상태 수 제한에 걸리면 확정 결과로 표시하지 않습니다. 실제 구매나 추가 갱신 후에는 최신 세이브를 불러오세요.</p></div>';
 }
 function dailyMarketView(){
  if(!save)return '<p class="role-status-note">암시장 시드·구매 이력으로 계산하려면 세이브를 불러와 주세요. 2서버/4서버 자료는 테스트 전용으로 사용합니다.</p>';
@@ -1327,7 +1367,7 @@ function dailyMarketView(){
  '<p class="micro">'+escape(status)+'</p>'+
  '<div class="market-slots-control">'+
  '<label>예측 슬롯 수 <select id="marketSlotsSelect">'+[3,4,5,6].map(x=>'<option value="'+x+'" '+(x===marketSlotsOverride?'selected':'')+'>'+x+'칸'+(x===6?' (기본)':'')+'</option>').join('')+'</select></label><span class="micro">원보·자동 갱신·한정 상품 탐색 모두 동일하게 적용 · 실제 세이브 슬롯 '+state.saveSlots+'칸</span></div>'+
- '<nav class="market-nav" role="group" aria-label="암시장 기능">'+[['refresh','원보 갱신'],['current','현재 상품'],['schedule','자동 갱신'],['search','상품 검색']].map(([id,label])=>'<button type="button" data-market-tab="'+id+'" class="'+(marketPanel===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+ 
+ '<nav class="market-nav" role="group" aria-label="암시장 기능">'+[['strategy','한정 상품 전략'],['refresh','원보 갱신'],['current','현재 상품'],['schedule','자동 갱신'],['search','상품 검색']].map(([id,label])=>'<button type="button" data-market-tab="'+id+'" class="'+(marketPanel===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+ 
  '<section class="market-section" data-market-panel="refresh"><h4>VIP 선택 · 원보 갱신 모의실행</h4>'+
  '<p class="micro">산부진식 단계별 모의 갱신입니다. 직접 선택한 VIP 등급에 따른 하루 허용 횟수를 적용하고, 클릭할 때마다 다음 상품으로 이동합니다. 실제 원보를 사용하거나 세이브를 수정하지 않습니다.</p>'+
  '<div class="actions market-sim-controls">'+
@@ -1342,9 +1382,9 @@ function dailyMarketView(){
  '</section>'+
  '<section class="market-section" data-market-panel="current"><h4>세이브 기준 귀시 판매 상품'+(state.stale?' · 경과 시드 복원':'')+'</h4>'+
  marketItemTable(state.today,ko,'current')+'</section>'+
+ '<section class="market-section" data-market-panel="strategy">'+marketStrategyMarkup(state,ko)+'</section>'+
  '<section class="market-section" data-market-panel="search"><h4>상품 검색 · 향후 첫 등장 시점</h4>'+
- marketStrategyMarkup(state,ko)+
- '<input id="marketQuery" type="search" placeholder="한국어 이름 / 아이템 ID / 상품 ID 검색" value="'+escape(marketQuery)+'" aria-label="귀시 상품 검색">'+
+  '<input id="marketQuery" type="search" placeholder="한국어 이름 / 아이템 ID / 상품 ID 검색" value="'+escape(marketQuery)+'" aria-label="귀시 상품 검색">'+
  '<label class="market-period-label">정시 교체 예측 범위 <select id="marketPeriods">'+[3,6,9,12].map(x=>
  '<option value="'+x+'" '+(x===periods?'selected':'')+'>'+x+'회</option>').join('')+'</select></label>'+
  '<p class="micro">정시 변경만 기다리는 경우와 지금 원보를 갱신하는 경우는 RNG 시퀀스가 서로 다릅니다. 별개 시나리오로 계산하며, 실제 갱신하지 않은 가상의 원보 소비를 정시 변경 예측에 섞지 않습니다. 검색 대상 '+lookup.length+'종.</p>'+
