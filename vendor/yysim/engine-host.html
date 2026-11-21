@@ -32,6 +32,40 @@ try{
   send(requestId,true,{available,conflicts,nameIds});
   return
  }
+ if(op==='auto-search'){
+  // Real yy-sim search_wash_routes SearchReq. Keep the original WASM contract:
+  // desired_ids, max_pad, horizon, top_n, with native routes/steps/actions.
+  const ids=payload?.desiredIds;
+  const maxPad=Number(payload?.maxPad??20);
+  const horizon=Number(payload?.horizon??900);
+  const topN=Number(payload?.topN??8);
+  if(!Array.isArray(ids)||ids.length<1||ids.length>4||
+     new Set(ids).size!==ids.length||
+     ids.some(id=>!Number.isInteger(id)||TALENT_DATA[String(id)]?.pinzhi!==4||
+       TALENT_DATA[String(id)]?.name==='备用天赋'))
+   throw Error('원본 자동 탐색은 자색 재능 1~4개를 중복 없이 선택해야 합니다');
+  if(!Number.isInteger(maxPad)||maxPad<0||maxPad>200||
+     !Number.isInteger(horizon)||horizon<20||horizon>5000||
+     !Number.isInteger(topN)||topN<1||topN>20)
+   throw Error('자동 탐색: 선행 세수 0~200, 자맥 탐색 20~5000, 결과 1~20개로 설정하세요');
+  const before=wasmGetState();
+  if(!before)throw Error('원본 자동 탐색 시작 상태를 확인할 수 없습니다');
+  await new Promise(resolve=>setTimeout(resolve,0));
+  const search={desired_ids:ids,max_pad:maxPad,horizon,top_n:topN};
+  const result=wasmSearchWashRoutes(search);
+  const after=wasmGetState();
+  if(!after||JSON.stringify(before)!==JSON.stringify(after)){
+   wasmSetState(before);
+   throw Error('원본 자동 탐색이 세수 WASM 상태를 변경하여 복구했습니다');
+  }
+  if(!result||typeof result!=='object'||!Array.isArray(result.routes))
+   throw Error('원본 WASM 자동 경로 탐색 결과 형식을 확인할 수 없습니다');
+  const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
+   .filter(([,x])=>x?.name).map(([id,x])=>[x.name,Number(id)]));
+  send(requestId,true,{result,desiredIds:ids,maxPad,horizon,topN,nameIds,
+    nativeFunction:'wasmSearchWashRoutes'});
+  return
+ }
  if(op==='exchange-pads'){
   const targets=payload?.targets;
   const maxPad=Number(payload?.maxPad??900);
