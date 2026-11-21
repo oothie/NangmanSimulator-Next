@@ -1,6 +1,6 @@
 // Compile all project-maintained inline scripts without browser APIs.
 'use strict';
-const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),{spawnSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..');
 const pages=['index.html','vendor/yysim/engine-host.html','vendor/sanbujin/drops/index.html'];
 let compiled=0;
@@ -11,8 +11,14 @@ for(const page of pages){
  for(const [i,script] of scripts.entries()){
   if(/\bsrc\s*=/.test(script[1]))continue;
   if(/\btype\s*=\s*["'](?:application\/json|text\/template)/i.test(script[1]))continue;
-  assert.doesNotThrow(()=>new vm.Script(script[2],{filename:page+'#inline-'+i}),
-   'JavaScript syntax: '+page+'#inline-'+i);
+  if(/\btype\s*=\s*["']module["']/i.test(script[1])){
+   const result=spawnSync(process.execPath,['--check','--input-type=module'],
+    {input:script[2],encoding:'utf8'});
+   assert.equal(result.status,0,'module syntax: '+page+'#inline-'+i+'\n'+result.stderr);
+  }else{
+   assert.doesNotThrow(()=>new vm.Script(script[2],{filename:page+'#inline-'+i}),
+    'JavaScript syntax: '+page+'#inline-'+i);
+  }
   compiled++;
  }
 }
