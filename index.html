@@ -406,7 +406,7 @@ function invalidateWashLink(nextRoleId){
  if(!state)return;
  if(nextRoleId!=null&&state.origin==='save'&&state.linkedRoleId===nextRoleId)return;
  state.generation=(state.generation||0)+1;
- state.active=false;state.origin=null;state.linkedRoleId=null;state.lastConflict=null;state.bagPills=null;state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.constraints=null;state.constraintsDisplay='';state.liveTalents=[];
+ state.active=false;state.origin=null;state.linkedRoleId=null;state.nativeState=null;state.autoLinkRequested=null;state.lastConflict=null;state.bagPills=null;state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.constraints=null;state.constraintsDisplay='';state.liveTalents=[];
  state.undoStates=[];state.log=[];state.output='선택 캐릭터 또는 세이브가 변경되었습니다. WASM을 다시 연결하세요.';
 }
 function yyWashStateFromSave(root,role,original){
@@ -2820,7 +2820,7 @@ if($('washTalentRun'))$('washTalentRun').onclick=()=>{
  window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUntilTalent',talentId,count:1000}}));
 };
 if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const log=window.__washRuntime?.log||[];const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.7.92',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()}}
+if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()};window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 const equipmentStatus=Object.create(null);
 const equipmentFrames=new Map();
@@ -2973,6 +2973,19 @@ const state=window.__washRuntime={ready:false,active:false,error:'',output:'',lo
 function syncWasmBag(obj){state.bagPills=obj?.has_bag_pills===true&&Number.isFinite(Number(obj.bag_pills))?Number(obj.bag_pills):null;}
 function announce(){window.dispatchEvent(new Event('nangman-wash-updated'))}
 function fields(evt){for(const key of ['seed','roleId','zizhi','count'])if(evt[key]!==undefined&&evt[key]!==null)state[key]=evt[key];}
+function connectActiveWashView(){
+ if(!window.__nangmanWashTabActive)return;
+ const source=window.__nangmanWashSaveSource?.(),role=source?.role;
+ if(!source?.save||role?.raw?.BornTalent?.S==null||state.loading||
+    (state.active&&state.origin==='save'&&state.linkedRoleId===role.id))return;
+ const token=(state.generation||0)+':'+role.id;
+ if(state.autoLinkRequested===token)return;
+ state.autoLinkRequested=token;
+ window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineImport'}}));
+}
+window.addEventListener('nangman-wash-view-ready',connectActiveWashView);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',connectActiveWashView,{once:true});
+else queueMicrotask(connectActiveWashView);
 window.addEventListener('nangman-wash-command',async e=>{
  if(state.loading)return;
  const {op}=e.detail;if(op!=='washEngineImport')fields(e.detail);state.loading=true;state.error='';
