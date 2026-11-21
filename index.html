@@ -322,6 +322,7 @@ body{background:var(--bg)!important}
 <script src="./engine/wash-conflict-model.js"></script>
 <script src="./engine/wash-chain-core.js"></script>
 <script src="./engine/wash-goal-audit.js"></script>
+<script src="./engine/yysim-auto-search.js"></script>
 <script src="./shared/sanbujin_meridian_data.js"></script>
 <script src="./shared/sanbujin_talent_names_ko.js"></script>
 <script src="./shared/sanbujin_cultivation_data.js"></script>
@@ -475,7 +476,7 @@ const fig='<div class="figures">'+[
  ['자질',r?.raw?.ZiZhi??'—']
 ].map(([label,value])=>'<div class="fig"><b>'+escape(value)+'</b><span>'+label+'</span></div>').join('')+'</div>'
 const hero='<header class="hero"><div><h2>'+escape(r?.name||'캐릭터 미선택')+'</h2><div class="micro">'+meta+' · <button class="text-action" type="button" disabled>캐릭터 초기화</button></div></div>'+fig+'</header>';
-const tabbar='<nav class="tabs">'+[['sim','세수'],['exchange','치환 시퀀스'],['path','경로 탐색']].map(([id,t])=>'<button data-sub="'+id+'" class="'+(sub===id?'active':'')+'">'+t+'</button>').join('')+'</nav>';
+const tabbar='<nav class="tabs">'+[['sim','세수'],['auto','자동 탐색'],['exchange','치환 시퀀스'],['path','경로 탐색']].map(([id,t])=>'<button data-sub="'+id+'" class="'+(sub===id?'active':'')+'">'+t+'</button>').join('')+'</nav>';
 let body='';
 if(sub==='sim'){
  const attrs=[['Str','완력'],['Con','근골'],['Dex','신법'],['Int','내식']];
@@ -510,6 +511,60 @@ if(sub==='sim'){
  '<details><summary>마지막 WASM 결과 확인</summary><pre class="history" style="white-space:pre-wrap;max-height:320px;overflow:auto">'+escape(JSON.stringify(washRuns[washRuns.length-1],null,2))+'</pre></details>':
  '<div class="history">모의 세수 실행 기록이 없습니다. 현재 저장된 재능과는 별개입니다.</div>')+'</section>';
  body=config+skills+buttons+history+washSandbox()+roleDataPanel()+diagnosticPanel();
+}
+if(sub==='auto'){
+ const state=window.__washRuntime||{},api=window.YYWashAutoSearch;
+ const valid=state.active&&state.origin==='save'&&state.linkedRoleId===r?.id&&!state.loading;
+ const supported=[248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277];
+ const selectedTargets=Array.isArray(state.autoDesiredIds)?state.autoDesiredIds:[];
+ const checked=id=>selectedTargets.includes(id)?'checked':'';
+ const result=state.autoResult,searchData=result?.result;
+ let analyzed=null;
+ if(searchData&&api){try{analyzed=api.routeOutcome(searchData,result.desiredIds)}catch(error){analyzed={routes:[],stats:{scanned:0,total:0,complete:0,error:String(error.message||error)}}}}
+ const mapNames=result?.nameIds||{};
+ const talent=id=>characterTalentName(id)+' (#'+id+')';
+ const searchOptions=state.autoOptions||{};
+ const optionsHtml='<div class="fields"><label>선행 세수 탐색 한도<input id="yyAutoPad" type="number" min="0" max="200" value="'+escape(searchOptions.maxPad??20)+'"></label>'+
+  '<label>자맥 탐색 범위<input id="yyAutoHorizon" type="number" min="20" max="5000" value="'+escape(searchOptions.horizon??900)+'"></label>'+
+  '<label>최대 경로 후보<input id="yyAutoTopN" type="number" min="1" max="20" value="'+escape(searchOptions.topN??10)+'"></label></div>';
+ const choices='<div class="fields" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px">'+
+ supported.map(id=>'<label style="display:flex;align-items:center;gap:7px"><input type="checkbox" data-yy-auto-id="'+id+'" '+checked(id)+'> '+escape(talent(id))+'</label>').join('')+'</div>';
+ const card=analyzed?.routes?.length?'<div class="yy-account-scroll"><table class="module-table"><thead><tr>'+
+  '<th>순번</th><th>세수단</th><th>세수</th><th>치환</th><th>선행 세수</th><th>최종 목표</th><th>원본 경로 단계</th></tr></thead><tbody>'+
+ analyzed.routes.map((x,i)=>{
+  const actions=x.actions.map((a,n)=>{
+   const detail=api.describeAction(a,mapNames,characterTalentName);
+   return '<li><b>'+escape(detail.label)+'</b> · '+escape(detail.detail)+
+    (detail.wash!=null?' · 세수 '+escape(detail.wash)+'회차':'')+
+    (detail.pills!=null?' · 누적 단약 '+escape(detail.pills):'')+'</li>';
+  }).join('');
+  const slots=x.finalSlots.map(a=>escape(characterTalentName(a.id))+' (#'+escape(a.id)+')'+(a.locked?' 🔒':'')).join(' / ');
+  return '<tr><td>'+escape(i+1)+'</td><td>'+escape(x.estimatedPills??'—')+'</td>'+
+   '<td>'+escape(x.estimatedWashes??'—')+'</td><td>'+escape(x.exchanges??'—')+'</td>'+
+   '<td>'+escape(x.pad??'—')+'</td><td>'+(x.complete?'목표 '+x.matchedIds.length+'개 현재 보유':'미보유 '+escape(x.missingIds.join(',')))+
+   '<div class="micro">'+(x.globallyOptimal?'원본 최적 판정':'탐색 범위 내 후보 · 최단 보장 없음')+'</div></td>'+
+   '<td><details '+(i===0?'open':'')+'><summary>원본 경로 '+(i+1)+' · 단계 '+x.actions.length+'개</summary>'+
+   '<div class="micro">최종 슬롯: '+slots+'</div>'+
+   (actions?'<ol style="padding-left:20px;margin:6px 0">'+actions+'</ol>':
+    '<p class="micro">추가 세수·치환 없이 현재 보유 재능으로 충족</p>')+
+   (x.source?.slot_plan?'<p class="micro">슬롯 계획 및 자질 개방 비용은 원본 단계대로 별도 확인</p>':'')+
+   '</details></td></tr>';
+ }).join('')+'</tbody></table></div>':'';
+ const resultStatus=analyzed?'<p class="micro">원본 WASM 탐색 '+escape(analyzed.stats.scanned)+
+  '개 검사 · 경로 '+escape(analyzed.stats.total)+'개 · 최종 목표 모두 보유 '+escape(analyzed.stats.complete)+'개</p>'+
+  '<p>'+escape(api.statusText(analyzed))+'</p>':'<p class="micro">원본 yy-sim의 <code>search_wash_routes</code>로 선택한 자맥 1~4개의 자동 경로를 계산합니다. 자맥 ID를 직접 충돌맥과 조합할 필요 없이 목표만 선택하세요.</p>';
+ body='<section class="wash-section"><div class="section-header"><h3>yy-sim 원본 세수 자동 탐색</h3></div>'+
+  '<p class="micro">실제 yy-sim WASM의 자동 탐색 함수로 목표 자맥에 도달하는 경로 후보를 구합니다. 목표 재능은 1~4개 선택할 수 있으며 비용은 경로별 누적 세수단입니다. 한국판 실게임 결과 검증 전이며 전역 최적은 보장하지 않습니다.</p>'+
+  '<div class="section-header"><h3>1. 목표 자맥 선택</h3></div>'+choices+
+  '<div class="actions"><button type="button" class="btn" id="yyAutoPreset">4자맥 기본 목표 적용</button>'+
+  '<button type="button" class="btn" id="yyAutoClear">선택 초기화</button><span class="micro">선택 '+selectedTargets.length+' / 4개</span></div>'+
+  '<div class="section-header"><h3>2. 자동 탐색 범위</h3></div>'+optionsHtml+
+  '<div class="actions"><button type="button" class="btn primary" id="yyAutoRun" '+(!valid?'disabled':'')+'>원본 WASM 자동 경로 검색</button>'+
+  '<button type="button" class="btn" id="yyAutoPreview" '+(!valid?'disabled':'')+'>원본 자맥 시퀀스 3000회 조회</button></div>'+
+  (state.error?'<div class="notice">'+escape(state.error)+'</div>':'')+
+  '<div class="section-header"><h3>3. 원본 경로 후보</h3></div>'+resultStatus+card+
+  '<p class="micro">경로의 잠금·슬롯 개방·선행 세수·치환 순서는 WASM 원본 결과입니다. 현재 제공하는 다른 연속 치환 버튼은 이 전체 경로를 그대로 재생하지 않으므로 별개의 기능입니다.</p>'+
+  '</section>';
 }
 if(sub==='exchange'){
  const state=window.__washRuntime||{},valid=state.active&&state.origin==='save'&&state.linkedRoleId===r?.id&&!state.loading;
