@@ -170,8 +170,10 @@ async function initWasm() {
         cachedDataViewMemory0 = null;
         cachedUint8ArrayMemory0 = null;
         wasmReady = true;
+        if (typeof window !== 'undefined') window.__yyWasmInitError = null;
         return true;
     } catch (e) {
+        if (typeof window !== 'undefined') window.__yyWasmInitError = String(e && (e.stack || e.message) || e);
         console.error('WASM 加载失败:', e);
         return false;
     }
