@@ -12,7 +12,7 @@ async function run({call,count,ensureSession=()=>{},initial}={}){
  const before=initial||await call('state');
  if(!before||!Array.isArray(before.talents))
   throw Error('연속 세수 전 WASM 상태가 올바르지 않습니다');
- const results=[];let performed=0;
+ const results=[];let performed=0,chunks=0;
  try{
   while(performed<count){
    ensureSession();
@@ -20,10 +20,13 @@ async function run({call,count,ensureSession=()=>{},initial}={}){
    const reply=await call('wash',{count:chunk});
    ensureSession();
    const n=Number(reply?.performed);
+   const nativeEvents=Array.isArray(reply?.results)?reply.results:
+    reply?.results&&n===1?[reply.results]:[];
    if(!reply?.state||!Number.isInteger(n)||n<0||n>chunk||
-      !Array.isArray(reply.results)||reply.results.length!==n)
+      nativeEvents.length!==n)
     throw Error('원본 WASM 연속 세수 응답의 횟수 또는 기록이 일치하지 않습니다');
-   results.push(...reply.results);
+   chunks++;
+   results.push(...nativeEvents);
    performed+=n;
    if(n<chunk)break; // native partial because a normal limit was reached
   }
@@ -32,7 +35,7 @@ async function run({call,count,ensureSession=()=>{},initial}={}){
   if(!state||!Array.isArray(state.talents))
    throw Error('원본 연속 세수 후 WASM 상태 검증 실패');
   return {state,results,performed,requested:count,partial:performed<count,
-   chunks:Math.ceil(performed/100),nativeFunction:'wasmDoWash/wasmWashMulti'};
+   chunks,nativeFunction:'wasmDoWash/wasmWashMulti'};
  }catch(error){
   try{
    ensureSession();
