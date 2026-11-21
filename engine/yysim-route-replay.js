@@ -72,6 +72,11 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
   throw Error('실행 전 WASM 상태가 올바르지 않습니다');
  let applied=0;
  const audit=[];
+ const intermediate=route.intermediateGoals===true;
+ const encountered=new Set(intermediate?(route.goalIds||[]).filter(id=>original.talents.some(t=>Number(t.id)===Number(id))):[]);
+ const acquired=intermediate?[...(route.goalIds||[]).filter(id=>encountered.has(id)).map(id=>({id,wash_no:0}))]:[];
+ let washOrdinal=0;
+ const observe=(state)=>{if(!intermediate)return;for(const id of route.goalIds||[]){if(!encountered.has(id)&&state.talents.some(t=>Number(t.id)===Number(id))){encountered.add(id);acquired.push({id,wash_no:washOrdinal})}}};
  try{
   for(const [index,step] of steps.entries()){
    ensureSession();
@@ -105,11 +110,13 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
    }else if(step.kind==='wash_to'){
     let remaining=step.count;
     while(remaining>0){
-     const count=Math.min(100,remaining);
+     const count=intermediate?1:Math.min(100,remaining);
      const response=await call('wash',{count});
      if(response?.performed!==count||!response?.state)
       throw Error('세수단 부족 또는 원본 실행 회차 불일치');
      remaining-=count;
+     washOrdinal+=count;
+     observe(response.state);
      ensureSession();
     }
    }else if(step.kind==='wash_until'){
@@ -147,14 +154,20 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
    applied=index+1;
   }
   const state=await call('state');
-  const missing=(route.goalIds||[]).filter(id=>!state?.talents?.some(t=>Number(t.id)===Number(id)));
+  const missing=(route.goalIds||[]).filter(id=>intermediate?!encountered.has(Number(id)):
+    !state?.talents?.some(t=>Number(t.id)===Number(id)));
   const finalSlots=Array.isArray(route.finalSlots)?route.finalSlots:[];
   if(finalSlots.length&&
     (finalSlots.length!==state?.talents?.length||
      finalSlots.some((slot,index)=>Number(slot.id)!==Number(state.talents[index]?.id)||
       (!!slot.locked)!==(!!state.talents[index]?.locked))))
    throw Error('원본 경로 최종 슬롯 수·재능 ID·잠금 상태와 실제 WASM 결과가 다릅니다');
-  if(missing.length)throw Error('경로 재생 후 목표 자맥 미보유: '+missing.join(','));
+  if(missing.length)throw Error('경로 재생 후 목표 맥 미획득: '+missing.join(','));
+  if(intermediate&&Array.isArray(route.acquiredEvents)&&
+   (route.acquiredEvents.length!==acquired.length||
+    route.acquiredEvents.some((x,i)=>Number(x.id)!==Number(acquired[i]?.id)||
+     Number(x.wash_no)!==Number(acquired[i]?.wash_no))))
+   throw Error('중간 맥의 실제 등장 회차가 탐색 기록과 일치하지 않습니다');
   const expectedPills=integer(route.estimatedPills);
   const beforePills=original.has_bag_pills===true?integer(original.bag_pills):null;
   const afterPills=state?.has_bag_pills===true?integer(state.bag_pills):null;
