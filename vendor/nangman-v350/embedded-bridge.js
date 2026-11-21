@@ -20,7 +20,7 @@ html[data-nangman-theme="dark"]{color-scheme:dark;--host-bg:#252830;--host-panel
 #rk218 .tabs218 button.on,#rk218 .chip.on,#rk218 button.primary,#rk218 .rbtn.primary{background:var(--host-accent)!important;color:var(--host-bg)!important;border-color:var(--host-accent)!important}
 #rk218 .meta,#rk218 .note218,#rk218 .side-text275,#rk218 .side-title275,#rk218 .detail-region277 span{color:var(--host-sub)!important}
 #rk218 .tbl218 tr:hover td{background:var(--host-hover)!important}
-#rk218 button,#rk218 select,#rk218 input{min-height:36px;font-size:14px!important}
+#rk218 button,#rk218 select,#rk218 input:not([type=checkbox]):not([type=radio]){min-height:36px;font-size:14px!important}
 #rk218 .tabs218 button,#rk218 .rbtn,#rk218 .chip{min-height:40px;font-weight:700}
 #rk218 .detail-table218 th,#rk218 .detail-table218 td{font-size:14px!important;padding:10px!important}
 #rk218 .rb-detail233{padding:14px!important;border-radius:9px}
@@ -63,7 +63,7 @@ window.addEventListener('message',e=>{
   try{
    const selected=window.nangman350FocusEquipment?.(d.equipment,d.tab||'route');
    if(!selected?.ok)throw Error(selected?.message||'저장된 장비를 찾지 못했습니다.');
-   reply('focused','선택한 보유 장비의 정련·망정·촉련 상세를 표시했습니다');
+   reply('focused',selected.message||(selected.source==='snapshot'?'전달된 개별 시드로 정련·망정·촉련 상세를 표시했습니다':'선택한 보유 장비의 상세를 표시했습니다'));
   }catch(error){reply('error',String(error.message||error))}
   return;
  }
