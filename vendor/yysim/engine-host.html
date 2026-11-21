@@ -145,6 +145,45 @@ try{
     targetId:target,exchange,autoExchanged:exchange?.success===true});
   return
  }
+ if(op==='lock-present-goals'){
+  const ids=payload?.targetIds;
+  if(!Array.isArray(ids)||ids.length<1||ids.length>4||
+     new Set(ids).size!==ids.length||
+     ids.some(id=>!Number.isInteger(id)||!TALENT_DATA[String(id)]||
+       TALENT_DATA[String(id)].pinzhi!==4||
+       TALENT_DATA[String(id)].name==='备用天赋'))
+   throw Error('목표 슬롯 잠금은 원본 자색 재능 ID 1~4개만 허용합니다');
+  const original=wasmGetState();
+  if(!original||!Array.isArray(original.talents))
+   throw Error('원본 WASM 재능 슬롯을 읽을 수 없습니다');
+  const copy={...original,talents:original.talents.map(x=>({...x}))};
+  let locked=copy.talents.filter(x=>x.locked===true).length;
+  if(locked>3)throw Error('현재 잠금 상태가 원본 최대 3칸과 일치하지 않습니다');
+  const applied=[],missing=[],alreadyLocked=[],maxed=[];
+  for(const id of ids){
+   const index=copy.talents.findIndex(x=>x.id===id);
+   if(index<0){missing.push(id);continue}
+   if(copy.talents[index].locked){alreadyLocked.push(id);continue}
+   if(locked>=3){maxed.push(id);continue}
+   copy.talents[index].locked=true;
+   locked++;
+   applied.push({id,index});
+  }
+  if(applied.length){
+   if(!wasmSetState(copy))throw Error('원본 WASM 목표 슬롯 잠금 적용에 실패했습니다');
+  }
+  const state=wasmGetState();
+  if(!state||!Array.isArray(state.talents)||
+     state.talents.filter(x=>x.locked===true).length>3||
+     applied.some(x=>state.talents[x.index]?.id!==x.id||
+       state.talents[x.index]?.locked!==true)){
+   wasmSetState(original);
+   throw Error('원본 WASM 잠금 결과 검증에 실패해 이전 상태로 복구했습니다');
+  }
+  send(requestId,true,{state,applied,missing,alreadyLocked,maxed,
+   changed:applied.length>0,locked:state.talents.filter(x=>x.locked===true).length});
+  return
+ }
  if(op==='toggle-lock'){
   const index=Number(payload?.index);
   const state=wasmGetState();
