@@ -24,14 +24,19 @@ const path=require('node:path');
     zizhi:153,sex:1,vip:1,talents:[{id:184,locked:false},{id:191,locked:false}],
     bag_pills:1200,has_bag_pills:true};
    const mapped=await engine.call('set-state',selected);
-   const search=await engine.call('auto-intermediate-search',{
+   const scratch=module.washSearchEngine;
+   await scratch.call('init');
+   const copied=await scratch.call('set-state',mapped);
+   const search=await scratch.call('auto-intermediate-search',{
     desiredIds:[184,191],horizon:100,topN:5});
    const restored=await engine.call('state');
    return {initialized,hasState:!!snapshot,slots:Array.isArray(snapshot?.talents),
     mapped:mapped?.role_id,search:search?.result?.routes?.length||0,
+    scanned:search?.result?.scanned||0,
+    scratchMatches:JSON.stringify(copied)===JSON.stringify(mapped),
     preserved:JSON.stringify(restored)===JSON.stringify(mapped)};
   });
-  assert(result.initialized?.ready&&result.hasState&&result.slots&&result.search>0&&result.preserved,
+  assert(result.initialized?.ready&&result.hasState&&result.slots&&result.search>0&&result.scanned>1&&result.scratchMatches&&result.preserved,
     'actual browser iframe engine init failed: '+JSON.stringify({result,errs}));
   console.log('PASS: browser same-origin yy-sim WASM iframe init, state and scripts');
   const retryPage=await browser.newPage();
