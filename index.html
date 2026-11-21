@@ -4249,7 +4249,7 @@ js.onerror=()=>window.dispatchEvent(new Event('nangman-wiki-source-error'));
 document.head.append(js);
 </script>
 <script type="module">
-import {washEngine} from './engine/local-engine-bridge.js?rev=0.10.5';
+import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=0.10.6';
 const state=window.__washRuntime={ready:false,active:false,error:'',output:'',loading:false,log:[],undoStates:[],generation:0};
 function syncWasmBag(obj){state.bagPills=obj?.has_bag_pills===true&&Number.isFinite(Number(obj.bag_pills))?Number(obj.bag_pills):null;}
 function announce(){window.dispatchEvent(new Event('nangman-wash-updated'))}
@@ -4461,7 +4461,7 @@ window.addEventListener('nangman-wash-command',async e=>{
  }else if(op==='washEngineAutoSearch'||op==='washEngineAutoProgressive'||op==='washEngineAutoColor'||op==='washEngineAutoIntermediate'){
   const source=window.__nangmanWashSaveSource?.();
   if(!source?.save||!source.role)throw Error('먼저 캐릭터 세이브를 불러오세요');
-  if(!state.active||state.origin!=='save'||state.linkedRoleId!==source.role.id){
+  if(op!=='washEngineAutoIntermediate'&&(!state.active||state.origin!=='save'||state.linkedRoleId!==source.role.id)){
    if(!state.ready){await washEngine.call('init');state.ready=true}
    const before=await washEngine.call('state');
    const mapped=window.__nangmanBuildWashState(source.save,source.role,before);
@@ -4483,7 +4483,28 @@ window.addEventListener('nangman-wash-command',async e=>{
   const options=api.options(e.detail,isColor?allowed:
    [248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277]);
   state.autoProgress=null;
-  const result=isColor?await washEngine.call(op==='washEngineAutoIntermediate'?'auto-intermediate-search':'auto-color-search',options):
+  let result;
+  if(op==='washEngineAutoIntermediate'){
+   // A dedicated WASM iframe keeps the current simulated wash/locks/seeds immutable.
+   // For a linked session, search its current native state. Otherwise import the
+   // selected Korean save into the scratch copy without touching the live engine.
+   await washSearchEngine.call('init');
+   ensureSession();
+   const reference=state.ready&&state.active&&state.origin==='save'&&state.linkedRoleId===source.role.id?
+    await washEngine.call('state'):null;
+   const native=reference||window.__nangmanBuildWashState(
+    source.save,source.role,await washSearchEngine.call('state'));
+   if(!native||!Array.isArray(native.talents))throw Error('중간 맥 탐색용 세이브 상태를 확인할 수 없습니다');
+   const copied=await washSearchEngine.call('set-state',native);
+   ensureSession();
+   if(!copied||Number(copied.seed)!==Number(native.seed)||
+      Number(copied.role_id)!==Number(source.role.id)||
+      copied.talents.length!==native.talents.length||
+      native.talents.some((slot,i)=>Number(slot.id)!==Number(copied.talents[i]?.id)||
+       !!slot.locked!==!!copied.talents[i]?.locked))
+    throw Error('중간 맥 탐색 전 별도 WASM 복사본 상태 검증 실패');
+   result=await washSearchEngine.call('auto-intermediate-search',options);
+  }else result=isColor?await washEngine.call('auto-color-search',options):
    op==='washEngineAutoProgressive'?
    await window.YYWashProgressive.run({
     call:(name,payload)=>washEngine.call(name,payload),
