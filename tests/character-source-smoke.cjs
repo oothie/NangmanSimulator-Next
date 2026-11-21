@@ -24,7 +24,7 @@ const baseRole = {
        BornTalent: {ID: 285}, CanZhu: false}
 };
 const missing = context.characterBattleSupport(baseRole);
-assert.match(missing, /지원 재능 기록 없음/);
+assert.match(missing, /지원 재능 정보 없음/);
 assert.doesNotMatch(missing, /#354/);
 const base = context.characterSourceBasePanel(baseRole.raw);
 for (const expected of ['551','549','236']) assert.match(base, new RegExp('>'+expected+'<'));
@@ -40,7 +40,7 @@ function assertBase(label, raw, expected) {
 }
 assertBase('강기 기본값', levelBase, 0);
 assertBase('내경 기본값', levelBase, 0);
-assertBase('기 회복 기본값', levelBase, 2);
+assertBase('집기 기본값', levelBase, 2);
 assertBase('강기 기본값', {...levelBase, Level: 92}, 0);
 assertBase('내경 기본값', {...levelBase, Level: 92}, 0);
 assertBase('강기 기본값', {...levelBase, Level: 93}, 15);
@@ -48,7 +48,7 @@ assertBase('내경 기본값', {...levelBase, Level: 93}, 60);
 assertBase('강기 기본값', {...levelBase, Level: 94}, 30);
 assertBase('내경 기본값', {...levelBase, Level: 94}, 80);
 assert.match(supported, /#354/);
-assert.match(supported, /지원 가능 상태<\/span><b>가능/);
+assert.match(supported, /지원 가능<\/span><b>가능/);
 assert.match(supported, /원본 계수 30/);
 assert.doesNotMatch(supported, /풍행객/);
 // Additional regression: source S1/Yt/Ia/Af/qf gear subtotals; avoid final combat claims.
