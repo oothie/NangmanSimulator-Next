@@ -34,7 +34,8 @@
       ? '원본 실행 순서에 따라 호랑이 종류와 호골 천장을 예측합니다. 현재 호골 연속 미획득 ' + input.drought + '회.'
       : timed ? '드랍 여부와 품질은 세이브 순서로 예측합니다. 장비 옵션은 입력한 판정 시각에 따라 달라집니다.'
         : '원본 순서로 우두머리 드랍과 품질을 예측합니다. 같은 장비 난수 순서에서는 처음 확인 가능한 옵션만 표시합니다.';
-    $('wildHint').textContent = ready ? label : archive ? '현재 세이브에 해당 대상의 전체 드랍 순서가 없습니다.' : '세이브를 불러오면 필드 드랍 순서를 읽을 수 있습니다.';
+    const tombMissing = isTomb && archive ? [!engine.usable(input.encounterSeed) ? 'rollenemy_tomb' : '', !engine.usable(input.equipmentSeed) ? 'seed_35256' : '', ...input.missingFlags].filter(Boolean) : [];
+    $('wildHint').textContent = ready ? label : !archive ? '세이브를 불러오면 필드 드랍 순서를 읽을 수 있습니다.' : tombMissing.length ? '제릉 분석용 세이브 항목 누락: ' + tombMissing.join(', ') + '. 현재 상태에서는 예측하지 않습니다.' : '현재 세이브에 해당 대상의 전체 드랍 순서가 없습니다.';
   }
 
   function refreshArchive() {
@@ -63,7 +64,7 @@
     host.replaceChildren(...shown.map(row => {
       const item = node('li', '');
       const label = '제 ' + row.serial + '회' + (row.padding ? ' · 선행 사냥' : '') +
-        (row.tiger ? ' · ' + row.tiger : '') + (row.kind === 'tomb' ? ' · ' + (row.spawn ? '특수몹 35256' : '일반 전투') : '') + ' · ' + (EQUIP_DATA.equipment?.[row.itemId]?.koName || (row.kind === 'tomb' && row.spawn && !row.itemId ? '장비 드랍 없음' : ko(row.itemName || '예상 드랍 없음'))) +
+        (row.tiger ? ' · ' + row.tiger : '') + (row.kind === 'tomb' ? ' · ' + (row.spawn ? '특수몹 35256' : '일반 전투') : '') + ' · ' + (EQUIP_DATA.equipment?.[row.itemId]?.koName || (row.kind === 'tomb' ? (row.itemId ? '기타 보상 ID ' + row.itemId : row.spawn ? '장비 드랍 없음' : '예상 드랍 없음') : ko(row.itemName || '예상 드랍 없음'))) +
         (row.color ? ' · ' + color[row.color] : '');
       item.append(node('strong', label));
       if (row.kind === 'tomb') item.append(node('span', row.color ? '90레벨 장비 · 분기 순서 미검증 · 장비 추가 옵션/최종 정련은 미연결' : row.reason || (row.spawn ? '90레벨 일반 장비 이외 보상 또는 드랍 없음' : '특수몹 미등장'), 'wild-row-note'));
