@@ -643,6 +643,10 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .quest-story{max-width:100%;margin:12px 0}.quest-story h4{margin:14px 0 7px;font-size:15px;color:var(--gold)}
 .quest-story p{white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 11px;line-height:1.7}
 .quest-region-picker{display:flex;align-items:center;gap:9px;margin:12px 0;color:var(--text);font-weight:700}
+.character-audit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:12px 0}
+.character-audit-link{display:flex;flex-direction:column;gap:4px;text-align:left;min-height:86px;padding:11px 13px;border:1px solid var(--border);border-radius:7px;background:var(--panel);color:var(--text);cursor:pointer}
+.character-audit-link span{font-size:13px;font-weight:650}.character-audit-link strong{font-size:20px;color:var(--gold)}
+.character-audit-link small{font-size:11px;color:var(--sub)}.character-audit-link:hover,.character-audit-link:focus-visible{border-color:var(--gold);outline-offset:2px}
 .quest-region-picker select{font:inherit;min-height:40px;max-width:280px;padding:7px 10px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px}
 .quest-catalog-item summary{cursor:pointer;overflow-wrap:anywhere}.quest-catalog-description{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;max-width:100%;font-size:14px}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
@@ -1948,7 +1952,8 @@ function characterSkillRows(raw,key,type){
  const named=new Map(Object.entries(window.NANGMAN_54506_MARTIAL_KO||{}).filter(([,value])=>value[2]===type).map(([id,value])=>[id,value[0]]));
  for(const item of (koreanWiki||[]).filter(x=>x.category===type))named.set(String(item.id),item.name);
  const active=entries.filter(x=>x.Active===true),ordered=[...active,...entries.filter(x=>x.Active!==true)];
- return '<section class="card"><h3>'+escape({Taolus:'외공',Neis:'내공',Qings:'경공'}[key]||type)+' · 습득 '+entries.length+'개 · 사용 '+active.length+'개</h3>'+
+ const levelZero=entries.filter(x=>Number(x.Level)===0).length;
+ return '<section class="card"><h3>'+escape({Taolus:'외공',Neis:'내공',Qings:'경공'}[key]||type)+' · 습득 '+entries.length+'개 · 사용 '+active.length+'개'+(levelZero?' · 수련 0 '+levelZero+'개 포함':'')+'</h3>'+
  (entries.length?'<table class="module-table"><thead><tr><th>무학 / ID</th><th>수련</th><th>정진</th><th>장착</th></tr></thead><tbody>'+
  ordered.map(item=>'<tr><td>'+escape(named.get(String(item.ID))||'#'+item.ID)+' <small>#'+escape(item.ID)+'</small></td><td>'+escape(characterNumber(item,'Level'))+'</td><td>'+escape(characterNumber(item,'Chong'))+'</td><td>'+(item.Active===true?'<strong>사용 중</strong>':'—')+'</td></tr>').join('')+'</tbody></table>':'<p class="micro">습득한 무학 기록이 없습니다.</p>')+'</section>';
 }
@@ -2725,6 +2730,25 @@ function yyRoleExtraCombat(raw){
  if(!vals.some(x=>Number.isFinite(x.value)&&x.value!==0))return '';
  return yyRoleSection('전투 추가',yyRoleStatGrid(vals.map(x=>[x.label,Number.isFinite(x.value)?String(x.value):'—',x.tip]),'combat-grid'));
 }
+function characterDataAudit(role){
+ const raw=role?.raw||{};
+ const groups=[['장비','Equips','equip'],['외공','Taolus','training'],['내공','Neis','training'],
+  ['경공','Qings','training'],['경맥','JingMais','training'],
+  ['기예','LifeSkills','other'],['비기','LifeProps','other'],['세수 재능','Talents','talent']];
+ const lines=groups.map(([label,key,tab])=>{
+  const present=Object.prototype.hasOwnProperty.call(raw,key);
+  const rows=characterEntries(raw[key]).filter(v=>v&&typeof v==='object'&&Number(v.ID)>0);
+  const zero=['Taolus','Neis','Qings'].includes(key)?rows.filter(x=>Number(x.Level)===0).length:0;
+  return '<button type="button" class="character-audit-link" data-module-tab="character:'+tab+'">'+
+   '<span>'+escape(label)+'</span><strong>'+escape(present?rows.length:'—')+'</strong>'+
+   '<small>'+escape(!present?'세이브 필드 없음':zero?'수련 0 기록 '+zero+'개 포함':'저장 기록 '+rows.length+'개')+'</small></button>';
+ });
+ const total=groups.filter(([,key])=>Object.prototype.hasOwnProperty.call(raw,key)).length;
+ return '<section class="role-section character-audit"><p class="wr-kicker">캐릭터 상세 데이터 연결 현황</p>'+
+  '<p class="micro">세이브에 존재하는 기록을 전체 표시합니다. 항목을 누르면 해당 상세 탭으로 이동합니다. 수련 레벨 0이어도 정진이 저장된 무학은 누락시키지 않습니다. 저장 데이터 개수는 최종 전투 능력치 검증과 별개입니다.</p>'+
+  '<div class="character-audit-grid">'+lines.join('')+'</div>'+
+  '<p class="micro">해당 인물에서 확인된 저장 필드 '+total+' / '+groups.length+'종</p></section>';
+}
 function yyRoleDetail(role){
  const raw=role.raw||{};
  const dims=[['팔힘','Str','BornStr','StrGift'],['근골','Con','BornCon','ConGift'],['신법','Dex','BornDex','DexGift'],['내식','Int','BornInt','IntGift']];
@@ -3250,7 +3274,7 @@ function characterView(){
    case 'panel': body=yyRolePanel(role);break;
    case 'equip':body=characterEquipView(raw)+characterEquipSourceView(raw)+characterEquipCombatSplitView(raw);break;
    case 'talent':body=yyRoleTalent(role)+characterWashView(role,save);break;
-   case 'detail':body=characterCombatSubtotal(role)+yyRoleDetail(role);break;
+   case 'detail':body=characterDataAudit(role)+characterCombatSubtotal(role)+yyRoleDetail(role);break;
    case 'training':body=yyCultivationView(role)+yyOriginalCultivationEffectsView(role)+yyCultivationCrossCheckView(role)+yyProgressView(save,role,'training')+characterTrainingView(raw)+characterMeridianView(raw);break;
    case 'consumable':body=yyProgressView(save,role,'consumable');break;
    case 'hengshan':body='<section class="role-section"><p class="wr-kicker">직무</p><p class="micro">항산파는 한국 서버 미출시 항목입니다. 원본 메뉴만 유지합니다.</p></section>';break;
