@@ -64,7 +64,7 @@ const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
 for(const id of ['yyAutoRun','yyAutoPad','yyAutoHorizon','yyAutoTopN','yyAutoPreset','yyAutoPreview']){
  assert(html.includes('id="'+id+'"'),id);
 }
-assert(html.includes("['auto','자동 탐색']"));
+assert(html.includes("['auto','원본 자동 탐색']"));
 assert(html.includes("washEngine.call('auto-search',options)"));
 assert(html.includes('state.autoResult=null;'));
 assert(html.includes('yy-sim WASM'));
