@@ -317,7 +317,6 @@ body{background:var(--bg)!important}
 <script src="./vendor/yysim/daily_data.js"></script>
 <script src="./engine/daily-market.js"></script>
 <script src="./engine/quest-branch.js"></script>
-<script src="./engine/wash-save-compare.js"></script>
 <script src="./shared/sanbujin_meridian_data.js"></script>
 <script src="./shared/sanbujin_talent_names_ko.js"></script>
 <script src="./shared/sanbujin_cultivation_data.js"></script>
@@ -397,7 +396,7 @@ function invalidateWashLink(nextRoleId){
  if(!state)return;
  if(nextRoleId!=null&&state.origin==='save'&&state.linkedRoleId===nextRoleId)return;
  state.generation=(state.generation||0)+1;
- state.active=false;state.origin=null;state.linkedRoleId=null;state.preview=null;state.pathReports=null;state.liveTalents=[];state.lastState=null;state.verifyReport=null;state.verifyError='';
+ state.active=false;state.origin=null;state.linkedRoleId=null;state.preview=null;state.pathReports=null;state.liveTalents=[];
  state.undoStates=[];state.log=[];state.output='선택 캐릭터 또는 세이브가 변경되었습니다. WASM을 다시 연결하세요.';
 }
 function yyWashStateFromSave(root,role,original){
@@ -467,7 +466,7 @@ const fig='<div class="figures">'+[
  ['자질',r?.raw?.ZiZhi??'—']
 ].map(([label,value])=>'<div class="fig"><b>'+escape(value)+'</b><span>'+label+'</span></div>').join('')+'</div>'
 const hero='<header class="hero"><div><h2>'+escape(r?.name||'캐릭터 미선택')+'</h2><div class="micro">'+meta+' · <button class="text-action" type="button" disabled>캐릭터 초기화</button></div></div>'+fig+'</header>';
-const tabbar='<nav class="tabs">'+[['sim','세수'],['exchange','치환 시퀀스'],['path','경로 탐색'],['verify','실게임 검증']].map(([id,t])=>'<button data-sub="'+id+'" class="'+(sub===id?'active':'')+'">'+t+'</button>').join('')+'</nav>';
+const tabbar='<nav class="tabs">'+[['sim','세수'],['exchange','치환 시퀀스'],['path','경로 탐색']].map(([id,t])=>'<button data-sub="'+id+'" class="'+(sub===id?'active':'')+'">'+t+'</button>').join('')+'</nav>';
 let body='';
 if(sub==='sim'){
  const attrs=[['Str','완력'],['Con','근골'],['Dex','신법'],['Int','내식']];
@@ -548,25 +547,6 @@ if(sub==='path'){
  '<div class="actions"><button id="washTalentRun" class="btn" '+(!valid?'disabled':'')+'>목표 자맥까지 모의 세수 (최대 1000회)</button>'+
  '<button id="washPathUndo" class="btn" '+(!(valid&&runtime.undoStates?.length)?'disabled':'')+'>직전 WASM 작업 되돌리기</button></div>'+
  '<p class="micro">잠금 슬롯·충돌 치환 자동 조작은 아직 포함하지 않습니다. 목표에 일치하는 WASM 재능만 검색합니다.</p>'+
- '</section>';
-}
-if(sub==='verify'){
- const state=window.__washRuntime||{},report=state.verifyReport;
- const fmt=v=>escape(v==null?'미확인':typeof v==='boolean'?(v?'잠금':'해제'):v);
- const reportRows=report?.cells?.map(x=>'<tr><td>'+escape(x.title)+'</td><td>'+fmt(x.before)+'</td><td>'+fmt(x.after)+'</td><td>'+escape(x.status)+'</td></tr>').join('')||'';
- const predicted=report?.predicted;
- const prediction=predicted?'<h3>WASM 모의 상태와 실제 세이브 비교</h3>'+
- '<p>태생 세수 시드: WASM '+fmt(predicted.seedExpected)+' / 실제 '+fmt(predicted.seedActual)+' · '+(predicted.seedMatch===null?'판정 불가':predicted.seedMatch?'일치':'불일치')+'</p>'+
- '<table class="module-table"><thead><tr><th>슬롯</th><th>WASM 재능 ID</th><th>실제 재능 ID</th><th>결과</th></tr></thead><tbody>'+
- predicted.slots.map(x=>'<tr><td>'+x.index+'</td><td>'+fmt(x.expected)+'</td><td>'+fmt(x.actual)+'</td><td>'+ (x.matches===null?'미확인':x.matches?'일치':'불일치')+'</td></tr>').join('')+
- '</tbody></table>':'<p class="micro">WASM 현재 모의 상태가 선택한 캐릭터와 연결되어 있으면 재능 ID·시드도 실제 저장값과 비교합니다.</p>';
- body='<section class="wash-section"><div class="section-header"><h3>세수 전후 세이브 비교</h3></div>'+
- '<p class="micro">상단에서 불러온 세이브를 세수 전 기준으로 사용합니다. 실제 게임에서 세수를 진행한 뒤 추출한 새 JSON을 선택하세요. 파일은 서버로 보내지 않으며 기존 세이브를 덮어쓰지 않습니다.</p>'+
- '<div class="fields"><label>세수 후 세이브 JSON<input id="washVerifyAfter" type="file" accept=".json,application/json"></label></div>'+
- '<div class="actions"><button class="btn primary" id="washVerifyRun" '+(!save||!r?'disabled':'')+'>실제 세수 변화 대조</button></div>'+
- (state.verifyError?'<p class="notice">'+escape(state.verifyError)+'</p>':'')+
- (report?'<p class="micro">인물 ID '+report.id+' · 세이브 변경값 비교 결과</p><div class="yy-account-scroll"><table class="module-table"><thead><tr><th>항목</th><th>세수 전</th><th>세수 후</th><th>상태</th></tr></thead><tbody>'+reportRows+'</tbody></table></div>'+prediction+
- '<p class="micro">'+escape(report.warning)+'</p>':'<p class="micro">세수 후 세이브를 불러오면 자맥·잠금 슬롯, 세수 시드, 천장값 및 WASM 가상 계산 상태를 비교합니다.</p>')+
  '</section>';
 }
 return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div></div>';
@@ -2324,25 +2304,6 @@ if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSave
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineToggleLock',index:Number(el.dataset.washLock)}})));
 document.querySelectorAll('[data-wash-exchange]').forEach(el=>el.onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineExchangeTalent',index:Number(el.dataset.washExchange)}})));
-if($('washVerifyRun'))$('washVerifyRun').onclick=async()=>{
- const reference=save,role=roles[selected],runtime=window.__washRuntime||{};
- const file=$('washVerifyAfter')?.files?.[0];
- runtime.verifyError='';runtime.verifyReport=null;
- try{
-  if(!file)throw Error('세수 후 JSON 파일을 선택하세요.');
-  if(file.size>100*1024*1024)throw Error('100MB 이하의 JSON 파일을 사용하세요.');
-  const actual=JSON.parse(await file.text());
-  if(reference!==save||role?.id!==roles[selected]?.id)
-   throw Error('읽는 동안 캐릭터 또는 기준 세이브가 변경됐습니다.');
-  const virtual=runtime.origin==='save'&&runtime.linkedRoleId===role.id?runtime.lastState:null;
-  runtime.verifyReport=window.NangmanWashCompare.delta(reference,actual,role.id,virtual);
- }catch(err){runtime.verifyError=String(err.message||err);}
- render();
-};
-for(const id of ['washSlotUndo','washPathUndo']){
- if($(id))$(id).onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',
-  {detail:{op:'washEngineUndo'}}));
-}
 if($('washPathAdd'))$('washPathAdd').onclick=()=>{
  const a=$('washPathPurplePick')?.value||'',b=$('washPathConflictPick')?.value||'';
  if(!a||!b){alert('자맥과 충돌맥을 먼저 선택하세요.');return;}
@@ -2538,7 +2499,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    throw Error('불러오기 도중 세이브나 캐릭터가 바뀌었습니다. 다시 연결하세요.');
   if(Number(applied?.role_id)!==Number(source.role.id)||Number(applied?.seed)!==mapped.seed)
    throw Error('WASM에서 세이브 시드·캐릭터가 일치하지 않아 실행을 중단했습니다.');
-  state.origin='save';state.linkedRoleId=source.role.id;state.active=true;state.liveTalents=applied.talents||[];state.lastState=applied;
+  state.origin='save';state.linkedRoleId=source.role.id;state.active=true;state.liveTalents=applied.talents||[];
   state.seed=String(mapped.seed);state.roleId=String(mapped.role_id);state.zizhi=String(mapped.zizhi);
   state.log=[];state.undoStates=[];state.preview=null;state.pathReports=null;state.output='현재 인물 세이브 상태를 WASM에 적용했습니다. 이 결과는 실게임 검증 전 독립 시뮬레이션입니다.\n'+
    JSON.stringify({roleId:applied.role_id,zizhi:applied.zizhi,sex:applied.sex,locked:applied.talents?.filter(x=>x.locked).length,
@@ -2550,7 +2511,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   Object.assign(data,{seed:state.seed,role_id:Number(state.roleId),zizhi:Number(state.zizhi)||153,sex:1,vip:1,
     talents:[],tal_lucky:0,total_wash:0,total_pills:0,gold_count:0,pity_count:0,exchange_count:0});
   const next=await washEngine.call('set-state',data);
-  state.origin='test';state.linkedRoleId=null;state.active=true;state.liveTalents=next?.talents||[];state.lastState=next;state.log=[];state.undoStates=[];state.preview=null;state.pathReports=null;state.output='시험 상태 설정 완료\n'+JSON.stringify(next,null,2);
+  state.origin='test';state.linkedRoleId=null;state.active=true;state.liveTalents=next?.talents||[];state.log=[];state.undoStates=[];state.preview=null;state.pathReports=null;state.output='시험 상태 설정 완료\n'+JSON.stringify(next,null,2);
  }else if(op==='washEnginePreview'){
   if(!state.active)throw Error('먼저 현재 캐릭터 세이브를 WASM에 연결하세요.');
   if(state.origin==='save'&&window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
@@ -2582,7 +2543,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    state.undoStates.push(snapshot);
    state.log.push({kind:action,index,...result});
   }
-  state.liveTalents=result.state.talents;state.lastState=result.state;state.preview=null;state.pathReports=null;
+  state.liveTalents=result.state.talents;state.preview=null;state.pathReports=null;
   state.output=(action==='toggle-lock'?'원본 WASM 잠금 변경':'원본 WASM 치환 실행')+
    ' · 슬롯 '+(index+1)+' · 실게임과 무관한 가상 상태\\n'+JSON.stringify(result,null,2);
  }else if(op==='washEnginePads'){
@@ -2626,7 +2587,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   if(JSON.stringify(result.state)!==JSON.stringify(snapshot)||result.results.length){
    state.undoStates.push(snapshot);state.log.push(result);
   }
-  state.preview=null;state.pathReports=null;state.liveTalents=result.state.talents||[];state.lastState=result.state;state.targetTalentId=talentId;
+  state.preview=null;state.pathReports=null;state.liveTalents=result.state.talents||[];state.targetTalentId=talentId;
   state.output='원본 WASM 목표 자맥 '+talentId+' 조회 · 실행 결과 '+result.results.length+
    '건 · 게임 세이브 원본 변경 없음 · 실게임 검증 전\n'+JSON.stringify(result,null,2);
  }else if(op==='washEngineUntilGold'){
@@ -2641,7 +2602,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   if(JSON.stringify(result.state)!==JSON.stringify(snapshot)||result.results.length){
    state.undoStates.push(snapshot);state.log.push(result);state.preview=null;state.pathReports=null;
   }
-  state.liveTalents=result.state.talents||[];state.lastState=result.state;state.output='yy-sim 원본 WASM 자맥 도달 실행: '+result.results.length+
+  state.liveTalents=result.state.talents||[];state.output='yy-sim 원본 WASM 자맥 도달 실행: '+result.results.length+
    '회 · 최대 1000회 제한 · 실게임 결과 미검증\n'+JSON.stringify(result,null,2);
  }else if(op==='washEngineUndo'){
   if(!state.active||!state.undoStates?.length)throw Error('되돌릴 WASM 실행 기록이 없습니다.');
@@ -2650,7 +2611,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   ensureSession();
   if(Number(restored?.role_id)!==Number(snapshot.role_id)||Number(restored?.seed)!==Number(snapshot.seed))
    throw Error('되돌리기 WASM 상태 검증 실패');
-  state.undoStates.pop();state.log.pop();state.preview=null;state.pathReports=null;state.liveTalents=restored?.talents||[];state.lastState=restored;state.output='직전 모의 세수 실행 묶음을 되돌렸습니다.\n'+JSON.stringify({
+  state.undoStates.pop();state.log.pop();state.preview=null;state.pathReports=null;state.liveTalents=restored?.talents||[];state.output='직전 모의 세수 실행 묶음을 되돌렸습니다.\n'+JSON.stringify({
    roleId:restored.role_id,talLucky:restored.tal_lucky,undoRemaining:state.undoStates.length},null,2);
  }else if(op==='washEngineOnce'||op==='washEngineMulti'){
   if(!state.active)throw Error('WASM 실행 상태를 먼저 설정하세요');
@@ -2666,7 +2627,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   ensureSession();
   if(!result?.state)throw Error('WASM 세수 결과 상태가 누락되어 되돌리기를 보장할 수 없습니다.');
   state.undoStates.push(snapshot);
-  state.preview=null;state.pathReports=null;state.liveTalents=result.state.talents||[];state.lastState=result.state;state.log.push(result);state.output='누적 세수 실행 '+state.log.length+'회 묶음\n'+JSON.stringify(result,null,2);
+  state.preview=null;state.pathReports=null;state.liveTalents=result.state.talents||[];state.log.push(result);state.output='누적 세수 실행 '+state.log.length+'회 묶음\n'+JSON.stringify(result,null,2);
  }
  }catch(err){state.error=String(err.message||err)}
  finally{state.loading=false;announce()}
