@@ -22,7 +22,9 @@ function plan(route,nameIds={}){
    throw Error('원본 경로 단계 '+(i+1)+' ('+(kind||'알 수 없음')+')은 아직 재생할 수 없습니다');
   const resolve=(name)=>{
    if(name==null||name==='')return null;
-   const id=integer(nameIds[String(name)]);
+   const mapped=integer(nameIds[String(name)]);
+   const numeric=/^\d+$/.test(String(name))?integer(name):null;
+   const id=mapped??numeric;
    if(id===null||id<1)throw Error('원본 재능 이름과 ID 매핑이 없어 경로를 안전하게 실행할 수 없습니다: '+String(name));
    return id;
   };
