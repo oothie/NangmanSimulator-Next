@@ -79,7 +79,7 @@ assert.equal(questSave.current.id,9999999);
 assert.equal(questSave.delegated.accepted.length,1);
 assert.equal(questSave.npcRecords.length,2);assert.equal(questSave.located.length,1);
 assert.equal(questSave.located[0].map,'sfj');
-assert(questAPI.questView().includes('원본 임무'),'quest source matched by task ID');
+assert(questAPI.questView().includes('다음 이야기 준비 중'),'original story 9999999 sentinel localized');
 assert.equal(questAPI.questCatalogRows().length,1,'only source quest rows indexed');
 const dropSource=section('// Persistent drop engine:',"window.addEventListener('message',event=>{\n if(event.origin!==location.origin||event.data?.kind!=='nangman-native-equipment')");
 const elements={},posts=[],events={};
