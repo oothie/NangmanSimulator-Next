@@ -67,8 +67,8 @@ html body :is(.page-head,.sbj-hero,.mine-profile){
   border-color:var(--n-yy-line)!important;
 }
 html body :is(.page-head,.sbj-hero,.mine-profile) :is(h1,h2,strong){color:var(--n-yy-text)!important}
-html body :is(.progress-heading h1,.progress-heading p,.feature-heading h1,
-  .feature-heading p,.dungeon-coverage p,.wild-row-note,.progress-note,
+html body :is(.progress-heading p,.feature-heading p,
+  .dungeon-coverage p,.wild-row-note,.progress-note,
   .muted,.hint,.caption,.text-muted,.ai-hint,.hs-message,.equip-hint){
   color:var(--n-yy-sub)!important;
 }
@@ -117,7 +117,8 @@ html body :is(tbody tr:nth-child(even),.tomb-prediction-grid article,.wild-resul
 }
 html body :is(.modal,.modal-overlay,.dialog-overlay){color:var(--n-yy-text)!important}
 html body :is(.result-good,.success,.green,.quality-green,.tomb-special){color:var(--n-yy-link)}
-html body .tomb-prediction-table .tomb-purple{color:#b890de!important}
+html body .tomb-prediction-table .tomb-purple{color:#865b96!important}
+html[data-sbj-theme="dark"] body .tomb-prediction-table .tomb-purple{color:#c6a1df!important}
 html body .wild-results li{padding:.55rem .3rem;border-bottom:1px solid var(--n-yy-line)}
 /* Keep normal document flow: do not change the size/visibility of engine-owned modal layers. */
 html body .wild-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));align-items:end;gap:10px}
