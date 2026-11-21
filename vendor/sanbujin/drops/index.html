@@ -71,6 +71,18 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   </section>
   <p id="dungeonStatus" role="status"></p>
   <ol id="dungeonResults" class="wild-results"></ol>
+ <details id="dungeonSequencePanel">
+  <summary>여러 관문 우두머리 연속 보상 · 공유 RNG 순서</summary>
+  <p class="progress-note">같은 RNG 키(seed_byj 등)를 공유하는 우두머리들은 처치 순서에 따라 다음 보상이 달라집니다. 원본 우두머리별 독립 예측과 별도 계산하며, 일반 관문 보상 함수 호출만 연결합니다. 사냥 중 다른 난수 사용 이벤트는 포함하지 않습니다.</p>
+  <div class="wild-fields">
+   <label>처치 계획 (관문 드랍 ID를 쉼표로 구분)<textarea id="dungeonSequencePlan" rows="2" placeholder="drop_35214_equip, drop_35219_equip" style="min-width:300px;max-width:100%"></textarea></label>
+   <button type="button" id="dungeonSequenceAdd">현재 선택 우두머리 추가</button>
+   <button type="button" id="dungeonSequenceRun">연속 보상 예측</button>
+   <button type="button" id="dungeonSequenceExport" disabled>연속 보상 CSV</button>
+  </div>
+  <p id="dungeonSequenceStatus" role="status"></p>
+  <ol id="dungeonSequenceResults" class="wild-results"></ol>
+ </details>
 </section>
 <section id="sharedGear" class="wild-panel" aria-label="90레벨 필드 관문 공용 장비 획득 순서 계획" hidden>
  <h2>90레벨 장비 공용 획득 순서</h2>
