@@ -51,3 +51,5 @@ jobs:
         run: node tests/tomb-source-parity.cjs
       - name: Verify native wash target path and undo bridge
         run: node tests/wash-target-path-smoke.cjs
+      - name: Validate native wash lock and exchange controls
+        run: node tests/wash-slot-controls.cjs
