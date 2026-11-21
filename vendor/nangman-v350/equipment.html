@@ -11083,14 +11083,14 @@ function paintDetailPanel(h,o,tab){
  }
  if(tab==='xl'){
   const base=clone(o.xl?.base||rkAscendForRefine218(e)),baseCfg=EQUIP_DATA.equipment[String(base.id)]||cfg;
-  const searchedN=Math.max(0,Number(o.xl?.items?.length||0)),n=Math.max(20,Math.min(200,Number(o._rkXlN||Math.max(100,searchedN))));o._rkXlN=n;
+  const searchedN=Math.max(0,Number(o.xl?.items?.length||0)),n=Math.max(20,Math.min(1000,Number(o._rkXlN||Math.max(100,searchedN))));o._rkXlN=n;
   let flags=Array.isArray(o._rkXlFlags)?o._rkXlFlags.slice(0,n):(Array.isArray(o.xl?.flags)?o.xl.flags.slice(0,n):Array(n).fill(false));while(flags.length<n)flags.push(false);o._rkXlFlags=flags;
   let p;try{p=rkXilianPlanNative233(toWasmEquip(base),flags)}catch(err){h.innerHTML=`<p class="bad218">${esc(err.message)}</p>`;return}
   const rows=(p.items||[]).slice(0,n),finalEq=p.equip||base;
   const finalExts=(finalEq.exts||[]).map((x,i)=>`${i+1}. ${propLabel218(x.prop)} +${formatPropValue(x.prop,x.value)}`).join(' · ')||'—';const gradeProps=[...new Set((finalEq.exts||[]).map(x=>x.prop))].filter(p=>rkRefineTheoreticalMax256(EQUIP_DATA.equipment[String(finalEq.id)]||baseCfg,p)>0);const gradeHtml=gradeProps.map(p=>`<span class="rk-grade-line256">${esc(propLabel218(p))} ${rkGradeBadge256(finalEq,p)}</span>`).join('');
   const kept=flags.filter(Boolean).length;
   h.innerHTML=`
-  <div class="detail-controls218"><label>옵션별 조회 <select class="rinput" id="dxlslot"><option value="0">전체 옵션</option>${[1,2,3].map(v=>`<option value="${v}" ${Number(o._rkXlSlot)===v?'selected':''}>옵션 ${v}</option>`).join('')}</select></label><label>표시 횟수 <select class="rinput" id="dxln">${[20,50,100,200].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v}</option>`).join('')}</select></label><span class="meta">보존 ${kept}회 · 전체 소모 ${esc(rkCostText218(base,rows,o.xl?.lastAccept))}</span></div>
+  <div class="detail-controls218"><label>옵션별 조회 <select class="rinput" id="dxlslot"><option value="0">전체 옵션</option>${[1,2,3].map(v=>`<option value="${v}" ${Number(o._rkXlSlot)===v?'selected':''}>옵션 ${v}</option>`).join('')}</select></label><label>표시 횟수 <select class="rinput" id="dxln">${[20,50,100,200,500,1000].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v}</option>`).join('')}</select></label><span class="meta">보존 ${kept}회 · 전체 소모 ${esc(rkCostText218(base,rows,o.xl?.lastAccept))}</span></div>
   <div class="mini"><b>보존 선택 결과</b><div class="meta">최종 XLLevel ${finalEq.XLLevel??finalEq.xl_level??0}</div><div class="props">${esc(finalExts)}</div></div>
   <div class="scroll218"><table class="tbl218 detail-table218"><thead><tr><th>보존</th><th>#</th><th>슬롯</th><th>기존 옵션 → 새 옵션</th><th>비용</th><th>정련 단계</th></tr></thead><tbody>${rows.map((x,i)=>{if(o._rkXlSlot&&Number(x.slot)!==Number(o._rkXlSlot))return '';const old=x.old_prop?`${propLabel218(x.old_prop.prop)} +${formatPropValue(x.old_prop.prop,x.old_prop.value)}`:'—';const np=x.prop?`${propLabel218(x.prop.prop)} +${formatPropValue(x.prop.prop,x.prop.value)}`:'—';return `<tr class="${flags[i]?'row-keep':''}"><td><input type="checkbox" data-rkxl="${i}" ${flags[i]?'checked':''}></td><td>${x.index||i+1}</td><td>옵션 ${x.slot||''}</td><td>${esc(old)} → <b>${esc(np)}</b></td><td>×${x.cost_mult||1}</td><td>${x.xl_level_before??''} → ${x.xl_level??''}</td></tr>`}).join('')}</tbody></table></div>`;
   h.querySelector('#dxlslot').onchange=ev=>{o._rkXlSlot=Number(ev.target.value)||0;paintDetailPanel(h,o,'xl')};
@@ -11109,14 +11109,14 @@ function paintDetailPanel(h,o,tab){
   h.querySelector('#dmjn').onchange=ev=>{o._rkMjN=Number(ev.target.value);paintDetailPanel(h,o,'mj')};return;
  }
  const typ=Number(cfg.type||e.typ);if(![1,2,3,4].includes(typ)){h.innerHTML='<p class="note218">촉련은 무기만 가능합니다.</p>';return}
- const n=Math.max(30,Math.min(200,Number(o._rkClN||120)));o._rkClN=n;
+ const n=Math.max(30,Math.min(1000,Number(o._rkClN||120)));o._rkClN=n;
  let resp;try{resp=rkStrongPreviewNative233(toWasmEquip(e),n)}catch(err){h.innerHTML=`<p class="bad218">${esc(err.message)}</p>`;return}
  const items=resp?.items||resp||[],startLv=Number(e.level||0),target=Math.max(startLv+1,Math.min(15,Number(o._rkClTarget||Math.min(15,startLv+3))));o._rkClTarget=target;
  const minG=Math.max(1,Math.min(4,Number(o._rkClGrade||3)));o._rkClGrade=minG;
  let plans=null;try{plans=planStrongPath(items.map(x=>Number(x.grade||0)),startLv,target,minG,Number(e.need_lv||cfg.lv||90))}catch(_){plans=null}
  const minSet=plans?.minCost?.ok?plans.minCost.accepts:new Set(),maxSet=plans?.maxValue?.ok?plans.maxValue.accepts:new Set();
  const gname={1:'일반',2:'양호',3:'우수',4:'완벽'};
- h.innerHTML=`<div class="detail-controls218"><label>목표 단계 <select class="rinput" id="dclt">${Array.from({length:Math.max(0,15-startLv)},(_,i)=>startLv+i+1).map(v=>`<option value="${v}" ${v===target?'selected':''}>+${v}</option>`).join('')}</select></label><label>최저 품질 <select class="rinput" id="dclg">${[1,2,3,4].map(v=>`<option value="${v}" ${v===minG?'selected':''}>${gname[v]}</option>`).join('')}</select></label><label>표시 횟수 <select class="rinput" id="dcln">${[30,60,120,200].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v}</option>`).join('')}</select></label></div>
+ h.innerHTML=`<div class="detail-controls218"><label>목표 단계 <select class="rinput" id="dclt">${Array.from({length:Math.max(0,15-startLv)},(_,i)=>startLv+i+1).map(v=>`<option value="${v}" ${v===target?'selected':''}>+${v}</option>`).join('')}</select></label><label>최저 품질 <select class="rinput" id="dclg">${[1,2,3,4].map(v=>`<option value="${v}" ${v===minG?'selected':''}>${gname[v]}</option>`).join('')}</select></label><label>표시 횟수 <select class="rinput" id="dcln">${[30,60,120,200,500,1000].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v}</option>`).join('')}</select></label></div>
  <div class="grid218"><div class="mini"><b>소모 최소 경로</b><div class="meta">${plans?.minCost?.ok?`시도 ${plans.minCost.attempts}회 · ${rkStrongCostText218(plans.minCost)}`:esc(plans?.minCost?.reason||'경로 없음')}</div></div><div class="mini"><b>수치 최대 경로</b><div class="meta">${plans?.maxValue?.ok?`시도 ${plans.maxValue.attempts}회 · ${rkStrongCostText218(plans.maxValue)}`:esc(plans?.maxValue?.reason||'경로 없음')}</div></div></div>
  <div class="scroll218"><table class="tbl218 detail-table218"><thead><tr><th>#</th><th>품질</th><th>촉련도</th><th>소모 최소</th><th>수치 최대</th></tr></thead><tbody>${items.map((x,i)=>{const idx=Number(x.index||i+1),deg=Number(x.add_lv_prop??x.value??0)/2;return `<tr><td>${idx}</td><td>${esc(x.grade_name||gname[x.grade]||x.grade||'')}</td><td>+${Number.isFinite(deg)?deg:''}%</td><td>${minSet.has(idx)?'<span class="tag ok">수락</span>':'—'}</td><td>${maxSet.has(idx)?'<span class="tag ok">수락</span>':'—'}</td></tr>`}).join('')}</tbody></table></div>`;
  h.querySelector('#dclt').onchange=ev=>{o._rkClTarget=Number(ev.target.value);paintDetailPanel(h,o,'cl')};h.querySelector('#dclg').onchange=ev=>{o._rkClGrade=Number(ev.target.value);paintDetailPanel(h,o,'cl')};h.querySelector('#dcln').onchange=ev=>{o._rkClN=Number(ev.target.value);paintDetailPanel(h,o,'cl')};
@@ -11963,4 +11963,4 @@ html[data-nangman-theme="dark"] body{--rbg:#171c23;--rc:#252c35;--rl:#47515d;--r
 html[data-nangman-theme="dark"] #rk218{background:#171c23!important;color:#eef2f5!important}
 @media(max-width:700px){#rk218{padding:0!important}#rk218 .rsel{min-width:0}}
 </style>
-<script defer src="./embedded-bridge.js?rev=v088"></script>
+<script defer src="./embedded-bridge.js?rev=v090"></script>
