@@ -23,6 +23,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
       <label>선행 사냥 횟수<input id="wildPad" type="number" min="0" max="500" value="0" required></label>
       <label>예측 횟수<input id="wildCount" type="number" min="1" max="500" value="30" required></label>
       <label id="wildBaitField" hidden>미끼<select id="wildBait"><option value="normal">일반 생고기</option><option value="tiger">호랑이 고기</option></select></label>
+      <label id="wildTombOrderField" hidden>제릉 보상 분기 가설<select id="wildTombOrder"><option value="descending">가중치 높은 순(미검증)</option><option value="ascending">가중치 낮은 순(비교)</option></select></label>
     </div>
     <details id="wildTiming">
       <summary>옵션 판정 시간</summary>
@@ -99,7 +100,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 </section>
 </main>
 <script defer src="../shared/equip_data.js"></script>
-<script defer src="./wild-data.js"></script><script defer src="./wild-core.js"></script><script defer src="./wild.js"></script>
+<script defer src="./wild-data.js"></script><script defer src="./wild-core.js"></script><script defer src="./tomb-core.js"></script><script defer src="./wild.js"></script>
 <script defer src="./dungeon-data.js"></script><script defer src="./dungeon-orange.js"></script>
 <script defer src="./dungeon-core.js"></script><script defer src="./dungeon.js"></script>
 <script defer src="./treasure-core.js"></script><script defer src="./treasure.js"></script>
