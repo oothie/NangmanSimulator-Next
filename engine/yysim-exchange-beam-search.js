@@ -124,7 +124,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
    }
    expanded++;
   }
-  if(stopReason||completed.length&&washNo>=Math.min(horizon,completed[0].washes))break;
+  if(stopReason)break;
   if(!pool.length)break;
   // Maintain several RNG trajectories per held-goal mask. Otherwise an
   // early single-purple goal would evict all luck-pool exchange alternatives.
