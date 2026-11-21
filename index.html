@@ -2870,17 +2870,34 @@ function questView(){
   const received=Number(task?.recv);
   const receivedLabel=Number.isFinite(received)&&received>1000000000&&received<4102444800?
    new Date(received*1000).toLocaleString('ko-KR'):'기록 없음';
-  content=card('현재 임무 저장값',!save?'<p class="micro">한국판 세이브를 불러오면 저장된 임무 ID를 표시합니다.</p>':
+  const branch=window.NangmanQuest?.model(save)||{rows:[],active:0,done:0,traced:0};
+  const current=branch.rows.filter(x=>x.active).slice(0,30);
+  const traced=current.filter(x=>x.traced);
+  const summary='<div class="market-stats">'+[
+   ['현재 분기',branch.active+'개'],['완료 기록',branch.done+'개'],
+   ['추적 표시',branch.traced+'개'],['NPC 좌표',data.located.length+'명']
+  ].map(([name,value])=>'<div class="stat-cell"><span class="label">'+name+'</span><span class="value">'+value+'</span></div>').join('')+'</div>';
+  content=summary+card('현재 주요 임무',!save?'<p class="micro">상단에서 세이브를 불러오세요.</p>':
    '<div class="wiki-detail-fields">'+[
-    ['임무 ID',task?.id??'기록 없음'],['임무 이름',knownMain||matched?.name||'임무 이름 미확인'],
-    ['추적',task?data.trace?'추적 중':'추적 안 함':'기록 없음'],['수락 기록 시각',task?receivedLabel:'기록 없음']
-   ].map(([label,value])=>'<div class="wiki-field"><span>'+escape(label)+'</span><b>'+escape(value)+'</b></div>').join('')+
-   '</div><p class="micro">원본 Task.id/trace/recv 필드를 그대로 읽었습니다. 임무 ID가 더미이거나 별도의 임무 데이터가 없으면 이름과 실제 진행 단계는 확인할 수 없습니다.</p>')+
-   card('위탁 임무 저장 목록',
-    '<p class="micro">WeiTuoTask.accept / task 배열은 원본 저장 키만 표시합니다. 완료·미완료 상태라고 추정하지 않습니다.</p>'+
-    '<div class="wiki-detail-fields">'+
-    [['수락 기록',data.delegated.accepted],['임무 기록',data.delegated.recorded]].map(([label,arr])=>
-    '<div class="wiki-field"><span>'+label+' ('+arr.length+'개)</span><b>'+escape(arr.join(', ')||'기록 없음')+'</b></div>').join('')+'</div>');
+    ['임무 ID',task?.id??'기록 없음'],['임무 이름',knownMain||matched?.name||'이름 미확인'],
+    ['추적',task?(data.trace?'추적 중':'추적 안 함'):'기록 없음'],
+    ['수락 기록',task?receivedLabel:'기록 없음']
+   ].map(([label,value])=>'<div class="wiki-field"><span>'+escape(label)+'</span><b>'+escape(value)+'</b></div>').join('')+'</div>'+
+   (matched?.description?'<p>'+escape(matched.description)+'</p>':'')+
+   '<p class="micro">세이브의 임무 ID·수락 시간만 표시합니다. 저장되지 않은 목표를 추정하지 않습니다.</p>')+
+   card('진행 중인 임무·이벤트',current.length?
+    '<div class="quest-result-list">'+current.map(x=>
+    '<details '+(x.traced?'open':'')+'><summary><strong>'+escape(x.name)+'</strong> <small>단계 '+escape(x.step)+
+    ' · '+(x.traced?'추적 중':'진행 중')+'</small></summary>'+
+    '<div class="wiki-detail-fields">'+[
+      ['내부 ID',x.id],['현재 단계',x.step],['추적',x.traced?'예':'아니요'],
+      ['시작 기록',x.received?marketDate(x.received):'기록 없음']
+     ].map(([label,value])=>'<div class="wiki-field"><span>'+escape(label)+'</span><b>'+escape(value)+'</b></div>').join('')+'</div>'+
+     '<p>'+escape(x.detail||'상세 기록 없음')+'</p></details>').join('')+'</div>':
+    '<p class="micro">진행 중인 분기 기록이 없습니다.</p>')+
+   card('위탁 임무', '<div class="wiki-detail-fields">'+
+    [['수락',data.delegated.accepted],['기록',data.delegated.recorded]].map(([label,arr])=>
+    '<div class="wiki-field"><span>'+label+' '+arr.length+'개</span><b>'+escape(arr.slice(0,40).join(' · ')||'기록 없음')+'</b></div>').join('')+'</div>');
  }else if(questTab==='catalog'){
   const visible=catalog.filter(x=>(x.id+' '+x.name+' '+x.description).toLowerCase().includes(q));
   content=card('한국판 임무 자료',
