@@ -42,6 +42,30 @@ const doWash=()=>{
   assert.equal(best.intermediate_goals,false);
   assert.deepEqual(current,INITIAL,'3/4-target search restores native state');
  }
+ // A save may have global_vars serialized in a different hash-map key
+ // order by each newly instantiated native WASM engine.
+ const special={...clone(INITIAL),zizhi:154,seed:0,bag_pills:600,
+  global_vars:{nlliandu_tf:0,mh_tianfu_401:1,talent_LingYue:1},
+  talents:[{id:271,locked:true},{id:272,locked:true},
+   {id:250,locked:true},{id:171,locked:false}]};
+ current=clone(special);
+ let reinits=0;
+ const freshBranch=async initial=>{
+  reinits++;
+  current=clone(initial);
+  current.global_vars={talent_LingYue:1,nlliandu_tf:0,mh_tianfu_401:1};
+  return getState();
+ };
+ const four=await source.run({ids:[271,272,250,184],horizon:12,topN:6,
+  getState,setState,doWash,isolated:true,freshBranch});
+ assert.equal(four.scanned,24,'3 purple + 1 green checks all 24 goal orders');
+ assert.equal(reinits,23,'a fresh native instance for every remaining search order');
+ assert(four.routes.length>0,'3 pre-locked purple plus green reaches a final combination');
+ assert(four.routes.every(route=>[271,272,250,184].every(id=>
+  route.final_slots.some(slot=>slot.id===id))));
+ assert(!four.warnings.some(w=>w.includes('global_vars')),
+  'same native global_vars values with different key order must not fail');
+ current=clone(INITIAL);
  const impossible=await source.run({ids:[999],horizon:3,topN:2,getState,setState,doWash});
  assert.equal(impossible.routes.length,0);
  assert.deepEqual(current,INITIAL);
