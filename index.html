@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.8.6</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.8.7</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -201,7 +201,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.8.6: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.8.7: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -381,7 +381,7 @@ body{background:var(--bg)!important}
 .quest-branch-item small{font-size:11px;color:var(--sub);overflow-wrap:anywhere}
 .quest-branch-item>span{font-size:12px;white-space:nowrap;color:var(--sub)}
 
-/* v0.8.6: yy-sim spacing in native calculator containers. */
+/* v0.8.7: yy-sim spacing in native calculator containers. */
 .equip-primary-tabs{gap:5px;flex-wrap:wrap}
 .equip-primary-tabs button{min-height:36px;padding:8px 12px;border-radius:6px}
 .equipment-runtime-status{border-radius:7px;border:1px solid var(--border);border-left:3px solid var(--gold);background:var(--paper);color:var(--text)}
@@ -390,12 +390,12 @@ body{background:var(--bg)!important}
 .equipment-host iframe{border-radius:8px;background:var(--panel)}
 @media(max-width:700px){.equip-primary-tabs button{font-size:12px;padding:7px 10px}.drop-workspace{min-height:640px}.equipment-runtime-status{padding:9px 11px}}
 
-/* v0.8.6: CSV downloads are intentionally removed from the visible site. */
+/* v0.8.7: CSV downloads are intentionally removed from the visible site. */
 #washHistoryExport,#washPreviewExport,#washPathExport,
 #downloadAccountCultivation,#questBranchExport,#questExportCsv,
 button[data-export-csv],a[download$=".csv"]{display:none!important}
 
-/* v0.8.6: readable wash and equipment navigation */
+/* v0.8.7: readable wash and equipment navigation */
 .equip-directory,.equip-detail-full{padding:18px 0}
 .equip-directory>input{width:min(100%,700px);padding:13px;font-size:16px}
 .equip-directory-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin:18px 0}
@@ -412,7 +412,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .talent{min-height:86px}.talent-text b{font-size:15px}.talent-text small,.config-item,.wash-grade{font-size:13px}
 @media(max-width:700px){.equip-directory-list,.equip-detail-rows{grid-template-columns:1fr}}
 
-/* v0.8.6: wash automatic search readable selection panels */
+/* v0.8.7: wash automatic search readable selection panels */
 .wash-auto-groups{display:grid;gap:14px;margin:15px 0 18px}
 .wash-auto-group{border:1px solid var(--border);background:var(--panel);border-radius:9px;padding:3px 14px}
 .wash-auto-group>summary{font-size:16px;font-weight:750;padding:12px 2px;cursor:pointer}
@@ -469,7 +469,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .wiki-art-placeholder.large{background:transparent!important;border-color:transparent!important}
 .wiki-result-row:has(.wiki-art-placeholder:not([style*="display:none"])) .wiki-art-placeholder{width:38px;height:38px}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
-/* v0.8.6: compact wash view. Calculation controls are not changed. */
+/* v0.8.7: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
 .layout .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 16px;margin-bottom:9px}
 .layout .hero h2{font-size:18px;margin:0}
@@ -1070,7 +1070,7 @@ function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.8.6</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
+return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.8.7</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
 }
 
 function embeddedEngine(url,label,caption){
@@ -1081,10 +1081,10 @@ function embeddedEngine(url,label,caption){
 
 
 const equipmentTabs=[
- ['find','장비 찾기',null],
- ['auto','장비 자동 시뮬레이션','equip-auto'],
- ['owned','보유 장비',null],
- ['region','지역별 제작 목록','equip-region'],
+ ['find','장비 찾기','nangman350:find'],
+ ['auto','장비 자동 시뮬레이션','nangman350:auto'],
+ ['owned','보유 장비','nangman350:owned'],
+ ['region','지역별 제작 목록','nangman350:region'],
  ['orange','주황 장비 순서','equip-orange'],
  ['jianwang','검왕각 수동','jianwang-manual'],
  ['jianwangAuto','검왕각 자동','jianwang-auto']
@@ -1162,49 +1162,20 @@ function equipOwned(){
 }
 
 function equipDetailView(){
- const item=equipDetail||{},eq=item.eq||{},base=equipCatalog()[String(eq.ID)]||{};
- const color=Number(eq.Color),isOrange=color===5||color===6||Number(base.weapon_color)===5;
- const weapon=Number(base.type)>=1&&Number(base.type)<=4;
- const ko={ID:'장비 ID',OnlyID:'고유 번호',Color:'등급',Level:'촉련 단계',LvProp:'성장 계수',
-  Atk:'공격',Def:'방어',Hp:'기혈',Hit:'명중',Speed:'속도',Dodge:'회피',
-  Parry:'초식방어',RenXing:'인내',Neijin:'내경',Gangqi:'강기',XLLevel:'정련 단계',
-  EnExts:'추가 옵션',EnMans:'망정',EnSpecials:'특수 부가',EnNoXLExts:'기타 옵션'};
- const keys=Object.keys(ko).filter(x=>eq[x]!=null);
- const attrValue=(key,val)=>{
-  if(key==='Color')return characterEquipColors[Number(val)]||'원본 '+val;
-  if(['EnExts','EnMans','EnSpecials','EnNoXLExts'].includes(key)){
-   return characterEntries(val).map(o=>{
-    if(!o||typeof o!=='object')return String(o??'');
-    const name=characterEquipProps[String(o.Key)]||String(o.Key||'옵션');
-    const raw=Number(o.Value);
-    const percent=characterEquipPercent.has(String(o.Key));
-    const n=Number.isFinite(raw)?(percent?Number((raw*100).toFixed(1))+'%':Number(raw.toFixed(1))):String(o.Value||'—');
-    return name+' +'+n;
-   }).join(' · ')||'기록 없음';
-  }
-  return String(val);
- };
- const rows=keys.map(key=>'<div><span>'+escape(ko[key])+'</span><strong>'+escape(attrValue(key,eq[key]))+'</strong></div>').join('');
- const modes=[['refine','정련 시퀀스',isOrange],['strong','촉련 시퀀스',!weapon],['mangjing','망정·특수부가',false]];
+ const x=equipDetail||{},equipment=x.eq||{};
  return '<section class="equip-detail-full">'+
- '<div class="equip-detail-header"><button class="btn" id="equipBack">← 이전 화면</button><span class="micro">'+escape(item.source||'장비 도감')+'</span></div>'+
- '<h2>'+escape(equipName(eq.ID))+'</h2><p class="micro">레벨 '+escape(base.lv??'—')+' · 장비 ID #'+escape(eq.ID)+'</p>'+
- '<div class="equip-detail-tags"><span>'+(isOrange?'주황·적색 장비 · 일반 정련 불가':'세이브 연결 시 정련 계산 가능')+'</span>'+
- '<span>'+(weapon?'무기 · 촉련 가능':'무기 외 장비 · 촉련 불가')+'</span></div>'+
- '<div class="equip-detail-rows">'+(rows||'<p class="micro">도감의 기본 정보만 있습니다. 실제 장비의 시드·옵션을 확인하려면 보유 장비에서 선택하세요.</p>')+'</div>'+
- '<section class="equip-detail-operations"><h3>정련 · 촉련 · 망정</h3>'+
- '<p class="micro">선택한 장비의 저장된 시드로 여러 회차를 연속 계산합니다. 계산은 실제 게임의 아이템이나 시드를 변경하지 않습니다.</p>'+
- '<div class="equip-detail-controls"><label>조회 회차 <input type="number" id="equipCount" min="1" max="5000" value="'+escape(item.count||20)+'"></label>'+
- '<div class="equip-detail-buttons">'+modes.map(([id,name,disabled])=>
- '<button type="button" class="btn '+(item.mode===id?'primary':'')+'" data-equip-action="'+id+'" '+(disabled?'disabled':'')+'>'+name+'</button>').join('')+'</div></div>'+
- '<p class="equipment-runtime-status" id="equipDetailStatus" role="status">실제 세이브 장비를 선택하고 조회할 계산 방식을 눌러주세요.</p></section></section>';
+ '<div class="equip-detail-header"><button type="button" class="btn" id="equipBack">← 이전 화면</button>'+
+ '<span class="micro">'+escape(x.source||'보유 장비')+'</span></div>'+
+ '<h2>'+escape(equipName(equipment.ID))+'</h2>'+
+ '<p class="micro">원본 NangmanSimulator v3.50 장비 상세 엔진. 정련·망정·촉련 탭과 시퀀스 조회를 아래에서 사용할 수 있습니다.</p>'+
+ '<p class="equipment-runtime-status" id="equipDetailStatus" role="status">선택한 장비의 원본 계산 결과를 불러오는 중입니다.</p></section>';
 }
 function equipView(){
  if(equipDetail)return '<div class="module-wrap">'+equipDetailView()+'</div>';
  return '<div class="module-wrap">'+moduleHero('장비','')+
  '<nav class="simple-tabs equip-primary-tabs" role="tablist">'+
  equipmentTabs.map(([id,label])=>'<button role="tab" aria-selected="'+(equipTab===id)+'" data-module-tab="equip:'+id+'" class="'+(equipTab===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+
- (equipTab==='find'?equipFinder():equipTab==='owned'?equipOwned():'')+'</div>';
+ '</div>';
 }
 let koreanWiki=[],v620Wiki=null,wikiFallbackSource=null,wikiQuery='',wikiSelectedCategory='misc',wikiDetail=null,wikiOffset=0,wikiSource=null,wikiSourceError='';
 const wikiCategories=[
@@ -3233,7 +3204,7 @@ if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  link.download='Nangman_Quest_Branches_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch=''}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.8.6',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch=''}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.8.7',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 
 if($('equipSearch'))$('equipSearch').oninput=e=>{equipSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipSearch');x.focus();x.setSelectionRange(p,p)};
 if($('equipOwnSearch'))$('equipOwnSearch').oninput=e=>{equipOwnSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipOwnSearch');x.focus();x.setSelectionRange(p,p)};
@@ -3528,26 +3499,27 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.8.6',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.8.7',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;render()}});
 function sendEquipmentFocus(force=false){
- const frame=equipmentFrames.get('detail');
- if(!equipDetail?.mode||!frame?.contentWindow)return false;
- frame.contentWindow.postMessage({kind:'nangman-equip-focus',equipment:equipDetail.eq,
-  mode:equipDetail.mode,count:equipDetail.count,version:equipSaveVersion,force},location.origin);
+ const frame=equipmentFrames.get('nangman-v350');
+ if(!equipDetail||!frame?.contentWindow)return false;
+ frame.contentWindow.postMessage({kind:'nangman-equipment-focus',
+  equipment:equipDetail.eq,tab:equipDetail.mode==='refine'?'xl':equipDetail.mode==='mangjing'?'mj':
+   equipDetail.mode==='strong'?'cl':'route',version:equipSaveVersion,force},location.origin);
  return true;
 }
 window.addEventListener('message',event=>{
- if(event.origin!==location.origin||event.source!==equipmentFrames.get('detail')?.contentWindow||
+ if(event.origin!==location.origin||event.source!==equipmentFrames.get('nangman-v350')?.contentWindow||
     event.data?.kind!=='nangman-equip-detail-status')return;
  const status=$('equipDetailStatus');
  if(status)status.textContent=String(event.data.message||'계산 상태 정보 없음');
 });
 const equipmentStatus=Object.create(null);
 const equipmentFrames=new Map();
-let equipSaveVersion=0;
+let equipSaveVersion=0,equipmentLastOriginalTab=null;
 function sendSaveToEquipment(frame){
  if(!save||!frame?.contentWindow)return;
  try{frame.contentWindow.postMessage({kind:'nangman-equip-save',version:equipSaveVersion,save},location.origin)}
@@ -3557,7 +3529,7 @@ function clearEquipmentSessions(){
  for(const frame of equipmentFrames.values()){try{frame.parentElement.remove()}catch(e){}}
  equipmentFrames.clear();
  for(const key of Object.keys(equipmentStatus))delete equipmentStatus[key];
- equipSaveVersion++;
+ equipSaveVersion++;equipmentLastOriginalTab=null;
 }
 function broadcastEquipmentSave(){
  equipSaveVersion++;
@@ -3574,30 +3546,40 @@ function updateEquipmentVisibility(){
  if(!area)return;
  area.hidden=v!=='equip';
  if(v!=='equip')return;
- const tab=equipDetail?['detail','장비 상세 계산','equip']:(equipmentTabs.find(x=>x[0]===equipTab)||equipmentTabs[0]);
- if(!tab[2]){for(const frame of equipmentFrames.values()){frame.parentElement.classList.remove('active');frame.parentElement.hidden=true}return}
- if(!equipmentFrames.has(tab[0])){
-   const host=document.createElement('section');
-   host.className='equipment-host';
-   host.dataset.equipmentTab=tab[0];
-   const frame=document.createElement('iframe');
-   frame.title=''+tab[1]+' 엔진';
-   frame.loading='eager';
-   frame.referrerPolicy='same-origin';
-   frame.src='./vendor/sanbujin/'+tab[2]+'/index.html?rev=v085';
-   frame.addEventListener('load',()=>{sendThemeToEquipment(frame);sendSaveToEquipment(frame)});
-   host.appendChild(frame);
-   area.appendChild(host);
-   equipmentFrames.set(tab[0],frame);
-   equipmentStatus[tab[0]]=''+tab[1]+' 엔진 로드 중';
+ const tab=equipDetail?['detail','장비 상세','nangman350:detail']:(equipmentTabs.find(x=>x[0]===equipTab)||equipmentTabs[0]);
+ if(!tab[2]){
+  for(const frame of equipmentFrames.values()){frame.parentElement.classList.remove('active');frame.parentElement.hidden=true}
+  return;
+ }
+ const original=String(tab[2]).startsWith('nangman350:');
+ const frameKey=original?'nangman-v350':tab[0];
+ if(!equipmentFrames.has(frameKey)){
+  const host=document.createElement('section');host.className='equipment-host';
+  host.dataset.equipmentTab=frameKey;
+  const frame=document.createElement('iframe');
+  frame.title=tab[1]+' 엔진';frame.loading='eager';frame.referrerPolicy='same-origin';
+  frame.src=original?'./vendor/nangman-v350/equipment.html?rev=v087':
+   './vendor/sanbujin/'+tab[2]+'/index.html?rev=v087';
+  frame.addEventListener('load',()=>{
+   sendThemeToEquipment(frame);sendSaveToEquipment(frame);
+   if(original&&tab[0]!=='detail')frame.contentWindow?.postMessage({kind:'nangman-equipment-target',view:tab[0]},location.origin);
+  });
+  host.appendChild(frame);area.appendChild(host);
+  equipmentFrames.set(frameKey,frame);
+  equipmentStatus[frameKey]=tab[1]+' 엔진 로드 중';
  }
  for(const [key,frame] of equipmentFrames){
-  const active=key===tab[0];
+  const active=key===frameKey;
   frame.parentElement.classList.toggle('active',active);
   frame.parentElement.hidden=!active;
  }
+ if(original&&tab[0]!=='detail'&&equipmentLastOriginalTab!==tab[0]){
+  equipmentLastOriginalTab=tab[0];
+  equipmentFrames.get(frameKey)?.contentWindow?.postMessage({
+   kind:'nangman-equipment-target',view:tab[0]},location.origin);
+ }
  const indicator=$('equipmentRuntimeStatus');
- if(indicator)indicator.textContent=equipmentStatus[equipTab]||'계산 엔진 준비 중';
+ if(indicator)indicator.textContent=equipmentStatus[frameKey]||'계산 엔진 준비 중';
 }
 // Persistent drop engine: the old per-render iframe discarded results and sent saves before load.
 let dropFrame=null,dropReady=false,dropSaveVersion=0,dropSentVersion=-1,dropSelectedMode='wild',dropModeSent=null;
@@ -3660,14 +3642,15 @@ window.addEventListener('message',event=>{
    equipmentStatus[key]='계산 화면 준비됨 · 세이브 확인 중';
    sendThemeToEquipment(frame);
    sendSaveToEquipment(frame);
-   if(key==='detail'&&!save)sendEquipmentFocus(true);
+   if(key==='nangman-v350'){if(equipDetail)sendEquipmentFocus(true);else equipmentFrames.get(key)?.contentWindow?.postMessage({kind:'nangman-equipment-target',view:equipTab},location.origin)}
  }else if(detail.status==='applied'){
    equipmentStatus[key]='한국판 세이브가 이 장비 기능에 적용됐습니다.';
-   if(key==='detail')sendEquipmentFocus(true);
+   if(key==='nangman-v350'){if(equipDetail)sendEquipmentFocus(true);else equipmentFrames.get(key)?.contentWindow?.postMessage({kind:'nangman-equipment-target',view:equipTab},location.origin)}
  }else if(detail.status==='error'){
    equipmentStatus[key]='세이브 적용 오류: '+(detail.message||'원본 함수 확인 필요');
  }
- if(v==='equip'&&(equipTab===key||(equipDetail&&key==='detail'))&&$('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[key];
+ if(v==='equip'&&((key==='nangman-v350'&&['find','auto','owned','region'].includes(equipTab))||equipTab===key)&&$('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[key];
+ if(key==='nangman-v350'&&equipDetail&&$('equipDetailStatus'))$('equipDetailStatus').textContent=detail.message||equipmentStatus[key];
 });
 setInterval(()=>{const el=document.getElementById('marketLiveClock');if(el)el.textContent=new Date().toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})},1000);
 window.addEventListener('message',event=>{
@@ -4239,7 +4222,7 @@ window.addEventListener('message',e=>{
  }
 });
 </script>
-<!-- v0.8.6: read-only localization audit with hidden dialogs, select choices and element paths. -->
+<!-- v0.8.7: read-only localization audit with hidden dialogs, select choices and element paths. -->
 <script>
 (function(){
   const hanja=/[\u3400-\u9fff]/;
