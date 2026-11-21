@@ -39,3 +39,7 @@ jobs:
         run: node tests/module-integration-smoke.cjs
       - name: Validate workflow data quality and save synchronization
         run: node tests/workflow-integration-smoke.cjs
+      - name: Verify seeded ghost market prediction parity
+        run: node tests/daily-market-smoke.cjs
+      - name: Verify full Korean mission Branch ledger
+        run: node tests/quest-branch-smoke.cjs
