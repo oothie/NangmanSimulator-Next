@@ -2,7 +2,7 @@
 
 배포 사이트: https://nangman-sim.pages.dev/
 
-현재 UI 버전: **v0.7.18**
+현재 UI 버전: **v0.7.19**
 
 ## 설계 기준
 - yy-sim 화면 구조를 참고해 한국어 UI를 자체 구현합니다.
@@ -239,3 +239,10 @@
 - 동료 지원 재능 ID는 CHAR_DATA[인물 ID].talent에서 찾아 BATTLE_TALENT_DATA와 연결합니다. 태생 재능 BornTalent와 분리합니다.
 - 생활기술·기예 효과 메타데이터를 산부진 대신 yy-sim LIFE_HEDAO_DATA.skills에서 읽습니다. 한국어 명칭은 한국판 ID 대응표를 우선합니다.
 - 원본 데이터 파일 4개 존재 및 index 인라인 일반 스크립트 구문 확인. 실제 브라우저 E2E와 최종 능력치 계산은 미완료입니다.
+
+## v0.7.19 캐릭터 장비 기본 수치 대조 (2026-11-21)
+- 캐릭터 능력치·장비 화면에 Equips 배열에 기록된 장비의 기본 필드 Atk/Def/Hp/Hit/Dodge/Speed/Parry/RenXing/Neijin/Gangqi 단순 합계를 추가했습니다.
+- 추가 옵션(EnExts), 망정(EnMans), 특수 옵션(EnSpecials), 기타 부여 옵션(EnNoXLExts)의 저장 항목 개수를 따로 표시하며 합계에 넣지 않습니다.
+- 기존 캐릭터별 장비·무학·경맥·생활기술·세수 세부조회 및 장비/세수/드랍 기능은 유지했습니다.
+- 보관된 한국판 `latest_save(6).json`의 주인공 장비 9개에 대해 별도 Python 합산: Atk 935, Def 4822, Hp 4071, Hit 1631, Dodge 522, Speed 440, Parry 462. 추가 옵션 16개, 망정 3개, 특수 6개 확인. **장비 저장값 합계일 뿐 게임 최종 전투 능력치가 아닙니다.**
+- 수정 후 `index.html` 인라인 일반 JavaScript 구문 검사 통과. 실제 브라우저 표시/Cloudflare 배포와 최종 전투 계산 공식 검증은 미완료입니다.
