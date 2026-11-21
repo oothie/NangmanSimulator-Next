@@ -73,11 +73,19 @@
   if(/^[\s\u0000-\u001f]*[=+@-]/.test(s))s="'"+s;
   return '"'+s.replace(/"/g,'""')+'"';
  };
- function csv(records){
-  const keys=['선행 교체','세수단','세수 횟수','치환 횟수','목표 달성','목표 일치 수','미확정 사항'];
+ function csv(records,nameIds={},nameOf){
+  const keys=['선행 교체','세수단','세수 횟수','치환 횟수','목표 달성','목표 일치 수',
+   '목표 자맥 및 충돌맥','예상 최종 재능','원본 경로 단계','미달성 원인','미확정 사항'];
   const lines=[keys.map(safe).join(',')];
-  for(const r of records)lines.push([r.pad??'',r.pills??'',r.washes??'',r.exchanges??'',
-    r.success?'후보':'미달성',r.matchingNodes,'yy-sim WASM 가상 경로 · 한국판 미검증'].map(safe).join(','));
+  for(const r of records){
+   const nodes=r.nodes.map(n=>describeNode(n,nameIds,nameOf));
+   lines.push([r.pad??'',r.pills??'',r.washes??'',r.exchanges??'',
+    r.success?'WASM 후보':'미달성',r.matchingNodes,
+    nodes.map(n=>n.target+' / '+n.conflict).join(' | '),
+    nodes.map(n=>n.final).join(' | '),
+    nodes.flatMap(n=>n.chain).join(' → '),
+    r.reasonKo,'yy-sim WASM 가상 경로 · 한국판 미검증'].map(safe).join(','));
+  }
   return '\uFEFF'+lines.join('\r\n')+'\r\n';
  }
  root.NangmanWashPath={inspect,order,lookup,describeNode,csv};
