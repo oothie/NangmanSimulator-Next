@@ -59,7 +59,7 @@ try{
   if(!Array.isArray(ids)||ids.length<1||ids.length>4||
      new Set(ids).size!==ids.length||
      ids.some(id=>!Number.isInteger(id)||TALENT_DATA[String(id)]?.pinzhi!==4||
-       TALENT_DATA[String(id)]?.name==='备用天赋'))
+       !washSelectableIds().has(id)))
    throw Error('원본 자동 탐색은 자색 재능 1~4개를 중복 없이 선택해야 합니다');
   if(!Number.isInteger(maxPad)||maxPad<0||maxPad>200||
      !Number.isInteger(horizon)||horizon<20||horizon>5000||
