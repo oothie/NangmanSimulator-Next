@@ -47,3 +47,5 @@ jobs:
         run: node tests/tomb-field-smoke.cjs
       - name: Verify Diling two-save RNG hypothesis comparison
         run: node tests/tomb-compare-smoke.cjs
+      - name: Compare Diling source v29 RNG independently
+        run: node tests/tomb-source-parity.cjs
