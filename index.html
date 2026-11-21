@@ -2407,7 +2407,7 @@ if($('washPathExport'))$('washPathExport').onclick=()=>{
  const report=window.__washRuntime?.pathReports;
  if(!report||!window.NangmanWashPath)return;
  const data=window.NangmanWashPath.inspect(report.results,report.targets?.length||1);
- const csv=window.NangmanWashPath.csv(data);
+ const csv=window.NangmanWashPath.csv(data,report.nameIds||{},characterTalentName);
  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
  const url=URL.createObjectURL(blob),a=document.createElement('a');
  a.href=url;a.download='Nangman_Wash_Paths.csv';document.body.append(a);a.click();a.remove();
