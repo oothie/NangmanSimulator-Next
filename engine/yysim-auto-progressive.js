@@ -35,8 +35,11 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
   history.push({index:i+1,...stages[i],scanned,
    routes:report.stats.total,complete:report.stats.complete});
   for(const entry of report.routes){
-   const key=JSON.stringify({steps:entry.actions,finalIds:entry.finalIds,
-    pad:entry.pad,pills:entry.estimatedPills});
+   const key=JSON.stringify({actions:entry.actions,steps:entry.steps,stream:entry.stream,
+    orderIds:entry.orderIds,finalSlots:entry.finalSlots,
+    luckInit:entry.source?.luck_init,slotPlan:entry.source?.slot_plan,
+    pad:entry.pad,pills:entry.estimatedPills,washes:entry.estimatedWashes,
+    exchanges:entry.exchanges});
    if(seen.has(key))continue;
    seen.add(key);
    entries.push(entry.source);
