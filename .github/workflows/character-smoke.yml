@@ -59,6 +59,8 @@ jobs:
         run: node tests/wasm-runtime-integration.cjs
       - name: Verify native purple path goal and cost sorting
         run: node tests/wash-path-model-smoke.cjs
+      - name: Verify native WASM purple sequence metadata and export
+        run: node tests/wash-preview-model-smoke.cjs
       - name: Verify purple equipment result filters
         run: node tests/drop-quality-filter-smoke.cjs
       - name: Verify exported wild and dungeon drop CSV
