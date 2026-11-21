@@ -53,6 +53,15 @@ async function call(op,payload){
  const sourceNew=await call('auto-search',{desiredIds:[268],maxPad:4,horizon:300,topN:3});
  assert(sourceNew.ok&&Array.isArray(sourceNew.data.result.routes));
  console.log('REAL_AUTOROUTE_SAMPLE',JSON.stringify(sourceNew.data.result).slice(0,3800));
+ const beforeUpgrade=(await call('state')).data;
+ const aptitudeUpgrade=await call('upgrade-zizhi');
+ assert(aptitudeUpgrade.ok,'native source aptitude upgrade succeeds on zizhi 153');
+ assert.equal(Number(aptitudeUpgrade.data.state.zizhi),154);
+ assert.equal(Number(aptitudeUpgrade.data.state.str_gift),Number(beforeUpgrade.str_gift)+100);
+ assert.equal(Number(aptitudeUpgrade.data.state.con_gift),Number(beforeUpgrade.con_gift)+100);
+ assert(aptitudeUpgrade.data.inventoryDeducted===false);
+ assert((await call('upgrade-zizhi')).ok===false,'max aptitude 154 cannot upgrade further');
+ assert((await call('set-state',beforeUpgrade)).ok,'restore original aptitude and WASM RNG');
  const preview=await call('preview',{count:80});
  assert(preview.ok&&Array.isArray(preview.data.preview.purples));
  assert.equal(preview.data.nameIds['九阴鬼脉'],'248');
