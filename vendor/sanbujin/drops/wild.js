@@ -35,8 +35,8 @@
     $('wildTiming').hidden = !timed;
     $('wildTime').disabled = $('wildInterval').disabled = !timed;
     const ready = isTomb ? tomb.ready(input) : engine.usable(input.seed) && (!tiger || engine.usable(input.tigerSeed));
-    $('wildRun').disabled = !ready || isTomb;
-    const label = isTomb ? '제릉은 위의 전용 예측 화면에서 계산하세요. 기존 오름차순/내림차순 두 결과는 9회차 수라장갑 백색 실측과 불일치해 단독 예측을 중지했습니다. 시각 대신 저장된 90레벨 장비별 Eds를 옵션 순서에 활용하며, 분기 순서는 아직 검증되지 않았습니다.' : tiger
+    $('wildRun').disabled = !ready;
+    const label = isTomb ? '제릉 · 거령 병용 출현과 90레벨 장비·기타 보상을 함께 계산합니다. 1121 세이브에서 8·12·20·21회차 실측과 일치한 보상 순서를 적용합니다. 색상·추가 옵션은 장비별 Eds를 사용하며, 다른 세이브의 순회 순서까지 확정된 것은 아닙니다.' : tiger
       ? '원본 실행 순서에 따라 호랑이 종류와 호골 천장을 예측합니다. 현재 호골 연속 미획득 ' + input.drought + '회.'
       : timed ? '드랍 여부와 품질은 세이브 순서로 예측합니다. 장비 옵션은 입력한 판정 시각에 따라 달라집니다.'
         : '원본 보상 함수를 직접 호출하는 특수몹 드랍 시뮬레이션입니다. 표시 회차는 전체 일반 필드 사냥 횟수가 아닙니다. 별도 특수몹 출현 순서가 연결되기 전까지 일반 사냥 1회당 이 함수를 한 번 호출한다고 해석하면 안 됩니다.';
@@ -73,16 +73,16 @@
     const appearances = rows.filter(row => !row.padding && row.kind === 'tomb' && row.spawn).length;
     const purple = rows.filter(row => !row.padding && row.color === 4).length;
     const story=targets[Number(picker.value)]?.kind==='story';
-    $('wildStatus').textContent = (story?'선행 특수몹 보상 호출 ':'선행 사냥 ') + padding + '회 · 예측 ' + (rows.length - padding) + '회 · 드랍 ' + hits + '회 · 자색 ' + purple + '회' + (story?' · 일반 사냥 회차와 별개':rows.some(row => row.kind === 'tomb') ? ' · 제릉 필드 특수몹 등장 ' + appearances + '회 · '+(input.gate3007Unknown?'3007 미확인·조건부':'실험')+' 가설' : '');
+    $('wildStatus').textContent = (story?'선행 특수몹 보상 호출 ':'선행 사냥 ') + padding + '회 · 예측 ' + (rows.length - padding) + '회 · 드랍 ' + hits + '회 · 자색 ' + purple + '회' + (story?' · 일반 사냥 회차와 별개':rows.some(row => row.kind === 'tomb') ? ' · 제릉 필드 특수몹 등장 ' + appearances + '회 · 1121 실측 기준 분기 가설' : '');
     host.replaceChildren(...shown.map(row => {
       const item = node('li', '');
       const label = '제 ' + row.serial + (story?'회 특수몹 보상 호출':'회') + (row.padding ? ' · 선행 사냥' : '') +
-        (row.tiger ? ' · ' + row.tiger : '') + (row.kind === 'tomb' ? ' · ' + (row.spawn ? '특수몹 35256' : '일반 전투') : '') + ' · ' + (EQUIP_DATA.equipment?.[row.itemId]?.koName || (row.kind === 'tomb' ? (row.itemId ? '기타 보상 ID ' + row.itemId : row.spawn ? '장비 드랍 없음' : '예상 드랍 없음') : ko(row.itemName || '예상 드랍 없음'))) +
+        (row.tiger ? ' · ' + row.tiger : '') + (row.kind === 'tomb' ? ' · ' + (row.spawn ? '특수몹 35256' : '일반 전투') : '') + ' · ' + (EQUIP_DATA.equipment?.[row.itemId]?.koName || (row.kind === 'tomb' ? (row.itemName || (row.itemId ? '기타 보상 ID ' + row.itemId : row.spawn ? '장비 드랍 없음' : '예상 드랍 없음')) : ko(row.itemName || '예상 드랍 없음'))) +
         (row.color ? ' · ' + color[row.color] : '');
       item.append(node('strong', label));
-      if (row.kind === 'tomb') item.append(node('span', row.color ? '90레벨 장비 · 분기 순서 미검증 · 장비 추가 옵션/최종 정련은 미연결' : row.reason || (row.spawn ? '90레벨 일반 장비 이외 보상 또는 드랍 없음' : '특수몹 미등장'), 'wild-row-note'));
+      if (row.kind === 'tomb') item.append(node('span', row.color ? '90레벨 장비 · 1121 실측 일치 분기 · 최종 정련/망정 미연결' : row.reason || (row.spawn ? '장비 이외 보상 또는 드랍 없음' : '특수몹 미등장'), 'wild-row-note'));
       if (row.tiger) item.append(node('span', '호골 연속 미획득 ' + row.droughtBefore + ' → ' + row.droughtAfter, 'wild-row-note'));
-      if (row.color > 1 && row.kind !== 'tomb') {
+      if (row.color > 1) {
         const attrs = row.affixes?.map(({prop, value}) => {
           const label = EQUIP_DATA.propNames?.[prop] || EQUIP_DATA.props?.[prop] || prop;
           const percent = value < 1 || prop === 'atk_extend';
@@ -304,7 +304,7 @@
         {title:'색상',value:row=>color[row.color]||''},
         {title:'예상 추가 옵션(검증 전)',value:row=>row.affixes?
           row.affixes.map(a=>a.prop+':'+a.value).join('; '):''},
-        {title:'한계',value:row=>target.kind==='tomb'?'제릉 분기 가설·최종 정련/망정 미연결':
+        {title:'한계',value:row=>target.kind==='tomb'?'1121 실측 기반 제릉 분기 · 최종 정련/망정 미연결':
           target.kind==='story'?'특수몹 보상 호출 · 일반 사냥 회차 아님 · 최종 정련/망정 미연결':
           '세이브 시드 기반 가상 계산 · 실게임/최종 정련 검증 필요'}
       ];
@@ -320,9 +320,8 @@
     const interval = Number($('wildInterval').value), bait = $('wildBait').value;
     const time = Math.floor(Date.parse($('wildTime').value + '+08:00') / 1000);
     try {
-      if (target.kind === 'tomb') throw Error('제릉은 위의 전용 144분기 후보 예측을 사용하세요. 이전 두 가설은 실측과 불일치합니다.');
       if (target.kind === 'aidrop' && !engine.usable(time)) throw Error('올바른 첫 사냥 판정 시각을 입력하세요.');
-      rows = target.kind === 'tomb' ? tomb.predict(input, {pad, count, order: $('wildTombOrder').value}) : engine.predict(input, target, {pad, count, interval, bait, time}, EQUIP_DATA.equipment);
+      rows = target.kind === 'tomb' ? tomb.predict(input, {pad, count, order:'verified',equipment:EQUIP_DATA.equipment}) : engine.predict(input, target, {pad, count, interval, bait, time}, EQUIP_DATA.equipment);
       render();
     } catch (error) { $('wildStatus').textContent = error.message; }
   };
