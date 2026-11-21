@@ -2964,7 +2964,7 @@ async function compute(){
      return;
    }
    const st=stateFromSave(SAVE,r,+vipSel.value,rawCalcZizhi());
-   roleInfo.textContent=`${r.Name} / ID ${r.ID} / 세이브 ${saveRoleSlots()}칸 → 원시 계산 ${rawSlotN}칸 / TalLucky ${st.tal_lucky} / S ${st.seed} / RC ${st.born_talent_rc??"-"} / 근골 ${st.role_stats.con}`;
+   roleInfo.textContent=`${r.Name||("캐릭터 "+r.ID)} · 보유 ${saveRoleSlots()}칸 · 계산 ${rawSlotN}칸`;
    RAW=await scanPurplesAsync(st,10000,wanted,(w,p)=>{
      const pct=Math.min(88,5+p/Math.max(1,wanted)*82);
      calcProgress.style.width=pct+"%";
