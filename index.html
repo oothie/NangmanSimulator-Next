@@ -504,7 +504,28 @@ if(sub==='exchange'){
  '<div class="history">아직 WASM 자맥 후보 시퀀스를 조회하지 않았거나 결과가 없습니다.</div>')+
  '</section>';
 }
-if(sub==='path')body='<section class="wash-section"><div class="section-header"><h3>목표 자맥 경로 탐색</h3></div><div class="fields"><label>목표 자맥<input disabled placeholder="목표 자맥 선택"></label><label>최대 탐색 횟수<input disabled value="5000"></label></div><div class="actions"><button class="btn primary" disabled>세수 경로 탐색</button></div><div class="notice">실제 세이브 시드가 검증되면 자동 경로 탐색을 연결합니다.</div></section>';
+if(sub==='path'){
+ const runtime=window.__washRuntime||{};
+ const valid=runtime.active&&runtime.origin==='save'&&runtime.linkedRoleId===r?.id&&!runtime.loading;
+ const reports=runtime.pathReports;
+ const summary=reports?'<p class="micro">원본 yy-sim WASM 후보 '+escape(Array.isArray(reports.results)?reports.results.length:0)+'건 · '+escape(reports.maxPad)+'회까지 탐색 · 가상 세수 · 실제 서버 미검증</p>':
+ '<p class="micro">목표 자맥과 충돌맥의 원본 재능 ID를 입력해 탐색을 시작하세요. 정확한 잠금·치환 수행은 아직 자동화하지 않습니다.</p>';
+ const pairs=String(runtime.targetPairs??'').trim();
+ const single=String(runtime.targetTalentId??'');
+ const num=runtime.pathLimit??900;
+ body='<section class="wash-section"><div class="section-header"><h3>도맥법 목표 자맥·충돌맥 탐색</h3></div>'+
+ '<p class="micro">yy-sim 원본 WASM의 <code>preview_exchange_pads</code>를 직접 호출하는 읽기 전용 탐색입니다. 현재 인물 세이브 연결 후 실행하며 게임 내 세수단을 소비하지 않습니다.</p>'+
+ '<div class="fields"><label>목표 쌍 (자맥ID:충돌맥ID, 한 줄에 하나 · 최대 4개)<textarea id="washPathPairs" rows="4" placeholder="예: 261:262">'+escape(pairs)+'</textarea></label>'+
+ '<label>최대 탐색 횟수<input id="washPathLimit" type="number" min="1" max="5000" value="'+escape(num)+'"></label></div>'+
+ '<div class="actions"><button class="btn primary" id="washPathRun" '+(!valid?'disabled':'')+'>원본 도맥법 경로 후보 조회</button></div>'+
+ summary+(reports?'<details><summary>원본 계산 결과 구조 확인</summary><pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(JSON.stringify(reports.results,null,2).slice(0,18000))+'</pre></details>':'')+
+ '<div class="section-header"><h3>목표 자맥까지 모의 세수</h3></div>'+
+ '<p class="micro">원본 WASM의 <code>wash_until_talent_name</code> 실행을 사용합니다. 최대 5000회, 실행 전 상태 저장 후 되돌리기 가능. 현재 목표 자맥의 한국 서버 적중 여부는 미검증입니다.</p>'+
+ '<div class="fields"><label>목표 자맥 원본 ID<input id="washTalentTarget" type="number" min="1" value="'+escape(single)+'" placeholder="자색 재능 ID"></label></div>'+
+ '<div class="actions"><button id="washTalentRun" class="btn" '+(!valid?'disabled':'')+'>목표 자맥까지 모의 세수 (최대 1000회)</button></div>'+
+ '<p class="micro">잠금 슬롯·충돌 치환 자동 조작은 아직 포함하지 않습니다. 목표에 일치하는 WASM 재능만 검색합니다.</p>'+
+ '</section>';
+}
 return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div></div>';
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
@@ -2256,7 +2277,18 @@ if($('nativeEngineFrame')){
  const frame=$('nativeEngineFrame');
  frame.onload=()=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};
 }
-if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:$('washTimesInput')?.value||'10'}})));if($('washPreview'))$('washPreview').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEnginePreview',count:$('washPreviewCount')?.value||'900'}}));if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const log=window.__washRuntime?.log||[];const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.7.67',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:$('washTimesInput')?.value||'10'}})));if($('washPreview'))$('washPreview').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEnginePreview',count:$('washPreviewCount')?.value||'900'}}));if($('washPathRun'))$('washPathRun').onclick=()=>{
+ const pairs=$('washPathPairs')?.value||'';
+ const maxPad=$('washPathLimit')?.value||'900';
+ if(window.__washRuntime){window.__washRuntime.targetPairs=pairs;window.__washRuntime.pathLimit=maxPad;}
+ window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEnginePads',pairs,maxPad}}));
+};
+if($('washTalentRun'))$('washTalentRun').onclick=()=>{
+ const talentId=$('washTalentTarget')?.value||'';
+ if(window.__washRuntime)window.__washRuntime.targetTalentId=talentId;
+ window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUntilTalent',talentId,count:1000}}));
+};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const log=window.__washRuntime?.log||[];const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.7.67',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()}}
 
 const equipmentStatus=Object.create(null);
