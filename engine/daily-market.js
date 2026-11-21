@@ -127,17 +127,19 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
  const {available,soldOut}=marketPool(src,shop,save,now),vip=vipLevel(save);
  const slots=n(shop.Buy)<10?3:n(shop.Buy)<30?4:n(shop.Buy)<60?5:6;
  const missed=clock>0?Math.max(0,halfDay(now)-halfDay(clock)):0,stale=missed>=1;
+ // A years-old save can require thousands of 12h rerolls; never silently truncate a RNG chain.
+ const historyBlocked=missed>730,forecastOk=hasSeed&&!historyBlocked;
  const original=saved=>draw(rng,available,false,false,slots);
- let today=hasSeed?(stale?null:currentShelf(shop.Items,src)):currentShelf(shop.Items,src);
- if(hasSeed&&stale){for(let i=0;i<missed;i++)today=original()}
+ let today=forecastOk?(stale?null:currentShelf(shop.Items,src)):currentShelf(shop.Items,src);
+ if(forecastOk&&stale){for(let i=0;i<missed;i++)today=original()}
  today=today||[];
  const fresh=clock>0&&resetDay(clock)<resetDay(now)?0:n(shop.Fresh);
  const paidMax=VIP_REFRESH[vip.vip]??3,paidLeft=Math.max(0,paidMax-fresh),lucky=n(shop.Lucky);
- return {sourceVersion:source?.ver??null,seedOk:hasSeed,seed:hasSeed?n(save.Rnds.Sds.guishishop):null,
+ return {sourceVersion:source?.ver??null,seedOk:forecastOk,seedPresent:hasSeed,historyBlocked,seed:hasSeed?n(save.Rnds.Sds.guishishop):null,
   today,available,soldOut,slots,stale,tooOld:missed>1,missed,lastTime:clock,
   nextTime:nextHalfDay(now),now,paidLeft,paidMax,fresh,lucky,vip,
   getPaid(count=1){
-   if(!hasSeed)return [];
+   if(!forecastOk)return [];
    const r=rng.clone();let l=lucky;const out=[];
    for(let i=0;i<Math.min(paidLeft,Math.max(0,Math.floor(count)));i++){
     const chance=16.666666666666668+l,hit=r.chance('guishishop',chance);
@@ -147,7 +149,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
    return out;
   },
   timed(limit=8){
-   if(!hasSeed)return [];
+   if(!forecastOk)return [];
    const r=rng.clone(),out=[];
    for(let i=1;i<=Math.min(90,Math.max(0,Math.floor(limit)));i++){
     const time=(halfDay(now)+i)*43200;
