@@ -2565,7 +2565,9 @@ if($('nativeEngineFrame')){
  const frame=$('nativeEngineFrame');
  frame.onload=()=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};
 }
-if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanTalentKoName=characterTalentName;window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainFive:'washEngineMulti',washMainTen:'washEngineMulti',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10':($('washTimesInput')?.value||'10')}})));if($('washMainNextConflict'))$('washMainNextConflict').onclick=()=>window.dispatchEvent(
+if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanTalentKoName=characterTalentName;window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainFive:'washEngineMulti',washMainTen:'washEngineMulti',washMainHundred:'washEngineMulti',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10':btn.id==='washMainHundred'?'100':($('washMainCount')?.value||'10')}})));if($('washMainCount'))$('washMainCount').onchange=()=>{const n=Number($('washMainCount').value);if(Number.isInteger(n)&&n>=1&&n<=100)(window.__washRuntime||{}).mainCount=n};
+document.querySelectorAll('[data-wash-main-lock]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineToggleLock',index:Number(el.dataset.washMainLock)}})));
+if($('washMainNextConflict'))$('washMainNextConflict').onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUntilExchange',count:500}}));
 if($('washChainAuto'))$('washChainAuto').onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineAutoChain',
@@ -2954,6 +2956,27 @@ window.addEventListener('nangman-wash-command',async e=>{
  const generation=state.generation||0;
  const ensureSession=()=>{if(state.generation!==generation)throw Error('세이브 또는 캐릭터가 변경되어 이전 WASM 실행 결과를 폐기했습니다.');};
  try{
+ // Original yy-sim applies the selected save immediately for normal wash actions.
+ const automaticOps=new Set(['washEngineOnce','washEngineMulti','washEngineUntilGold',
+  'washEngineUntilExchange','washEngineUntilExchangeAuto','washEngineAutoChain']);
+ if(automaticOps.has(op)&&(!state.active||state.origin!=='save'||
+     state.linkedRoleId!==window.__nangmanWashSaveSource?.()?.role?.id)){
+  const source=window.__nangmanWashSaveSource?.();
+  if(!source?.save||!source.role)throw Error('세수할 인물의 한국판 세이브를 먼저 불러오세요');
+  if(!state.ready){await washEngine.call('init');state.ready=true}
+  const original=await washEngine.call('state');
+  const mapped=window.__nangmanBuildWashState(source.save,source.role,original);
+  const applied=await washEngine.call('set-state',mapped);
+  ensureSession();
+  if(source.save!==window.__nangmanWashSaveSource?.()?.save||
+     source.role?.id!==window.__nangmanWashSaveSource?.()?.role?.id||
+     Number(applied?.seed)!==Number(mapped.seed)||
+     Number(applied?.role_id)!==Number(source.role.id))
+   throw Error('선택한 인물의 WASM 세이브 연결이 검증되지 않았습니다');
+  state.origin='save';state.linkedRoleId=source.role.id;state.active=true;
+  state.liveTalents=applied.talents||[];syncWasmBag(applied);state.nativeState=applied;
+  state.undoStates=[];state.log=[];state.lastConflict=null;state.autoResult=null;
+ }
  if(op==='washEngineInit'){
   await washEngine.call('init');state.ready=true;state.output='yy-sim WASM 엔진 초기화 성공. 시험 상태를 설정하세요.';
  }else if(op==='washEngineImport'){
@@ -3337,7 +3360,17 @@ window.addEventListener('nangman-wash-command',async e=>{
    '원본 WASM에서 모의 세수를 실행하지 않았습니다. 단약 부족 또는 세수 제한 여부를 확인하세요.';
  }
  }catch(err){state.error=String(err.message||err)}
- finally{state.loading=false;announce()}
+ finally{
+  if(state.active&&state.generation===generation){
+   try{
+    const current=await washEngine.call('state');
+    if(state.generation===generation&&current&&Array.isArray(current.talents)){
+     state.nativeState=current;state.liveTalents=current.talents;syncWasmBag(current);
+    }
+   }catch(error){if(!state.error)state.error='실행 후 WASM 상태 조회 실패: '+String(error.message||error)}
+  }
+  state.loading=false;announce()
+ }
 });
 window.addEventListener('nangman-embedded-status',e=>{});
 window.addEventListener('message',e=>{
