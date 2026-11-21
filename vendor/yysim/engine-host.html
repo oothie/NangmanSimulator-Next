@@ -13,6 +13,13 @@ try{
   send(requestId,true,{preview:wasmPreviewSequence(count),count});
   return
  }
+ if(op==='until-gold'){
+  const limit=Number(payload?.count||1000);
+  if(!Number.isInteger(limit)||limit<1||limit>5000)throw Error('자맥 자동 세수는 1–5000회 범위만 허용합니다');
+  const results=wasmWashUntilGold(limit);
+  send(requestId,true,{results:Array.isArray(results)?results:[],state:wasmGetState(),limit});
+  return
+ }
  if(op==='wash'){const count=Number(payload?.count||1);if(!Number.isInteger(count)||count<1||count>100)throw Error('1–100회만 실행');const results=count===1?wasmDoWash():wasmWashMulti(count);send(requestId,true,{results,state:wasmGetState()});return}
  throw Error('알 수 없는 명령');
 }catch(err){send(requestId,false,{error:String(err.message||err)})}
