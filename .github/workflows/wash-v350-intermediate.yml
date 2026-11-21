@@ -31,6 +31,8 @@ jobs:
         run: node tests/yysim-native-exchange-probe.cjs
       - name: Intermediate goal and rollback
         run: node tests/yysim-intermediate-search-smoke.cjs
+      - name: Native exchange beam 3-purple and green final result
+        run: node tests/yysim-exchange-beam-smoke.cjs
       - name: Original yy-sim automatic route adapter
         run: node tests/yysim-auto-search-smoke.cjs
       - name: Native v3.50 wash source and bridge
