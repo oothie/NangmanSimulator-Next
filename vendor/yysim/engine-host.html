@@ -276,6 +276,37 @@ try{
    changed:applied.length>0,locked:state.talents.filter(x=>x.locked===true).length});
   return
  }
+ if(op==='upgrade-zizhi'){
+  // Exact original yanyu_utils app.js upgradeZiZhi simulation: +1 aptitude
+  // and +100 strength/constitution gifts, without inventory deductions.
+  const before=wasmGetState();
+  const current=Number(before?.zizhi);
+  if(!before||!Number.isInteger(current)||current<150||current>=154||
+     !ZZ_DATA[String(current)]||!ZZ_DATA[String(current+1)])
+   throw Error('원본 자질 단계가 올바르지 않거나 이미 네 슬롯이 개방되었습니다');
+  const next={...before,zizhi:current+1,
+   str_gift:Number(before.str_gift||0)+100,
+   con_gift:Number(before.con_gift||0)+100};
+  if(!Number.isSafeInteger(next.str_gift)||!Number.isSafeInteger(next.con_gift))
+   throw Error('자질 보정 수치가 범위를 벗어났습니다');
+  try{
+   if(!wasmSetState(next))throw Error('원본 WASM 자질 상승을 적용하지 못했습니다');
+   const after=wasmGetState();
+   if(!after||Number(after.zizhi)!==current+1||
+      Number(after.str_gift)!==next.str_gift||Number(after.con_gift)!==next.con_gift||
+      !Array.isArray(after.talents)||
+      JSON.stringify(after.talents)!==JSON.stringify(before.talents))
+    throw Error('원본 자질 상승 결과에 예상하지 못한 변동이 있습니다');
+   send(requestId,true,{state:after,from:current,to:current+1,
+    slots:Number(ZZ_DATA[String(current+1)].num_talent),
+    source:'original-upgradeZiZhi',inventoryDeducted:false});
+  }catch(error){
+   if(!wasmSetState(before)||JSON.stringify(wasmGetState())!==JSON.stringify(before))
+    throw Error(String(error.message||error)+' / 자질 상승 실패 후 WASM 상태 복구 검증 실패');
+   throw error;
+  }
+  return
+ }
  if(op==='toggle-lock'){
   const index=Number(payload?.index);
   const state=wasmGetState();
