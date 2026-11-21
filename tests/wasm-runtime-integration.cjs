@@ -25,7 +25,8 @@ const shape=v=>Array.isArray(v)?'array['+v.length+']':
   tal_lucky:37,total_wash:0,total_talent_bars:0,total_pills:0,bag_pills:1200,
   has_bag_pills:true,role_stats:{str_val:193,dex:27,con:141,int_val:167},
   global_vars:{}};
- assert.equal(vm.runInContext('wasmSetState(state)',vm.createContext({...context,state})),true);
+ context.state=state;
+ assert.equal(vm.runInContext('wasmSetState(state)',context),true);
  const read=vm.runInContext('wasmGetState()',context);
  assert.equal(Number(read.seed),447882174);
  const before=JSON.stringify(read);
