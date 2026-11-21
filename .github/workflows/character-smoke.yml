@@ -53,3 +53,5 @@ jobs:
         run: node tests/wash-target-path-smoke.cjs
       - name: Validate native wash lock and exchange controls
         run: node tests/wash-slot-controls.cjs
+      - name: Verify native wash conflict inspection and removed A/B tool
+        run: node tests/wash-constraints-smoke.cjs
