@@ -67,6 +67,49 @@ try{
   send(requestId,true,{results,state,limit,talentId:id,sourceName:entry.name});
   return
  }
+ if(op==='until-exchange'){
+  const limit=Number(payload?.count??500);
+  const target=payload?.talentId==null?null:Number(payload.talentId);
+  if(!Number.isInteger(limit)||limit<1||limit>1000)
+   throw Error('다음 치환까지 모의 세수는 최대 1000회로 제한됩니다');
+  if(target!=null&&(!Number.isInteger(target)||!TALENT_DATA[String(target)]||
+     TALENT_DATA[String(target)].pinzhi!==4||TALENT_DATA[String(target)].name==='备用天赋'))
+   throw Error('목표 자맥은 원본 자색 재능만 사용할 수 있습니다');
+  const start=wasmGetState();
+  if(!start)throw Error('모의 세수 시작 상태를 읽지 못했습니다');
+  const outcomes=[];
+  let matched=null,stopped='limit';
+  try{
+   for(let i=0;i<limit;i++){
+    const before=wasmGetState();
+    const wash=wasmDoWash();
+    const current=wasmGetState();
+    if(!current||!Array.isArray(current.talents))throw Error('모의 세수 진행 상태가 올바르지 않습니다');
+    if(wash?.error)throw Error('원본 WASM 모의 세수 오류');
+    if(JSON.stringify(before)===JSON.stringify(current)){
+     stopped='unchanged';break;
+    }
+    outcomes.push(wash);
+    const candidates=wasmGetConflicts();
+    if(!Array.isArray(candidates))throw Error('원본 WASM 충돌 판정 구조를 확인할 수 없습니다');
+    const eligible=candidates.filter(x=>x?.can_exchange===true&&
+      Number.isInteger(Number(x.index))&&current.talents[Number(x.index)]);
+    matched=eligible.find(x=>target==null||
+      current.talents[Number(x.index)]?.id===target||
+      current.talents[Number(x.earlier_index)]?.id===target)||null;
+    if(matched){stopped='conflict';break;}
+    if(i%25===24)await new Promise(resolve=>setTimeout(resolve,0));
+   }
+  }catch(error){
+   wasmSetState(start);
+   throw error;
+  }
+  const state=wasmGetState();
+  send(requestId,true,{results:outcomes,state,found:!!matched,
+    conflict:matched,performed:outcomes.length,limit,stopReason:stopped,
+    targetId:target});
+  return
+ }
  if(op==='toggle-lock'){
   const index=Number(payload?.index);
   const state=wasmGetState();
