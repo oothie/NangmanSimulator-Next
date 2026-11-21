@@ -131,7 +131,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
      possibleConflicts+=possible.length;
      for(const conflict of possible.slice(0,2)){
       const slot=Number(conflict.index);
-      if(!setState(after))continue;
+      if(!sameState(getState(),after)&&!setState(after))continue;
       const beforeX=getState();
       const exchange=doExchange(slot),afterX=getState();
       exchangeAttempts++;
@@ -167,7 +167,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
      continue;
     }
     if(washNo===horizon)continue;
-    if(!setState(variant.state))continue;
+    if(!sameState(getState(),variant.state)&&!setState(variant.state))continue;
     let forLock=getState(),nextActions=variant.actions,nextTemp=variant.temporary;
     if(nextTemp&&idsIn(forLock,ids).length>=2){
      const at=forLock.talents.findIndex(t=>t.locked&&Number(t.id)===nextTemp.id);
