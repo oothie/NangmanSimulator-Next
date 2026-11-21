@@ -32,6 +32,13 @@ const invoke=s=>vm.runInContext(s,ctx);
     console.log('MODE_TRIAL',JSON.stringify({mode,set,readMode:prepared?.mode,
      error:trial?.error,success:trial?.success,result:trial?.exchanged_to}).slice(0,1200));
    }
+   for(const i of [0,1,2,3]){
+    ctx.modeCase={...s,mode:'seed'};
+    invoke('wasmSetState(modeCase)');
+    const trial=invoke('wasmExchangeTalent('+i+')');
+    console.log('SLOT_TRIAL',JSON.stringify({wash:n,slot:i,success:trial?.success,error:trial?.error,
+      before:s.talents,after:invoke('wasmGetState()').talents,to:trial?.exchanged_to}).slice(0,1800));
+   }
    ctx.previous=s;invoke('wasmSetState(previous)');
   }
   const purple=s.talents.filter(t=>+[248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276].includes(+t.id));
