@@ -3493,7 +3493,7 @@ function questView(){
   const visible=catalog.filter(x=>questFocusedId!=null?x.id===questFocusedId:
    (questCategory==='all'||x.group===questCategory)&&
    (questRegion==='all'||x.regionCode===questRegion)&&
-   (x.id+' '+x.name+' '+x.description+' '+x.typeName+' '+x.type2name).toLowerCase().includes(q));
+   (x.id+' '+x.name+' '+x.description+' '+x.typeName+' '+x.type2name+' '+x.regionCode+' '+JSON.stringify(x.finishReq||'')).toLowerCase().includes(q));
   const groups=[['all','전체'],['main','주요 이야기'],['companion','동료'],['regional','지역·지선'],
    ['sect','문파'],['dungeon','관문'],['sub','분기·하위'],['event','이벤트'],['other','기타']];
   const imported=Object.keys(window.NANGMAN_QUEST_60014?.quests||{}).length;
@@ -3503,7 +3503,7 @@ function questView(){
   content=card('한국판 임무 도감',
    '<p class="micro">한국판 APK 60014 추출 임무 '+imported+'건 · 세이브 이벤트 기록은 별도 병합 · 내부 완료조건·보상 코드의 해석은 미검증</p>'+
    (questSourceError?'<p class="notice">'+escape(questSourceError)+'</p>':'')+
-   '<label class="wiki-search-label"><input type="search" id="questSearch" placeholder="임무 이름·지역·ID·설명 검색" value="'+escape(questSearch)+'"></label>'+
+   '<label class="wiki-search-label"><input type="search" id="questSearch" placeholder="임무 이름·지역·ID·설명·분기 코드 검색" value="'+escape(questSearch)+'"></label>'+
    '<div class="quest-branch-filters" role="group" aria-label="임무 종류">'+groups.map(([id,label])=>'<button type="button" data-quest-category="'+id+'" aria-pressed="'+(questCategory===id)+'" class="'+(questCategory===id?'active':'')+'">'+label+'</button>').join('')+'</div>'+
    '<label class="quest-region-picker">지역별 임무 <select id="questRegion" aria-label="지역별 임무 필터">'+regionOptions.map(([id,label])=>'<option value="'+escape(id)+'" '+(questRegion===id?'selected':'')+'>'+escape(label)+'</option>').join('')+'</select></label>'+
    (questFocusedId!=null?'<button type="button" class="btn" id="questClearFocus">전체 임무 목록으로</button>':'')+
