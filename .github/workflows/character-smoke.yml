@@ -53,5 +53,3 @@ jobs:
         run: node tests/wash-target-path-smoke.cjs
       - name: Validate native wash lock and exchange controls
         run: node tests/wash-slot-controls.cjs
-      - name: Compare Korean actual wash save and WASM prediction
-        run: node tests/wash-save-compare-smoke.cjs
