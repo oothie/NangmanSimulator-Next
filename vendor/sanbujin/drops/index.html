@@ -46,7 +46,8 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   <label>사냥 전 세이브 JSON<input type="file" id="tombBefore" accept=".json,application/json"></label>
   <label>사냥 후 세이브 JSON<input type="file" id="tombAfter" accept=".json,application/json"></label>
  </div>
- <button type="button" id="tombCompareRun">전후 RNG·조건 변수 비교</button>
+ <label>두 세이브 사이 제릉 사냥 횟수<input type="number" id="tombCompareCount" min="1" max="500" value="1"></label>
+ <button type="button" id="tombCompareRun">변화·두 가설 비교</button>
  <p id="tombCompareStatus" role="status"></p>
  <div id="tombCompareResults"></div>
  </details>
