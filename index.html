@@ -582,7 +582,7 @@ if(sub==='exchange'){
  const linked=state.yyLinkedResult,linkResults=Array.isArray(linked?.results)?linked.results:[];
  const targetRows=allRows.filter(x=>linkedNos.includes(x.event));
  const sourceApi=window.YYWashAutoSearch;
- const maxLinkPad=sourceApi?.previewPadLimit(linkedNos)||30;
+ const maxLinkPad=sourceApi?.previewPadLimit(linkedNos)??30;
  const linkTargets=linked?.targets||[];
  const linkName=name=>sourceApi?sourceApi.readableStep(name,linked?.nameIds||names,characterTalentName):String(name||'');
  const linkTable=linkResults.length?
