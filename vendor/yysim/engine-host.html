@@ -8,6 +8,11 @@ try{
  if(!ready)throw Error('yy-sim 엔진 초기화가 필요합니다');
  if(op==='state'){send(requestId,true,wasmGetState());return}
  if(op==='set-state'){if(!wasmSetState(payload))throw Error('세수 상태 지정 실패');send(requestId,true,wasmGetState());return}
+ if(op==='preview'){const count=Number(payload?.count||900);
+  if(!Number.isInteger(count)||count<1||count>5000)throw Error('미리보기는 1–5000회 범위입니다');
+  send(requestId,true,{preview:wasmPreviewSequence(count),count});
+  return
+ }
  if(op==='wash'){const count=Number(payload?.count||1);if(!Number.isInteger(count)||count<1||count>100)throw Error('1–100회만 실행');const results=count===1?wasmDoWash():wasmWashMulti(count);send(requestId,true,{results,state:wasmGetState()});return}
  throw Error('알 수 없는 명령');
 }catch(err){send(requestId,false,{error:String(err.message||err)})}
