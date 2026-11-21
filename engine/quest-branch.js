@@ -41,7 +41,7 @@ function model(save){
   return {id,name,detail,step:valid?number:null,
    active,done,traced:(entry.trace===true||entry.hint===true),
    status:active?'진행 중':done?'완료 기록':'상태 미확인',
-   received:Number.isFinite(recv)&&recv>0?recv:null,
+   received:Number.isFinite(recv)&&recv>1000000000&&recv<4102444800?recv:null,
    sign:Number.isFinite(Number(entry.sign))?Number(entry.sign):null};
  }).sort((a,b)=>Number(b.active)-Number(a.active)||
  Number(b.traced)-Number(a.traced)||a.id.localeCompare(b.id,'en'));
