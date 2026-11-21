@@ -34,7 +34,7 @@
     $('wildTime').disabled = $('wildInterval').disabled = !timed;
     const ready = isTomb ? tomb.ready(input) : engine.usable(input.seed) && (!tiger || engine.usable(input.tigerSeed));
     $('wildRun').disabled = !ready;
-    const label = isTomb ? '제릉 외전 100레벨 특수몹 NPC 35256의 90레벨 장비 8종을 원본 60014 분석 자료로 계산합니다. '+(input.gate3007Unknown?'실제 원본 진행 조건 3007이 세이브에 없어, 이후 결과는 해당 조건을 통과했다고 가정한 조건부 가설입니다. ':'')+'분기 순서는 실험 가설이며 실게임 예측은 미검증입니다. NPC 35255 일반 전투에는 90레벨 장비를 임의 지급하지 않습니다.' : tiger
+    const label = isTomb ? '제릉 일반 필드의 100레벨 특수몹 NPC 35256이 드랍하는 90레벨 장비 8종을 원본 60014 분석 자료로 계산합니다. '+(input.gate3007Unknown?'실제 원본 진행 조건 3007이 세이브에 없어, 이후 결과는 해당 조건을 통과했다고 가정한 조건부 가설입니다. ':'')+'분기 순서는 실험 가설이며 실게임 예측은 미검증입니다. NPC 35255 일반 전투에는 90레벨 장비를 임의 지급하지 않습니다.' : tiger
       ? '원본 실행 순서에 따라 호랑이 종류와 호골 천장을 예측합니다. 현재 호골 연속 미획득 ' + input.drought + '회.'
       : timed ? '드랍 여부와 품질은 세이브 순서로 예측합니다. 장비 옵션은 입력한 판정 시각에 따라 달라집니다.'
         : '원본 보상 함수를 직접 호출하는 특수몹 드랍 시뮬레이션입니다. 표시 회차는 전체 일반 필드 사냥 횟수가 아닙니다. 별도 특수몹 출현 순서가 연결되기 전까지 일반 사냥 1회당 이 함수를 한 번 호출한다고 해석하면 안 됩니다.';
@@ -70,7 +70,7 @@
     const appearances = rows.filter(row => !row.padding && row.kind === 'tomb' && row.spawn).length;
     const purple = rows.filter(row => !row.padding && row.color === 4).length;
     const story=targets[Number(picker.value)]?.kind==='story';
-    $('wildStatus').textContent = (story?'선행 특수몹 보상 호출 ':'선행 사냥 ') + padding + '회 · 예측 ' + (rows.length - padding) + '회 · 드랍 ' + hits + '회 · 자색 ' + purple + '회' + (story?' · 일반 사냥 회차와 별개':rows.some(row => row.kind === 'tomb') ? ' · 제릉 특수몹 등장 ' + appearances + '회 · '+(input.gate3007Unknown?'3007 미확인·조건부':'실험')+' 가설' : '');
+    $('wildStatus').textContent = (story?'선행 특수몹 보상 호출 ':'선행 사냥 ') + padding + '회 · 예측 ' + (rows.length - padding) + '회 · 드랍 ' + hits + '회 · 자색 ' + purple + '회' + (story?' · 일반 사냥 회차와 별개':rows.some(row => row.kind === 'tomb') ? ' · 제릉 필드 특수몹 등장 ' + appearances + '회 · '+(input.gate3007Unknown?'3007 미확인·조건부':'실험')+' 가설' : '');
     host.replaceChildren(...shown.map(row => {
       const item = node('li', '');
       const label = '제 ' + row.serial + (story?'회 특수몹 보상 호출':'회') + (row.padding ? ' · 선행 사냥' : '') +
