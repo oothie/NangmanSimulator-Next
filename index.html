@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.16</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.17</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -196,7 +196,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.7.16: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.7.17: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -649,9 +649,10 @@ function characterSkillRows(raw,key,type){
  const entries=characterEntries(raw?.[key]).filter(x=>x&&typeof x==='object'&&Number(x.ID)>0&&Number(x.Level)>0);
  const named=new Map(Object.entries(window.NANGMAN_54506_MARTIAL_KO||{}).filter(([,value])=>value[2]===type).map(([id,value])=>[id,value[0]]));
  for(const item of (koreanWiki||[]).filter(x=>x.category===type))named.set(String(item.id),item.name);
- return '<section class="card"><h3>'+escape({Taolus:'외공',Neis:'내공',Qings:'경공'}[key]||type)+' · '+entries.length+'개</h3>'+
- (entries.length?'<table class="module-table"><thead><tr><th>이름 / ID</th><th>레벨</th><th>정진</th></tr></thead><tbody>'+
- entries.map(item=>'<tr><td>'+escape(named.get(String(item.ID))||'#'+item.ID)+' <small>#'+escape(item.ID)+'</small></td><td>'+escape(characterNumber(item,'Level'))+'</td><td>'+escape(characterNumber(item,'Chong'))+'</td></tr>').join('')+'</tbody></table>':'<p class="micro">수련 기록이 없습니다.</p>')+'</section>';
+ const active=entries.filter(x=>x.Active===true),ordered=[...active,...entries.filter(x=>x.Active!==true)];
+ return '<section class="card"><h3>'+escape({Taolus:'외공',Neis:'내공',Qings:'경공'}[key]||type)+' · 습득 '+entries.length+'개 · 사용 '+active.length+'개</h3>'+
+ (entries.length?'<table class="module-table"><thead><tr><th>무학 / ID</th><th>수련</th><th>정진</th><th>장착</th></tr></thead><tbody>'+
+ ordered.map(item=>'<tr><td>'+escape(named.get(String(item.ID))||'#'+item.ID)+' <small>#'+escape(item.ID)+'</small></td><td>'+escape(characterNumber(item,'Level'))+'</td><td>'+escape(characterNumber(item,'Chong'))+'</td><td>'+(item.Active===true?'<strong>사용 중</strong>':'—')+'</td></tr>').join('')+'</tbody></table>':'<p class="micro">습득한 무학 기록이 없습니다.</p>')+'</section>';
 }
 // 산부진 원본 LIFE_HEDAO_DATA 단계별 성장 효과. 최종 전투 능력치로 오인하지 않는다.
 const characterLifeEffectNames={
@@ -957,8 +958,13 @@ function characterWashView(role,root){
  talents.map(t=>'<tr><td>'+t.slot+'</td><td>'+escape(characterTalentName(t.id))+' <small>#'+t.id+'</small></td><td>'+(t.locked?'잠금':'해제')+'</td><td>'+escape(t.rc??'—')+'</td><td class="micro">'+escape(characterTalentTimeDisplay(t.time))+'</td></tr>').join('')+'</tbody></table>':
  '<p class="micro">세수 재능이 저장되어 있지 않습니다.</p>')+'</section>';
 }
+function characterTrainingView(raw){
+ const branches=[['WXXW1','권법'],['WXXW2','검법'],['WXXW3','도법'],['WXXW4','창·곤'],['WXXWng','내공'],['WXXWqg','경공']];
+ return '<section class="card"><h3>무학 수련 저장값</h3><p class="micro">각 인물의 WXXW 계열 6개 필드를 직접 표시합니다. 무학별 수련치 상한 및 효과 환산값은 계산하지 않습니다.</p>'+
+ '<div class="wiki-detail-fields">'+branches.map(([key,label])=>'<div class="wiki-field"><span>'+label+' <small>'+key+'</small></span><b>'+escape(characterNumber(raw,key))+'</b></div>').join('')+'</div></section>';
+}
 function characterView(){
- const opts=[['panel','능력치'],['equip','장비'],['talent','재능'],['detail','상세'],['meridians','경맥'],['craft','생활기술·기예'],['wash-info','세수']];
+ const opts=[['panel','능력치'],['equip','장비'],['talent','재능'],['detail','상세'],['meridians','경맥'],['craft','생활기술·기예'],['wash-info','세수'],['training','수련치']];
  const role=roles[selected]||roles[0]||null,raw=role?.raw||{};
  const selector=roles.length?'<nav class="simple-tabs character-role-tabs" aria-label="캐릭터 선택">'+roles.map((r,i)=>'<button data-character-role="'+i+'" class="'+(i===selected?'active':'')+'">'+escape(r.name)+' · '+escape(r.level||'—')+'레벨</button>').join('')+'</nav>':'';
  let body='<section class="card"><p class="micro">상단에서 한국판 JSON 세이브를 불러오세요.</p></section>';
@@ -973,6 +979,7 @@ function characterView(){
   else if(characterTab==='meridians')body=characterMeridianView(raw);
   else if(characterTab==='craft')body=characterLifeView(raw);
   else if(characterTab==='wash-info')body=characterWashView(role,save);
+  else if(characterTab==='training')body=characterTrainingView(raw);
   else if(characterTab==='talent'){
    const talents=characterWashTalents(role),born=raw.BornTalent;
    const talentItem=(obj,title)=>'<section class="card"><h3>'+title+'</h3><div class="wiki-detail-fields"><div class="wiki-field"><span>재능</span><b>'+(Number(obj?.ID)>0?escape(characterTalentName(obj.ID))+' <small>#'+escape(obj.ID)+'</small>':'기록 없음')+'</b></div></div></section>';
