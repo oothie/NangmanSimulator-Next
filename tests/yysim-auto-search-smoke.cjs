@@ -5,7 +5,7 @@ const base=path.resolve(__dirname,'..'),ctx={window:{}};vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(base,'engine/yysim-auto-search.js'),'utf8'),ctx);
 const api=ctx.window.YYWashAutoSearch,allowed=[248,249,250,261,268,271,272];
 assert.deepEqual(Array.from(api.selectedIds([271,250,268],allowed)),[271,250,268]);
-assert.throws(()=>api.selectedIds([271,271],allowed),/중복 없이/);
+assert.throws(()=>api.selectedIds([271,271],allowed),/서로 다른/);
 assert.throws(()=>api.selectedIds([271,999],allowed),/원본 자색/);
 assert.throws(()=>api.selectedIds([271,250,268,272,249],allowed),/1~4개/);
 assert.equal(api.options({desiredIds:[271,268],maxPad:0,horizon:300,topN:8},allowed).horizon,300);
