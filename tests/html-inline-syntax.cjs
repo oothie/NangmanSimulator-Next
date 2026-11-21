@@ -23,7 +23,8 @@ for(const page of pages){
  }
 }
 for(const file of ['engine/wash-chain-core.js','engine/wash-path-model.js','engine/wash-preview-model.js',
-  'engine/wash-conflict-model.js','vendor/sanbujin/drops/shared-gear-core.js',
+  'engine/wash-conflict-model.js','engine/yysim-auto-search.js',
+  'engine/yysim-auto-progressive.js','vendor/sanbujin/drops/shared-gear-core.js',
   'vendor/sanbujin/drops/shared-gear.js']){
  assert.doesNotThrow(()=>new vm.Script(fs.readFileSync(path.join(root,file),'utf8'),{filename:file}),
   'syntax: '+file);
