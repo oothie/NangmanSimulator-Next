@@ -225,6 +225,75 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
     }
    }
    return events;
+  },
+  // Explore actual RNG state after each paid/automatic replacement, not item
+  // probabilities. The result is the first optimal solution in the bounded
+  // explored horizon for the selected objective. State-cap failures are
+  // explicit: never present them as a proved unreachable item.
+  searchStrategy(shopIds,options={}){
+   if(!forecastOk)return {error:historyBlocked?'저장 시드 경과 기간이 너무 깁니다.':'암시장 시드가 없습니다.'};
+   const ids=new Set((shopIds||[]).map(Number).filter(Number.isFinite));
+   if(!ids.size)return {error:'목표 상품을 선택해 주세요.'};
+   const limit=Math.min(28,Math.max(1,Math.floor(n(options.periods,12))));
+   const maxStates=Math.min(20000,Math.max(500,Math.floor(n(options.maxStates,6500))));
+   const costPerRefresh=20;
+   const vipAllowance=this.paidAllowance(options.vip);
+   const mode=options.mode==='fastest'?'fastest':'cheapest';
+   const originalSeed=n(rng.seeds.guishishop);
+   const foundItem=items=>(items||[]).find(x=>ids.has(x.id));
+   const start={seed:originalSeed,lucky,time:now,next:nextHalfDay(now),
+     period:0,used:vipAllowance.used,cost:0,paid:0,steps:[],
+     item:foundItem(today)};
+   if(start.item)return {mode,found:true,when:now,cost:0,paid:0,item:start.item,
+     steps:[{kind:'current',time:now,items:today}],expanded:0,proven:true,periods:limit};
+   const heap=[],seen=new Map();
+   const cmp=(a,b)=>mode==='cheapest'?
+     (a.cost-b.cost||a.time-b.time||a.period-b.period):
+     (a.time-b.time||a.cost-b.cost||a.period-b.period);
+   const push=v=>{heap.push(v);let i=heap.length-1;
+     while(i>0){let p=(i-1)>>1;if(cmp(heap[p],v)<=0)break;heap[i]=heap[p];i=p}
+     heap[i]=v};
+   const pop=()=>{const v=heap[0],tail=heap.pop();if(heap.length){let i=0;
+     while(true){let c=i*2+1;if(c>=heap.length)break;
+       if(c+1<heap.length&&cmp(heap[c+1],heap[c])<0)c++;
+       if(cmp(tail,heap[c])<=0)break;heap[i]=heap[c];i=c}
+     heap[i]=tail}return v};
+   push(start);let expanded=0,best=null;
+   while(heap.length&&expanded<maxStates){
+     const node=pop();expanded++;
+     const key=[node.seed,node.lucky,node.time,node.period,node.used].join('/');
+     const previous=seen.get(key);
+     if(previous!=null&&previous<=node.cost)continue;
+     seen.set(key,node.cost);
+     if(node.item){best=node;break}
+     if(node.used<vipAllowance.max){
+       const r=new KeyRng({guishishop:node.seed});
+       const threshold=16.666666666666668+node.lucky;
+       const rareHit=r.chance('guishishop',threshold);
+       const nextLucky=rareHit?threshold-100:threshold;
+       const items=draw(r,available,true,rareHit,slots);
+       const paidItem=foundItem(items);
+       push({...node,seed:r.seeds.guishishop,lucky:nextLucky,
+         used:node.used+1,cost:node.cost+costPerRefresh,paid:node.paid+1,
+         item:paidItem,steps:node.steps.concat([{kind:'paid',time:node.time,
+          index:node.used+1,rareHit,items}])});
+     }
+     if(node.period<limit){
+       const r=new KeyRng({guishishop:node.seed});
+       const items=draw(r,available,false,false,slots);
+       const t=node.next;
+       push({...node,seed:r.seeds.guishishop,time:t,next:t+43200,
+         used:resetDay(t)>resetDay(node.time)?0:node.used,
+         period:node.period+1,item:foundItem(items),
+         steps:node.steps.concat([{kind:'auto',time:t,items}])});
+     }
+   }
+   return best?{found:true,mode,when:best.time,cost:best.cost,paid:best.paid,
+      item:best.item,steps:best.steps,expanded,proven:true,periods:limit}:
+     {found:false,mode,expanded,periods:limit,
+      limited:heap.length>0,error:heap.length>0?
+        '탐색 상한에 도달했습니다. 미발견은 상품 부재를 뜻하지 않습니다.':
+        '선택한 기간과 갱신 횟수 안에서 발견되지 않았습니다.'};
   }
  };
 }
