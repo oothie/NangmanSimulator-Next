@@ -16,7 +16,7 @@ const frozen=JSON.stringify(save);
 const state=predict(save,context.window.DAILY_DATA,save.RandShop.Time);
 assert.equal(state.slots,3);
 assert.deepEqual([...state.today.map(i=>i.id)],[37,100,108]);
-assert.deepEqual([...context.window.NangmanMarket.countsMap({})].length?[]:[],[]);
+assert.equal(Object.keys(context.window.NangmanMarket.countsMap({})).length,0);
 for(const shopId of [223,224,222,225])
  assert(state.available.some(i=>i.id===shopId),'fresh account must be eligible: '+shopId);
 const expected=[
