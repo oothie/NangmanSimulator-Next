@@ -393,7 +393,7 @@ function washSandbox(){
  '<div class="module-group"><label>캐릭터 ID</label><input id="washRoleInput" inputmode="numeric" value="'+escape(state.roleId||roles[selected]?.id||10044)+'"></div>'+
  '<div class="module-group"><label>시험 자질</label><input id="washZizhiInput" type="number" min="1" value="'+escape(state.zizhi||153)+'"></div>'+
  '<div class="module-group"><label>연속 세수 횟수</label><input id="washTimesInput" type="number" min="1" max="100" value="'+escape(state.count||10)+'"></div></div>'+
- '</div>'+
+ '</details>'+
  '<div class="actions"><button id="washEngineInit" class="btn" '+(state.loading?'disabled':'')+'>'+ (state.ready?'WASM 준비 완료':'로컬 WASM 초기화')+'</button>'+
  '<button id="washEngineReset" class="btn" '+(!state.ready?'disabled':'')+'>시험 상태 설정</button>'+
  '<button id="washEngineOnce" class="btn primary" '+(!state.active?'disabled':'')+'>1회 세수</button>'+
@@ -2024,7 +2024,7 @@ if($('nativeEngineFrame')){
  const frame=$('nativeEngineFrame');
  frame.onload=()=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};
 }
-if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));
+if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;if(window.__washRuntime){window.__washRuntime.active=false;window.__washRuntime.origin=null;window.__washRuntime.linkedRoleId=null;}clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()}}
 
 const equipmentStatus=Object.create(null);
@@ -2177,7 +2177,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   if(!source?.save||!source.role)throw Error('선택된 세이브 캐릭터가 없습니다.');
   if(!state.ready){await washEngine.call('init');state.ready=true}
   const previous=await washEngine.call('state');
-  const mapped=yyWashStateFromSave(source.save,source.role,previous);
+  const mapped=window.__nangmanBuildWashState(source.save,source.role,previous);
   const applied=await washEngine.call('set-state',mapped);
   if(Number(applied?.role_id)!==Number(source.role.id)||Number(applied?.seed)!==mapped.seed)
    throw Error('WASM에서 세이브 시드·캐릭터가 일치하지 않아 실행을 중단했습니다.');
