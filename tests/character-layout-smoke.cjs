@@ -147,7 +147,7 @@ const sample={Level:90,GrowDefence:5,ExtDefence:89,GrowHit:2,ExtHit:279,ExtParry
 const byName=Object.fromEntries(baseApi.characterSourceBaseStats(sample).map(x=>[x.label,x.value]));
 assert.equal(byName['방어 기본값'],551,'shared base defense');
 assert.equal(byName['명중 기본값'],549,'shared base hit');
-assert.equal(byName['초식방어 기본값'],236,'shared base parry');
+assert.equal(byName['막기 기본값'],236,'shared base parry');
 assert.equal(byName['공격 초기값'],701,'initial unbuffed attack');
 assert.equal(byName['기혈 초기값'],3559,'initial unbuffed hp');
 assert.equal(byName['회피 초기값'],359,'initial unbuffed dodge');
