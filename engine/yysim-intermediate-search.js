@@ -10,7 +10,16 @@
 const copy=value=>JSON.parse(JSON.stringify(value));
 const own=(state,id)=>Array.isArray(state?.talents)&&state.talents.some(t=>Number(t.id)===id);
 const finalMatches=(state,ids)=>ids.every(id=>own(state,id));
-const equals=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+// Native WASM global_vars is a hash map; after re-instantiation the same
+// values can serialize in a different property order. Object order is NOT
+// part of RNG state. Compare keys/values recursively without discarding any.
+const normalize=value=>{
+ if(Array.isArray(value))return value.map(normalize);
+ if(value!==null&&typeof value==='object')
+  return Object.fromEntries(Object.keys(value).sort().map(k=>[k,normalize(value[k])]));
+ return value;
+};
+const equals=(a,b)=>JSON.stringify(normalize(a))===JSON.stringify(normalize(b));
 const countLocked=state=>(state?.talents||[]).filter(t=>t.locked===true).length;
 const permute=ids=>ids.length<2?[ids.slice()]:ids.flatMap((v,i)=>permute(ids.filter((_,j)=>j!==i)).map(t=>[v,...t]));
 function subsets(initial){
@@ -37,7 +46,7 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
  if(!Number.isInteger(topN)||topN<1||topN>20)throw Error('결과 개수는 1~20개입니다');
  const initial=getState();
  if(!initial||!Array.isArray(initial.talents))throw Error('WASM 세수 원본 상태를 불러올 수 없습니다');
- const originalText=JSON.stringify(initial),orders=permute(ids),routes=[],warnings=[];
+ const orders=permute(ids),routes=[],warnings=[];
  let scanned=0,executed=0,early=0,partial=false;
  const restore=()=>{
   if(!setState(initial)||!equals(getState(),initial))throw Error('WASM 별도 탐색 상태 초기화 불일치');
