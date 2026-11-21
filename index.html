@@ -405,6 +405,15 @@ function wikiKoMap(){
   const variants=byChinese.get(orig);
   if(!m.has(key)&&variants?.size===1)m.set(key,{name:[...variants][0],desc:'',source:'한국판 동일 명칭 대조'});
  }
+ // 한국판 54506 ID 번역이 존재하면 우선하고, 나머지는 원본 ID별 직접 번역으로 보충한다.
+ for(const [id,entry] of Object.entries(window.NANGMAN_CRAFT_ID_KO||{})){
+  const key='crafts:'+id;
+  if(!m.has(key))m.set(key,entry);
+ }
+ for(const [id,entry] of Object.entries(window.NANGMAN_ARTS_ID_KO||{})){
+  const key='arts:'+id;
+  if(!m.has(key))m.set(key,entry);
+ }
  for(const row of wikiRows()){
   if(row.source!=='crafts'&&row.source!=='arts')continue;
   const key=String(row.obj.n||'').trim();
@@ -641,6 +650,8 @@ window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.
 <script src="./data/wiki-status-v620.js"></script>
 <script src="./data/wiki-craft-ko.js"></script>
 <script src="./data/wiki-arts-ko.js"></script>
+<script src="./data/wiki-craft-id-ko.js"></script>
+<script src="./data/wiki-arts-id-ko.js"></script>
 <script type="module">
 import {loadKoreanWikiNames} from './data/korean-wiki-index.js';
 import {loadV620KoreanReference} from './data/v620-korean-reference.js';
