@@ -32,6 +32,10 @@ async function command(op,payload){
  assert.equal(result.data.conflict.index,2);
  assert.equal(result.data.stopReason,'conflict');
  assert.equal(seed,103,'native WASM copy advances only three times');
+ const immediate=await command('until-exchange-and-replace',{count:10});
+ assert(immediate.ok&&immediate.data.autoExchanged===true&&immediate.data.performed===0,
+  'native collision already present must exchange with zero unnecessary washes');
+ assert.equal(seed,103,'0-wash native collision must not advance seed');
  // Atomic search + exchange should make one success, and restore all washes on failure.
  seed=100;steps=0;
  const atomic=await command('until-exchange-and-replace',{count:10});
