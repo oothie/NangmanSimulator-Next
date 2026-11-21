@@ -50,6 +50,35 @@ function compareOrders(field,dungeon){
   })
  }));
 }
+function traceEds(equipment,eds){
+ // Source-verified for five original equipment receipts (5009×2, 4609×2,
+ // 5420×1). These are creation-seed hypotheses, not final refinement values.
+ if(!Array.isArray(equipment))throw Error('드랍 장비 목록이 필요합니다');
+ const saved=eds&&typeof eds==='object'?eds:{};
+ const states=new Map(),seen=new Map(),output=[];
+ const draw=root.SBJWildDrop?.draw,usable=root.SBJWildDrop?.usable;
+ for(const event of equipment){
+  const id=Number(event.itemId),key=String(id);
+  const supplied=saved[key];
+  const value=Number(supplied?.Value??supplied?.value??supplied?.V??supplied?.v??supplied);
+  let seed=states.has(key)?states.get(key):(usable?.(value)?value:null);
+  const drawNo=(seen.get(key)||0)+1;seen.set(key,drawNo);
+  if(seed==null){
+   output.push({...event,edsDraw:drawNo,edsKnown:false,
+    creationSeedStatus:'장비 ID별 Eds 미확인 · 계산하지 않음'});
+   continue;
+  }
+  const roll=draw(seed,99999999);
+  states.set(key,roll.seed);
+  // Observed in all 5 historical receipts:
+  // MJSeed=floor(Whale draw value/10)+123, CZSeed=MJSeed+333.
+  const mjSeed=Math.floor(roll.value/10)+123,czSeed=mjSeed+333;
+  output.push({...event,edsDraw:drawNo,edsKnown:true,
+   mjSeed,czSeed,edsAfter:roll.seed,
+   creationSeedStatus:'Eds 생성 순서 계산 (5건 실측과 일치 · 완성 옵션 미연결)'});
+ }
+ return {equipment:output,finalEds:Object.fromEntries(states)};
+}
 function project(save,target,event,fieldCount,dungeonCount,order,equipment){
  if(!save||typeof save!=='object'||!target||target.kind!=='story'||Number(target.lv)<90)
   throw Error('90레벨 이상 필드 특수몹 보상 함수를 선택하세요');
@@ -73,11 +102,13 @@ function project(save,target,event,fieldCount,dungeonCount,order,equipment){
   const number=Number(value?.Value??value?.value??value?.V??value?.v??value);
   return Number.isSafeInteger(number)&&number>0;
  };
- return {...plan,equipment:plan.equipment.map(x=>({...x,hasSharedSeed:hasPerItemSeed(x.itemId)})),
+ const traced=traceEds(plan.equipment,eds);
+ return {...plan,equipment:traced.equipment.map(x=>({...x,hasSharedSeed:hasPerItemSeed(x.itemId)})),
+  edsTrace:traced.finalEds,
   byItem:plan.byItem.map(x=>({...x,hasSharedSeed:hasPerItemSeed(x.id)})),
   alternatives,scenarioOnly:true,
   fieldCount,dungeonCount,fieldNpc:target.npcId,
   dungeonBoss:event.boss,dungeonId:event.id};
 }
-root.SBJSharedGearCore={merge,compareOrders,project,GEAR90};
+root.SBJSharedGearCore={merge,compareOrders,traceEds,project,GEAR90};
 })(window);
