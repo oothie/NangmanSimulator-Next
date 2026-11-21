@@ -1030,13 +1030,13 @@ if(sub==='auto'){
      (replayError?'<p class="micro">모의 실행 보류: '+escape(replayError)+'</p>':''):'')+
    (actions?'<ol style="padding-left:20px;margin:6px 0">'+actions+'</ol>':
     '<p class="micro">'+(x.complete&&x.estimatedWashes===0&&x.exchanges===0?
-     '현재 보유 자맥만으로 목표 충족 · 추가 실행 불필요':
+     '현재 목표 맥을 이미 획득 · 추가 실행 불필요':
      '원본 상세 실행 단계가 제공되지 않았습니다. 세수·치환 결과를 임의로 추정하지 않습니다.')+'</p>')+
    (x.source?.slot_plan?'<p class="micro">슬롯 계획 및 자질 개방 비용은 원본 단계대로 별도 확인</p>':'')+
    '</details></td></tr>';
  }).join('')+'</tbody></table></div>':'';
- const resultStatus=analyzed?'<p class="micro">'+(usesColors?'원본 WASM 순차 세수 확장 ':'원본 WASM 자동 경로 ')+(result?.progressive?'단계별 중복 포함 총 검사 ':'탐색 ')+escape(analyzed.stats.scanned)+
-  '개 검사 · 경로 '+escape(analyzed.stats.total)+'개 · 최종 목표 모두 보유 '+escape(analyzed.stats.complete)+'개 · 실행 단계 확인 '+escape(analyzed.stats.actionable)+'개</p>'+
+ const resultStatus=analyzed?'<p class="micro">'+(usesColors?'원본 WASM 중간 획득 탐색 ':'원본 WASM 자동 경로 ')+(result?.progressive?'단계별 중복 포함 총 검사 ':'탐색 ')+escape(analyzed.stats.scanned)+
+  '개 분기 · 경로 '+escape(analyzed.stats.total)+'개 · 목표 확보 '+escape(analyzed.stats.complete)+'개 · 실행 단계 확인 '+escape(analyzed.stats.actionable)+'개</p>'+
   '<p>'+escape(api.statusText(analyzed))+'</p>'+
   (usesColors&&analyzed.stats.complete===0&&Array.isArray(result?.warnings)&&result.warnings.length?'<p class="micro">원본 순차 세수 미발견 참고: '+[...new Set(result.warnings.map(w=>api.readableStep(w,mapNames,talentName)))].slice(0,3).map(escape).join(' / ')+'</p>':'')+
   (Array.isArray(result?.history)?'<p class="micro">확장 탐색: '+result.history.map(h=>h.index+'단계 · 선행 '+h.maxPad+' · 자맥 범위 '+h.horizon+
@@ -4458,8 +4458,8 @@ window.addEventListener('nangman-wash-command',async e=>{
   state.autoOptions=options;
   const analysis=api.routeOutcome(result.result,result.desiredIds);
   state.output=(isColor?'녹·파·자맥 WASM 중간 획득 탐색':'세수 자맥 자동 탐색')+' · 목표 '+options.desiredIds.map(id=>(window.__nangmanTalentKoName?.(id)||'재능 #'+id)).join(' / ')+
-   ' · 검색 '+analysis.stats.scanned+'회 · 후보 '+analysis.stats.total+
-   '개 · 현재 재능 목표 모두 달성 후보 '+analysis.stats.complete+
+   ' · 탐색 분기 '+analysis.stats.scanned+'개 · 후보 '+analysis.stats.total+
+   '개 · 목표 획득 경로 '+analysis.stats.complete+
    '개 · 실제 세이브 변경 없음';
  }else if(op==='washEngineSequencePads'){
   if(!state.active||state.origin!=='save'||state.linkedRoleId!==window.__nangmanWashSaveSource?.()?.role?.id)
