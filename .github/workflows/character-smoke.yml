@@ -67,6 +67,8 @@ jobs:
         run: node tests/wash-chain-smoke.cjs
       - name: Verify goal-only Domakbeop talent inventory audit
         run: node tests/wash-goal-audit-smoke.cjs
+      - name: Verify original WASM goal-only three-slot lock
+        run: node tests/wash-goal-lock-smoke.cjs
       - name: Compile integrated simulator and embedded native HTML scripts
         run: node tests/html-inline-syntax.cjs
       - name: Verify native purple path goal and cost sorting
