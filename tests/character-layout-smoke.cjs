@@ -84,6 +84,7 @@ assert.equal((accountHtml.match(/data-character-jump/g)||[]).length,2,'account d
 assert.equal((accountHtml.match(/계정 공유 영구 성장/g)||[]).length,1,'shared growth displayed only once');
 assert(accountHtml.includes('인물 수'),'account summary');
 assert(accountHtml.includes('계정 전체 영구 성장 진행 내역'),'account permanent growth ledger');
+assert(accountHtml.includes('계정 전체 수련 계산 교차 검사'),'account independent six-track cross-check');
 assert(accountHtml.includes('계정 전체 6계열 추가 수련 저장값'),'independent WXXW account totals');
 assert(accountHtml.includes('저장 추가 수련 합계'),'saved cultivation raw sum');
 assert(accountHtml.includes('권법'),'track label in account panel');
@@ -101,6 +102,7 @@ const csv=yyAccountCultivationCsv();
 assert(csv.includes('현재 저장값'),'csv current values header');
 assert(csv.includes('과거 획득 기록'),'csv historical section');
 assert(csv.includes('계정 전체 수련 및 영구 단약 진행도'),'csv includes all permanent growth records');
+assert(csv.includes('6계열 수련 독립 교차 검사'),'csv includes independent comparison');
 assert(csv.includes('"주인공","1","주인공","단약","무상단"'),'csv includes role-scoped pills');
 assert(csv.includes('"계정 공유"'),'shared progress is one CSV entry');
 assert(csv.includes('무학별 수련 기여 기록'),'CSV includes every martial contribution');
