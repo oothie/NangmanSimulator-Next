@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.8.0</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.8.1</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -97,7 +97,7 @@ body{background:var(--bg)!important}
 @media(max-width:1000px){.top{flex-wrap:wrap;gap:5px 14px;padding:8px 14px}.nav{order:3;flex:1 1 100%;overflow-x:auto;width:100%;gap:0}.nav button{padding:10px 12px}.page{padding:18px 14px}.layout{grid-template-columns:250px minmax(0,1fr)}.wash-ops{grid-template-columns:1fr}}
 @media(max-width:700px){.page{padding:13px}.layout{display:block}.aside{position:relative;top:auto;max-height:210px;overflow:auto;margin-bottom:17px;border-bottom:1px solid var(--border)}.work{padding:0}.role-g{padding:0}.roles{overflow:visible;max-height:none}.wash-config{align-items:flex-start}.zizhi{margin-left:0}.talents{grid-template-columns:1fr}.heading h1{font-size:20px}.session-meta{margin-left:0;width:100%;justify-content:space-between}.nav button{font-size:12px}.fig{padding:0 7px}}
 
-/* v0.6.7 yy-sim 원본 구조 검수: 56px 헤더, 280px 목록, 넓은 종이 영역 */
+/* v0.6.7  구조 검수: 56px 헤더, 280px 목록, 넓은 종이 영역 */
 :root{--wr-max:1536px;--wr-ink:#241f1c;--wr-ink-2:#706861;--wr-line:#856f5b39;--wr-wash-header:#f7f1e6e8;--wr-wash-main:#f7f1e66b}
 [data-theme=ink]{--wr-ink:#e4ded5;--wr-ink-2:#aaa69f;--wr-line:#e4d9c735;--wr-wash-header:#15171ce9;--wr-wash-main:#1a1d2399}
 .app-shell-bg{background-color:#f3eee3;background-image:linear-gradient(#f7f2e8ad,#f3eee3b8),url("./assets/yy-background/warm.png"),url("./assets/ink-landscape.svg");background-repeat:no-repeat;background-position:center,center,center;background-size:auto,cover,cover}
@@ -201,7 +201,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.8.0: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.8.1: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -381,7 +381,7 @@ body{background:var(--bg)!important}
 .quest-branch-item small{font-size:11px;color:var(--sub);overflow-wrap:anywhere}
 .quest-branch-item>span{font-size:12px;white-space:nowrap;color:var(--sub)}
 
-/* v0.8.0: yy-sim spacing in native calculator containers. */
+/* v0.8.1: yy-sim spacing in native calculator containers. */
 .equip-primary-tabs{gap:5px;flex-wrap:wrap}
 .equip-primary-tabs button{min-height:36px;padding:8px 12px;border-radius:6px}
 .equipment-runtime-status{border-radius:7px;border:1px solid var(--border);border-left:3px solid var(--gold);background:var(--paper);color:var(--text)}
@@ -391,7 +391,7 @@ body{background:var(--bg)!important}
 @media(max-width:700px){.equip-primary-tabs button{font-size:12px;padding:7px 10px}.drop-workspace{min-height:640px}.equipment-runtime-status{padding:9px 11px}}
 </style></head>
 <body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터</small></div><nav class="nav" id="nav"></nav><div class="tools"><button id="saveLink" class="save-link">세이브</button><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
-<main class="page"><div class="heading"><h1 id="title">세수 시뮬레이션</h1><span class="micro" id="status">세이브 미연결</span><div class="session-meta"><span class="session-label">보유 세수단 <b id="washBag">—</b></span><button id="import" class="btn">세이브 불러오기</button><input id="file" type="file" accept=".json,application/json" hidden></div></div><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="산부진 장비 계산 영역"></section><section id="dropWorkspace" class="drop-workspace" hidden aria-label="산부진 드랍 계산 영역"></section></main><footer class="foot">독립 사이트 v0.8.0 · yy-sim 화면 구성 참고 · 한국판 계산 엔진 검증 후 연결</footer></div>
+<main class="page"><div class="heading"><h1 id="title">세수 시뮬레이션</h1><span class="micro" id="status">세이브 미연결</span><div class="session-meta"><span class="session-label">보유 세수단 <b id="washBag">—</b></span><button id="import" class="btn">세이브 불러오기</button><input id="file" type="file" accept=".json,application/json" hidden></div></div><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="장비 계산 영역"></section><section id="dropWorkspace" class="drop-workspace" hidden aria-label="드랍 계산 영역"></section></main><footer class="foot">낭만강호 v0.8.1</footer></div>
 <script src="./vendor/sanbujin/shared/equip_data.js"></script>
 <script src="./vendor/yysim/char_data.js"></script>
 <script src="./vendor/yysim/born_talent_data.js"></script>
@@ -535,8 +535,8 @@ function washSandbox(){
  '<button type="button" class="btn" data-wash-lock="'+index+'" '+(!canEdit?'disabled':'')+'>'+(t.locked?'잠금 해제':'잠금')+'</button>'+
  '<button type="button" class="btn" data-wash-exchange="'+index+'" '+(!canEdit||t.locked?'disabled':'')+'>치환</button></div>').join('')+'</div>'+
  '<p class="micro">현재 세이브를 직접 바꾸지 않습니다. 잠금은 최대 3개까지, 치환은 잠금 해제된 슬롯만 가능합니다. 실행은 직전 묶음으로 되돌릴 수 있습니다.</p>':''; 
- return '<section class="wash-section"><div class="section-header"><h3>yy-sim 세수 WASM 실행</h3><small>'+ (state.ready?'로컬 엔진 준비됨':'엔진 대기')+'</small></div>'+
- '<p class="micro">yy-sim 원본에서 확인한 태생 재능 시드·행운 시드·현재 재능 잠금을 읽어 WASM 내부의 독립 복사본에 적용합니다. 원본 세이브는 변경하지 않습니다. 실제 한국판 다음 세수 결과와의 일치 검증은 별도입니다.</p>'+
+ return '<section class="wash-section"><div class="section-header"><h3>세수 시뮬레이션</h3><small>'+ (state.ready?'로컬 엔진 준비됨':'엔진 대기')+'</small></div>'+
+ '<p class="micro">세수 시드·잠금 상태를 계산합니다. 실제 세이브는 변경하지 않습니다. 실제 한국판 다음 세수 결과와의 일치 검증은 별도입니다.</p>'+
  '<div class="actions"><button class="btn primary" id="washEngineImport" '+(!save||roles[selected]?.raw?.BornTalent?.S==null?'disabled':'')+'>선택 캐릭터의 세이브로 WASM 연결</button>'+
  '<span class="micro">엔진 상태: '+(state.origin==='save'&&state.linkedRoleId===roles[selected]?.id?'선택 캐릭터 세이브 복사본':state.origin==='test'?'시험 상태':'세이브 미연결')+'</span></div>'+
  '<details><summary>독립 시험용 임의 시드 입력</summary><div class="module-columns">'+
@@ -586,7 +586,7 @@ if(sub==='sim'){
  '<label>VIP <select id="washMainVip" '+(!save||!r||runtime.loading?'disabled':'')+'>'+
  '<option value="0" '+(currentVip===0?'selected':'')+'>VIP 없음</option>'+
  '<option value="1" '+(currentVip===1?'selected':'')+'>VIP 1 이상</option></select></label></div>'+
- '<p class="micro">원본 yy-sim과 같이 성별·VIP를 WASM 복사본에서만 변경합니다. 실제 게임 세이브의 성별과 결제 상태는 바꾸지 않습니다.</p></section>';
+ '<p class="micro">성별·VIP 변경은 계산에만 적용되며 실제 세이브에 반영되지 않습니다.</p></section>';
 
  const slotCapacity=dashboard?.slots??Math.max(0,Math.min(4,Number(r?.raw?.ZiZhi||150)-150));
  const grade=id=>(window.YYWashTargetCatalog||[]).find(group=>group.items.some(item=>item.id===id))?.quality||1;
@@ -615,7 +615,7 @@ if(sub==='sim'){
   '<div class="fig"><b>'+escape(n)+'</b><span>'+escape(name)+'</span></div>').join('')+'</div>'+
   '<p class="micro">가방 세수단 '+escape(dashboard?.bag??'—')+'개 · 현재 1회 소모 '+escape(dashboard?.cost??'연결 후 확인')+
   '개 · 잠금 '+escape(dashboard?.locked??'—')+'칸 · 자질 '+escape(dashboard?.aptitude??'세이브 기준')+'</p>';
- const buttons='<section class="wash-section"><div class="wash-ops"><div class="pity-area"><div class="micro">yy-sim 원본 세수 천장 진행도</div><div class="pity-track"><div class="pity-fill" style="width:'+pityPct+'%"></div></div><div class="micro">TalLucky '+escape(pity)+' / '+escape(pityMax||'대상 없음')+' · 원본 WASM 자질 단계별 천장</div></div>'+statPanel+
+ const buttons='<section class="wash-section"><div class="wash-ops"><div class="pity-area"><div class="micro">세수 천장 진행도</div><div class="pity-track"><div class="pity-fill" style="width:'+pityPct+'%"></div></div><div class="micro">TalLucky '+escape(pity)+' / '+escape(pityMax||'대상 없음')+' · 원본 WASM 자질 단계별 천장</div></div>'+statPanel+
  '<div class="fields"><label>자동 충돌·치환 단계<select id="washChainSteps"><option value="1">1단계</option><option value="2" selected>2단계</option><option value="3">3단계</option><option value="4">4단계</option></select></label><label>단계별 탐색 한도<select id="washChainLimit"><option value="100">100회</option><option value="500" selected>500회</option><option value="1000">1000회</option></select></label></div>'+
  '<div class="wash-buttons"><button class="btn primary" id="washChainAuto" '+(!canRun?'disabled':'')+'>모의 연속 치환 (자동 경로 탐색과 별도)</button>'+
  '<button class="btn" id="washMainAutoConflict" '+(!canRun?'disabled':'')+'>다음 충돌까지 세수 + 치환 (한 번에)</button>'+
@@ -631,9 +631,9 @@ if(sub==='sim'){
  '<button class="btn" id="washMainUpgrade" '+(!canRun||(dashboard?.zizhi??Number(r?.raw?.ZiZhi||154))>=154?'disabled':'')+'>자질 상승 · 슬롯 개방</button>'+
  '<button class="btn" id="washMainResetRole" '+(!save||!r||runtime.loading?'disabled':'')+'>선택 캐릭터 초기화</button>'+
  '<button class="btn" id="washMainScan" '+(!canRun?'disabled':'')+'>다음 자맥·충돌 미리보기</button></div></div>'+
- '<p class="micro">세수 버튼을 누르면 선택 인물의 세이브를 자동으로 WASM 가상 상태에 연결합니다. 실제 게임 세이브는 변경하지 않습니다. 자질 상승은 원본 yy-sim의 가상 개방이며 실제 재료 소비를 계산하지 않습니다.</p></section>';
+ '<p class="micro">세수 버튼을 누르면 선택 인물의 세이브를 자동으로 WASM 가상 상태에 연결합니다. 실제 게임 세이브는 변경하지 않습니다. 자질 상승은 세수의 가상 개방이며 실제 재료 소비를 계산하지 않습니다.</p></section>';
  const washRuns=Array.isArray(runtime.log)?runtime.log:[];
-  const qualityPanel=dashboard?'<div class="wash-section"><div class="section-header"><h3>yy-sim 재능 등급별 출현</h3></div>'+
+  const qualityPanel=dashboard?'<div class="wash-section"><div class="section-header"><h3>재능 등급별 출현</h3></div>'+
    [1,2,3,4].map(q=>{
     const total=[1,2,3,4].reduce((sum,n)=>sum+(dashboard.counts[n]||0),0);
     const value=dashboard.counts[q]||0,percentage=total?value/total*100:0;
@@ -654,7 +654,7 @@ if(sub==='sim'){
  const nativeEvents=window.YYWashHistory?.flatten(visibleRuns)||[];
  const historyPage=window.YYWashHistory?.paging(nativeEvents,runtime.historyPage||1,runtime.historyPageSize||50)||
   {rows:[],total:0,page:1,pages:1,size:50};
- const history='<section class="wash-section"><div class="section-header"><h3>yy-sim 원본 WASM 세수 기록</h3>'+
+ const history='<section class="wash-section"><div class="section-header"><h3>세수 기록</h3>'+
  '<div class="actions"><button class="text-action" id="washHistoryExport" '+(!nativeEvents.length?'disabled':'')+'>기록 TSV 내보내기</button>'+
  '<button class="text-action" id="washDownloadLog" '+(!visibleRuns.length?'disabled':'')+'>원본 JSON</button>'+
  '<button class="text-action" id="washHistoryClear" '+(!visibleRuns.length?'disabled':'')+'>기록 지우기</button></div></div>'+
@@ -736,9 +736,9 @@ if(sub==='auto'){
   '<p>'+escape(api.statusText(analyzed))+'</p>'+
   (usesColors&&analyzed.stats.complete===0&&Array.isArray(result?.warnings)&&result.warnings.length?'<p class="micro">원본 순차 세수 미발견 참고: '+[...new Set(result.warnings.map(w=>api.readableStep(w,mapNames,talentName)))].slice(0,3).map(escape).join(' / ')+'</p>':'')+
   (Array.isArray(result?.history)?'<p class="micro">확장 탐색: '+result.history.map(h=>h.index+'단계 · 선행 '+h.maxPad+' · 자맥 범위 '+h.horizon+
-  ' · 후보 '+h.routes+'개').join(' / ')+'</p>':''):'<p class="micro">자맥만 선택하면 yy-sim 원본 자동 경로 탐색을 실행합니다. 녹맥·파맥 또는 혼합 목표에는 원본 WASM 세수 명령을 사용하는 확장 검색을 실행합니다.</p>';
- body='<section class="wash-section"><div class="section-header"><h3>세수 자동 탐색 · yy-sim 원본 + 녹맥·파맥</h3></div>'+
-  '<p class="micro">자맥만 선택하면 yy-sim 원본 자동 경로 탐색을, 녹맥·파맥·혼합 목표는 원본 WASM 순차 세수 확장 탐색을 실행합니다. 목표는 합계 1~4개입니다. 혼합 목표는 모든 연쇄 치환 경로를 탐색하지 않으며 전역 최적을 보장하지 않습니다.</p>'+
+  ' · 후보 '+h.routes+'개').join(' / ')+'</p>':''):'<p class="micro">자맥만 선택하면 자동 경로 탐색을 실행합니다. 녹맥·파맥 또는 혼합 목표에는 원본 WASM 세수 명령을 사용하는 확장 검색을 실행합니다.</p>';
+ body='<section class="wash-section"><div class="section-header"><h3>세수 자동 탐색 · 자맥·녹맥·파맥</h3></div>'+
+  '<p class="micro">자맥만 선택하면 자동 경로 탐색을, 녹맥·파맥·혼합 목표는 원본 WASM 순차 세수 확장 탐색을 실행합니다. 목표는 합계 1~4개입니다. 혼합 목표는 모든 연쇄 치환 경로를 탐색하지 않으며 전역 최적을 보장하지 않습니다.</p>'+
   '<p class="micro">'+(r?'선택 인물 '+escape(r.name)+' · 계산 시 세이브 자동 연결':'먼저 세이브를 불러오세요')+'</p>'+ 
   '<p class="micro">녹맥·파맥의 일부 재능명은 원문을 직접 번역한 임시 한국어 표기입니다. 확인된 한국판 이름을 우선 사용합니다.</p>'+
   '<div class="section-header"><h3>1. 목표 재능 선택 (녹맥·파맥·자맥)</h3></div>'+
@@ -752,7 +752,7 @@ if(sub==='auto'){
     escape(state.autoProgress.bestPills??'미발견')+'개 (최단 보장 없음)</p>':'')+
   (state.error?'<div class="notice">'+escape(state.error)+'</div>':'')+
   '<div class="section-header"><h3>3. 원본 경로 후보</h3></div>'+resultStatus+card+
-  '<p class="micro">자질 개방 단계는 yy-sim 원본 시뮬레이터의 상승 규칙을 가상 적용합니다. 실제 게임의 자질 재료 소비는 계산하지 않습니다. 지원되지 않는 연쇄 치환 분기는 자동 실행하지 않습니다.</p>'+
+  '<p class="micro">자질 개방 단계는  시뮬레이터의 상승 규칙을 가상 적용합니다. 실제 게임의 자질 재료 소비는 계산하지 않습니다. 지원되지 않는 연쇄 치환 분기는 자동 실행하지 않습니다.</p>'+
   '</section>';
 }
 if(sub==='exchange'){
@@ -819,7 +819,7 @@ if(sub==='exchange'){
    '<td>'+(x.id!=null?'<button class="btn" type="button" data-wash-use-target="'+x.id+'">경로 탐색</button>':'—')+'</td>'+
   '</tr>').join('')+'</tbody></table></div>':
   '<div class="history">선택한 조건에 해당하는 자맥이 없습니다.</div>';
- body='<section class="wash-section"><div class="section-header"><h3>yy-sim WASM 자맥 시퀀스 미리보기</h3></div>'+
+ body='<section class="wash-section"><div class="section-header"><h3>자맥 시퀀스 미리보기</h3></div>'+
  '<p class="micro">원본 WASM이 반환한 자맥별 세수 회차·누적 세수단·선행 충돌맥·치환 가능 여부를 표시합니다. 실제 한국 서버의 다음 결과와 일치한다고 확정한 것은 아닙니다.</p>'+
  '<div class="fields"><label>미리보기 상한<input id="washPreviewCount" type="number" min="1" max="5000" value="'+escape(state.previewLimit??900)+'"></label>'+
  '<label>결과 필터<select id="washPreviewFilter"><option value="all" '+((state.purpleFilter||'all')==='all'?'selected':'')+'>전체 자맥</option>'+
@@ -871,7 +871,7 @@ if(sub==='path'){
  const resultCount=!reports?null:Array.isArray(reports.results)?reports.results.length:
   Array.isArray(reports.results?.paths)?reports.results.paths.length:
   Array.isArray(reports.results?.candidates)?reports.results.candidates.length:null;
- const summary=reports?'<p class="micro">원본 yy-sim WASM '+(resultCount==null?'경로 자료 반환':('후보 '+escape(resultCount)+'건'))+' · '+escape(reports.maxPad)+'회까지 탐색 · 가상 세수 · 실제 서버 미검증</p>':
+ const summary=reports?'<p class="micro">세수 '+(resultCount==null?'경로 자료 반환':('후보 '+escape(resultCount)+'건'))+' · '+escape(reports.maxPad)+'회까지 탐색 · 가상 세수 · 실제 서버 미검증</p>':
  '<p class="micro">목표 자맥과 충돌맥의 원본 재능 ID를 입력해 탐색을 시작하세요. 정확한 잠금·치환 수행은 아직 자동화하지 않습니다.</p>';
  const pathApi=window.NangmanWashPath;
  const pathItems=reports&&pathApi?pathApi.inspect(reports.results,reports.targets?.length||1):[];
@@ -927,7 +927,7 @@ if(sub==='path'){
  const single=String(runtime.targetTalentId??'');
  const num=runtime.pathLimit??900;
  body='<section class="wash-section"><div class="section-header"><h3>도맥법 목표 자맥·충돌맥 탐색</h3></div>'+
- '<p class="micro">이 화면은 자맥·충돌맥 ID를 직접 지정하는 <b>수동 경로 분석</b>입니다. yy-sim 원본 <code>search_wash_routes</code>의 자동 최적 경로를 찾으려면 상단 <b>원본 자동 탐색</b> 탭을 사용하세요. 게임 내 세수단은 소비하지 않습니다.</p>'+
+ '<p class="micro">이 화면은 자맥·충돌맥 ID를 직접 지정하는 <b>수동 경로 분석</b>입니다. 자동 최적 경로를 찾으려면 상단 <b>원본 자동 탐색</b> 탭을 사용하세요. 게임 내 세수단은 소비하지 않습니다.</p>'+
  '<div class="fields"><label>자맥 선택<select id="washPathPurplePick">'+purpleOptions+'</select></label><label>충돌맥 선택<select id="washPathConflictPick">'+purpleOptions+'</select></label></div>'+
  '<div class="actions"><button class="btn" id="washPathAdd">선택한 맥 쌍 추가</button></div>'+
  '<div class="fields"><label>목표 쌍 (자맥ID:충돌맥ID, 한 줄에 하나 · 최대 4개)<textarea id="washPathPairs" rows="4" placeholder="예: 261:262">'+escape(pairs)+'</textarea></label>'+
@@ -963,12 +963,12 @@ function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><div class="micro">낭만강호 · 한국판 통합 시뮬레이터</div><h2>'+name+'</h2></div><span class="micro">v0.8.0</span></div><p class="module-lead">'+lead+'</p>'
+return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.8.1</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
 }
 
 function embeddedEngine(url,label,caption){
  return '<section class="native-engine-shell"><div class="native-engine-desc"><strong>'+label+'</strong><span>'+caption+'</span></div>'+
- '<div id="nativeEngineStatus" class="micro">산부진 원본 실행 화면 로드 중 · 세이브가 있다면 자동 전달</div>'+
+ '<div id="nativeEngineStatus" class="micro">계산 화면 준비 중</div>'+
  '<iframe id="nativeEngineFrame" title="'+label+'" src="'+url+'" loading="eager" referrerpolicy="same-origin"></iframe></section>';
 }
 
@@ -979,11 +979,11 @@ const equipmentTabs=[
 ];
 function equipView(){
  const items=equipmentTabs;
- return '<div class="module-wrap">'+moduleHero('장비','산부진 APK 계산 엔진을 통합하여 사용합니다. 세이브는 상단에서 한 번만 불러오세요.')+
+ return '<div class="module-wrap">'+moduleHero('장비','')+
  '<nav class="simple-tabs equip-primary-tabs" role="tablist" aria-label="장비 기능">'+
  items.map(([id,label])=>'<button role="tab" aria-selected="'+(equipTab===id)+'" data-module-tab="equip:'+id+'" class="'+(equipTab===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+
  
- '<p class="micro">상단의 공통 세이브가 각 기능에 자동 전달됩니다. 기능을 전환해도 이미 불러온 계산 화면은 유지됩니다.</p></div>';
+ '</div>';
 }
 let koreanWiki=[],v620Wiki=null,wikiFallbackSource=null,wikiQuery='',wikiSelectedCategory='misc',wikiDetail=null,wikiOffset=0,wikiSource=null,wikiSourceError='';
 const wikiCategories=[
@@ -1006,7 +1006,7 @@ window.addEventListener('nangman-v620-wiki-loaded',e=>{
  if(v==='wiki'||v==='character'||v==='daily')render();
 });
 window.addEventListener('nangman-wiki-source-ready',e=>{wikiSource=e.detail;wikiSourceError='';if(v==='wiki')render()});
-window.addEventListener('nangman-wiki-source-error',()=>{wikiSourceError='yy-sim 원본 백과 데이터를 불러오지 못했습니다.';if(v==='wiki')render()});
+window.addEventListener('nangman-wiki-source-error',()=>{wikiSourceError=' 백과 데이터를 불러오지 못했습니다.';if(v==='wiki')render()});
 function wikiRows(){
  const sourceData=wikiSource||wikiFallbackSource||{};
  const rows=[],seen=new Set();
@@ -1144,7 +1144,7 @@ function wikiImage(x){
  if(x.source==='equips'){folder='equip';icon=Number(o.icon||o.id)||9999}
  if(x.source==='martial'){folder='item';icon=Number(o.pic||1000)||1000}
  if(x.source==='crafts'||x.source==='arts'){
-   // 기예·비기는 yy-sim 원본 데이터의 이미지 식별자를 우선 사용한다.
+   // 기예·비기는  데이터의 이미지 식별자를 우선 사용한다.
    // 비어 있거나 유효하지 않은 ID를 임의의 다른 아이콘으로 대체하지 않는다.
    const raw=o.icon??o.pic??o.img??o.image??o.iconId??o.icon_id??o.id;
    const token=String(raw??'').split('/').pop().replace(/\.png$/i,'');
@@ -1217,7 +1217,7 @@ function wikiView(){
   wikiEffectDescription(selected)+'<div class="wiki-detail-fields">'+Object.entries(o).filter(([key])=>!['id','n','desc','name','koName','origin_desc','origin','acquisition','acquire','source_cn'].includes(key)).map(([key,val])=>wikiFormatField(key,val)).join('')+'</div></article>';
  }
  return '<div class="module-wrap wiki-module">'+
- '<div class="wiki-main-heading"><strong>백과</strong><span>'+escape(catLabel)+' '+rows.length+'건 · '+(wikiSource?'yy-sim 분류 / 한국판 V6.20 번역':'한국판 V6.20 추출 데이터')+'</span></div>'+
+ '<div class="wiki-main-heading"><strong>백과</strong><span>'+escape(catLabel)+' '+rows.length+'건 · '+(wikiSource?'한국판 분류':'한국판 V6.20 추출 데이터')+'</span></div>'+
  catbar+'<div class="wiki-browser"><aside class="wiki-list-column">'+search+list+'</aside>'+detail+'</div>'+
  '<p class="micro wiki-footnote">아이템·장비는 한국판 APK V6.20의 동일 데이터 유형·ID에서 확인한 명칭과 설명을 우선 사용합니다. 획득처는 추가하지 않습니다. 원본 백과를 불러오지 못한 경우 한국판 추출 자료로 목록을 표시합니다.</p></div>';
 }
@@ -1347,7 +1347,7 @@ function marketStrategyMarkup(state,ko){
 function dailyMarketView(){
  if(!save)return '<p class="role-status-note">암시장 시드·구매 이력으로 계산하려면 세이브를 불러와 주세요. 2서버/4서버 자료는 테스트 전용으로 사용합니다.</p>';
  if(!window.NangmanMarket||!window.DAILY_DATA?.shops?.guishi)
-  return '<p class="role-status-note">yy-sim 귀시 상품 데이터 또는 예측 계산 모듈을 불러오지 못했습니다.</p>';
+  return '<p class="role-status-note">귀시 예측 데이터를 불러오지 못했습니다.</p>';
  const ko=wikiKoMap(),state=window.NangmanMarket.predict(save,window.DAILY_DATA,Math.floor(Date.now()/1000),{slots:marketSlotsOverride}),
   vipChoice=marketVipOverride,
   allowance=state.paidAllowance(vipChoice),
@@ -1366,7 +1366,7 @@ function dailyMarketView(){
  const status=state.historyBlocked?'세이브의 귀시 기록이 너무 오래되어 '+state.missed+'회 변경을 안전하게 복원할 수 없습니다. 부정확한 예측을 방지하기 위해 현재 저장 상품만 표시합니다. 최신 세이브를 다시 불러와 주세요.':!state.seedOk?'귀시 RNG 시드 guishishop이 없어 향후 판매를 예측할 수 없습니다. 현재 저장 상품만 표시합니다.':
   state.stale?'세이브 귀시 시간에서 '+state.missed+'회 정시 변경을 복원했습니다. 이는 원본 RNG 계산에 근거한 모의 예측이며 현재 게임과 비교 검증이 필요합니다.':
   '세이브에 저장된 상품 목록을 현재 판매 목록으로 표시합니다.';
- const note='<p class="role-status-note">원본 yy-sim DAILY_DATA v'+escape(state.sourceVersion)+
+ const note='<p class="role-status-note">귀시 데이터 v'+escape(state.sourceVersion)+
   '의 귀시 상품 가중치와 RNG를 사용합니다. 기존 1서버 실측에서 20시 자동 6종과 원보 갱신 6종이 일치했습니다. 다른 캐릭터·시드는 별도 검증 대상이며 세이브는 변경되지 않습니다.</p>';
  return note+
  '<div class="market-stats">'+[
@@ -1380,7 +1380,7 @@ function dailyMarketView(){
  '<label>예측 슬롯 수 <select id="marketSlotsSelect">'+[3,4,5,6].map(x=>'<option value="'+x+'" '+(x===marketSlotsOverride?'selected':'')+'>'+x+'칸'+(x===6?' (기본)':'')+'</option>').join('')+'</select></label><span class="micro">원보·자동 갱신·한정 상품 탐색 모두 동일하게 적용 · 실제 세이브 슬롯 '+state.saveSlots+'칸</span></div>'+
  '<nav class="market-nav" role="group" aria-label="암시장 기능">'+[['strategy','한정 상품 전략'],['refresh','원보 갱신'],['current','현재 상품'],['schedule','자동 갱신'],['search','상품 검색']].map(([id,label])=>'<button type="button" data-market-tab="'+id+'" class="'+(marketPanel===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+ 
  '<section class="market-section" data-market-panel="refresh"><h4>VIP 선택 · 원보 갱신 모의실행</h4>'+
- '<p class="micro">산부진식 단계별 모의 갱신입니다. 직접 선택한 VIP 등급에 따른 하루 허용 횟수를 적용하고, 클릭할 때마다 다음 상품으로 이동합니다. 실제 원보를 사용하거나 세이브를 수정하지 않습니다.</p>'+
+ '<p class="micro">VIP 등급에 따른 갱신을 모의실행합니다. 게임 내 원보는 소비하지 않습니다.</p>'+
  '<div class="actions market-sim-controls">'+
  '<label>VIP 등급 <select id="marketVipSelect" aria-label="VIP 등급 수동 선택">'+[0,1,2,3,4,5].map(l=>'<option value="'+l+'" '+(vipChoice===l?'selected':'')+'>VIP '+l+' · 하루 '+window.NangmanMarket.VIP_REFRESH[l]+'회</option>').join('')+'</select></label>'+  
  '<button id="marketSimNext" class="btn primary" '+(!state.seedOk||simSteps>=allowance.left?'disabled':'')+'>원보 갱신 1회 (모의)</button>'+
@@ -1428,13 +1428,12 @@ function dailyMarketView(){
  marketItemTable(lookup.slice(0,100),ko)+'</details></section>';
 }
 function dailyView(){
- const opts=[['ghost','귀시'],['merchant','행상'],['drop','드랍']];
- const title={ghost:'암시장(귀시) 예측',merchant:'행상인',drop:'관문 드랍'}[dailyTab];
- const body=dailyTab==='ghost'?dailyMarketView():dailyTab==='drop'?
- '<p class="micro">관문 드랍 계산은 상단 드랍 탭의 산부진 원본 엔진과 연결됩니다. 같은 세이브를 사용합니다.</p>'+
- '<div class="actions"><button id="dailyOpenDrop" class="btn primary">관문 드랍 엔진 열기</button></div>':
- '<p class="role-status-note">행상은 한국판과 원본 자료의 출시 범위가 다를 수 있어 별도로 검증해야 합니다. 현재는 원본 귀시 예측과 구분해 둡니다.</p>';
- return '<div class="module-wrap">'+moduleHero('일일 콘텐츠','귀시 상품 RNG · 관문 드랍 · 행상인 자료')+
+ if(dailyTab==='drop')dailyTab='ghost';
+ const opts=[['ghost','귀시'],['merchant','행상']];
+ const title={ghost:'암시장(귀시) 예측',merchant:'행상인'}[dailyTab];
+ const body=dailyTab==='ghost'?dailyMarketView():
+ '<p class="role-status-note">행상인 예측 기능은 준비 중입니다.</p>';
+ return '<div class="module-wrap">'+moduleHero('일일 콘텐츠','')+
  tabRow(opts,dailyTab,'daily')+'<div class="module-panel"><h3>'+title+'</h3>'+body+'</div></div>';
 }
 function characterNumber(raw,key){
@@ -1488,7 +1487,7 @@ function characterSkillRows(raw,key,type){
  (entries.length?'<table class="module-table"><thead><tr><th>무학 / ID</th><th>수련</th><th>정진</th><th>장착</th></tr></thead><tbody>'+
  ordered.map(item=>'<tr><td>'+escape(named.get(String(item.ID))||'#'+item.ID)+' <small>#'+escape(item.ID)+'</small></td><td>'+escape(characterNumber(item,'Level'))+'</td><td>'+escape(characterNumber(item,'Chong'))+'</td><td>'+(item.Active===true?'<strong>사용 중</strong>':'—')+'</td></tr>').join('')+'</tbody></table>':'<p class="micro">습득한 무학 기록이 없습니다.</p>')+'</section>';
 }
-// yy-sim 원본 LIFE_HEDAO_DATA 단계별 성장 효과. 최종 전투 능력치로 오인하지 않는다.
+//  LIFE_HEDAO_DATA 단계별 성장 효과. 최종 전투 능력치로 오인하지 않는다.
 const characterLifeEffectNames={
  weapon_sword:'검 계열',weapon_stick:'창·곤 계열',zq_max:'진기 상한',zq_js:'진기 회복',
  atk:'공격',def:'방어',hit:'명중',hp:'기혈',speed:'속도',dodge:'회피',parry:'초식방어',
@@ -1561,7 +1560,7 @@ function characterEquipBaseSummary(raw){
  (sums.length?'<div class="wiki-detail-fields">'+sums.map(({label,value})=>'<div class="wiki-field"><span>'+escape(label)+'</span><b>'+escape(Number(value.toFixed(3)))+'</b></div>').join('')+'</div>':'<p class="micro">장비 기본 수치 기록 없음</p>')+
  '<p class="micro">부여 옵션 기록: 추가 '+count('EnExts')+'개 · 망정 '+count('EnMans')+'개 · 특수 '+count('EnSpecials')+'개 · 기타 '+count('EnNoXLExts')+'개 (중복 효과 합산 없음)</p></section>';
 }
-// yy-sim 원본 S1/Yt/Ia/Af/qf의 '장비 부여옵션' 구간만 추출한 읽기 전용 계산.
+//  S1/Yt/Ia/Af/qf의 '장비 부여옵션' 구간만 추출한 읽기 전용 계산.
 // EnNoXLExts와 EnFumos는 여기서 합산하지 않는다.
 function characterEquipSourceStats(raw){
  const gear=characterEntries(raw?.Equips).filter(e=>e&&typeof e==='object'&&Number(e.ID)>0);
@@ -1638,7 +1637,7 @@ function characterEquipCombatSplit(raw){
 function characterEquipCombatSplitView(raw){
  const split=characterEquipCombatSplit(raw),fmt=n=>Number(n.toFixed(3)).toLocaleString('ko-KR');
  const text=(name,source)=>'<tr><td>'+name+'</td><td>'+fmt(source.atk)+'</td><td>'+fmt(source.hit)+'</td></tr>';
- return '<section class="card"><h3>yy-sim 무기 구분 · 공격/명중 원본 기여</h3>'+
+ return '<section class="card"><h3>무기 구분 · 공격/명중 기여</h3>'+
  '<p class="micro">원본 wb()에서는 무기 종류 1~4의 공격과 명중을 나머지 장비와 분리해 적용합니다. 무기 공격에는 전용 재능·비기 계열별 보정이 추가됩니다. 아래 값은 해당 보정 전의 장비 부분값입니다.</p>'+
  '<table class="module-table"><thead><tr><th>장비 분류</th><th>공격 기여</th><th>명중 기여</th></tr></thead><tbody>'+
  text('무기 기여 (원본 계열 조건)',split.weapon)+text('비무기 기여',split.other)+'</tbody></table>'+
@@ -1660,7 +1659,7 @@ function characterEquipCombatSplitView(raw){
 function characterEquipSourceView(raw){
  const rows=characterEquipSourceStats(raw);
  const fmt=v=>Number(v.toFixed(3)).toLocaleString('ko-KR');
- return '<section class="card"><h3>yy-sim 원본식 장비 기여분 · 부여옵션 포함</h3>'+
+ return '<section class="card"><h3>식 장비 기여분 · 부여옵션 포함</h3>'+
  '<p class="micro">원본 Yt/Ia/Af/qf 산식 기준으로 장비 기본 수치, 강화 계수(LvProp), 부여옵션을 합산했습니다. 장비 훈련·마법 부여(부마)·무기 계열별 공격/명중 제한 및 전체 전투 보정은 제외한 부분 계산입니다.</p>'+
  '<table class="module-table"><thead><tr><th>능력치</th><th>기본·강화</th><th>부여옵션</th><th>부분 합계</th></tr></thead><tbody>'+
  rows.map(x=>'<tr><td>'+escape(x.label)+'</td><td>'+fmt(x.base)+'</td><td>'+fmt(x.affix)+'</td><td><b>'+fmt(x.base+x.affix)+'</b></td></tr>').join('')+
@@ -1725,7 +1724,7 @@ function characterMeridianView(raw){
 function characterSavedCollections(raw,mode){
  return mode==='equipment'?characterEquipView(raw):characterMeridianView(raw);
 }
-// 산부진 role_status_data.js 원본의 확정 globalVariable 키·상한만 이식한다.
+// role_status_data.js 원본의 확정 globalVariable 키·상한만 이식한다.
 // 계산식이 필요한 랜덤 영구 속성은 누적량을 추정하지 않고 복용 횟수만 표시한다.
 const characterProgressDefinitions=[
  ['training','구혼각 한옥관','getRX_HanYuGuan_',100,'인내'],['training','해도 파도 수련','seahit',100,'명중'],
@@ -1754,7 +1753,7 @@ function characterProgressView(root,role,kind){
  const entries=characterProgressDefinitions.filter(r=>r[0]===kind);
  if(!root||id===undefined)return '<p class="micro">세이브를 불러오면 육성 진행도가 표시됩니다.</p>';
  return '<section class="card"><h3>'+(kind==='training'?'문파·지역별 영구 수련':'단약·음식 복용 기록')+'</h3>'+
- '<p class="micro">산부진 원본 저장 키 기반. 무작위 능력치 상승값은 복용 횟수만으로 역산하지 않습니다.</p>'+
+ '<p class="micro">세이브 저장값 기준. 무작위 능력치 상승값은 복용 횟수만으로 역산하지 않습니다.</p>'+
  '<div class="wiki-detail-fields">'+entries.map(([g,name,prefix,max,unit])=>{
  const keys=Array.isArray(prefix)?prefix:[prefix];
  const counts=keys.map(x=>characterGlobalNumber(root,x+(unit==='회'&&x==='home_ssrx_max'?'':id)));
@@ -1764,7 +1763,7 @@ function characterProgressView(root,role,kind){
  }).join('')+'</div></section>';
 }
 
-// 산부진 role_status_data.js 수련 구조: 6개 계열의 별도 WXXW 잔액, 각 1500 상한.
+// role_status_data.js 수련 구조: 6개 계열의 별도 WXXW 잔액, 각 1500 상한.
 // 무학의 기여치는 KONGFU_DATA.rate/taolu/nei/qing 미확보 시 임의 합산하지 않는다.
 const sanbujinCultivationKinds=[
  ['권법',1,'Taolus','jlgcc_'],['도법',2,'Taolus',null],['검법',3,'Taolus','jwgjz_'],
@@ -1811,7 +1810,7 @@ function characterSanbujinCultivation(root,raw,role){
  });
  const sum=key=>entries.every(e=>e[key]!==null)?entries.reduce((n,e)=>n+e[key],0):null;
  const total=sum('current'),available=sum('transferable');
- return '<section class="card"><h3>무학 수련치 · 6계열</h3><p class="micro">산부진 원본 무학 882개 및 수련 비율표를 이용합니다. 각 계열의 현재 적용 상한은 1500점이며 검왕각·극락곡 대련은 전환에서 제외합니다. 판별 불가능한 무학은 수치를 추정하지 않습니다.</p>'+
+ return '<section class="card"><h3>무학 수련치 · 6계열</h3><p class="micro">무학 수련 비율표를 이용합니다. 각 계열의 현재 적용 상한은 1500점이며 검왕각·극락곡 대련은 전환에서 제외합니다. 판별 불가능한 무학은 수치를 추정하지 않습니다.</p>'+
  '<div class="wiki-detail-fields"><div class="wiki-field"><span>현재 총수련치</span><b>'+fmt(total)+'</b></div><div class="wiki-field"><span>전환 가능한 추가 수련치</span><b>'+fmt(available)+'</b></div></div>'+
  '<table class="module-table"><thead><tr><th>계열</th><th>무학</th><th>추가 잔액</th><th>적용 / 1500</th><th>전환 가능</th></tr></thead><tbody>'+
  entries.map(x=>'<tr><td>'+escape(x.name)+'</td><td>'+fmt(x.learned)+'</td><td>'+fmt(x.extra)+'</td><td>'+fmt(x.current)+(x.overflow>0?' (초과 '+x.overflow+')':'')+'</td><td>'+fmt(x.transferable)+'</td></tr>').join('')+
@@ -1836,7 +1835,7 @@ function characterSanbujinMetrics(root,role){
   return '<div class="wiki-field"><span>'+names[i]+'</span><b>'+(n===null||!Number.isFinite(n)?'기록 없음':Math.max(0,Math.min(30,n)))+' / 30</b></div>';
  }).join('')+'</div></section>';
 }
-// 산부진 원본 RoleStatusData.evaluate()로 계산한 출처별 진행도.
+// 원본 RoleStatusData.evaluate()로 계산한 출처별 진행도.
 // 한국판 미출시 항산 관련 직책은 사용자 화면에서 제외한다.
 const characterProgressKo={
  'jhg-hanyuguan':'구혼각 한옥관','sea-hit':'해도 파도 수련','dali-pool':'창산 나비샘',
@@ -1853,7 +1852,7 @@ const characterMetricKo={'攻击':'공격','气血':'기혈','防御':'방어','
  '身法':'신법','根骨':'근골','内息':'내식','内劲':'내기','罡气':'강기'};
 function characterSanbujinComplete(root,role){
  const engine=window.RoleStatusData;
- if(!engine?.evaluate)return '<p class="micro">산부진 원본 육성 데이터 엔진을 불러오지 못했습니다.</p>';
+ if(!engine?.evaluate)return '<p class="micro">육성 데이터를 불러오지 못했습니다.</p>';
  const groups=engine.evaluate(root,role.raw,role.type==='주인공'?'主角':'随从',{})||[];
  const fmt=x=>x===null||x===undefined?'—':String(x);
  const translate=s=>characterMetricKo[String(s)]||String(s||'');
@@ -1869,17 +1868,17 @@ function characterSanbujinComplete(root,role){
    const gains=Array.isArray(entry.gains)&&entry.gains.length?'<p class="micro">고정 증가량: '+entry.gains.map(x=>translate(x.label)+' '+fmt(x.current)+' / '+fmt(x.max)).join(' · ')+'</p>':'';
    const value=entry.current==null?'기록 없음':entry.current+' / '+(entry.max??'—');
    const note=entry.id==='one-hp-pill'?'복용 당시 근골이 세이브에 없어 실제 기혈 증가량은 확정할 수 없습니다.':
-    entry.id==='stone-lock'?'전체 캐릭터가 공유하는 진행도입니다.':'산부진 원본 저장 데이터 기준';
+    entry.id==='stone-lock'?'전체 캐릭터가 공유하는 진행도입니다.':'세이브 저장값 기준';
    cards.push('<section class="card"><h3>'+escape(name)+'</h3><p class="micro">'+escape(note)+'</p>'+
     (entry.max!=null?'<p><strong>'+escape(value)+'</strong></p>':'')+metrics(fields)+gains+'</section>');
   }
  }
- return '<section class="card"><h3>영구 육성 종합</h3><p class="micro">산부진 원본의 진행도·상한 계산을 연결했습니다. 항산 직책은 한국판 미출시 항목이므로 제외하며, 실제 복용 당시 조건이 보존되지 않은 확률형 효과는 확정값으로 표시하지 않습니다.</p></section>'+cards.join('');
+ return '<section class="card"><h3>영구 육성 종합</h3><p class="micro">진행도와 상한을 표시합니다. 항산 직책은 한국판 미출시 항목이므로 제외하며, 실제 복용 당시 조건이 보존되지 않은 확률형 효과는 확정값으로 표시하지 않습니다.</p></section>'+cards.join('');
 }
 
 // 세수 세이브 정보: BornTalent 1칸 + Talents 목록을 실제 저장 기록에서 수집.
 // 잠금, 정진 및 원시맥/치환맥의 예측은 서로 다른 데이터이므로 임의 변환하지 않는다.
-// 산부진 원본: BornTalent(태생)과 Talents(세수)는 서로 다른 슬롯이다.
+// 원본: BornTalent(태생)과 Talents(세수)는 서로 다른 슬롯이다.
 function characterTalentName(id){
  // Common name resolver for every wash/character/route/preview surface.
  // Korean 60014 talent IDs take precedence over catalogue translations.
@@ -1966,7 +1965,7 @@ function characterSourceBaseStats(raw){
   ['초식방어 기본값',()=>Math.floor(lv*1.2)+30+num('ExtParry'),'floor(레벨 × 1.2) + 30 + 추가 초식방어',['ExtParry']],
   ['강기 기본값',()=>num('ExtGangqi')+(num('GrowGangqi')>0&&lv>=93?(lv-93+1)*num('GrowGangqi'):0),'추가 강기 + (레벨 93부터 성장 강기 × (레벨 − 92))',['ExtGangqi','GrowGangqi']],
   ['내경 기본값',()=>num('GrowNeijin')>0&&lv>=93?Math.max(0,num('ExtNeijin')+(lv-93+3)*num('GrowNeijin')):num('ExtNeijin'),'레벨 93부터 max(0, 추가 내경 + 성장 내경 × (레벨 − 90))',['ExtNeijin','GrowNeijin']],
-  ['기 회복 기본값',()=>2,'yy-sim 원본 body.mp_back 초기값 2',[]]
+  ['기 회복 기본값',()=>2,' body.mp_back 초기값 2',[]]
  ];
  const entries=defs.map(([label,calc,formula,keys])=>{
   const extraBody=label.includes('초기값');
@@ -1978,7 +1977,7 @@ function characterSourceBaseStats(raw){
 }
 function characterSourceBasePanel(raw){
  const entries=characterSourceBaseStats(raw);
- return '<section class="card"><h3>yy-sim 원본 공식 · 인물 기본 능력치</h3>'+
+ return '<section class="card"><h3> 공식 · 인물 기본 능력치</h3>'+
  '<p class="micro">원본 computeFinalStats.body에서 분리한 12개 초기·기본 계산값입니다. 공격·기혈·회피·속도·인내·진원은 무보정 사대 자질 기준이며, 무학·재능 등의 추가 사대 자질 보정은 포함하지 않습니다. 강기·내경 성장치는 레벨 93부터 반영됩니다. 장비·무학·재능·경맥 등이 적용되기 전의 중간값이며, 실제 전투 패널 수치가 아닙니다.</p>'+
  '<div class="wiki-detail-fields">'+entries.map(x=>'<div class="wiki-field"><span>'+escape(x.label)+'</span><b>'+escape(x.value)+'</b><small class="micro">'+escape(x.formula)+'</small></div>').join('')+'</div></section>';
 }
@@ -2055,8 +2054,8 @@ function yyOriginalCultivationEffects(raw){
 function yyOriginalCultivationEffectsView(role){
  const items=yyOriginalCultivationEffects(role?.raw||{});
  const fmt=v=>Number(v.toFixed(3)).toLocaleString('ko-KR');
- return yyRoleSection('yy-sim 원본 수련 전투 보정',
- '<p class="micro">원본 u0/Od 공식: (저장 수련 + 습득 무학 수련)을 1,500으로 제한하고, 해당 계열 자질 계수 × 0.025를 곱합니다. 복제 무학 수련 및 이전 가능 수련은 산부진 기록과 계산 방향이 다를 수 있어 별개로 표시합니다.</p>'+
+ return yyRoleSection(' 수련 전투 보정',
+ '<p class="micro">원본 u0/Od 공식: (저장 수련 + 습득 무학 수련)을 1,500으로 제한하고, 해당 계열 자질 계수 × 0.025를 곱합니다. 복제 무학 수련 및 이전 가능 수련은 기록과 계산 방향이 다를 수 있어 별개로 표시합니다.</p>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>계열</th><th>yy-sim 수련</th><th>자질 계수</th><th>원본 수련 보정</th><th>무학 기록</th></tr></thead><tbody>'+
  items.map(x=>'<tr><td>'+escape(x.label)+'</td><td>'+(x.current===null?'미확인':fmt(x.current))+'</td>'+
  '<td>'+fmt(x.gift)+'</td><td>'+(x.bonusPct===null?'미확인':fmt(x.bonusPct)+'%')+'</td><td>'+x.count+(x.unknown?' · 미확인 '+x.unknown:'')+'</td></tr>').join('')+'</tbody></table></div>'+
@@ -2080,7 +2079,7 @@ function yyRoleBaseAptitudesView(role){
 function yyRoleBaseIntermediate(role){
  const entries=characterSourceBaseStats(role?.raw||{});
  return yyRoleSection('계산 검증 가능한 기본값',
- yyRoleStatGrid(entries.map(item=>[item.label,item.value,'yy-sim 원본 공식의 초기값']),'base-intermediate')+
+ yyRoleStatGrid(entries.map(item=>[item.label,item.value,' 공식의 초기값']),'base-intermediate')+
  '<p class="micro">장비·경맥·무학·재능 및 전투 최종 보정이 적용되기 전 값입니다. 위 전투 패널의 최종 능력치를 대체하지 않습니다.</p>');
 }
 function yyRolePanel(role){
@@ -2118,7 +2117,7 @@ function yyRoleTalent(role){
  return yyRoleSection('태생',born)+yyRoleSection('지원',battle)+yyRoleSection('세수',wash||yyRoleSlot('빈 슬롯','세수 재능 없음'));
 }
 function yyRoleExtraCombat(raw){
- // 원본 yy-sim kL: 게임 저장 추가 전투 능력치는 별도 그리드로 표시한다.
+ // 세수 kL: 게임 저장 추가 전투 능력치는 별도 그리드로 표시한다.
  const fields=[
   ['ExtHp','추가 기혈','기혈 기본값에 합산'],
   ['ExtAttack','추가 공격','공격 기본값에 합산'],
@@ -2155,7 +2154,7 @@ function yyRoleDetail(role){
 }
 
 function yyProgressEntries(save,role,tab){
- // 원본 yy-sim의 $L/qL/HL/NL/AL/vL/SL 저장 키를 세이브에 매핑한다.
+ // 세수의 $L/qL/HL/NL/AL/vL/SL 저장 키를 세이브에 매핑한다.
  const obj=Array.isArray(save)?save[0]:save||{};
  const root=obj.globalVariable||obj.GlobalVariable||obj.P;
  if(!root||typeof root!=='object')return {items:[],available:false};
@@ -2351,7 +2350,7 @@ function yyProgressStat(model){
 function yyCultivationView(role){
  const m=yyRoleCultivationModel(role);
  return yyRoleSection('6계열 수련치 · 저장 기록과 산출값',
- '<p class="role-status-note">무학 수련 합계와 게임의 WXXW 추가 수련치는 서로 별도입니다. 원본 산부진 수련 데이터에 대응되지 않은 무학이 있으면 해당 계열의 완성 수치를 확정하지 않습니다.</p>'+
+ '<p class="role-status-note">무학 수련 합계와 게임의 WXXW 추가 수련치는 서로 별도입니다. 수련 데이터가 없는 무학이 있으면 해당 계열의 완성 수치를 확정하지 않습니다.</p>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>계열</th><th>저장 추가</th><th>무학 습득</th><th>현재 합산</th><th>초과</th><th>고정</th><th>이전 가능</th></tr></thead><tbody>'+
  m.records.map(x=>'<tr><td>'+escape(x.name)+'</td><td>'+ (x.extra===null?'—':x.extra)+'</td><td>'+(x.learned===null?'—':x.learned)+'</td><td>'+(x.current===null?'미확인':x.current)+'</td><td>'+(x.overflow??'—')+'</td><td>'+(x.fixed??'—')+'</td><td>'+(x.transferable===null?'—':x.transferable)+'</td></tr>').join('')+
  '</tbody></table></div>'+
@@ -2424,7 +2423,7 @@ function yyCultivationAuditView(entries){
  if(!items.length)return yyRoleSection('수련 데이터 연결 진단',
  header+'<p class="micro">현재 세이브의 무학 ID와 수련 단계율이 연결된 단계표에 존재합니다. 수련 이전·전투 효과까지 검증됐다는 의미는 아닙니다.</p>');
  return yyRoleSection('수련 데이터 연결 진단',
- header+'<p class="role-status-note">산부진 수련표에 누락된 무학 ID와 복제 무학 ID를 표시합니다. 아래 항목이 있으면 해당 계열의 완성 수련치 및 이전 가능 수련치를 확정하지 마세요. 저장된 WXXW 수치는 그대로 유지합니다.</p>'+
+ header+'<p class="role-status-note">수련표에 없는 무학 ID와 복제 무학 ID를 표시합니다. 아래 항목이 있으면 해당 계열의 완성 수련치 및 이전 가능 수련치를 확정하지 마세요. 저장된 WXXW 수치는 그대로 유지합니다.</p>'+
  '<details class="yy-account-history"><summary>미연결 무학 '+items.length+'종 · 전체 '+items.reduce((n,x)=>n+x.count,0)+'건 보기</summary>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>무학 ID</th><th>복제 원본</th><th>분류</th><th>이유</th><th>등장 인원</th><th>인물</th></tr></thead><tbody>'+
  items.map(x=>'<tr><td>'+escape(x.id)+'</td><td>'+(x.copyId||'—')+'</td><td>'+escape(x.field)+'</td>'+
@@ -2491,7 +2490,7 @@ function yyAccountHistoryView(entries){
  const totals=new Map();
  for(const x of ledger)totals.set(x.source,(totals.get(x.source)||0)+x.value);
  return yyRoleSection('계정 전체 수련 획득 이력',
- '<p class="micro">과거 수련 획득 기록이며 현재 잔여 수련치와 중복 합산하지 않습니다. 이력은 산부진 원본 저장 키로 확인된 출처만 집계합니다.</p>'+
+ '<p class="micro">과거 수련 획득 기록이며 현재 잔여 수련치와 중복 합산하지 않습니다. 이력은 세이브에 기록된 출처만 집계합니다.</p>'+
  '<div class="yy-account-cards">'+[...totals.entries()].map(([name,value])=>
  '<div class="yy-account-card"><strong>'+escape(name)+'</strong><b>'+value.toLocaleString('ko-KR')+' 수련치</b></div>').join('')+'</div>'+
  '<details class="yy-account-history"><summary>캐릭터별 이력 '+ledger.length+'건 펼치기</summary>'+
@@ -2632,7 +2631,7 @@ function yyAccountCultivationView(){
  yyAccountHistoryView(entries)+
  (globalProgress.length?progress('주인공 공통 수련 기록',globalProgress,'육선문 용두 정련과 무관 목인 수련은 주인공 공통 기록으로 한 번만 표시합니다.'):'')+
  (sharedRows.length?progress('계정 공유 영구 성장',sharedRows,'가원 석쇄력 등 공유 제한 기록은 인물별 수련 합계에 중복 가산하지 않습니다.'):'')+
- '<p class="micro">자료 출처: 한국판 실제 세이브 + 산부진 무학 수련 단계표 + yy-sim 진행도 저장 키. 표시된 계산값은 게임의 현재 전투 능력치와 다릅니다.</p></section>';
+ '<p class="micro">표시된 수련 수치는 현재 전투 능력치와 다를 수 있습니다.</p></section>';
 }
 function characterView(){
  const opts=[['panel','능력치'],['equip','장비'],['talent','재능'],['detail','상세'],['training','수련'],['consumable','단약'],['hengshan','직무'],['other','기타'],['account','계정 전체']];
@@ -2704,7 +2703,7 @@ function questBranchView(){
   (x.id+' '+x.name+' '+x.detail+' '+x.step).toLowerCase().includes(q));
  const types=[['active','진행 중'],['done','완료 기록'],['traced','추적 표시'],['all','전체']];
  return card('계정 임무·이벤트 진행 기록',
- '<p class="role-status-note">원본 yy-sim 기준으로 Branch.step이 0 이상이면 진행 중, -1이면 완료 기록입니다. 내부 이벤트나 감시 스크립트도 포함되므로 모든 기록을 독립 임무 완료 건수로 해석해서는 안 됩니다.</p>'+
+ '<p class="role-status-note">세수 기준으로 Branch.step이 0 이상이면 진행 중, -1이면 완료 기록입니다. 내부 이벤트나 감시 스크립트도 포함되므로 모든 기록을 독립 임무 완료 건수로 해석해서는 안 됩니다.</p>'+
  '<div class="market-stats">'+[
   ['저장된 분기 기록',m.rows.length+'건'],['진행 중',m.active+'건'],
   ['완료 기록',m.done+'건'],['추적 표시',m.traced+'건']
@@ -2810,11 +2809,11 @@ function others(){
  if(v==='character')return characterView();
  if(v==='daily')return dailyView();
  if(v==='quest')return questView();
- if(v==='drop')return '<div class="module-wrap">'+moduleHero('드랍','제릉 일반 필드 특수몹 · 모든 관문 보스 순서 예측 · 90레벨 장비 공용 시드 · 보물지도')+
+ if(v==='drop')return '<div class="module-wrap">'+moduleHero('드랍','')+
  '<nav class="simple-tabs" aria-label="드랍 종류">'+[['wild','필드 사냥 · 제릉 포함'],['dungeon','전체 관문 드랍'],['shared','90급 공용 장비'],['treasure','보물지도']].map(([key,label])=>
  '<button type="button" data-drop-mode="'+key+'" class="'+(dropSelectedMode===key?'active':'')+'">'+label+'</button>').join('')+'</nav>'+
  '<div class="equipment-runtime-status"><span id="dropRuntimeStatus">드랍 엔진 연결 중</span><button class="equipment-retry" id="dropRetrySave" type="button">세이브 다시 전달</button></div>'+
- '<p class="micro">제릉은 100레벨 일반 필드 사냥에서 등장하는 특수몹의 90레벨 장비를 다룹니다. 관문은 제릉 관문이 아니라 등록된 전체 관문의 보스별·연속 드랍 계산입니다. 계산 상태는 탭 전환 뒤에도 유지되며, 보스별 색상 결과와 최종 정련·망정은 한국판 검증이 남아 있습니다.</p></div>';
+ '</div>';
  const info={sect:['항산파','한국판 미출시 — 메뉴만 유지하며 계산은 구현하지 않습니다.'],battle:['전투 시뮬레이션','미구현 — 전투 자동 시뮬레이션은 개발 대상에서 제외했습니다.'],drop:['드랍 예측','필드 특수몹·90레벨 관문 장비 드랍 예측'],quest:['임무 검색','한국판 임무·NPC·지역·좌표']};
  const [name,desc]=info[v];
  return '<div class="module-wrap">'+moduleHero(name,desc)+'<div class="module-panel"><h3>기능 준비 중</h3><p class="micro">'+desc+'</p></div></div>';
@@ -2860,12 +2859,12 @@ if($('questExportCsv'))$('questExportCsv').onclick=()=>{
  const url=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));
  const link=document.createElement('a');link.href=url;link.download='Nangman_Quest_Npc_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch=''}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.8.0',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch=''}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.8.1',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 if($('nativeEngineFrame')){
  const frame=$('nativeEngineFrame');
  frame.onload=()=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};
 }
-if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanTalentKoName=characterTalentName;window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainFive:'washEngineMulti',washMainTen:'washEngineMulti',washMainHundred:'washEngineMulti',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10':btn.id==='washMainHundred'?'100':($('washMainCount')?.value||'10')}})));if($('washMainCount'))$('washMainCount').onchange=()=>{const n=Number($('washMainCount').value);if(Number.isInteger(n)&&n>=1&&n<=1000)(window.__washRuntime||{}).mainCount=n};
+if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanTalentKoName=characterTalentName;window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainFive:'washEngineMulti',washMainTen:'washEngineMulti',washMainHundred:'washEngineMulti',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10':btn.id==='washMainHundred'?'100':($('washMainCount')?.value||'10')}})));if($('washMainCount'))$('washMainCount').onchange=()=>{const n=Number($('washMainCount').value);if(Number.isInteger(n)&&n>=1&&n<=1000)(window.__washRuntime||{}).mainCount=n};
 document.querySelectorAll('[data-wash-main-lock]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineToggleLock',index:Number(el.dataset.washMainLock)}})));
 document.querySelectorAll('[data-wash-main-exchange]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineExchangeTalent',index:Number(el.dataset.washMainExchange),requireConflict:true}})));
 for(const id of ['washMainSex','washMainVip']){
@@ -2924,7 +2923,7 @@ document.querySelectorAll('[data-yy-replay-route]').forEach(el=>el.onclick=()=>w
   const route=rows[Number(el.dataset.yyCopyRoute)];
   if(!route)throw Error('복사할 경로를 찾을 수 없습니다');
   const nameOf=id=>characterTalentName(id)+' (#'+id+')';
-  const textLines=['yy-sim 원본 WASM 자동 세수 탐색 결과',
+  const textLines=[' WASM 자동 세수 탐색 결과',
    '목표: '+route.goalIds.map(nameOf).join(' / '),
    '예상 세수단: '+(route.estimatedPills??'미확정'),
    '모의 세수 횟수: '+(route.estimatedWashes??'미확정'),
@@ -3122,7 +3121,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.8.0',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.8.1',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;marketSimStep=0;marketStrategyResults=null;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()};window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 const equipmentStatus=Object.create(null);
@@ -3160,7 +3159,7 @@ function updateEquipmentVisibility(){
    host.className='equipment-host';
    host.dataset.equipmentTab=tab[0];
    const frame=document.createElement('iframe');
-   frame.title='산부진 '+tab[1]+' 엔진';
+   frame.title=''+tab[1]+' 엔진';
    frame.loading='eager';
    frame.referrerPolicy='same-origin';
    frame.src='./vendor/sanbujin/'+tab[2]+'/index.html';
@@ -3168,7 +3167,7 @@ function updateEquipmentVisibility(){
    host.appendChild(frame);
    area.appendChild(host);
    equipmentFrames.set(tab[0],frame);
-   equipmentStatus[tab[0]]='산부진 '+tab[1]+' 엔진 로드 중';
+   equipmentStatus[tab[0]]=''+tab[1]+' 엔진 로드 중';
  }
  for(const [key,frame] of equipmentFrames){
   const active=key===tab[0];
@@ -3176,7 +3175,7 @@ function updateEquipmentVisibility(){
   frame.parentElement.hidden=!active;
  }
  const indicator=$('equipmentRuntimeStatus');
- if(indicator)indicator.textContent=equipmentStatus[equipTab]||'산부진 계산 엔진 준비 중';
+ if(indicator)indicator.textContent=equipmentStatus[equipTab]||'계산 엔진 준비 중';
 }
 // Persistent drop engine: the old per-render iframe discarded results and sent saves before load.
 let dropFrame=null,dropReady=false,dropSaveVersion=0,dropSentVersion=-1,dropSelectedMode='wild',dropModeSent=null;
@@ -3211,9 +3210,9 @@ function updateDropVisibility(){
  if(v!=='drop')return;
  if(!dropFrame){
   dropFrame=document.createElement('iframe');
-  dropFrame.id='dropEngineFrame';dropFrame.title='낭만강호 산부진 드랍 계산 엔진';
+  dropFrame.id='dropEngineFrame';dropFrame.title='낭만강호 드랍 계산 엔진';
   dropFrame.loading='eager';dropFrame.referrerPolicy='same-origin';
-  dropFrame.src='./vendor/sanbujin/drops/index.html?rev=20261121-v0800';
+  dropFrame.src='./vendor/sanbujin/drops/index.html?rev=20261121-v081';
   dropFrame.addEventListener('load',()=>{dropSentVersion=-1;sendThemeToDrop();dropStatus='드랍 엔진 초기화 확인 중';updateDropRuntimeStatus()});
   host.appendChild(dropFrame);
  }
@@ -3236,7 +3235,7 @@ window.addEventListener('message',event=>{
  const [key,frame]=frameEntry;
  const detail=event.data;
  if(detail.status==='ready'){
-   equipmentStatus[key]='산부진 계산 화면 로드 완료 · 세이브 전달 확인 중';
+   equipmentStatus[key]='계산 화면 준비됨 · 세이브 확인 중';
    sendThemeToEquipment(frame);
    sendSaveToEquipment(frame);
  }else if(detail.status==='applied'){
@@ -3386,7 +3385,7 @@ window.addEventListener('nangman-wash-command',async e=>{
     throw error;
    }
   }
-  state.output='원본 yy-sim 가상 설정 · '+(sex===1?'남성':'여성')+
+  state.output='세수 가상 설정 · '+(sex===1?'남성':'여성')+
    ' · '+(vip===1?'VIP 1 이상':'VIP 없음')+' · 실제 세이브 불변';
  }else if(op==='washEngineUpgradeZizhi'){
   if(!state.active||state.origin!=='save')throw Error('선택 캐릭터의 세수 상태를 연결하세요');
@@ -3399,7 +3398,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   state.undoStates.push(snapshot);
   state.log.push({kind:'upgrade-zizhi',from:snapshot.zizhi,to:result.state.zizhi});
   state.preview=null;state.autoResult=null;state.autoProgress=null;
-  state.output='원본 yy-sim 가상 자질 상승: '+snapshot.zizhi+' → '+result.state.zizhi+
+  state.output='세수 가상 자질 상승: '+snapshot.zizhi+' → '+result.state.zizhi+
    ' · 실제 게임 아이템 소모 없음 · 되돌리기 가능';
  }else if(op==='washEnginePreview'){
   if(!state.active)throw Error('먼저 현재 캐릭터 세이브를 WASM에 연결하세요.');
@@ -3522,12 +3521,12 @@ window.addEventListener('nangman-wash-command',async e=>{
   ensureSession();
   if(!result||!Array.isArray(result.result?.routes)||
      !['wasmSearchWashRoutes','wasmColorSequentialSearch'].includes(result.nativeFunction))
-   throw Error('원본 yy-sim WASM 자동 탐색 결과를 읽지 못했습니다');
+   throw Error('세수 자동 탐색 결과를 읽지 못했습니다');
   state.autoResult={...result,colorSearch:isColor};
   state.autoDesiredIds=options.desiredIds;
   state.autoOptions=options;
   const analysis=api.routeOutcome(result.result,result.desiredIds);
-  state.output=(isColor?'녹·파·자맥 WASM 순차 확장 탐색':'원본 yy-sim 자맥 자동 탐색')+' · 목표 '+options.desiredIds.map(id=>(window.__nangmanTalentKoName?.(id)||'재능 #'+id)).join(' / ')+
+  state.output=(isColor?'녹·파·자맥 WASM 순차 확장 탐색':'세수 자맥 자동 탐색')+' · 목표 '+options.desiredIds.map(id=>(window.__nangmanTalentKoName?.(id)||'재능 #'+id)).join(' / ')+
    ' · 검색 '+analysis.stats.scanned+'회 · 후보 '+analysis.stats.total+
    '개 · 현재 재능 목표 모두 달성 후보 '+analysis.stats.complete+
    '개 · 실제 세이브 변경 없음';
@@ -3541,11 +3540,11 @@ window.addEventListener('nangman-wash-command',async e=>{
    washNos:e.detail.washNos,previewLimit:e.detail.previewLimit,maxPad:e.detail.maxPad});
   ensureSession();
   if(!result||!Array.isArray(result.results)||result.nativeFunction!=='wasmPreviewExchangePads')
-   throw Error('원본 yy-sim 자맥 연동 치환 결과 형식이 올바르지 않습니다');
+   throw Error('세수 자맥 연동 치환 결과 형식이 올바르지 않습니다');
   state.yyLinkedResult=result;
   state.yySelectedWashNos=result.selectedWashNos;
   state.yyLinkedPad=result.maxPad;
-  state.output='원본 yy-sim 자맥 연동 치환 · 자맥 '+result.selectedWashNos.length+
+  state.output='세수 자맥 연동 치환 · 자맥 '+result.selectedWashNos.length+
    '개 · 선행 세수 0~'+result.maxPad+'회 · 원본 WASM 상태 변경 없음';
  }else if(op==='washEnginePads'){
   if(!state.active||state.origin!=='save')throw Error('현재 인물 세이브를 WASM에 연결하세요.');
@@ -3570,7 +3569,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   const found=Array.isArray(result.results)?result.results.length:
    Array.isArray(result.results.paths)?result.results.paths.length:
    Array.isArray(result.results.candidates)?result.results.candidates.length:null;
-  state.output='yy-sim 원본 도맥법 경로 자료 '+(found==null?'수신':found+'건')+
+  state.output=' 도맥법 경로 자료 '+(found==null?'수신':found+'건')+
    ' · '+count+'회 한도 · 원본 세이브 변화 없음';
  }else if(op==='washEngineUntilTalent'){
   if(!state.active||state.origin!=='save')throw Error('현재 인물 세이브를 WASM에 연결하세요.');
@@ -3709,7 +3708,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   if(JSON.stringify(result.state)!==JSON.stringify(snapshot)||result.results.length){
    state.undoStates.push(snapshot);state.log.push(result);state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';
   }
-  state.lastConflict=null;state.liveTalents=result.state.talents||[];syncWasmBag(result.state);state.output='yy-sim 원본 WASM 자맥 도달 실행: '+result.results.length+
+  state.lastConflict=null;state.liveTalents=result.state.talents||[];syncWasmBag(result.state);state.output=' WASM 자맥 도달 실행: '+result.results.length+
    '회 · 최대 1000회 제한 · 실게임 결과 미검증\n'+JSON.stringify(result,null,2);
  }else if(op==='washEngineUndo'){
   if(!state.active||!state.undoStates?.length)throw Error('되돌릴 WASM 실행 기록이 없습니다.');
@@ -3774,14 +3773,14 @@ window.addEventListener('nangman-embedded-status',e=>{});
 window.addEventListener('message',e=>{
  if(e.origin!==location.origin||e.data?.kind!=='nangman-embedded-status')return;
  const line=document.getElementById('nativeEngineStatus');
- if(line)line.textContent=e.data.status==='ready'?'산부진 원본 계산 화면 준비됨':e.data.status==='save-loaded'?'한국판 세이브 연결됨':e.data.message||'원본 계산 화면 상태 확인 필요';
+ if(line)line.textContent=e.data.status==='ready'?'계산 화면 준비됨':e.data.status==='save-loaded'?'한국판 세이브 연결됨':e.data.message||'원본 계산 화면 상태 확인 필요';
  if(e.data.status==='ready'){
   const frame=document.getElementById('nativeEngineFrame');
   if(frame&&e.source===frame.contentWindow&&window.__nangmanForwardSave)window.__nangmanForwardSave(frame);
  }
 });
 </script>
-<!-- v0.8.0: read-only localization audit with hidden dialogs, select choices and element paths. -->
+<!-- v0.8.1: read-only localization audit with hidden dialogs, select choices and element paths. -->
 <script>
 (function(){
   const hanja=/[\u3400-\u9fff]/;
