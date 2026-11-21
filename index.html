@@ -1139,12 +1139,16 @@ function yyRoleTalent(role){
 function yyRoleDetail(role){
  const raw=role.raw||{};
  const dims=[['팔힘','Str','BornStr','StrGift'],['근골','Con','BornCon','ConGift'],['신법','Dex','BornDex','DexGift'],['내식','Int','BornInt','IntGift']];
- const scores=dims.map(([name,k,b,g])=>yyRoleSlot(name,
- '배분 '+characterNumber(raw,k)+' · 태생 '+characterNumber(raw,b)+' · 잠재력 '+characterNumber(raw,g),
- '',''));
+ const scores=dims.map(([name,k,b,g])=>{
+  const overflowKey='YiChu'+k,cap=Number(raw.Level)+Number(raw[overflowKey]??0);
+  return yyRoleSlot(name,'배분 '+characterNumber(raw,k)+' · 태생 '+characterNumber(raw,b)+' · 잠재력 '+characterNumber(raw,g)+
+   (Number.isFinite(cap)?' · 상한 '+cap:''),'','');
+ });
  const bonus=characterFields(raw,[['GrowHp','성장 기혈'],['GrowAttack','성장 공격'],['GrowDefence','성장 방어'],['GrowHit','성장 명중'],['GrowDodge','성장 회피'],['GrowSpeed','성장 속도'],['GrowRen','성장 인내'],['ExtHp','추가 기혈'],['ExtAttack','추가 공격'],['ExtDefence','추가 방어'],['ExtHit','추가 명중'],['ExtDodge','추가 회피'],['ExtSpeed','추가 속도'],['ExtRen','추가 인내']]);
  return yyRoleSection('사대 자질',scores.join(''))+
- yyRoleSection('무학 수련',characterTrainingView(raw))+
+ yyRoleSection('무학 수련',characterTrainingView(raw)+
+  '<div class="role-grid stat-grid">'+[['권법','QuanGift'],['도법','DaoGift'],['검법','JianGift'],['창·곤','GunGift'],['내공','NGGift'],['경공','QGGift']].map(([label,key])=>
+  '<div class="stat-cell"><span class="label">'+escape(label)+' 잠재력</span><span class="value">'+escape(characterNumber(raw,key))+'</span></div>').join('')+'</div>')+
  yyRoleSection('성장·추가 능력치',bonus)+
  yyRoleSection('원본 계산 중간값',characterSourceBasePanel(raw)+characterEquipSourceView(raw))+
  yyRoleSection('무학',characterSkillRows(raw,'Taolus','외공')+characterSkillRows(raw,'Neis','내공')+characterSkillRows(raw,'Qings','경공'));
