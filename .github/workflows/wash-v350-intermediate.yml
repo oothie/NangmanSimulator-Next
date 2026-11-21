@@ -9,6 +9,7 @@ on:
       - 'vendor/nangman-v350/wash.html'
       - 'tests/yysim-*-smoke.cjs'
       - 'tests/v350-wash-source-bridge-smoke.cjs'
+      - 'tests/wash-ui-theme-regression.cjs'
       - '.github/workflows/wash-v350-intermediate.yml'
   workflow_dispatch:
 jobs:
@@ -25,3 +26,5 @@ jobs:
         run: node tests/yysim-auto-search-smoke.cjs
       - name: Native v3.50 wash source and bridge
         run: node tests/v350-wash-source-bridge-smoke.cjs
+      - name: Wash UI and colored target selectors
+        run: node tests/wash-ui-theme-regression.cjs
