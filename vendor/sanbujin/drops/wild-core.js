@@ -140,5 +140,5 @@
     return predictWithState(input,target,options,equipment).rows;
   }
 
-  root.SBJWildDrop = {open,predict,predictWithState,usable,draw,choose};
+  root.SBJWildDrop = {open,predict,predictWithState,usable,draw,choose,generateAffixes:affixes};
 })(window);
