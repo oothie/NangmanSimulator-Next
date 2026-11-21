@@ -3603,6 +3603,27 @@ window.addEventListener('message',event=>{
 });
 setInterval(()=>{const el=document.getElementById('marketLiveClock');if(el)el.textContent=new Date().toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})},1000);
 window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.data?.kind!=='nangman-equip-open-detail')return;
+ const allowed=[...equipmentFrames.values()].some(frame=>frame.contentWindow===event.source);
+ if(!allowed)return;
+ const request=event.data.equipment||{},id=Number(request.ID);
+ if(!Number.isInteger(id)||!equipCatalog()[String(id)])return;
+ // Find only verifiable save instances. If multiple identical IDs exist, never pick arbitrarily.
+ const all=equipInventory().filter(x=>Number(x.eq.ID)===id);
+ const onlyId=Number(request.OnlyID)||0;
+ let match=onlyId?all.filter(x=>Number(x.eq.OnlyID??x.eq.only_id)===onlyId):all;
+ if(match.length>1&&request.CZSeed!=null)match=match.filter(x=>Number(x.eq.CZSeed)===Number(request.CZSeed));
+ if(match.length>1&&request.MJSeed!=null)match=match.filter(x=>Number(x.eq.MJSeed)===Number(request.MJSeed));
+ const chosen=match.length===1?match[0]:null;
+ const item=chosen?.eq||{ID:id,Color:Number(request.Color)||0};
+ if(!equipDetail){
+  equipPrevious=equipTab;equipPreviousView=v;
+  history.pushState({equipmentDetail:true,previousView:v,previousTab:equipTab},'','#equip-detail');
+ }
+ equipDetail={eq:item,source:chosen?.source||'장비 계산 결과',count:20,mode:null};
+ v='equip';render();window.scrollTo(0,0);
+});
+window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.data?.kind!=='nangman-equip-navigate')return;
  const allowed=[...equipmentFrames.values()].some(frame=>frame.contentWindow===event.source);
  if(!allowed)return;
