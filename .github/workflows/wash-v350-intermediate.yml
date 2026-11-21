@@ -1,0 +1,27 @@
+name: Wash v3.50 + Intermediate meridian checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'engine/yysim-*'
+      - 'vendor/yysim/engine-host.html'
+      - 'vendor/nangman-v350/wash.html'
+      - 'tests/yysim-*-smoke.cjs'
+      - 'tests/v350-wash-source-bridge-smoke.cjs'
+      - '.github/workflows/wash-v350-intermediate.yml'
+  workflow_dispatch:
+jobs:
+  wash:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Intermediate goal and rollback
+        run: node tests/yysim-intermediate-search-smoke.cjs
+      - name: Original yy-sim automatic route adapter
+        run: node tests/yysim-auto-search-smoke.cjs
+      - name: Native v3.50 wash source and bridge
+        run: node tests/v350-wash-source-bridge-smoke.cjs
