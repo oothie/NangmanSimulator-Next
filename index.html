@@ -603,7 +603,6 @@ function characterFields(raw,fields){
  return '<div class="wiki-detail-fields">'+fields.map(([key,label])=>'<div class="wiki-field"><span>'+escape(label)+'</span><b>'+escape(characterNumber(raw,key))+'</b></div>').join('')+'</div>';
 }
 
-const characterCraftIds=new Set([301,302,303,304,305,306,307,308,311,312,313,314,315,316,317,318,319,320,321,325,327,328,330,331,332,334,337,338,339,343,345,350,352,354,390,399,462,483,508,600,605,611]);
 const characterMeridianNames={
  101:'수소음경',102:'족소음경',103:'수소양경',104:'족소양경',
  105:'수궐음경',106:'족궐음경',107:'수양명경',108:'족양명경',
