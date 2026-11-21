@@ -28,6 +28,8 @@ const action=ctx.window.YYWashAutoSearch.describeAction(
  {kind:'lock',talent:'一心两用',wash_no:2},nameIds,converter);
 assert.match(action.detail,/일심겸용/);
 assert(!action.detail.includes('재능 #251'));
+const numeric=ctx.window.YYWashAutoSearch.describeAction({kind:'lock',talent:251},nameIds,converter);
+assert.match(numeric.detail,/일심겸용/,'native numeric ID must use Korean confirmed talent name');
 const status=ctx.window.YYWashAutoSearch.readableStep('锁定一心两用',nameIds,converter);
 assert(status.includes('일심겸용'),'native Chinese step is mapped to confirmed Korean');
 const html=read('index.html');
