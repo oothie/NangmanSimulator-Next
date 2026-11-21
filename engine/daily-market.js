@@ -143,13 +143,21 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
  return {sourceVersion:source?.ver??null,seedOk:forecastOk,seedPresent:hasSeed,historyBlocked,seed:hasSeed?n(save.Rnds.Sds.guishishop):null,
   today,available,soldOut,slots,stale,tooOld:missed>1,missed,lastTime:clock,
   nextTime:nextHalfDay(now),now,paidLeft,paidMax,fresh,lucky,vip,
-  getPaid(count=1){
+  // VIP override is a local-only scenario; never alter the imported save.
+  paidAllowance(vipOverride=vip.vip){
+   const level=Math.max(0,Math.min(5,Math.trunc(n(vipOverride,vip.vip))));
+   const max=VIP_REFRESH[level]??VIP_REFRESH[0];
+   return {vip:level,max,used:fresh,left:Math.max(0,max-fresh)};
+  },
+  getPaid(count=1,options={}){
    if(!forecastOk)return [];
+   const allowance=this.paidAllowance(options.vip);
    const r=rng.clone();let l=lucky;const out=[];
-   for(let i=0;i<Math.min(paidLeft,Math.max(0,Math.floor(count)));i++){
+   for(let i=0;i<Math.min(allowance.left,Math.max(0,Math.floor(count)));i++){
     const chance=16.666666666666668+l,hit=r.chance('guishishop',chance);
     l=hit?chance-100:chance;
-    out.push({step:i+1,items:draw(r,available,true,hit,slots),lucky:l});
+    out.push({step:i+1,used:allowance.used+i+1,items:draw(r,available,true,hit,slots),
+      rareHit:hit,lucky:l});
    }
    return out;
   },
@@ -199,6 +207,6 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
   }
  };
 }
-root.NangmanMarket={predict,vipLevel,halfDay,nextHalfDay,resetDay,orderPool,countsMap,
+root.NangmanMarket={predict,vipLevel,halfDay,nextHalfDay,resetDay,orderPool,countsMap,VIP_REFRESH,
  __test:{nextSeed,KeyRng,draw}};
 })(typeof window!=='undefined'?window:globalThis);
