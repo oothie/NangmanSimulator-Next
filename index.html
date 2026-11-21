@@ -2793,6 +2793,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   if(window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
    throw Error('선택 캐릭터가 변경되었습니다.');
   if(!window.NangmanWashChain?.run)throw Error('연속 치환 검증 모듈이 아직 로드되지 않았습니다.');
+  state.lastConflict=null;
   const output=await window.NangmanWashChain.run({
    call:(name,payload)=>washEngine.call(name,payload),ensureSession,
    steps:Number(e.detail.steps??2),maxWashes:Number(e.detail.count??500)});
