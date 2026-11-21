@@ -16,6 +16,10 @@ const invoke=s=>vm.runInContext(s,ctx);
   total_pills:0,total_wash:0,bag_pills:50000,has_bag_pills:true,
   global_vars:{nlliandu_tf:0,talent_LingYue:1,mh_tianfu_401:1}};
  assert(invoke('wasmSetState(setup)'));
+ const nativeReq={desired_ids:[271,272,250,184],max_pad:20,horizon:900,top_n:4};
+ ctx.nativeReq=nativeReq;
+ const nativeMixed=invoke('wasmSearchWashRoutes(nativeReq)');
+ console.log('MIXED_NATIVE',JSON.stringify(nativeMixed).slice(0,5500));
  let seen=0;
  for(let n=1;n<=1200;n++){
   invoke('wasmDoWash()');
