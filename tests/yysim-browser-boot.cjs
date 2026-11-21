@@ -134,6 +134,8 @@ const path=require('node:path');
    const result=await washSearchEngine.call('auto-intermediate-search',{
     desiredIds:[271,272,250,184],horizon:1200,topN:5});
    return {scanned:result?.result?.scanned,routeCount:result?.result?.routes?.length,
+    nativePurpleCount:purple?.result?.routes?.length,
+    nativePurpleFirst:purple?.result?.routes?.[0],
     warnings:result?.warnings,partial:result?.result?.partial};
   });
   console.log('DIAGNOSTIC: four targets from scratch, 3 purple + green',JSON.stringify(freshGoals));
