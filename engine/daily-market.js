@@ -48,9 +48,18 @@ function orderPool(pool,ids){
 }
 function countsMap(items){
  const result={};
- for(const item of items||[]){
-  const id=n(item?.One??item?.one??item?.ID??item?.id);
-  if(id)result[id]=n(item?.Two??item?.two??item?.Count??item?.count);
+ // New Korean-server accounts can store RandShop.Counts as {} rather
+ // than the older array of {One,Two}. An empty object must not throw.
+ if(Array.isArray(items)){
+  for(const item of items){
+   const id=n(item?.One??item?.one??item?.ID??item?.id);
+   if(id)result[id]=n(item?.Two??item?.two??item?.Count??item?.count);
+  }
+ }else if(items&&typeof items==='object'){
+  for(const [key,value] of Object.entries(items)){
+   const id=Number(key);
+   if(Number.isSafeInteger(id)&&id>0)result[id]=decoded(value);
+  }
  }
  return result;
 }
