@@ -45,3 +45,5 @@ jobs:
         run: node tests/quest-branch-smoke.cjs
       - name: Verify Diling 100-level field 90-equipment drop integration
         run: node tests/tomb-field-smoke.cjs
+      - name: Verify Diling two-save RNG hypothesis comparison
+        run: node tests/tomb-compare-smoke.cjs
