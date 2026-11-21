@@ -1,5 +1,5 @@
 /* Korean 60014 source-lab v29 reconstruction: Diling ordinary outdoor-field encounters (not a tomb dungeon).
- * NOT real-server-verified: Lua pairs() reward ordering remains two hypotheses.
+ * NOT real-server-verified: Lua pairs() ordering has multiple candidate permutations.
  * NPC 35255 is the ordinary field trigger; only special NPC 35256 conditionally rolls level-90 equipment.
  * Read only, no game-save mutation. */
 (function(root){
@@ -21,11 +21,12 @@ function open(archive){
  const save=Array.isArray(archive)?archive[0]:archive||{};
  const rnd=save.Rnds??save.rnds??save.m_tRands??save.RandData??{};
  const seeds=rnd.Sds??rnd.sds??rnd.Seeds??rnd.seeds??{};
+ const eds=rnd.Eds??rnd.eds??{};
  const global=save.globalVariable??save.GlobalVariable??save.GlobalVariables??save.GlobalVars??{};
  const flags=new Map(Array.isArray(global)?
   global.map(x=>[String(x?.Key??x?.key??x?.Name??x?.name),number(x)]) :
   Object.entries(global).map(([key,value])=>[String(key),number(value)]));
- return {equipmentSeed:number(seeds.seed_35256),encounterSeed:number(seeds.rollenemy_tomb),
+ return {equipmentSeed:number(seeds.seed_35256),encounterSeed:number(seeds.rollenemy_tomb),eds,
   flags,gate3007Unknown:!flags.has('3007') || !Number.isFinite(flags.get('3007')),
   missingFlags:required.filter(key=>!flags.has(key)||!Number.isFinite(flags.get(key)))};
 }
@@ -61,6 +62,7 @@ function simulate(input,options={}){
  const rewardEntries=rewardOrder.map(kind=>source.reward.find(x=>x.kind===kind));
  const colorEntries=colorOrder.map(color=>source.color.find(x=>x.color===color));
  const vars=new Map(input.flags);let encounterSeed=input.encounterSeed,equipmentSeed=input.equipmentSeed;
+ const eds={...(input.eds||{})},sameIdCounts=new Map();
  const rows=[];
  function select(entries){
   const roll=draw(equipmentSeed,entries.reduce((sum,item)=>sum+item.weight,0));
@@ -88,6 +90,19 @@ function simulate(input,options={}){
     row.color=quality.color;
     row.itemId=source.pool[id.value-1];
     row.dropLevel=90;
+    // Shared 90-grade gear option stream, as in the verified Saibei/Shifang
+    // special-monster branch. This is not timestamp seeded and has no
+    // influence on this reward's item ID or color. No affix values claimed.
+    const key=String(row.itemId),saved=number(eds[key]);
+    row.sameItemOrder=(sameIdCounts.get(key)||0)+1;
+    sameIdCounts.set(key,row.sameItemOrder);
+    if(usable(saved)){
+      const gearRoll=draw(saved,99999999);
+      eds[key]=gearRoll.seed;
+      row.sharedEdsTracked=true;
+    }else{
+      row.sharedEdsTracked=false;
+    }
    }else if(reward.kind==='other'){
     const other=select(source.other);
     if(other.itemId==='history'){
@@ -124,7 +139,7 @@ function simulate(input,options={}){
  }
  // A modelled final state is for comparing alternative hypotheses against two
  // real saves. It is not confirmation that Lua pairs() uses either ordering.
- rows.final={encounterSeed,equipmentSeed,flags:Object.fromEntries(vars)};
+ rows.final={encounterSeed,equipmentSeed,eds,flags:Object.fromEntries(vars)};
  rows.order=order;
  rows.rewardOrder=[...rewardOrder];
  rows.colorOrder=[...colorOrder];
@@ -144,7 +159,8 @@ function fitObservations(input,observations,options={}){
  const tests=list.map(row=>({
   serial:Number(row.serial),itemId:row.itemId==null?null:Number(row.itemId),
   color:row.color==null?null:Number(row.color),
-  spawn:row.spawn==null?null:Boolean(row.spawn)
+  spawn:row.spawn==null?null:Boolean(row.spawn),
+  noGearBefore:row.noGearBefore===true
  }));
  if(tests.some(x=>!Number.isInteger(x.serial)||x.serial<1||x.serial>500||
    x.itemId!=null&&!Number.isInteger(x.itemId)||
@@ -161,7 +177,8 @@ function fitObservations(input,observations,options={}){
     const row=rows[t.serial-1];
     return (t.itemId==null||Number(row.itemId||0)===t.itemId)&&
       (t.color==null||Number(row.color||0)===t.color)&&
-      (t.spawn==null||row.spawn===t.spawn);
+      (t.spawn==null||row.spawn===t.spawn)&&
+      (!t.noGearBefore||rows.slice(0,t.serial-1).every(x=>!x.color));
    });
    const data={rewardOrder,colorOrder,rows};
    all.push(data);
