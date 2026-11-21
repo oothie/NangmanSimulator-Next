@@ -595,7 +595,9 @@ const characterProgressDefinitions=[
  ['consumable','보리자','2637_',3,'개'],['consumable','황천수','2645_',3,'개'],
  ['consumable','구유고','2646_',3,'개'],['consumable','칠보현단','2656_',7,'개'],
  ['consumable','취원금단','8806_',5,'개'],['consumable','응천옥고','8807_',5,'개'],
- ['consumable','명사단','8823_',5,'개'],['consumable','유귀단','8824_',5,'개']
+ ['consumable','명사단','8823_',5,'개'],['consumable','유귀단','8824_',5,'개'],
+ ['consumable','인청단',['9279_','9408_'],5,'개'],['consumable','자청금단','2649_',1,'회'],
+ ['training','가택 돌쇠 수련','home_ssrx_max',30,'회','shared']
 ];
 function characterGlobalNumber(root,key){
  const obj=root?.globalVariable||root?.GlobalVariable||root?.P;
@@ -614,7 +616,9 @@ function characterProgressView(root,role,kind){
  return '<section class="card"><h3>'+(kind==='training'?'문파·지역별 영구 수련':'단약·음식 복용 기록')+'</h3>'+
  '<p class="micro">산부진 원본 저장 키 기반. 무작위 능력치 상승값은 복용 횟수만으로 역산하지 않습니다.</p>'+
  '<div class="wiki-detail-fields">'+entries.map(([g,name,prefix,max,unit])=>{
- const count=characterGlobalNumber(root,prefix+id);
+ const keys=(Array.isArray(prefix)?prefix:[prefix]).map(x=>x);
+ const counts=keys.map(x=>characterGlobalNumber(root,x+(unit==='회'&&x==='home_ssrx_max'?'':id)));
+ const count=counts.every(x=>x===null)?null:Math.max(...counts.map(x=>x===null?0:x));
  const current=count==null?'기록 불명':String(Math.max(0,Math.min(max,count)));
  return '<div class="wiki-field"><span>'+escape(name)+'</span><b>'+escape(current)+' / '+max+' '+escape(unit)+'</b></div>';
  }).join('')+'</div></section>';
