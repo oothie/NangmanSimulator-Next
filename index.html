@@ -1243,7 +1243,7 @@ function marketStrategyMarkup(state,ko){
  const limited=selected&&soldSet.has(selected.id);
  const countRaw=save?.RandShop?.Counts;
  const purchased=selected?(Array.isArray(countRaw)?(countRaw.find(x=>Number(x.One)===selected.id)?.Two||0):Number(countRaw?.[selected.id]||0)):0;
- const views=marketStrategyResults?.save===save&&marketStrategyResults?.slots===marketSlotsOverride&&marketStrategyResults?.target===marketStrategyTarget&&marketStrategyResults?.anchor===state.now?marketStrategyResults:null;
+ const views=marketStrategyResults?.save===save&&marketStrategyResults?.slots===marketSlotsOverride&&marketStrategyResults?.target===marketStrategyTarget&&marketStrategyResults?.periods===marketStrategyPeriods?marketStrategyResults:null;
  const display=views?.byVip?.[marketVipOverride]||views;
  const result=views?'<div class="market-strategy-results">'+[
   ['cheapest','최소 원보 소모'],['fastest','가장 빠른 획득']
@@ -1280,7 +1280,7 @@ function marketStrategyMarkup(state,ko){
    '<p class="micro">아래 상세 경로는 현재 선택한 VIP '+marketVipOverride+' 기준입니다. 다른 VIP의 경로를 보려면 원보 갱신 탭에서 VIP를 바꿔 주세요.</p></div>':'';
  return '<div class="market-strategy">'+
   '<h4>한정 상품 갱신 전략 찾기</h4>'+
-  '<p class="micro">계산 기준: '+sourceLabel+' · 실제 저장 '+state.saveSlots+'칸 → 예측 '+state.slots+'칸 · 06시 횟수 초기화 · 08/20시 자동 교체 · 원보 갱신 20원보/회 (상품 가격 별도)</p>'+
+  '<p class="micro">계산 기준: '+sourceLabel+' · 실제 저장 '+state.saveSlots+'칸 → 예측 '+state.slots+'칸 · 06시 횟수 초기화 · 08/20시 자동 교체 · 원보 갱신 20원보/회 (상품 가격 별도)</p>'+ (views?'<p class="micro">전략 계산 시작: '+escape(marketDate(views.anchor))+' · 이후 실제 갱신이나 구매를 했다면 세이브를 다시 불러오세요.</p>':'')+
   (marketSlotsOverride>state.saveSlots?
     '<p class="market-limit-note">실제 세이브는 '+state.saveSlots+'칸입니다. 예측 '+state.slots+'칸은 슬롯을 추가 개방했다고 가정한 별도 결과입니다.</p>':'')+
   (selected?.stock!=null?'<p class="market-limit-note">'+escape(marketCatalogName(selected,ko))+' 누적 구매 '+purchased+'/'+selected.stock+'개 · '+(limited?'판매 상한 도달':('남은 구매 가능 '+Math.max(0,selected.stock-purchased)+'개'))+'</p>':'')+
