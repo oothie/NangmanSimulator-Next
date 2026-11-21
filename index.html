@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.15</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.16</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -196,13 +196,15 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.7.15: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.7.16: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
 .character-workspace .module-table{width:100%;table-layout:auto}
 .character-workspace .module-table td{overflow-wrap:anywhere}
 @media(max-width:760px){.character-workspace .character-summary-grid{grid-template-columns:1fr}.character-workspace .module-table{display:block;overflow-x:auto}}
+
+.character-talent-list{display:grid;gap:8px;margin-top:10px}.character-talent-row{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--border);background:var(--panel);padding:10px;border-radius:6px;flex-wrap:wrap}
 </style></head>
 <body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터</small></div><nav class="nav" id="nav"></nav><div class="tools"><button id="saveLink" class="save-link">세이브</button><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
 <main class="page"><div class="heading"><h1 id="title">세수 시뮬레이션</h1><span class="micro" id="status">세이브 미연결</span><div class="session-meta"><span class="session-label">보유 세수단 <b id="washBag">—</b></span><button id="import" class="btn">세이브 불러오기</button><input id="file" type="file" accept=".json,application/json" hidden></div></div><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="산부진 장비 계산 영역"></section></main><footer class="foot">독립 사이트 v0.7.14 · yy-sim 화면 구성 참고 · 한국판 계산 엔진 검증 후 연결</footer></div>
@@ -334,7 +336,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='quick',wikiTab='all',dailyTab='ghost',characterTab='overview';
+let equipTab='quick',wikiTab='all',dailyTab='ghost',characterTab='panel';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
@@ -956,31 +958,35 @@ function characterWashView(role,root){
  '<p class="micro">세수 재능이 저장되어 있지 않습니다.</p>')+'</section>';
 }
 function characterView(){
- const opts=[['overview','기본 정보'],['martial','무학·재능'],['equipment','장비'],['meridians','경맥'],['craft','생활기술·기예'],['wash-info','세수']];
+ const opts=[['panel','능력치'],['equip','장비'],['talent','재능'],['detail','상세'],['meridians','경맥'],['craft','생활기술·기예'],['wash-info','세수']];
  const role=roles[selected]||roles[0]||null,raw=role?.raw||{};
  const selector=roles.length?'<nav class="simple-tabs character-role-tabs" aria-label="캐릭터 선택">'+roles.map((r,i)=>'<button data-character-role="'+i+'" class="'+(i===selected?'active':'')+'">'+escape(r.name)+' · '+escape(r.level||'—')+'레벨</button>').join('')+'</nav>':'';
  let body='<section class="card"><p class="micro">상단에서 한국판 JSON 세이브를 불러오세요.</p></section>';
  if(role){
-  if(characterTab==='overview'){
+  if(characterTab==='panel'){
    body='<div class="character-summary-grid">'+
-    '<section class="card"><h3>기본 정보</h3>'+characterFields(raw,[['Level','레벨'],['ID','인물 ID'],['MenPai','문파'],['ZiZhi','자질'],['GongLi','공력'],['Point','남은 능력치 포인트']])+'</section>'+
-    '<section class="card"><h3>기본 자질</h3>'+characterFields(raw,[['Str','팔힘'],['Dex','신법'],['Con','근골'],['Int','내식'],['TotalPoint','누적 포인트']])+'</section>'+
-    '</div><section class="card"><h3>성장 및 추가 능력치</h3><p class="micro">세이브에 기록된 수치입니다. 최종 전투 능력치와 다를 수 있습니다.</p>'+
-    characterFields(raw,[['GrowHp','성장 기혈'],['GrowAttack','성장 공격'],['GrowDefence','성장 방어'],['GrowHit','성장 명중'],['GrowDodge','성장 회피'],['GrowSpeed','성장 속도'],['GrowRen','성장 인내'],['ExtHp','추가 기혈'],['ExtAttack','추가 공격'],['ExtDefence','추가 방어'],['ExtHit','추가 명중'],['ExtDodge','추가 회피'],['ExtSpeed','추가 속도'],['ExtRen','추가 인내']])+'</section>';
-  }else if(characterTab==='equipment')body=characterEquipView(raw);
+    '<section class="card"><h3>인물 정보</h3>'+characterFields(raw,[['Level','레벨'],['MaxLevel','레벨 상한'],['ID','인물 ID'],['MenPai','문파 ID'],['Age','나이'],['ZiZhi','자질'],['ZiZhiExp','자질 경험치']])+'</section>'+
+    '<section class="card"><h3>수련 상태</h3>'+characterFields(raw,[['GongLi','공력'],['Point','남은 수련점'],['TotalPoint','누적 수련점'],['Favour','호감도'],['TalLucky','세수 천장 저장값']])+'</section>'+
+    '</div><section class="card"><h3>기본 자질</h3>'+characterFields(raw,[['Str','팔힘 배분'],['Dex','신법 배분'],['Con','근골 배분'],['Int','내식 배분'],['BornStr','태생 팔힘'],['BornDex','태생 신법'],['BornCon','태생 근골'],['BornInt','태생 내식'],['StrGift','팔힘 잠재력'],['DexGift','신법 잠재력'],['ConGift','근골 잠재력'],['IntGift','내식 잠재력']])+'</section>'+
+    '<p class="micro">yy-sim 원본의 최종 전투 능력치 계산은 아직 연결되지 않아, 실제 세이브에 기록된 값만 표시합니다.</p>';
+  }else if(characterTab==='equip')body=characterEquipView(raw);
   else if(characterTab==='meridians')body=characterMeridianView(raw);
   else if(characterTab==='craft')body=characterLifeView(raw);
   else if(characterTab==='wash-info')body=characterWashView(role,save);
-  else {
-   const talents=characterWashTalents(role);
-   const t='<section class="card"><h3>재능 · '+talents.length+'개</h3>'+
-    (talents.length?'<div class="wiki-detail-fields">'+talents.map(x=>'<div class="wiki-field"><span>'+escape(characterTalentName(x.id))+' (#'+x.id+')</span><b>'+(x.locked?'잠금':'해제')+'</b></div>').join('')+'</div>':'<p class="micro">세이브에 등록된 재능이 없습니다.</p>')+'</section>';
-   body=t+characterSkillRows(raw,'Taolus','외공')+characterSkillRows(raw,'Neis','내공')+characterSkillRows(raw,'Qings','경공');
+  else if(characterTab==='talent'){
+   const talents=characterWashTalents(role),born=raw.BornTalent,battle=raw.BattleTalent;
+   const talentItem=(obj,title)=>'<section class="card"><h3>'+title+'</h3><div class="wiki-detail-fields"><div class="wiki-field"><span>재능</span><b>'+(Number(obj?.ID)>0?escape(characterTalentName(obj.ID))+' <small>#'+escape(obj.ID)+'</small>':'기록 없음')+'</b></div></div></section>';
+   body='<div class="character-summary-grid">'+talentItem(born,'태생 재능')+talentItem(battle,'지원 재능')+'</div>'+
+    '<section class="card"><h3>세수 재능 · '+talents.length+'개</h3>'+(talents.length?'<div class="character-talent-list">'+talents.map(t=>'<div class="character-talent-row"><strong>'+escape(characterTalentName(t.id))+'</strong><span class="micro">#'+escape(t.id)+' · '+(t.locked?'잠금':'해제')+(t.rc!==null?' · RC '+escape(t.rc):'')+'</span></div>').join('')+'</div>':'<p class="micro">세이브에 세수 재능이 없습니다.</p>')+'</section>';
+  }else{
+   body='<section class="card"><h3>성장 및 추가 능력치</h3><p class="micro">원본 저장 수치이며 최종 전투 패널 수치가 아닙니다.</p>'+
+    characterFields(raw,[['GrowHp','성장 기혈'],['GrowAttack','성장 공격'],['GrowDefence','성장 방어'],['GrowHit','성장 명중'],['GrowDodge','성장 회피'],['GrowSpeed','성장 속도'],['GrowRen','성장 인내'],['ExtHp','추가 기혈'],['ExtAttack','추가 공격'],['ExtDefence','추가 방어'],['ExtHit','추가 명중'],['ExtDodge','추가 회피'],['ExtSpeed','추가 속도'],['ExtRen','추가 인내']])+'</section>'+
+    characterSkillRows(raw,'Taolus','외공')+characterSkillRows(raw,'Neis','내공')+characterSkillRows(raw,'Qings','경공');
   }
  }
- return '<div class="module-wrap character-workspace">'+moduleHero('캐릭터','yy-sim 방식의 인물별 항목 구성 · 한국판 세이브 원본 데이터 조회')+
+ return '<div class="module-wrap character-workspace">'+moduleHero('캐릭터','yy-sim 원본의 능력치 · 장비 · 재능 · 상세 구성을 반영한 한국판 세이브 조회')+
  selector+tabRow(opts,characterTab,'character')+body+
- '<p class="micro wiki-footnote">이미지 미리보기 없이 실제 저장된 값만 표시합니다. yy-sim 원본 캐릭터 데이터 직접 이식과 최종 전투 수치 재계산은 아직 검증되지 않았습니다.</p></div>';
+ '<p class="micro wiki-footnote">캐릭터 이미지 미리보기 없음 · 표시되지 않은 값은 추정하지 않습니다. 최종 전투 패널 계산은 미연결입니다.</p></div>';
 }
 function others(){
  if(v==='equip')return equipView();
