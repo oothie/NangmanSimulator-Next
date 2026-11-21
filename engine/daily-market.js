@@ -141,7 +141,7 @@ function currentShelf(saved,catalog){
   {id:n(x?.ID??x?.id),item:0,name:'',price:0,money:0,count:1,unmapped:true,
    buyed:n(x?.Buyed)}).map(x=>({...x,buyed:n(saved?.find(y=>n(y?.ID??y?.id)===x.id)?.Buyed)}));
 }
-function predict(save,source,now=Math.floor(Date.now()/1000)){
+function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
  const src=source?.shops?.guishi||[];
  const shop=save?.RandShop||{},clock=n(shop.Time),rawSeed=save?.Rnds?.Sds?.guishishop;
  const numericSeed=Number(rawSeed);
@@ -149,7 +149,13 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
   Number.isSafeInteger(numericSeed)&&numericSeed>0;
  const rng=new KeyRng(save?.Rnds?.Sds||{});
  const {available,soldOut}=marketPool(src,shop,save,now),vip=vipLevel(save);
- const slots=n(shop.Buy)<10?3:n(shop.Buy)<30?4:n(shop.Buy)<60?5:6;
+ // Preserve the imported account's actual slot count separately from a
+ // hypothetical 3..6 slot planning configuration. The 6-slot planner
+ // makes no claim that an account with 3 unlocked slots can buy all 6.
+ const saveSlots=n(shop.Buy)<10?3:n(shop.Buy)<30?4:n(shop.Buy)<60?5:6;
+ const requestedSlots=Number(options?.slots);
+ const slots=Number.isInteger(requestedSlots)&&requestedSlots>=3&&requestedSlots<=6?
+   requestedSlots:saveSlots;
  const missed=clock>0?Math.max(0,halfDay(now)-halfDay(clock)):0,stale=missed>=1;
  // A years-old save can require thousands of 12h rerolls; never silently truncate a RNG chain.
  const historyBlocked=missed>730,forecastOk=hasSeed&&!historyBlocked;
@@ -160,7 +166,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
  const fresh=clock>0&&resetDay(clock)<resetDay(now)?0:n(shop.Fresh);
  const paidMax=VIP_REFRESH[vip.vip]??3,paidLeft=Math.max(0,paidMax-fresh),lucky=n(shop.Lucky);
  return {sourceVersion:source?.ver??null,seedOk:forecastOk,seedPresent:hasSeed,historyBlocked,seed:hasSeed?n(save.Rnds.Sds.guishishop):null,
-  today,available,soldOut,slots,stale,tooOld:missed>1,missed,lastTime:clock,
+  today,available,soldOut,slots,saveSlots,stale,tooOld:missed>1,missed,lastTime:clock,
   nextTime:nextHalfDay(now),now,paidLeft,paidMax,fresh,lucky,vip,
   // VIP override is a local-only scenario; never alter the imported save.
   paidAllowance(vipOverride=vip.vip){
