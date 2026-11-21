@@ -1999,10 +1999,10 @@ function characterSourceBaseStats(raw){
   ['진원 초기값',()=>num('ExtMpFirst')+apt.Int*num('IntMpFirst'),'추가 진원 + 내식 기본값 × 진원계수',['ExtMpFirst','IntMpFirst']],
   ['방어 기본값',()=>12+Math.floor(lv*num('GrowDefence'))+num('ExtDefence'),'12 + floor(레벨 × 성장 방어) + 추가 방어',['GrowDefence','ExtDefence']],
   ['명중 기본값',()=>90+lv*num('GrowHit')+num('ExtHit'),'90 + 레벨 × 성장 명중 + 추가 명중',['GrowHit','ExtHit']],
-  ['초식방어 기본값',()=>Math.floor(lv*1.2)+30+num('ExtParry'),'floor(레벨 × 1.2) + 30 + 추가 초식방어',['ExtParry']],
+  ['막기 기본값',()=>Math.floor(lv*1.2)+30+num('ExtParry'),'floor(레벨 × 1.2) + 30 + 추가 초식방어',['ExtParry']],
   ['강기 기본값',()=>num('ExtGangqi')+(num('GrowGangqi')>0&&lv>=93?(lv-93+1)*num('GrowGangqi'):0),'추가 강기 + (레벨 93부터 성장 강기 × (레벨 − 92))',['ExtGangqi','GrowGangqi']],
   ['내경 기본값',()=>num('GrowNeijin')>0&&lv>=93?Math.max(0,num('ExtNeijin')+(lv-93+3)*num('GrowNeijin')):num('ExtNeijin'),'레벨 93부터 max(0, 추가 내경 + 성장 내경 × (레벨 − 90))',['ExtNeijin','GrowNeijin']],
-  ['기 회복 기본값',()=>2,' body.mp_back 초기값 2',[]]
+  ['집기 기본값',()=>2,' body.mp_back 초기값 2',[]]
  ];
  const entries=defs.map(([label,calc,formula,keys])=>{
   const extraBody=label.includes('초기값');
@@ -2119,14 +2119,65 @@ function yyRoleBaseIntermediate(role){
  yyRoleStatGrid(entries.map(item=>[item.label,item.value,' 공식의 초기값']),'base-intermediate')+
  '<p class="micro">장비·경맥·무학·재능 및 전투 최종 보정이 적용되기 전 값입니다. 위 전투 패널의 최종 능력치를 대체하지 않습니다.</p>');
 }
+/* Character sheet from persisted save: exact visible equipped flat stats
+ * combined with separately reconstructed naked-base stats. The complete
+ * client combat pipeline also consumes martial/meridian/talent/temporary buffs;
+ * do not present this subtotal as the in-game final value. */
+function characterGearCombatSubtotal(raw){
+ const statKeys={
+  Atk:'공격',Hp:'기혈',Def:'방어',Hit:'명중',Dodge:'회피',Speed:'속도',
+  Parry:'막기',RenXing:'인내',Neijin:'내경',Gangqi:'강기'
+ };
+ const affixes={
+  atk:'공격',atk_add:'공격',hp:'기혈',hp_add:'기혈',def:'방어',def_add:'방어',
+  hit:'명중',hit_add:'명중',dodge:'회피',dodge_add:'회피',
+  speed:'속도',speed_add:'속도',parry:'막기',parry_add:'막기',
+  renxing:'인내',renxing_add:'인내'
+ };
+ const totals={},source={};
+ function add(label,value,tag){
+  const amount=Number(value);
+  if(!Number.isFinite(amount)||!amount)return;
+  totals[label]=(totals[label]||0)+amount;
+  (source[label]||(source[label]=[])).push(tag+' '+Number(amount.toFixed(3)));
+ }
+ for(const equip of characterEntries(raw?.Equips).filter(x=>x&&typeof x==='object'&&Number(x.ID)>0)){
+  for(const [key,label] of Object.entries(statKeys))add(label,equip[key],'장비 기본');
+  for(const key of ['EnExts','EnMans','EnSpecials','EnNoXLExts','EnStroys']){
+   for(const entry of characterEntries(equip[key])){
+    const label=affixes[String(entry?.Key||'')];if(label)add(label,entry.Value,'추가 옵션');
+   }
+  }
+ }
+ return {totals,source};
+}
+function characterCombatSubtotal(role){
+ const raw=role?.raw||{};
+ const computed=characterSourceBaseStats(raw);
+ const sourceMap={
+  '공격':'공격 초기값','기혈':'기혈 초기값','방어':'방어 기본값',
+  '명중':'명중 기본값','회피':'회피 초기값','속도':'속도 초기값',
+  '막기':'막기 기본값','인내':'인내 초기값','내경':'내경 기본값',
+  '강기':'강기 기본값','집기':'집기 기본값'
+ };
+ const equipment=characterGearCombatSubtotal(raw);
+ const rows=Object.entries(sourceMap).map(([label,baseName])=>{
+  const baseRow=computed.find(x=>x.label===baseName);
+  const base=Number(baseRow?.value),flat=equipment.totals[label]||0;
+  const valid=baseRow&&Number.isFinite(base);
+  return [label,valid?(base+flat).toLocaleString('ko-KR',{maximumFractionDigits:2}):'—',
+   valid?'기본 '+Number(base.toFixed(2))+(flat?' · 장비 +'+Number(flat.toFixed(2)):''):'기본 계산 미확인'];
+ });
+ return '<section class="role-section"><p class="wr-kicker">전투 능력치 · 기본 및 장비 합산</p>'+
+ '<p class="role-status-note">장비 기본값·추가 옵션을 현재 세이브에서 합산했습니다. 무학·경맥·재능·버프 등 미반영 효과가 있어 게임의 최종 전투 수치와 다를 수 있습니다.</p>'+
+ yyRoleStatGrid(rows,'final-grid')+'</section>';
+}
 function yyRolePanel(role){
  const a=role.raw||{},source=(window.CHAR_DATA||{})[String(role.id)]||{},gender=Number(a.Sex)===1?'남':Number(a.Sex)===2?'여':'—';
  const ident=[['ID',a.ID??role.id],[role.type==='주인공'?'문파':'소속',a.ShiLi||source.sl||((a.MenPai!=null)?'문파 #'+a.MenPai:'—')],['성별',gender],['나이',a.Age],['자질 경험치',a.ZiZhiExp],
  ['수련점',(a.Point??'—')+' / 누적 '+(a.TotalPoint??'—')],['호감도',a.Favour],['세수 천장 저장값',a.TalLucky]];
- const combat=['기혈','공격','방어','명중','회피','초식방어','속도','인내','기 회복','방어 관통','피해면역'].map(x=>[x,'—','최종 계산 엔진 연결 전']);
  return yyRoleSection('신분',yyRoleStatGrid(ident,'identity-grid'))+
- yyRoleSection('전투', '<p class="role-status-note">최종 전투 능력치는 아직 계산되지 않습니다.</p>'+
- yyRoleStatGrid(combat,'final-grid'))+
+ characterCombatSubtotal(role)+
  yyRoleBaseAptitudesView(role)+yyRoleBaseIntermediate(role)+characterEquipCombatSplitView(a)+yyRoleActiveLoadout(role)+yyRoleSavedCultivationSummary(role)+yyOriginalCultivationEffectsView(role);
 }
 function yyRoleEquip(role){
