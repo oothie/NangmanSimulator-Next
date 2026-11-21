@@ -47,8 +47,12 @@ assert(html.includes('id="dropWorkspace"'),'persistent drop iframe mount');
 assert(html.includes('function updateDropVisibility()'),'persistent drop visibility');
 assert(html.includes("version:dropSaveVersion,save:save||null"),'versioned parent payload');
 assert(html.includes("event.data.version===dropSaveVersion"),'stale drop message guard');
-assert(html.includes("if(event.data.status==='ready'){dropReady=true;sendSaveToDrop(true)}"),
- 'send save only after child ready');
+assert(html.includes("if(event.data.status==='ready'){dropReady=true;dropModeSent=null;sendSaveToDrop(true);sendDropMode(true)}"),
+ 'send save and selected drop mode only after child ready');
+assert(html.includes("kind:'nangman-drop-mode',mode:dropSelectedMode"),
+ 'parent forwards a distinct Sanbujin drop mode request');
+assert(drop.includes("event.data?.kind!=='nangman-drop-mode'"),
+ 'Sanbujin iframe validates mode message origin');
 assert(drop.includes("version=event.data.version"),'child echoes message version');
 assert(drop.includes("status:'save-loaded',version"),'child acknowledge version');
 const wash=section("import {washEngine} from './engine/local-engine-bridge.js';",
