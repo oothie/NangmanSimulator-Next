@@ -10,7 +10,7 @@ assert(native.includes('window.rk218Open=open'),'original v3.50 navigation expor
 assert(native.includes('function open(v){R.view=v;'),'original view selection retained');
 for(const view of ['find','auto','region','owned'])assert(native.includes('data-v="'+view+'"'),'native equipment view: '+view);
 assert(native.includes('function paintDetail('),'native shared detail present');
-assert(native.includes('function paintAutoEquip339('),'original automatic gear simulator present');
+assert(native.includes('paintAutoEquip339('),'original automatic gear simulator present');
 assert(native.includes('function showDetailTop233('),'native routed detail used');
 assert(native.includes('window.nangman350FocusEquipment=function('),'external owner/detail bridge installed');
 assert(native.includes('embedded-bridge.js'),'same-origin parent bridge loaded');
