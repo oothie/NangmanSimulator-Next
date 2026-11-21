@@ -201,9 +201,14 @@ const path=require('node:path');
    console.log('NATIVE_THREE_PURPLE',JSON.stringify({
     routeCount:purple?.result?.routes?.length,firstRoute:purple?.result?.routes?.[0]
    }).slice(0,10000));
+   const liveProgress=[];
    const result=await washSearchEngine.call('auto-intermediate-search',{
-    desiredIds:[271,272,250,184],horizon:1200,topN:5});
+    desiredIds:[271,272,250,184],horizon:1200,topN:5},
+    item=>liveProgress.push(item));
    return {scanned:result?.result?.scanned,routeCount:result?.result?.routes?.length,
+    progressCount:liveProgress.length,
+    progressPhases:[...new Set(liveProgress.map(x=>x.phase))],
+    beamUpdates:liveProgress.filter(x=>x.phase==='exchange').length,
     nativePurpleCount:purple?.result?.routes?.length,
     nativePurpleFirst:purple?.result?.routes?.[0],
     purpleReplay:replayDiagnostic,
@@ -215,6 +220,10 @@ const path=require('node:path');
     temporaryBranches:result?.result?.temporaryBranches,probeSlots:result?.result?.probeSlots,
     washesExecuted:result?.result?.washesExecuted};
   });
+  assert(freshGoals.progressPhases.includes('exchange')&&freshGoals.beamUpdates>2&&freshGoals.progressPhases.includes('finalize'),
+   '3-purple+green must emit real exchange-stage progress before finalization: '+JSON.stringify(freshGoals.progressPhases));
+  console.log('PASS: actual 3-purple+green beam progress delivered during active native WASM exchange exploration',
+   JSON.stringify({count:freshGoals.progressCount,beamUpdates:freshGoals.beamUpdates,phases:freshGoals.progressPhases}));
   console.log('DIAGNOSTIC: four targets from scratch, 3 purple + green',JSON.stringify(freshGoals));
   const retryPage=await browser.newPage();
   let failedAssets=0;
