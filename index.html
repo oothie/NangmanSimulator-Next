@@ -547,6 +547,11 @@ if(sub==='path'){
  const purpleOptions='<option value="">선택</option>'+purpleSourceIds.map(id=>'<option value="'+id+'">'+escape(characterTalentName(id))+' (#'+id+')</option>').join('');
  const runtime=window.__washRuntime||{};
  const valid=runtime.active&&runtime.origin==='save'&&runtime.linkedRoleId===r?.id&&!runtime.loading;
+ const pendingCollision=runtime.lastConflict;
+ const pendingIndex=Number(pendingCollision?.index);
+ const canApplyCollision=valid&&pendingCollision?.can_exchange===true&&
+  Number.isInteger(pendingIndex)&&pendingIndex>=0&&pendingIndex<(runtime.liveTalents?.length||0)&&
+  !runtime.liveTalents[pendingIndex]?.locked;
  const constraintsModel=runtime.constraints&&window.NangmanWashConflicts?
   window.NangmanWashConflicts.summarize(runtime.constraints,runtime.liveTalents,purpleSourceIds,characterTalentName):null;
  const conflictsPanel=constraintsModel?
@@ -633,7 +638,8 @@ if(sub==='path'){
  '<div class="actions"><button id="washNextTargetConflict" class="btn primary" '+(!valid?'disabled':'')+'>선택 목표 관련 다음 충돌·치환까지</button></div>'+
  '<p class="micro">위 목표 자맥을 선택하면 원본 WASM이 실제 치환 가능하다고 판정한 슬롯이 나올 때까지만 모의 세수합니다. 원본 세이브는 변경하지 않습니다.</p>'+
  '<div class="actions"><button id="washTalentRun" class="btn" '+(!valid?'disabled':'')+'>목표 자맥까지 모의 세수 (최대 1000회)</button>'+
- '<button id="washPathUndo" class="btn" '+(!(valid&&runtime.undoStates?.length)?'disabled':'')+'>직전 WASM 작업 되돌리기</button></div>'+
+ '<button id="washPathUndo" class="btn" '+(!(valid&&runtime.undoStates?.length)?'disabled':'')+'>직전 WASM 작업 되돌리기</button>'+
+ (canApplyCollision?'<button id="washPathApplyCollision" class="btn primary">발견한 '+(pendingIndex+1)+'번 충돌 슬롯 치환</button>':'')+'</div>'+
  '<p class="micro">잠금 슬롯·충돌 치환 자동 조작은 아직 포함하지 않습니다. 목표에 일치하는 WASM 재능만 검색합니다.</p>'+
  '</section>';
 }
@@ -2408,6 +2414,11 @@ if($('washPreviewExport'))$('washPreviewExport').onclick=()=>{
 };
 if($('washPreview'))$('washPreview').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEnginePreview',count:$('washPreviewCount')?.value||'900'}}));document.querySelectorAll('[data-wash-lock]').forEach(el=>el.onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineToggleLock',index:Number(el.dataset.washLock)}})));
+if($('washPathApplyCollision'))$('washPathApplyCollision').onclick=()=>{
+ const row=window.__washRuntime?.lastConflict;
+ if(row?.can_exchange===true)window.dispatchEvent(new CustomEvent('nangman-wash-command',{
+  detail:{op:'washEngineExchangeTalent',index:Number(row.index),requireConflict:true}}));
+};
 if($('washApplyConflict'))$('washApplyConflict').onclick=()=>{
  const found=window.__washRuntime?.lastConflict;
  if(!found?.can_exchange)return;
