@@ -39,7 +39,7 @@ let htmlMer=vm.runInContext('characterMeridianView',context)(role.raw);
 assert.match(htmlMer,/수소음경/);assert.match(htmlMer,/10 \/ 10/);assert.match(htmlMer,/음맥/);
 assert.match(htmlMer,/공격 [+]50/);assert.match(htmlMer,/선택 보너스: 완력 [+]5/);
 let htmlLife=vm.runInContext('characterLifeView',context)(role.raw);
-assert.match(htmlLife,/음률/);assert.match(htmlLife,/기예 · 1개/);assert.match(htmlLife,/비기 · 1개/);assert.match(htmlLife,/방어 관통 [+]6[.]67%/);
+assert.match(htmlLife,/음률/);assert.match(htmlLife,/기예 · 1개/);assert.match(htmlLife,/비기 · 1개/);assert.match(htmlLife,/방어 관통 [+]6%/);
 let htmlWash=vm.runInContext('characterWashView',context)(role,{XiSui:3273});
 assert.match(htmlWash,/3273/);assert.match(htmlWash,/79/);assert.match(htmlWash,/병기 애호/);
 assert.equal(vm.runInContext('characterWashTalents',context)(role).length,3);
