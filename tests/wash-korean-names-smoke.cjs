@@ -29,6 +29,19 @@ for(const group of catalog){
   assert.equal(ctx.window._talentName(item.id),item.ko,'auto checkbox displays canonical Korean name');
  }
 }
+vm.runInContext(read('engine/yysim-auto-search.js'),ctx,{filename:'native-auto-search'});
+vm.runInContext(read('engine/wash-preview-model.js'),ctx,{filename:'native-preview'});
+const nameIds={'岿然顶天':272,'九阴鬼脉':248,'玄阳神脉':249};
+const described=ctx.window.YYWashAutoSearch.describeAction(
+ {kind:'lock',talent:'岿然顶天'},nameIds,ctx.window._talentName);
+assert(described.detail.includes('귀연정천'),'native lock should show Korean purple talent');
+assert(!described.detail.includes('원본 재능 ID 미연결'),'native Chinese names must map to IDs');
+const preview=ctx.window.NangmanWashPreview.display('九阴鬼脉',nameIds,ctx.window._talentName);
+assert(preview.includes('구음귀맥'),'native preview should show Korean talent name');
+const translated=ctx.window.YYWashAutoSearch.readableStep(
+ '岿然顶天 ↔ 玄阳神脉',nameIds,ctx.window._talentName);
+assert(translated.includes('귀연정천')&&translated.includes('현양신맥'),
+ 'native exchange history should translate both Chinese source names to Korean');
 for(const [id,name] of Object.entries({
   170:'정기 왕성',171:'뛰어난 힘',182:'도법 명인',184:'짙은 기운',
   193:'거대한 체구',194:'권각 고수',248:'구음귀맥',
