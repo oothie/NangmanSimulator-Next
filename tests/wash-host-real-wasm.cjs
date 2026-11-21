@@ -52,8 +52,15 @@ async function call(op,payload){
  assert(washed.ok&&washed.data.performed===5&&washed.data.partial===false,'native 5 wash result count');
  assert.equal(washed.data.requested,5);
  assert((await call('set-state',initial)).ok);
+ const collision=await call('until-exchange',{count:30});
+ assert(collision.ok,'real WASM native until-exchange command succeeds');
+ assert(collision.data.performed>=0&&collision.data.performed<=30,
+  'native search must stop within configured wash bound');
+ if(collision.data.found)assert(collision.data.conflict?.can_exchange===true,
+   'reported collision uses original can_exchange flag');
+ assert((await call('set-state',initial)).ok,'native collision simulation can be undone');
  const target=await call('until-talent',{talentId:248,count:10});
  assert(target.ok&&Array.isArray(target.data.results));
  assert.equal(Number((await call('state')).data.seed),447882174,'existing goal no untracked mutation');
- console.log('PASS: same-origin host + real WASM: save state, preview, conflicts, route, lock, exchange, 5 washes, rollback');
+ console.log('PASS: same-origin host + real WASM: save state, preview, conflicts, route, lock, exchange, 5 washes, next conflict, rollback');
 })().catch(error=>{console.error(error);process.exitCode=1});
