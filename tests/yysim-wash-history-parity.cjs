@@ -33,7 +33,8 @@ assert(tsv.includes('천장')&&tsv.includes('자맥'));
 assert(!tsv.includes('undefined'));
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 for(const key of ['yysim-wash-history.js','washHistoryExport','washHistoryPrev',
- 'washHistoryNext','washHistorySize','YYWashHistory?.flatten','data-wash-main-exchange',
+ 'washHistoryNext','washHistorySize','washHistoryClear',
+ 'historyHiddenBefore','YYWashHistory?.flatten','data-wash-main-exchange',
  'washEngineExchangeTalent', 'state.constraints=constraints'])
  assert(html.includes(key),'UI missing '+key);
 console.log('PASS: 105 real-shape native washes, latest-first 50/100/200 paging, Korean TSV, conflict exchange controls');
