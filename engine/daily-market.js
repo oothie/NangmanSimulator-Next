@@ -231,76 +231,91 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
   // explored horizon for the selected objective. State-cap failures are
   // explicit: never present them as a proved unreachable item.
   searchStrategy(shopIds,options={}){
-   if(!forecastOk)return {error:historyBlocked?'저장 시드 경과 기간이 너무 깁니다.':'암시장 시드가 없습니다.'};
+   if(!forecastOk)return {found:false,error:historyBlocked?'기록이 오래되어 시드를 복원할 수 없습니다.':'암시장 시드가 없습니다.'};
    const ids=new Set((shopIds||[]).map(Number).filter(Number.isFinite));
-   if(!ids.size)return {error:'목표 상품을 선택해 주세요.'};
-   const eligible=available.filter(item=>ids.has(item.id));
+   if(!ids.size)return {found:false,error:'목표 상품을 선택하세요.'};
+   const eligible=available.filter(x=>ids.has(x.id));
    if(!eligible.length){
-     const excluded=soldOut.filter(item=>ids.has(item.id));
-     return {found:false,unavailable:true,periods:0,expanded:0,
-       error:excluded.length?'해당 상품은 세이브의 누적 구매 수량이 판매 상한에 도달했습니다. 현재 데이터에서는 재등장을 예측할 수 없습니다.':
-         '현재 상품 풀에 없는 항목입니다. 출시 상태 또는 서버 조건을 확인하세요.'};
+     const exhausted=soldOut.filter(x=>ids.has(x.id));
+     return {found:false,unavailable:true,expanded:0,
+       error:exhausted.length?'이 세이브에서 목표 상품의 구매 상한에 도달했습니다.':
+         '현재 판매 후보에 포함되지 않은 상품입니다.'};
    }
-   const limit=Math.min(28,Math.max(1,Math.floor(n(options.periods,12))));
-   const maxStates=Math.min(20000,Math.max(500,Math.floor(n(options.maxStates,6500))));
-   const costPerRefresh=20;
    const vipAllowance=this.paidAllowance(options.vip);
    const mode=options.mode==='fastest'?'fastest':'cheapest';
-   const originalSeed=n(rng.seeds.guishishop);
-   const foundItem=items=>(items||[]).find(x=>ids.has(x.id));
-   const start={seed:originalSeed,lucky,time:now,next:nextHalfDay(now),
-     period:0,used:vipAllowance.used,cost:0,paid:0,steps:[],
-     item:foundItem(today)};
-   if(start.item)return {mode,found:true,when:now,cost:0,paid:0,item:start.item,
-     steps:[{kind:'current',time:now,items:today}],expanded:0,proven:true,periods:limit};
+   const periodLimit=Math.max(1,Math.min(28,Math.trunc(n(options.periods,12))));
+   const cap=Math.max(500,Math.min(30000,Math.trunc(n(options.maxStates,9000))));
+   const costPerRefresh=20; // original ghost-market paid refresh costs 20 ingots
+   const target=items=>(items||[]).find(x=>ids.has(x.id));
+   // Market schedule: 08:00/20:00 KST. Daily refresh allowance resets
+   // separately at 06:00 KST, even if the shelf does not change then.
+   const nextDaily=t=>(resetDay(t)+1)*86400-10800;
+   const nextAuto=nextHalfDay(now),deadline=nextAuto+(periodLimit-1)*43200;
+   const initial={seed:n(rng.seeds.guishishop),lucky,time:now,
+      nextAuto,nextDaily:nextDaily(now),period:0,used:vipAllowance.used,
+      cost:0,paid:0,steps:[],item:target(today)};
+   if(initial.item)return {mode,found:true,when:now,cost:0,paid:0,
+      item:initial.item,steps:[{kind:'current',time:now,items:today}],
+      expanded:0,proven:true,periods:periodLimit,vip:vipAllowance.vip};
+   const cmp=(a,b)=>mode==='fastest'?
+      a.time-b.time||a.cost-b.cost||a.period-b.period:
+      a.cost-b.cost||a.time-b.time||a.period-b.period;
+   // Binary min-heap avoids re-sorting the entire frontier each draw.
    const heap=[],seen=new Map();
-   const cmp=(a,b)=>mode==='cheapest'?
-     (a.cost-b.cost||a.time-b.time||a.period-b.period):
-     (a.time-b.time||a.cost-b.cost||a.period-b.period);
-   const push=v=>{heap.push(v);let i=heap.length-1;
-     while(i>0){let p=(i-1)>>1;if(cmp(heap[p],v)<=0)break;heap[i]=heap[p];i=p}
-     heap[i]=v};
-   const pop=()=>{const v=heap[0],tail=heap.pop();if(heap.length){let i=0;
-     while(true){let c=i*2+1;if(c>=heap.length)break;
-       if(c+1<heap.length&&cmp(heap[c+1],heap[c])<0)c++;
-       if(cmp(tail,heap[c])<=0)break;heap[i]=heap[c];i=c}
-     heap[i]=tail}return v};
-   push(start);let expanded=0,best=null;
-   while(heap.length&&expanded<maxStates){
-     const node=pop();expanded++;
-     const key=[node.seed,node.lucky,node.time,node.period,node.used].join('/');
-     const previous=seen.get(key);
-     if(previous!=null&&previous<=node.cost)continue;
-     seen.set(key,node.cost);
+   const push=node=>{let i=heap.length;heap.push(node);
+     while(i>0){const p=(i-1)>>1;if(cmp(heap[p],node)<=0)break;heap[i]=heap[p];i=p}
+     heap[i]=node};
+   const pop=()=>{const head=heap[0],tail=heap.pop();
+     if(heap.length){let i=0;
+       while(true){let c=i*2+1;if(c>=heap.length)break;
+         if(c+1<heap.length&&cmp(heap[c+1],heap[c])<0)c++;
+         if(cmp(tail,heap[c])<=0)break;
+         heap[i]=heap[c];i=c}heap[i]=tail}return head};
+   push(initial);let expanded=0,best=null;
+   while(heap.length&&expanded<cap){
+     const node=pop();
+     const key=[node.seed,node.lucky,node.time,node.period,node.used].join('|');
+     if(seen.has(key)&&seen.get(key)<=node.cost)continue;
+     seen.set(key,node.cost);expanded++;
      if(node.item){best=node;break}
+     // A manual refresh consumes a rare-roll plus repeated weighted draws.
      if(node.used<vipAllowance.max){
        const r=new KeyRng({guishishop:node.seed});
        const threshold=16.666666666666668+node.lucky;
        const rareHit=r.chance('guishishop',threshold);
        const nextLucky=rareHit?threshold-100:threshold;
        const items=draw(r,available,true,rareHit,slots);
-       const paidItem=foundItem(items);
        push({...node,seed:r.seeds.guishishop,lucky:nextLucky,
          used:node.used+1,cost:node.cost+costPerRefresh,paid:node.paid+1,
-         item:paidItem,steps:node.steps.concat([{kind:'paid',time:node.time,
-          index:node.used+1,rareHit,items}])});
+         item:target(items),
+         steps:node.steps.concat([{kind:'paid',time:node.time,
+           index:node.used+1,rareHit,items}])});
      }
-     if(node.period<limit){
-       const r=new KeyRng({guishishop:node.seed});
-       const items=draw(r,available,false,false,slots);
-       const t=node.next;
-       push({...node,seed:r.seeds.guishishop,time:t,next:t+43200,
-         used:resetDay(t)>resetDay(node.time)?0:node.used,
-         period:node.period+1,item:foundItem(items),
-         steps:node.steps.concat([{kind:'auto',time:t,items}])});
+     // Advance the clock without RNG consumption at daily 06:00 reset.
+     // At 08:00/20:00 consume an automatic weighted market draw.
+     const autoFirst=node.nextAuto<=node.nextDaily;
+     const t=autoFirst?node.nextAuto:node.nextDaily;
+     if(t<=deadline){
+       if(autoFirst){
+         const r=new KeyRng({guishishop:node.seed});
+         const items=draw(r,available,false,false,slots);
+         push({...node,seed:r.seeds.guishishop,time:t,nextAuto:t+43200,
+           nextDaily:node.nextDaily,period:node.period+1,item:target(items),
+           steps:node.steps.concat([{kind:'auto',time:t,items}])});
+       }else{
+         push({...node,time:t,nextDaily:nextDaily(t),used:0,
+           steps:node.steps.concat([{kind:'reset',time:t}])});
+       }
      }
    }
-   return best?{found:true,mode,when:best.time,cost:best.cost,paid:best.paid,
-      item:best.item,steps:best.steps,expanded,proven:true,periods:limit}:
-     {found:false,mode,expanded,periods:limit,
-      limited:heap.length>0,error:heap.length>0?
-        '탐색 상한에 도달했습니다. 미발견은 상품 부재를 뜻하지 않습니다.':
-        '선택한 기간과 갱신 횟수 안에서 발견되지 않았습니다.'};
+   if(best)return {mode,found:true,when:best.time,cost:best.cost,
+     paid:best.paid,item:best.item,steps:best.steps,expanded,periods:periodLimit,
+     vip:vipAllowance.vip,proven:true};
+   return {mode,found:false,expanded,periods:periodLimit,vip:vipAllowance.vip,
+     limited:heap.length>0,error:heap.length>0?
+     '탐색 상태 상한에 도달했습니다. 결과 미발견을 불가능으로 해석하면 안 됩니다.':
+     '선택한 날짜와 VIP 허용량 안에서 목표 상품을 발견하지 못했습니다.'};
+
   }
  };
 }
