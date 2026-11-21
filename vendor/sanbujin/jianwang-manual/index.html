@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>낭만강호 · 산부진 검왕각 수동</title>
+    <title>낭만강호 · 검왕각</title>
     <meta name="description" content="原版游戏装备打造/精炼/淬炼序列预测">
     <link rel="stylesheet" href="/vendor/sanbujin/shared/simulator.css?v=20261103262&rev=8123d9b39fea">
     <link rel="stylesheet" href="/vendor/sanbujin/equip/equip.css?v=20261105314&rev=965180f1d70e">
@@ -531,7 +531,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
    if(worked){
     confirmedVersion=version;
     signal('applied','한국판 세이브가 '+moduleName+' 계산기에 적용됐습니다.',version);
-   }else signal('error',error||'WASM 또는 산부진 원본 세이브 로더가 아직 준비되지 않았습니다.',version);
+   }else signal('error',error||'세이브 적용 기능을 준비 중입니다.',version);
   }catch(e){signal('error',String(e.message||e),version)}
   finally{
    running=false;
@@ -547,7 +547,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
  });
  window.addEventListener('load',()=>{
   try{window.YYJHI18n?.set('ko-KR')}catch(e){}
-  signal('ready','원본 엔진 준비됨');
+  signal('ready','계산 준비됨');
   if(saved)apply();
  });
 })();
