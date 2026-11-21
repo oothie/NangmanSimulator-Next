@@ -27,18 +27,50 @@ const path=require('node:path');
    const scratch=module.washSearchEngine;
    await scratch.call('init');
    const copied=await scratch.call('set-state',mapped);
+   const progress=[];
    const search=await scratch.call('auto-intermediate-search',{
-    desiredIds:[184,191],horizon:100,topN:5});
+    desiredIds:[184,191],horizon:100,topN:5},
+    item=>progress.push(item));
    const restored=await engine.call('state');
    return {initialized,hasState:!!snapshot,slots:Array.isArray(snapshot?.talents),
     mapped:mapped?.role_id,search:search?.result?.routes?.length||0,
     scanned:search?.result?.scanned||0,
     scratchMatches:JSON.stringify(copied)===JSON.stringify(mapped),
-    preserved:JSON.stringify(restored)===JSON.stringify(mapped)};
+    preserved:JSON.stringify(restored)===JSON.stringify(mapped),
+    progressCount:progress.length,
+    progressPhases:[...new Set(progress.map(x=>x.phase))],
+    progressComplete:progress.at(-1)?.percentage===100,
+    progressMonotonic:progress.every((x,i)=>i===0||
+      (x.phase!=='sequential'||progress[i-1].phase!=='sequential'||
+        x.percentage>=progress[i-1].percentage))};
   });
-  assert(result.initialized?.ready&&result.hasState&&result.slots&&result.search>0&&result.scanned>1&&result.scratchMatches&&result.preserved,
+  assert(result.initialized?.ready&&result.hasState&&result.slots&&result.search>0&&result.scanned>1&&result.scratchMatches&&result.preserved&&result.progressCount>=3&&result.progressPhases.includes('sequential')&&result.progressComplete&&result.progressMonotonic,
     'actual browser iframe engine init failed: '+JSON.stringify({result,errs}));
   console.log('PASS: browser same-origin yy-sim WASM iframe init, state and scripts');
+  console.log('PASS: live correlated WASM search progress events, sequential percentages and 100% finalization',JSON.stringify({count:result.progressCount,phases:result.progressPhases}));
+  const progressUI=await page.evaluate(()=>{
+   const nav=Array.from(document.querySelectorAll('[data-view]')).find(el=>el.dataset.view==='wash');
+   if(!nav)throw Error('Wash navigation not found');
+   nav.click();
+   const auto=Array.from(document.querySelectorAll('[data-sub]')).find(el=>el.dataset.sub==='auto');
+   if(!auto)throw Error('Automatic search tab not found');
+   auto.click();
+   window.__washRuntime.loading=true;
+   window.__washRuntime.autoProgress={stage:'순차 탐색 진행',phase:'sequential',
+    completed:8,total:24,percentage:33,checked:400,found:1,bestPills:72};
+   window.dispatchEvent(new Event('nangman-wash-updated'));
+   const bar=document.querySelector('[role="progressbar"]');
+   const body=document.querySelector('.wash-search-progress');
+   const button=document.querySelector('#yyAutoRun');
+   const display={visible:!!body&&body.textContent.includes('400')&&body.textContent.includes('72')&&body.textContent.includes('33%'),
+    bar:bar?.getAttribute('aria-valuenow'),loadingLabel:button?.textContent,disabled:button?.disabled};
+   window.__washRuntime.loading=false;window.__washRuntime.autoProgress=null;
+   window.dispatchEvent(new Event('nangman-wash-updated'));
+   return display;
+  });
+  assert(progressUI.visible&&progressUI.bar==='33'&&progressUI.loadingLabel.includes('진행 중')&&progressUI.disabled,
+   'actual site search progress display: '+JSON.stringify(progressUI));
+  console.log('PASS: visible progress bar, live status, numeric counters and locked search button on actual site');
   const finalSearch=await page.evaluate(async()=>{
    const {washEngine,washSearchEngine}=await import('./engine/local-engine-bridge.js');
    const originalLive=await washEngine.call('state');
