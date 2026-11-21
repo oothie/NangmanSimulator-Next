@@ -54,14 +54,14 @@ async function call(op,payload){
 (async()=>{
  await call('init');
  const groups=ctx.window.YYWashTargetCatalog;
- assert.deepEqual(Array.from(groups,x=>[x.quality,x.items.length]),[[2,21],[3,32],[4,16]]);
+ assert.deepEqual(Array.from(groups,x=>[x.quality,x.items.length]),[[2,21],[3,31],[4,16]]);
  for(const group of groups)for(const t of group.items){
   assert.equal(ctx.TALENT_DATA[String(t.id)].pinzhi,group.quality);
   assert.equal(ctx.TALENT_DATA[String(t.id)].name,t.name);
  }
  assert.equal((await rawCall('auto-color-search',{desiredIds:[184,184]})).ok,false);
  assert.equal((await rawCall('auto-color-search',{desiredIds:[414]})).ok,false);
- for(const id of [244,245,255,277,408]){
+ for(const id of [236,244,245,255,277,408]){
   assert.equal((await rawCall('auto-color-search',{desiredIds:[id]})).ok,false,
    'unreleased / dummy excluded from automatic color search');
  }
@@ -109,5 +109,5 @@ async function call(op,payload){
  assert(html.includes('녹맥 (녹색)')&&html.includes('파맥 (파란색)'));
  assert(html.includes("washEngineAutoColor"));
  assert(html.includes("auto-color-search"));
- console.log('PASS: 69 selectable talents, multi-color native search, 4-slot upgrade, 24 orders, exact replay, undo and no-result rollback');
+ console.log('PASS: 68 selectable talents, multi-color native search, 4-slot upgrade, 24 orders, exact replay, undo and no-result rollback');
 })().catch(err=>{console.error(err);process.exitCode=1});
