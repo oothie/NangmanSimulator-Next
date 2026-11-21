@@ -1,0 +1,40 @@
+name: Equipment, quests and character feature checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'engine/equipment-detail-bridge.js'
+      - 'engine/quest-branch.js'
+      - 'vendor/sanbujin/equip/**'
+      - 'vendor/sanbujin/equip-auto/**'
+      - 'tests/equipment-detail-bridge-smoke.cjs'
+      - 'tests/quest-branch-smoke.cjs'
+      - 'tests/character-source-smoke.cjs'
+      - 'tests/character-layout-smoke.cjs'
+      - 'tests/html-inline-syntax.cjs'
+      - '.github/workflows/feature-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  feature:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Character stat source
+        run: node tests/character-source-smoke.cjs
+      - name: Character page layout
+        run: node tests/character-layout-smoke.cjs
+      - name: Korean quest branch state
+        run: node tests/quest-branch-smoke.cjs
+      - name: Equipment sequence and save identity
+        run: node tests/equipment-detail-bridge-smoke.cjs
+      - name: Static script syntax
+        run: node tests/html-inline-syntax.cjs
