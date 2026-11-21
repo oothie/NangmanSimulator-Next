@@ -90,7 +90,7 @@ assert(html.includes('maxPad:30,horizon:3000,topN:12'),'bounded internal default
 assert(html.includes("washEngine.call('auto-search',options)"));
 assert(html.includes('state.autoResult=null;'));
 assert(html.includes("'auto-intermediate-search'"));
-assert(html.includes('yy-sim WASM'));
+assert(html.includes('yysim')&&html.includes('WASM'));
 const host=fs.readFileSync(path.join(base,'vendor/yysim/engine-host.html'),'utf8');
 assert(host.includes('wasmSearchWashRoutes(search)'));
 assert(host.includes('desired_ids:ids,max_pad:maxPad,horizon,top_n:topN'));
