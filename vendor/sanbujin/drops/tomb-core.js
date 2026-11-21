@@ -12,7 +12,7 @@ const source={encounterNpc:35255,specialNpc:35256,level:100,dropLevel:90,
         {itemId:3026,weight:900},{itemId:3036,weight:900},{itemId:8801,weight:200}]};
 const draw=root.SBJWildDrop.draw,usable=root.SBJWildDrop.usable;
 const number=value=>Number(value?.Value??value?.value??value?.V??value?.v??value?.Num??value?.num??value);
-const required=['3007','eat_2659','rollenemy_tomb2'];
+// 3007 is an optional story/progression condition, not a mandatory RNG key.\n// Korean 2026-11-21 save has valid rollenemy_tomb/seed_35256 streams and\n// eat_2659/rollenemy_tomb2 despite no globalVariable['3007'].\n// Do not invent a value for absent 3007 or block the entire simulator.\nconst required=['eat_2659','rollenemy_tomb2'];
 function open(archive){
  const save=Array.isArray(archive)?archive[0]:archive||{};
  const rnd=save.Rnds??save.rnds??save.m_tRands??save.RandData??{};
@@ -44,7 +44,7 @@ function simulate(input,options={}){
  }
  for(let i=0;i<pad+count;i++){
   const row={serial:i+1,padding:i<pad,kind:'tomb',spawn:false,encounterNpc:source.encounterNpc};
-  if(vars.get('3007')<6){
+  // Preserve the original level gate only when that flag is explicitly saved.\n  // An absent flag must never be silently coerced into a made-up value.\n  if(vars.has('3007') && vars.get('3007')<6){
    row.reason='제릉 조건 3007 미충족 · 일반 전투';rows.push(row);continue;
   }
   const encounter=draw(encounterSeed,1000);encounterSeed=encounter.seed;
