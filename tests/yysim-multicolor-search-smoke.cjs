@@ -105,6 +105,8 @@ async function call(op,payload){
  assert.deepEqual(current,initial,'failure to find goals never mutates a WASM session');
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
  assert(html.includes('engine/yysim-target-catalog.js'));
+ assert(html.includes('id="yyAutoFilter"'));
+ assert(html.includes('녹맥 (녹색)')&&html.includes('파맥 (파란색)'));
  assert(html.includes("washEngineAutoColor"));
  assert(html.includes("auto-color-search"));
  console.log('PASS: 71 selectable talents, multi-color native search, 4-slot upgrade, 24 orders, exact replay, undo and no-result rollback');
