@@ -60,27 +60,16 @@ const doc={createElement(name){assert.equal(name,'iframe');return {
   addEventListener(key,fn){this[key]=fn},contentWindow:{postMessage(...args){posts.push(args)}}
 }}};
 const win={addEventListener(key,fn){events[key]=fn}};
-const dropAPI=new Function('document','window','location','
-dropAPI.setView('drop');dropAPI.updateDropVisibility();
-assert.equal(host.children.length,1,'creates drop iframe once');
-host.children[0].load();assert.equal(posts.length,1,'sends first payload on actual iframe load');
-assert.equal(posts[0][0].kind,'nangman-save');
-dropAPI.setView('character');dropAPI.updateDropVisibility();assert.equal(host.hidden,true);
-dropAPI.setView('drop');dropAPI.updateDropVisibility();
-assert.equal(host.children.length,1,'keeps iframe and results across tab changes');
-dropAPI.setSave({MainRole:{ID:1}});dropAPI.updateDropVisibility();
-assert.equal(posts.at(-1)[0].save.MainRole.ID,1,'transfers newly imported save');
-dropAPI.setSave(null);dropAPI.updateDropVisibility();
-assert.equal(posts.at(-1)[0].save,null,'clearing save clears drop engine');
-console.log('PASS: yy-sim save->WASM mapping, quest records, persistent drop relay, main wash controls');
-,'v','save',dropSource+
+const dropAPI=new Function('document','window','location','$','v','save',dropSource+
  ';return {updateDropVisibility,sendSaveToDrop,setView:val=>v=val,setSave:val=>{save=val;dropSaveVersion++}}')(
  doc,win,{origin:'https://sim.example'},k=>elements[k],'drop',null);
-dropAPI.setView('drop');dropAPI.updateDropVisibility();
+dropAPI.updateDropVisibility();
 assert.equal(host.children.length,1,'creates drop iframe once');
-host.children[0].load();assert.equal(posts.length,1,'sends first payload on actual iframe load');
+host.children[0].load();
+assert.equal(posts.length,1,'sends first payload on actual iframe load');
 assert.equal(posts[0][0].kind,'nangman-save');
-dropAPI.setView('character');dropAPI.updateDropVisibility();assert.equal(host.hidden,true);
+dropAPI.setView('character');dropAPI.updateDropVisibility();
+assert.equal(host.hidden,true);
 dropAPI.setView('drop');dropAPI.updateDropVisibility();
 assert.equal(host.children.length,1,'keeps iframe and results across tab changes');
 dropAPI.setSave({MainRole:{ID:1}});dropAPI.updateDropVisibility();
