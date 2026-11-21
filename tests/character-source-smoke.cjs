@@ -31,8 +31,24 @@ for (const expected of ['551','549','236']) assert.match(base, new RegExp('>'+ex
 const supported = context.characterBattleSupport({
  id:10058, raw:{BornTalent:{ID:354},CanZhu:true}
 });
+const levelBase = Object.assign({}, baseRole.raw, {GrowGangqi: 15, ExtGangqi: 0, GrowNeijin: 20, ExtNeijin: 0});
+function assertBase(label, raw, expected) {
+ const html = context.characterSourceBasePanel(raw);
+ const fragment = html.match(new RegExp('<span>'+label+'</span><b>([^<]+)</b>'));
+ assert(fragment, label+' must exist');
+ assert.equal(Number(fragment[1]), expected, label);
+}
+assertBase('강기 기본값', levelBase, 0);
+assertBase('내경 기본값', levelBase, 0);
+assertBase('기 회복 기본값', levelBase, 2);
+assertBase('강기 기본값', {...levelBase, Level: 92}, 0);
+assertBase('내경 기본값', {...levelBase, Level: 92}, 0);
+assertBase('강기 기본값', {...levelBase, Level: 93}, 15);
+assertBase('내경 기본값', {...levelBase, Level: 93}, 60);
+assertBase('강기 기본값', {...levelBase, Level: 94}, 30);
+assertBase('내경 기본값', {...levelBase, Level: 94}, 80);
 assert.match(supported, /#354/);
 assert.match(supported, /지원 가능 상태<\/span><b>가능/);
 assert.match(supported, /원본 계수 30/);
 assert.doesNotMatch(supported, /풍행객/);
-console.log('PASS: saved BornTalent lookup and three independent yy-sim body formulas');
+console.log('PASS: saved BornTalent lookup and six independent yy-sim body formulas incl. level-93 threshold');
