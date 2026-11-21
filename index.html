@@ -424,7 +424,10 @@ function wikiEffectDescription(x){
  const names={atk:'공격력',def:'방어력',hit:'명중',dodge:'회피',parry:'초식방어',speed:'속도',hp:'기혈',hp_max:'최대 기혈',hp_n:'현재 기혈',mp_back:'기 모으기',po_dodge:'회피 무시',po_parry:'초식방어 무시',dmg_off:'피해면역'};
  const parts=x.obj.fx.map(([key,num])=>{
   const n=Number(num);
-  if(!Object.prototype.hasOwnProperty.call(names,key)||!Number.isFinite(n)||Math.abs(n)>1)return '';
+  if(!Object.prototype.hasOwnProperty.call(names,key)||!Number.isFinite(n))return '';
+  // 기 모으기는 -1.01/1.01 등에서 '1칸'을 뜻한다. 이를 101%로 표시하지 않는다.
+  if(key==='mp_back'&&Math.abs(n)>=1&&Math.abs(n)<10)return names[key]+' '+(n>=0?'+':'−')+Number(Math.abs(n).toFixed(2))+'칸';
+  if(Math.abs(n)>1)return '';
   return names[key]+' '+(n>=0?'+':'−')+Number((Math.abs(n)*100).toFixed(2))+'%';
  }).filter(Boolean);
  return parts.length?'<div class="wiki-effects"><strong>상태 효과 데이터</strong><p>'+escape(parts.join(' · '))+'</p></div>':'';
