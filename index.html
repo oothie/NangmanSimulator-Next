@@ -588,7 +588,7 @@ const fig='<div class="figures">'+[
  ['현재 재능',r?characterWashTalents(r).length:'—'],
  ['자질',r?.raw?.ZiZhi??'—']
 ].map(([label,value])=>'<div class="fig"><b>'+escape(value)+'</b><span>'+label+'</span></div>').join('')+'</div>'
-const hero='<header class="hero"><div><h2>'+escape(r?.name||'캐릭터 미선택')+'</h2><div class="micro">'+meta+' · <button class="text-action" type="button" disabled>캐릭터 초기화</button></div></div>'+fig+'</header>';
+const hero='<header class="hero"><div><h2>'+escape(r?.name||'캐릭터 미선택')+'</h2><div class="micro">'+meta+'</div></div>'+fig+'</header>';
 const tabbar='<nav class="tabs">'+[['sim','세수'],['auto','자동 탐색'],['exchange','자맥 시퀀스'],['path','도맥법']].map(([id,t])=>'<button data-sub="'+id+'" class="'+(sub===id?'active':'')+'">'+t+'</button>').join('')+'</nav>';
 let body='';
 if(sub==='sim'){
