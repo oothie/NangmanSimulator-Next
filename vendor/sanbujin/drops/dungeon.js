@@ -89,6 +89,13 @@
       renderBoss();
     }
   }
+  const normalEvents=catalog.filter(e=>e.outer);
+  const ninetyEntries=normalEvents.filter(e=>[...(e.equip?.ids||[]),...(e.weapon?.ids||[])].some(id=>id%100===9));
+  const ninetyAreas=[...new Set(ninetyEntries.map(e=>e.dungeon))];
+  const coverage=$('dungeonCoverageStatus');
+  if(coverage)coverage.textContent='원본 데이터: '+groups.length+'개 관문·분류 · '+normalEvents.length+
+    '개 일반 장비 보상 함수 · 90레벨 장비 후보 '+ninetyEntries.length+
+    '개 함수 / '+ninetyAreas.length+'개 관문 · 모든 예측은 한국판 실측 검증 전';
   groups.forEach((group, i) => area.add(new Option(ko(group), group, i === 0)));
   area.onchange = fillBosses;
   boss.onchange = renderBoss;
@@ -177,6 +184,33 @@
     rows.push(event.id);
     plan.value=rows.join(', ');
   };
+  // Append the full selected dungeon in source-table order. For the same
+  // boss with normal/challenge variants, choose the normal variant only.
+  // This is a user-editable hypothesis, not an assertion of actual kill order.
+  $('dungeonSequenceAddArea').onclick=()=>{
+    const present=plan.value.split(/[\\s,;]+/).filter(Boolean);
+    const events=catalog.filter(e=>e.dungeon===area.value&&e.outer);
+    const byBoss=new Map();
+    for(const event of events){
+      const previous=byBoss.get(event.boss);
+      if(!previous||previous.variant==='挑战'&&event.variant!=='挑战')
+        byBoss.set(event.boss,event);
+    }
+    const toAppend=[...byBoss.values()];
+    if(!toAppend.length)return seqStatus.textContent='현재 관문의 일반 장비 보상 함수가 없습니다.';
+    if(present.length+toAppend.length>500)
+      return seqStatus.textContent='보스 보상 호출은 총 500회 이내로 입력하세요.';
+    present.push(...toAppend.map(e=>e.id));
+    plan.value=present.join(', ');
+    seqStatus.textContent=ko(area.value)+' · 보스 '+toAppend.length+'명 추가 · 전체 '+present.length+
+      '개 보상 함수. 순서를 확인한 뒤 계산하세요.';
+  };
+  $('dungeonSequenceClear').onclick=()=>{
+    plan.value='';sequenceRows=[];
+    $('dungeonSequenceResults').replaceChildren();
+    $('dungeonSequenceExport').disabled=true;
+    seqStatus.textContent='처치 계획을 비웠습니다. 다른 관문을 선택해서 다시 추가할 수 있습니다.';
+  };
   $('dungeonSequenceRun').onclick=()=>{
     sequenceRows=[];
     $('dungeonSequenceExport').disabled=true;
@@ -192,8 +226,12 @@
       });
       sequenceRows=engine.predictSequence(input,events);
       const drops=sequenceRows.filter(x=>x.item),purple=drops.filter(x=>x.color===4);
-      seqStatus.textContent='연속 보상 '+sequenceRows.length+'회 · 일반 장비 '+drops.length+
-       '개 · 자색 '+purple.length+'개 · 동일 시드 공유 구간은 한 번씩 이어서 소비';
+      const dungeonCounts=[...new Set(sequenceRows.map(x=>x.dungeon))];
+      const ninety=drops.filter(x=>x.item%100===9);
+      seqStatus.textContent='연속 보상 '+sequenceRows.length+'회 · '+dungeonCounts.length+
+       '개 관문 · 일반 장비 '+drops.length+'개 · 자색 '+purple.length+
+       '개 · 90레벨 일반 장비 후보 '+ninety.length+
+       '개 · 보스별 드랍 판정 가설 / 최종 정련·망정 미연결';
       $('dungeonSequenceResults').replaceChildren(...sequenceRows.map(x=>record(
        '#'+x.index+' · '+ko(x.dungeon)+' / '+ko(x.boss)+' · '+
        (x.item?(EQUIP_DATA.equipment?.[x.item]?.koName||ko(EQUIP_DATA.equipment?.[x.item]?.name||'장비 #'+x.item)):'일반 장비 없음'),
