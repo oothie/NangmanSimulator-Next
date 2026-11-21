@@ -297,6 +297,10 @@ body{background:var(--bg)!important}
 .market-search-row small{font-size:11px;color:var(--sub);text-align:right}
 .market-period-label{display:block;font-size:12px;margin:10px 0;color:var(--sub)}
 #marketQuery{width:100%;max-width:560px}
+.market-nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin:17px 0 6px;padding-bottom:8px}
+.market-nav button{padding:10px 13px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--text)}
+.market-nav button.active{border-color:var(--gold);background:var(--paper);font-weight:700}
+.market-section[hidden]{display:none!important}
 #marketPeriods{margin-left:8px;max-width:110px}
 .market-money-group{margin-bottom:13px}
 .market-money-group h5{font-size:13px;color:var(--sub);margin:9px 0 6px}
@@ -885,7 +889,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='quick',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketSimStep=0;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
+let equipTab='quick',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketSimStep=0,marketPanel='refresh';let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
@@ -1222,7 +1226,8 @@ function dailyMarketView(){
  '<p class="micro">귀시 저장 시각 '+escape(marketDate(state.lastTime))+' · 다음 정시 변경 '+escape(marketDate(state.nextTime))+
  ' · VIP '+escape(state.vip.vip)+'단계('+escape(state.vip.via)+') · 실측 자료와 다르면 VIP 추정이 달라질 수 있습니다.</p>'+
  '<p class="micro">'+escape(status)+'</p>'+
- '<section class="market-section"><h4>세이브 VIP 자동 적용 · 원보 갱신 모의실행</h4>'+
+ '<nav class="market-nav" role="group" aria-label="암시장 기능">'+[['refresh','원보 갱신'],['current','현재 상품'],['schedule','자동 갱신'],['search','상품 검색']].map(([id,label])=>'<button type="button" data-market-tab="'+id+'" class="'+(marketPanel===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+ 
+ '<section class="market-section" data-market-panel="refresh"><h4>세이브 VIP 자동 적용 · 원보 갱신 모의실행</h4>'+
  '<p class="micro">산부진식 단계별 모의 갱신입니다. 세이브에서 읽은 VIP 등급에 따른 하루 허용 횟수를 적용하고, 클릭할 때마다 다음 상품으로 이동합니다. 실제 원보를 사용하거나 세이브를 수정하지 않습니다.</p>'+
  '<div class="actions market-sim-controls">'+
  '<span class="market-vip-readonly">VIP '+vipChoice+' · 세이브 '+escape(state.vip.via)+' · 하루 '+allowance.max+'회</span>'+ 
@@ -1234,9 +1239,9 @@ function dailyMarketView(){
    marketItemTable(simulated.items,ko):
   '<h5>갱신 전 현재 상품</h5>'+marketItemTable(state.today,ko,'current'))+
  '</section>'+
- '<section class="market-section"><h4>세이브 기준 귀시 판매 상품'+(state.stale?' · 경과 시드 복원':'')+'</h4>'+
+ '<section class="market-section" data-market-panel="current"><h4>세이브 기준 귀시 판매 상품'+(state.stale?' · 경과 시드 복원':'')+'</h4>'+
  marketItemTable(state.today,ko,'current')+'</section>'+
- '<section class="market-section"><h4>상품 검색 · 향후 첫 등장 시점</h4>'+
+ '<section class="market-section" data-market-panel="search"><h4>상품 검색 · 향후 첫 등장 시점</h4>'+
  '<input id="marketQuery" type="search" placeholder="한국어 이름 / 아이템 ID / 상품 ID 검색" value="'+escape(marketQuery)+'" aria-label="귀시 상품 검색">'+
  '<label class="market-period-label">정시 교체 예측 범위 <select id="marketPeriods">'+[3,6,9,12].map(x=>
  '<option value="'+x+'" '+(x===periods?'selected':'')+'>'+x+'회</option>').join('')+'</select></label>'+
@@ -1251,20 +1256,20 @@ function dailyMarketView(){
    ' · 지금 원보 갱신: '+(paidEvent?'갱신 '+escape(paidEvent.label.replace(/[^0-9]/g,''))+'회차':state.seedOk?'잔여 횟수 내 미발견':'시드 미연결')+
    '</small></div>';
  }).join('')+'</div>':'<p class="micro">검색어를 입력하면 원본 RNG 시퀀스에서 최초 등장 위치를 조회합니다.</p>')+'</section>'+
- (state.seedOk?'<section class="market-section"><h4>지금 원보 갱신 시 예상 상품</h4>'+
+ (state.seedOk?'<section class="market-section" data-market-panel="refresh"><h4>지금 원보 갱신 시 예상 상품</h4>'+
  '<p class="micro">세이브 VIP 기준 남은 '+allowance.left+'회 중 최대 6회 표시. 각 회차는 직전 회차의 RNG를 이어받아 시뮬레이션합니다.</p>'+
  paid.map(x=>'<details class="market-prediction"><summary>원보 갱신 '+x.step+'회차 · '+x.items.length+'종</summary>'+
  marketItemTable(x.items,ko)+'</details>').join('')+
  (allowance.left>6?'<p class="micro">추가 회차는 상품 검색에서 예측에 반영됩니다.</p>':'')+'</section>'+
- '<section class="market-section"><h4>앞으로 '+periods+'회 정시 교체 예상</h4>'+
+ '<section class="market-section" data-market-panel="schedule"><h4>앞으로 '+periods+'회 정시 교체 예상</h4>'+
  '<p class="micro">오늘 원보 갱신을 사용하지 않는 별도 시나리오입니다. 실제 원보 갱신을 하면 이후 시퀀스가 달라집니다.</p>'+
  timed.map(x=>'<details class="market-prediction"><summary>'+escape(marketDate(x.time))+' · '+x.items.length+'종</summary>'+
  marketItemTable(x.items,ko)+'</details>').join('')+'</section>'+
- (simSteps>0?'<section class="market-section"><h4>모의 원보 갱신 '+simSteps+'회 후 자동 상품 예상</h4>'+
+ (simSteps>0?'<section class="market-section" data-market-panel="schedule"><h4>모의 원보 갱신 '+simSteps+'회 후 자동 상품 예상</h4>'+
  '<p class="micro">선택 VIP의 모의 원보 갱신이 먼저 RNG를 소비했다고 가정한 별도 경로입니다. 위의 원보 미사용 예측은 변경되지 않습니다.</p>'+
  timedWithPaid.map(x=>'<details class="market-prediction"><summary>'+escape(marketDate(x.time))+' · '+x.items.length+'종</summary>'+
  marketItemTable(x.items,ko)+'</details>').join('')+'</section>':''):'')+
- '<section class="market-section"><h4>귀시 전체 상품 후보</h4>'+
+ '<section class="market-section" data-market-panel="search"><h4>귀시 전체 상품 후보</h4>'+
  '<p class="micro">미출시·제한 상품이 포함될 수 있습니다. 개별 상품의 가중치는 구매 확률을 직접 의미하지 않습니다.</p>'+
  '<details><summary>현재 구매 가능한 후보 '+state.available.length+'종 · 품절 '+state.soldOut.length+'종</summary>'+
  marketItemTable(lookup.slice(0,100),ko)+'</details></section>';
@@ -2661,8 +2666,10 @@ function others(){
  const [name,desc]=info[v];
  return '<div class="module-wrap">'+moduleHero(name,desc)+'<div class="module-panel"><h3>기능 준비 중</h3><p class="micro">'+desc+'</p></div></div>';
 }
-function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();updateDropVisibility();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);invalidateWashLink(roles[selected]?.id);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);invalidateWashLink(roles[selected]?.id);render()});if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);invalidateWashLink(roles[selected]?.id);characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};if($('marketQuery'))$('marketQuery').oninput=e=>{marketQuery=e.target.value;const caret=e.target.selectionStart;render();const field=$('marketQuery');if(field){field.focus();field.setSelectionRange(caret,caret)}};
+function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();updateDropVisibility();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);invalidateWashLink(roles[selected]?.id);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);invalidateWashLink(roles[selected]?.id);render()});if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);invalidateWashLink(roles[selected]?.id);characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};if($('marketQuery'))$('marketQuery').oninput=e=>{marketPanel='search';marketQuery=e.target.value;const caret=e.target.selectionStart;render();const field=$('marketQuery');if(field){field.focus();field.setSelectionRange(caret,caret)}};
 if($('marketPeriods'))$('marketPeriods').onchange=e=>{marketPeriods=Number(e.target.value);render()};
+document.querySelectorAll('[data-market-panel]').forEach(el=>{el.hidden=el.dataset.marketPanel!==marketPanel});
+document.querySelectorAll('[data-market-tab]').forEach(el=>el.onclick=()=>{marketPanel=el.dataset.marketTab;render()});
 
 if($('marketSimNext'))$('marketSimNext').onclick=()=>{marketSimStep++;render()};
 if($('marketSimReset'))$('marketSimReset').onclick=()=>{marketSimStep=0;render()};
