@@ -16,7 +16,11 @@ function open(item){
  if(window.parent!==window&&window.NANGMAN_EMBEDDED_EQUIP){
   window.parent.postMessage({kind:'nangman-equip-open-detail',equipment:{
    ID:id,Color:color,OnlyID:item?.OnlyID??item?.only_id??item?.onlyId,
-   CZSeed:item?.CZSeed,MJSeed:item?.MJSeed,S:item?.S
+   CZSeed:item?.CZSeed??item?.cz_seed,MJSeed:item?.MJSeed??item?.mj_seed,S:item?.S??item?.s,
+   Level:item?.Level??item?.level,LvProp:item?.LvProp??item?.lv_prop,
+   XLLevel:item?.XLLevel??item?.xl_level,XLNumber:item?.XLNumber??item?.xl_number,
+   EnExts:item?.EnExts??item?.exts,EnMans:item?.EnMans??item?.mans,
+   EnSpecials:item?.EnSpecials??item?.specials
   }},location.origin);
   return true;
  }
