@@ -3736,9 +3736,13 @@ if($('washMainAutoConflict'))$('washMainAutoConflict').onclick=()=>window.dispat
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUntilExchangeAuto',count:500}}));
 if($('washV350Frame')){
   const frame=$('washV350Frame');
-  frame.onload=()=>{if(save&&roles[selected]){
-   frame.contentWindow?.postMessage({kind:'nangman-v350-load',save,roleId:roles[selected].id},location.origin);
-  }};
+  frame.onload=()=>{
+   frame.contentWindow?.postMessage({kind:'nangman-v350-theme',
+    theme:document.documentElement.dataset.theme||'paper'},location.origin);
+   if(save&&roles[selected]){
+    frame.contentWindow?.postMessage({kind:'nangman-v350-load',save,roleId:roles[selected].id},location.origin);
+   }
+  };
   if(!window.__nangmanV350BridgeBound){
    window.__nangmanV350BridgeBound=true;
    window.addEventListener('message',event=>{
