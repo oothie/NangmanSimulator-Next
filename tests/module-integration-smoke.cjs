@@ -32,6 +32,21 @@ assert(source.includes("op==='washEngineUndo'"),'WASM undo command exists');
 assert(source.includes('state.undoStates.push(snapshot)'),'WASM saved-state rollback');
 assert(source.includes("id=\"washMainOnce\""),'main wash button bound');
 assert(source.includes("id=\"washEngineImport\""),'save->WASM button bound');
+
+assert(source.includes("op==='washEnginePreview'"),'WASM sequence preview command bound');
+assert(source.includes('state.preview?.purples'),'purple preview table consumes original WASM results');
+assert(source.includes('id="washPreview"'),'exchange tab preview control enabled');
+const guardBody=section('function invalidateWashLink(', 'function yyWashStateFromSave(');
+const runtime={active:true,origin:'save',linkedRoleId:1,preview:{purples:[{}]},undoStates:[{}],log:[1]};
+const invalidate=new Function('window',guardBody+';return invalidateWashLink')({__washRuntime:runtime});
+invalidate(1);assert.equal(runtime.active,true,'same selected role leaves state unchanged');
+invalidate(10058);assert.equal(runtime.active,false,'other role invalidates engine');
+assert.equal(runtime.preview,null);assert.equal(runtime.undoStates.length,0);
+assert.equal(runtime.log.length,0);
+const wasmHost=fs.readFileSync(path.join(__dirname,'..','vendor','yysim','engine-host.html'),'utf8');
+assert(wasmHost.includes("op==='preview'"),'WASM host exposes read-only preview');
+assert(wasmHost.includes('wasmPreviewSequence(count)'),'WASM host forwards exact original sequence operation');
+
 const questAPI=new Function('wikiRows','wikiKoMap','wikiName','card','tabRow','moduleHero','escape','save','questTab','questSearch','questLocatedOnly',
  section('function questSaveModel(root){','function others(){')+
  ';return {questSaveModel,questView,questCatalogRows}')(
@@ -76,4 +91,4 @@ dropAPI.setSave({MainRole:{ID:1}});dropAPI.updateDropVisibility();
 assert.equal(posts.at(-1)[0].save.MainRole.ID,1,'transfers newly imported save');
 dropAPI.setSave(null);dropAPI.updateDropVisibility();
 assert.equal(posts.at(-1)[0].save,null,'clearing save clears drop engine');
-console.log('PASS: yy-sim save->WASM mapping, quest records, persistent drop relay, main wash controls');
+console.log('PASS: yy-sim save->WASM mapping, role invalidation, purple sequence, quest records and persistent drop');
