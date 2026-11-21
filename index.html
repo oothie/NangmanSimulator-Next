@@ -388,6 +388,23 @@ function wikiKoMap(){
  }
  // 비기·기예 이름은 원문이 정확히 일치하는 경우에만 나무위키 보조 번역을 연결한다.
  // 한국판 V6.20 ID별 자료가 확인되면 그 결과를 우선하여 덮어쓴다.
+ // 동일 중국어 상태명에 대한 한국판 ID 대조 결과가 단 하나로 일치할 때만
+ // 다른 상태 ID에 그 명칭을 보조 적용한다. 다른 번역이 충돌하면 사용하지 않는다.
+ const buffRows=(wikiSource?.buff||[]);
+ const byChinese=new Map();
+ for(const row of buffRows){
+  const key=String(row.n||'').trim();
+  const match=(window.NANGMAN_V620_BUFF_KO||{})[String(row.id)];
+  const value=String(match?.[0]||'').trim();
+  if(!key||!value||wikiHasChinese(value))continue;
+  if(!byChinese.has(key))byChinese.set(key,new Set());
+  byChinese.get(key).add(value);
+ }
+ for(const row of buffRows){
+  const key='buff:'+String(row.id),orig=String(row.n||'').trim();
+  const variants=byChinese.get(orig);
+  if(!m.has(key)&&variants?.size===1)m.set(key,{name:[...variants][0],desc:'',source:'한국판 동일 명칭 대조'});
+ }
  for(const row of wikiRows()){
   if(row.source!=='crafts'&&row.source!=='arts')continue;
   const key=String(row.obj.n||'').trim();
