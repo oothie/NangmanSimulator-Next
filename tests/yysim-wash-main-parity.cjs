@@ -40,6 +40,7 @@ for(const needle of [
  'washEngineUpgradeZizhi','autoLinkRequested','nangman-wash-view-ready',
  'state.nativeState=current','원본 자맥·선행 충돌 미리보기',
  'slotCapacity=dashboard?.slots','data-wash-main-exchange','mayExchange',
- 'wash-grade-4','! 치환'
+ 'wash-grade-4','! 치환', 'washMainSex','washMainVip',
+ 'washEngineConfigure','원본 yy-sim 가상 설정'
 ])assert(html.includes(needle),'missing original UI behavior: '+needle);
 console.log('PASS: yy-sim original aptitude 150–154, all lock costs, pity bars, live slots, auto-link, main 100 wash, reset and upgrade');
