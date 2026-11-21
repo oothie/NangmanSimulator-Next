@@ -58,6 +58,8 @@ assert(html.includes('./shared-gear-core.js')&&html.includes('./shared-gear.js')
 assert(nav.includes("shared: $('sharedGear')"),'shared mode is navigable');
 assert(ui.includes('현재 세이브 이후 계획 내'),'no fabricated lifetime sequence ID');
 assert(ui.includes('생성 RNG 연결'),'display Eds consumption ordinal, never raw RNG');
+assert(ui.includes('initialOptions(row)'),'initial affixes come from common per-item Eds creation');
+assert(html.includes('최초 추가 옵션 (최종 정련·망정 아님)'),'do not confuse initial rolls with completed refinement');
 assert(ui.includes('sharedScenarioRows'),'three-order result table wired');
 assert(html.includes('id="sharedScenarioTable"'));
 assert(html.includes('순서를 바꿨을 때 실제 공유 RNG의 추가 소비'),'alternatives explicitly hypothetical');
