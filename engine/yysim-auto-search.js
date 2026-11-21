@@ -12,7 +12,7 @@ function selectedIds(raw,allowed){
  const valid=new Set((allowed||[]).map(Number));
  if(ids.length<1||ids.length>4||ids.some(id=>id==null||id<1||
     (valid.size&&!valid.has(id)))||new Set(ids).size!==ids.length)
-  throw Error('자동 탐색은 서로 다른 원본 자색 재능 ID를 1~4개 선택해야 합니다');
+  throw Error('자동 탐색은 서로 다른 녹맥·파맥·자맥 재능을 1~4개 선택해야 합니다');
  return ids;
 }
 function options(raw,allowed){
