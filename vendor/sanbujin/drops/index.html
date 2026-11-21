@@ -69,6 +69,17 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   <section id="dungeonOrange" class="drop-orange" hidden aria-labelledby="dungeonOrangeTitle">
     <h2 id="dungeonOrangeTitle">전용 주황 장비</h2><ul id="dungeonOrangeList" class="wild-results"></ul>
   </section>
+  <section aria-label="관문 우두머리별 드랍 가설" class="drop-orange">
+    <h2>관문 전체 우두머리별 예측 비교</h2>
+    <p class="progress-note">현재 관문의 모든 보스를 선택된 순서대로 연결합니다. <strong>산부진 보상 함수 모형</strong>이며 한국 서버 실측과 차이가 확인되었습니다. 초기화권 사용 여부로 시드를 임의 보정하지 않습니다. 동일 관문 1회에서 보스를 연속 처치하는 경우만 가정합니다.</p>
+    <div class="wild-actions">
+      <label>관문 회차<input id="dungeonAllRounds" type="number" min="1" max="40" value="3"></label>
+      <button type="button" id="dungeonAllRun">모든 보스 순차 예측 (미검증)</button>
+      <button type="button" id="dungeonAllExport" disabled>보스별 CSV</button>
+    </div>
+    <p id="dungeonAllStatus" role="status"></p>
+    <ol id="dungeonAllResults" class="wild-results"></ol>
+  </section>
   <p id="dungeonStatus" role="status"></p>
   <ol id="dungeonResults" class="wild-results"></ol>
  <details id="dungeonSequencePanel">
