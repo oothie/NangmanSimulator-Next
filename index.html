@@ -523,14 +523,34 @@ if(sub==='sim'){
  '<label>지정 횟수 <input id="washMainCount" type="number" min="1" max="100" value="'+escape(runtime.mainCount||10)+'" style="width:92px"></label>'+
  '<button class="btn" id="washMainMulti" '+(!canRun?'disabled':'')+'>횟수 지정 세수</button>'+
  '<button class="btn" id="washMainUndo" '+(!canUndo?'disabled':'')+'>직전 실행 되돌리기</button>'+
- '<button class="btn primary" id="washMainOnce" '+(!canRun?'disabled':'')+'>세수 1회</button></div></div>'+
- '<p class="micro">먼저 아래 '+"'세수 WASM 실행'"+'에서 <b>선택 캐릭터의 세이브로 WASM 연결</b>을 누르세요. 실행·되돌리기는 브라우저의 WASM 복사본에만 적용됩니다. 실제 게임 결과 검증 전입니다.</p></section>';
+ '<button class="btn primary" id="washMainOnce" '+(!canRun?'disabled':'')+'>세수 1회</button>'+
+ '<button class="btn" id="washMainUpgrade" '+(!canRun||(dashboard?.zizhi??Number(r?.raw?.ZiZhi||154))>=154?'disabled':'')+'>자질 상승 · 슬롯 개방</button>'+
+ '<button class="btn" id="washMainResetRole" '+(!save||!r||runtime.loading?'disabled':'')+'>선택 캐릭터 초기화</button>'+
+ '<button class="btn" id="washMainScan" '+(!canRun?'disabled':'')+'>다음 자맥·충돌 미리보기</button></div></div>'+
+ '<p class="micro">세수 버튼을 누르면 선택 인물의 세이브를 자동으로 WASM 가상 상태에 연결합니다. 실제 게임 세이브는 변경하지 않습니다. 자질 상승은 원본 yy-sim의 가상 개방이며 실제 재료 소비를 계산하지 않습니다.</p></section>';
  const washRuns=Array.isArray(runtime.log)?runtime.log:[];
+  const qualityPanel=dashboard?'<div class="wash-section"><div class="section-header"><h3>yy-sim 재능 등급별 출현</h3></div>'+
+   [1,2,3,4].map(q=>{
+    const total=[1,2,3,4].reduce((sum,n)=>sum+(dashboard.counts[n]||0),0);
+    const value=dashboard.counts[q]||0,percentage=total?value/total*100:0;
+    const name={1:'백맥',2:'녹맥',3:'파맥',4:'자맥'}[q];
+    return '<div class="micro">'+name+' · '+value+'개 ('+percentage.toFixed(1)+'%)'+
+     '<div class="pity-track"><div class="pity-fill" style="width:'+percentage+'%"></div></div></div>';
+   }).join('')+'</div>':'';
+  const purpleRows=Array.isArray(runtime.preview?.purples)?runtime.preview.purples.slice(0,8):[];
+  const nextPurple=purpleRows.length?'<section class="wash-section"><div class="section-header"><h3>원본 자맥·선행 충돌 미리보기</h3></div>'+
+   '<p class="micro">현재 WASM 상태에서 조회한 자맥 시퀀스입니다. 실제로 잠금을 변경하면 천장 경로가 달라질 수 있습니다.</p>'+
+   '<div class="history">'+purpleRows.map(t=>{
+    const label=characterTalentName(t.talent_id);
+    const conflict=t.earlier_conflict_name?
+     window.YYWashAutoSearch?.readableStep(t.earlier_conflict_name,runtime.previewNameIds||{},characterTalentName):'선행 충돌 미확인';
+    return '자맥 #'+escape(t.wash_no??'—')+' · '+escape(label)+' · '+escape(t.wash_times??'—')+'회 세수 · 충돌 '+escape(conflict);
+   }).join('<hr>')+'</div></section>':'';
  const history='<section class="wash-section"><div class="section-header"><h3>WASM 모의 세수 실행 기록</h3><div><button class="text-action" id="washDownloadLog" '+(!washRuns.length?'disabled':'')+'>결과 JSON 저장</button></div></div>'+
  (washRuns.length?'<div class="history">총 '+washRuns.length+'개 실행 묶음 · 원본 세이브는 변경되지 않습니다.</div>'+
  '<details><summary>마지막 WASM 결과 확인</summary><pre class="history" style="white-space:pre-wrap;max-height:320px;overflow:auto">'+escape(JSON.stringify(washRuns[washRuns.length-1],null,2))+'</pre></details>':
  '<div class="history">모의 세수 실행 기록이 없습니다. 현재 저장된 재능과는 별개입니다.</div>')+'</section>';
- body=config+skills+buttons+history+'<details class="wash-section"><summary>고급 WASM 조작 및 진단</summary>'+washSandbox()+roleDataPanel()+diagnosticPanel()+'</details>';
+ body=config+skills+buttons+qualityPanel+nextPurple+history+'<details class="wash-section"><summary>고급 WASM 조작 및 진단</summary>'+washSandbox()+roleDataPanel()+diagnosticPanel()+'</details>';
 }
 if(sub==='auto'){
  const state=window.__washRuntime||{},api=window.YYWashAutoSearch;
