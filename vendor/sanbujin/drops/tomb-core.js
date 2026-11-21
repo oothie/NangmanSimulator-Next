@@ -67,8 +67,30 @@ function simulate(input,options={}){
      if(Number.isInteger(value)&&value>=0&&value<6){
       row.itemId=8903+value;vars.set('get_history',value+1);
      }else row.reason='기록 보상 · 진행 변수 미확인 또는 수집 완료';
-    }else row.itemId=other.itemId;
+    }else{
+     row.itemId=other.itemId;
+     // Source v29: these flags are game progression, never additional RNG draws.
+     if(other.itemId===3026 && Number.isFinite(vars.get('get3026_fdepot'))){
+      vars.set('get3026_fdepot',vars.get('get3026_fdepot')+1);
+      vars.set('fdepot3026',1);
+     }else if(other.itemId===3036 && Number.isFinite(vars.get('get3036_fdepot'))){
+      vars.set('get3036_fdepot',vars.get('get3036_fdepot')+1);
+      vars.set('fdepot3036',1);
+     }else if(other.itemId===8801 && Number.isFinite(vars.get('xlrawtomb')) &&
+      Number.isFinite(vars.get('get_8801_num'))){
+      vars.set('get_8801',1);
+      vars.set('xlrawtomb',vars.get('xlrawtomb')+1);
+      vars.set('get_8801_num',vars.get('get_8801_num')+1);
+     }else if(other.itemId===3026||other.itemId===3036||other.itemId===8801){
+      row.reason='일부 전리품 후속 상태를 계산할 필수 진행 변수 누락';
+      row.partial=true;
+     }
+    }
    }
+   if(vars.get('treasure_hunting_cbt')===5){
+    vars.set('treasure_hunting_cbt',3);
+    row.extraItemId=9415;
+   }else if(!vars.has('treasure_hunting_cbt'))row.partial=true;
   }
   rows.push(row);
  }
