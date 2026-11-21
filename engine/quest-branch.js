@@ -58,7 +58,7 @@ function csv(data){
  ]);
  return '\uFEFF'+rows.map(row=>row.map(value=>{
   let cell=String(value??'');
-  if(/^[=+@]/.test(cell))cell="'"+cell;
+  if(/^[\\s\\u0000-\\u001f]*[=+@\\-]/.test(cell))cell="'"+cell;
   return '"'+cell.replace(/"/g,'""')+'"';
  }).join(',')).join('\r\n')+'\r\n';
 }
