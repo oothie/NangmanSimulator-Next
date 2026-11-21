@@ -1093,6 +1093,18 @@ function characterBattleSupport(role){
  '<div class="wiki-field"><span>세이브 지원 가능 상태</span><b>'+status+'</b></div>'+
  '</div><p class="micro">'+(effects.length?effects.join(' · '):'원본 정량 효과 계수 없음')+' · 재능 ID는 실제 BornTalent.ID에서 조회하며 전투 효과 적용 여부·수치는 아직 계산하지 않습니다.</p>';
 }
+function yyRoleBaseAptitudes(raw){
+ // yy-sim original lb() + m0(): allocation overflow decay and aptitude gift coefficient.
+ const n=(key)=>{const x=Number(raw?.[key]??0);return Number.isFinite(x)?x:0};
+ const level=n('Level');
+ return [['팔힘','Str'],['근골','Con'],['신법','Dex'],['내식','Int']].map(([label,key])=>{
+  const assigned=n(key),born=n('Born'+key),gift=n(key+'Gift'),overflow=n('YiChu'+key);
+  const cap=level+overflow,excess=Math.max(0,assigned-cap);
+  const adjusted=excess?cap+(1-1.2*excess/(100+excess))*excess:assigned;
+  const base=Math.floor((adjusted+born)*(1+0.00006*gift));
+  return {label,key,assigned,born,gift,cap,adjusted:Number(adjusted.toFixed(6)),base};
+ });
+}
 function characterSourceBaseStats(raw){
  // yy-sim computeFinalStats.body의 독립 산식만 이식. 원본 Grow 계수의 Lv 93 문턱을 보존한다.
  const lv=Number(raw?.Level);
@@ -1167,18 +1179,6 @@ function yyRoleSavedCultivationSummary(role){
   x.current===null?'무학 계산 미확인':'무학 '+(x.learned??'—')+' + 추가 '+(x.extra??'—')]);
  return yyRoleSection('수련 현황',yyRoleStatGrid(rows,'cultivation-grid')+
  '<p class="micro">수련치 상세·이전 가능 수련과 교차 검증은 수련 메뉴에서 확인할 수 있습니다.</p>');
-}
-function yyRoleBaseAptitudes(raw){
- // yy-sim original lb() + m0(): allocation overflow decay and aptitude gift coefficient.
- const n=(key)=>{const x=Number(raw?.[key]??0);return Number.isFinite(x)?x:0};
- const level=n('Level');
- return [['팔힘','Str'],['근골','Con'],['신법','Dex'],['내식','Int']].map(([label,key])=>{
-  const assigned=n(key),born=n('Born'+key),gift=n(key+'Gift'),overflow=n('YiChu'+key);
-  const cap=level+overflow,excess=Math.max(0,assigned-cap);
-  const adjusted=excess?cap+(1-1.2*excess/(100+excess))*excess:assigned;
-  const base=Math.floor((adjusted+born)*(1+0.00006*gift));
-  return {label,key,assigned,born,gift,cap,adjusted:Number(adjusted.toFixed(6)),base};
- });
 }
 function yyRoleBaseAptitudesView(role){
  const rows=yyRoleBaseAptitudes(role?.raw||{});
