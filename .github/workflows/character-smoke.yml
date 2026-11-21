@@ -5,11 +5,15 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'vendor/yysim/engine-host.html'
+      - 'vendor/sanbujin/drops/**'
       - 'tests/**'
       - '.github/workflows/character-smoke.yml'
   pull_request:
     paths:
       - 'index.html'
+      - 'vendor/yysim/engine-host.html'
+      - 'vendor/sanbujin/drops/**'
       - 'tests/**'
       - '.github/workflows/character-smoke.yml'
   workflow_dispatch:
