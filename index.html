@@ -2614,6 +2614,15 @@ window.addEventListener('nangman-wash-command',async e=>{
   state.log=[];state.undoStates=[];state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.output='현재 인물 세이브 상태를 WASM에 적용했습니다. 이 결과는 실게임 검증 전 독립 시뮬레이션입니다.\n'+
    JSON.stringify({roleId:applied.role_id,zizhi:applied.zizhi,sex:applied.sex,locked:applied.talents?.filter(x=>x.locked).length,
     talLucky:applied.tal_lucky,mode:applied.mode},null,2);
+  // Successful import stays usable even if this auxiliary native inspection fails.
+  try{
+   const checks=await washEngine.call('talent-constraints');
+   ensureSession();
+   if(window.__nangmanWashSaveSource?.()?.save===source.save &&
+      window.__nangmanWashSaveSource?.()?.role?.id===source.role.id){
+    state.constraints=checks;state.constraintsDisplay=JSON.stringify(checks);
+   }
+  }catch(checkError){state.constraintsError=String(checkError?.message||checkError);}
  }else if(op==='washEngineReset'){
   if(!state.ready)throw Error('WASM 먼저 초기화');
   if(!/^\d{1,20}$/.test(state.seed)||!/^\d{1,10}$/.test(state.roleId))throw Error('시드와 캐릭터 ID에 정수를 입력하세요.');
