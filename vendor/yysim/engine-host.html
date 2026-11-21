@@ -78,9 +78,23 @@ try{
   const start=wasmGetState();
   if(!start)throw Error('모의 세수 시작 상태를 읽지 못했습니다');
   const outcomes=[];
+  const findCollision=current=>{
+   const candidates=wasmGetConflicts();
+   if(!Array.isArray(candidates))throw Error('원본 WASM 충돌 판정 구조를 확인할 수 없습니다');
+   return candidates.find(x=>{
+    const index=Number(x?.index),earlier=Number(x?.earlier_index);
+    if(x?.can_exchange!==true||!Number.isInteger(index)||
+       index<0||index>=current?.talents?.length||
+       current.talents[index]?.locked===true)return false;
+    return target==null||current.talents[index]?.id===target||
+       (Number.isInteger(earlier)&&earlier>=0&&current.talents[earlier]?.id===target);
+   })||null;
+  };
   let matched=null,stopped='limit';
   try{
-   for(let i=0;i<limit;i++){
+   matched=findCollision(start);
+   if(matched)stopped='conflict';
+   for(let i=0;i<limit&&!matched;i++){
     const before=wasmGetState();
     const wash=wasmDoWash();
     const current=wasmGetState();
@@ -90,13 +104,7 @@ try{
      stopped='unchanged';break;
     }
     outcomes.push(wash);
-    const candidates=wasmGetConflicts();
-    if(!Array.isArray(candidates))throw Error('원본 WASM 충돌 판정 구조를 확인할 수 없습니다');
-    const eligible=candidates.filter(x=>x?.can_exchange===true&&
-      Number.isInteger(Number(x.index))&&current.talents[Number(x.index)]);
-    matched=eligible.find(x=>target==null||
-      current.talents[Number(x.index)]?.id===target||
-      current.talents[Number(x.earlier_index)]?.id===target)||null;
+    matched=findCollision(current);
     if(matched){stopped='conflict';break;}
     if(i%25===24)await new Promise(resolve=>setTimeout(resolve,0));
    }
