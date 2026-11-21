@@ -31,7 +31,9 @@ function routeOutcome(raw,selected){
  const routes=raw.routes.map((route,index)=>{
   const finalSlots=Array.isArray(route?.final_slots)?route.final_slots:[];
   const finalIds=finalSlots.map(s=>int(s?.id)).filter(x=>x!=null);
-  const matchedIds=ids.filter(id=>finalIds.includes(id));
+  const intermediate=route?.intermediate_goals===true;
+  const reachedIds=intermediate&&Array.isArray(route?.reached_ids)?route.reached_ids.map(Number):[];
+  const matchedIds=ids.filter(id=>finalIds.includes(id)||(intermediate&&reachedIds.includes(id)));
   const pills=nonnegative(route?.pills),washes=nonnegative(route?.washes),exchanges=nonnegative(route?.exchanges),pad=nonnegative(route?.pad);
   const isComplete=matchedIds.length===ids.length;
   const hasCost=pills!==null&&washes!==null&&exchanges!==null&&pad!==null;
@@ -41,7 +43,8 @@ function routeOutcome(raw,selected){
     ...(isComplete&&!hasSteps&&(washes!==0||exchanges!==0)?['원본 실행 단계 미제공']:[]),
     ...(route?.error?['원본 경로 오류: '+String(route.error)]:[])];
   return {index,source:route,
-   goalIds:ids,finalIds,matchedIds,missingIds:ids.filter(id=>!finalIds.includes(id)),
+   goalIds:ids,finalIds,matchedIds,missingIds:ids.filter(id=>!matchedIds.includes(id)),intermediateGoals:intermediate,
+   acquiredEvents:Array.isArray(route?.acquired_events)?route.acquired_events:[],
    complete:isComplete,executable:executable&&!route?.error,warnings,estimatedPills:pills,estimatedWashes:washes,
    exchanges,pad,lockedSlots:finalSlots.filter(s=>s?.locked===true).length,
    finalSlots,actions:Array.isArray(route?.actions)?route.actions:[],
@@ -71,7 +74,7 @@ function routeOutcome(raw,selected){
  return {routes,stats,selectedIds:ids};
 }
 function statusText(result){
- if(result.stats.complete)return '원본 WASM에서 모든 선택 목표가 최종 재능 슬롯에 존재하는 경로 후보를 찾았습니다. 전역 최적 경로라는 뜻은 아닙니다.';
+ if(result.stats.complete)return '실제 WASM 세수에서 선택 목표를 확보한 경로 후보를 찾았습니다. 중간 획득을 허용한 경우 최종 슬롯에는 남지 않을 수 있으며, 표시 비용은 탐색한 잠금 조합 중 최소입니다.';
  if(result.stats.error)return '설정한 탐색 범위에서 목표 재능을 모두 확보하는 경로가 발견되지 않았습니다. 자동 탐색 범위 안에서 찾지 못한 결과이며, 목표 선택을 변경해 다시 확인할 수 있습니다.';
  return '현재 검색 조건의 원본 WASM 경로 후보가 없습니다.';
 }
