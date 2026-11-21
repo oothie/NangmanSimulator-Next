@@ -639,6 +639,8 @@ if(sub==='path'){
  '<p class="micro">원본 WASM의 <code>wash_until_talent_name</code> 실행을 사용합니다. 최대 5000회, 실행 전 상태 저장 후 되돌리기 가능. 현재 목표 자맥의 한국 서버 적중 여부는 미검증입니다.</p>'+
  '<div class="fields"><label>목표 자맥<select id="washTalentTarget"><option value="">선택</option>'+purpleSourceIds.map(id=>'<option value="'+id+'" '+(String(id)===single?'selected':'')+'>'+escape(characterTalentName(id))+' (#'+id+')</option>').join('')+'</select></label></div>'+
  '<div class="fields"><label>다음 치환 탐색 한도<select id="washNextConflictLimit"><option value="100" '+(runtime.nextConflictLimit===100?'selected':'')+'>100회</option><option value="500" '+((runtime.nextConflictLimit??500)===500?'selected':'')+'>500회</option><option value="1000" '+(runtime.nextConflictLimit===1000?'selected':'')+'>1000회</option></select></label></div>'+
+ '<div class="actions"><button id="washPathChain" class="btn primary" '+(!valid?'disabled':'')+'>입력한 목표 자맥 순서대로 연속 충돌·치환</button></div>'+
+ '<p class="micro">목표 쌍에 입력한 자맥 ID들을 1~4단계의 순서로 사용하며 해당 재능과 관련된 충돌만 치환합니다. 도맥법 최단 경로와 잠금 자동 배치는 아직 미지원이며, 중도 실패 시 실행 시작 상태로 복구됩니다.</p>'+
  '<div class="actions"><button id="washNextTargetConflict" class="btn" '+(!valid?'disabled':'')+'>선택 목표 관련 다음 충돌까지</button>'+
  '<button id="washNextTargetAuto" class="btn primary" '+(!valid?'disabled':'')+'>목표 관련 충돌 발견 시 자동 치환</button></div>'+
  '<p class="micro">위 목표 자맥을 선택하면 원본 WASM이 실제 치환 가능하다고 판정한 슬롯이 나올 때까지만 모의 세수합니다. 원본 세이브는 변경하지 않습니다.</p>'+
@@ -2476,6 +2478,17 @@ if($('washNextTargetConflict'))$('washNextTargetConflict').onclick=()=>{
  window.dispatchEvent(new CustomEvent('nangman-wash-command',
   {detail:{op:'washEngineUntilExchange',count:limit,talentId:Number(target)}}));
 };
+if($('washPathChain'))$('washPathChain').onclick=()=>{
+ const input=String($('washPathPairs')?.value||'').trim();
+ const lines=input.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);
+ if(!lines.length||lines.length>4||lines.some(x=>!/^\d+\s*:\s*\d+$/.test(x))){
+  alert('목표 자맥·충돌맥을 ID:ID 형식으로 1~4개 입력하세요.');return;
+ }
+ const targets=lines.map(x=>Number(x.split(':')[0].trim()));
+ const count=Number($('washNextConflictLimit')?.value||500);
+ window.dispatchEvent(new CustomEvent('nangman-wash-command',
+  {detail:{op:'washEngineAutoChain',count,steps:targets.length,targets}}));
+};
 if($('washPathRun'))$('washPathRun').onclick=()=>{
  const pairs=$('washPathPairs')?.value||'';
  const maxPad=$('washPathLimit')?.value||'900';
@@ -2794,9 +2807,16 @@ window.addEventListener('nangman-wash-command',async e=>{
    throw Error('선택 캐릭터가 변경되었습니다.');
   if(!window.NangmanWashChain?.run)throw Error('연속 치환 검증 모듈이 아직 로드되지 않았습니다.');
   state.lastConflict=null;
+  const targetIds=e.detail.targets??null;
+  if(targetIds!=null){
+   if(!Array.isArray(targetIds)||targetIds.some(x=>!Number.isInteger(x)||x<1)||
+     targetIds.length<1||targetIds.length>4||new Set(targetIds).size!==targetIds.length)
+    throw Error('도맥법 목표 자맥은 서로 다른 원본 ID 1~4개를 입력하세요.');
+  }
   const output=await window.NangmanWashChain.run({
    call:(name,payload)=>washEngine.call(name,payload),ensureSession,
-   steps:Number(e.detail.steps??2),maxWashes:Number(e.detail.count??500)});
+   steps:Number(e.detail.steps??2),maxWashes:Number(e.detail.count??500),
+   targets:targetIds});
   ensureSession();
   if(output.changed){
    state.undoStates.push(output.initial);
@@ -2807,7 +2827,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   }
   state.lastConflict=null;state.liveTalents=output.state.talents||[];
   syncWasmBag(output.state);
-  state.output='원본 WASM 연속 충돌·자동 치환 · 세수 '+output.totalWashes+
+  state.output='원본 WASM 연속 충돌·자동 치환'+(output.targeted?' · 요청 자맥 '+output.requestedTargets.join(', '):'')+' · 세수 '+output.totalWashes+
    '회 · 실제 성공 치환 '+output.exchanges+'회 / 요청 '+output.requestedSteps+
    '단계 · 종료 '+(output.stopReason==='completed'?'지정 단계 완료':
    output.stopReason==='unchanged'?'세수 진행 불가':'추가 치환 충돌 미발견')+
