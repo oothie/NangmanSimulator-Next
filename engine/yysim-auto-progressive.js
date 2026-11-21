@@ -19,6 +19,9 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
   throw Error('yy-sim 원본 자동 탐색 엔진이 준비되지 않았습니다');
  const config=api.options({desiredIds,maxPad,horizon,topN});
  const stages=levels(config),entries=[],history=[],seen=new Set();
+ const extended=[{maxPad:100,horizon:4000,topN:config.topN},
+  {maxPad:200,horizon:5000,topN:config.topN}];
+ let extendedQueued=false;
  let nameIds={},best=null,totalScanned=0;
  for(let i=0;i<stages.length;i++){
   ensureSession();
@@ -46,6 +49,14 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
   }
   const merged=api.routeOutcome({routes:entries,scanned:totalScanned},config.desiredIds);
   if(merged.routes.some(x=>x.complete))best=merged.routes.find(x=>x.complete);
+  if(i===stages.length-1&&!extendedQueued&&!best){
+   extendedQueued=true;
+   const full=stages.at(-1);
+   for(const next of extended){
+    if(next.maxPad<=full.maxPad&&next.horizon<=full.horizon)continue;
+    if(!stages.some(x=>x.maxPad===next.maxPad&&x.horizon===next.horizon))stages.push(next);
+   }
+  }
   onProgress({phase:i+1,total:stages.length,history:[...history],bestPills:best?.estimatedPills??null});
  }
  return {nativeFunction:'wasmSearchWashRoutes',desiredIds:config.desiredIds,
