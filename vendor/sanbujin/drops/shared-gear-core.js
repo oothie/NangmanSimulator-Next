@@ -50,7 +50,7 @@ function compareOrders(field,dungeon){
   })
  }));
 }
-function traceEds(equipment,eds){
+function traceEds(equipment,eds,equipCatalog={}){
  // Source-verified for five original equipment receipts (5009×2, 4609×2,
  // 5420×1). These are creation-seed hypotheses, not final refinement values.
  if(!Array.isArray(equipment))throw Error('드랍 장비 목록이 필요합니다');
@@ -73,9 +73,14 @@ function traceEds(equipment,eds){
   // Observed in all 5 historical receipts:
   // MJSeed=floor(Whale draw value/10)+123, CZSeed=MJSeed+333.
   const mjSeed=Math.floor(roll.value/10)+123,czSeed=mjSeed+333;
+  const config=equipCatalog?.[key];
+  // The same original initial-affix generator used by wild equipment
+  // applies to the externally supplied quality of ordinary 90-grade gear.
+  const initialAffixes=config&&Number(event.color)>1&&Number(event.color)<=4?
+   root.SBJWildDrop.generateAffixes(config,Number(event.color),roll.value):[];
   output.push({...event,edsDraw:drawNo,edsKnown:true,
-   mjSeed,czSeed,edsAfter:roll.seed,
-   creationSeedStatus:'Eds 생성 순서 계산 (5건 실측과 일치 · 완성 옵션 미연결)'});
+   mjSeed,czSeed,edsAfter:roll.seed,initialAffixes,
+   creationSeedStatus:'Eds 생성 순서·최초 추가 옵션 계산 (실측 5건 일치 · 최종 정련/망정 미연결)'});
  }
  return {equipment:output,finalEds:Object.fromEntries(states)};
 }
@@ -102,7 +107,7 @@ function project(save,target,event,fieldCount,dungeonCount,order,equipment){
   const number=Number(value?.Value??value?.value??value?.V??value?.v??value);
   return Number.isSafeInteger(number)&&number>0;
  };
- const traced=traceEds(plan.equipment,eds);
+ const traced=traceEds(plan.equipment,eds,equipment||{});
  return {...plan,equipment:traced.equipment.map(x=>({...x,hasSharedSeed:hasPerItemSeed(x.itemId)})),
   edsTrace:traced.finalEds,
   byItem:plan.byItem.map(x=>({...x,hasSharedSeed:hasPerItemSeed(x.id)})),
