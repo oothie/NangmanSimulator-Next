@@ -200,6 +200,7 @@ body{background:var(--bg)!important}
 <main class="page"><div class="heading"><h1 id="title">세수 시뮬레이션</h1><span class="micro" id="status">세이브 미연결</span><div class="session-meta"><span class="session-label">보유 세수단 <b id="washBag">—</b></span><button id="import" class="btn">세이브 불러오기</button><input id="file" type="file" accept=".json,application/json" hidden></div></div><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="산부진 장비 계산 영역"></section></main><footer class="foot">독립 사이트 v0.7.14 · yy-sim 화면 구성 참고 · 한국판 계산 엔진 검증 후 연결</footer></div>
 <script src="./vendor/sanbujin/shared/equip_data.js"></script>
 <script src="./shared/sanbujin_meridian_data.js"></script>
+<script src="./shared/sanbujin_talent_names_ko.js"></script>
 <script src="./shared/sanbujin_cultivation_data.js"></script>
 <script>window.KONGFU_DATA=window.NANGMAN_SANBUJIN_KONGFU;</script>
 <script src="./shared/sanbujin_role_status_data.js"></script>
@@ -293,8 +294,8 @@ const groups=['주인공','동료','이탈'];
 const aside='<aside class="aside"><div class="aside-title"><strong>캐릭터 선택 (총 '+roles.length+'명)</strong></div><input type="search" id="search" placeholder="이름 / 태그 / 소속 / ID 검색" value="'+escape(filter)+'"><div class="roles">'+roleList()+'</div></aside>';
 const meta=r?('ID '+escape(r.id)+' · '+escape(r.level?r.level+'레벨':'레벨 미확인')+' · '+escape(r.type)+' · 세수 저장값 '+escape(r.raw.RXiSui??'—')+''):'한국판 JSON 세이브를 불러오세요';
 const fig='<div class="figures">'+[
- ['세수 누적값 (XiSui)',save?.XiSui??'—'],
- ['선택 인물 기록 (RXiSui)',r?.raw?.RXiSui??'—'],
+ ['전체 세수 저장값 (XiSui)',save?.XiSui??'—'],
+ ['인물별 세수 저장값 (RXiSui)',r?.raw?.RXiSui??'—'],
  ['현재 재능',r?characterWashTalents(r).length:'—'],
  ['자질',r?.raw?.ZiZhi??'—']
 ].map(([label,value])=>'<div class="fig"><b>'+escape(value)+'</b><span>'+label+'</span></div>').join('')+'</div>'
@@ -307,13 +308,13 @@ if(sub==='sim'){
  '<div class="config-item"><span>자질</span><b>'+escape(r?.raw?.ZiZhi??'—')+'</b></div>'+
  '<div class="zizhi">'+attrs.map(([key,label])=>'<span>'+label+' <b>'+escape(r?.raw?.[key]??'—')+'</b></span>').join('')+'</div></section>';
  const talentSlots=r?characterWashTalents(r):[];
- const skills='<section class="wash-section"><div class="section-header"><h3>현재 세수 재능</h3><span class="micro">실제 세이브 '+talentSlots.length+'개 · BornTalent 포함</span></div><div class="talents">'+
- Array.from({length:Math.max(4,talentSlots.length)},(_,i)=>{
+ const skills='<section class="wash-section"><div class="section-header"><h3>현재 세수 재능</h3><span class="micro">세수 재능 '+talentSlots.length+'개 · 태생 재능과 별도</span></div><div class="talents">'+
+ Array.from({length:talentSlots.length},(_,i)=>{
   const t=talentSlots[i];
   return '<div class="talent"><span class="talent-slot">'+(i+1)+'</span><div class="talent-text"><b>'+(t?'재능 #'+escape(t.id):'빈 슬롯')+'</b><small>'+
    (t?'원본 RC '+escape(t.rc??'—')+(t.time?' · 기록 '+escape(t.time):''):'저장된 재능 없음')+'</small></div>'+
    '<button class="btn lock" disabled>'+(t?(t.locked?'잠금':'해제'):'—')+'</button></div>';
- }).join('')+'</div><p class="micro">잠금은 현재 저장값 표시만 가능하며, 실제 변경·예측은 아직 지원하지 않습니다.</p></section>';
+ }).join('')+'</div><p class="micro">태생 재능: '+(r?.raw?.BornTalent?.ID?escape(characterTalentName(r.raw.BornTalent.ID))+' (#'+escape(r.raw.BornTalent.ID)+')':'기록 없음')+' · 잠금 변경과 세수 결과 예측은 아직 지원하지 않습니다.</p></section>';
  const buttons='<section class="wash-section"><div class="wash-ops"><div class="pity-area"><div class="micro">천장 진행도</div><div class="pity-track"><div class="pity-fill" style="width:0%"></div></div><div class="micro">— / 900 · 다음 자맥 계산 대기</div></div><div class="wash-buttons"><button class="btn" disabled>자맥까지 세수</button><button class="btn" disabled>연속 세수</button><button class="btn" disabled>되돌리기</button><button class="btn primary" disabled>세수</button></div></div><div class="micro">한국판 시드·잠금 매핑 전에는 잘못된 예측을 방지하기 위해 실행할 수 없습니다.</div></section>';
  const history='<section class="wash-section"><div class="section-header"><h3>세수 시뮬레이션 기록</h3><div><button class="text-action" disabled>핵심 기록 내보내기</button><button class="text-action" disabled>전체 기록 내보내기</button><button class="text-action" disabled>비우기</button></div></div><div class="history">이번 화면에서 진행한 시뮬레이션 기록이 없습니다. 실제 저장된 세수 재능과 횟수는 위에 표시합니다.</div></section>';
  body=config+skills+buttons+history+washSandbox()+roleDataPanel()+diagnosticPanel();
@@ -876,32 +877,33 @@ function characterSanbujinComplete(root,role){
 
 // 세수 세이브 정보: BornTalent 1칸 + Talents 목록을 실제 저장 기록에서 수집.
 // 잠금, 정진 및 원시맥/치환맥의 예측은 서로 다른 데이터이므로 임의 변환하지 않는다.
+// 산부진 원본: BornTalent(태생)과 Talents(세수)는 서로 다른 슬롯이다.
+function characterTalentName(id){
+ const ko=(window.NANGMAN_TALENT_NAMES_KO||{})[String(id)];
+ return ko&&!wikiHasChinese(ko)?ko:'재능 #'+String(id);
+}
 function characterWashTalents(role){
- const raw=role?.raw||{};
- const first=raw.BornTalent&&typeof raw.BornTalent==='object'&&Number(raw.BornTalent.ID)>0?[raw.BornTalent]:[];
- const all=[...first,...characterEntries(raw.Talents).filter(x=>x&&Number(x.ID)>0)];
- return all.map((x,index)=>({slot:index+1,id:Number(x.ID),locked:x.Lock===true,rc:Number.isFinite(Number(x.RC))?Number(x.RC):null,time:String(x.Time||'')}));
+ const list=characterEntries(role?.raw?.Talents).filter(x=>x&&Number(x.ID)>0);
+ return list.map((x,i)=>({slot:i+1,id:Number(x.ID),locked:x.Lock===true,
+  rc:Number.isFinite(Number(x.RC))?Number(x.RC):null,time:String(x.Time||'')}));
 }
 function characterWashView(role,root){
- const raw=role?.raw||{},talents=characterWashTalents(role),index=Number(root?.XiSui),count=Number(raw.RXiSui);
- const global=Number.isFinite(index)?String(index):'—';
- const perRole=Number.isFinite(count)?String(count):'—';
- const slots=Math.max(4,talents.length);
+ const raw=role?.raw||{},talents=characterWashTalents(role),born=raw.BornTalent;
+ const count=raw.RXiSui,global=root?.XiSui;
+ const bornId=Number(born?.ID)||0;
+ const bornLabel=bornId?characterTalentName(bornId)+' (#'+bornId+')':'기록 없음';
  return '<section class="card"><h3>세수 저장 정보 · '+escape(role?.name||'캐릭터')+'</h3>'+
- '<p class="micro">실제 JSON의 BornTalent·Talents·RXiSui·XiSui를 표시합니다. 세수 다음 결과·자맥 천장까지의 거리 계산과는 별개입니다.</p>'+
+ '<p class="micro">산부진 원본 기준: 태생 재능(BornTalent)과 세수 재능(Talents)을 구분합니다. 숫자 XiSui·RXiSui는 저장값이며 자맥 천장 횟수를 추정하지 않습니다.</p>'+
  '<div class="wiki-detail-fields">'+
- '<div class="wiki-field"><span>전체 세수 기록 (XiSui)</span><b>'+escape(global)+'</b></div>'+
- '<div class="wiki-field"><span>선택 캐릭터 기록 (RXiSui)</span><b>'+escape(perRole)+'</b></div>'+
+ '<div class="wiki-field"><span>전체 세수 저장값 (XiSui)</span><b>'+escape(global??'—')+'</b></div>'+
+ '<div class="wiki-field"><span>인물별 세수 저장값 (RXiSui)</span><b>'+escape(count??'—')+'</b></div>'+
  '<div class="wiki-field"><span>자질 (ZiZhi)</span><b>'+escape(characterNumber(raw,'ZiZhi'))+'</b></div>'+
- '<div class="wiki-field"><span>원본 재능 (BornTalent)</span><b>'+escape(raw.BornTalent?.ID??'—')+'</b></div>'+
- '</div><h4>현재 저장된 재능 '+talents.length+'개</h4>'+
- '<table class="module-table"><thead><tr><th>슬롯</th><th>재능</th><th>잠금</th><th>원본 RC</th></tr></thead><tbody>'+
- Array.from({length:slots},(_,i)=>{
-  const t=talents[i];
-  return '<tr><td>'+(i+1)+'</td><td>'+(t?'재능 #'+escape(t.id):'비어 있음')+'</td><td>'+(t?(t.locked?'잠금':'해제'):'—')+'</td><td>'+(t?escape(t.rc??'—'):'—')+'</td></tr>';
- }).join('')+'</tbody></table></section>';
+ '<div class="wiki-field"><span>태생 재능</span><b>'+escape(bornLabel)+'</b></div>'+
+ '</div><h4>세수 재능 '+talents.length+'개</h4>'+
+ (talents.length?'<table class="module-table"><thead><tr><th>슬롯</th><th>재능</th><th>잠금</th><th>원본 RC</th><th>기록 시각</th></tr></thead><tbody>'+
+ talents.map(t=>'<tr><td>'+t.slot+'</td><td>'+escape(characterTalentName(t.id))+' <small>#'+t.id+'</small></td><td>'+(t.locked?'잠금':'해제')+'</td><td>'+escape(t.rc??'—')+'</td><td class="micro">'+escape(t.time||'—')+'</td></tr>').join('')+'</tbody></table>':
+ '<p class="micro">세수 재능이 저장되어 있지 않습니다.</p>')+'</section>';
 }
-
 function characterView(){
  const opts=[['overview','캐릭터 개요'],['growth','육성'],['martial','무학·재능'],['equipment','착용 장비'],['meridians','경맥'],['craft','기예·비기'],['wash-info','세수 정보'],['training','지역 수련'],['consumable','단약·음식'],['cultivation','수련치'],['permanent','영구 속성'],['complete','육성 종합']];
  const role=roles[selected]||roles[0]||null,raw=role?.raw||{};
