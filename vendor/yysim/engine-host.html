@@ -10,7 +10,11 @@ try{
  if(op==='set-state'){if(!wasmSetState(payload))throw Error('세수 상태 지정 실패');send(requestId,true,wasmGetState());return}
  if(op==='preview'){const count=Number(payload?.count||900);
   if(!Number.isInteger(count)||count<1||count>5000)throw Error('미리보기는 1–5000회 범위입니다');
-  send(requestId,true,{preview:wasmPreviewSequence(count),count});
+  const preview=wasmPreviewSequence(count);
+  if(!preview||typeof preview!=='object'||!Array.isArray(preview.purples))
+   throw Error('원본 WASM 자맥 미리보기 결과 형식이 잘못되었습니다');
+  const nameIds=Object.fromEntries(Object.entries(TALENT_DATA).filter(([,x])=>x?.name).map(([id,x])=>[x.name,id]));
+  send(requestId,true,{preview,count,nameIds});
   return
  }
  if(op==='talent-constraints'){
