@@ -10,45 +10,29 @@ const section=(start,end)=>{
  assert(a>=0&&b>a,'missing section: '+start+' / '+end);
  return html.slice(a,b);
 };
-// Quest data: no invented completed status or coordinates for missing x/y fields.
+// Quest UI intentionally excludes NPC coordinates; show only saved mission/commission state.
 const quest=section('function questSaveModel(root){','function questView(){');
-const {questSaveModel,questAreaSummary,questExportCsv}=new Function(
- quest+';return {questSaveModel,questAreaSummary,questExportCsv};')();
+const {questSaveModel,questRecordDetails,questDelegatedDetails}=new Function('escape','marketDate',
+ quest+';return {questSaveModel,questRecordDetails,questDelegatedDetails};')(
+ v=>String(v),x=>String(x)
+);
 const fixture={Task:{id:9999999,trace:true,recv:1784781076},
  WeiTuoTask:{accept:[105,118,116],task:[105,107,110,116,118,117]},
- SoloNpc:{
-  '34078':{y:16,m:'nl_wuduling',x:2},
-  '37463':{y:2,x:4,m:'qc_shangu'},
-  '37447':{y:28,x:16,r:2147480047,m:'yz'},
-  '999':{m:'yz',x:0,y:0},
-  '888':{m:'yz',x:3},
-  '777':{m:'yz',y:4},
-  '666':{m:'yz',x:null,y:2},
-  '555':{r:-1}
- }};
+ SoloNpc:{'34078':{y:16,m:'nl_wuduling',x:2}}};
 const model=questSaveModel(fixture);
 assert.equal(model.current.id,9999999);
 assert.equal(model.delegated.accepted.length,3);
 assert.equal(model.delegated.recorded.length,6);
-assert.equal(model.npcRecords.length,8);
-assert.equal(model.located.length,4,'only real x/y coordinate pairs');
-const yz=questAreaSummary(model).find(x=>x.code==='yz');
-assert.equal(yz.count,2,'map counts use only valid coordinates');
-const csv=questExportCsv(model);
-assert(csv.startsWith('\uFEFF'),'Excel BOM required');
-assert(csv.includes('"현재 임무","9999999"'),'actual saved task');
-assert(csv.includes('"위탁 수락","105"'),'delegated task');
-assert(csv.includes('"NPC 위치","34078","nl_wuduling","2","16"'),'NPC x/y retained');
-assert(csv.includes('"NPC 위치","666","yz","","","좌표 미확인"'),'missing coordinates never coerced to zero');
-const yzCsv=questExportCsv(model,'yz');
-assert(!yzCsv.includes('nl_wuduling'),'area export filter excludes unrelated NPCs');
-assert(yzCsv.includes('"NPC 위치","999","yz","0","0"'),'valid 0,0 retained');
+assert(!Object.prototype.hasOwnProperty.call(model,'npcRecords'),'quest model has no NPC coordinates');
+assert(questRecordDetails({step:3,trace:true}).includes('진행 단계'),'show saved mission step');
+assert(questDelegatedDetails(model).includes('위탁 기록 · 6건'),'display saved commissions');
+assert(!html.includes("['npc','NPC 위치']"),'NPC tab is removed');
 assert(html.includes('id="dropWorkspace"'),'persistent drop iframe mount');
 assert(html.includes('function updateDropVisibility()'),'persistent drop visibility');
 assert(html.includes("version:dropSaveVersion,save:save||null"),'versioned parent payload');
 assert(html.includes("event.data.version===dropSaveVersion"),'stale drop message guard');
-assert(html.includes("if(event.data.status==='ready'){dropReady=true;dropModeSent=null;sendSaveToDrop(true);sendDropMode(true)}"),
- 'send save and selected drop mode only after child ready');
+assert(html.includes("if(event.data.status==='ready'){dropReady=true;dropModeSent=null;sendThemeToDrop();sendSaveToDrop(true);sendDropMode(true)}"),
+ 'send theme, save and selected drop mode after child ready');
 assert(html.includes("kind:'nangman-drop-mode',mode:dropSelectedMode"),
  'parent forwards a distinct Sanbujin drop mode request');
 assert(drop.includes("event.data?.kind!=='nangman-drop-mode'"),
@@ -68,4 +52,4 @@ assert(html.includes('state.generation=(state.generation||0)+1'),'invalidate old
 assert(wash.includes("washEngine.call('until-gold',{count:1000})"),'native purple-until bounded call');
 
 assert(html.includes("function yyRolePanel(role){"),'character panel remains connected');
-console.log('PASS: saved quest/NPC validity, CSV, versioned drop handshake and WASM rollback guards');
+console.log('PASS: saved quest detail without NPC directory, drop handshake and WASM rollback guards');
