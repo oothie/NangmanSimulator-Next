@@ -6,7 +6,8 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,'../engine/yysim-route-repla
 const api=ctx.window.YYWashRouteReplay;
 const route=(actions,washes=0,exchanges=0)=>({complete:true,executable:true,
  goalIds:[271],estimatedWashes:washes,exchanges,actions});
-assert.throws(()=>api.plan(route([{kind:'open_slot'}])),/아직 재생/);
+assert.throws(()=>api.plan(route([{kind:'open_slot'}])),/자질 조건/);
+assert.equal(api.plan(route([{kind:'open_slot',note:'开槽至 154（4 格）'}]))[0].requiredSlots,4);
 assert.throws(()=>api.plan(route([{kind:'exchange',from:'旧',to:'新'}],0,1),{}),/매핑/);
 assert.throws(()=>api.plan(route([{kind:'wash_to',wash_no:2}],3)),/총 세수/);
 assert.throws(()=>api.plan(route([{kind:'wash_to',wash_no:1}],1,1)),/총 치환/);
@@ -37,6 +38,13 @@ const call=async(op,p)=>{
  assert.deepEqual(current,raw,'failed midway restores every WASM state field');
  const empty=route([],0,0);
  const present=await api.run({route:empty,call});assert(present.verified);
+ const alreadyOpen=await api.run({route:route([{kind:'open_slot',note:'开槽至 151'}]),call});
+ assert(alreadyOpen.verified,'an already-open slot is an audited no-op');
+ const beforeClosed=clone(current);
+ await assert.rejects(()=>api.run({route:route([{kind:'open_slot',note:'开槽至 154'}]),call}),/자질 개방/);
+ assert.deepEqual(current,beforeClosed,'unsupported slot opening never consumes materials');
+ await assert.rejects(()=>api.run({route:{...empty,finalSlots:[{id:999,locked:false}]},call}),/최종 슬롯/);
+ assert.deepEqual(current,beforeClosed,'mismatched native final state must be restored');
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
  assert(html.includes('data-yy-replay-route'));
  assert(html.includes('washEngineReplayRoute'));
