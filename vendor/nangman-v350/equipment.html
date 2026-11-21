@@ -11784,6 +11784,19 @@ function paintOwnedDetailPage(m,e){showDetailTop233(e,'owned')}
  };
 })();
 
+window.nangman350FocusEquipment=function(snapshot,initialTab){
+ if(!snapshot)return {ok:false,message:'장비 정보가 없습니다'};
+ syncOwned();
+ const id=Number(snapshot.ID??snapshot.id),onlyId=Number(snapshot.OnlyID??snapshot.only_id??snapshot.onlyId??0);
+ let matches=R.owned.filter(e=>Number(e.id)===id);
+ if(onlyId)matches=matches.filter(e=>Number(e.only_id??e.onlyId??e.OnlyID)===onlyId);
+ for(const [raw,key] of [['CZSeed','CZSeed'],['MJSeed','MJSeed'],['S','S']]){
+  if(snapshot[raw]!=null)matches=matches.filter(e=>Number(e[key])===Number(snapshot[raw]));
+ }
+ if(matches.length!==1)return {ok:false,message:matches.length?'같은 장비가 여러 개 있습니다. 고유 번호 또는 시드로 선택해야 합니다.':'불러온 세이브에서 해당 장비를 확인할 수 없습니다.'};
+ showDetailTop233(matches[0],'owned',initialTab||'route');
+ return {ok:true};
+};
 window.rk218Open=open;window.addEventListener('load',mount);if(document.readyState!=='loading')setTimeout(mount,0);
 })();
 </script>\n
