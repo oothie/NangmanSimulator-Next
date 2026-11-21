@@ -14,13 +14,16 @@
    const matches=nodes.filter(node=>String(node?.purple_name||'')!==''&&
       node?.final_name===node?.purple_name).length;
    const reason=entry?.error?String(entry.error):'';
+   const reasonKo=reason.includes('未洗到紫脉')?
+    '목표 자맥이 원본 WASM 탐색 범위에 등장하지 않았습니다':
+    reason?'원본 도맥법 경로 조건이 충족되지 않았습니다':'';
    const reliable=Number.isFinite(Number(entry?.pad))&&
      finite(entry?.pills)!==null&&finite(entry?.washes)!==null&&
      finite(entry?.exchanges)!==null;
    const success=!reason&&reliable&&nodes.length===count&&matches===count;
    return {index,pad:finite(entry?.pad),pills:finite(entry?.pills),
      washes:finite(entry?.washes),exchanges:finite(entry?.exchanges),
-     nodes,reason,success,matchingNodes:matches,raw:entry};
+     nodes,reason,reasonKo,success,matchingNodes:matches,raw:entry};
   });
  }
  function order(records,{sort='pills',filter='success',limit=200}={}){
