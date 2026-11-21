@@ -7,7 +7,7 @@ window.NANGMAN_CRAFT_ID_KO={
   "source": "원문 직접 번역"
  },
  "302": {
-  "name": "기예",
+  "name": "바둑",
   "desc": "바둑을 두어 수읽기와 전략을 익히는 기예입니다.",
   "source": "원문 직접 번역"
  },
