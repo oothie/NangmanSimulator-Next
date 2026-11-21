@@ -317,6 +317,7 @@ body{background:var(--bg)!important}
 <script src="./vendor/yysim/daily_data.js"></script>
 <script src="./engine/daily-market.js"></script>
 <script src="./engine/quest-branch.js"></script>
+<script src="./engine/wash-path-model.js"></script>
 <script src="./shared/sanbujin_meridian_data.js"></script>
 <script src="./shared/sanbujin_talent_names_ko.js"></script>
 <script src="./shared/sanbujin_cultivation_data.js"></script>
@@ -515,12 +516,12 @@ if(sub==='exchange'){
  '</section>';
 }
 if(sub==='path'){
- const purpleSourceIds=[248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277,414,415,416,417,418,419,420];
+ const purpleSourceIds=[248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277];
  const purpleOptions='<option value="">선택</option>'+purpleSourceIds.map(id=>'<option value="'+id+'">'+escape(characterTalentName(id))+' (#'+id+')</option>').join('');
  const runtime=window.__washRuntime||{};
  const valid=runtime.active&&runtime.origin==='save'&&runtime.linkedRoleId===r?.id&&!runtime.loading;
  const reports=runtime.pathReports;
- let pathText=reports?JSON.stringify(reports.results,null,2):'';
+ let pathText=reports?JSON.stringify(reports.results,null,2).slice(0,20000):'';
  if(reports?.nameIds&&typeof reports.nameIds==='object'){
   for(const [nativeName,id] of Object.entries(reports.nameIds).sort((a,b)=>b[0].length-a[0].length)){
    if(nativeName)pathText=pathText.split(nativeName).join(characterTalentName(id));
@@ -532,6 +533,41 @@ if(sub==='path'){
   Array.isArray(reports.results?.candidates)?reports.results.candidates.length:null;
  const summary=reports?'<p class="micro">원본 yy-sim WASM '+(resultCount==null?'경로 자료 반환':('후보 '+escape(resultCount)+'건'))+' · '+escape(reports.maxPad)+'회까지 탐색 · 가상 세수 · 실제 서버 미검증</p>':
  '<p class="micro">목표 자맥과 충돌맥의 원본 재능 ID를 입력해 탐색을 시작하세요. 정확한 잠금·치환 수행은 아직 자동화하지 않습니다.</p>';
+ const pathApi=window.NangmanWashPath;
+ const pathItems=reports&&pathApi?pathApi.inspect(reports.results,reports.targets?.length||1):[];
+ const pathsOk=pathItems.filter(row=>row.success).length;
+ const sortedPaths=pathApi?pathApi.order(pathItems,{
+  sort:runtime.pathSort||'pills',filter:runtime.pathFilter||'success',limit:150
+ }):[];
+ const nameLookup=reports?.nameIds||{};
+ const pathTable=pathItems.length?
+ '<div class="section-header"><h3>WASM 경로 비용 비교</h3></div>'+
+ '<p class="micro">총 '+pathItems.length+'개 계산 · 목표 충족 '+pathsOk+'개 · 최대 150개 표시. 성공은 WASM 계산 조건이며 실제 게임 일치 판정이 아닙니다.</p>'+
+ '<div class="fields"><label>정렬<select id="washPathSort"><option value="pills" '+((runtime.pathSort||'pills')==='pills'?'selected':'')+'>세수단 적은 순</option>'+
+ '<option value="washes" '+(runtime.pathSort==='washes'?'selected':'')+'>세수 횟수 적은 순</option>'+
+ '<option value="exchanges" '+(runtime.pathSort==='exchanges'?'selected':'')+'>치환 횟수 적은 순</option>'+
+ '<option value="pad" '+(runtime.pathSort==='pad'?'selected':'')+'>선행 교체 적은 순</option></select></label>'+
+ '<label>조건<select id="washPathFilter"><option value="success" '+((runtime.pathFilter||'success')==='success'?'selected':'')+'>목표 충족 후보</option>'+
+ '<option value="all" '+(runtime.pathFilter==='all'?'selected':'')+'>모든 후보</option>'+
+ '<option value="failed" '+(runtime.pathFilter==='failed'?'selected':'')+'>미달성 후보</option></select></label></div>'+
+ '<div class="actions"><button type="button" class="btn" id="washPathExport">경로 계산표 CSV 저장</button></div>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>선행 교체</th><th>세수단</th><th>세수 횟수</th><th>치환</th><th>목표</th><th>세부 경로</th></tr></thead><tbody>'+
+ sortedPaths.map(row=>{
+  const details=row.nodes.map(node=>{
+   const info=pathApi.describeNode(node,nameLookup,characterTalentName);
+   return '<div class="history"><b>'+escape(info.target)+'</b> · 충돌 '+escape(info.conflict)+
+    ' → 예상 '+escape(info.final)+(info.completed?' · 목표 일치':' · 미일치')+
+    ' · 마지막 슬롯 '+escape(info.lastSlot)+
+    (info.forkCount?' · 분기 '+info.forkCount+'개':'')+
+    (info.branchCount?' · 대안 '+info.branchCount+'개':'')+
+    (info.chain.length?'<div>'+info.chain.map(escape).join(' → ')+'</div>':'')+'</div>';
+  }).join('');
+  return '<tr><td>'+escape(row.pad??'—')+'</td><td>'+escape(row.pills??'—')+'</td>'+
+   '<td>'+escape(row.washes??'—')+'</td><td>'+escape(row.exchanges??'—')+'</td>'+
+   '<td>'+(row.success?'WASM 조건 충족':'미달성')+'</td><td><details><summary>경로 '+(row.index+1)+'</summary>'+
+   details+(row.reason?'<p class="micro">원본 경로 계산 오류 · 세부 조건을 확인하세요.</p>':'')+'</details></td></tr>';
+ }).join('')+'</tbody></table></div>':
+ (reports?'<p class="micro">원본 엔진이 비용·경로 목록을 반환하지 않았습니다. 아래 원본 구조를 확인할 수 있습니다.</p>':'');
  const pairs=String(runtime.targetPairs??'').trim();
  const single=String(runtime.targetTalentId??'');
  const num=runtime.pathLimit??900;
@@ -543,7 +579,7 @@ if(sub==='path'){
  '<label>최대 탐색 횟수<input id="washPathLimit" type="number" min="1" max="5000" value="'+escape(num)+'"></label></div>'+
  '<div class="actions"><button class="btn primary" id="washPathRun" '+(!valid?'disabled':'')+'>원본 도맥법 경로 후보 조회</button>'+
  '<button class="btn" id="washConflictInspect" '+(!valid?'disabled':'')+'>현재 인물 충돌·가용 재능 조회</button></div>'+
- summary+(runtime.constraints?'<details open><summary>원본 WASM 가용 재능 및 충돌 정보</summary>'+
+ summary+pathTable+(runtime.constraints?'<details open><summary>원본 WASM 가용 재능 및 충돌 정보</summary>'+
  '<p class="micro">현재 인물 세수 WASM 상태에서 직접 조회한 자료입니다. 미확인 명칭은 재능 ID로 표시합니다.</p>'+
  '<pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(runtime.constraintsDisplay||'자료 없음')+'</pre></details>':'')+
  (reports?'<details><summary>원본 계산 결과 구조 확인</summary><pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(pathText.slice(0,18000))+'</pre></details>':'')+
@@ -2310,6 +2346,19 @@ if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSave
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineToggleLock',index:Number(el.dataset.washLock)}})));
 document.querySelectorAll('[data-wash-exchange]').forEach(el=>el.onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineExchangeTalent',index:Number(el.dataset.washExchange)}})));
+for(const [id,key] of [['washPathSort','pathSort'],['washPathFilter','pathFilter']]){
+ if($(id))$(id).onchange=()=>{window.__washRuntime[key]=$(id).value;render();};
+}
+if($('washPathExport'))$('washPathExport').onclick=()=>{
+ const report=window.__washRuntime?.pathReports;
+ if(!report||!window.NangmanWashPath)return;
+ const data=window.NangmanWashPath.inspect(report.results,report.targets?.length||1);
+ const csv=window.NangmanWashPath.csv(data);
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='Nangman_Wash_Paths.csv';document.body.append(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
 if($('washPathAdd'))$('washPathAdd').onclick=()=>{
  const a=$('washPathPurplePick')?.value||'',b=$('washPathConflictPick')?.value||'';
  if(!a||!b){alert('자맥과 충돌맥을 먼저 선택하세요.');return;}
