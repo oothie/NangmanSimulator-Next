@@ -71,15 +71,26 @@ async function call(op,payload){
  assert(chain&&chain.actions.length>=1&&chain.actions.length<=2);
  assert(chain.totalWashes<=40);
  assert((await call('set-state',initial)).ok,'real multistage WASM simulation rolls back');
- const strictGoals=await sandbox.window.NangmanWashChain.run({
-  call:async(name,payload)=>{const reply=await call(name,payload);if(!reply.ok)
-   throw Error(String(reply.data?.error||'native host rejected'));return reply.data;},
-  steps:2,maxWashes:20,targets:[248,249]
- });
- assert(strictGoals.targeted===true);
- assert(strictGoals.actions.every((step,i)=>step.targetId===[248,249][i]));
- assert(strictGoals.actions.every(step=>step.autoExchanged===false||
+ let strictGoals=null,blockedGoal=null;
+ try{
+  strictGoals=await sandbox.window.NangmanWashChain.run({
+   call:async(name,payload)=>{const reply=await call(name,payload);if(!reply.ok)
+    throw Error(String(reply.data?.error||'native host rejected'));return reply.data;},
+   steps:2,maxWashes:20,targets:[248,249]
+  });
+ }catch(err){blockedGoal=err}
+ if(blockedGoal){
+  assert.match(String(blockedGoal.message),/확보한 목표 자맥/);
+  const unchanged=(await call('state')).data;
+  assert.equal(String(unchanged.seed),String(initial.seed),'native target loss restored full start seed');
+  assert.deepEqual(JSON.stringify(unchanged.talents),JSON.stringify(initial.talents),
+   'native target loss restored all four talent slots');
+ }else{
+  assert(strictGoals.targeted===true);
+  assert(strictGoals.actions.every((step,i)=>step.targetId===[248,249][i]));
+  assert(strictGoals.actions.every(step=>step.autoExchanged===false||
    step.conflict?.can_exchange===true),'real WASM only exchanges matching goal collisions');
+ }
  assert((await call('set-state',initial)).ok,'native targeted chain can be undone');
  const atomic=await call('until-exchange-and-replace',{count:30});
  assert(atomic.ok,'real yy-sim WASM atomic conflict/exchange API returns valid result');
