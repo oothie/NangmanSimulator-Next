@@ -54,13 +54,17 @@ async function call(op,payload){
 (async()=>{
  await call('init');
  const groups=ctx.window.YYWashTargetCatalog;
- assert.deepEqual(Array.from(groups,x=>[x.quality,x.items.length]),[[2,22],[3,35],[4,17]]);
+ assert.deepEqual(Array.from(groups,x=>[x.quality,x.items.length]),[[2,22],[3,32],[4,17]]);
  for(const group of groups)for(const t of group.items){
   assert.equal(ctx.TALENT_DATA[String(t.id)].pinzhi,group.quality);
   assert.equal(ctx.TALENT_DATA[String(t.id)].name,t.name);
  }
  assert.equal((await rawCall('auto-color-search',{desiredIds:[184,184]})).ok,false);
  assert.equal((await rawCall('auto-color-search',{desiredIds:[414]})).ok,false);
+ for(const id of [244,245,408]){
+  assert.equal((await rawCall('auto-color-search',{desiredIds:[id]})).ok,false,
+   'unreleased / dummy excluded from automatic color search');
+ }
  const initial=clone(current);
  const searched=await call('auto-color-search',{desiredIds:[184,185,191,248],horizon:900});
  assert.equal(searched.nativeFunction,'wasmColorSequentialSearch');
@@ -85,6 +89,16 @@ async function call(op,payload){
  assert.deepEqual(Array.from(current.talents,x=>x.id),Array.from(first.final_slots,x=>x.id));
  await call('set-state',initial);
  assert.deepEqual(current,initial,'native replay can be undone to original save copy');
+ const lockedStart={...clone(initial),zizhi:153,talents:[
+  {id:171,locked:true},{id:172,locked:true},{id:173,locked:true}
+ ]};
+ current=clone(lockedStart);
+ const threeLocked=await call('auto-color-search',{desiredIds:[184],horizon:100});
+ assert(threeLocked.result.routes.length>0,'new talent can be acquired after opening fourth slot');
+ assert(threeLocked.result.routes[0].actions.some(x=>x.kind==='open_slot'),
+  'three locked slots force a fourth virtual aptitude slot');
+ assert.deepEqual(current,lockedStart,'3-lock candidate search restores native state');
+ current=clone(initial);
  failWash=true;
  const missing=await call('auto-color-search',{desiredIds:[184,185],horizon:100});
  assert.equal(missing.result.routes.length,0);
@@ -93,5 +107,5 @@ async function call(op,payload){
  assert(html.includes('engine/yysim-target-catalog.js'));
  assert(html.includes("washEngineAutoColor"));
  assert(html.includes("auto-color-search"));
- console.log('PASS: 74 source talents, multi-color native search, 4-slot upgrade, 24 orders, exact replay, undo and no-result rollback');
+ console.log('PASS: 71 selectable talents, multi-color native search, 4-slot upgrade, 24 orders, exact replay, undo and no-result rollback');
 })().catch(err=>{console.error(err);process.exitCode=1});
