@@ -54,7 +54,7 @@
     for(const row of rows){
       if(!row.item||!row.color)continue;
       const cfg=root.EQUIP_DATA?.equipment?.[row.item];
-      if(!cfg||Number(cfg.type)>=10||Number(cfg.lv)<=80)continue;
+      if(!cfg||Number(cfg.type)>=10||Number(cfg.lv)!==90)continue;
       const key=String(row.item),seed=value(eds[key]);
       const index=(counts.get(key)||0)+1;
       counts.set(key,index);
