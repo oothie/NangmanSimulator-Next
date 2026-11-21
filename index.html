@@ -414,7 +414,7 @@ function invalidateWashLink(nextRoleId){
  if(nextRoleId!=null&&state.origin==='save'&&state.linkedRoleId===nextRoleId)return;
  state.generation=(state.generation||0)+1;
  state.active=false;state.origin=null;state.linkedRoleId=null;state.nativeState=null;state.autoLinkRequested=null;state.lastConflict=null;state.bagPills=null;state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.constraints=null;state.constraintsDisplay='';state.liveTalents=[];
- state.undoStates=[];state.log=[];state.output='선택 캐릭터 또는 세이브가 변경되었습니다. WASM을 다시 연결하세요.';
+ state.undoStates=[];state.log=[];state.historyHiddenBefore=0;state.historyPage=1;state.output='선택 캐릭터 또는 세이브가 변경되었습니다. WASM을 다시 연결하세요.';
 }
 function yyWashStateFromSave(root,role,original){
  const raw=role?.raw;
@@ -571,12 +571,14 @@ if(sub==='sim'){
      window.YYWashAutoSearch?.readableStep(t.earlier_conflict_name,runtime.previewNameIds||{},characterTalentName):'선행 충돌 미확인';
     return '자맥 #'+escape(t.wash_no??'—')+' · '+escape(label)+' · '+escape(t.wash_times??'—')+'회 세수 · 충돌 '+escape(conflict);
    }).join('<hr>')+'</div></section>':'';
- const nativeEvents=window.YYWashHistory?.flatten(washRuns)||[];
+ const visibleRuns=washRuns.slice(Math.max(0,Math.min(washRuns.length,Number(runtime.historyHiddenBefore)||0)));
+ const nativeEvents=window.YYWashHistory?.flatten(visibleRuns)||[];
  const historyPage=window.YYWashHistory?.paging(nativeEvents,runtime.historyPage||1,runtime.historyPageSize||50)||
   {rows:[],total:0,page:1,pages:1,size:50};
  const history='<section class="wash-section"><div class="section-header"><h3>yy-sim 원본 WASM 세수 기록</h3>'+
  '<div class="actions"><button class="text-action" id="washHistoryExport" '+(!nativeEvents.length?'disabled':'')+'>기록 TSV 내보내기</button>'+
- '<button class="text-action" id="washDownloadLog" '+(!washRuns.length?'disabled':'')+'>원본 JSON</button></div></div>'+
+ '<button class="text-action" id="washDownloadLog" '+(!visibleRuns.length?'disabled':'')+'>원본 JSON</button>'+
+ '<button class="text-action" id="washHistoryClear" '+(!visibleRuns.length?'disabled':'')+'>기록 지우기</button></div></div>'+
  (historyPage.total?'<p class="micro">실제 원본 WASM 세수 결과 '+historyPage.total+'회 · 최근 기록부터 표시</p>'+
  '<div class="history">'+historyPage.rows.map(item=>{
   const label=item.exchanged?'치환':item.pity?'천장':item.gold?'자맥':'세수';
@@ -2871,16 +2873,22 @@ if($('washTalentRun'))$('washTalentRun').onclick=()=>{
 if($('washHistoryPrev'))$('washHistoryPrev').onclick=()=>{const state=window.__washRuntime||{};state.historyPage=Math.max(1,(Number(state.historyPage)||1)-1);render()};
 if($('washHistoryNext'))$('washHistoryNext').onclick=()=>{const state=window.__washRuntime||{};state.historyPage=(Number(state.historyPage)||1)+1;render()};
 if($('washHistorySize'))$('washHistorySize').onchange=()=>{const state=window.__washRuntime||{};state.historyPageSize=Number($('washHistorySize').value);state.historyPage=1;render()};
+if($('washHistoryClear'))$('washHistoryClear').onclick=()=>{
+ const state=window.__washRuntime||{};
+ state.historyHiddenBefore=Array.isArray(state.log)?state.log.length:0;
+ state.historyPage=1;render();
+};
 if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const source=window.YYWashHistory;
  if(!source)return alert('WASM 세수 기록 변환 모듈을 확인할 수 없습니다');
- const rows=source.flatten(window.__washRuntime?.log||[]);
+ const state=window.__washRuntime||{};
+ const rows=source.flatten((state.log||[]).slice(state.historyHiddenBefore||0));
  const body=source.tsv(rows,characterTalentName);
  const url=URL.createObjectURL(new Blob([body],{type:'text/tab-separated-values;charset=utf-8'}));
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const log=window.__washRuntime?.log||[];const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.7.93',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.7.93',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()};window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 const equipmentStatus=Object.create(null);
@@ -3073,7 +3081,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    throw Error('선택한 인물의 WASM 세이브 연결이 검증되지 않았습니다');
   state.origin='save';state.linkedRoleId=source.role.id;state.active=true;
   state.liveTalents=applied.talents||[];syncWasmBag(applied);state.nativeState=applied;
-  state.undoStates=[];state.log=[];state.lastConflict=null;state.autoResult=null;
+  state.undoStates=[];state.log=[];state.historyHiddenBefore=0;state.historyPage=1;state.lastConflict=null;state.autoResult=null;
  }
  if(op==='washEngineInit'){
   await washEngine.call('init');state.ready=true;state.output='yy-sim WASM 엔진 초기화 성공. 시험 상태를 설정하세요.';
@@ -3509,6 +3517,7 @@ window.addEventListener('nangman-wash-command',async e=>{
     }
    }catch(error){if(!state.error)state.error='실행 후 WASM 상태 조회 실패: '+String(error.message||error)}
   }
+  if(state.log.length<(state.historyHiddenBefore||0))state.historyHiddenBefore=state.log.length;
   if(state.log.length>logBefore)state.historyPage=1;
   state.loading=false;announce()
  }
