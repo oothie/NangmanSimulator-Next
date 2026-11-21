@@ -13,7 +13,32 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 .dungeon-coverage{padding:14px 16px;background:#fdfaf3;border:1px solid #cdbca5;border-radius:8px;margin:12px 0}
 .dungeon-coverage strong{font-size:16px}
 .dungeon-coverage p{margin:8px 0 0;font-size:13px;line-height:1.6}
-</style></head><body class="sbj-web"><main class="hub-main progress-main">
+</style><style>
+.tomb-forecast{border:1px solid #c9bfae;background:#fffdf8;padding:16px;border-radius:9px;margin-bottom:18px}
+.tomb-forecast-heading{display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap}
+.tomb-forecast-heading h2{font-size:20px;margin:0 0 7px}
+.tomb-forecast-heading p{font-size:13px;line-height:1.6;margin:0}
+.tomb-forecast-tag{font-size:12px;border:1px solid #cdbca5;border-radius:5px;padding:6px 9px;white-space:nowrap}
+.tomb-forecast-actions{display:flex;align-items:end;gap:8px;flex-wrap:wrap;margin:13px 0}
+.tomb-forecast-actions label{font-size:12px}
+.tomb-forecast-actions input{width:85px}
+#tombForecastStatus{font-size:13px;line-height:1.7}
+.tomb-prediction-metrics{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0}
+.tomb-prediction-metrics span{border:1px solid #d9cebf;border-radius:6px;padding:8px 11px;font-size:12px}
+.tomb-prediction-metrics b{display:block;font-size:17px;margin-bottom:3px}
+.tomb-prediction-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tomb-prediction-grid article{border:1px solid #d9cebf;border-radius:7px;padding:12px;min-width:0}
+.tomb-prediction-grid h3{font-size:15px;margin:0 0 8px}
+.tomb-prediction-scroll{max-height:560px;overflow:auto}
+.tomb-prediction-table{width:100%;border-collapse:collapse;font-size:12px}
+.tomb-prediction-table th,.tomb-prediction-table td{border-bottom:1px solid #e3dbce;padding:7px 5px;text-align:left;vertical-align:top}
+.tomb-prediction-table thead th{position:sticky;top:0;background:#f8f2e9}
+.tomb-prediction-table .tomb-special{background:#fff4d9}
+.tomb-prediction-table .tomb-purple{color:#873ab9;font-weight:700}
+.tomb-prediction-table .tomb-gear{font-weight:700}
+@media(max-width:820px){.tomb-prediction-grid{grid-template-columns:1fr}}
+</style>
+</head><body class="sbj-web"><main class="hub-main progress-main">
 <header class="progress-heading"><span class="hub-mark" aria-hidden="true">낭</span><div><h1>드랍 시뮬레이션</h1><p>세이브의 난수 순서로 장비와 보물 드랍을 예측합니다.</p></div></header>
 <nav class="drop-modes" aria-label="드랍 종류">
   <button type="button" id="dropWildLink" aria-controls="wildDrop">필드 드랍</button>
@@ -22,6 +47,20 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   <button type="button" id="dropTreasureLink" aria-controls="treasureDrop">보물지도</button>
 </nav>
 <section id="wildDrop" class="wild-panel" aria-label="필드 드랍">
+<section id="tombForecast" aria-label="제릉 필드 사냥 전용 예측" class="tomb-forecast">
+  <div class="tomb-forecast-heading"><div><h2>제릉 필드 사냥 예측</h2>
+    <p>현재 세이브로 사냥 회차마다 <strong>특수몹 등장 · 90레벨 장비 · 색상</strong>을 계산합니다. 실제 게임과의 비교는 직접 진행하세요.</p>
+  </div><span class="tomb-forecast-tag">NPC 35256 · 일반 필드</span></div>
+  <div class="tomb-forecast-actions">
+   <label>앞으로 사냥<input id="tombForecastCount" type="number" min="1" max="500" value="30"></label>
+   <label>앞선 사냥 건너뛰기<input id="tombForecastPad" type="number" min="0" max="500" value="0"></label>
+   <button type="button" id="tombForecastRun">제릉 예측 30회 계산</button>
+   <button type="button" id="tombForecastCsv" disabled>결과 CSV</button>
+  </div>
+  <p id="tombForecastStatus" role="status">세이브를 불러오면 앞으로의 제릉 필드 사냥 결과를 예측할 수 있습니다.</p>
+  <div id="tombForecastOutput"></div>
+  <p class="progress-note">게임 보상 분기 정렬은 아직 검증되지 않았으므로 두 가설을 구분합니다. 같은 회차의 특수몹 출현은 동일한 등장 시드에서 계산됩니다. 판매·장비 제작 등 다른 활동으로 시드가 소비되면 예측이 달라질 수 있습니다.</p>
+ </section>
   <form class="wild-form">
     <div class="wild-fields">
       <label>대상 야생 몬스터<select id="wildTarget"></select></label>
@@ -43,7 +82,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   </form>
   <p id="wildStatus" role="status"></p>
   <ol id="wildResults" class="wild-results"></ol>
-<section id="tombSaveCompare" class="wild-panel" aria-label="제릉 세이브 전후 비교">
+<section id="tombSaveCompare" class="wild-panel" aria-label="제릉 세이브 전후 비교" hidden>
  <details><summary>제릉 전후 세이브 검증 · RNG 변화 확인</summary>
  <p class="progress-note">제릉 사냥 직전·직후 저장한 JSON 두 개를 비교합니다. 브라우저에서만 처리하며 업로드하거나 현재 시뮬레이터의 세이브를 덮어쓰지 않습니다.</p>
  <div class="wild-fields">
