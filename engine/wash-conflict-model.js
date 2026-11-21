@@ -1,7 +1,7 @@
 /* Read-only Korean view over real yy-sim WASM get_conflicts/get_available_talents. */
 (function(root){
 'use strict';
-const number=value=>value!=null&&value!==''&&Number.isInteger(Number(value))?Number(value):null;
+const number=value=>value!=null&&value!==''&&Number.isInteger(Number(value))&&Number(value)>=0?Number(value):null;
 function summarize(result,talents,purpleIds,nameOf){
  const slots=Array.isArray(talents)?talents:[];
  const allowed=Array.isArray(purpleIds)?purpleIds:[];
