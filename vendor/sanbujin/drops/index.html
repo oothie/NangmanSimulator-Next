@@ -87,7 +87,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
         <label>첫 사냥 판정 시각(중국 표준시)<input id="wildTime" type="datetime-local" step="1" required></label>
         <label>사냥 간격(초)<input id="wildInterval" type="number" min="1" max="86400" value="30" required></label>
       </div>
-      <p class="progress-note">첫 회차에 선행 사냥이 포함됩니다. 일반 야생 몬스터의 장비 옵션은 실제 판정 시각(초)에 따라 달라집니다.</p>
+      <p class="progress-note">이 시각은 <strong>일부 저레벨 aidrop 장비의 추가 옵션</strong> 계산에만 사용합니다. 드랍 장비 ID·색상 판정에는 사용하지 않습니다. 중국 표준시는 한국 시간보다 1시간 느립니다. <strong>새북·십방집 90레벨 특수몹과 제릉은 저장된 장비별 Eds 시드</strong>를 사용하므로 이 시간 입력을 적용하지 않습니다.</p>
     </details>
     <p id="wildHint" class="progress-note"></p>
     <div class="wild-actions"><button type="submit" id="wildRun">드랍 예측</button><label><input type="checkbox" id="wildOnlyHits" checked>드랍 결과만 보기</label><label>장비 등급<select id="wildQuality"><option value="all">전체</option><option value="equip">장비만</option><option value="purple">자색 장비만</option></select></label><button type="button" id="wildExport" disabled>드랍 결과 CSV</button></div>
@@ -232,7 +232,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 </section>
 </main>
 <script defer src="../shared/equip_data.js"></script>
-<script defer src="./drop-export.js"></script><script defer src="./wild-data.js?rev=20261121a"></script><script defer src="./wild-core.js?rev=20261121a"></script><script defer src="./tomb-core.js?rev=20261121b"></script><script defer src="./tomb-compare-core.js"></script><script defer src="./tomb-compare.js"></script><script defer src="./wild.js?rev=20261121b"></script>
+<script defer src="./drop-export.js"></script><script defer src="./wild-data.js?rev=20261121a"></script><script defer src="./wild-core.js?rev=20261121a"></script><script defer src="./tomb-core.js?rev=20261121c"></script><script defer src="./tomb-compare-core.js"></script><script defer src="./tomb-compare.js"></script><script defer src="./wild.js?rev=20261121c"></script>
 <script defer src="./dungeon-data.js?rev=20261121a"></script><script defer src="./dungeon-orange.js"></script>
 <script defer src="./dungeon-core.js?rev=20261121a"></script><script defer src="./dungeon.js?rev=20261121a"></script>
 <script defer src="./shared-gear-core.js"></script><script defer src="./shared-gear.js"></script>
