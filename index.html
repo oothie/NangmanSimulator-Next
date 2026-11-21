@@ -974,9 +974,9 @@ function characterView(){
   else if(characterTab==='craft')body=characterLifeView(raw);
   else if(characterTab==='wash-info')body=characterWashView(role,save);
   else if(characterTab==='talent'){
-   const talents=characterWashTalents(role),born=raw.BornTalent,battle=raw.BattleTalent;
+   const talents=characterWashTalents(role),born=raw.BornTalent;
    const talentItem=(obj,title)=>'<section class="card"><h3>'+title+'</h3><div class="wiki-detail-fields"><div class="wiki-field"><span>재능</span><b>'+(Number(obj?.ID)>0?escape(characterTalentName(obj.ID))+' <small>#'+escape(obj.ID)+'</small>':'기록 없음')+'</b></div></div></section>';
-   body='<div class="character-summary-grid">'+talentItem(born,'태생 재능')+talentItem(battle,'지원 재능')+'</div>'+
+   body='<div class="character-summary-grid">'+talentItem(born,'태생 재능')+'<section class="card"><h3>지원 재능</h3><p class="micro">yy-sim은 태생 재능 ID의 지원 효과와 CanZhu 값을 함께 검사합니다. 현재 지원 효과 데이터 미연결 · 지원 가능 저장값: '+(raw.CanZhu===true?'예':raw.CanZhu===false?'아니요':'기록 없음')+'</p></section></div>'+
     '<section class="card"><h3>세수 재능 · '+talents.length+'개</h3>'+(talents.length?'<div class="character-talent-list">'+talents.map(t=>'<div class="character-talent-row"><strong>'+escape(characterTalentName(t.id))+'</strong><span class="micro">#'+escape(t.id)+' · '+(t.locked?'잠금':'해제')+(t.rc!==null?' · RC '+escape(t.rc):'')+'</span></div>').join('')+'</div>':'<p class="micro">세이브에 세수 재능이 없습니다.</p>')+'</section>';
   }else{
    body='<section class="card"><h3>성장 및 추가 능력치</h3><p class="micro">원본 저장 수치이며 최종 전투 패널 수치가 아닙니다.</p>'+
