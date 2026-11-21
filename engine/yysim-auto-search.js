@@ -91,8 +91,12 @@ function describeAction(action,nameIds={},nameFor=()=>null){
  const number=int(action?.pills_after),wash=int(action?.wash_no),roll=int(action?.roll_idx);
  const talent=(raw)=>{
   if(!raw)return '재능 미확인';
-  const id=nameIds?.[String(raw)];
-  return id==null?'원본 재능 ID 미연결':String(nameFor(Number(id))||'재능 #'+id)+' (#'+id+')';
+  const linked=nameIds?.[String(raw)];
+  const direct=/^\d+$/.test(String(raw))?Number(raw):null;
+  const id=linked!=null?Number(linked):direct;
+  if(!Number.isSafeInteger(id)||id<=0)return '원본 재능 ID 미연결';
+  const localized=String(nameFor(id)||'').trim();
+  return (localized&&localized!=='재능 #'+id?localized:'재능 #'+id)+' (#'+id+')';
  };
  let label='원본 경로 단계',detail='';
  switch(String(action?.kind||'')){
