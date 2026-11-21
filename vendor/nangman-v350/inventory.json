@@ -1,0 +1,27 @@
+{
+  "source": "oothie/NangmanSimulator/Nangman_Integrated_Simulator_v3_50.html",
+  "sha256": "c2834098d0c6c84247f0b7b2c694afa2b31a8d93b6faf648c00fab36f23954af",
+  "original_bytes": 807065,
+  "source_bytes": 1795461,
+  "marker_counts": {
+    "applySharedSaveJson": 1,
+    "applySave": 0,
+    "makeSequence": 0,
+    "eSet": 0,
+    "eDetail": 0,
+    "eTables": 0,
+    "fBag": 0,
+    "fBagRows": 0,
+    "dTabs": 0,
+    "dCommon": 0,
+    "ePart": 0,
+    "eEq": 89
+  },
+  "script_srcs": [],
+  "title": "장비 시뮬레이터 v3.50",
+  "parts": 5,
+  "snippets": {
+    "applySharedSaveJson": "ddEventListener('click',()=>setBagMode(btn.dataset.bagMode)));\n    jhOpen('make');\n  });\n})();\n</script>\n<script id=\"shared-save-bridge-v210\">\nwindow.applySharedSaveJson = function(json){\n  window.__EQUIP_SAVE_ROOT__ = json;\n  try { DROP_SAVE_ROOT = json; } catch (_) {}\n  if (typeof loadSaveData === 'function') loadSaveData(json);\n  if (typeof jhRenderHome === 'function') jhRenderHome();\n  return true;\n};\n</script>\n\n\n\\n<style id=\"roboking-equipment-v219\">\n:root{--rbg:#f5f6f7;--rc:#fff;--rl:#d9dde2;--rt:#252b32;--rm:#6b737c;--ra:#3f5f84;--ra2:#edf3fa;--good:#2f7655}\nbody{background:var(--rbg)!i",
+    "eEq": "y:none!important}\n#panelMake,#panelEnhance,#panelStrong,#panelJianwang,#panelDrop{margin-top:8px}\n#panelEnhance .equip-card-list,#panelEnhance #enhanceEquipSummary{display:none!important}\n#panelEnhance .config-panel:first-child{display:none!important}\n#panelEnhance .refine-controls-only{margin-top:0!important}\n#panelStrong .equip-filter-row{display:none!important}\n#specialAttachEquipSelect,#strongEquipSelect,#xilianEquipSelect{max-width:100%}\n.table-wrap,.result-table-wrap,.history-table-wrap,.scroll{max-height:none!important;overflow-y:visible!important;overflow-x:auto!important}\n</style>\n<st"
+  }
+}
