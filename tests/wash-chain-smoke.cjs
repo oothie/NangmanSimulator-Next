@@ -4,7 +4,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const base=path.resolve(__dirname,'..'),ctx={window:{}};vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(base,'engine/wash-chain-core.js'),'utf8'),ctx);
 const run=ctx.window.NangmanWashChain.run;
-function mock({failStep=-1,stopStep=-1,sessionChangeStep=-1}={}){
+function mock({failStep=-1,stopStep=-1,sessionChangeStep=-1,loseGoalStep=-1}={}){
  const initial={role_id:10044,seed:500,talents:[{id:248,locked:false}]};
  let live=JSON.parse(JSON.stringify(initial)), calls=0,restores=0,session=0;
  const call=async(name,payload)=>{
@@ -13,6 +13,7 @@ function mock({failStep=-1,stopStep=-1,sessionChangeStep=-1}={}){
   if(name!=='until-exchange-and-replace')throw Error('unexpected host operation: '+name);
   calls++;
   live.seed+=10;
+  if(calls===loseGoalStep)live.talents[0].id=249;
   if(calls===sessionChangeStep)session++;
   if(calls===failStep)throw Error('source exchange rejected');
   const found=calls!==stopStep;
@@ -39,6 +40,13 @@ function mock({failStep=-1,stopStep=-1,sessionChangeStep=-1}={}){
  assert.equal(targetResult.stopReason,'targets-completed');
  assert.deepEqual(Array.from(targetResult.actions,x=>x.targetId),[248,250,271]);
  assert.deepEqual(Array.from(targetResult.requestedTargets),[248,250,271]);
+ assert.deepEqual(Array.from(targetResult.presentTargets),[248]);
+ assert.deepEqual(Array.from(targetResult.missingTargets),[250,271]);
+ assert.equal(targetResult.goalsComplete,false,'successful collisions do not imply acquired four talents');
+ const regressed=mock({loseGoalStep:2});
+ await assert.rejects(()=>run({...regressed,steps:2,maxWashes:100,targets:[248,250]}),/확보한 목표 자맥/);
+ assert.equal(regressed.get().seed,500,'goal regression restores entire chain');
+ assert.equal(regressed.get().talents[0].id,248,'lost goal talent restored');
  await assert.rejects(()=>run({...mock(),steps:3,maxWashes:10,targets:[248,248]}),/중복 없는/);
  const b=mock({stopStep:2});
  const partial=await run({...b,steps:4,maxWashes:100});
