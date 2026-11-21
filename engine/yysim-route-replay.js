@@ -10,7 +10,7 @@ function plan(route,nameIds={}){
   throw Error('목표가 완성되고 원본 단계가 제공된 경로만 모의 실행할 수 있습니다');
  const ids=route.goalIds||[],actions=route.actions;
  if(!actions.length){
-  if(route.estimatedWashes===0&&route.exchanges===0)return [];
+  if(route.estimatedWashes===0&&route.exchanges===0&&route.estimatedPills===0&&route.pad===0)return [];
   throw Error('실행 단계가 누락되어 경로를 재생할 수 없습니다');
  }
  const allowed=new Set(['lock','unlock','wash_to','exchange','keep','skip','open_slot']);
