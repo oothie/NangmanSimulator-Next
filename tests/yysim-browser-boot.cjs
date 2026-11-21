@@ -180,6 +180,7 @@ const path=require('node:path');
     maxActive:result?.result?.maxActive,exchangeSuccesses:result?.result?.exchangeSuccesses,
     possibleConflicts:result?.result?.possibleConflicts,
     exchangeAttempts:result?.result?.exchangeAttempts,exchangeErrors:result?.result?.exchangeErrors,
+    temporaryBranches:result?.result?.temporaryBranches,probeSlots:result?.result?.probeSlots,
     washesExecuted:result?.result?.washesExecuted};
   });
   console.log('DIAGNOSTIC: four targets from scratch, 3 purple + green',JSON.stringify(freshGoals));
