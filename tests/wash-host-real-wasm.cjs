@@ -35,6 +35,16 @@ async function call(op,payload){
  assert.equal(preview.data.nameIds['九阴鬼脉'],'248');
  const conflicts=await call('talent-constraints');
  assert(conflicts.ok&&Array.isArray(conflicts.data.available)&&Array.isArray(conflicts.data.conflicts));
+ const realEligible=conflicts.data.conflicts.find(x=>x?.can_exchange===true&&
+    Number.isInteger(x?.index));
+ const strictBad=await call('exchange-matched',{index:99});
+ assert(strictBad.ok===false,'out-of-range native exchange rejected');
+ if(realEligible){
+  const matched=await call('exchange-matched',{index:realEligible.index});
+  assert(matched.ok&&matched.data.result.success===true,
+    'matched native exchange uses real currently eligible conflict');
+  assert((await call('set-state',initial)).ok,'restore after strict matched exchange');
+ }
  const candidate=await call('exchange-pads',{targets:[{purpleId:248,conflictId:249}],maxPad:30});
  assert(candidate.ok&&Array.isArray(candidate.data.results));
  assert.equal(candidate.data.results.length,31);
