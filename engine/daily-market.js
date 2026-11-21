@@ -161,9 +161,19 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
    }
    return out;
   },
-  timed(limit=8){
+  timed(limit=8,options={}){
    if(!forecastOk)return [];
    const r=rng.clone(),out=[];
+   // Optional simulated paid refreshes consume the SAME guishishop stream.
+   // With no options this preserves the original zero-paid baseline forecast.
+   let l=lucky;
+   const paidSteps=Math.min(this.paidAllowance(options.vip).left,
+     Math.max(0,Math.floor(n(options.paidSteps))));
+   for(let i=0;i<paidSteps;i++){
+     const chance=16.666666666666668+l,hit=r.chance('guishishop',chance);
+     l=hit?chance-100:chance;
+     draw(r,available,true,hit,slots);
+   }
    for(let i=1;i<=Math.min(90,Math.max(0,Math.floor(limit)));i++){
     const time=nextHalfDay(now)+(i-1)*43200;
     out.push({step:i,time,items:draw(r,available,false,false,slots)});
