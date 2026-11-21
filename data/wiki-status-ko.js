@@ -1270,3 +1270,6 @@ Object.assign(window.NANGMAN_STATUS_KO,{
   "desc": "도목갑의 상태 효과입니다."
  }
 });
+
+// 한국판 공식 공지의 '꿈과 환상' 용어를 우선 반영 (중국판 似梦似幻, ID 354/355).
+Object.assign(window.NANGMAN_STATUS_KO,{354:{name:'꿈과 환상',desc:'능연의 춤이 지속되는 동안 아군 전체의 속도와 명중이 상승하고 기 모으기가 증가합니다.'},355:{name:'꿈과 환상',desc:'능연의 춤에 따른 팀 전체의 상태 효과입니다.'}});
