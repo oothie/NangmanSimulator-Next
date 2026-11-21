@@ -36,7 +36,7 @@
     $('wildTime').disabled = $('wildInterval').disabled = !timed;
     const ready = isTomb ? tomb.ready(input) : engine.usable(input.seed) && (!tiger || engine.usable(input.tigerSeed));
     $('wildRun').disabled = !ready || isTomb;
-    const label = isTomb ? '제릉은 위의 전용 예측 화면에서 계산하세요. 기존 오름차순/내림차순 두 결과는 10회차 수라장갑 백색 실측과 불일치해 단독 예측을 중지했습니다. 시각 대신 저장된 90레벨 장비별 Eds를 옵션 순서에 활용하며, 분기 순서는 아직 검증되지 않았습니다.' : tiger
+    const label = isTomb ? '제릉은 위의 전용 예측 화면에서 계산하세요. 기존 오름차순/내림차순 두 결과는 9회차 수라장갑 백색 실측과 불일치해 단독 예측을 중지했습니다. 시각 대신 저장된 90레벨 장비별 Eds를 옵션 순서에 활용하며, 분기 순서는 아직 검증되지 않았습니다.' : tiger
       ? '원본 실행 순서에 따라 호랑이 종류와 호골 천장을 예측합니다. 현재 호골 연속 미획득 ' + input.drought + '회.'
       : timed ? '드랍 여부와 품질은 세이브 순서로 예측합니다. 장비 옵션은 입력한 판정 시각에 따라 달라집니다.'
         : '원본 보상 함수를 직접 호출하는 특수몹 드랍 시뮬레이션입니다. 표시 회차는 전체 일반 필드 사냥 횟수가 아닙니다. 별도 특수몹 출현 순서가 연결되기 전까지 일반 사냥 1회당 이 함수를 한 번 호출한다고 해석하면 안 됩니다.';
@@ -113,7 +113,7 @@
   const forecastValue=row=>row.color?
     gearName(row.itemId)+' ('+colorName(row.color)+')':
     row.itemId?'기타 보상 #'+row.itemId:
-    row.spawn?'장비 없음':'일반 전투';
+    row.spawn?'장비 없음':'35256 미등장';
   function forecastCell(tr,value,tag='td',className=''){
    const cell=node(tag,value,className);tr.append(cell);
   }
@@ -144,7 +144,7 @@
    }
    return result;
   }
-  function showForecast(summary,candidates,count,pad,observed){
+  function showForecast(summary,candidates,count,pad){
    const seen=summary.filter(x=>x.spawn).length;
    const agreed=summary.filter(x=>x.confirmedByModel&&x.spawn).length;
    const box=node('div','','tomb-prediction-metrics');
@@ -159,14 +159,14 @@
    const scroll=node('div','','tomb-prediction-scroll');
    const table=node('table','','tomb-prediction-table');
    const head=document.createElement('thead'),tr=document.createElement('tr');
-   for(const label of ['사냥','특수몹','90레벨 장비 / 보상','판정'])forecastCell(tr,label,'th');
+   for(const label of ['이벤트 호출','조건부 특수몹','90레벨 장비 / 보상','판정'])forecastCell(tr,label,'th');
    head.append(tr);table.append(head);
    const body=document.createElement('tbody');
    for(const x of summary){
      const tr=document.createElement('tr');
      if(x.spawn)tr.classList.add('tomb-special');
      forecastCell(tr,x.serial+'번 호출');
-     forecastCell(tr,x.spawn?'35256 등장':'일반 전투');
+     forecastCell(tr,x.spawn?'35256 등장':'35256 미등장');
      const result= x.confirmedByModel?x.label:
        x.label+' · '+x.examples.join(' / ')+(x.alternatives>4?' 외':'');
      forecastCell(tr,result,'td',x.confirmedByModel?'tomb-known':'tomb-unknown');
@@ -175,16 +175,13 @@
    }
    table.append(body);scroll.append(table);article.append(scroll);
    forecastHost.append(box,article);
-   if(observed){
-     forecastHost.append(node('p',candidates.length+'개 순서 후보가 현재 입력한 9회차 실측에 부합합니다. 같은 결과가 나오는 모델이 여러 개이므로 다음 드랍을 확정할 수는 없습니다.','progress-note'));
-   }
    forecastHost.append(node('p','정렬 순서 144개를 동일한 가능성으로 취급한 것이 아니며, 후보 개수는 드랍 확률을 뜻하지 않습니다. 등장 순서 자체가 잘못됐다면 이 계산도 불일치할 수 있습니다.','progress-note'));
   }
   function runTombForecast(){
    forecastHost.replaceChildren();tombForecastSummary=[];forecastCsv.disabled=true;
    const count=Number(forecastCount.value),pad=Number(forecastPad.value);
    if(!Number.isInteger(count)||count<1||count>500||!Number.isInteger(pad)||pad<0||pad>500||count+pad>500){
-    forecastStatus.textContent='앞선 사냥 + 앞으로의 사냥 합계는 최대 500회입니다.';return;
+    forecastStatus.textContent='앞선 이벤트 호출 + 이후 이벤트 호출 합계는 최대 500회입니다.';return;
    }
    if(!archive){forecastStatus.textContent='먼저 사냥 전 세이브를 불러오세요.';return;}
    const current=tomb.open(archive);
@@ -202,7 +199,7 @@
       return;
     }
     tombForecastSummary=summarizeCandidates(search.matches,pad,count);
-    showForecast(tombForecastSummary,search.matches,count,pad,false);
+    showForecast(tombForecastSummary,search.matches,count,pad);
     const missing=Object.values(current.eds||{}).length===0?' · 장비별 Eds 저장이 없어 옵션 시드는 일부 미연결입니다.':'';
     forecastStatus.textContent=count+'회 35255 원본 조우 이벤트 가설 · '+search.matches.length+
       '/'+search.tested+'개 분기 순서 후보'+
