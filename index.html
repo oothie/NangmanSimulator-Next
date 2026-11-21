@@ -557,7 +557,8 @@ function characterFields(raw,fields){
 function characterSkillRows(raw,key,type){
  const entries=Array.isArray(raw?.[key])?raw[key]:[];
  const learned=entries.filter(item=>item&&typeof item==='object'&&Number(item.ID)>0&&Number(item.Level)>0);
- const named=new Map((koreanWiki||[]).filter(x=>x.category===type).map(x=>[String(x.id),x.name]));
+ const named=new Map(Object.entries(window.NANGMAN_54506_MARTIAL_KO||{}).filter(([,value])=>value[2]===type).map(([id,value])=>[id,value[0]]));
+ for(const item of (koreanWiki||[]).filter(x=>x.category===type))named.set(String(item.id),item.name);
  return '<section class="card"><h3>'+escape({Taolus:'외공',Neis:'내공',Qings:'경공',LifeSkills:'기예'}[key]||key)+' · '+learned.length+'개</h3>'+
  (learned.length?'<table class="module-table"><thead><tr><th>이름 / ID</th><th>레벨</th><th>정진</th></tr></thead><tbody>'+
  learned.map(item=>'<tr><td>'+escape(named.get(String(item.ID))||'#'+item.ID)+'</td><td>'+escape(characterNumber(item,'Level'))+'</td><td>'+escape(characterNumber(item,'Chong'))+'</td></tr>').join('')+'</tbody></table>':'<p class="micro">세이브에 수련 레벨이 기록된 항목이 없습니다.</p>')+'</section>';
