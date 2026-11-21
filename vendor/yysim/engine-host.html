@@ -13,6 +13,36 @@ try{
   send(requestId,true,{preview:wasmPreviewSequence(count),count});
   return
  }
+ if(op==='exchange-pads'){
+  const targets=payload?.targets;
+  const maxPad=Number(payload?.maxPad??900);
+  if(!Array.isArray(targets)||targets.length<1||targets.length>4||
+     !Number.isInteger(maxPad)||maxPad<1||maxPad>5000)
+   throw Error('도맥법 목표 1~4개, 탐색 횟수 1~5000회로 설정하세요');
+  const mapped=targets.map(entry=>{
+   const purple=Number(entry?.purpleId),conflict=Number(entry?.conflictId);
+   const a=TALENT_DATA[String(purple)],b=TALENT_DATA[String(conflict)];
+   if(!Number.isInteger(purple)||!Number.isInteger(conflict)||!a?.name||!b?.name||
+      a.pinzhi!==4||b.pinzhi!==4)throw Error('자맥/충돌맥은 원본 자색 재능 ID로 입력하세요');
+   return {purple_name:a.name,conflict_name:b.name};
+  });
+  const results=wasmPreviewExchangePads(mapped,maxPad);
+  send(requestId,true,{results:Array.isArray(results)?results:[],targets:mapped,maxPad});
+  return
+ }
+ if(op==='until-talent'){
+  const id=Number(payload?.talentId),limit=Number(payload?.count??1000);
+  const entry=TALENT_DATA[String(id)];
+  if(!Number.isInteger(id)||!entry?.name||entry.pinzhi!==4||
+    !Number.isInteger(limit)||limit<1||limit>5000)
+   throw Error('원본 자색 재능 ID와 세수 횟수 1~5000회를 입력하세요');
+  const snapshot=wasmGetState();
+  if(!snapshot)throw Error('원본 세수 상태를 읽지 못했습니다');
+  const results=wasmWashUntilTalentName(entry.name,limit);
+  send(requestId,true,{results:Array.isArray(results)?results:[],state:wasmGetState(),limit,
+   talentId:id,sourceName:entry.name});
+  return
+ }
  if(op==='until-gold'){
   const limit=Number(payload?.count||1000);
   if(!Number.isInteger(limit)||limit<1||limit>5000)throw Error('자맥 자동 세수는 1–5000회 범위만 허용합니다');
