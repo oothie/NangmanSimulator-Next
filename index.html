@@ -71,6 +71,11 @@ body{background:var(--bg)!important}
 .zizhi{display:flex;gap:7px;flex-wrap:wrap;margin-left:auto}
 .zizhi span{border:1px solid var(--border);border-radius:4px;padding:5px 9px;font-size:12px;background:#ffffff30;color:var(--sub)}
 .zizhi b{color:var(--text)}
+.wash-grade{display:inline-block;padding:1px 5px;border:1px solid var(--border);border-radius:5px;font-size:11px;margin-right:3px}
+.wash-grade-1{color:var(--text)}
+.wash-grade-2{color:var(--green)}
+.wash-grade-3{color:#4881b7}
+.wash-grade-4{color:var(--purple)}
 .wash-section{padding:14px 0 18px;border-bottom:1px solid #65574628}
 .section-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px}
 .section-header h3{font-size:15px;margin:0;font-weight:700}
@@ -492,15 +497,18 @@ if(sub==='sim'){
  const linked=runtime.active&&runtime.origin==='save'&&runtime.linkedRoleId===r?.id;
  const dashboard=linked?window.YYWashDashboard?.model(runtime.nativeState):null;
  const talentSlots=linked?dashboard?.talents?.map((t,slot)=>({id:Number(t.id),locked:t.locked,rc:null,time:null,slot:slot+1}))||[]:r?characterWashTalents(r):[];
- const skills='<section class="wash-section"><div class="section-header"><h3>현재 세수 재능</h3><span class="micro">세수 재능 '+talentSlots.length+'개 · 태생 재능과 별도</span></div><div class="talents">'+
- Array.from({length:talentSlots.length},(_,i)=>{
-  const t=talentSlots[i];
+ const slotCapacity=dashboard?.slots??Math.max(0,Math.min(4,Number(r?.raw?.ZiZhi||150)-150));
+ const grade=id=>(window.YYWashTargetCatalog||[]).find(group=>group.items.some(item=>item.id===id))?.quality||1;
+ const skills='<section class="wash-section"><div class="section-header"><h3>현재 세수 재능</h3><span class="micro">재능 '+talentSlots.length+' / '+slotCapacity+'칸 · 태생 재능과 별도</span></div><div class="talents">'+
+ Array.from({length:slotCapacity},(_,i)=>{
+  const t=talentSlots[i],quality=t?grade(t.id):null;
   const mayExchange=linked&&!runtime.loading&&!t?.locked&&
    Array.isArray(runtime.constraints?.conflicts)&&
    runtime.constraints.conflicts.some(x=>Number(x?.index)===i&&x.can_exchange===true);
-  return '<div class="talent"><span class="talent-slot">'+(i+1)+'</span><div class="talent-text"><b>'+(t?escape(characterTalentName(t.id))+' #'+escape(t.id):'빈 슬롯')+'</b><small>'+
+  return '<div class="talent"><span class="talent-slot">'+(i+1)+'</span><div class="talent-text"><b>'+
+  (t?'<span class="wash-grade wash-grade-'+quality+'">'+['','백','녹','파','자'][quality]+'</span> '+escape(characterTalentName(t.id))+' #'+escape(t.id):'빈 슬롯')+'</b><small>'+
    (t?'원본 RC '+escape(t.rc??'—')+(t.time?' · '+escape(characterTalentTimeDisplay(t.time)):''):'저장된 재능 없음')+'</small></div>'+
-   '<button type="button" class="btn lock" data-wash-main-lock="'+i+'" '+(!linked||runtime.loading?'disabled':'')+'>'+(t?(t.locked?'잠금 해제':'잠금'):'—')+'</button>'+
+   '<button type="button" class="btn lock" data-wash-main-lock="'+i+'" '+(!linked||!t||runtime.loading?'disabled':'')+'>'+(t?(t.locked?'잠금 해제':'잠금'):'—')+'</button>'+
   (mayExchange?'<button type="button" class="btn primary" data-wash-main-exchange="'+i+'">! 치환</button>':'')+'</div>';
  }).join('')+'</div><p class="micro">태생 재능: '+(r?.raw?.BornTalent?.ID?escape(characterTalentName(r.raw.BornTalent.ID))+' (#'+escape(r.raw.BornTalent.ID)+')':'기록 없음')+' · 잠금과 치환은 WASM 복사본에서만 실행합니다. 원본 세이브에는 적용되지 않습니다.</p></section>';
  const canRun=!!save&&r?.raw?.BornTalent?.S!=null&&!runtime.loading;
