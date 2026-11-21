@@ -1383,7 +1383,7 @@ function wikiSourceIcon(x){
 function wikiImage(x){
  if(!x)return '';
  const id=String(x.id),raw=String(wikiSourceIcon(x)||'').trim();
- const iconName=raw.replace(/\\\\/g,'/').split('/').pop().replace(/\\.png$/i,'');
+ const iconName=raw.replace(/\\/g,'/').split('/').pop().replace(/\.png$/i,'');
  if(x.cat==='buff'&&window.NANGMAN_BUFF_ICON_DATA?.[iconName])return window.NANGMAN_BUFF_ICON_DATA[iconName];
  const root='https://yy-sim.pages.dev/icons/';
  // The original skill PNGs are served at /icons/skill/<skill ID>.png.
