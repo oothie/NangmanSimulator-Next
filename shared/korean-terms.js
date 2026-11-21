@@ -15,7 +15,7 @@ const rules=[
  [/창·곤법/g,'창곤']
 ];
 function convert(v){let x=String(v||'');for(const [a,b] of rules)x=x.replace(a,b);return x}
-const SKIP=new Set(['SCRIPT','STYLE','NOSCRIPT','TEXTAREA','OPTION','CODE','PRE']);
+const SKIP=new Set(['SCRIPT','STYLE','NOSCRIPT','TEXTAREA','CODE','PRE']);
 function convertText(node){
  if(node.nodeType!==Node.TEXT_NODE||SKIP.has(node.parentElement?.tagName))return;
  const old=node.nodeValue,change=convert(old);if(old!==change)node.nodeValue=change;
