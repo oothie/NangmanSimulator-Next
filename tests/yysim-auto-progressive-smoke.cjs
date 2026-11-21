@@ -52,7 +52,7 @@ async function call(op,config){
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
  assert(html.includes('./engine/yysim-auto-progressive.js'));
  assert(!html.includes('id="yyAutoProgressive"'),'progressive search must be automatic, not a second UI button');
- assert(html.includes("detail:{op:'washEngineAutoProgressive',...input}"));
+ assert(html.includes("colorSelected?'washEngineAutoColor':'washEngineAutoProgressive'"));
  assert(html.includes("op==='washEngineAutoProgressive'"));
  assert(html.includes('state.autoProgress=progress;announce()'));
  console.log('PASS: progressive native yy-sim search scans 3 bounded levels, ranks real routes, dedupes, never falsely certifies optimal');
