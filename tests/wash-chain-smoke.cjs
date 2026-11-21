@@ -18,7 +18,8 @@ function mock({failStep=-1,stopStep=-1,sessionChangeStep=-1}={}){
   const found=calls!==stopStep;
   return {state:structuredClone(live),results:[{wash_no:calls}],performed:1,
    found,autoExchanged:found,exchange:found?{success:true}:null,
-   conflict:found?{index:0,can_exchange:true}:null,stopReason:found?'conflict':'limit'};
+   conflict:found?{index:0,can_exchange:true}:null,stopReason:found?'conflict':'limit',
+   targetId:payload?.talentId??null};
  };
  return {call,ensureSession:()=>{if(session)throw Error('세이브 변경')},
   get:()=>structuredClone(live),counts:()=>({calls,restores})};
@@ -31,6 +32,14 @@ function mock({failStep=-1,stopStep=-1,sessionChangeStep=-1}={}){
  assert.equal(output.stopReason,'completed');
  assert.equal(a.get().seed,540);
  assert.equal(a.counts().restores,0);
+ const guided=mock();
+ const targetResult=await run({...guided,steps:4,maxWashes:50,targets:[248,250,271]});
+ assert.equal(targetResult.exchanges,3);
+ assert.equal(targetResult.targeted,true);
+ assert.equal(targetResult.stopReason,'targets-completed');
+ assert.deepEqual(Array.from(targetResult.actions,x=>x.targetId),[248,250,271]);
+ assert.deepEqual(Array.from(targetResult.requestedTargets),[248,250,271]);
+ await assert.rejects(()=>run({...mock(),steps:3,maxWashes:10,targets:[248,248]}),/중복 없는/);
  const b=mock({stopStep:2});
  const partial=await run({...b,steps:4,maxWashes:100});
  assert.equal(partial.exchanges,1);
@@ -52,6 +61,9 @@ function mock({failStep=-1,stopStep=-1,sessionChangeStep=-1}={}){
  assert(main.includes('id="washChainLimit"'));
  assert(main.includes("op==='washEngineAutoChain'"));
  assert(main.includes('NangmanWashChain.run'));
+ assert(main.includes('id="washPathChain"'));
+ assert(main.includes('targets:targetIds'));
+ assert(main.includes('입력한 목표 자맥 순서대로 연속 충돌·치환'));
  assert(main.includes('state.undoStates.push(output.initial)'),'one undo per chain');
  assert(!main.includes('washVerifyRun'),'user-rejected before-and-after wash tool absent');
  console.log('PASS: native multi-step 4-exchange simulation, stop, error rollback, session guards, UI');
