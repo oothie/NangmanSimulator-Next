@@ -35,6 +35,10 @@ async function call(op,payload){
  assert.equal(preview.data.nameIds['九阴鬼脉'],'248');
  const conflicts=await call('talent-constraints');
  assert(conflicts.ok&&Array.isArray(conflicts.data.available)&&Array.isArray(conflicts.data.conflicts));
+ const goalLock=await call('lock-present-goals',{targetIds:[248,249,250,271]});
+ assert(goalLock.ok&&goalLock.data.locked===3,'native WASM locks maximum three owned targets');
+ assert(goalLock.data.applied.length===3&&goalLock.data.maxed.length===1);
+ assert((await call('set-state',initial)).ok,'native goal locks can be undone');
  const realEligible=conflicts.data.conflicts.find(x=>x?.can_exchange===true&&
     Number.isInteger(x?.index));
  const strictBad=await call('exchange-matched',{index:99});
