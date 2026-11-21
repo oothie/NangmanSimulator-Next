@@ -43,6 +43,7 @@
   }
 
   function refreshArchive() {
+    forecastReset();
     const previous = picker.value;
     try { archive = window.loadShareStore?.()?.data || null; }
     catch (_) { archive = null; }
@@ -96,6 +97,116 @@
     }));
     if (!shown.length) host.append(node('li', quality==='purple'?'선택 범위에서 자색 장비 드랍이 예측되지 않았습니다.':'이 구간에서는 드랍이 없습니다.'));
   }
+
+  // Dedicated forecast: one imported save, 1..500 sequential outdoor hunts.
+  // Both reward-order hypotheses are shown independently; no actual-outcome
+  // comparison and no before/after save upload is needed.
+  let tombForecasts=[];
+  const forecastHost=$('tombForecastOutput'),forecastStatus=$('tombForecastStatus');
+  const forecastCount=$('tombForecastCount'),forecastPad=$('tombForecastPad');
+  const forecastCsv=$('tombForecastCsv');
+  const colorName=n=>color[n]||'등급 미확인';
+  const gearName=id=>EQUIP_DATA.equipment?.[id]?.koName||
+    ko(EQUIP_DATA.equipment?.[id]?.name||'장비 #'+id);
+  function forecastCell(tr,value,tag='td',className=''){
+   const cell=node(tag,value,className);tr.append(cell);
+  }
+  function forecastReset(){
+   tombForecasts=[];
+   forecastHost.replaceChildren();
+   forecastCsv.disabled=true;
+   forecastStatus.textContent='제릉 예측을 다시 계산하려면 위 버튼을 누르세요.';
+  }
+  function forecastTable(caseData){
+   const article=document.createElement('article');
+   article.append(node('h3',caseData.order==='descending'?'가설 A · 가중치 높은 순':'가설 B · 가중치 낮은 순'));
+   const note=node('p','특수몹 '+caseData.rows.filter(x=>x.spawn&&!x.padding).length+
+    '회 · 90레벨 장비 '+caseData.rows.filter(x=>x.color&&!x.padding).length+
+    '개 · 자색 '+caseData.rows.filter(x=>x.color===4&&!x.padding).length+'개','progress-note');
+   article.append(note);
+   const scroll=node('div','','tomb-prediction-scroll');
+   const table=node('table','','tomb-prediction-table');
+   const head=document.createElement('thead'),tr=document.createElement('tr');
+   for(const name of ['회차','몬스터','예상 결과','색상'])forecastCell(tr,name,'th');
+   head.append(tr);table.append(head);
+   const body=document.createElement('tbody');
+   for(const x of caseData.rows.filter(x=>!x.padding)){
+    const line=document.createElement('tr');
+    if(x.spawn)line.classList.add('tomb-special');
+    forecastCell(line,String(x.serial)+'회');
+    forecastCell(line,x.spawn?'특수몹 35256':'일반 몬스터');
+    if(x.color){
+     const item=gearName(x.itemId);
+     forecastCell(line,item+' (#'+x.itemId+')','td','tomb-gear');
+     forecastCell(line,colorName(x.color),'td',x.color===4?'tomb-purple':'');
+    }else if(x.itemId){
+     forecastCell(line,'기타 보상 #'+x.itemId);
+     forecastCell(line,'—');
+    }else{
+     forecastCell(line,x.spawn?'장비 없음':'—');
+     forecastCell(line,'—');
+    }
+    body.append(line);
+   }
+   table.append(body);scroll.append(table);article.append(scroll);
+   return article;
+  }
+  function runTombForecast(){
+   forecastHost.replaceChildren();
+   tombForecasts=[];forecastCsv.disabled=true;
+   const count=Number(forecastCount.value),pad=Number(forecastPad.value);
+   if(!Number.isInteger(count)||count<1||count>500||!Number.isInteger(pad)||pad<0||pad>500){
+    forecastStatus.textContent='사냥 횟수는 1~500회, 선행 사냥은 0~500회로 입력하세요.';return;
+   }
+   if(!archive){forecastStatus.textContent='상단에서 제릉 사냥 전 세이브를 먼저 불러오세요.';return;}
+   const current=tomb.open(archive);
+   if(!tomb.ready(current)){
+    const missing=[...current.missingFlags,
+      !engine.usable(current.encounterSeed)?'rollenemy_tomb':'',
+      !engine.usable(current.equipmentSeed)?'seed_35256':''].filter(Boolean);
+    forecastStatus.textContent='예측에 필요한 세이브 데이터가 없습니다: '+missing.join(', ');return;
+   }
+   try{
+    tombForecasts=['descending','ascending'].map(order=>({
+      order,rows:tomb.predict(current,{count,pad,order})
+    }));
+    const all=tombForecasts[0].rows.filter(x=>!x.padding);
+    const appear=all.filter(x=>x.spawn).length;
+    const box=node('div','','tomb-prediction-metrics');
+    for(const [label,value] of [
+      ['예측 전투',count+'회'],['특수몹 등장',appear+'회'],
+      ['선행 건너뛰기',pad+'회'],['장비 드랍 가설', '2가지']
+    ]){
+     const stat=node('span','');
+     stat.append(node('b',value),node('small',label));box.append(stat);
+    }
+    const grid=node('div','','tomb-prediction-grid');
+    for(const hyp of tombForecasts)grid.append(forecastTable(hyp));
+    forecastHost.append(box,grid);
+    forecastStatus.textContent='제릉 일반 필드 '+count+'회 예측 완료 · 특수몹 회차는 동일 · 장비 종류와 색상은 분기 순서 가설에 따라 다를 수 있습니다.'+
+      (current.gate3007Unknown?' · 진행 변수 3007 미기록으로 해당 조건 통과를 가정했습니다.':'');
+    forecastCsv.disabled=false;
+   }catch(error){forecastStatus.textContent='제릉 계산 오류: '+String(error.message||error);}
+  }
+  $('tombForecastRun').onclick=runTombForecast;
+  forecastCount.addEventListener('input',forecastReset);
+  forecastPad.addEventListener('input',forecastReset);
+  forecastCsv.onclick=()=>{
+   if(!tombForecasts.length)return;
+   const rows=tombForecasts.flatMap(entry=>entry.rows.filter(x=>!x.padding).map(row=>({...row,
+     hypothesis:entry.order})));
+   window.SBJDropExport.save('Nangman_Diling_Field_Forecast',[
+    {title:'분기 순서 가설',value:x=>x.hypothesis==='descending'?'A 높은 순':'B 낮은 순'},
+    {title:'사냥 회차',key:'serial'},
+    {title:'특수몹 등장',value:x=>x.spawn?'예':'아니오'},
+    {title:'NPC ID',value:x=>x.spawn?35256:35255},
+    {title:'보상 종류',key:'rewardKind'},
+    {title:'장비·아이템 ID',key:'itemId'},
+    {title:'한국판 이름',value:x=>x.color?gearName(x.itemId):x.itemId?'기타 보상 '+x.itemId:''},
+    {title:'예상 색상',value:x=>x.color?colorName(x.color):''},
+    {title:'검증 상태',value:()=> '제릉 60014 분기 순서 가설 · 실게임 미검증'}
+   ],rows);
+  };
 
   $('wildTime').value = new Date(Date.now() + 28800000).toISOString().slice(0, 19);
   picker.onchange = configure;
