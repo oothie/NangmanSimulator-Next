@@ -72,6 +72,8 @@ jobs:
         run: node tests/wash-chain-smoke.cjs
       - name: Validate original yy-sim automatic search and Korean route steps
         run: node tests/yysim-auto-search-smoke.cjs
+      - name: Verify original yy-sim source-linked purple exchange sequence
+        run: node tests/yysim-source-linked-preview-smoke.cjs
       - name: Verify goal-only Domakbeop talent inventory audit
         run: node tests/wash-goal-audit-smoke.cjs
       - name: Verify original WASM goal-only three-slot lock
