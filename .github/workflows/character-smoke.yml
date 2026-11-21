@@ -74,6 +74,8 @@ jobs:
         run: node tests/yysim-route-replay-smoke.cjs
       - name: Verify green-blue-purple native auto search and exact undo
         run: node tests/yysim-multicolor-search-smoke.cjs
+      - name: Verify Korean wash names and user-confirmed talent 251
+        run: node tests/yysim-korean-names-smoke.cjs
       - name: Validate complete Korean wash talent ID name coverage
         run: node tests/wash-korean-names-smoke.cjs
       - name: Verify original yy-sim source-linked purple exchange sequence
