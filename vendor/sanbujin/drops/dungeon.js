@@ -35,13 +35,15 @@
     $('dungeonResults').replaceChildren();
   }
   function render() {
-    const shown = $('dungeonOnlyHits').checked ? rows.filter(row => row.item) : rows;
-    $('dungeonStatus').textContent = '예측 완료 ' + rows.length + '회 · ' + rows.filter(row => row.item).length + '회 일반 장비 드랍';
+    const quality=$('dungeonQuality').value;
+    const scoped=quality==='purple'?rows.filter(row=>row.item&&row.color===4):rows;
+    const shown = $('dungeonOnlyHits').checked ? scoped.filter(row => row.item) : scoped;
+    $('dungeonStatus').textContent = '예측 완료 ' + rows.length + '회 · ' + rows.filter(row => row.item).length + '회 일반 장비 드랍 · 자색 ' + rows.filter(row => row.item && row.color===4).length + '회';
     $('dungeonResults').replaceChildren(...shown.map(row => record(
       '제 ' + row.index + '회 · ' + (row.item ? (EQUIP_DATA.equipment[row.item]?.koName || ko(EQUIP_DATA.equipment[row.item]?.name) || '장비 #' + row.item) : '일반 장비 없음'),
       row.item ? [colors[row.color], row.kind === 'weapon' ? '일반 무기' : '일반 장비'].filter(Boolean).join(' · ') : ''
     )));
-    if (!shown.length) $('dungeonResults').append(record('이 구간에서 일반 장비가 예측되지 않았습니다.'));
+    if (!shown.length) $('dungeonResults').append(record(quality==='purple'?'이 구간에서 자색 장비가 예측되지 않았습니다.':'이 구간에서 일반 장비가 예측되지 않았습니다.'));
   }
   function renderBoss() {
     reset();
@@ -89,6 +91,7 @@
   area.onchange = fillBosses;
   boss.onchange = renderBoss;
   $('dungeonOnlyHits').onchange = () => { if (rows.length) render(); };
+  $('dungeonQuality').onchange = () => { if (rows.length) render(); };
   $('dungeonCount').oninput = reset;
   $('dungeonForm').onsubmit = event => {
     event.preventDefault();
