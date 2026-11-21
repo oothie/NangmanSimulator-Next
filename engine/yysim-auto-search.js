@@ -105,6 +105,7 @@ function describeAction(action,nameIds={},nameFor=()=>null){
    break;
   }
   case 'wash_to':label='모의 세수';detail=wash==null?'원본 지정 회차':wash+'회차까지';break;
+  case 'wash_until':label='목표 재능까지 모의 세수';detail=talent(action.talent)+' · '+String(action.note||'원본 WASM 단계');break;
   case 'exchange':{
    const chain=Array.isArray(action.chain)?action.chain.map(talent):[];
    label=chain.length>1?'연쇄 치환':'치환';
