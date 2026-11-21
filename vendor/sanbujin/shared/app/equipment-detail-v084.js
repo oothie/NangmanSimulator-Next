@@ -40,5 +40,25 @@ function open(item){
  document.addEventListener('keydown',esc);
  return true;
 }
+
+document.addEventListener('click',event=>{
+ const btn=event.target.closest?.('[data-nangman-equipment-id]');
+ if(btn){
+  event.preventDefault();event.stopPropagation();
+  open({id:Number(btn.dataset.nangmanEquipmentId),color:Number(btn.dataset.nangmanEquipmentColor||0)});
+  return;
+ }
+ // In native crafting results, the index column opens the produced equipment.
+ const cell=event.target.closest?.('tr[data-make-index] > td:first-child');
+ if(cell&&typeof currentMakeRequest==='function'){
+  const req=currentMakeRequest();
+  if(req?.equip_id){open({id:req.equip_id,color:Number(cell.parentElement.querySelector('[class*="color-"]')?.className.match(/color-(\\d+)/)?.[1]||0)});return}
+ }
+ const bag=event.target.closest?.('.crafted-bag-row .bag-meta');
+ if(bag&&typeof findEquipByOnlyId==='function'){
+  const eq=findEquipByOnlyId(bag.closest('[data-only-id]')?.dataset.onlyId);
+  if(eq)open(eq);
+ }
+});
 window.NangmanEquipmentDetail=Object.freeze({open});
 })();
