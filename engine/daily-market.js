@@ -234,6 +234,13 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
    if(!forecastOk)return {error:historyBlocked?'저장 시드 경과 기간이 너무 깁니다.':'암시장 시드가 없습니다.'};
    const ids=new Set((shopIds||[]).map(Number).filter(Number.isFinite));
    if(!ids.size)return {error:'목표 상품을 선택해 주세요.'};
+   const eligible=available.filter(item=>ids.has(item.id));
+   if(!eligible.length){
+     const excluded=soldOut.filter(item=>ids.has(item.id));
+     return {found:false,unavailable:true,periods:0,expanded:0,
+       error:excluded.length?'해당 상품은 세이브의 누적 구매 수량이 판매 상한에 도달했습니다. 현재 데이터에서는 재등장을 예측할 수 없습니다.':
+         '현재 상품 풀에 없는 항목입니다. 출시 상태 또는 서버 조건을 확인하세요.'};
+   }
    const limit=Math.min(28,Math.max(1,Math.floor(n(options.periods,12))));
    const maxStates=Math.min(20000,Math.max(500,Math.floor(n(options.maxStates,6500))));
    const costPerRefresh=20;
