@@ -126,6 +126,11 @@ const path=require('node:path');
     total_pills:0,total_wash:0,bag_pills:20000,has_bag_pills:true,
     global_vars:{nlliandu_tf:0,talent_LingYue:1,mh_tianfu_401:1}};
    await washSearchEngine.call('set-state',empty);
+   const purple=await washSearchEngine.call('auto-search',{
+    desiredIds:[271,272,250],horizon:1200,maxPad:20,topN:3});
+   console.log('NATIVE_THREE_PURPLE',JSON.stringify({
+    routeCount:purple?.result?.routes?.length,firstRoute:purple?.result?.routes?.[0]
+   }).slice(0,10000));
    const result=await washSearchEngine.call('auto-intermediate-search',{
     desiredIds:[271,272,250,184],horizon:1200,topN:5});
    return {scanned:result?.result?.scanned,routeCount:result?.result?.routes?.length,
