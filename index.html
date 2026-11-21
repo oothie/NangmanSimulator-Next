@@ -491,7 +491,8 @@ if(sub==='sim'){
  const runtime=window.__washRuntime||{},canRun=runtime.active&&runtime.origin==='save'&&runtime.linkedRoleId===r?.id&&!runtime.loading;
  const canUndo=canRun&&Array.isArray(runtime.undoStates)&&runtime.undoStates.length>0;
  const buttons='<section class="wash-section"><div class="wash-ops"><div class="pity-area"><div class="micro">세수 실험 진행도</div><div class="pity-track"><div class="pity-fill" style="width:0%"></div></div><div class="micro">원본 세이브 TalLucky '+escape(r?.raw?.TalLucky??'—')+' · 자맥 천장 예측 미검증</div></div>'+
- '<div class="wash-buttons"><button class="btn" id="washMainNextConflict" '+(!canRun?'disabled':'')+'>다음 치환·충돌맥까지 모의 세수</button>'+
+ '<div class="wash-buttons"><button class="btn primary" id="washMainAutoConflict" '+(!canRun?'disabled':'')+'>다음 충돌까지 세수 + 치환 (한 번에)</button>'+
+ '<button class="btn" id="washMainNextConflict" '+(!canRun?'disabled':'')+'>다음 치환·충돌맥까지 모의 세수</button>'+
  '<button class="btn" id="washMainGold" '+(!canRun?'disabled':'')+' title="원본 WASM의 자맥 도달 실행, 1000회 상한">다음 자맥까지 (최대 1000회)</button>'+
  '<button class="btn" id="washMainFive" '+(!canRun?'disabled':'')+'>5회 세수</button>'+
  '<button class="btn" id="washMainTen" '+(!canRun?'disabled':'')+'>10회 세수</button>'+
@@ -635,7 +636,8 @@ if(sub==='path'){
  '<p class="micro">원본 WASM의 <code>wash_until_talent_name</code> 실행을 사용합니다. 최대 5000회, 실행 전 상태 저장 후 되돌리기 가능. 현재 목표 자맥의 한국 서버 적중 여부는 미검증입니다.</p>'+
  '<div class="fields"><label>목표 자맥<select id="washTalentTarget"><option value="">선택</option>'+purpleSourceIds.map(id=>'<option value="'+id+'" '+(String(id)===single?'selected':'')+'>'+escape(characterTalentName(id))+' (#'+id+')</option>').join('')+'</select></label></div>'+
  '<div class="fields"><label>다음 치환 탐색 한도<select id="washNextConflictLimit"><option value="100" '+(runtime.nextConflictLimit===100?'selected':'')+'>100회</option><option value="500" '+((runtime.nextConflictLimit??500)===500?'selected':'')+'>500회</option><option value="1000" '+(runtime.nextConflictLimit===1000?'selected':'')+'>1000회</option></select></label></div>'+
- '<div class="actions"><button id="washNextTargetConflict" class="btn primary" '+(!valid?'disabled':'')+'>선택 목표 관련 다음 충돌·치환까지</button></div>'+
+ '<div class="actions"><button id="washNextTargetConflict" class="btn" '+(!valid?'disabled':'')+'>선택 목표 관련 다음 충돌까지</button>'+
+ '<button id="washNextTargetAuto" class="btn primary" '+(!valid?'disabled':'')+'>목표 관련 충돌 발견 시 자동 치환</button></div>'+
  '<p class="micro">위 목표 자맥을 선택하면 원본 WASM이 실제 치환 가능하다고 판정한 슬롯이 나올 때까지만 모의 세수합니다. 원본 세이브는 변경하지 않습니다.</p>'+
  '<div class="actions"><button id="washTalentRun" class="btn" '+(!valid?'disabled':'')+'>목표 자맥까지 모의 세수 (최대 1000회)</button>'+
  '<button id="washPathUndo" class="btn" '+(!(valid&&runtime.undoStates?.length)?'disabled':'')+'>직전 WASM 작업 되돌리기</button>'+
@@ -2396,6 +2398,8 @@ if($('nativeEngineFrame')){
 }
 if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanTalentKoName=characterTalentName;window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainFive:'washEngineMulti',washMainTen:'washEngineMulti',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10':($('washTimesInput')?.value||'10')}})));if($('washMainNextConflict'))$('washMainNextConflict').onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUntilExchange',count:500}}));
+if($('washMainAutoConflict'))$('washMainAutoConflict').onclick=()=>window.dispatchEvent(
+ new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUntilExchangeAuto',count:500}}));
 if($('washPreviewFilter'))$('washPreviewFilter').onchange=()=>{
  window.__washRuntime.purpleFilter=$('washPreviewFilter').value;render();
 };
@@ -2452,6 +2456,13 @@ if($('washPathAdd'))$('washPathAdd').onclick=()=>{
 };
 if($('washConflictInspect'))$('washConflictInspect').onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineConstraints'}}));
+if($('washNextTargetAuto'))$('washNextTargetAuto').onclick=()=>{
+ const target=$('washTalentTarget')?.value||'',limit=Number($('washNextConflictLimit')?.value||500);
+ if(!target){alert('목표 자맥을 선택하세요.');return;}
+ if(window.__washRuntime){window.__washRuntime.targetTalentId=target;window.__washRuntime.nextConflictLimit=limit;}
+ window.dispatchEvent(new CustomEvent('nangman-wash-command',{
+  detail:{op:'washEngineUntilExchangeAuto',count:limit,talentId:Number(target)}}));
+};
 if($('washNextTargetConflict'))$('washNextTargetConflict').onclick=()=>{
  const target=$('washTalentTarget')?.value||'',limit=Number($('washNextConflictLimit')?.value||500);
  if(!target){alert('목표 자맥을 먼저 선택하세요.');return;}
@@ -2770,7 +2781,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   state.lastConflict=null;state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.liveTalents=result.state.talents||[];syncWasmBag(result.state);state.targetTalentId=talentId;
   state.output='원본 WASM 목표 자맥 '+talentId+' 조회 · 실행 결과 '+resultCount+
    '건 · 게임 세이브 원본 변경 없음 · 실게임 검증 전\n'+JSON.stringify(result,null,2);
- }else if(op==='washEngineUntilExchange'){
+ }else if(op==='washEngineUntilExchange'||op==='washEngineUntilExchangeAuto'){
   if(!state.active||state.origin!=='save')throw Error('선택 인물의 세이브를 WASM에 연결하세요.');
   if(window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
    throw Error('선택 인물이 변경되어 WASM 연결이 무효화됐습니다.');
@@ -2779,7 +2790,8 @@ window.addEventListener('nangman-wash-command',async e=>{
   if(!Number.isInteger(count)||count<1||count>1000)throw Error('최대 1000회까지 계산합니다.');
   const snapshot=await washEngine.call('state');
   if(!snapshot||!Number.isFinite(Number(snapshot.seed)))throw Error('모의 세수 시작 상태를 읽지 못했습니다.');
-  const result=await washEngine.call('until-exchange',{count,talentId});
+  const autoExchange=op==='washEngineUntilExchangeAuto';
+  const result=await washEngine.call(autoExchange?'until-exchange-and-replace':'until-exchange',{count,talentId});
   ensureSession();
   if(!result?.state||!Array.isArray(result.results))
    throw Error('다음 치환·충돌맥 계산 결과를 확인할 수 없습니다.');
@@ -2793,7 +2805,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   }
   state.liveTalents=result.state.talents||[];
   syncWasmBag(result.state);
-  state.lastConflict=result.found?result.conflict:null;
+  state.lastConflict=result.found&&!result.autoExchanged?result.conflict:null;
   const conflictIndex=Number(result.conflict?.index);
   const earlierIndex=Number(result.conflict?.earlier_index);
   const currentTalent=result.found?result.state.talents?.[conflictIndex]:null;
@@ -2804,11 +2816,11 @@ window.addEventListener('nangman-wash-command',async e=>{
    (earlierTalent?.id!=null?window.__nangmanTalentKoName?.(earlierTalent.id):'재능 미확인'):'';
   state.output='원본 WASM 치환·충돌 탐색'+(talentId==null?'':' · 목표 자맥 '+talentId)+
    ' · 모의 세수 '+performed+'회 · '+
-   (result.found?'치환 가능한 충돌맥 발견':result.stopReason==='unchanged'?
+   (result.autoExchanged?'치환 가능한 충돌맥 발견 후 자동 치환 완료':result.found?'치환 가능한 충돌맥 발견':result.stopReason==='unchanged'?
     '더 진행할 세수 없음':'설정한 한도까지 치환 가능한 충돌맥 미발견')+
    collisionDescription+' · 게임 원본 세이브 변경 없음\n'+
    JSON.stringify({requested:count,performed,found:result.found,stopReason:result.stopReason,
-    conflict:result.conflict,remainingPills:result.state?.bag_pills},null,2);
+    conflict:result.conflict,autoExchanged:result.autoExchanged===true,remainingPills:result.state?.bag_pills},null,2);
  }else if(op==='washEngineUntilGold'){
   if(!state.active||state.origin!=='save')throw Error('먼저 한국판 세이브를 WASM에 연결하세요.');
   if(window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
