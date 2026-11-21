@@ -497,6 +497,17 @@ if(sub==='sim'){
  const linked=runtime.active&&runtime.origin==='save'&&runtime.linkedRoleId===r?.id;
  const dashboard=linked?window.YYWashDashboard?.model(runtime.nativeState):null;
  const talentSlots=linked?dashboard?.talents?.map((t,slot)=>({id:Number(t.id),locked:t.locked,rc:null,time:null,slot:slot+1}))||[]:r?characterWashTalents(r):[];
+ const currentSex=Number(linked?runtime.nativeState?.sex:r?.raw?.Sex)||1;
+ const currentVip=Number(linked?runtime.nativeState?.vip:1)||0;
+ const settings='<section class="wash-section"><div class="section-header"><h3>세수 모의 설정</h3></div>'+
+ '<div class="fields"><label>성별 <select id="washMainSex" '+(!save||!r||runtime.loading?'disabled':'')+'>'+
+ '<option value="1" '+(currentSex===1?'selected':'')+'>남성</option>'+
+ '<option value="2" '+(currentSex===2?'selected':'')+'>여성</option></select></label>'+
+ '<label>VIP <select id="washMainVip" '+(!save||!r||runtime.loading?'disabled':'')+'>'+
+ '<option value="0" '+(currentVip===0?'selected':'')+'>VIP 없음</option>'+
+ '<option value="1" '+(currentVip===1?'selected':'')+'>VIP 1 이상</option></select></label></div>'+
+ '<p class="micro">원본 yy-sim과 같이 성별·VIP를 WASM 복사본에서만 변경합니다. 실제 게임 세이브의 성별과 결제 상태는 바꾸지 않습니다.</p></section>';
+
  const slotCapacity=dashboard?.slots??Math.max(0,Math.min(4,Number(r?.raw?.ZiZhi||150)-150));
  const grade=id=>(window.YYWashTargetCatalog||[]).find(group=>group.items.some(item=>item.id===id))?.quality||1;
  const skills='<section class="wash-section"><div class="section-header"><h3>현재 세수 재능</h3><span class="micro">재능 '+talentSlots.length+' / '+slotCapacity+'칸 · 태생 재능과 별도</span></div><div class="talents">'+
@@ -582,7 +593,7 @@ if(sub==='sim'){
  '<label>페이지당 <select id="washHistorySize">'+[50,100,200].map(n=>'<option value="'+n+'" '+(historyPage.size===n?'selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+
  (washRuns.length?'<details><summary>마지막 실행 묶음 원본 자료</summary><pre class="history" style="white-space:pre-wrap;max-height:320px;overflow:auto">'+escape(JSON.stringify(washRuns.at(-1),null,2))+'</pre></details>':'')+
  '</section>';
- body=config+skills+buttons+qualityPanel+nextPurple+history+'<details class="wash-section"><summary>고급 WASM 조작 및 진단</summary>'+washSandbox()+roleDataPanel()+diagnosticPanel()+'</details>';
+ body=config+settings+skills+buttons+qualityPanel+nextPurple+history+'<details class="wash-section"><summary>고급 WASM 조작 및 진단</summary>'+washSandbox()+roleDataPanel()+diagnosticPanel()+'</details>';
 }
 if(sub==='auto'){
  const state=window.__washRuntime||{},api=window.YYWashAutoSearch;
@@ -2620,6 +2631,10 @@ if($('nativeEngineFrame')){
 if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanTalentKoName=characterTalentName;window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainFive:'washEngineMulti',washMainTen:'washEngineMulti',washMainHundred:'washEngineMulti',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10':btn.id==='washMainHundred'?'100':($('washMainCount')?.value||'10')}})));if($('washMainCount'))$('washMainCount').onchange=()=>{const n=Number($('washMainCount').value);if(Number.isInteger(n)&&n>=1&&n<=100)(window.__washRuntime||{}).mainCount=n};
 document.querySelectorAll('[data-wash-main-lock]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineToggleLock',index:Number(el.dataset.washMainLock)}})));
 document.querySelectorAll('[data-wash-main-exchange]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineExchangeTalent',index:Number(el.dataset.washMainExchange),requireConflict:true}})));
+for(const id of ['washMainSex','washMainVip']){
+ if($(id))$(id).onchange=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',
+  {detail:{op:'washEngineConfigure',sex:Number($('washMainSex')?.value),vip:Number($('washMainVip')?.value)}}));
+}
 if($('washMainResetRole'))$('washMainResetRole').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineImport'}}));
 if($('washMainUpgrade'))$('washMainUpgrade').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUpgradeZizhi'}}));
 if($('washMainScan'))$('washMainScan').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEnginePreview',count:3000}}));
@@ -3040,7 +3055,7 @@ window.addEventListener('nangman-wash-command',async e=>{
  // Original yy-sim applies the selected save immediately for normal wash actions.
  const automaticOps=new Set(['washEngineOnce','washEngineMulti','washEngineUntilGold',
   'washEngineUntilExchange','washEngineUntilExchangeAuto','washEngineAutoChain',
-  'washEngineUpgradeZizhi','washEnginePreview']);
+  'washEngineUpgradeZizhi','washEnginePreview','washEngineConfigure']);
  if(automaticOps.has(op)&&(!state.active||state.origin!=='save'||
      state.linkedRoleId!==window.__nangmanWashSaveSource?.()?.role?.id)){
   const source=window.__nangmanWashSaveSource?.();
@@ -3096,6 +3111,26 @@ window.addEventListener('nangman-wash-command',async e=>{
     talents:[],tal_lucky:0,total_wash:0,total_pills:0,gold_count:0,pity_count:0,exchange_count:0});
   const next=await washEngine.call('set-state',data);
   state.origin='test';state.linkedRoleId=null;state.lastConflict=null;state.active=true;state.liveTalents=next?.talents||[];syncWasmBag(next);state.log=[];state.undoStates=[];state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.output='시험 상태 설정 완료\n'+JSON.stringify(next,null,2);
+ }else if(op==='washEngineConfigure'){
+  if(!state.active||state.origin!=='save')throw Error('선택 인물의 세수 WASM 연결이 필요합니다');
+  const sex=Number(e.detail.sex),vip=Number(e.detail.vip);
+  if(![1,2].includes(sex)||![0,1].includes(vip))
+   throw Error('성별과 VIP 모의 설정을 확인하세요');
+  const snapshot=await washEngine.call('state');
+  const changed=Number(snapshot.sex)!==sex||Number(snapshot.vip)!==vip;
+  if(changed){
+   const applied=await washEngine.call('set-state',{...snapshot,sex,vip});
+   ensureSession();
+   if(Number(applied?.role_id)!==Number(snapshot.role_id)||
+      Number(applied?.seed)!==Number(snapshot.seed)||
+      Number(applied?.sex)!==sex||Number(applied?.vip)!==vip||
+      JSON.stringify(applied?.talents)!==JSON.stringify(snapshot.talents))
+    throw Error('WASM 세수 설정 변경 후 원본 상태를 검증하지 못했습니다');
+   state.undoStates.push(snapshot);state.log.push({kind:'wash-config',sex,vip});
+   state.preview=null;state.autoResult=null;state.autoProgress=null;
+  }
+  state.output='원본 yy-sim 가상 설정 · '+(sex===1?'남성':'여성')+
+   ' · '+(vip===1?'VIP 1 이상':'VIP 없음')+' · 실제 세이브 불변';
  }else if(op==='washEngineUpgradeZizhi'){
   if(!state.active||state.origin!=='save')throw Error('선택 캐릭터의 세수 상태를 연결하세요');
   const snapshot=await washEngine.call('state');
