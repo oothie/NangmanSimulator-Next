@@ -436,6 +436,19 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .quest-delegated{padding:12px;border-bottom:1px solid var(--border)}
 .quest-delegated summary{cursor:pointer;font-weight:700}
 .quest-delegated-row{border:1px solid var(--border);padding:10px;margin:9px 0;border-radius:6px}
+
+/* Full-screen equipment detail routes into the read-only native sequences */
+.equip-detail-header{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+.equip-detail-operations{padding:20px 0;border-top:1px solid var(--border);margin-top:18px}
+.equip-detail-operations h3{font-size:19px;margin:0 0 8px}
+.equip-detail-controls{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin:12px 0}
+.equip-detail-controls label{font-size:15px;font-weight:650}
+.equip-detail-controls input{width:108px;font-size:16px;padding:10px;margin-left:9px}
+.equip-detail-buttons{display:flex;flex-wrap:wrap;gap:10px}
+.equip-detail-buttons button{font-size:15px;padding:11px 18px;min-height:44px}
+.equip-detail-buttons button:disabled{opacity:.4}
+#equipDetailStatus{font-size:14px;line-height:1.6;margin-top:15px}
+.equipment-host[data-equipment-tab=detail]{background:transparent}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
 /* v0.8.5: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
@@ -1033,7 +1046,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='find',equipSearch='',equipOwnSearch='',equipDetail=null,equipPrevious='find',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
+let equipTab='find',equipSearch='',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
@@ -1093,18 +1106,44 @@ function equipOwned(){
  '<small>'+escape(item.source)+' · #'+escape(item.eq.ID)+' · 강화 +'+escape(item.eq.Level||0)+'</small></button>').join('')+'</div>'+
  '<p class="micro">가방 구조가 다른 세이브에서는 일부 장비가 누락될 수 있으며, 가상의 장비는 추가하지 않습니다.</p></section>';
 }
+
 function equipDetailView(){
  const item=equipDetail||{},eq=item.eq||{},base=equipCatalog()[String(eq.ID)]||{};
- const isOrange=Number(eq.Color)===5||Number(base.weapon_color)===5;
+ const color=Number(eq.Color),isOrange=color===5||color===6||Number(base.weapon_color)===5;
  const weapon=Number(base.type)>=1&&Number(base.type)<=4;
- const rows=Object.entries(eq).filter(([key])=>['ID','Color','Level','Atk','Def','Hp','Hit','Speed','Dodge','Parry','Neijin','EnExts','EnMans','EnSpecials','EnNoXLExts'].includes(key)).map(([k,val])=>
- '<div><span>'+escape(({EnExts:'추가 옵션',EnMans:'망정',EnSpecials:'특수 부가'}[k]||k))+'</span><strong>'+escape(typeof val==='object'?JSON.stringify(val):val)+'</strong></div>').join('');
- return '<section class="equip-detail-full"><button class="btn" id="equipBack">← 이전 화면으로</button>'+
- '<h2>'+escape(equipName(eq.ID))+'</h2><p class="micro">'+escape(item.source||'장비 도감')+' · #'+escape(eq.ID)+'</p>'+
- '<div class="equip-detail-tags"><span>'+(isOrange?'주황 장비 · 정련 불가':'정련: 원본 엔진에서 확인')+'</span><span>'+(weapon?'무기 · 촉련 가능':'무기 아님 · 촉련 불가')+'</span></div>'+
- '<div class="equip-detail-rows">'+(rows||'<p>보유 인스턴스가 아닌 장비 도감 정보입니다.</p>')+'</div>'+
- '<label>시퀀스 조회 개수 <input type="number" id="equipCount" min="1" max="500" value="'+escape(item.count||20)+'"></label>'+
- '<p class="micro">정련·망정·촉련의 여러 회차 일괄 계산은 아직 연결되지 않았습니다. 아래 원본 계산기를 사용할 수 있으며 보유 장비 자동 선택은 추가 구현 대상입니다.</p></section>';
+ const ko={ID:'장비 ID',OnlyID:'고유 번호',Color:'등급',Level:'촉련 단계',LvProp:'성장 계수',
+  Atk:'공격',Def:'방어',Hp:'기혈',Hit:'명중',Speed:'속도',Dodge:'회피',
+  Parry:'초식방어',RenXing:'인내',Neijin:'내경',Gangqi:'강기',XLLevel:'정련 단계',
+  EnExts:'추가 옵션',EnMans:'망정',EnSpecials:'특수 부가',EnNoXLExts:'기타 옵션'};
+ const keys=Object.keys(ko).filter(x=>eq[x]!=null);
+ const attrValue=(key,val)=>{
+  if(key==='Color')return characterEquipColors[Number(val)]||'원본 '+val;
+  if(['EnExts','EnMans','EnSpecials','EnNoXLExts'].includes(key)){
+   return characterEntries(val).map(o=>{
+    if(!o||typeof o!=='object')return String(o??'');
+    const name=characterEquipProps[String(o.Key)]||String(o.Key||'옵션');
+    const raw=Number(o.Value);
+    const percent=characterEquipPercent.has(String(o.Key));
+    const n=Number.isFinite(raw)?(percent?Number((raw*100).toFixed(1))+'%':Number(raw.toFixed(1))):String(o.Value||'—');
+    return name+' +'+n;
+   }).join(' · ')||'기록 없음';
+  }
+  return String(val);
+ };
+ const rows=keys.map(key=>'<div><span>'+escape(ko[key])+'</span><strong>'+escape(attrValue(key,eq[key]))+'</strong></div>').join('');
+ const modes=[['refine','정련 시퀀스',isOrange],['strong','촉련 시퀀스',!weapon],['mangjing','망정·특수부가',false]];
+ return '<section class="equip-detail-full">'+
+ '<div class="equip-detail-header"><button class="btn" id="equipBack">← 이전 화면</button><span class="micro">'+escape(item.source||'장비 도감')+'</span></div>'+
+ '<h2>'+escape(equipName(eq.ID))+'</h2><p class="micro">레벨 '+escape(base.lv??'—')+' · 장비 ID #'+escape(eq.ID)+'</p>'+
+ '<div class="equip-detail-tags"><span>'+(isOrange?'주황·적색 장비 · 일반 정련 불가':'세이브 연결 시 정련 계산 가능')+'</span>'+
+ '<span>'+(weapon?'무기 · 촉련 가능':'무기 외 장비 · 촉련 불가')+'</span></div>'+
+ '<div class="equip-detail-rows">'+(rows||'<p class="micro">도감의 기본 정보만 있습니다. 실제 장비의 시드·옵션을 확인하려면 보유 장비에서 선택하세요.</p>')+'</div>'+
+ '<section class="equip-detail-operations"><h3>정련 · 촉련 · 망정</h3>'+
+ '<p class="micro">선택한 장비의 저장된 시드로 여러 회차를 연속 계산합니다. 계산은 실제 게임의 아이템이나 시드를 변경하지 않습니다.</p>'+
+ '<div class="equip-detail-controls"><label>조회 회차 <input type="number" id="equipCount" min="1" max="5000" value="'+escape(item.count||20)+'"></label>'+
+ '<div class="equip-detail-buttons">'+modes.map(([id,name,disabled])=>
+ '<button type="button" class="btn '+(item.mode===id?'primary':'')+'" data-equip-action="'+id+'" '+(disabled?'disabled':'')+'>'+name+'</button>').join('')+'</div></div>'+
+ '<p class="equipment-runtime-status" id="equipDetailStatus" role="status">실제 세이브 장비를 선택하고 조회할 계산 방식을 눌러주세요.</p></section></section>';
 }
 function equipView(){
  if(equipDetail)return '<div class="module-wrap">'+equipDetailView()+'</div>';
@@ -3133,8 +3172,11 @@ if($('questExportCsv'))$('questExportCsv').onclick=()=>{
 if($('equipSearch'))$('equipSearch').oninput=e=>{equipSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipSearch');x.focus();x.setSelectionRange(p,p)};
 if($('equipOwnSearch'))$('equipOwnSearch').oninput=e=>{equipOwnSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipOwnSearch');x.focus();x.setSelectionRange(p,p)};
 const openDetail=(eq,source)=>{
- equipPrevious=equipTab;equipDetail={eq,source,count:20};
- history.pushState({equipmentDetail:true},'','#equip-detail');
+ if(!equipDetail){
+  equipPrevious=equipTab;equipPreviousView=v;
+  history.pushState({equipmentDetail:true,previousView:v,previousTab:equipTab},'','#equip-detail');
+ }
+ equipDetail={eq,source,count:equipDetail?.count||20,mode:null};
  v='equip';render();window.scrollTo(0,0);
 };
 document.querySelectorAll('[data-character-equip-open]').forEach(x=>x.onclick=()=>{
@@ -3145,8 +3187,18 @@ document.querySelectorAll('[data-character-equip-open]').forEach(x=>x.onclick=()
 });
 document.querySelectorAll('[data-equip-id]').forEach(x=>x.onclick=()=>openDetail({ID:Number(x.dataset.equipId)},'장비 도감'));
 document.querySelectorAll('[data-equip-owned]').forEach(x=>x.onclick=()=>{const e=equipInventory()[Number(x.dataset.equipOwned)];if(e)openDetail(e.eq,e.source)});
-if($('equipBack'))$('equipBack').onclick=()=>{if(location.hash==='#equip-detail')history.back();else{equipDetail=null;equipTab=equipPrevious;render()}};
-if($('equipCount'))$('equipCount').onchange=e=>{if(equipDetail)equipDetail.count=Math.max(1,Math.min(500,Number(e.target.value)||20))};
+if($('equipBack'))$('equipBack').onclick=()=>{if(location.hash==='#equip-detail')history.back();else{equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;render()}};
+if($('equipCount'))$('equipCount').onchange=e=>{if(equipDetail)equipDetail.count=Math.max(1,Math.min(5000,Number(e.target.value)||20))};
+document.querySelectorAll('[data-equip-action]').forEach(b=>b.onclick=()=>{
+ if(!equipDetail)return;
+ equipDetail.mode=b.dataset.equipAction;
+ const count=Number($('equipCount')?.value)||20;
+ equipDetail.count=Math.max(1,Math.min(5000,Math.floor(count)));
+ render();
+ const status=$('equipDetailStatus');
+ if(status)status.textContent='원본 장비 시퀀스 계산기로 '+equipDetail.count+'회 조회를 요청합니다.';
+ sendEquipmentFocus();
+});
 if($('nativeEngineFrame')){
  const frame=$('nativeEngineFrame');
  frame.onload=()=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};
@@ -3411,7 +3463,20 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
 if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.8.5',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
-window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v='equip';render()}});
+window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;render()}});
+function sendEquipmentFocus(force=false){
+ const frame=equipmentFrames.get('detail');
+ if(!equipDetail?.mode||!frame?.contentWindow)return false;
+ frame.contentWindow.postMessage({kind:'nangman-equip-focus',equipment:equipDetail.eq,
+  mode:equipDetail.mode,count:equipDetail.count,version:equipSaveVersion,force},location.origin);
+ return true;
+}
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==equipmentFrames.get('detail')?.contentWindow||
+    event.data?.kind!=='nangman-equip-detail-status')return;
+ const status=$('equipDetailStatus');
+ if(status)status.textContent=String(event.data.message||'계산 상태 정보 없음');
+});
 const equipmentStatus=Object.create(null);
 const equipmentFrames=new Map();
 let equipSaveVersion=0;
@@ -3527,8 +3592,10 @@ window.addEventListener('message',event=>{
    equipmentStatus[key]='계산 화면 준비됨 · 세이브 확인 중';
    sendThemeToEquipment(frame);
    sendSaveToEquipment(frame);
+   if(key==='detail'&&!save)sendEquipmentFocus(true);
  }else if(detail.status==='applied'){
    equipmentStatus[key]='한국판 세이브가 이 장비 기능에 적용됐습니다.';
+   if(key==='detail')sendEquipmentFocus(true);
  }else if(detail.status==='error'){
    equipmentStatus[key]='세이브 적용 오류: '+(detail.message||'원본 함수 확인 필요');
  }
