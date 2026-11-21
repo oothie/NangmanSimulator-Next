@@ -95,9 +95,24 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
    if(!sameState(getState(),node.state)&&!setState(node.state)){
     stopReason='WASM 분기 상태 적용 실패';break
    }
-   const previous=getState();
+   let previous=getState(),branchActions=node.actions,temporary=node.temporary||null;
    if(!previous||previous.talents.length!==node.state.talents.length){
     stopReason='WASM 분기 재진입 검증 실패';break
+   }
+   // A lower-grade "car" is sometimes locked temporarily in original
+   // yy-sim before a purple arrives. Release it before it blocks a third
+   // target or after a bounded hold period.
+   if(temporary&&(washNo-temporary.since>=30||idsIn(previous,ids).length>=2)){
+    const at=previous.talents.findIndex(t=>t.locked&&Number(t.id)===temporary.id);
+    if(at>=0){
+     const copy=deepClone(previous);copy.talents[at].locked=false;
+     if(!setState(copy))throw Error('임시 잠금 해제 WASM 적용 실패');
+     previous=getState();
+     branchActions=actionsUntil(branchActions,washNo-1).concat({
+      kind:'unlock',talent:temporary.id,wash_no:washNo-1,
+      note:'원본 임시 충돌맥 잠금 해제'});
+    }
+    temporary=null;
    }
    const wash=doWash(),after=getState();
    visited++;
@@ -105,7 +120,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
     if(warnings.length<5)warnings.push('원본 WASM 세수 진행 불가: '+washNo+'회');
     continue;
    }
-   const variants=[{state:after,actions:node.actions,exchanges:node.exchanges}];
+   const variants=[{state:after,actions:branchActions,exchanges:node.exchanges,temporary}];
    if(after.talents.some(t=>!t.locked&&Number(qualityFor(Number(t.id)))===4)){
     const conflicts=getConflicts();
     if(Array.isArray(conflicts)){
@@ -130,8 +145,8 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
        !beforeX.talents.some(p=>Number(p.id)===id));
       if(diff.length!==1)continue;
       exchangeSuccesses++;
-      variants.push({state:afterX,exchanges:node.exchanges+1,
-       actions:actionsUntil(node.actions,washNo).concat({
+      variants.push({state:afterX,exchanges:node.exchanges+1,temporary,
+       actions:actionsUntil(branchActions,washNo).concat({
         kind:'exchange',from,to:diff[0],talent:diff[0],
         wash_no:washNo,note:'원본 WASM 치환 분기'
        })});
@@ -153,10 +168,40 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
     }
     if(washNo===horizon)continue;
     if(!setState(variant.state))continue;
-    const saved=lockGoals(getState(),ids,setState,getState,
-     variant.actions,washNo);
+    let forLock=getState(),nextActions=variant.actions,nextTemp=variant.temporary;
+    if(nextTemp&&idsIn(forLock,ids).length>=2){
+     const at=forLock.talents.findIndex(t=>t.locked&&Number(t.id)===nextTemp.id);
+     if(at>=0){
+      const changed=deepClone(forLock);changed.talents[at].locked=false;
+      if(!setState(changed))throw Error('목표 잠금 전 임시 잠금 해제 실패');
+      forLock=getState();
+      nextActions=actionsUntil(nextActions,washNo).concat({
+       kind:'unlock',talent:nextTemp.id,wash_no:washNo});
+     }
+     nextTemp=null;
+    }
+    const saved=lockGoals(forLock,ids,setState,getState,nextActions,washNo);
     pool.push({state:deepClone(saved.state),actions:saved.actions,
-     washes:washNo,exchanges:variant.exchanges});
+     washes:washNo,exchanges:variant.exchanges,temporary:nextTemp});
+    // Branch on holding an earlier lower-grade car (non-target) so the
+    // next same-type purple may be exchangeable. Keep this temporary and
+    // verifiable; never force-lock all remaining slots.
+    if(!nextTemp&&washNo%10===4&&idsIn(saved.state,ids).length<=1&&locked(saved.state)<2){
+     const tickets=saved.state.talents.map((t,i)=>({t,i})).filter(({t,i})=>
+      i<3&&!t.locked&&!ids.includes(Number(t.id))&&
+      [2,3].includes(Number(qualityFor(Number(t.id)))));
+     for(const {t,i} of tickets.slice(0,2)){
+      const holding=deepClone(saved.state);holding.talents[i].locked=true;
+      if(!setState(holding))continue;
+      const actual=getState();
+      if(!actual?.talents[i]?.locked)continue;
+      pool.push({state:deepClone(actual),actions:actionsUntil(saved.actions,washNo).concat({
+       kind:'lock',talent:Number(t.id),wash_no:washNo,
+       note:'원본 임시 하위맥 잠금·치환 분기'}),
+       washes:washNo,exchanges:variant.exchanges,
+       temporary:{id:Number(t.id),since:washNo}});
+     }
+    }
    }
    expanded++;
   }
