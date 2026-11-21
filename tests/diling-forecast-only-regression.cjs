@@ -1,6 +1,6 @@
 'use strict';
-// Synthetic Diling field prediction fixture: this verifies forecast-only use
-// with one save. The two orderings remain unverified hypotheses.
+// Synthetic samples: 10th white 4009 is an observed outcome, not proof of a
+// particular LuaJIT table traversal. The UI must show remaining ambiguity.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const base=path.resolve(__dirname,'..'),ctx={window:{}};
 vm.createContext(ctx);
@@ -8,42 +8,46 @@ for(const file of [
  'vendor/sanbujin/shared/equip_data.js',
  'vendor/sanbujin/drops/wild-core.js',
  'vendor/sanbujin/drops/tomb-core.js'
-]){
- vm.runInContext(fs.readFileSync(path.join(base,file),'utf8'),ctx,{filename:file});
-}
+])vm.runInContext(fs.readFileSync(path.join(base,file),'utf8'),ctx,{filename:file});
 const model=ctx.window.SBJTombDrop;
-const save={Rnds:{Sds:{seed_35256:492075794,rollenemy_tomb:1456365169}},
+const save={Rnds:{Sds:{seed_35256:492075794,rollenemy_tomb:1456365169},
+ Eds:{'4009':245317680,'4209':394652819}},
  globalVariable:{eat_2659:9,rollenemy_tomb2:200}};
-const snapshot=JSON.stringify(save),input=model.open(save);
+const original=JSON.stringify(save),input=model.open(save);
 assert(model.ready(input));
-const a=model.predict(input,{count:30,pad:0,order:'descending'});
-const b=model.predict(input,{count:30,pad:0,order:'ascending'});
+const noObservation=model.fitObservations(input,[],{count:30});
+assert.equal(noObservation.tested,144);
+assert.equal(noObservation.matches.length,144);
+const itemObservation=[{serial:10,itemId:4009,color:1,spawn:true}];
+const qualified=model.fitObservations(input,itemObservation,{count:30});
+assert.equal(qualified.matches.length,24,'10th 4009 white leaves 24 order models in this synthetic example');
+const firstGear=model.fitObservations(input,[{...itemObservation[0],noGearBefore:true}],{count:30});
+assert.equal(firstGear.matches.length,12,'no earlier gear further constrains the candidate pool');
+for(const variant of qualified.matches){
+ const row=variant.rows[9];
+ assert.equal(row.itemId,4009);assert.equal(row.color,1);
+}
+const a=model.predict(input,{count:30,order:'descending'});
+const b=model.predict(input,{count:30,order:'ascending'});
 assert.equal(a.length,30);assert.equal(b.length,30);
-const expectedAppear=[7,8,10,11,12,20,21,22,27,28];
-assert.deepEqual([...a.filter(x=>x.spawn).map(x=>x.serial)],expectedAppear);
-assert.deepEqual([...b.filter(x=>x.spawn).map(x=>x.serial)],expectedAppear);
-assert.deepEqual([...a.filter(x=>x.color).map(x=>[x.serial,x.itemId,x.color])],[
- [7,4009,2],[8,4809,2],[11,4409,1],[22,4809,1],[27,4409,1]
-]);
-assert.deepEqual([...b.filter(x=>x.color).map(x=>[x.serial,x.itemId,x.color])],[
- [10,4209,1],[12,4409,3],[20,5409,1],[21,5609,2]
-]);
-assert.equal(a.final.encounterSeed,b.final.encounterSeed);
-assert.notEqual(a.final.equipmentSeed,b.final.equipmentSeed);
-assert(a.filter(x=>x.color).every(x=>ctx.EQUIP_DATA.equipment[x.itemId].lv===90));
-assert(b.filter(x=>x.color).every(x=>ctx.EQUIP_DATA.equipment[x.itemId].lv===90));
-const skipped=model.predict(input,{count:5,pad:10,order:'descending'});
-assert.equal(skipped.length,15);
-assert(skipped.slice(0,10).every(x=>x.padding));
-assert(skipped.slice(10).every(x=>!x.padding));
-assert.equal(JSON.stringify(save),snapshot,'forecast must never mutate the one imported save');
+assert(!a[9].color||a[9].itemId!==4009||a[9].color!==1);
+assert(!b[9].color||b[9].itemId!==4009||b[9].color!==1);
+const baseTime=model.predict(input,{count:30,order:'candidateD',time:1795260046});
+const futureTime=model.predict(input,{count:30,order:'candidateD',time:1795280046});
+assert.deepEqual([...baseTime.map(x=>[x.itemId||null,x.color||null])],
+ [...futureTime.map(x=>[x.itemId||null,x.color||null])],
+ 'Diling gear ID and color must not be keyed to battle-clock time');
+assert.equal(baseTime[9].itemId,4009);
+assert.equal(baseTime[9].color,1);
+assert.equal(baseTime[9].sharedEdsTracked,true);
+assert.notEqual(baseTime.final.eds['4009'],save.Rnds.Eds['4009']);
+assert.equal(save.Rnds.Eds['4009'],245317680,'original Eds must remain unchanged');
+assert.equal(JSON.stringify(save),original);
 const html=fs.readFileSync(path.join(base,'vendor/sanbujin/drops/index.html'),'utf8');
 const ui=fs.readFileSync(path.join(base,'vendor/sanbujin/drops/wild.js'),'utf8');
-for(const id of ['tombForecastRun','tombForecastCount','tombForecastPad','tombForecastOutput','tombForecastCsv']){
+for(const id of ['tombForecastRun','tombForecastCount','tombForecastPad','tombForecastOutput','tombForecastCsv','tombEvidenceApply']){
  assert(html.includes('id="'+id+'"'),'missing forecast control '+id);
 }
-assert(html.includes('id="tombSaveCompare"'));
-assert(html.includes('aria-label="제릉 세이브 전후 비교" hidden'),
- 'comparison should be hidden in forecast-only interface');
-assert(ui.includes("tomb.predict(current,{count,pad,order})"));
-console.log('PASS Diling forecast-only: 30 hunt rows; 10 special monsters; both order hypotheses; 90-grade names; padding; no save mutation');
+assert(ui.includes('tomb.fitObservations(current,constraints'));
+assert(html.includes('aria-label="제릉 세이브 전후 비교" hidden'));
+console.log('PASS: 144 order candidates; 24 receipt fits, 12 no-earlier-gear fits; Diling Eds not time; immutable save');
