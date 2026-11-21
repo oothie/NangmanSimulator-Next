@@ -319,6 +319,7 @@ body{background:var(--bg)!important}
 <script src="./engine/quest-branch.js"></script>
 <script src="./engine/wash-path-model.js"></script>
 <script src="./engine/wash-preview-model.js"></script>
+<script src="./engine/wash-conflict-model.js"></script>
 <script src="./shared/sanbujin_meridian_data.js"></script>
 <script src="./shared/sanbujin_talent_names_ko.js"></script>
 <script src="./shared/sanbujin_cultivation_data.js"></script>
@@ -541,6 +542,21 @@ if(sub==='path'){
  const purpleOptions='<option value="">선택</option>'+purpleSourceIds.map(id=>'<option value="'+id+'">'+escape(characterTalentName(id))+' (#'+id+')</option>').join('');
  const runtime=window.__washRuntime||{};
  const valid=runtime.active&&runtime.origin==='save'&&runtime.linkedRoleId===r?.id&&!runtime.loading;
+ const constraintsModel=runtime.constraints&&window.NangmanWashConflicts?
+  window.NangmanWashConflicts.summarize(runtime.constraints,runtime.liveTalents,purpleSourceIds,characterTalentName):null;
+ const conflictsPanel=constraintsModel?
+ '<section class="module-panel"><h3>원본 WASM 현재 재능 충돌</h3>'+
+ '<p class="micro">현재 캐릭터 저장 상태의 슬롯별 충돌 · 원본 가용 재능 '+
+ constraintsModel.sourceAvailableCount+'개 · 충돌 자료 '+constraintsModel.sourceConflictsCount+'건</p>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>현재 슬롯</th><th>현재 재능</th><th>선행 충돌 슬롯</th><th>충돌 재능</th><th>치환</th></tr></thead><tbody>'+
+ constraintsModel.conflicts.map(x=>'<tr><td>'+x.slot+'</td><td>'+escape(x.name||'—')+'</td>'+
+ '<td>'+escape(x.earlierSlot??'—')+'</td><td>'+escape(x.earlierName||'—')+'</td>'+
+ '<td>'+(x.known?(x.canExchange?'WASM 가능':'WASM 불가'):'정보 없음')+'</td></tr>').join('')+
+ '</tbody></table></div>'+
+ '<p class="micro">자맥 목표 중 현재 가용 '+constraintsModel.purple.filter(x=>x.available).length+
+ '/'+constraintsModel.purple.length+'개 · '+constraintsModel.purple.filter(x=>x.available)
+ .map(x=>escape(x.name)+' (#'+x.id+')').join(' · ')+'</p>'+
+ '</section>':'';
  const reports=runtime.pathReports;
  let pathText=reports?JSON.stringify(reports.results,null,2).slice(0,20000):'';
  if(reports?.nameIds&&typeof reports.nameIds==='object'){
@@ -600,7 +616,7 @@ if(sub==='path'){
  '<label>최대 탐색 횟수<input id="washPathLimit" type="number" min="1" max="5000" value="'+escape(num)+'"></label></div>'+
  '<div class="actions"><button class="btn primary" id="washPathRun" '+(!valid?'disabled':'')+'>원본 도맥법 경로 후보 조회</button>'+
  '<button class="btn" id="washConflictInspect" '+(!valid?'disabled':'')+'>현재 인물 충돌·가용 재능 조회</button></div>'+
- summary+pathTable+(runtime.constraints?'<details open><summary>원본 WASM 가용 재능 및 충돌 정보</summary>'+
+ summary+pathTable+conflictsPanel+(runtime.constraints?'<details><summary>원본 WASM 세부 충돌 자료(JSON)</summary>'+
  '<p class="micro">현재 인물 세수 WASM 상태에서 직접 조회한 자료입니다. 미확인 명칭은 재능 ID로 표시합니다.</p>'+
  '<pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(runtime.constraintsDisplay||'자료 없음')+'</pre></details>':'')+
  (reports?'<details><summary>원본 계산 결과 구조 확인</summary><pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(pathText.slice(0,18000))+'</pre></details>':'')+
