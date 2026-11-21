@@ -16,7 +16,7 @@ const ctx={window:{addEventListener(key,cb){if(key==='message')listener=cb}},par
  TALENT_DATA:{},ZZ_DATA:{},initWasm:async()=>true,wasmInitEngine:()=>true,
  wasmGetState(){native.get++;return JSON.parse(JSON.stringify(state))},
  wasmSetState(next){native.set++;state=JSON.parse(JSON.stringify(next));return true},
- wasmExchangeTalent(index){native.exchange++;state.talents[index].id=270;state.seed+=1;return {changed:index}}
+ wasmExchangeTalent(index){native.exchange++;state.talents[index].id=270;state.seed+=1;return index===3?null:{changed:index}}
 };
 vm.createContext(ctx);vm.runInContext(main[1],ctx);
 async function request(op,payload){
@@ -36,6 +36,10 @@ async function request(op,payload){
  assert(swap.ok&&swap.data.state.talents[0].id===270,'unlocked slot exchange');
  assert.equal(native.exchange,1);
  assert.equal(swap.data.state.seed,112);
+ const preFailure=JSON.stringify(state);
+ const failed=await request('exchange-talent',{index:3});
+ assert.equal(failed.ok,false,'native null result must not be displayed as successful exchange');
+ assert.equal(JSON.stringify(state),preFailure,'native error rollback restores saved WASM copy');
  assert.equal((await request('toggle-lock',{index:9})).ok,false,'index capped');
  assert(index.includes("data-wash-lock=\"")&&index.includes("data-wash-exchange=\""),
  'rendered simulated talent slots expose native actions');
