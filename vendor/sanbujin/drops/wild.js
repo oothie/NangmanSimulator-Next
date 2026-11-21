@@ -59,12 +59,16 @@
 
   function render() {
     const host = $('wildResults'), onlyHits = $('wildOnlyHits').checked;
-    const shown = onlyHits ? rows.filter(row => row.itemId || row.spawn) : rows;
+    const quality=$('wildQuality').value;
+    const qualifying=rows.filter(row=>quality==='purple'?row.color===4:
+      quality==='equip'?Boolean(row.color):true);
+    const shown = onlyHits ? qualifying.filter(row => row.itemId || row.spawn) : qualifying;
     const hits = rows.filter(row => !row.padding && row.itemId).length;
     const padding = rows.filter(row => row.padding).length;
     const appearances = rows.filter(row => !row.padding && row.kind === 'tomb' && row.spawn).length;
+    const purple = rows.filter(row => !row.padding && row.color === 4).length;
     const story=targets[Number(picker.value)]?.kind==='story';
-    $('wildStatus').textContent = (story?'선행 특수몹 보상 호출 ':'선행 사냥 ') + padding + '회 · 예측 ' + (rows.length - padding) + '회 · 드랍 ' + hits + '회' + (story?' · 일반 사냥 회차와 별개':rows.some(row => row.kind === 'tomb') ? ' · 제릉 특수몹 등장 ' + appearances + '회 · 실험 가설' : '');
+    $('wildStatus').textContent = (story?'선행 특수몹 보상 호출 ':'선행 사냥 ') + padding + '회 · 예측 ' + (rows.length - padding) + '회 · 드랍 ' + hits + '회 · 자색 ' + purple + '회' + (story?' · 일반 사냥 회차와 별개':rows.some(row => row.kind === 'tomb') ? ' · 제릉 특수몹 등장 ' + appearances + '회 · 실험 가설' : '');
     host.replaceChildren(...shown.map(row => {
       const item = node('li', '');
       const label = '제 ' + row.serial + (story?'회 특수몹 보상 호출':'회') + (row.padding ? ' · 선행 사냥' : '') +
@@ -88,13 +92,14 @@
       }
       return item;
     }));
-    if (!shown.length) host.append(node('li', '이 구간에서는 드랍이 없습니다.'));
+    if (!shown.length) host.append(node('li', quality==='purple'?'선택 범위에서 자색 장비 드랍이 예측되지 않았습니다.':'이 구간에서는 드랍이 없습니다.'));
   }
 
   $('wildTime').value = new Date(Date.now() + 28800000).toISOString().slice(0, 19);
   picker.onchange = configure;
   for (const id of ['wildPad', 'wildCount', 'wildBait', 'wildTime', 'wildInterval', 'wildTombOrder']) $(id).addEventListener('input', reset);
   $('wildOnlyHits').onchange = () => { if (rows.length) render(); };
+  $('wildQuality').onchange = () => { if (rows.length) render(); };
   form.onsubmit = event => {
     event.preventDefault();
     reset();
