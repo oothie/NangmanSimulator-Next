@@ -130,12 +130,17 @@ try{
   send(requestId,true,{index,locked:!previous,state:actual});
   return
  }
- if(op==='exchange-talent'){
+ if(op==='exchange-talent'||op==='exchange-matched'){
   const index=Number(payload?.index);
   const snapshot=wasmGetState();
   if(!Number.isInteger(index)||index<0||index>=4||!snapshot?.talents?.[index])
    throw Error('치환할 현재 재능 슬롯 번호를 확인하세요');
   if(snapshot.talents[index].locked)throw Error('잠긴 슬롯은 치환할 수 없습니다');
+  if(op==='exchange-matched'){
+   const conflicts=wasmGetConflicts();
+   if(!Array.isArray(conflicts)||!conflicts.some(row=>Number(row?.index)===index&&row.can_exchange===true))
+    throw Error('현재 원본 WASM에 치환 가능한 동일 슬롯 충돌이 없습니다. 다시 탐색하세요');
+  }
   const result=wasmExchangeTalent(index);
   if(!result||result.success!==true){
    wasmSetState(snapshot);
