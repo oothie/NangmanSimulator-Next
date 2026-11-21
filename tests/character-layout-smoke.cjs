@@ -49,4 +49,7 @@ assert.equal(yyProgressEntries(fixture,main,'consumable').items.find(x=>x.title=
 assert(yyProgressView(fixture,main,'consumable').includes('파장단'),'consumable visible');
 assert.equal(yyProgressEntries({},main,'training').available,false,'unknown if globalVariable missing');
 
+assert(source.includes('function yyRoleExtraCombat('),'source kL combat-extra detail');
+assert(source.includes('ExtMpFirst'),'extra true-essence stat included');
+assert(source.includes('ExtParry'),'extra parry stat included');
 console.log('PASS: yy-sim role page structure, all 8 tabs, selector wiring and version labels');
