@@ -28,14 +28,32 @@ async function run({ids,horizon=3000,topN=12,getState,setState,doWash,yieldContr
  if(!initial||!Array.isArray(initial.talents))throw Error('WASM 세수 원본 상태가 없습니다');
  const initialText=snapshot(initial),routes=[],warnings=[];
  const masks=subsets(initial);
- let scanned=0,executed=0,stoppedEarly=0;
+ let scanned=0,executed=0,stoppedEarly=0,rollbackFailure=null;
+ // Native set_state may normalize save-specific fields. Validate all engine
+ // state keys after restoring; if a copy cannot be restored, STOP exploring
+ // that WASM instance rather than continuing with a contaminated trajectory.
  const restore=()=>{
-  if(!setState(initial)||snapshot(getState())!==initialText)
-   throw Error('WASM 탐색 원본 상태 복원이 실패했습니다');
+  if(!setState(initial)){
+   rollbackFailure='원본 WASM이 상태 복원 요청을 거절했습니다';
+   return false;
+  }
+  const restored=getState();
+  if(snapshot(restored)!==initialText){
+   const keys=[...new Set([...Object.keys(initial),...Object.keys(restored||{})])];
+   const diffs=keys.filter(k=>snapshot(initial[k])!==snapshot(restored?.[k]));
+   rollbackFailure='원본 WASM 복원값 불일치 ('+(diffs.slice(0,6).join(', ')||'상태 구조')+')';
+   return false;
+  }
+  return true;
  };
  try{
-  for(const indices of masks){
-   restore();
+  for(const [branch,indices] of masks.entries()){
+   // The original snapshot is already in memory for the first trajectory;
+   // avoid an unnecessary, possibly lossy set_state roundtrip here.
+   if(branch>0&&!restore()){
+    if(warnings.length<8)warnings.push(rollbackFailure);
+    break;
+   }
    const start=getState(),next={...start,talents:start.talents.map(t=>({...t}))};
    for(const i of indices)next.talents[i].locked=true;
    if(indices.length){
@@ -79,11 +97,19 @@ async function run({ids,horizon=3000,topN=12,getState,setState,doWash,yieldContr
    }
    await yieldControl();
   }
- }finally{restore()}
+ }finally{
+  // Searches run in a separate disposable WASM engine. Restoration is still
+  // checked for diagnostics, but a non-roundtrippable save must not discard
+  // verified results from earlier branches or damage the user's live engine.
+  if(!restore()&&warnings.length<8)warnings.push(rollbackFailure);
+ }
  routes.sort((a,b)=>a.pills-b.pills||a.washes-b.washes||a.lock_indices.length-b.lock_indices.length);
  return {routes:routes.slice(0,topN),scanned,
   trajectories:masks.length,washesExecuted:executed,stoppedEarly,
-  error:routes.length?null:'탐색한 잠금 조합과 세수 범위에서 목표 맥의 중간 획득 경로를 찾지 못했습니다',
+  partial:!!rollbackFailure,
+  error:routes.length?null:(rollbackFailure?
+   '원본 WASM의 상태 복원값이 달라 이후 잠금 분기를 안전하게 검사하지 않았습니다: '+rollbackFailure:
+   '탐색한 잠금 조합과 세수 범위에서 목표 맥의 중간 획득 경로를 찾지 못했습니다'),
   warnings};
 }
 root.YYWashIntermediateSearch={run,subsets};
