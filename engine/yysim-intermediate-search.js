@@ -39,7 +39,7 @@ function costOf(initial,final){
 }
 async function run({ids,horizon=900,topN=8,getState,setState,doWash,
  getConflicts=null,doExchange=null,qualityFor=()=>0,
- freshBranch=null,isolated=false,yieldControl=async()=>{}}){
+ freshBranch=null,isolated=false,yieldControl=async()=>{},onProgress=()=>{}}){
  if(!Array.isArray(ids)||ids.length<1||ids.length>4||new Set(ids).size!==ids.length||
     ids.some(id=>!Number.isSafeInteger(id)||id<=0))
   throw Error('자동탐색 목표는 서로 다른 녹맥·파맥·자맥 1~4개여야 합니다');
@@ -54,6 +54,12 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
   ['none','unwanted','all']:['none'];
  const plans=policies.flatMap(policy=>orders.map(order=>({order,policy})));
  let scanned=0,executed=0,early=0,partial=false;
+ const progress=(branch,step,stage='순차 세수·잠금 경로 탐색')=>{
+  const best=routes.length?Math.min(...routes.map(x=>x.pills)):null;
+  onProgress({stage,phase:'sequential',completed:branch,total:plans.length,
+   wash:step||0,horizon,checked:executed,found:routes.length,
+   bestPills:best,percentage:Math.min(99,Math.round(100*(branch+(step||0)/Math.max(1,horizon))/plans.length))});
+ };
  const restore=()=>{
   if(!setState(initial)||!equals(getState(),initial))throw Error('WASM 별도 탐색 상태 초기화 불일치');
  };
@@ -73,6 +79,7 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
     }else restore();
    }
    scanned++;
+   progress(branch,0);
    const {order,policy}=plans[branch],actions=[];
    let exchanges=0;
    const hasOtherLocks=initial.talents.some(t=>t.locked&&!ids.includes(Number(t.id)));
@@ -169,7 +176,7 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
      }
     }
     if(blocked)break;
-    if(washes%50===0)await yieldControl();
+    if(washes%50===0){progress(branch,washes);await yieldControl()}
     if(finalMatches(getState(),ids)){found=true;break;}
     // Only mark goals that continue to exist at the end. Past encounters
     // never satisfy the final combination.
@@ -193,6 +200,7 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
      source:'wasm_native_final_slots',lock_order:order.slice(),
      exchange_policy:policy});
    }
+   progress(branch+1,0);
    await yieldControl();
   }
  }finally{
