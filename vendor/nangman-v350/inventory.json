@@ -5,16 +5,18 @@
   "source_bytes": 1795461,
   "marker_counts": {
     "applySharedSaveJson": 1,
-    "applySave": 0,
-    "makeSequence": 0,
+    "loadSaveData": 8,
+    "jhOpen": 8,
+    "setBagMode": 3,
+    "jhRenderHome": 11,
+    "jhSearch": 0,
+    "jhFinder": 0,
+    "jhAuto": 0,
     "eSet": 0,
     "eDetail": 0,
     "eTables": 0,
     "fBag": 0,
-    "fBagRows": 0,
     "dTabs": 0,
-    "dCommon": 0,
-    "ePart": 0,
     "eEq": 89
   },
   "script_srcs": [],
@@ -22,6 +24,10 @@
   "parts": 5,
   "snippets": {
     "applySharedSaveJson": "ddEventListener('click',()=>setBagMode(btn.dataset.bagMode)));\n    jhOpen('make');\n  });\n})();\n</script>\n<script id=\"shared-save-bridge-v210\">\nwindow.applySharedSaveJson = function(json){\n  window.__EQUIP_SAVE_ROOT__ = json;\n  try { DROP_SAVE_ROOT = json; } catch (_) {}\n  if (typeof loadSaveData === 'function') loadSaveData(json);\n  if (typeof jhRenderHome === 'function') jhRenderHome();\n  return true;\n};\n</script>\n\n\n\\n<style id=\"roboking-equipment-v219\">\n:root{--rbg:#f5f6f7;--rc:#fff;--rl:#d9dde2;--rt:#252b32;--rm:#6b737c;--ra:#3f5f84;--ra2:#edf3fa;--good:#2f7655}\nbody{background:var(--rbg)!i",
+    "loadSaveData": "if (Array.isArray(data) && data[0]?.MakeRnd) return data[0].MakeRnd;\n    if (data.Seeds || data.LuckySeeds) return data;\n    return null;\n}\n\nfunction loadSaveData(json) {\n    // 공통 save.json 원본을 장비 지연 로딩이 직접 참조하도록 고정 저장.\n    window.__EQUIP_SAVE_ROOT__ = json;\n    try { DROP_SAVE_ROOT = json; } catch (_) {}\n    const makeRnd = extractMakeRnd(json);\n    if (!makeRnd) throw new Error('세이브에서 MakeRnd를 찾지 못했습니다');\n    const state = {\n        Seeds: makeRnd.Seeds || {},\n        LuckySeeds: makeRnd.LuckySeeds || {},\n        IDSeeds: makeRnd.IDSeeds || {},\n        MakeLucky: makeRnd.MakeLucky || {},\n  ",
+    "jhOpen": "unction openForEquip(action,e){\n    if(action==='refine'){\n      const target=autoAscend(e);\n      setHiddenSelect('xilianEquipSelect',target);\n      jhOpen('refine',false);\n      const hint=document.getElementById('xilianHint');\n      if(hint && target._autoAscended) hint.textContent=`${e.name} 90급 → ${target.name} 100급 자동 승련 상태로 정련합니다.`;\n      if(typeof updateXilianHint==='function') updateXilianHint();\n      return;\n    }\n    if(action==='strong'){\n      setHiddenSelect('strongEquipSelect',e);\n      jhOpen('strong',false);\n      if(typeof updateStrongHint==='function') updateStrongHint();\n ",
+    "setBagMode": "'); shell.hidden=false;\n      document.getElementById('jhHome').hidden=true; document.getElementById('jhBagView').hidden=false;\n      bagMode='wear'; setBagMode('wear'); return;\n    }\n    if(name==='refine'||name==='strong'||name==='special') jhLazyLoadAllEquips();\n    showOnlyPanel(name);\n    if(name==='refine'||name==='strong'||name==='special'){\n      if(typeof fillEquipSelects==='function') fillEquipSelects(true);\n      if(name==='refine' && typeof updateXilianHint==='function') updateXilianHint();\n      if(name==='strong' && typeof updateStrongHint==='function') updateStrongHint();\n      ",
+    "jhRenderHome": "></div>\n<div id=\"jhBagDetail\"></div>\n</div>\n</div>\n<section class=\"tab-panel\" id=\"panelMake\"><div class=\"jh-toolbar\"><button class=\"jh-back\" onclick=\"jhRenderHome()\">← 장비</button><div class=\"jh-title\">지역 제작 목록</div></div>\n<section class=\"config-panel\">\n<div class=\"config-row\">\n<div class=\"config-group grow\">\n<label>제작 NPC</label>\n<select id=\"npcSelect\"></select>\n</div>\n<div class=\"config-group\">\n<label>예측 횟수</label>\n<input id=\"previewCount\" max=\"5000\" min=\"1\" type=\"number\" value=\"20\"/>\n</div>\n</div>\n<div class=\"config-row\">\n<div class=\"config-group grow\">\n<label>제작 장비 / 도면</label>\n<input autoc",
     "eEq": "y:none!important}\n#panelMake,#panelEnhance,#panelStrong,#panelJianwang,#panelDrop{margin-top:8px}\n#panelEnhance .equip-card-list,#panelEnhance #enhanceEquipSummary{display:none!important}\n#panelEnhance .config-panel:first-child{display:none!important}\n#panelEnhance .refine-controls-only{margin-top:0!important}\n#panelStrong .equip-filter-row{display:none!important}\n#specialAttachEquipSelect,#strongEquipSelect,#xilianEquipSelect{max-width:100%}\n.table-wrap,.result-table-wrap,.history-table-wrap,.scroll{max-height:none!important;overflow-y:visible!important;overflow-x:auto!important}\n</style>\n<st"
   }
 }
