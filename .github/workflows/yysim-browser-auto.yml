@@ -13,6 +13,8 @@ on:
 jobs:
   browser-wasm:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +24,5 @@ jobs:
       - name: Install browser test runtime
         run: |
           npm install --no-save --ignore-scripts playwright@1.57.0
-          npx playwright install chromium --with-deps
       - name: Chromium WASM iframe green and blue smoke
         run: node tests/yysim-browser-boot.cjs
