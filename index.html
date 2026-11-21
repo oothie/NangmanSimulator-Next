@@ -495,10 +495,14 @@ if(sub==='sim'){
  const skills='<section class="wash-section"><div class="section-header"><h3>현재 세수 재능</h3><span class="micro">세수 재능 '+talentSlots.length+'개 · 태생 재능과 별도</span></div><div class="talents">'+
  Array.from({length:talentSlots.length},(_,i)=>{
   const t=talentSlots[i];
+  const mayExchange=linked&&!runtime.loading&&!t?.locked&&
+   Array.isArray(runtime.constraints?.conflicts)&&
+   runtime.constraints.conflicts.some(x=>Number(x?.index)===i&&x.can_exchange===true);
   return '<div class="talent"><span class="talent-slot">'+(i+1)+'</span><div class="talent-text"><b>'+(t?escape(characterTalentName(t.id))+' #'+escape(t.id):'빈 슬롯')+'</b><small>'+
    (t?'원본 RC '+escape(t.rc??'—')+(t.time?' · '+escape(characterTalentTimeDisplay(t.time)):''):'저장된 재능 없음')+'</small></div>'+
-   '<button type="button" class="btn lock" data-wash-main-lock="'+i+'" '+(!linked||runtime.loading?'disabled':'')+'>'+(t?(t.locked?'잠금 해제':'잠금'):'—')+'</button></div>';
- }).join('')+'</div><p class="micro">태생 재능: '+(r?.raw?.BornTalent?.ID?escape(characterTalentName(r.raw.BornTalent.ID))+' (#'+escape(r.raw.BornTalent.ID)+')':'기록 없음')+' · 잠금 변경과 세수 결과 예측은 아직 지원하지 않습니다.</p></section>';
+   '<button type="button" class="btn lock" data-wash-main-lock="'+i+'" '+(!linked||runtime.loading?'disabled':'')+'>'+(t?(t.locked?'잠금 해제':'잠금'):'—')+'</button>'+
+  (mayExchange?'<button type="button" class="btn primary" data-wash-main-exchange="'+i+'">! 치환</button>':'')+'</div>';
+ }).join('')+'</div><p class="micro">태생 재능: '+(r?.raw?.BornTalent?.ID?escape(characterTalentName(r.raw.BornTalent.ID))+' (#'+escape(r.raw.BornTalent.ID)+')':'기록 없음')+' · 잠금과 치환은 WASM 복사본에서만 실행합니다. 원본 세이브에는 적용되지 않습니다.</p></section>';
  const canRun=!!save&&r?.raw?.BornTalent?.S!=null&&!runtime.loading;
  const canUndo=linked&&!runtime.loading&&Array.isArray(runtime.undoStates)&&runtime.undoStates.length>0;
  const pity=dashboard?.pity??Number(r?.raw?.TalLucky||0);
@@ -2607,6 +2611,7 @@ if($('nativeEngineFrame')){
 }
 if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanTalentKoName=characterTalentName;window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainFive:'washEngineMulti',washMainTen:'washEngineMulti',washMainHundred:'washEngineMulti',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10':btn.id==='washMainHundred'?'100':($('washMainCount')?.value||'10')}})));if($('washMainCount'))$('washMainCount').onchange=()=>{const n=Number($('washMainCount').value);if(Number.isInteger(n)&&n>=1&&n<=100)(window.__washRuntime||{}).mainCount=n};
 document.querySelectorAll('[data-wash-main-lock]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineToggleLock',index:Number(el.dataset.washMainLock)}})));
+document.querySelectorAll('[data-wash-main-exchange]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineExchangeTalent',index:Number(el.dataset.washMainExchange),requireConflict:true}})));
 if($('washMainResetRole'))$('washMainResetRole').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineImport'}}));
 if($('washMainUpgrade'))$('washMainUpgrade').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUpgradeZizhi'}}));
 if($('washMainScan'))$('washMainScan').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEnginePreview',count:3000}}));
@@ -3436,6 +3441,11 @@ window.addEventListener('nangman-wash-command',async e=>{
     const current=await washEngine.call('state');
     if(state.generation===generation&&current&&Array.isArray(current.talents)){
      state.nativeState=current;state.liveTalents=current.talents;syncWasmBag(current);
+     if(state.origin==='save'){
+      try{const constraints=await washEngine.call('talent-constraints');
+       if(state.generation===generation)state.constraints=constraints;
+      }catch(error){state.constraints=null}
+     }
     }
    }catch(error){if(!state.error)state.error='실행 후 WASM 상태 조회 실패: '+String(error.message||error)}
   }
