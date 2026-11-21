@@ -109,6 +109,17 @@ assert.equal(mixed.weapon.hit,300,'incompatible blade hit excluded when active m
 assert.equal(mixed.rawWeaponHit,520,'raw equipment hit preserved for audit');
 assert.equal(mixed.excludedWeaponHit.length,1,'excluded weapon shown');
 assert.equal(mixed.excludedWeaponHit[0].id,7201,'excluded ID preserved');
+context.window.BORN_TALENT_DATA={'285':{effects:[['weapon',0.05],['def_ign',0.06]]},'282':{effects:[['hp',0.08]]}};
+const born=context.characterEquipCombatSplit({BornTalent:{ID:285},
+ Taolus:[{ID:21470,Active:true}],Equips:[{ID:7283,Atk:935,LvProp:129}]});
+assert.equal(born.bornWeaponPct,0.05,'born trait original weapon multiplier');
+assert.equal(born.bornWeaponAtk,52,'weapon attack born trait partial contribution');
+const unrelated=context.characterEquipCombatSplit({BornTalent:{ID:282},Equips:[{ID:7283,Atk:935}]});
+assert.equal(unrelated.bornWeaponAtk,0,'unrelated born talent effect is not weapon boost');
+const noBorn=context.characterEquipCombatSplit({BornTalent:{ID:99999},Equips:[{ID:7283,Atk:935}]});
+assert.equal(noBorn.bornWeaponAtk,null,'unknown born talent is not guessed');
+assert.match(context.characterEquipCombatSplitView({BornTalent:{ID:285},Equips:[{ID:7283,Atk:935,LvProp:129}]}),/부분 증가분 52/);
+
 const unknownType=context.characterEquipCombatSplit({Equips:[{ID:7283,Hit:300},{ID:7201,Hit:220}]});
 assert.equal(unknownType.weapon.hit,520,'unknown active type does not claim excluded hit');
 assert.equal(unknownType.weaponHitEligibilityKnown,false,'unknown subtype explicitly flagged');
