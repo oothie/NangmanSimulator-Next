@@ -10,7 +10,7 @@ vm.runInContext(read('vendor/yysim/data.js'),ctx,{filename:'original-talent-data
 const index=read('index.html'),start=index.indexOf('function characterTalentName(id){'),
  end=index.indexOf('function characterTalentTimeDisplay(',start);
 assert(start>0&&end>start,'shared Korean talent resolver exists');
-vm.runInContext('const wikiHasChinese=value=>/[\\u3400-\\u9fff]/.test(String(value||""));\n'+
+vm.runInContext('const wikiHasChinese=value=>/[\u3400-\u9fff]/.test(String(value||""));\n'+
  index.slice(start,end)+'\nwindow._talentName=characterTalentName;',ctx);
 const names=ctx.window.NANGMAN_TALENT_NAMES_KO;
 const catalog=ctx.window.YYWashTargetCatalog;
@@ -20,7 +20,7 @@ assert(original.length>=90);
 for(const item of original){
  const ko=ctx.window._talentName(item.id);
  assert(ko&&!/재능 #/.test(ko),'ID '+item.id+' should show a Korean talent name: '+ko);
- assert(!/[\\u3400-\\u9fff]/.test(ko),'Chinese name not exposed: '+item.id+' '+ko);
+ assert(!/[\u3400-\u9fff]/.test(ko),'Chinese name not exposed: '+item.id+' '+ko);
  assert.equal(ko,names[String(item.id)],'same authoritative name across all wash views');
 }
 for(const group of catalog){
