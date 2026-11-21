@@ -39,6 +39,54 @@ const path=require('node:path');
   assert(result.initialized?.ready&&result.hasState&&result.slots&&result.search>0&&result.scanned>1&&result.scratchMatches&&result.preserved,
     'actual browser iframe engine init failed: '+JSON.stringify({result,errs}));
   console.log('PASS: browser same-origin yy-sim WASM iframe init, state and scripts');
+  const finalSearch=await page.evaluate(async()=>{
+   const {washEngine,washSearchEngine}=await import('./engine/local-engine-bridge.js');
+   const originalLive=await washEngine.call('state');
+   const seed={...originalLive,zizhi:152,seed:447882174,role_id:10044,
+    talents:[{id:171,locked:false},{id:172,locked:false}],
+    bag_pills:20000,has_bag_pills:true,total_pills:0,total_wash:0,
+    tal_lucky:0,luck_seed_inited:false,luck_seed:'0'};
+   await washSearchEngine.call('set-state',seed);
+   const greenIds=new Set((window.YYWashTargetCatalog||[]).find(x=>x.quality===2)?.items.map(x=>x.id)||[]);
+   const blueIds=new Set((window.YYWashTargetCatalog||[]).find(x=>x.quality===3)?.items.map(x=>x.id)||[]);
+   let green=0,blue=0,needed=0;
+   for(let n=1;n<=700;n++){
+    const result=await washSearchEngine.call('wash',{count:1});
+    if(result.performed!==1)break;
+    const slots=result.state.talents;
+    if(!green){
+     const candidate=slots.find(x=>greenIds.has(Number(x.id)));
+     if(candidate){
+      green=Number(candidate.id);
+      const other=slots.find(x=>blueIds.has(Number(x.id)));
+      if(other)blue=Number(other.id);
+      else{
+       const at=slots.findIndex(x=>Number(x.id)===green);
+       await washSearchEngine.call('toggle-lock',{index:at});
+      }
+     }
+    }else{
+     const candidate=slots.find(x=>blueIds.has(Number(x.id)));
+     if(candidate)blue=Number(candidate.id);
+    }
+    if(green&&blue){needed=n;break}
+   }
+   if(!green||!blue)throw Error('Native final-slot green/blue fixture not found');
+   await washSearchEngine.call('set-state',seed);
+   const checked=await washSearchEngine.call('auto-intermediate-search',{
+    desiredIds:[green,blue],horizon:Math.min(900,needed+50),topN:8});
+   const retained=(checked.result?.routes||[]).filter(route=>
+    [green,blue].every(id=>route.final_slots.some(slot=>Number(slot.id)===id)));
+   const unchanged=JSON.stringify(await washEngine.call('state'))===JSON.stringify(originalLive);
+   return {green,blue,needed,scanned:checked.result?.scanned,
+    routeCount:retained.length,cheapest:retained[0]?.pills,
+    withinWitness:retained[0]?.washes<=needed,unchanged,
+    warnings:checked.warnings||[]};
+  });
+  assert(finalSearch.routeCount>0&&finalSearch.scanned>=2&&finalSearch.withinWitness&&finalSearch.unchanged,
+   'native final green-blue minimum candidate: '+JSON.stringify(finalSearch));
+  console.log('PASS: dynamically discovered green+blue stay simultaneously in final slots, min candidate <= observed path; live state intact',JSON.stringify(finalSearch));
+
   const retryPage=await browser.newPage();
   let failedAssets=0;
   await retryPage.route(/\/wasm_data\.js\?rev=0\.10\.6/,async route=>{
