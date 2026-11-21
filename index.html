@@ -1177,7 +1177,9 @@ function dailyMarketView(){
  const periods=Math.min(12,Math.max(1,Math.floor(Number(marketPeriods)||6)));
  const paid=state.seedOk?state.getPaid(Math.min(6,state.paidLeft)):[];
  const timed=state.seedOk?state.timed(periods):[];
- const targets=marketQuery.trim()&&state.seedOk?state.findTargets(lookup.map(x=>x.id).slice(0,25),periods*2):[];
+ const targetIds=marketQuery.trim()&&state.seedOk?lookup.map(x=>x.id).slice(0,25):[];
+ const timedTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'timed-only'}):[];
+ const paidTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'paid-now'}):[];
  const status=state.historyBlocked?'세이브의 귀시 기록이 너무 오래되어 '+state.missed+'회 변경을 안전하게 복원할 수 없습니다. 부정확한 예측을 방지하기 위해 현재 저장 상품만 표시합니다. 최신 세이브를 다시 불러와 주세요.':!state.seedOk?'귀시 RNG 시드 guishishop이 없어 향후 판매를 예측할 수 없습니다. 현재 저장 상품만 표시합니다.':
   state.stale?'세이브 귀시 시간에서 '+state.missed+'회 정시 변경을 복원했습니다. 이는 원본 RNG 계산에 근거한 모의 예측이며 현재 게임과 비교 검증이 필요합니다.':
   '세이브에 저장된 상품 목록을 현재 판매 목록으로 표시합니다.';
@@ -1197,11 +1199,15 @@ function dailyMarketView(){
  '<input id="marketQuery" type="search" placeholder="한국어 이름 / 아이템 ID / 상품 ID 검색" value="'+escape(marketQuery)+'" aria-label="귀시 상품 검색">'+
  '<label class="market-period-label">정시 교체 예측 범위 <select id="marketPeriods">'+[3,6,9,12].map(x=>
  '<option value="'+x+'" '+(x===periods?'selected':'')+'>'+x+'회</option>').join('')+'</select></label>'+
- '<p class="micro">검색 대상 '+lookup.length+'종 · 희귀·품절 상품, 원본 데이터 미출시 품목은 예측에서 제외될 수 있습니다.</p>'+
+ '<p class="micro">정시 변경만 기다리는 경우와 지금 원보를 갱신하는 경우는 RNG 시퀀스가 서로 다릅니다. 별개 시나리오로 계산하며, 실제 갱신하지 않은 가상의 원보 소비를 정시 변경 예측에 섞지 않습니다. 검색 대상 '+lookup.length+'종.</p>'+
  (marketQuery.trim()?'<div class="market-search-results">'+lookup.slice(0,35).map(item=>{
-  const event=targets.find(x=>x.item.id===item.id);
-  return '<div class="market-search-row"><span>'+escape(marketCatalogName(item,ko))+'</span><small>#'+item.id+' · '+
-   (event?escape(marketDate(event.when))+' ('+escape(event.label)+')':state.seedOk?'설정 범위 내 등장 미확인':'시드 미연결')+
+  const timedEvent=timedTargets.find(x=>x.item.id===item.id);
+  const paidEvent=paidTargets.find(x=>x.item.id===item.id&&x.via==='paid');
+  const currentEvent=timedTargets.find(x=>x.item.id===item.id&&x.via==='current');
+  return '<div class="market-search-row"><span>'+escape(marketCatalogName(item,ko))+'</span><small>#'+item.id+
+   (currentEvent?' · 현재 저장 목록에 있음':'')+
+   ' · 정시 교체만: '+(timedEvent?escape(marketDate(timedEvent.when)):state.seedOk?'범위 내 미발견':'시드 미연결')+
+   ' · 지금 원보 갱신: '+(paidEvent?'갱신 '+escape(paidEvent.label.replace(/[^0-9]/g,''))+'회차':state.seedOk?'잔여 횟수 내 미발견':'시드 미연결')+
    '</small></div>';
  }).join('')+'</div>':'<p class="micro">검색어를 입력하면 원본 RNG 시퀀스에서 최초 등장 위치를 조회합니다.</p>')+'</section>'+
  (state.seedOk?'<section class="market-section"><h4>지금 원보 갱신 시 예상 상품</h4>'+
