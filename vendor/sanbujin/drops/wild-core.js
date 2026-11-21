@@ -79,10 +79,13 @@
     const key = perItem ? String(id) : 'mdrop';
     const seed = asNumber(map[key]);
     if (!usable(seed)) return null;
-    // The saved value can verify the first use. Subsequent story affixes
-    // depend on how the live client writes back and shares this stream.
-    delete map[key];
-    return draw(seed, 99999999).value;
+    // Five Korean save receipts (5009 x2, 4609 x2, 5420 x1)
+    // confirm one shared per-ID Eds advance for every equipment generation,
+    // including non-purple colors. This is still NOT a complete final
+    // refinement/mangjeong predictor.
+    const next = draw(seed, 99999999);
+    map[key] = next.seed;
+    return next.value;
   }
 
   function affixes(cfg, color, initial) {
