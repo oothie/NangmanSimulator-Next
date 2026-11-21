@@ -77,7 +77,7 @@ const dropSource=section('// Persistent drop engine:',"window.addEventListener('
 const elements={},posts=[],events={};
 const host={hidden:true,children:[],appendChild(x){this.children.push(x)}};
 elements.dropWorkspace=host;elements.dropRuntimeStatus={textContent:''};
-const doc={createElement(name){assert.equal(name,'iframe');return {
+const doc={documentElement:{dataset:{theme:'paper'}},createElement(name){assert.equal(name,'iframe');return {
   addEventListener(key,fn){this[key]=fn},contentWindow:{postMessage(...args){posts.push(args)}}
 }}};
 const win={addEventListener(key,fn){events[key]=fn}};
