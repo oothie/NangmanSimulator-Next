@@ -98,116 +98,141 @@
     if (!shown.length) host.append(node('li', quality==='purple'?'선택 범위에서 자색 장비 드랍이 예측되지 않았습니다.':'이 구간에서는 드랍이 없습니다.'));
   }
 
-  // Dedicated forecast: one imported save, 1..500 sequential outdoor hunts.
-  // Both reward-order hypotheses are shown independently; no actual-outcome
-  // comparison and no before/after save upload is needed.
-  let tombForecasts=[];
+  // Field forecast across ALL candidate Lua weight traversal orders.
+  // No clock input: level-90 equipment options use Rnds.Eds[itemId], while
+  // only low-level aidrop rolls use a time-derived initial option seed.
+  let tombForecastSummary=[];
   const forecastHost=$('tombForecastOutput'),forecastStatus=$('tombForecastStatus');
   const forecastCount=$('tombForecastCount'),forecastPad=$('tombForecastPad');
   const forecastCsv=$('tombForecastCsv');
+  const evidenceOn=$('tombEvidenceApply'),evidenceNoEarlier=$('tombEvidenceNoEarlier');
   const colorName=n=>color[n]||'등급 미확인';
   const gearName=id=>EQUIP_DATA.equipment?.[id]?.koName||
     ko(EQUIP_DATA.equipment?.[id]?.name||'장비 #'+id);
+  const forecastValue=row=>row.color?
+    gearName(row.itemId)+' ('+colorName(row.color)+')':
+    row.itemId?'기타 보상 #'+row.itemId:
+    row.spawn?'장비 없음':'일반 전투';
   function forecastCell(tr,value,tag='td',className=''){
    const cell=node(tag,value,className);tr.append(cell);
   }
   function forecastReset(){
-   tombForecasts=[];
+   tombForecastSummary=[];
    forecastHost.replaceChildren();
    forecastCsv.disabled=true;
-   forecastStatus.textContent='제릉 예측을 다시 계산하려면 위 버튼을 누르세요.';
+   forecastStatus.textContent='새 시드 상태로 예측하려면 위 버튼을 누르세요.';
   }
-  function forecastTable(caseData){
-   const article=document.createElement('article');
-   article.append(node('h3',caseData.order==='descending'?'가설 A · 가중치 높은 순':'가설 B · 가중치 낮은 순'));
-   const note=node('p','특수몹 '+caseData.rows.filter(x=>x.spawn&&!x.padding).length+
-    '회 · 90레벨 장비 '+caseData.rows.filter(x=>x.color&&!x.padding).length+
-    '개 · 자색 '+caseData.rows.filter(x=>x.color===4&&!x.padding).length+'개','progress-note');
-   article.append(note);
+  function summarizeCandidates(candidates,pad,count){
+   const result=[];
+   for(let serial=pad+1;serial<=pad+count;serial++){
+    const rows=candidates.map(x=>x.rows[serial-1]);
+    const first=rows[0];
+    const outputs=[...new Set(rows.map(forecastValue))];
+    const gearRows=rows.filter(x=>x.color);
+    const onlyOne=outputs.length===1;
+    const allGear=gearRows.length===rows.length;
+    const allNoGear=gearRows.length===0;
+    result.push({
+      serial,spawn:first.spawn,alternatives:outputs.length,examples:outputs.slice(0,4),
+      label:onlyOne?outputs[0]:'미확정 · '+outputs.length+'종류의 결과 후보',
+      color:onlyOne?first.color||0:0,
+      gearState:allGear?'모든 후보 장비':allNoGear?'모든 후보 장비 없음':'장비 드랍 여부 미확정',
+      confirmedByModel:onlyOne,
+      trackedEds:onlyOne&&first.color?first.sharedEdsTracked:null
+    });
+   }
+   return result;
+  }
+  function showForecast(summary,candidates,count,pad,observed){
+   const seen=summary.filter(x=>x.spawn).length;
+   const agreed=summary.filter(x=>x.confirmedByModel&&x.spawn).length;
+   const box=node('div','','tomb-prediction-metrics');
+   for(const [name,value] of [
+     ['앞으로 사냥',count+'회'],['특수몹 예상',seen+'회'],
+     ['보상 후보',candidates.length+'/144'],['특수몹 보상 합의',agreed+'회']
+   ]){
+     const stat=node('span','');stat.append(node('b',value),node('small',name));box.append(stat);
+   }
+   const article=node('article','');
+   article.append(node('h3','회차별 예측 · 후보가 다르면 미확정 표시'));
    const scroll=node('div','','tomb-prediction-scroll');
    const table=node('table','','tomb-prediction-table');
    const head=document.createElement('thead'),tr=document.createElement('tr');
-   for(const name of ['회차','몬스터','예상 결과','색상'])forecastCell(tr,name,'th');
+   for(const label of ['사냥','특수몹','90레벨 장비 / 보상','판정'])forecastCell(tr,label,'th');
    head.append(tr);table.append(head);
    const body=document.createElement('tbody');
-   for(const x of caseData.rows.filter(x=>!x.padding)){
-    const line=document.createElement('tr');
-    if(x.spawn)line.classList.add('tomb-special');
-    forecastCell(line,String(x.serial)+'회');
-    forecastCell(line,x.spawn?'특수몹 35256':'일반 몬스터');
-    if(x.color){
-     const item=gearName(x.itemId);
-     forecastCell(line,item+' (#'+x.itemId+')','td','tomb-gear');
-     forecastCell(line,colorName(x.color),'td',x.color===4?'tomb-purple':'');
-    }else if(x.itemId){
-     forecastCell(line,'기타 보상 #'+x.itemId);
-     forecastCell(line,'—');
-    }else{
-     forecastCell(line,x.spawn?'장비 없음':'—');
-     forecastCell(line,'—');
-    }
-    body.append(line);
+   for(const x of summary){
+     const tr=document.createElement('tr');
+     if(x.spawn)tr.classList.add('tomb-special');
+     forecastCell(tr,x.serial+'회');
+     forecastCell(tr,x.spawn?'35256 등장':'일반 전투');
+     const result= x.confirmedByModel?x.label:
+       x.label+' · '+x.examples.join(' / ')+(x.alternatives>4?' 외':'');
+     forecastCell(tr,result,'td',x.confirmedByModel?'tomb-known':'tomb-unknown');
+     forecastCell(tr,x.confirmedByModel?(x.trackedEds===false?'장비 Eds 누락':'후보들 일치'):'추가 실측 필요');
+     body.append(tr);
    }
    table.append(body);scroll.append(table);article.append(scroll);
-   return article;
+   forecastHost.append(box,article);
+   if(observed){
+     forecastHost.append(node('p',candidates.length+'개 순서 후보가 현재 입력한 10회차 실측에 부합합니다. 같은 결과가 나오는 모델이 여러 개이므로 다음 드랍을 확정할 수는 없습니다.','progress-note'));
+   }
+   forecastHost.append(node('p','정렬 순서 144개를 동일한 가능성으로 취급한 것이 아니며, 후보 개수는 드랍 확률을 뜻하지 않습니다. 등장 순서 자체가 잘못됐다면 이 계산도 불일치할 수 있습니다.','progress-note'));
   }
   function runTombForecast(){
-   forecastHost.replaceChildren();
-   tombForecasts=[];forecastCsv.disabled=true;
+   forecastHost.replaceChildren();tombForecastSummary=[];forecastCsv.disabled=true;
    const count=Number(forecastCount.value),pad=Number(forecastPad.value);
-   if(!Number.isInteger(count)||count<1||count>500||!Number.isInteger(pad)||pad<0||pad>500){
-    forecastStatus.textContent='사냥 횟수는 1~500회, 선행 사냥은 0~500회로 입력하세요.';return;
+   if(!Number.isInteger(count)||count<1||count>500||!Number.isInteger(pad)||pad<0||pad>500||count+pad>500){
+    forecastStatus.textContent='앞선 사냥 + 앞으로의 사냥 합계는 최대 500회입니다.';return;
    }
-   if(!archive){forecastStatus.textContent='상단에서 제릉 사냥 전 세이브를 먼저 불러오세요.';return;}
+   if(!archive){forecastStatus.textContent='먼저 사냥 전 세이브를 불러오세요.';return;}
    const current=tomb.open(archive);
    if(!tomb.ready(current)){
     const missing=[...current.missingFlags,
       !engine.usable(current.encounterSeed)?'rollenemy_tomb':'',
       !engine.usable(current.equipmentSeed)?'seed_35256':''].filter(Boolean);
-    forecastStatus.textContent='예측에 필요한 세이브 데이터가 없습니다: '+missing.join(', ');return;
+    forecastStatus.textContent='예측에 필요한 세이브 데이터 누락: '+missing.join(', ');return;
    }
    try{
-    tombForecasts=['descending','ascending'].map(order=>({
-      order,rows:tomb.predict(current,{count,pad,order})
-    }));
-    const all=tombForecasts[0].rows.filter(x=>!x.padding);
-    const appear=all.filter(x=>x.spawn).length;
-    const box=node('div','','tomb-prediction-metrics');
-    for(const [label,value] of [
-      ['예측 전투',count+'회'],['특수몹 등장',appear+'회'],
-      ['선행 건너뛰기',pad+'회'],['장비 드랍 가설', '2가지']
-    ]){
-     const stat=node('span','');
-     stat.append(node('b',value),node('small',label));box.append(stat);
+    const observed=evidenceOn.checked;
+    const constraints=observed?[{serial:10,itemId:4009,color:1,spawn:true,
+      noGearBefore:evidenceNoEarlier.checked}]:[];
+    const search=tomb.fitObservations(current,constraints,{count:count+pad});
+    if(!search.matches.length){
+      forecastStatus.textContent='실측 기록에 맞는 보상 순서 후보가 없습니다. 현재 세이브가 그 10회 사냥 직전 파일인지 확인하세요. 시드 보정은 적용하지 않았습니다.';
+      return;
     }
-    const grid=node('div','','tomb-prediction-grid');
-    for(const hyp of tombForecasts)grid.append(forecastTable(hyp));
-    forecastHost.append(box,grid);
-    forecastStatus.textContent='제릉 일반 필드 '+count+'회 예측 완료 · 특수몹 회차는 동일 · 장비 종류와 색상은 분기 순서 가설에 따라 다를 수 있습니다.'+
-      (current.gate3007Unknown?' · 진행 변수 3007 미기록으로 해당 조건 통과를 가정했습니다.':'');
+    tombForecastSummary=summarizeCandidates(search.matches,pad,count);
+    showForecast(tombForecastSummary,search.matches,count,pad,observed);
+    const missing=Object.values(current.eds||{}).length===0?' · 장비별 Eds 저장이 없어 옵션 시드는 일부 미연결입니다.':'';
+    forecastStatus.textContent=count+'회 제릉 필드 예측 · '+search.matches.length+
+      '/'+search.tested+'개 분기 순서 후보'+
+      (observed?' · 10회차 수라장갑 백색 실측 제약 적용':' · 실측 제약 미적용')+
+      (current.gate3007Unknown?' · 진행 조건 3007 미기록 (통과 가정)':'')+missing;
     forecastCsv.disabled=false;
    }catch(error){forecastStatus.textContent='제릉 계산 오류: '+String(error.message||error);}
   }
   $('tombForecastRun').onclick=runTombForecast;
-  forecastCount.addEventListener('input',forecastReset);
-  forecastPad.addEventListener('input',forecastReset);
+  for(const e of [forecastCount,forecastPad,evidenceOn,evidenceNoEarlier])
+    e.addEventListener('change',forecastReset);
+  evidenceOn.onchange=()=>{
+    evidenceNoEarlier.disabled=!evidenceOn.checked;
+    if(!evidenceOn.checked)evidenceNoEarlier.checked=false;
+    forecastReset();
+  };
   forecastCsv.onclick=()=>{
-   if(!tombForecasts.length)return;
-   const rows=tombForecasts.flatMap(entry=>entry.rows.filter(x=>!x.padding).map(row=>({...row,
-     hypothesis:entry.order})));
-   window.SBJDropExport.save('Nangman_Diling_Field_Forecast',[
-    {title:'분기 순서 가설',value:x=>x.hypothesis==='descending'?'A 높은 순':'B 낮은 순'},
+   if(!tombForecastSummary.length)return;
+   window.SBJDropExport.save('Nangman_Diling_Candidate_Consensus',[
     {title:'사냥 회차',key:'serial'},
     {title:'특수몹 등장',value:x=>x.spawn?'예':'아니오'},
-    {title:'NPC ID',value:x=>x.spawn?35256:35255},
-    {title:'보상 종류',key:'rewardKind'},
-    {title:'장비·아이템 ID',key:'itemId'},
-    {title:'한국판 이름',value:x=>x.color?gearName(x.itemId):x.itemId?'기타 보상 '+x.itemId:''},
-    {title:'예상 색상',value:x=>x.color?colorName(x.color):''},
-    {title:'검증 상태',value:()=> '제릉 60014 분기 순서 가설 · 실게임 미검증'}
-   ],rows);
+    {title:'결과 합의 여부',value:x=>x.confirmedByModel?'모든 후보 동일':'미확정'},
+    {title:'보상 결과',key:'label'},
+    {title:'다른 후보 종류',key:'alternatives'},
+    {title:'대표 후보',value:x=>x.examples.join(' / ')},
+    {title:'90레벨 장비 Eds 추적',value:x=>x.trackedEds===true?'추적':x.trackedEds===false?'시드 누락':'미확정/해당 없음'},
+    {title:'검증 상태',value:()=> 'Lua 순서 144개 중 조건 충족 후보 · 실제 서버 분기 미검증 · 시간 보정 없음'}
+   ],tombForecastSummary);
   };
-
   $('wildTime').value = new Date(Date.now() + 28800000).toISOString().slice(0, 19);
   picker.onchange = configure;
   for (const id of ['wildPad', 'wildCount', 'wildBait', 'wildTime', 'wildInterval', 'wildTombOrder']) $(id).addEventListener('input', reset);
