@@ -24,6 +24,7 @@ function reset(){
  $('sharedTable').hidden=true;
  $('sharedRows').replaceChildren();
  $('sharedStatus').textContent='';
+ $('sharedByItem').textContent='';
 }
 function ready(){
  reset();
@@ -60,12 +61,16 @@ $('sharedGearForm').onsubmit=evt=>{
   projected=output;
   $('sharedStatus').textContent='가상 보상 호출 '+output.events+'회 · 계획 내 90급 장비 '+
    output.total90+'개 · 장비 ID '+output.byItem.length+'종 · 실제 게임 옵션 및 색상 순서는 미검증';
+  $('sharedByItem').textContent='장비별 계획 내 등장 횟수 · '+
+   output.byItem.map(x=>gearName(x.id)+' (#'+x.id+') '+x.count+'회'+
+    (x.hasSharedSeed?' · 원본 Eds 확인':' · 원본 Eds 없음')).join(' / ');
   const rows=output.equipment.slice(0,200);
   $('sharedRows').replaceChildren(...rows.map(row=>{
    const tr=document.createElement('tr');
    tr.append(cell(row.step),cell(row.source==='field'?'필드 특수몹 보상':'관문 우두머리 보상'),
     cell(row.round),cell(row.itemId+' · '+gearName(row.itemId)),
-    cell(colors[row.color]||'미확인'),cell('현재 세이브 이후 계획 내 '+row.inPlan+'번째'));
+    cell(colors[row.color]||'미확인'),cell('현재 세이브 이후 계획 내 '+row.inPlan+'번째'),
+    cell(row.hasSharedSeed?'원본 Eds 확인':'원본 Eds 없음'));
    return tr;
   }));
   $('sharedTable').hidden=rows.length===0;
@@ -84,6 +89,7 @@ $('sharedExport').onclick=()=>{
    {title:'한국판 장비 이름',value:x=>gearName(x.itemId)},
    {title:'가상 예상 색상 미검증',value:x=>colors[x.color]||''},
    {title:'동일 장비의 계획 내 획득 순번',key:'inPlan'},
+   {title:'현재 세이브에 장비 ID별 Eds 존재',value:x=>x.hasSharedSeed?'있음':'없음'},
    {title:'한계',value:()=> '현재 세이브 이후 선택한 가상 보상 순서에 한정 · 실게임 품질/정련/망정 미검증'}
   ];
   window.SBJDropExport.save('Nangman_Shared_Equipment_Order',columns,projected.equipment);
