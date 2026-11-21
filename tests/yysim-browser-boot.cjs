@@ -114,10 +114,10 @@ const path=require('node:path');
     preserved:JSON.stringify(live)===JSON.stringify(await washEngine.call('state')),
     warnings:result?.warnings,globalVars:prepared?.global_vars};
   });
-  assert(fourTarget.scanned===24&&fourTarget.routeCount>0&&fourTarget.valid&&
+  assert(fourTarget.scanned===72&&fourTarget.routeCount>0&&fourTarget.valid&&
    fourTarget.preserved&&!fourTarget.partial,
    'native 3 purple + 1 green with global_vars: '+JSON.stringify(fourTarget));
-  console.log('PASS: native 3-purple+green final goals, 24 permuted branches, stable WASM global_vars',JSON.stringify(fourTarget));
+  console.log('PASS: native 3-purple+green final goals, 72 permuted WASM branches with exchange policies, stable WASM global_vars',JSON.stringify(fourTarget));
   const freshGoals=await page.evaluate(async()=>{
    const {washSearchEngine}=await import('./engine/local-engine-bridge.js');
    const native=await washSearchEngine.call('state');
