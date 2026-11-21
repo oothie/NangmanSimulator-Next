@@ -137,7 +137,11 @@ try{
    });
    result={
     ...extended,
-    scanned:result.scanned+extended.scanned,
+    // scanned counts independent acquisition orders, not per-wash steps.
+    scanned:result.scanned,
+    simpleOrderScanned:result.scanned,
+    exchangeBeamStates:extended.trajectories,
+    exchangeBeamWashes:extended.scanned,
     trajectories:result.trajectories+extended.trajectories,
     warnings:[...(result.warnings||[]),...(extended.warnings||[])].slice(0,8),
     exchangeBeam:true
