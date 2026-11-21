@@ -311,7 +311,7 @@ body{background:var(--bg)!important}
 .market-goal-top{display:flex;align-items:start;justify-content:space-between;gap:14px}
 .market-goal-top h4{margin:0 0 4px;font-size:19px}
 .market-goal-state{white-space:nowrap;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12px}
-.market-goal-controls{display:grid;grid-template-columns:minmax(190px,2fr) minmax(130px,1fr) auto;gap:9px;align-items:end;margin:14px 0}
+.market-goal-controls{display:grid;grid-template-columns:minmax(120px,1fr) minmax(200px,2fr) minmax(130px,1fr) auto;gap:9px;align-items:end;margin:14px 0}
 .market-goal-controls label{display:grid;gap:6px;font-size:12px}
 .market-goal-controls select{width:100%;min-width:0;padding:10px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px}
 .market-goal-controls button{min-height:40px}
@@ -1316,6 +1316,8 @@ function marketStrategyMarkup(state,ko){
   '<div class="market-goal-top"><div><h4>한정 상품 획득 전략</h4><p class="micro">내 세이브의 시드로 비용 최소와 가장 빠른 획득 경로를 비교합니다.</p></div>'+
    '<span class="market-goal-state">VIP '+marketVipOverride+' · '+state.slots+'칸</span></div>'+
   '<div class="market-goal-controls">'+
+   '<label>VIP 등급<select id="marketStrategyVipSelect">'+[0,1,2,3,4,5].map(level=>
+      '<option value="'+level+'" '+(marketVipOverride===level?'selected':'')+'>VIP '+level+' · 하루 '+window.NangmanMarket.VIP_REFRESH[level]+'회</option>').join('')+'</select></label>'+
    '<label>목표 상품<select id="marketStrategyTarget">'+sorted.map(x=>'<option value="'+x.id+'" '+(x.id===marketStrategyTarget?'selected':'')+'>'+escape(marketCatalogName(x,ko))+(soldSet.has(x.id)?' · 구매 완료':'')+'</option>').join('')+'</select></label>'+
    '<label>예측 기간<select id="marketStrategyPeriods">'+[4,8,12,20,28].map(x=>'<option value="'+x+'" '+(x===marketStrategyPeriods?'selected':'')+'>'+x+'회 자동 교체</option>').join('')+'</select></label>'+
    '<button class="btn primary" id="marketStrategyRun" '+(!state.seedOk||!target||exhausted?'disabled':'')+'>최소 비용·최단 기간 계산</button></div>'+
@@ -2812,6 +2814,7 @@ function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id
 if($('marketPeriods'))$('marketPeriods').onchange=e=>{marketPeriods=Number(e.target.value);render()};
 if($('marketVipSelect'))$('marketVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;render()};
 if($('marketSlotsSelect'))$('marketSlotsSelect').onchange=e=>{marketSlotsOverride=Number(e.target.value);marketSimStep=0;marketStrategyResults=null;render()};
+if($('marketStrategyVipSelect'))$('marketStrategyVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;render()};
 if($('marketStrategyTarget'))$('marketStrategyTarget').onchange=e=>{marketStrategyTarget=Number(e.target.value);marketStrategyResults=null;render()};
 if($('marketStrategyPeriods'))$('marketStrategyPeriods').onchange=e=>{marketStrategyPeriods=Number(e.target.value);marketStrategyResults=null;render()};
 if($('marketStrategyRun'))$('marketStrategyRun').onclick=()=>{
