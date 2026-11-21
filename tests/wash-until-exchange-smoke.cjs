@@ -50,6 +50,8 @@ async function command(op,payload){
  assert(stationary.ok&&!stationary.data.found&&stationary.data.stopReason==='limit');
  assert(html.includes('id="washMainNextConflict"'));
  assert(html.includes('id="washApplyConflict"'));
+ assert(html.includes('id="washPathApplyCollision"'));
+ assert(html.includes('requireConflict:true'),'source matching guard applies in both wash panels');
  assert(html.includes("e.detail.requireConflict===true?'exchange-matched'"));
  assert(html.includes("washEngine.call('until-exchange',{count,talentId})"));
  assert(html.includes('state.undoStates.push(snapshot);state.log.push(result)'));
