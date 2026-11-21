@@ -28,6 +28,14 @@ window.addEventListener('message',e=>{
  if(d.kind==='nangman-equipment-target'){
   go(String(d.view||'find'));return;
  }
+ if(d.kind==='nangman-equipment-focus'){
+  try{
+   const selected=window.nangman350FocusEquipment?.(d.equipment,d.tab||'route');
+   if(!selected?.ok)throw Error(selected?.message||'저장된 장비를 찾지 못했습니다.');
+   reply('focused','선택한 보유 장비의 정련·망정·촉련 상세를 표시했습니다');
+  }catch(error){reply('error',String(error.message||error))}
+  return;
+ }
  if(d.kind==='nangman-equip-save'){
   try{
    if(!d.save){reply('applied','세이브가 연결되지 않았습니다',d.version);return}
