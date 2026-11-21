@@ -69,7 +69,8 @@ const roster=[
 const statusApi={cultivation:(save,role)=>({cultivation:{records:[1,2,3,4,'ng','qg'].map(k=>({
  kind:k,current:(role['WXXW'+k]||0)+100,extra:role['WXXW'+k]||0,learned:100,fixed:0,
  transferable:role['WXXW'+k]||0,raw:(role['WXXW'+k]||0)+100,overflow:0,
- history:k===1?[{name:'紫阳书院指点',current:20}]:[],unknownSkills:[]
+ history:k===1?[{name:'紫阳书院指点',current:20}]:[],
+ skills:k===1?[{id:20010,chong:10,level:3,current:9,copiedName:null}]:[],unknownSkills:[]
 }))}})};
 const {yyRoleCultivationModel,yyAccountCultivationView,yyCultivationAudit,yyAccountCultivationCsv}=accountFactory(
  {RoleStatusData:statusApi},mainSave,roster,(title,inner)=>'<section><h3>'+title+'</h3>'+inner+'</section>',
@@ -97,6 +98,8 @@ assert(accountHtml.includes('수련 데이터 연결 진단'),'unmapped martial 
 const csv=yyAccountCultivationCsv();
 assert(csv.includes('현재 저장값'),'csv current values header');
 assert(csv.includes('과거 획득 기록'),'csv historical section');
+assert(csv.includes('무학별 수련 기여 기록'),'CSV includes every martial contribution');
+assert(csv.includes('"20010","10","3","9"'),'CSV includes martial ID, Chong, Level, calculated cultivation');
 assert(csv.includes('"주인공","1"'),'csv role ID');
 assert(csv.includes('"자양서원 지도"'),'csv Korean historical source');
 assert(csv.startsWith('\uFEFF'),'Excel UTF-8 BOM');
