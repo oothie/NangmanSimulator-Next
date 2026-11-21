@@ -987,7 +987,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='auto',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='strategy',marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
+let equipTab='auto',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
@@ -1385,6 +1385,10 @@ function dailyMarketView(){
   simulated=simSequence[simSequence.length-1]||null,
   lookup=[...state.available,...state.soldOut].filter(x=>(String(x.id)+' '+String(x.item)+' '+String(x.name)+' '+marketCatalogName(x,ko))
    .toLowerCase().includes(marketQuery.trim().toLowerCase()));
+ const recordTime=Number(save?.UploadTime||save?.RealTime||save?.AutoSave||0);
+ const clockLine='<p class="market-clock micro"><b>현재 시각</b> <span id="marketLiveClock">'+
+  escape(new Date().toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))+
+  '</span> · <b>세이브 기록</b> '+escape(marketDate(recordTime))+'</p>';
  const periods=Math.min(12,Math.max(1,Math.floor(Number(marketPeriods)||6)));
  const paid=state.seedOk?state.getPaid(allowance.left,{vip:vipChoice}):[];
  const timed=state.seedOk?state.timed(periods):[];
@@ -1407,12 +1411,14 @@ function dailyMarketView(){
  '<p class="micro">'+escape(status)+'</p>'+
  '<div class="market-slots-control">'+
  '<label>예측 슬롯 수 <select id="marketSlotsSelect">'+[3,4,5,6].map(x=>'<option value="'+x+'" '+(x===marketSlotsOverride?'selected':'')+'>'+x+'칸'+(x===6?' (기본)':'')+'</option>').join('')+'</select></label><span class="micro">원보·자동 갱신·한정 상품 탐색 모두 동일하게 적용 · 실제 세이브 슬롯 '+state.saveSlots+'칸</span></div>'+
- '<nav class="market-nav" role="group" aria-label="암시장 기능">'+[['strategy','한정 상품 전략'],['refresh','원보 갱신'],['current','현재 상품'],['schedule','자동 갱신'],['search','상품 검색']].map(([id,label])=>'<button type="button" data-market-tab="'+id+'" class="'+(marketPanel===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+ 
+ clockLine+
+ '<nav class="market-nav" role="group" aria-label="암시장 기능">'+[['current','현재 상품'],['refresh','원보 갱신'],['schedule','자동 갱신'],['strategy','한정 상품 전략'],['search','상품 검색']].map(([id,label])=>'<button type="button" data-market-tab="'+id+'" class="'+(marketPanel===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+ 
  '<section class="market-section" data-market-panel="refresh"><h4>VIP 선택 · 원보 갱신 모의실행</h4>'+
  '<p class="micro">VIP 등급에 따른 갱신을 모의실행합니다. 게임 내 원보는 소비하지 않습니다.</p>'+
  '<div class="actions market-sim-controls">'+
  '<label>VIP 등급 <select id="marketVipSelect" aria-label="VIP 등급 수동 선택">'+[0,1,2,3,4,5].map(l=>'<option value="'+l+'" '+(vipChoice===l?'selected':'')+'>VIP '+l+' · 하루 '+window.NangmanMarket.VIP_REFRESH[l]+'회</option>').join('')+'</select></label>'+  
  '<button id="marketSimNext" class="btn primary" '+(!state.seedOk||simSteps>=allowance.left?'disabled':'')+'>원보 갱신 1회 (모의)</button>'+
+ '<button id="marketAutoNext" class="btn" '+(!state.seedOk?'disabled':'')+'>무료 자동 갱신 결과 보기</button>'+
  '<button id="marketSimReset" class="btn" '+(!simSteps?'disabled':'')+'>처음으로</button></div>'+
  '<p class="micro">선택 VIP '+vipChoice+' · 총 '+allowance.max+'회 · 세이브상 사용 '+allowance.used+'회 · 남은 '+allowance.left+'회 · 모의 사용 '+simSteps+'회</p>'+
  (simulated?
