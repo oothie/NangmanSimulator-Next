@@ -71,7 +71,8 @@ function simulate(input,options={}){
   return entries.find(item=>(value-=item.weight)<=0);
  }
  for(let i=0;i<pad+count;i++){
-  const row={serial:i+1,padding:i<pad,kind:'tomb',spawn:false,encounterNpc:source.encounterNpc};
+  const row={serial:i+1,padding:i<pad,kind:'tomb',spawn:false,encounterNpc:source.encounterNpc,
+   unit:'35255_event_call'};
   // Preserve the original level gate only when that flag is explicitly saved.
   // An absent flag must never be silently coerced into a made-up value.
   if(vars.has('3007') && vars.get('3007')<6){
@@ -79,8 +80,12 @@ function simulate(input,options={}){
   }
   const encounter=draw(encounterSeed,1000);encounterSeed=encounter.seed;
   row.encounterRoll=encounter.value;
-  row.spawn=encounter.value-vars.get('eat_2659')*10<=vars.get('rollenemy_tomb2');
-  vars.set('rollenemy_tomb2',vars.get('rollenemy_tomb2')+(row.spawn?-200:100));
+  row.rollenemyTomb2Before=vars.get('rollenemy_tomb2');
+  row.eat2659Before=vars.get('eat_2659');
+  row.effectiveRoll=encounter.value-row.eat2659Before*10;
+  row.spawn=row.effectiveRoll<=row.rollenemyTomb2Before;
+  vars.set('rollenemy_tomb2',row.rollenemyTomb2Before+(row.spawn?-200:100));
+  row.rollenemyTomb2After=vars.get('rollenemy_tomb2');
   if(row.spawn){
    row.npcId=source.specialNpc;
    const reward=select(rewardEntries);row.rewardKind=reward.kind;
@@ -187,9 +192,34 @@ function fitObservations(input,observations,options={}){
  }
  return {tested:all.length,matches,count:horizon,observations:tests};
 }
+// IMPORTANT: The source producer describes 35255 field encounter -> walk
+// event -> conditional 35256 NPC. There is currently NO verified mapping
+// from a user's N ordinary outdoor combats to N invocations of this event.
+// This diagnostic reports event-call numbers, not guaranteed battle numbers.
+// It does not alter seeds or infer an offset from observations.
+function traceEncounterCalls(input,count=50){
+ if(!Number.isInteger(count)||count<1||count>500)
+  throw Error('원본 제릉 조우 호출 진단은 1~500회까지 가능합니다.');
+ const result=simulate(input,{count,order:'descending'});
+ return {
+  units:'35255_event_calls_not_field_battles',
+  count,
+  gate3007Unknown:input.gate3007Unknown,
+  encounters:result.map(row=>({
+   call:row.serial,spawn:row.spawn,
+   encounterRoll:row.encounterRoll??null,
+   effectiveRoll:row.effectiveRoll??null,
+   thresholdBefore:row.rollenemyTomb2Before??null,
+   thresholdAfter:row.rollenemyTomb2After??null,
+   requiresProgressionCheck:input.gate3007Unknown,
+   reason:row.reason||null
+  })),
+  finalEncounterSeed:result.final.encounterSeed
+ };
+}
 function trace(input,options){
  const rows=simulate(input,options);
  return {rows,final:rows.final,order:rows.order};
 }
-root.SBJTombDrop={source,open,ready,predict:simulate,trace,fitObservations};
+root.SBJTombDrop={source,open,ready,predict:simulate,trace,fitObservations,traceEncounterCalls};
 })(window);
