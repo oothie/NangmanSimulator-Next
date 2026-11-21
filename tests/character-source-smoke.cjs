@@ -49,7 +49,7 @@ assertBase('강기 기본값', {...levelBase, Level: 94}, 30);
 assertBase('내경 기본값', {...levelBase, Level: 94}, 80);
 assert.match(supported, /#354/);
 assert.match(supported, /지원 가능<\/span><b>가능/);
-assert.match(supported, /원본 계수 30/);
+assert.match(supported, /공격 · 계수 30/);
 assert.doesNotMatch(supported, /풍행객/);
 // Additional regression: source S1/Yt/Ia/Af/qf gear subtotals; avoid final combat claims.
 const equipBegin = html.indexOf('function characterEquipSourceStats(raw){');
