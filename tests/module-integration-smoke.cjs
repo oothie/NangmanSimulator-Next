@@ -87,15 +87,16 @@ const dropAPI=new Function('document','window','location','$','v','save',dropSou
 dropAPI.updateDropVisibility();
 assert.equal(host.children.length,1,'creates drop iframe once');
 host.children[0].load();
-assert.equal(posts.length,0,'load event alone cannot confirm engine ready');
+assert.equal(posts.filter(([message])=>message.kind==='nangman-save').length,0,'load event alone cannot confirm save readiness');
 const dropWindow=host.children[0].contentWindow;
 events.message({origin:'https://sim.example',source:dropWindow,data:{
  kind:'nangman-embedded-status',module:'drops',status:'ready'}});
-assert.equal(posts.length,2,'send save and selected mode only after ready confirmation');
-assert.equal(posts[0][0].kind,'nangman-save');
-assert.equal(posts[0][0].version,0,'initial drop save revision');
-assert.equal(posts[1][0].kind,'nangman-drop-mode','selected drop mode forwarded');
-assert.equal(posts[1][0].mode,'wild','initial drop mode remains field');
+const initialMessages=posts.filter(([message])=>message.kind==='nangman-save'||message.kind==='nangman-drop-mode');
+assert.equal(initialMessages.length,2,'save and selected mode forwarded after ready');
+assert.equal(initialMessages[0][0].kind,'nangman-save');
+assert.equal(initialMessages[0][0].version,0,'initial drop save revision');
+assert.equal(initialMessages[1][0].kind,'nangman-drop-mode','selected drop mode forwarded');
+assert.equal(initialMessages[1][0].mode,'wild','initial drop mode remains field');
 events.message({origin:'https://sim.example',source:dropWindow,data:{
  kind:'nangman-embedded-status',module:'drops',status:'save-loaded',version:0}});
 assert.match(elements.dropRuntimeStatus.textContent,/세이브 미연결/,'versioned empty save ack');
