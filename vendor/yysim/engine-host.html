@@ -1,5 +1,7 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>yy-sim 세수 엔진</title></head><body><script src="./wasm_data.js?rev=0.10.6"></script><script src="./core_glue.js?rev=0.10.6"></script><script src="./data.js?rev=0.10.6"></script><script src="../../engine/yysim-intermediate-search.js?rev=0.10.6"></script><script>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>yy-sim 세수 엔진</title></head><body><script src="./wasm_data.js?rev=0.10.6"></script><script src="./core_glue.js?rev=0.10.6"></script><script src="./data.js?rev=0.10.6"></script><script src="../../engine/yysim-target-catalog.js?rev=0.10.7"></script><script src="../../engine/yysim-intermediate-search.js?rev=0.10.6"></script><script>
 let ready=false;
+const washSelectableIds=()=>new Set((window.YYWashTargetCatalog||[])
+ .flatMap(group=>group.items||[]).map(item=>Number(item.id)));
 function send(requestId,ok,data){parent.postMessage({kind:'yysim-wash',requestId,ok,data},location.origin)}
 window.addEventListener('message',async e=>{if(e.origin!==location.origin||e.source!==parent)return;
 const {kind,requestId,op,payload}=e.data||{};if(kind!=='nangman-engine-command')return;
@@ -82,17 +84,17 @@ try{
   return
  }
  if(op==='auto-intermediate-search'){
-  // yy-sim native RNG wash results, checked after EVERY wash rather than
-  // requiring all target colors to survive in the final talent slots.
+  // Find the LOWEST COST path with all selected colors simultaneously
+  // present in FINAL WASM slots. Native washes and locks are applied in order.
   const ids=payload?.desiredIds,horizon=Number(payload?.horizon??3000);
   const topN=Number(payload?.topN??12);
   if(!Array.isArray(ids)||ids.length<1||ids.length>4||
     new Set(ids).size!==ids.length||
     ids.some(id=>!Number.isInteger(id)||![2,3,4].includes(TALENT_DATA[String(id)]?.pinzhi)||
-     TALENT_DATA[String(id)]?.name==='备用天赋'||[244,245,408].includes(id)))
+     !washSelectableIds().has(id)))
    throw Error('녹맥·파맥·자맥 재능을 서로 다르게 1~4개 선택하세요');
   if(!window.YYWashIntermediateSearch?.run)
-   throw Error('중간 목표 세수 탐색 모듈이 준비되지 않았습니다');
+   throw Error('최종 세수 맥 조합 탐색 모듈이 준비되지 않았습니다');
   const result=await window.YYWashIntermediateSearch.run({
    ids,horizon,topN,getState:wasmGetState,setState:wasmSetState,
    doWash:wasmDoWash,isolated:true,
@@ -111,8 +113,8 @@ try{
    .filter(([,x])=>x?.name&&x.name!=='备用天赋')
    .map(([id,x])=>[x.name,Number(id)]));
   send(requestId,true,{nativeFunction:'wasmIntermediateTalentSearch',
-   desiredIds:ids,horizon,topN,nameIds,result,intermediateSearch:true,
-   warnings:result.warnings});
+   desiredIds:ids,horizon,topN,nameIds,result,intermediateSearch:false,
+   finalSlotSearch:true,warnings:result.warnings});
   return
  }
  if(op==='auto-color-search'){
@@ -123,7 +125,7 @@ try{
      new Set(ids).size!==ids.length||
      ids.some(id=>!Number.isInteger(id)||!TALENT_DATA[String(id)]?.name||
        ![2,3,4].includes(TALENT_DATA[String(id)].pinzhi)||
-       TALENT_DATA[String(id)].name==='备用天赋'||[244,245,408].includes(id)))
+       !washSelectableIds().has(id)))
    throw Error('원본 데이터에 존재하는 서로 다른 녹맥·파맥·자맥 1~4개만 선택하세요');
   const original=wasmGetState();
   if(!original||!Array.isArray(original.talents))throw Error('원본 WASM 세수 상태를 읽을 수 없습니다');
