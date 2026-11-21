@@ -34,7 +34,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
       <p class="progress-note">첫 회차에 선행 사냥이 포함됩니다. 일반 야생 몬스터의 장비 옵션은 실제 판정 시각(초)에 따라 달라집니다.</p>
     </details>
     <p id="wildHint" class="progress-note"></p>
-    <div class="wild-actions"><button type="submit" id="wildRun">드랍 예측</button><label><input type="checkbox" id="wildOnlyHits" checked>드랍 결과만 보기</label></div>
+    <div class="wild-actions"><button type="submit" id="wildRun">드랍 예측</button><label><input type="checkbox" id="wildOnlyHits" checked>드랍 결과만 보기</label><label>장비 등급<select id="wildQuality"><option value="all">전체</option><option value="equip">장비만</option><option value="purple">자색 장비만</option></select></label></div>
   </form>
   <p id="wildStatus" role="status"></p>
   <ol id="wildResults" class="wild-results"></ol>
@@ -62,7 +62,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
     <p id="dungeonHint" class="progress-note"></p>
     <div class="wild-actions">
       <button type="submit" id="dungeonRun" disabled>관문 드랍 예측</button>
-      <label><input type="checkbox" id="dungeonOnlyHits" checked>장비 드랍만 보기</label>
+      <label><input type="checkbox" id="dungeonOnlyHits" checked>장비 드랍만 보기</label><label>장비 등급<select id="dungeonQuality"><option value="all">전체</option><option value="purple">자색 장비만</option></select></label>
     </div>
   </form>
   <section id="dungeonOrange" class="drop-orange" hidden aria-labelledby="dungeonOrangeTitle">
