@@ -36,7 +36,7 @@ function routeOutcome(raw,selected){
   const isComplete=matchedIds.length===ids.length;
   const hasCost=pills!==null&&washes!==null&&exchanges!==null&&pad!==null;
   const hasSteps=Array.isArray(route?.actions)&&route.actions.length>0;
-  const executable=isComplete&&hasCost&&(hasSteps||(washes===0&&exchanges===0));
+  const executable=isComplete&&hasCost&&(hasSteps||(washes===0&&exchanges===0&&pills===0&&pad===0));
   const warnings=[...(!hasCost?['원본 비용 정보 누락 또는 음수']:[]),
     ...(isComplete&&!hasSteps&&(washes!==0||exchanges!==0)?['원본 실행 단계 미제공']:[]),
     ...(route?.error?['원본 경로 오류: '+String(route.error)]:[])];
