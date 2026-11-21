@@ -72,7 +72,7 @@ function routeOutcome(raw,selected){
 }
 function statusText(result){
  if(result.stats.complete)return '원본 WASM에서 모든 선택 목표가 최종 재능 슬롯에 존재하는 경로 후보를 찾았습니다. 전역 최적 경로라는 뜻은 아닙니다.';
- if(result.stats.error)return '설정한 탐색 범위에서 목표 자맥을 모두 확보하는 경로가 발견되지 않았습니다. 탐색 회차·선행 세수 한도를 확대하거나 목표를 줄여 확인하세요.';
+ if(result.stats.error)return '설정한 탐색 범위에서 목표 재능을 모두 확보하는 경로가 발견되지 않았습니다. 자동 탐색 범위 안에서 찾지 못한 결과이며, 목표 선택을 변경해 다시 확인할 수 있습니다.';
  return '현재 검색 조건의 원본 WASM 경로 후보가 없습니다.';
 }
 function readableStep(value,known={},nameFor=()=>null){
