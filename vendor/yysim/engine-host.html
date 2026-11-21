@@ -3,6 +3,7 @@ let ready=false;
 const washSelectableIds=()=>new Set((window.YYWashTargetCatalog||[])
  .flatMap(group=>group.items||[]).map(item=>Number(item.id)));
 function send(requestId,ok,data){parent.postMessage({kind:'yysim-wash',requestId,ok,data},location.origin)}
+function progress(requestId,data){parent.postMessage({kind:'yysim-wash',requestId,progress:true,data},location.origin)}
 window.addEventListener('message',async e=>{if(e.origin!==location.origin||e.source!==parent)return;
 const {kind,requestId,op,payload}=e.data||{};if(kind!=='nangman-engine-command')return;
 try{
@@ -95,6 +96,10 @@ try{
    throw Error('녹맥·파맥·자맥 재능을 서로 다르게 1~4개 선택하세요');
   if(!window.YYWashIntermediateSearch?.run)
    throw Error('최종 세수 맥 조합 탐색 모듈이 준비되지 않았습니다');
+  const report=event=>progress(requestId,event);
+  report({stage:'순차 세수·잠금 분기 준비',phase:'init',completed:0,total:0,percentage:0,
+   checked:0,found:0,bestPills:null});
+  await new Promise(resolve=>setTimeout(resolve,0));
   const sourceState=wasmGetState();
   let result=await window.YYWashIntermediateSearch.run({
    ids,horizon,topN,getState:wasmGetState,setState:wasmSetState,
@@ -111,7 +116,8 @@ try{
     if(!wasmSetState(initial))throw Error('새 WASM 분기 초기 상태 주입 실패');
     return wasmGetState();
    },
-   yieldControl:()=>new Promise(resolve=>setTimeout(resolve,0))
+   yieldControl:()=>new Promise(resolve=>setTimeout(resolve,0)),
+   onProgress:report
   });
   // Only call the more expensive native exchange beam if 2+ purple targets
   // cannot be found together by the cheaper original WASM wash-order scan.
@@ -126,13 +132,16 @@ try{
     if(!wasmSetState(sourceState))throw Error('WASM 치환 탐색 원본 세이브 주입 실패');
     return wasmGetState();
    };
+   report({stage:'자맥 치환·임시 잠금 확장 탐색 준비',phase:'exchange',completed:0,
+    total:horizon,percentage:0,checked:0,found:0,bestPills:null});
+   await new Promise(resolve=>setTimeout(resolve,0));
    await reset();
    const extended=await window.YYWashExchangeBeamSearch.run({
     ids,horizon,topN,getState:wasmGetState,setState:wasmSetState,
     doWash:wasmDoWash,getConflicts:wasmGetConflicts,
     doExchange:wasmExchangeTalent,
     qualityFor:id=>Number(TALENT_DATA[String(id)]?.pinzhi||0),
-    freshBranch:reset,beamWidth:24,
+    freshBranch:reset,beamWidth:24,onProgress:report,
     yieldControl:()=>new Promise(resolve=>setTimeout(resolve,0))
    });
    result={
@@ -147,6 +156,9 @@ try{
     exchangeBeam:true
    };
   }
+  report({stage:'검증된 최종 결과 정리',phase:'finalize',completed:1,total:1,
+   percentage:100,checked:result.washesExecuted||0,found:result.routes?.length||0,
+   bestPills:result.routes?.length?Math.min(...result.routes.map(x=>Number(x.pills))):null});
   const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
    .filter(([,x])=>x?.name&&x.name!=='备用天赋')
    .map(([id,x])=>[x.name,Number(id)]));
