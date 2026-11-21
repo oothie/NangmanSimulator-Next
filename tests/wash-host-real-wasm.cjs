@@ -30,6 +30,17 @@ async function call(op,payload){
   tal_lucky:37,bag_pills:400,has_bag_pills:true};
  const applied=await call('set-state',initial);
  assert(applied.ok&&Number(applied.data.seed)===447882174);
+ const nativeSearch=await call('auto-search',{desiredIds:[271,250],maxPad:1,horizon:30,topN:3});
+ assert(nativeSearch.ok,'real native search_wash_routes should accept desired_ids');
+ assert.equal(nativeSearch.data.nativeFunction,'wasmSearchWashRoutes');
+ assert(Array.isArray(nativeSearch.data.result.routes),'real WASM returns automatic routes');
+ assert(nativeSearch.data.result.routes.some(route=>route.pills===0&&route.washes===0),
+  'already equipped goals yield zero-wash native automatic path');
+ assert.equal(Number((await call('state')).data.seed),447882174,
+  'automatic path search is read-only');
+ const sourceNew=await call('auto-search',{desiredIds:[268],maxPad:4,horizon:300,topN:3});
+ assert(sourceNew.ok&&Array.isArray(sourceNew.data.result.routes));
+ console.log('REAL_AUTOROUTE_SAMPLE',JSON.stringify(sourceNew.data.result).slice(0,3800));
  const preview=await call('preview',{count:80});
  assert(preview.ok&&Array.isArray(preview.data.preview.purples));
  assert.equal(preview.data.nameIds['九阴鬼脉'],'248');
