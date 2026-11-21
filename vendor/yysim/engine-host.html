@@ -1,10 +1,25 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>yy-sim 세수 엔진</title></head><body><script src="./wasm_data.js"></script><script src="./core_glue.js"></script><script src="./data.js"></script><script src="../../engine/yysim-intermediate-search.js"></script><script>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>yy-sim 세수 엔진</title></head><body><script src="./wasm_data.js?rev=0.10.5"></script><script src="./core_glue.js?rev=0.10.5"></script><script src="./data.js?rev=0.10.5"></script><script src="../../engine/yysim-intermediate-search.js?rev=0.10.5"></script><script>
 let ready=false;
 function send(requestId,ok,data){parent.postMessage({kind:'yysim-wash',requestId,ok,data},location.origin)}
 window.addEventListener('message',async e=>{if(e.origin!==location.origin||e.source!==parent)return;
 const {kind,requestId,op,payload}=e.data||{};if(kind!=='nangman-engine-command')return;
 try{
- if(op==='init'){if(!ready){const ok=await initWasm();if(!ok||!wasmInitEngine(TALENT_DATA,ZZ_DATA))throw Error('yy-sim 세수 WASM 초기화 실패');ready=true}send(requestId,true,{ready:true});return}
+ if(op==='init'){
+  if(!ready){
+   if(typeof initWasm!=='function'||typeof wasmInitEngine!=='function')
+    throw Error('WASM 로딩 파일(core_glue.js)을 불러오지 못했습니다');
+   if(typeof TALENT_DATA==='undefined'||typeof ZZ_DATA==='undefined')
+    throw Error('WASM 세수 데이터(data.js)를 불러오지 못했습니다');
+   if(typeof EMBEDDED_WASM_B64==='undefined'||!EMBEDDED_WASM_B64)
+    throw Error('WASM 내장 데이터(wasm_data.js)가 없습니다. 브라우저 캐시 또는 배포 파일을 확인하세요');
+   const ok=await initWasm();
+   if(!ok)throw Error('WASM 모듈 로딩 실패: '+(window.__yyWasmInitError||'원본 WASM 실행 환경을 확인하세요'));
+   if(!wasmInitEngine(TALENT_DATA,ZZ_DATA))
+    throw Error('WASM 세수 재능 데이터 초기화 실패. 자료 버전이 일치하는지 확인하세요');
+   ready=true;
+  }
+  send(requestId,true,{ready:true});return
+ }
  if(!ready)throw Error('yy-sim 엔진 초기화가 필요합니다');
  if(op==='state'){send(requestId,true,wasmGetState());return}
  if(op==='set-state'){if(!wasmSetState(payload))throw Error('세수 상태 지정 실패');send(requestId,true,wasmGetState());return}
