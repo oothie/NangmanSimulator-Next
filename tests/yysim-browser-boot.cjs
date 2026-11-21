@@ -34,6 +34,24 @@ const path=require('node:path');
   assert(result.initialized?.ready&&result.hasState&&result.slots&&result.search>0&&result.preserved,
     'actual browser iframe engine init failed: '+JSON.stringify({result,errs}));
   console.log('PASS: browser same-origin yy-sim WASM iframe init, state and scripts');
+  const retryPage=await browser.newPage();
+  let failedAssets=0;
+  await retryPage.route(/\/wasm_data\\.js\\?rev=0\\.10\\.5/,async route=>{
+   if(failedAssets++===0)return route.abort('failed');
+   return route.continue();
+  });
+  await retryPage.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+  const retry=await retryPage.evaluate(async()=>{
+   const {washEngine}=await import('./engine/local-engine-bridge.js');
+   const result=await washEngine.call('init');
+   return {ready:result?.ready,bootAttempt:washEngine.bootAttempt,
+    available:!!(await washEngine.call('state'))};
+  });
+  assert.equal(retry.ready,true,'automatic iframe bootstrap recovery');
+  assert.equal(retry.bootAttempt,1,'only failed init retried, once');
+  assert.equal(retry.available,true,'restarted WASM state accessible');
+  assert(failedAssets>=2,'forced one transient asset failure and recovered');
+  console.log('PASS: auto-retry re-fetches lost WASM data and recovers without clearing user save');
  }finally{
   if(browser)await browser.close();
   server.kill();
