@@ -2844,6 +2844,18 @@ if($('washTalentRun'))$('washTalentRun').onclick=()=>{
  if(window.__washRuntime)window.__washRuntime.targetTalentId=talentId;
  window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUntilTalent',talentId,count:1000}}));
 };
+if($('washHistoryPrev'))$('washHistoryPrev').onclick=()=>{const state=window.__washRuntime||{};state.historyPage=Math.max(1,(Number(state.historyPage)||1)-1);render()};
+if($('washHistoryNext'))$('washHistoryNext').onclick=()=>{const state=window.__washRuntime||{};state.historyPage=(Number(state.historyPage)||1)+1;render()};
+if($('washHistorySize'))$('washHistorySize').onchange=()=>{const state=window.__washRuntime||{};state.historyPageSize=Number($('washHistorySize').value);state.historyPage=1;render()};
+if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
+ const source=window.YYWashHistory;
+ if(!source)return alert('WASM 세수 기록 변환 모듈을 확인할 수 없습니다');
+ const rows=source.flatten(window.__washRuntime?.log||[]);
+ const body=source.tsv(rows,characterTalentName);
+ const url=URL.createObjectURL(new Blob([body],{type:'text/tab-separated-values;charset=utf-8'}));
+ const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
+ document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
+};
 if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const log=window.__washRuntime?.log||[];const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.7.92',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()};window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
@@ -3014,7 +3026,7 @@ else queueMicrotask(connectActiveWashView);
 window.addEventListener('nangman-wash-command',async e=>{
  if(state.loading)return;
  const {op}=e.detail;if(op!=='washEngineImport')fields(e.detail);state.loading=true;state.error='';
- const generation=state.generation||0;
+ const generation=state.generation||0,logBefore=state.log.length;
  const ensureSession=()=>{if(state.generation!==generation)throw Error('세이브 또는 캐릭터가 변경되어 이전 WASM 실행 결과를 폐기했습니다.');};
  try{
  // Original yy-sim applies the selected save immediately for normal wash actions.
@@ -3449,6 +3461,7 @@ window.addEventListener('nangman-wash-command',async e=>{
     }
    }catch(error){if(!state.error)state.error='실행 후 WASM 상태 조회 실패: '+String(error.message||error)}
   }
+  if(state.log.length>logBefore)state.historyPage=1;
   state.loading=false;announce()
  }
 });
