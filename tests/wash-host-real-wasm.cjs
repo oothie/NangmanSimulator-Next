@@ -62,6 +62,12 @@ async function call(op,payload){
  assert(washed.ok&&washed.data.performed===5&&washed.data.partial===false,'native 5 wash result count');
  assert.equal(washed.data.requested,5);
  assert((await call('set-state',initial)).ok);
+ const atomic=await call('until-exchange-and-replace',{count:30});
+ assert(atomic.ok,'real yy-sim WASM atomic conflict/exchange API returns valid result');
+ assert.equal(typeof atomic.data.autoExchanged,'boolean');
+ if(atomic.data.autoExchanged)assert(atomic.data.exchange?.success===true);
+ assert(atomic.data.performed<=30);
+ assert((await call('set-state',initial)).ok,'real atomic simulation snapshot restores');
  const collision=await call('until-exchange',{count:30});
  console.log('ACTUAL_COLLISION_RESPONSE',JSON.stringify(collision).slice(0,2000));
  assert(collision.ok,'real WASM native until-exchange command succeeds: '+JSON.stringify(collision.data));
