@@ -33,8 +33,10 @@
     rows = [];
     $('dungeonStatus').textContent = '';
     $('dungeonResults').replaceChildren();
+    $('dungeonExport').disabled=true;
   }
   function render() {
+    $('dungeonExport').disabled=!rows.length;
     const quality=$('dungeonQuality').value;
     const scoped=quality==='purple'?rows.filter(row=>row.item&&row.color===4):rows;
     const shown = $('dungeonOnlyHits').checked ? scoped.filter(row => row.item) : scoped;
@@ -92,6 +94,26 @@
   boss.onchange = renderBoss;
   $('dungeonOnlyHits').onchange = () => { if (rows.length) render(); };
   $('dungeonQuality').onchange = () => { if (rows.length) render(); };
+  $('dungeonExport').onclick=()=>{
+    try{
+      const event=selected();
+      const scoped=rows.filter(row=>($('dungeonQuality').value!=='purple'||row.item&&row.color===4)&&
+        (!$('dungeonOnlyHits').checked||row.item));
+      const columns=[
+        {title:'회차',key:'index'},
+        {title:'관문',value:()=>ko(event.dungeon)},
+        {title:'우두머리',value:()=>ko(event.boss)},
+        {title:'장비 ID',key:'item'},
+        {title:'장비명',value:row=>row.item?(EQUIP_DATA.equipment?.[row.item]?.koName||
+          ko(EQUIP_DATA.equipment?.[row.item]?.name||'장비 #'+row.item)):''},
+        {title:'색상',value:row=>colors[row.color]||''},
+        {title:'드랍 구분',key:'kind'},
+        {title:'한계',value:()=>'독립 관문 보상 예측 · 공유 RNG 소비에 따라 달라질 수 있음 · 최종 정련/망정 미연결'}
+      ];
+      window.SBJDropExport.save('Nangman_Dungeon_Drop_'+event.id,columns,scoped);
+    }catch(err){$('dungeonStatus').textContent=String(err.message||err);}
+  };
+
   $('dungeonCount').oninput = reset;
   $('dungeonForm').onsubmit = event => {
     event.preventDefault();
