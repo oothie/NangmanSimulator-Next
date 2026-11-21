@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.21</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.22</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -196,7 +196,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.7.21: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.7.22: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -997,18 +997,23 @@ function characterBattleSupport(role){
  '</div><p class="micro">'+(effects.length?effects.join(' · '):'원본 정량 효과 계수 없음')+' · 재능 ID는 실제 BornTalent.ID에서 조회하며 전투 효과 적용 여부·수치는 아직 계산하지 않습니다.</p>';
 }
 function characterSourceBasePanel(raw){
- // yy-sim bundle computeFinalStats의 body 중 다른 의존성이 없는 세 항목.
- const lv=Number(raw?.Level),defs=[
-  ['방어 기본값','GrowDefence','ExtDefence',v=>12+Math.floor(lv*v)+Number(raw.ExtDefence??0),'12 + floor(레벨 × 성장 방어) + 추가 방어'],
-  ['명중 기본값','GrowHit','ExtHit',v=>90+lv*v+Number(raw.ExtHit??0),'90 + 레벨 × 성장 명중 + 추가 명중'],
-  ['초식방어 기본값',null,'ExtParry',()=>Math.floor(lv*1.2)+30+Number(raw.ExtParry??0),'floor(레벨 × 1.2) + 30 + 추가 초식방어']
+ // yy-sim computeFinalStats.body의 독립 산식만 이식. 원본 Grow 계수의 Lv 93 문턱을 보존한다.
+ const lv=Number(raw?.Level);
+ const num=key=>Number(raw?.[key]??0);
+ const defs=[
+  ['방어 기본값',()=>12+Math.floor(lv*num('GrowDefence'))+num('ExtDefence'),'12 + floor(레벨 × 성장 방어) + 추가 방어',['GrowDefence','ExtDefence']],
+  ['명중 기본값',()=>90+lv*num('GrowHit')+num('ExtHit'),'90 + 레벨 × 성장 명중 + 추가 명중',['GrowHit','ExtHit']],
+  ['초식방어 기본값',()=>Math.floor(lv*1.2)+30+num('ExtParry'),'floor(레벨 × 1.2) + 30 + 추가 초식방어',['ExtParry']],
+  ['강기 기본값',()=>num('ExtGangqi')+(num('GrowGangqi')>0&&lv>=93?(lv-93+1)*num('GrowGangqi'):0),'추가 강기 + (레벨 93부터 성장 강기 × (레벨 − 92))',['ExtGangqi','GrowGangqi']],
+  ['내경 기본값',()=>num('GrowNeijin')>0&&lv>=93?Math.max(0,num('ExtNeijin')+(lv-93+3)*num('GrowNeijin')):num('ExtNeijin'),'레벨 93부터 max(0, 추가 내경 + 성장 내경 × (레벨 − 90))',['ExtNeijin','GrowNeijin']],
+  ['기 회복 기본값',()=>2,'yy-sim 원본 body.mp_back 초기값 2',[]]
  ];
- const entries=defs.map(([label,grow,extra,compute,formula])=>{
-  const valid=Number.isFinite(lv)&&lv>=0&&(!grow||Number.isFinite(Number(raw[grow])))&&Number.isFinite(Number(raw[extra]??0));
-  return {label,value:valid?Number(compute(Number(raw[grow]??0)).toFixed(3)):'—',formula};
+ const entries=defs.map(([label,calc,formula,keys])=>{
+  const valid=raw!=null&&Number.isFinite(lv)&&lv>=0&&keys.every(key=>raw[key]==null||Number.isFinite(Number(raw[key])));
+  return {label,value:valid?Number(calc().toFixed(3)):'—',formula};
  });
  return '<section class="card"><h3>yy-sim 원본 공식 · 인물 기본 능력치</h3>'+
- '<p class="micro">원본 computeFinalStats의 body 중 방어·명중·초식방어 산식만 분리했습니다. 장비·무학·재능·경맥이 적용되기 전의 중간값이므로 실제 전투 패널 수치가 아닙니다.</p>'+
+ '<p class="micro">원본 computeFinalStats.body에서 독립적으로 계산 가능한 6개 기본값입니다. 강기·내경 성장치는 레벨 93부터 반영됩니다. 장비·무학·재능·경맥 등이 적용되기 전의 중간값이며, 실제 전투 패널 수치가 아닙니다.</p>'+
  '<div class="wiki-detail-fields">'+entries.map(x=>'<div class="wiki-field"><span>'+escape(x.label)+'</span><b>'+escape(x.value)+'</b><small class="micro">'+escape(x.formula)+'</small></div>').join('')+'</div></section>';
 }
 function characterTrainingView(raw){
