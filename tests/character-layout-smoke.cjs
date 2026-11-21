@@ -19,5 +19,7 @@ assert(root.includes('wr-slot'),'original detail/equipment slots');
 assert(root.includes('role-grid stat-grid'),'original stat cards');
 assert(source.includes("if($('characterSearch'))"),'role selector search callback');
 assert(source.includes('data-character-role'),'role switching callback');
+assert(source.includes("characterFilter=''"),'character search remains independent');
+assert(source.includes("if($('characterSearch'))"),'character search event bound');
 assert(!source.includes('v0.7.14'),'old version label removed');
 console.log('PASS: yy-sim role page structure, all 8 tabs, selector wiring and version labels');
