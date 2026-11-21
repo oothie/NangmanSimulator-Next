@@ -2854,7 +2854,7 @@ function others(){
  if(v==='daily')return dailyView();
  if(v==='quest')return questView();
  if(v==='drop')return '<div class="module-wrap">'+moduleHero('드랍','')+
- '<nav class="simple-tabs" aria-label="드랍 종류">'+[['wild','필드 사냥 · 제릉 포함'],['dungeon','전체 관문 드랍'],['shared','90급 공용 장비'],['treasure','보물지도']].map(([key,label])=>
+ '<nav class="simple-tabs" aria-label="드랍 종류">'+[['wild','필드 사냥 · 제릉 포함'],['dungeon','전체 관문 드랍'],['treasure','보물지도']].map(([key,label])=>
  '<button type="button" data-drop-mode="'+key+'" class="'+(dropSelectedMode===key?'active':'')+'">'+label+'</button>').join('')+'</nav>'+
  '<div class="equipment-runtime-status"><span id="dropRuntimeStatus">드랍 준비 중</span><button class="equipment-retry" id="dropRetrySave" type="button">다시 연결</button></div>'+
  '</div>';
