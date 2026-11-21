@@ -57,3 +57,5 @@ jobs:
         run: node tests/wash-constraints-smoke.cjs
       - name: Verify purple equipment result filters
         run: node tests/drop-quality-filter-smoke.cjs
+      - name: Verify exported wild and dungeon drop CSV
+        run: node tests/drop-csv-smoke.cjs
