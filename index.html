@@ -1197,11 +1197,11 @@ function wikiImgTag(x,large=false){
  const target=wikiImage(x);
  const ch=x?.cat==='buff'?'상':x?.cat==='craft'?'기':x?.cat==='arts'?'비':'•';
  const cls='wiki-art-placeholder'+(large?' large':'');
- const fallback='<span class="'+cls+'" role="img" aria-label="이미지 자료 없음">'+ch+'</span>';
+ const fallback='<span class="'+cls+'" role="img" aria-label="이미지 자료 없음"'+
+  (target?' style="display:none"':'')+'>'+ch+'</span>';
  if(!target)return fallback;
- return '<img class="wiki-art '+(large?'large':'')+'" loading="lazy" alt="" src="'+
-  escape(target)+'" onerror="this.style.display=\'none\';this.insertAdjacentHTML(\'afterend\',\''+
-  fallback.replace(/'/g,'&#39;')+'\')">';
+ return '<img class="wiki-art '+(large?'large':'')+'" loading="lazy" alt="" src="'+escape(target)+
+  '" onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'inline-grid\'">'+fallback;
 }
 function wikiEffectDescription(x){
  if(x.source!=='buff')return '';
