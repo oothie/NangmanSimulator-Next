@@ -20,9 +20,18 @@ const path=require('node:path');
    const engine=module.washEngine;
    const initialized=await engine.call('init');
    const snapshot=await engine.call('state');
-   return {initialized,hasState:!!snapshot,slots:Array.isArray(snapshot?.talents)};
+   const selected={...snapshot,mode:'seed',seed:447882174,role_id:10044,salt:262731,
+    zizhi:153,sex:1,vip:1,talents:[{id:184,locked:false},{id:191,locked:false}],
+    bag_pills:1200,has_bag_pills:true};
+   const mapped=await engine.call('set-state',selected);
+   const search=await engine.call('auto-intermediate-search',{
+    desiredIds:[184,191],horizon:100,topN:5});
+   const restored=await engine.call('state');
+   return {initialized,hasState:!!snapshot,slots:Array.isArray(snapshot?.talents),
+    mapped:mapped?.role_id,search:search?.result?.routes?.length||0,
+    preserved:JSON.stringify(restored)===JSON.stringify(mapped)};
   });
-  assert(result.initialized?.ready&&result.hasState&&result.slots,
+  assert(result.initialized?.ready&&result.hasState&&result.slots&&result.search>0&&result.preserved,
     'actual browser iframe engine init failed: '+JSON.stringify({result,errs}));
   console.log('PASS: browser same-origin yy-sim WASM iframe init, state and scripts');
  }finally{
