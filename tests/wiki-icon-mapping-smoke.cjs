@@ -18,5 +18,5 @@ assert.equal(wikiImage({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}),
 assert.equal(wikiImage({source:'buff',cat:'buff',id:'201',obj:source.buff[0]}),
  'https://yy-sim.pages.dev/icons/buff/icon_buff_10.png','V6.20 original buff sprite');
 assert(wikiImgTag({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}).includes('src="https://yy-sim.pages.dev/icons/skill/309.png"'));
-assert(!wikiImgTag({source:'arts',cat:'arts',id:'999999',obj:{}}).includes('role="img"'),'invalid image placeholder does not invent a glyph');
+assert.equal(wikiImage({source:'arts',cat:'arts',id:'999999',obj:{}}),'','unknown skill does not invent image URL');
 console.log('PASS: craft/secret-art skill PNGs and original V6.20 buff sprite paths');
