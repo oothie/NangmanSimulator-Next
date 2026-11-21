@@ -3128,15 +3128,23 @@ window.addEventListener('nangman-wash-command',async e=>{
   const snapshot=await washEngine.call('state');
   const changed=Number(snapshot.sex)!==sex||Number(snapshot.vip)!==vip;
   if(changed){
-   const applied=await washEngine.call('set-state',{...snapshot,sex,vip});
-   ensureSession();
-   if(Number(applied?.role_id)!==Number(snapshot.role_id)||
-      Number(applied?.seed)!==Number(snapshot.seed)||
-      Number(applied?.sex)!==sex||Number(applied?.vip)!==vip||
-      JSON.stringify(applied?.talents)!==JSON.stringify(snapshot.talents))
-    throw Error('WASM 세수 설정 변경 후 원본 상태를 검증하지 못했습니다');
-   state.undoStates.push(snapshot);state.log.push({kind:'wash-config',sex,vip});
-   state.preview=null;state.autoResult=null;state.autoProgress=null;
+   try{
+    const applied=await washEngine.call('set-state',{...snapshot,sex,vip});
+    ensureSession();
+    if(Number(applied?.role_id)!==Number(snapshot.role_id)||
+       Number(applied?.seed)!==Number(snapshot.seed)||
+       Number(applied?.sex)!==sex||Number(applied?.vip)!==vip||
+       JSON.stringify(applied?.talents)!==JSON.stringify(snapshot.talents))
+     throw Error('WASM 세수 설정 변경 후 원본 상태를 검증하지 못했습니다');
+    state.undoStates.push(snapshot);state.log.push({kind:'wash-config',sex,vip});
+    state.preview=null;state.autoResult=null;state.autoProgress=null;
+   }catch(error){
+    ensureSession();
+    const restored=await washEngine.call('set-state',snapshot);
+    if(JSON.stringify(restored)!==JSON.stringify(snapshot))
+     throw Error('성별·VIP 설정 오류 후 원본 WASM 상태 복구 검증 실패: '+String(error.message||error));
+    throw error;
+   }
   }
   state.output='원본 yy-sim 가상 설정 · '+(sex===1?'남성':'여성')+
    ' · '+(vip===1?'VIP 1 이상':'VIP 없음')+' · 실제 세이브 불변';
