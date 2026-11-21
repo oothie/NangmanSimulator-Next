@@ -94,7 +94,13 @@ function describeAction(action,nameIds={},nameFor=()=>null){
    break;
   }
   case 'wash_to':label='모의 세수';detail=wash==null?'원본 지정 회차':wash+'회차까지';break;
-  case 'exchange':label='치환';detail=talent(action.from)+' → '+talent(action.to||action.talent);break;
+  case 'exchange':{
+   const chain=Array.isArray(action.chain)?action.chain.map(talent):[];
+   label=chain.length>1?'연쇄 치환':'치환';
+   detail=talent(action.from)+' → '+talent(action.to||action.talent)+
+    (chain.length>1?' · 원본 연쇄 '+chain.join(' → '):'');
+   break;
+  }
   case 'keep':label='재능 보존';detail=talent(action.talent);break;
   case 'skip':label='건너뛰기';detail=talent(action.talent);break;
  }
