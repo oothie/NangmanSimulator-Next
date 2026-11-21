@@ -50,6 +50,12 @@ async function call(op,payload){
   'native progressive route retains a zero-cost preexisting two-purple candidate');
  assert.equal(Number((await call('state')).data.seed),447882174,
   'progressive native search remains read-only');
+ const nativeColored=await call('auto-color-search',{desiredIds:[184],horizon:100});
+ assert(nativeColored.ok,'real native WASM green-talent sequential search accepted');
+ assert.equal(nativeColored.data.nativeFunction,'wasmColorSequentialSearch');
+ assert(Array.isArray(nativeColored.data.result?.routes));
+ assert.equal(Number((await call('state')).data.seed),447882174,
+  'real WASM green-target automatic search must preserve original seed');
  const sourceNew=await call('auto-search',{desiredIds:[268],maxPad:4,horizon:300,topN:3});
  assert(sourceNew.ok&&Array.isArray(sourceNew.data.result.routes));
  console.log('REAL_AUTOROUTE_SAMPLE',JSON.stringify(sourceNew.data.result).slice(0,3800));
