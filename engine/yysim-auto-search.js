@@ -5,6 +5,7 @@
 (function(root){
 'use strict';
 const int=v=>v!==null&&v!==undefined&&v!==''&&Number.isSafeInteger(Number(v))?Number(v):null;
+const nonnegative=v=>{const n=int(v);return n!==null&&n>=0?n:null;};
 function selectedIds(raw,allowed){
  const list=Array.isArray(raw)?raw:String(raw||'').split(/[\s,;]+/).filter(Boolean);
  const ids=list.map(int);
@@ -31,11 +32,17 @@ function routeOutcome(raw,selected){
   const finalSlots=Array.isArray(route?.final_slots)?route.final_slots:[];
   const finalIds=finalSlots.map(s=>int(s?.id)).filter(x=>x!=null);
   const matchedIds=ids.filter(id=>finalIds.includes(id));
-  const pills=int(route?.pills),washes=int(route?.washes),exchanges=int(route?.exchanges),pad=int(route?.pad);
+  const pills=nonnegative(route?.pills),washes=nonnegative(route?.washes),exchanges=nonnegative(route?.exchanges),pad=nonnegative(route?.pad);
   const isComplete=matchedIds.length===ids.length;
+  const hasCost=pills!==null&&washes!==null&&exchanges!==null&&pad!==null;
+  const hasSteps=Array.isArray(route?.actions)&&route.actions.length>0;
+  const executable=isComplete&&hasCost&&(hasSteps||(washes===0&&exchanges===0));
+  const warnings=[...(!hasCost?['원본 비용 정보 누락 또는 음수']:[]),
+    ...(isComplete&&!hasSteps&&(washes!==0||exchanges!==0)?['원본 실행 단계 미제공']:[]),
+    ...(route?.error?['원본 경로 오류: '+String(route.error)]:[])];
   return {index,source:route,
    goalIds:ids,finalIds,matchedIds,missingIds:ids.filter(id=>!finalIds.includes(id)),
-   complete:isComplete,estimatedPills:pills,estimatedWashes:washes,
+   complete:isComplete,executable:executable&&!route?.error,warnings,estimatedPills:pills,estimatedWashes:washes,
    exchanges,pad,lockedSlots:finalSlots.filter(s=>s?.locked===true).length,
    finalSlots,actions:Array.isArray(route?.actions)?route.actions:[],
    steps:Array.isArray(route?.steps)?route.steps:[],
@@ -45,6 +52,7 @@ function routeOutcome(raw,selected){
  });
  routes.sort((a,b)=>{
   if(a.complete!==b.complete)return a.complete?-1:1;
+  if(a.executable!==b.executable)return a.executable?-1:1;
   for(const key of ['estimatedPills','estimatedWashes','exchanges','pad']){
    const av=a[key],bv=b[key];
    if(av==null&&bv!=null)return 1;
@@ -55,6 +63,7 @@ function routeOutcome(raw,selected){
  });
  const stats={scanned:int(raw.scanned)??0,total:routes.length,
   complete:routes.filter(r=>r.complete).length,
+  actionable:routes.filter(r=>r.executable).length,
   error:typeof raw.error==='string'?raw.error:null,
   missing:Array.isArray(raw.missing)?raw.missing.length:0};
  return {routes,stats,selectedIds:ids};
