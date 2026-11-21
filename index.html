@@ -309,6 +309,9 @@ body{background:var(--bg)!important}
 .market-compare-scroll tr.selected{background:var(--paper);font-weight:700}
 .market-strategy{padding:16px;border:1px solid var(--border);border-radius:8px;background:var(--paper);margin-bottom:16px}
 .market-strategy-controls{display:flex;align-items:end;gap:9px;flex-wrap:wrap}
+.market-slots-control{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0}
+.market-slots-control label{display:flex;align-items:center;gap:9px;font-weight:600;font-size:13px}
+.market-slots-control select{padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--text)}
 .market-strategy-controls label{min-width:190px;flex:1;font-size:12px;color:var(--sub)}
 .market-strategy-controls select{display:block;width:100%;margin-top:5px;padding:9px;background:var(--panel);border:1px solid var(--border);border-radius:6px;color:var(--text)}
 .market-strategy-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:13px}
@@ -352,6 +355,7 @@ body{background:var(--bg)!important}
 <script src="./vendor/yysim/life_hedao_data.js"></script>
 <script src="./vendor/yysim/daily_data.js"></script>
 <script src="./data/market-item-ko.js"></script>
+<script src="./data/market-reference-saves.js"></script>
 <script src="./engine/daily-market.js"></script>
 <script src="./engine/quest-branch.js"></script>
 <script src="./engine/wash-path-model.js"></script>
@@ -911,7 +915,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='quick',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='refresh',marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
+let equipTab='quick',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='refresh',marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketStrategySource='auto',marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
@@ -1225,7 +1229,17 @@ function marketDate(ts){
  if(!Number.isFinite(ts)||ts<=0)return '기록 없음';
  return new Date(ts*1000).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
 }
-function marketStrategyMarkup(state,ko){
+function marketStrategySave(){
+ const source=marketStrategySource==='auto'?(Number(marketStrategyTarget)===222?'server2':'server4'):marketStrategySource;
+ return source==='upload'?save:window.NANGMAN_MARKET_REFERENCES?.[source];
+}
+function marketStrategyMarkup(dailyState,ko){
+ const strategySave=marketStrategySave();
+ if(!strategySave)return '<p class="role-status-note">선택한 기준 세이브가 없습니다. 4서버/2서버 기준을 선택하거나 세이브를 불러오세요.</p>';
+ const strategyTimestamp=Number(strategySave.RandShop?.Time)||Math.floor(Date.now()/1000);
+ const state=window.NangmanMarket.predict(strategySave,window.DAILY_DATA,strategyTimestamp,{slots:marketSlotsOverride});
+ const sourceKey=marketStrategySource==='auto'?(Number(marketStrategyTarget)===222?'server2':'server4'):marketStrategySource;
+ const sourceLabel=sourceKey==='server2'?'2서버 · 독벽도객 참고':sourceKey==='server4'?'4서버 · 6칸 기본':'현재 불러온 세이브';
  const featured=[223,224,222,225];
  const available=state.available||[],soldOut=state.soldOut||[];
  const all=[...available,...soldOut],soldSet=new Set(soldOut.map(x=>x.id));
@@ -1234,9 +1248,9 @@ function marketStrategyMarkup(state,ko){
  const choices=sorted.map(item=>'<option value="'+item.id+'" '+(marketStrategyTarget===item.id?'selected':'')+'>'+escape(marketCatalogName(item,ko))+(soldSet.has(item.id)?' · 판매 상한 도달':'')+' · 상품 #'+item.id+'</option>').join('');
  const selected=all.find(x=>Number(x.id)===marketStrategyTarget);
  const limited=selected&&soldSet.has(selected.id);
- const countRaw=save?.RandShop?.Counts;
+ const countRaw=strategySave?.RandShop?.Counts;
  const purchased=limited?(Array.isArray(countRaw)?(countRaw.find(x=>Number(x.One)===selected.id)?.Two||0):Number(countRaw?.[selected.id]||0)):0;
- const views=marketStrategyResults;
+ const views=marketStrategyResults?.source===sourceKey&&marketStrategyResults?.slots===marketSlotsOverride&&marketStrategyResults?.target===marketStrategyTarget?marketStrategyResults:null;
  const display=views?.byVip?.[marketVipOverride]||views;
  const result=views?'<div class="market-strategy-results">'+[
   ['cheapest','최소 원보 소모'],['fastest','가장 빠른 획득']
@@ -1273,9 +1287,17 @@ function marketStrategyMarkup(state,ko){
    '<p class="micro">아래 상세 경로는 현재 선택한 VIP '+marketVipOverride+' 기준입니다. 다른 VIP의 경로를 보려면 원보 갱신 탭에서 VIP를 바꿔 주세요.</p></div>':'';
  return '<div class="market-strategy">'+
   '<h4>한정 상품 갱신 전략 찾기</h4>'+
-  '<p class="micro">기준: 새 세이브의 암시장 저장 시각 · 06시 횟수 초기화 · 08시/20시 자동 갱신 · 원보 20개/회. 상품 판매 가격은 비용에 포함하지 않습니다.</p>'+
+  '<p class="micro">계산 기준: '+sourceLabel+' · 실제 저장 '+state.saveSlots+'칸 → 예측 '+state.slots+'칸 · 06시 횟수 초기화 · 08/20시 자동 교체 · 원보 갱신 20원보/회 (상품 가격 별도)</p>'+
+  (sourceKey==='server2'&&marketSlotsOverride>state.saveSlots?
+   '<p class="market-limit-note">2서버 세이브는 실제 '+state.saveSlots+'칸입니다. '+marketSlotsOverride+'칸 시뮬레이션은 슬롯을 추가로 개방했다고 가정한 결과이므로 현재 게임 그대로의 예상과는 다릅니다.</p>':'')+
   (limited?'<p class="market-limit-note">'+escape(marketCatalogName(selected,ko))+' 누적 구매 '+purchased+'/'+selected.stock+'개. 현재 이 세이브에서는 더 이상 나오지 않습니다.</p>':'')+
   '<div class="market-strategy-controls">'+
+   '<label>참고 세이브 <select id="marketStrategySource">'+[
+    ['auto','자동: 독벽도객 2서버 / 나머지 4서버'],
+    ['server4','4서버 (6칸, 벽파/쇄성보 각 3장)'],
+    ['server2','2서버 (독벽도객 미구매, 실제 3칸)'],
+    ['upload','현재 불러온 세이브']
+   ].map(([id,label])=>'<option value="'+id+'" '+(marketStrategySource===id?'selected':'')+'>'+label+'</option>').join('')+'</select></label>'+
    '<label>목표 상품 <select id="marketStrategyTarget">'+choices+'</select></label>'+
    '<label>탐색 범위 <select id="marketStrategyPeriods">'+[4,8,12,20,28].map(x=>
     '<option value="'+x+'" '+(marketStrategyPeriods===x?'selected':'')+'>'+x+'회 자동 교체</option>').join('')+'</select></label>'+
@@ -1285,10 +1307,11 @@ function marketStrategyMarkup(state,ko){
  '</div>';
 }
 function dailyMarketView(){
- if(!save)return '<p class="role-status-note">상단에서 한국판 세이브를 불러오면 저장된 귀시 상품과 RNG 시퀀스를 조회할 수 있습니다.</p>';
+ const marketSave=save||window.NANGMAN_MARKET_REFERENCES?.server4;
+ if(!marketSave)return '<p class="role-status-note">암시장 기본 기준 세이브 데이터를 불러올 수 없습니다.</p>';
  if(!window.NangmanMarket||!window.DAILY_DATA?.shops?.guishi)
   return '<p class="role-status-note">yy-sim 귀시 상품 데이터 또는 예측 계산 모듈을 불러오지 못했습니다.</p>';
- const ko=wikiKoMap(),state=window.NangmanMarket.predict(save,window.DAILY_DATA),
+ const ko=wikiKoMap(),state=window.NangmanMarket.predict(marketSave,window.DAILY_DATA,Math.floor(Date.now()/1000),{slots:marketSlotsOverride}),
   vipChoice=marketVipOverride,
   allowance=state.paidAllowance(vipChoice),
   simSteps=Math.min(Math.max(0,Math.floor(marketSimStep)),allowance.left),
@@ -1310,12 +1333,13 @@ function dailyMarketView(){
   '의 귀시 상품 가중치와 RNG를 사용합니다. 중국판 자료와 한국판 상품 구성·버전 차이로 결과가 다를 수 있으며 실게임 적중률은 검증되지 않았습니다. 세이브는 변경되지 않습니다.</p>';
  return note+
  '<div class="market-stats">'+[
-  ['상품 슬롯',state.slots+'칸'],['현재 저장된 품목',state.today.length+'종'],
+  ['예측 슬롯',state.slots+'칸'],['저장 슬롯',state.saveSlots+'칸'],
   ['선택 VIP 갱신 잔여',allowance.left+'회'],['판매 후보 상품',state.available.length+'종']
  ].map(([name,value])=>'<div class="stat-cell"><span class="label">'+name+'</span><span class="value">'+escape(value)+'</span></div>').join('')+'</div>'+
- '<p class="micro">귀시 저장 시각 '+escape(marketDate(state.lastTime))+' · 다음 정시 변경 '+escape(marketDate(state.nextTime))+
+ '<p class="micro">'+(save?'업로드한 세이브':'4서버 기본 기준')+' · 귀시 저장 시각 '+escape(marketDate(state.lastTime))+' · 다음 정시 변경 '+escape(marketDate(state.nextTime))+
  ' · 적용 VIP '+vipChoice+'단계(수동 선택) · GoldStep은 VIP 판정에 사용하지 않습니다.</p>'+
  '<p class="micro">'+escape(status)+'</p>'+
+ '<div class="market-slots-control"><label>예측 슬롯 수 <select id="marketSlotsSelect">'+[3,4,5,6].map(x=>'<option value="'+x+'" '+(x===marketSlotsOverride?'selected':'')+'>'+x+'칸'+(x===6?' (기본)':'')+'</option>').join('')+'</select></label><span class="micro">원보·자동 갱신·한정 상품 탐색 모두 동일하게 적용 · 실제 세이브 슬롯 '+state.saveSlots+'칸</span></div>'+
  '<nav class="market-nav" role="group" aria-label="암시장 기능">'+[['refresh','원보 갱신'],['current','현재 상품'],['schedule','자동 갱신'],['search','상품 검색']].map(([id,label])=>'<button type="button" data-market-tab="'+id+'" class="'+(marketPanel===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+ 
  '<section class="market-section" data-market-panel="refresh"><h4>VIP 선택 · 원보 갱신 모의실행</h4>'+
  '<p class="micro">산부진식 단계별 모의 갱신입니다. 직접 선택한 VIP 등급에 따른 하루 허용 횟수를 적용하고, 클릭할 때마다 다음 상품으로 이동합니다. 실제 원보를 사용하거나 세이브를 수정하지 않습니다.</p>'+
@@ -2760,11 +2784,16 @@ function others(){
 function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();updateDropVisibility();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);invalidateWashLink(roles[selected]?.id);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);invalidateWashLink(roles[selected]?.id);render()});if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);invalidateWashLink(roles[selected]?.id);characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};if($('marketQuery'))$('marketQuery').oninput=e=>{marketPanel='search';marketQuery=e.target.value;const caret=e.target.selectionStart;render();const field=$('marketQuery');if(field){field.focus();field.setSelectionRange(caret,caret)}};
 if($('marketPeriods'))$('marketPeriods').onchange=e=>{marketPeriods=Number(e.target.value);render()};
 if($('marketVipSelect'))$('marketVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;render()};
+if($('marketSlotsSelect'))$('marketSlotsSelect').onchange=e=>{marketSlotsOverride=Number(e.target.value);marketSimStep=0;marketStrategyResults=null;render()};
+if($('marketStrategySource'))$('marketStrategySource').onchange=e=>{marketStrategySource=e.target.value;marketStrategyResults=null;render()};
 if($('marketStrategyTarget'))$('marketStrategyTarget').onchange=e=>{marketStrategyTarget=Number(e.target.value);marketStrategyResults=null;render()};
 if($('marketStrategyPeriods'))$('marketStrategyPeriods').onchange=e=>{marketStrategyPeriods=Number(e.target.value);marketStrategyResults=null;render()};
 if($('marketStrategyRun'))$('marketStrategyRun').onclick=()=>{
- const anchor=Number(save?.RandShop?.Time)||Math.floor(Date.now()/1000);
- const state=window.NangmanMarket.predict(save,window.DAILY_DATA,anchor);
+ const source=marketStrategySource==='auto'?(marketStrategyTarget===222?'server2':'server4'):marketStrategySource;
+ const refSave=marketStrategySave();
+ if(!refSave)return;
+ const anchor=Number(refSave?.RandShop?.Time)||Math.floor(Date.now()/1000);
+ const state=window.NangmanMarket.predict(refSave,window.DAILY_DATA,anchor,{slots:marketSlotsOverride});
  const byVip={};
  for(let vip=0;vip<=5;vip++){
    byVip[vip]={
@@ -2772,7 +2801,7 @@ if($('marketStrategyRun'))$('marketStrategyRun').onclick=()=>{
      fastest:state.searchStrategy([marketStrategyTarget],{vip,periods:marketStrategyPeriods,maxStates:18000,mode:'fastest'})
    };
  }
- marketStrategyResults={byVip,anchor,target:marketStrategyTarget,periods:marketStrategyPeriods};
+ marketStrategyResults={byVip,anchor,target:marketStrategyTarget,periods:marketStrategyPeriods,source,slots:marketSlotsOverride};
  render();
 };
 document.querySelectorAll('[data-market-panel]').forEach(el=>{el.hidden=el.dataset.marketPanel!==marketPanel});
