@@ -11795,9 +11795,29 @@ window.nangman350FocusEquipment=function(snapshot,initialTab){
  for(const [raw,key] of [['CZSeed','CZSeed'],['MJSeed','MJSeed'],['S','S']]){
   if(snapshot[raw]!=null)matches=matches.filter(e=>Number(e[key])===Number(snapshot[raw]));
  }
- if(matches.length!==1)return {ok:false,message:matches.length?'같은 장비가 여러 개 있습니다. 고유 번호 또는 시드로 선택해야 합니다.':'불러온 세이브에서 해당 장비를 확인할 수 없습니다.'};
+ if(matches.length!==1){
+  if(matches.length>1)return {ok:false,message:'같은 장비가 여러 개 있습니다. 고유 번호 또는 시드로 선택해야 합니다.'};
+  const cfg=EQUIP_DATA.equipment[String(id)];
+  if(!cfg)return {ok:false,message:'장비 데이터가 없습니다.'};
+  // Future drop/finder integration: use verified complete snapshot seeds only.
+  // Never invent RNG state from an item ID or quality alone.
+  const complete=Number.isFinite(Number(snapshot.CZSeed))&&snapshot.CZSeed!=null&&
+    Number.isFinite(Number(snapshot.MJSeed))&&snapshot.MJSeed!=null&&
+    Number.isFinite(Number(snapshot.S))&&snapshot.S!=null&&
+    (Array.isArray(snapshot.EnExts)||Array.isArray(snapshot.exts))&&
+    (snapshot.Color!=null||snapshot.color!=null);
+  if(complete){
+   const predicted=toEquipInstance(snapshot,'계산 결과 · 전달된 시드',false);
+   showDetailTop233(predicted,'owned',initialTab||'route');
+   return {ok:true,source:'snapshot'};
+  }
+  R.sel=null;
+  const target=q('#rmain');
+  if(target)target.innerHTML=`<section class="rb-detail233"><h2>${esc(ename(cfg))}</h2><div class="meta">${esc(Number(cfg.lv||0))}급 · ${esc(tname(cfg.type))} · 장비 #${esc(id)}</div><p class="note218">장비 정보와 상세 페이지를 표시합니다. 이 장비의 개별 정련·망정·촉련 결과는 실제 아이템 시드와 추가 옵션이 있어야 계산할 수 있습니다. 현재는 해당 세이브 인스턴스가 없으므로 임의의 예측을 표시하지 않습니다.</p><div class="tabs218"><button type="button" class="on">장비 정보</button><button type="button" disabled>정련</button><button type="button" disabled>망정</button><button type="button" disabled>촉련</button></div></section>`;
+  return {ok:true,source:'catalog',message:'장비 도감 정보 표시 · 개별 계산 시드는 없음'};
+ }
  showDetailTop233(matches[0],'owned',initialTab||'route');
- return {ok:true};
+ return {ok:true,source:'owned'};
 };
 window.rk218Open=open;window.addEventListener('load',mount);if(document.readyState!=='loading')setTimeout(mount,0);
 })();
