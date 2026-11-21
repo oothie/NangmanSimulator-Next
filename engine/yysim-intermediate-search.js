@@ -1,128 +1,147 @@
-/* yy-sim native intermediate-talent search.
- * Samples genuine wasmDoWash() states. Goals may be encountered at different
- * washes; no requirement that all persist in the final talent slots.
- * Evaluates the baseline and every legal lock subset of starting slots.
- * Cheapest route is only optimal among these evaluated native trajectories.
+/* Original yy-sim WASM final-slot multi-color goal search.
+ * Search each acquisition order with a genuinely new native engine instance.
+ * Goals must coexist in the FINAL slots; merely seen-and-lost talents never
+ * count. Every candidate's cost comes from real wasmDoWash calls.
+ * Cheapest candidate is only minimum of explored native orders, not a proof
+ * of global minimum over exchanges, arbitrary unlocks and all opening plans.
  */
 (function(root){
 'use strict';
-const own=(s,id)=>Array.isArray(s?.talents)&&s.talents.some(t=>Number(t.id)===id);
-const snapshot=s=>JSON.stringify(s);
-const subsets=(initial)=>{
- const existing=initial.talents||[];
- const unlocked=existing.map((t,i)=>t.locked?null:i).filter(i=>i!==null);
- const locked=existing.length-unlocked.length;
- const result=[];
- for(let bits=0;bits<(1<<unlocked.length);bits++){
-  const indices=unlocked.filter((_,i)=>bits&(1<<i));
-  if(indices.length+locked<=3)result.push(indices);
+const copy=value=>JSON.parse(JSON.stringify(value));
+const own=(state,id)=>Array.isArray(state?.talents)&&state.talents.some(t=>Number(t.id)===id);
+const finalMatches=(state,ids)=>ids.every(id=>own(state,id));
+const equals=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const countLocked=state=>(state?.talents||[]).filter(t=>t.locked===true).length;
+const permute=ids=>ids.length<2?[ids.slice()]:ids.flatMap((v,i)=>permute(ids.filter((_,j)=>j!==i)).map(t=>[v,...t]));
+function subsets(initial){
+ const all=initial?.talents||[],unlocked=all.map((t,i)=>t.locked?null:i).filter(v=>v!==null);
+ const results=[];
+ for(let mask=0;mask<(1<<unlocked.length);mask++){
+  const ids=unlocked.filter((_,i)=>mask&(1<<i));
+  if(ids.length+countLocked(initial)<4)results.push(ids);
  }
- return result.sort((a,b)=>a.length-b.length);
-};
-async function run({ids,horizon=3000,topN=12,getState,setState,doWash,
+ return results;
+}
+function costOf(initial,final){
+ const total=Number(final.total_pills)-Number(initial.total_pills);
+ const fromBag=Number(initial.bag_pills)-Number(final.bag_pills);
+ if(Number.isFinite(total)&&total>=0&&(total>0||!Number.isFinite(fromBag)))return total;
+ return Number.isFinite(fromBag)&&fromBag>=0?fromBag:total;
+}
+async function run({ids,horizon=900,topN=8,getState,setState,doWash,
  freshBranch=null,isolated=false,yieldControl=async()=>{}}){
- if(!Array.isArray(ids)||!ids.length||ids.length>4||new Set(ids).size!==ids.length||
-  ids.some(id=>!Number.isInteger(id)))throw Error('목표 재능은 서로 다른 ID 1~4개여야 합니다');
+ if(!Array.isArray(ids)||ids.length<1||ids.length>4||new Set(ids).size!==ids.length||
+    ids.some(id=>!Number.isSafeInteger(id)||id<=0))
+  throw Error('자동탐색 목표는 서로 다른 녹맥·파맥·자맥 1~4개여야 합니다');
  if(!Number.isInteger(horizon)||horizon<1||horizon>5000)throw Error('탐색 범위는 1~5000회입니다');
  if(!Number.isInteger(topN)||topN<1||topN>20)throw Error('결과 개수는 1~20개입니다');
  const initial=getState();
- if(!initial||!Array.isArray(initial.talents))throw Error('WASM 세수 원본 상태가 없습니다');
- const initialText=snapshot(initial),routes=[],warnings=[];
- const masks=subsets(initial);
- let scanned=0,executed=0,stoppedEarly=0,rollbackFailure=null;
- // Native set_state may normalize save-specific fields. Validate all engine
- // state keys after restoring; if a copy cannot be restored, STOP exploring
- // that WASM instance rather than continuing with a contaminated trajectory.
+ if(!initial||!Array.isArray(initial.talents))throw Error('WASM 세수 원본 상태를 불러올 수 없습니다');
+ const originalText=JSON.stringify(initial),orders=permute(ids),routes=[],warnings=[];
+ let scanned=0,executed=0,early=0,partial=false;
  const restore=()=>{
-  if(!setState(initial)){
-   rollbackFailure='원본 WASM이 상태 복원 요청을 거절했습니다';
-   return false;
-  }
-  const restored=getState();
-  if(snapshot(restored)!==initialText){
-   const keys=[...new Set([...Object.keys(initial),...Object.keys(restored||{})])];
-   const diffs=keys.filter(k=>snapshot(initial[k])!==snapshot(restored?.[k]));
-   rollbackFailure='원본 WASM 복원값 불일치 ('+(diffs.slice(0,6).join(', ')||'상태 구조')+')';
-   return false;
-  }
-  return true;
+  if(!setState(initial)||!equals(getState(),initial))throw Error('WASM 별도 탐색 상태 초기화 불일치');
  };
+ const warning=msg=>{if(warnings.length<8&&!warnings.includes(msg))warnings.push(msg)};
  try{
-  for(const [branch,indices] of masks.entries()){
-   // A disposable native instance is created for EACH new branch. This does
-   // not depend on set_state restoring a mutated instance after thousands of
-   // real washes (the save-specific failure reported by the user).
-   if(branch>0){
+  for(let branch=0;branch<orders.length;branch++){
+   if(branch){
     if(typeof freshBranch==='function'){
-     let fresh=null;
-     try{fresh=await freshBranch(initial)}
-     catch(error){rollbackFailure='독립 WASM 분기 생성 실패: '+String(error?.message||error)}
-     if(fresh){
-      const changed=Object.keys(initial).filter(k=>snapshot(initial[k])!==snapshot(fresh[k]));
-      if(changed.length)rollbackFailure='별도 WASM 분기 입력 불일치 ('+changed.slice(0,6).join(', ')+')';
+     let loaded;
+     try{loaded=await freshBranch(initial)}catch(error){
+      warning('새 WASM 분기 생성 오류: '+String(error?.message||error));partial=true;break;
      }
-     if(rollbackFailure){if(warnings.length<8)warnings.push(rollbackFailure);break}
-    }else if(!restore()){
-     if(warnings.length<8)warnings.push(rollbackFailure);
-     break;
+     if(!equals(loaded,initial)){
+      const changed=Object.keys(initial).filter(k=>!equals(initial[k],loaded?.[k]));
+      warning('WASM 새 분기 상태 불일치: '+changed.slice(0,6).join(', '));partial=true;break;
+     }
+    }else restore();
+   }
+   scanned++;
+   const order=orders[branch],actions=[];
+   const hasOtherLocks=initial.talents.some(t=>t.locked&&!ids.includes(Number(t.id)));
+   const requiredSlots=Math.min(4,Math.max(ids.length+Number(hasOtherLocks),
+     countLocked(initial)+ids.filter(id=>!initial.talents.some(t=>t.locked&&Number(t.id)===id)).length));
+   let state=getState(),zizhi=Number(state.zizhi);
+   if(!Number.isInteger(zizhi)||zizhi<150||zizhi>154){
+    warning('원본 자질 정보가 올바르지 않아 탐색하지 못했습니다');partial=true;break;
+   }
+   if(requiredSlots>4||countLocked(initial)+ids.filter(id=>!initial.talents.some(t=>t.locked&&Number(t.id)===id)).length>4){
+    warning('기존 잠금과 목표를 모두 보유할 슬롯이 부족합니다');continue;
+   }
+   while(zizhi-150<requiredSlots){
+    if(zizhi>=154)break;
+    const next={...state,zizhi:zizhi+1,
+      str_gift:Number(state.str_gift||0)+100,con_gift:Number(state.con_gift||0)+100};
+    if(!setState(next))throw Error('원본 WASM 가상 재능 슬롯 개방 실패');
+    state=getState();zizhi=Number(state?.zizhi);
+    if(zizhi!==Number(next.zizhi))throw Error('가상 자질 개방 검증 실패');
+    actions.push({kind:'open_slot',note:'가상 자질 '+zizhi+' ('+(zizhi-150)+'칸)',wash_no:0});
+   }
+   let washes=0,found=finalMatches(state,ids),blocked=false;
+   // Only the next desired goal in this acquisition order is pinned.
+   // This is deliberate: the exact last goal must be in the live final
+   // slots, not a transient talent that disappeared earlier.
+   let index=0;
+   while(!found&&!blocked&&washes<=horizon){
+    state=getState();
+    if(finalMatches(state,ids)){found=true;break;}
+    while(index<order.length-1&&own(state,order[index])){
+     const slot=state.talents.findIndex(t=>Number(t.id)===order[index]);
+     if(slot<0)break;
+     if(!state.talents[slot].locked){
+      if(countLocked(state)>=3){blocked=true;break;}
+      const next={...state,talents:state.talents.map((t,i)=>i===slot?{...t,locked:true}:{...t})};
+      if(!setState(next))throw Error('원본 WASM 재능 잠금 실패');
+      const confirmed=getState();
+      if(!confirmed?.talents?.[slot]?.locked)throw Error('원본 WASM 재능 잠금 검증 실패');
+      state=confirmed;
+      actions.push({kind:'lock',talent:order[index],wash_no:washes});
+     }
+     index++;
     }
-   }
-   const start=getState(),next={...start,talents:start.talents.map(t=>({...t}))};
-   for(const i of indices)next.talents[i].locked=true;
-   if(indices.length){
-    if(!setState(next))throw Error('WASM 탐색 잠금 설정 실패');
-    const confirmed=getState();
-    if(indices.some(i=>confirmed.talents[i]?.locked!==true))
-     throw Error('WASM 탐색 잠금 상태가 일치하지 않습니다');
-   }
-   const found=new Set(ids.filter(id=>own(getState(),id)));
-   const acquired=ids.filter(id=>found.has(id)).map(id=>({id,wash_no:0}));
-   const actions=indices.map(i=>({kind:'lock',talent:next.talents[i].id,
-    wash_no:0,note:'초기 재능 슬롯 잠금'}));
-   let washes=0;
-   while(found.size<ids.length&&washes<horizon){
+    if(blocked||washes>=horizon)break;
     const before=getState(),result=doWash(),after=getState();
-    if(result?.error||!after||!Array.isArray(after.talents)||
-      snapshot(before)===snapshot(after)){
-     if(warnings.length<8)warnings.push('원본 세수 진행 불가: 잠금 '+indices.length+'칸, '+washes+'회차');
+    if(result?.error||!after||!Array.isArray(after.talents)||equals(before,after)){
+     warning('세수 결과가 없는 분기: 순서 '+(branch+1)+' · '+washes+'회');
      break;
     }
     washes++;executed++;
-    for(const id of ids)if(!found.has(id)&&own(after,id)){
-     found.add(id);acquired.push({id,wash_no:washes});
-    }
     if(washes%50===0)await yieldControl();
+    if(finalMatches(after,ids)){found=true;break;}
+    // Only mark goals that continue to exist at the end. Past encounters
+    // never satisfy the final combination.
    }
-   scanned++;
-   if(found.size===ids.length){
-    const final=getState();
-    const initialCost=initial.has_bag_pills===true?Number(initial.bag_pills):Number(initial.total_pills);
-    const finalCost=initial.has_bag_pills===true?Number(final.bag_pills):Number(final.total_pills);
-    const pills=initial.has_bag_pills===true?initialCost-finalCost:finalCost-initialCost;
-    if(!Number.isFinite(pills)||pills<0)throw Error('WASM 세수단 소비 기록이 올바르지 않습니다');
-    if(washes)actions.push({kind:'wash_to',wash_no:washes,
-     note:'중간 맥 포함 실제 WASM 세수 회차'});
-    if(washes<horizon)stoppedEarly++;
-    routes.push({order_ids:acquired.map(x=>x.id),reached_ids:[...found],
-     acquired_events:acquired,pad:0,pills,washes,exchanges:0,
-     final_slots:final.talents,actions,intermediate_goals:true,optimal:false,
-     source:'wasm_native_intermediate_trace',lock_indices:indices});
+   if(found){
+    const final=getState(),pills=costOf(initial,final);
+    if(!Number.isFinite(pills)||pills<0)throw Error('WASM 최종 세수단 소모를 확인할 수 없습니다');
+    // Insert wash commands between locks in chronological action order.
+    // The raw loop stores locks with their exact wash index.
+    const steps=[],lockActions=actions;
+    let lastWash=0;
+    for(const act of lockActions){
+     if(act.wash_no>lastWash){steps.push({kind:'wash_to',wash_no:act.wash_no});lastWash=act.wash_no}
+     steps.push(act);
+    }
+    if(washes>lastWash)steps.push({kind:'wash_to',wash_no:washes});
+    if(washes<horizon)early++;
+    routes.push({order_ids:order,pad:0,pills,washes,exchanges:0,
+     final_slots:copy(final.talents),actions:steps,
+     intermediate_goals:false,optimal:false,
+     source:'wasm_native_final_slots',lock_order:order.slice()});
    }
    await yieldControl();
   }
  }finally{
-  // The caller owns/discards a dedicated search WASM instance. Never attempt
-  // to rewind the user's actual simulator or a disposable native trajectory.
-  if(!isolated&&!restore()&&warnings.length<8)warnings.push(rollbackFailure);
+  if(!isolated){
+   try{restore()}catch(error){warning('탐색 원본 복원 오류: '+String(error.message||error));partial=true}
+  }
  }
- routes.sort((a,b)=>a.pills-b.pills||a.washes-b.washes||a.lock_indices.length-b.lock_indices.length);
- return {routes:routes.slice(0,topN),scanned,
-  trajectories:masks.length,washesExecuted:executed,stoppedEarly,
-  partial:!!rollbackFailure,
-  error:routes.length?null:(rollbackFailure?
-   '원본 WASM의 상태 복원값이 달라 이후 잠금 분기를 안전하게 검사하지 않았습니다: '+rollbackFailure:
-   '탐색한 잠금 조합과 세수 범위에서 목표 맥의 중간 획득 경로를 찾지 못했습니다'),
+ routes.sort((a,b)=>a.pills-b.pills||a.washes-b.washes||a.actions.length-b.actions.length);
+ return {routes:routes.slice(0,topN),scanned,trajectories:orders.length,
+  washesExecuted:executed,stoppedEarly:early,partial,
+  error:routes.length?null:'탐색한 모든 획득 순서에서 목표 맥이 최종 슬롯에 함께 남는 경로를 찾지 못했습니다',
   warnings};
 }
-root.YYWashIntermediateSearch={run,subsets};
+root.YYWashIntermediateSearch={run,subsets,permute,finalMatches};
 })(window);
