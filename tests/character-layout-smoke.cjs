@@ -57,8 +57,8 @@ assert(source.includes("['account','계정 전체']"),'account-wide training tab
 assert(source.includes("data-character-jump"),'account-to-role training drilldown');
 const accountCode=source.slice(source.indexOf('function yyRoleCultivationModel('),source.indexOf('function characterView(){'));
 assert(accountCode.includes('function yyAccountHistoryView('),'historical cultivation source ledger');
-const accountFactory = new Function('window','save','roles','yyRoleSection','escape','yyProgressEntries',
- accountCode+';return {yyRoleCultivationModel,yyAccountCultivationView};');
+const accountFactory = new Function('window','save','roles','yyRoleSection','escape','yyProgressEntries','characterEntries',
+ accountCode+';return {yyRoleCultivationModel,yyAccountCultivationView,yyCultivationAudit,yyAccountCultivationCsv};');
 const mainSave={globalVariable:{
  '3255_atk':20,'muren_addXW1':10,'2630_1':3,'2630_10058':2,'home_ssrx_max':12
 }};
@@ -71,9 +71,9 @@ const statusApi={cultivation:(save,role)=>({cultivation:{records:[1,2,3,4,'ng','
  transferable:role['WXXW'+k]||0,raw:(role['WXXW'+k]||0)+100,overflow:0,
  history:k===1?[{name:'紫阳书院指点',current:20}]:[],unknownSkills:[]
 }))}})};
-const {yyRoleCultivationModel,yyAccountCultivationView}=accountFactory(
+const {yyRoleCultivationModel,yyAccountCultivationView,yyCultivationAudit,yyAccountCultivationCsv}=accountFactory(
  {RoleStatusData:statusApi},mainSave,roster,(title,inner)=>'<section><h3>'+title+'</h3>'+inner+'</section>',
- value=>String(value),yyProgressEntries
+ value=>String(value),yyProgressEntries,value=>Array.isArray(value)?value:value&&typeof value==='object'?Object.values(value):[]
 );
 assert.equal(yyRoleCultivationModel(roster[0]).records.length,6,'all six cultivation branches');
 assert.equal(yyRoleCultivationModel(roster[0]).records[0].history[0].name,'자양서원 지도','Korean history names');
@@ -91,5 +91,17 @@ const missingSource=accountFactory({RoleStatusData:fallbackApi},mainSave,roster,
 const fallbackHtml=missingSource.yyAccountCultivationView();
 assert(fallbackHtml.includes('추가 120'),'saved WXXW remains visible when learned stats are unknown');
 assert(fallbackHtml.includes('저장 추가 수련 합계'),'saved WXXW all-roster sum without engine');
+
+assert(accountHtml.includes('수련 데이터 연결 진단'),'unmapped martial audit section');
+const csv=yyAccountCultivationCsv();
+assert(csv.includes('현재 저장값'),'csv current values header');
+assert(csv.includes('과거 획득 기록'),'csv historical section');
+assert(csv.includes('"주인공","1"'),'csv role ID');
+assert(csv.includes('"자양서원 지도"'),'csv Korean historical source');
+assert(csv.startsWith('\uFEFF'),'Excel UTF-8 BOM');
+const audit=yyCultivationAudit([{r:{name:'검증 동료',raw:{
+ Taolus:[{ID:20010,Level:10,Chong:10},{ID:999999,Level:10,Chong:10}],Neis:[],Qings:[]}},
+ stats:{records:[]}}]);
+assert(audit.some(x=>x.id==='999999'&&x.issues.includes('기본 무학 ID 미연결')),'detect martial IDs outside source table');
 
 console.log('PASS: yy-sim role page structure, all 9 tabs, selector wiring and version labels');
