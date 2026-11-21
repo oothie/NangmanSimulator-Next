@@ -1069,10 +1069,22 @@ if(sub==='auto'){
   '<div class="actions">'+
   '<button type="button" class="btn" id="yyAutoClear">선택 초기화</button><span class="micro">선택 '+selectedTargets.length+' / 4개</span></div>'+
   '<div class="section-header"><h3>계산</h3></div>'+
-  '<div class="actions"><button type="button" class="btn primary" id="yyAutoRun" '+(!r||!save||state.loading||!selectedTargets.length?'disabled':'')+'>선택 재능 자동 계산</button></div>'+
-  (state.autoProgress?'<p class="micro">단계별 탐색 '+escape(state.autoProgress.phase)+' / '+
-    escape(state.autoProgress.total)+' · 현재 후보 최소 세수단 '+
-    escape(state.autoProgress.bestPills??'미발견')+'개 (최단 보장 없음)</p>':'')+
+  '<div class="actions"><button type="button" class="btn primary" id="yyAutoRun" '+(!r||!save||state.loading||!selectedTargets.length?'disabled':'')+'>'+(state.loading?'자동탐색 진행 중…':'선택 재능 자동 계산')+'</button></div>'+
+  (state.autoProgress?(()=>{const p=state.autoProgress;
+    const percent=Number.isFinite(Number(p.percentage))?Math.min(100,Math.max(0,Math.round(Number(p.percentage)))):null;
+    const completed=Number.isFinite(Number(p.completed))?Number(p.completed):null;
+    const total=Number.isFinite(Number(p.total))?Number(p.total):null;
+    return '<div class="wash-search-progress" role="status" aria-live="polite" style="margin:12px 0;padding:14px 16px;border:1px solid var(--border, currentColor);border-radius:12px">'+
+     '<strong>'+(state.loading?'⏳ 탐색 진행 중':'탐색 단계')+'</strong> · '+escape(p.stage||'경로 탐색')+
+     '<div class="micro" style="margin:6px 0">'+
+     (completed!=null&&total>0?'분기·회차 '+escape(completed.toLocaleString())+' / '+escape(total.toLocaleString())+' · ':'')+
+     (Number.isFinite(Number(p.checked))?'검사한 WASM 세수 '+escape(Number(p.checked).toLocaleString())+'회 · ':'')+
+     '발견 후보 '+escape(p.found??0)+'개 · 현재 최소 세수단 '+escape(p.bestPills==null?'미발견':p.bestPills+'개')+
+     (p.maxGoals!=null?' · 확보한 목표 최대 '+escape(p.maxGoals)+' / '+escape(p.goalCount||selectedTargets.length):'')+'</div>'+
+     '<div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+escape(percent??0)+'" aria-label="자동탐색 진행률" style="height:10px;border-radius:12px;overflow:hidden;background:var(--surface-2,rgba(128,128,128,.18))">'+
+     '<div style="height:100%;width:'+escape(percent??6)+'%;background:var(--accent,#9a668e);transition:width .2s"></div></div>'+
+     '<div class="micro" style="margin-top:5px">'+(percent==null?'진행 단계 갱신 중':percent+'% · 현재 단계 기준')+' · 전체 경로의 전역 최솟값 보장 없음</div></div>';
+   })():'')+
   (state.error?'<div class="notice">'+escape(state.error)+'</div>':'')+
   '<div class="section-header"><h3>탐색 결과</h3></div>'+resultStatus+card+
   '<p class="micro">자질 개방 단계는  시뮬레이터의 상승 규칙을 가상 적용합니다. 실제 게임의 자질 재료 소비는 계산하지 않습니다. 지원되지 않는 연쇄 치환 분기는 자동 실행하지 않습니다.</p>'+
@@ -4271,6 +4283,13 @@ else queueMicrotask(connectActiveWashView);
 window.addEventListener('nangman-wash-command',async e=>{
  if(state.loading)return;
  const {op}=e.detail;if(op!=='washEngineImport')fields(e.detail);state.loading=true;state.error='';
+ const automaticSearch=['washEngineAutoSearch','washEngineAutoProgressive','washEngineAutoColor','washEngineAutoIntermediate'].includes(op);
+ if(automaticSearch){
+  state.autoResult=null;
+  state.autoProgress={phase:'init',stage:'선택한 캐릭터·WASM 탐색 준비',percentage:0,
+   completed:0,total:0,checked:0,found:0,bestPills:null};
+ }
+ announce();
  const generation=state.generation||0,logBefore=state.log.length;
  const ensureSession=()=>{if(state.generation!==generation)throw Error('세이브 또는 캐릭터가 변경되어 이전 WASM 실행 결과를 폐기했습니다.');};
  try{
@@ -4483,12 +4502,20 @@ window.addEventListener('nangman-wash-command',async e=>{
   const allowed=(window.YYWashTargetCatalog||[]).flatMap(g=>g.items.map(t=>t.id));
   const options=api.options(e.detail,isColor?allowed:
    [248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277]);
-  state.autoProgress=null;
+  const updateProgress=progress=>{
+   if(state.generation!==generation||!state.loading||!progress)return;
+   state.autoProgress={...progress};
+   announce();
+  };
+  updateProgress({phase:'init',stage:'선택한 목표와 세이브 검증',percentage:0,
+   completed:0,total:0,checked:0,found:0,bestPills:null});
   let result;
   if(op==='washEngineAutoIntermediate'){
    // A dedicated WASM iframe keeps the current simulated wash/locks/seeds immutable.
    // For a linked session, search its current native state. Otherwise import the
    // selected Korean save into the scratch copy without touching the live engine.
+   updateProgress({phase:'init',stage:'전용 WASM 계산 엔진 초기화',percentage:0,
+    completed:0,total:0,checked:0,found:0,bestPills:null});
    await washSearchEngine.call('init');
    ensureSession();
    const reference=state.ready&&state.active&&state.origin==='save'&&state.linkedRoleId===source.role.id?
@@ -4504,19 +4531,23 @@ window.addEventListener('nangman-wash-command',async e=>{
       native.talents.some((slot,i)=>Number(slot.id)!==Number(copied.talents[i]?.id)||
        !!slot.locked!==!!copied.talents[i]?.locked))
     throw Error('중간 맥 탐색 전 별도 WASM 복사본 상태 검증 실패');
-   result=await washSearchEngine.call('auto-intermediate-search',options);
+   updateProgress({phase:'init',stage:'세이브 복사본 검증 완료 · 실제 분기 탐색 시작',
+    percentage:0,completed:0,total:0,checked:0,found:0,bestPills:null});
+   result=await washSearchEngine.call('auto-intermediate-search',options,updateProgress);
   }else result=isColor?await washEngine.call('auto-color-search',options):
    op==='washEngineAutoProgressive'?
    await window.YYWashProgressive.run({
     call:(name,payload)=>washEngine.call(name,payload),
     ensureSession,api,...options,
-    onProgress:progress=>{state.autoProgress=progress;announce()}
+    onProgress:progress=>updateProgress({...progress,stage:'원본 자맥 경로 단계 '+progress.phase,
+     percentage:Number(progress.total)>0?Math.min(99,Math.round(100*Number(progress.phase)/Number(progress.total))):null})
    }):
    await washEngine.call('auto-search',options);
   ensureSession();
   if(!result||!Array.isArray(result.result?.routes)||
      !['wasmSearchWashRoutes','wasmColorSequentialSearch','wasmIntermediateTalentSearch'].includes(result.nativeFunction))
    throw Error('세수 자동 탐색 결과를 읽지 못했습니다');
+  state.autoProgress=null;
   state.autoResult={...result,colorSearch:isColor};
   state.autoDesiredIds=options.desiredIds;
   state.autoOptions=options;
@@ -4744,7 +4775,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    JSON.stringify(result,null,2):
    '원본 WASM에서 모의 세수를 실행하지 않았습니다. 단약 부족 또는 세수 제한 여부를 확인하세요.';
  }
- }catch(err){state.error=String(err.message||err)}
+ }catch(err){state.error=String(err.message||err);if(automaticSearch)state.autoProgress=null}
  finally{
   if(state.active&&state.generation===generation){
    try{
