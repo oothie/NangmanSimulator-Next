@@ -1,5 +1,5 @@
-// 한국판 NangmanGame_60014_COMPLETE_V6.20_SINGLE.html 파일 내부의 상태 ID별 한국어 텍스트를 선택 검색하여 복원.
-// [명칭, 설명, 원본 아이콘 키, 원본 효과 메타]. 원본 JS 계산 판정과 무관한 읽기 전용 백과 자료.
+// 한국판 60014 V6.20 원본 검색 발췌에서 ID별 완전한 JSON 객체만 확인해 복원.
+// [명칭, 설명, 아이콘 키, 원본 효과 메타]. 계산 엔진에 관여하지 않는 조회용 자료.
 window.NANGMAN_V620_BUFF_KO={
  "700": [
   "연화 내기",
@@ -742,8 +742,39 @@ window.NANGMAN_V620_BUFF_KO={
  ],
  "938": [
   "한독",
-  "한독에 중독되어 매 턴 내력을 소모하고 속도가 감소합니다.",
-  "icon_buff_91"
+  "한독에 중독되어 내력을 발산해 매턴 {buff_fudu_1}의 손실을 입고 속도가 {buff_fudu_2} 감소합니다. 1회 지속.",
+  "icon_buff_91",
+  {
+   "buff_type_3": "speed",
+   "buff_fudu_2": -0.03,
+   "buff_fudu_1": -1,
+   "buff_type_1": "mp",
+   "buff_round": 2,
+   "buff_type_2": "hp",
+   "buff_fudu_3": -0.05
+  }
+ ],
+ "939": [
+  "귀영동동",
+  "빠르게 움직여 회피 능력이 2배 증가하며 속도가 50% 증가합니다.",
+  "icon_buff_146",
+  {
+   "buff_round": 2,
+   "buff_type_2": "speed",
+   "buff_fudu_1": 0.99,
+   "buff_fudu_2": 0.5,
+   "buff_type_1": "dodge"
+  }
+ ],
+ "940": [
+  "금잔현사",
+  "효과 단계마다 명중이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_147",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "hit"
+  }
  ],
  "950": [
   "부중",
@@ -1137,6 +1168,771 @@ window.NANGMAN_V620_BUFF_KO={
    "buff_type_2": "renxing",
    "buff_type_1": "def",
    "buff_fudu_2": 0.1
+  }
+ ],
+ "1115": [
+  "삽혈산",
+  "삽혈산을 복용해 전투 5회 동안 공격이 {buff_fudu_1} 증가하고, 속도가 {buff_fudu_2} 증가하며 매턴 {buff_fudu_3}의 기혈을 소실합니다.",
+  "icon_buff_42",
+  {
+   "buff_round": 5,
+   "buff_type_3": "hp",
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "atk",
+   "buff_fudu_2": 0.03,
+   "buff_type_2": "speed",
+   "buff_fudu_3": -0.05
+  }
+ ],
+ "1116": [
+  "불기",
+  "불기를 복용해 전투 5회 동안 공격이 {buff_fudu_1} 증가하고 집기 속도가 {buff_fudu_2} 증가하며 매턴 {buff_fudu_3}의 기혈을 소실합니다.",
+  "icon_buff_42",
+  {
+   "buff_round": 5,
+   "buff_type_3": "hp",
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "atk",
+   "buff_fudu_2": 1.01,
+   "buff_type_2": "mp_back",
+   "buff_fudu_3": -0.08
+  }
+ ],
+ "1117": [
+  "도룡",
+  "",
+  "",
+  {
+   "buff_round": 1
+  }
+ ],
+ "1120": [
+  "천원락",
+  "전쟁터는 바둑판처럼 천원을 차지하고 적은 우리에 갇힌 짐승과도 같아서 저항하기 어렵습니다. 다음 세 번째 공격은 명중률을 대폭 증가시켰습니다.",
+  "icon_buff_275",
+  {
+   "buff_round": 3,
+   "buff_fudu_1": 9999,
+   "buff_type_1": "hit"
+  }
+ ],
+ "1121": [
+  "천루",
+  "이 사람은 운수진의 천루 위치에 있어 기절 저항 효과가 증가합니다.",
+  "icon_buff_276",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "kang_2"
+  }
+ ],
+ "1122": [
+  "수운",
+  "이 사람은 운수진의 수운 위치에 있어 방어가 {buff_fudu_1} 증가합니다.",
+  "icon_buff_277",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.04,
+   "buff_type_1": "def"
+  }
+ ],
+ "1123": [
+  "상응",
+  "이 사람은 운수진의 상응위에 있어 부분 회피 간파와 막기 간파의 확률을 높입니다.",
+  "icon_buff_278",
+  {
+   "buff_round": 1,
+   "buff_type_2": "po_parry",
+   "buff_fudu_1": 0.02,
+   "buff_fudu_2": 0.02,
+   "buff_type_1": "po_dodge"
+  }
+ ],
+ "1124": [
+  "용주",
+  "이 사람은 운수진의 용주에 있어 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_279",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1125": [
+  "화정",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_type_2": "mp",
+   "buff_fudu_2": 5,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "hp"
+  }
+ ],
+ "1133": [
+  "출검",
+  "서문효는 자신의 검술을 발휘할 준비가 됐습니다.",
+  "icon_buff_132",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 1,
+   "buff_type_1": "hit"
+  }
+ ],
+ "1134": [
+  "제거",
+  "서문효는 적의 허점을 관찰하고 있습니다. 이번에는 나서지 않을 것입니다.",
+  "icon_buff_38",
+  {
+   "buff_round": 0
+  }
+ ],
+ "1135": [
+  "흥분",
+  "이 사람은 일격으로 서문효에게 피해를 입혔습니다. 서문은 이에 기뻐합니다.",
+  "icon_buff_338",
+  {
+   "buff_type_3": "parry",
+   "buff_type_2": "dodge",
+   "buff_fudu_1": -0.3,
+   "buff_fudu_2": -0.2,
+   "buff_fudu_3": -0.2,
+   "buff_type_1": "def",
+   "buff_round": -1
+  }
+ ],
+ "1136": [
+  "용음",
+  "보기는 좋으나 쓸모는 없어 표시되지 않습니다",
+  "",
+  {
+   "buff_round": 0
+  }
+ ],
+ "1140": [
+  "늑대의 포효",
+  "",
+  "보기는 좋으나 쓸모는 없어 표시되지 않습니다",
+  {
+   "buff_round": 0
+  }
+ ],
+ "1141": [
+  "자상",
+  "이 사람은 황량의 관운창에 찔려 출혈이 멎지 않습니다.",
+  "icon_buff_19",
+  {
+   "buff_round": 5,
+   "buff_fudu_1": -0.025,
+   "buff_type_1": "hp"
+  }
+ ],
+ "1142": [
+  "지속 출혈",
+  "이 사람은 관운창이 남긴 상처가 악화되어 과다출혈로 인해 졸도했습니다.",
+  "icon_buff_15",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": -0.1,
+   "buff_type_1": "hp",
+   "buff_type_2": "yun"
+  }
+ ],
+ "1143": [
+  "살의",
+  "생명의 위협을 무릅쓴 형제들이 전부 전사하여 황량이 당신들에게 짙은 살의를 품었습니다.",
+  "icon_buff_181",
+  {
+   "buff_round": -1,
+   "buff_type_2": "speed",
+   "buff_fudu_1": 0.2,
+   "buff_fudu_2": 0.3,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1144": [
+  "혼란",
+  "황량이 자신의 생부에 대한 진상을 알게 되어 고통스러운 혼란에 빠졌습니다.",
+  "icon_buff_17",
+  {
+   "buff_round": 2,
+   "buff_type_1": "yun"
+  }
+ ],
+ "1145": [
+  "수세",
+  "칼끝을 피하려 황량이 수세를 취해 주동적으로 공격하지 않습니다.",
+  "icon_buff_214",
+  {
+   "buff_round": 2,
+   "buff_type_2": "hp",
+   "buff_fudu_2": 0.08,
+   "buff_type_1": "yun"
+  }
+ ],
+ "1146": [
+  "전의",
+  "이 사람은 적을 처치해 사기가 치솟았습니다. 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_351",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1147": [
+  "운기조식",
+  "운기조식 중으로, 이번 회차에 공격하지 않습니다.",
+  "icon_buff_97",
+  {
+   "buff_round": 2,
+   "buff_type_1": "yun"
+  }
+ ],
+ "1148": [
+  "약점",
+  "이 사람은 상태가 나빠 적에게 우선 공격을 받습니다.",
+  "icon_buff_289",
+  {
+   "buff_round": -1
+  }
+ ],
+ "1149": [
+  "비호",
+  "암암리에 이 사람을 보호하는 힘이 있습니다...",
+  "icon_buff_200",
+  {
+   "buff_round": -1
+  }
+ ],
+ "1150": [
+  "난신",
+  "혜능은 자신의 심법에 묶여 잠시 동안 움직일 수 없습니다.",
+  "icon_buff_17",
+  {
+   "buff_round": 2,
+   "buff_type_1": "yun"
+  }
+ ],
+ "1201": [
+  "현음장독",
+  "현천장경이 몸속에 침투해 기혈을 어지럽혀 매턴 기혈이 최대 {buff_fudu_1}, 속도는 최대 {buff_fudu_2} 변화합니다.",
+  "icon_buff_09",
+  {
+   "buff_round": 3,
+   "buff_type_2": "speed",
+   "buff_fudu_1": -0.06,
+   "buff_fudu_2": -0.15,
+   "buff_type_1": "hp_n"
+  }
+ ],
+ "1202": [
+  "급혈",
+  "변이 팔은 상대의 피와 살을 흡수해 이 사람의 기혈 회복 능력을 증가시킵니다.",
+  "icon_buff_177",
+  {
+   "buff_fudu_2": 0.15,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "hp",
+   "buff_round": 3,
+   "buff_type_2": "atk"
+  }
+ ],
+ "1203": [
+  "반서",
+  "이 사람은 변이 팔에 반서 효과를 받아 정신이 교란되어 공문이 열렸습니다!",
+  "icon_buff_37",
+  {
+   "buff_round": 1,
+   "buff_type_3": "parry",
+   "buff_fudu_1": -0.45,
+   "buff_type_1": "def",
+   "buff_fudu_2": -0.85,
+   "buff_type_2": "dodge",
+   "buff_fudu_3": -0.85
+  }
+ ],
+ "1204": [
+  "화정",
+  "상대의 정혈을 흡수해 공격이 {buff_fudu_1} 증가하고 매턴 내공으로 기혈 회복을 {buff_fudu_2}점 증가시킵니다.",
+  "icon_buff_176",
+  {
+   "buff_round": 3,
+   "buff_type_2": "hp_back",
+   "buff_fudu_1": 0.06,
+   "buff_fudu_2": 500,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1205": [
+  "봉맥",
+  "이 사람은 현음장에 의해 경맥이 막혀 초식을 시전할 수 없습니다.",
+  "icon_buff_83",
+  {
+   "buff_round": 1,
+   "buff_type_1": "tuojiu"
+  }
+ ],
+ "1206": [
+  "부괴 폭체",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_fudu_1": -9999.99,
+   "buff_type_1": "hp"
+  }
+ ],
+ "1207": [
+  "인괴 광폭화",
+  "괴사의 조종을 받는 인괴가 더욱 흉포해졌습니다!",
+  "icon_buff_42",
+  {
+   "buff_type_2": "dmg_off",
+   "buff_fudu_2": 0.08,
+   "buff_fudu_1": 0.05,
+   "buff_type_1": "atk",
+   "buff_round": -1
+  }
+ ],
+ "1216": [
+  "화정",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_type_2": "mp",
+   "buff_fudu_2": 25,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "hp"
+  }
+ ],
+ "1236": [
+  "귀혼III",
+  "설금채는 누군가에 의해 일찍 깨어나게 되어 현재 실력의 대부분을 사용할 수 있습니다!",
+  "icon_buff_178",
+  {
+   "buff_round": -1,
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.02,
+   "buff_fudu_2": 0.06,
+   "buff_type_1": "hp"
+  }
+ ],
+ "1237": [
+  "귀혼IV",
+  "설금채가 깨어나기 전 방해를 받아 그녀의 실력이 조금 감소합니다!",
+  "icon_buff_178",
+  {
+   "buff_round": -1,
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.03,
+   "buff_fudu_2": 0.08,
+   "buff_type_1": "hp"
+  }
+ ],
+ "1238": [
+  "귀혼V",
+  "설금채는 완벽하게 인괴의 힘을 제어할 수 있어 실력이 비범합니다!",
+  "icon_buff_178",
+  {
+   "buff_round": -1,
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.03,
+   "buff_fudu_2": 0.1,
+   "buff_type_1": "hp"
+  }
+ ],
+ "1239": [
+  "소생",
+  "설금채가 깨어나려고 합니다!",
+  "icon_buff_178",
+  {
+   "buff_round": -1
+  }
+ ],
+ "1240": [
+  "음혼불산",
+  "이 사람은 공격이 빗나간 후에 더욱 신중해져 회피가 5% 증가합니다 다음 공격 시 회피 간파 확률이 10% 증가하고 공격이 1% 증가합니다.",
+  "icon_buff_182",
+  {
+   "buff_type_3": "dodge",
+   "buff_fudu_2": 0.01,
+   "buff_type_2": "atk",
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "po_dodge",
+   "buff_round": 1,
+   "buff_fudu_3": 0.05
+  }
+ ],
+ "1241": [
+  "주시",
+  "설금채가 차갑게 이 사람을 주시합니다!",
+  "icon_buff_179",
+  {
+   "buff_round": -1
+  }
+ ],
+ "1242": [
+  "마비",
+  "이 사람은 독사의 독에 피해를 입어 온몸의 근육이 마비되었기에 한 판 동안 움직일 수 없습니다.",
+  "icon_buff_31",
+  {
+   "buff_round": 0
+  }
+ ],
+ "1243": [
+  "음혼불산",
+  "이 사람의 공격은 피한 뒤에 더욱 신중해졌고 다음 일격은 회피 간파 확률과 피해를 증가시키며 연타에 일정 피해 감면이 있습니다.",
+  "icon_buff_182",
+  {
+   "buff_type_3": "dmg_off_count",
+   "buff_fudu_2": 0.1,
+   "buff_fudu_1": 0.3,
+   "buff_type_1": "po_dodge",
+   "buff_round": 1,
+   "buff_type_2": "atk",
+   "buff_fudu_3": 0.1
+  }
+ ],
+ "1244": [
+  "어",
+  "이 사람은 악마에 홀린 듯하여 깨우기 어렵습니다...",
+  "icon_buff_41",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": 0.15,
+   "buff_type_1": "dmg_off"
+  }
+ ],
+ "1245": [
+  "어",
+  "이 사람은 악마에 홀린 듯하여 깨우기 어렵습니다...",
+  "icon_buff_41",
+  {
+   "buff_round": -1,
+   "buff_type_3": "renxing",
+   "buff_type_2": "def",
+   "buff_fudu_2": 2000,
+   "buff_fudu_1": 0.3,
+   "buff_fudu_3": 2000,
+   "buff_type_1": "dmg_off"
+  }
+ ],
+ "1246": [
+  "어",
+  "이 사람은 악마에 홀린 듯하여 깨우기 어렵습니다...",
+  "icon_buff_41",
+  {
+   "buff_round": -1,
+   "buff_type_3": "renxing",
+   "buff_type_2": "def",
+   "buff_fudu_2": 8000,
+   "buff_fudu_1": 0.5,
+   "buff_fudu_3": 2000,
+   "buff_type_1": "dmg_off"
+  }
+ ],
+ "1252": [
+  "공명",
+  "이 사람은 공명 독공의 독에 당해 기혈이 {buff_fudu_1}, 기혈 회복이 {buff_fudu_2}입니다.",
+  "icon_buff_43",
+  {
+   "buff_round": 2,
+   "buff_type_2": "hp_back",
+   "buff_fudu_1": -500,
+   "buff_type_1": "hp",
+   "buff_fudu_2": -150
+  }
+ ],
+ "1253": [
+  "유명",
+  "이 사람은 유명이기에 포위되어 집기 속도가 {buff_fudu_1}, 방어가 {buff_fudu_2}입니다.",
+  "icon_buff_95",
+  {
+   "buff_round": 3,
+   "buff_type_2": "def",
+   "buff_fudu_1": -0.3,
+   "buff_type_1": "mp_back",
+   "buff_fudu_2": -0.25
+  }
+ ],
+ "1254": [
+  "한경",
+  "이소가 한경을 흡수해 공명 독공이 대성에 다다랐습니다. 방어가 {buff_fudu_1}, 반사 피해가 {buff_fudu_2}, 인내가 {buff_fudu_3}입니다.",
+  "icon_buff_63",
+  {
+   "buff_round": -1,
+   "buff_type_3": "renxing",
+   "buff_type_2": "def_ref",
+   "buff_fudu_1": 0.2,
+   "buff_type_1": "def",
+   "buff_fudu_2": 0.1,
+   "buff_fudu_3": 0.1
+  }
+ ],
+ "1300": [
+  "신경여연I",
+  "이 사람은 현재 바람을 타고 달리는 것처럼 이동속도가 증가했습니다!",
+  "icon_buff_251",
+  {
+   "buff_round": 1200,
+   "buff_fudu_1": 0.25,
+   "buff_type_1": "move"
+  }
+ ],
+ "1304": [
+  "답랑",
+  "종잡을 수 없는 움직임으로 다음 공격을 받을 때 {buff_fudu_1}의 피해 감소를 획득합니다.",
+  "icon_buff_252",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "dmg_off"
+  }
+ ],
+ "1305": [
+  "의식불명",
+  "도연일은 피아를 구분할 수 없을 정도로 광폭해졌습니다.",
+  "icon_buff_44",
+  {
+   "buff_round": -1,
+   "buff_type_2": "def",
+   "buff_fudu_1": 0.04,
+   "buff_fudu_2": -0.06,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1306": [
+  "진섭",
+  "귀면의 모습으로 적군에 공포를 유발해 {buff_round}회 동안 적의 명중이 4% 감소하고 공격이 3% 감소합니다.",
+  "icon_buff_172",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": -0.04,
+   "buff_type_2": "atk",
+   "buff_type_1": "hit",
+   "buff_fudu_2": -0.03
+  }
+ ],
+ "1307": [
+  "기력 회복",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_fudu_1": 0.1,
+   "buff_type_1": "mp"
+  }
+ ],
+ "1353": [
+  "전두",
+  "연유는 모르겠지만, 이 사람은 왼 다리를 끊임없이 떨고 있습니다. 공격할 때도 무리하는 것 같습니다. 공격이 {buff_fudu_1}입니다.",
+  "icon_buff_01",
+  {
+   "buff_round": -1,
+   "buff_fudu_1": -0.2,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1354": [
+  "검역",
+  "이 사람은 자신이 축적한 검기를 폭발시켜 주변에 검역을 형성합니다. 단계마다 자신의 공격이 {buff_fudu_1}, 피해면역이 {buff_fudu_2} 증가합니다",
+  "icon_buff_280",
+  {
+   "buff_type_2": "dmg_off",
+   "buff_fudu_2": 0.02,
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "atk",
+   "buff_round": -1
+  }
+ ],
+ "1401": [
+  "응혈지력",
+  "이 사람은 발톱에 혈독이 있습니다.",
+  "",
+  {
+   "buff_round": 1
+  }
+ ],
+ "1402": [
+  "어체",
+  "이 사람은 응혈신조에 당해 온몸의 기혈이 막혔습니다. 기혈 회복이 {buff_fudu_1}, 받는 치료가 {buff_fudu_2}, 흡혈이 {buff_fudu_3}입니다.",
+  "icon_buff_233",
+  {
+   "buff_type_3": "blood",
+   "buff_type_2": "cure_sj",
+   "buff_fudu_2": -0.15,
+   "buff_fudu_1": -0.15,
+   "buff_type_1": "hp_back",
+   "buff_round": 4,
+   "buff_fudu_3": -0.02
+  }
+ ],
+ "1403": [
+  "수춘도경",
+  "수춘도경을 응축해 단계마다 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_405",
+  {
+   "buff_round": 4,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "atk"
+  }
+ ],
+ "1404": [
+  "수춘도경 제거",
+  "",
+  "",
+  {
+   "buff_round": 0
+  }
+ ],
+ "1405": [
+  "수여산",
+  "장엄하게 우뚝 솟아나 피해면역이 {buff_fudu_1} 증가합니다. (전장에 아군 4인일 때 효과 적용)",
+  "icon_buff_406",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.01,
+   "buff_type_1": "dmg_off"
+  }
+ ],
+ "1406": [
+  "폐여음",
+  "칼끝에 기운을 숨겨 회피 간파가 {buff_fudu_1} 증가합니다. (전장에 아군 4인일 때 효과 적용)",
+  "icon_buff_407",
+  {
+   "buff_round": 1,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "po_dodge"
+  }
+ ],
+ "1450": [
+  "공양 검유",
+  "보검에 공양 검유를 발라 방어 관통이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_4130",
+  {
+   "buff_round": 2,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "def_ign"
+  }
+ ],
+ "1451": [
+  "내성",
+  "내구 성덕으로 자신의 진기를 교화하여 기혈 회복 {buff_fudu_1}, 방어 {buff_fudu_2} 증가합니다.",
+  "icon_buff_4131",
+  {
+   "buff_type_2": "def",
+   "buff_fudu_2": 0.05,
+   "buff_fudu_1": 100,
+   "buff_type_1": "hp_back",
+   "buff_round": 5
+  }
+ ],
+ "1455": [
+  "호연지기",
+  "양오호연, 덕택사방. 이 사람은 검기의 증폭을 받아 단계마다 공격이 {buff_fudu_1} 증가합니다.",
+  "icon_buff_4134",
+  {
+   "buff_fudu_1": 0.03,
+   "buff_type_1": "atk",
+   "buff_round": 3
+  }
+ ],
+ "1456": [
+  "호연지기",
+  "양오호연, 덕택사방. 이 사람은 검기 증폭을 받아 중첩당 회피 간파가 {buff_fudu_1}, 막기 간파가 {buff_fudu_2}, 흡혈이 {buff_fudu_3} 증가합니다.",
+  "icon_buff_4134",
+  {
+   "buff_type_3": "blood",
+   "buff_type_2": "po_parry",
+   "buff_fudu_2": 0.02,
+   "buff_fudu_1": 0.02,
+   "buff_type_1": "po_dodge",
+   "buff_round": 3,
+   "buff_fudu_3": 0.01
+  }
+ ],
+ "1457": [
+  "전환 1460",
+  "",
+  "",
+  {
+   "buff_round": 1
+  }
+ ],
+ "1460": [
+  "유의",
+  "이 사람은 유검의 검기가 체내에 침투하여 가느다란 검기에 감긴 채 기세를 가다듬고 있습니다. 중첩마다 「귀장」 피해가 증가하며, 「불역률」 명중 시 「호연지기」로 전환됩니다.",
+  "icon_buff_4144",
+  {
+   "buff_round": 1
+  }
+ ],
+ "1461": [
+  "정화",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_type_2": "hp",
+   "buff_fudu_2": 0,
+   "buff_type_1": "jinghuarand"
+  }
+ ],
+ "1464": [
+  "체력 회복 정진",
+  "",
+  "",
+  {
+   "buff_round": 0,
+   "buff_fudu_1": 0.015,
+   "buff_type_1": "hp"
+  }
+ ],
+ "1500": [
+  "검기",
+  "이 사람은 몸속으로 검기가 침투해 속도가 {buff_fudu_1}, 회피가 {buff_fudu_2}감소합니다.",
+  "icon_buff_280",
+  {
+   "buff_round": 3,
+   "buff_type_2": "dodge",
+   "buff_fudu_1": -0.2,
+   "buff_type_1": "speed",
+   "buff_fudu_2": -0.1
+  }
+ ],
+ "1501": [
+  "검기",
+  "이 사람은 몸속으로 검기가 침투해 방어가 {buff_fudu_1}, 막기가 {buff_fudu_2}감소합니다.",
+  "icon_buff_280",
+  {
+   "buff_round": 3,
+   "buff_type_2": "parry",
+   "buff_fudu_1": -0.08,
+   "buff_type_1": "def",
+   "buff_fudu_2": -0.16
+  }
+ ],
+ "1502": [
+  "서천검기",
+  "이 사람은 몸속으로 검기가 침투해 진기가 {buff_fudu_1} 감소하고 집기 속도가 {buff_fudu_2}입니다.",
+  "icon_buff_281",
+  {
+   "buff_round": 2,
+   "buff_type_2": "mp_back",
+   "buff_fudu_1": -0.2,
+   "buff_type_1": "mp_n",
+   "buff_fudu_2": -0.3
+  }
+ ],
+ "1529": [
+  "묵염진봉",
+  "",
+  "",
+  {
+   "buff_round": 1
   }
  ],
  "2325": [
