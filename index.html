@@ -631,20 +631,49 @@ const sanbujinCultivationKinds=[
  ['창·곤',4,'Taolus',null],['내공','ng','Neis',null],['경공','qg','Qings',null]
 ];
 function characterSanbujinCultivation(root,raw,role){
- const id=String(role.id);
+ const db=window.NANGMAN_SANBUJIN_KONGFU;
+ const id=String(role.id),fmt=n=>n===null?'—':String(n);
  const entries=sanbujinCultivationKinds.map(([name,kind,source,fixedKey])=>{
   const value=raw['WXXW'+kind];
-  const extra=(value!==undefined&&value!==null&&value!==''&&Number.isFinite(Number(value)))?Number(value):null;
+  const extra=value==null||value===''||!Number.isFinite(Number(value))?null:Number(value);
   const fixed=fixedKey?characterGlobalNumber(root,fixedKey+id):0;
   const transferable=extra===null||fixed===null?null:Math.max(0,extra-fixed);
-  const count=Array.isArray(raw[source])?raw[source].length:null;
-  return {name,kind,extra,fixed,transferable,count};
+  const list=Array.isArray(raw[source])?raw[source]:raw[source]&&typeof raw[source]==='object'?Object.values(raw[source]):null;
+  let unknown=0;
+  const skills=[];
+  if(list)for(const record of list){
+   if(!record||typeof record!=='object'){unknown++;continue}
+   const table=source==='Taolus'?'taolu':source==='Neis'?'nei':'qing';
+   const cfg=db?.[table]?.[String(record.ID)];
+   const copiedId=source==='Taolus'?Number(record.CopyID||0):0;
+   const copied=Number.isFinite(copiedId)&&copiedId>0;
+   const actual=copied?db?.taolu?.[String(copiedId)]:cfg;
+   if(source==='Taolus'){
+    if(!actual||!Number.isFinite(Number(actual.type))){unknown++;continue}
+    if(Number(actual.type)!==Number(kind))continue;
+   }
+   const chong=Number(record.Chong),level=Number(record.Level),grade=Number(actual?.grade);
+   const rateRow=db?.rate?.[String((chong-1)*4+level+1)];
+   const rate=rateRow?.['kf_'+Math.min(5,Math.max(1,grade))];
+   const current=!actual||!Number.isFinite(chong)||!Number.isFinite(level)||!Number.isFinite(grade)||!Number.isFinite(Number(rate))?null:Math.floor(Number(actual.wxxw||0)*Math.min(Number(rate),1));
+   if(current===null)unknown++;
+   skills.push({id:record.ID,copiedId:copied?copiedId:null,current});
+  }
+  const learned=list&&db&&unknown===0?skills.reduce((sum,x)=>sum+x.current,0):null;
+  const rawTotal=learned===null||extra===null?null:learned+extra;
+  const current=rawTotal===null?null:Math.min(1500,rawTotal);
+  return {name,kind,extra,fixed,transferable,learned,current,overflow:rawTotal===null?null:Math.max(0,rawTotal-1500),unknown,skills};
  });
- const total=entries.every(x=>x.transferable!==null)?entries.reduce((sum,x)=>sum+x.transferable,0):null;
- return '<section class="card"><h3>무학 수련치 · 6계열</h3><p class="micro">산부진 원본 WXXW 잔액과 검왕각·극락곡 대련 고정 수련치를 기준으로, 전환 가능한 추가 수련치만 계산합니다. 전체 무학 수련치 1500 상한까지의 합산은 한국판 무학 등급별 기여율 검증 후 연결합니다.</p>'+
- '<table class="module-table"><thead><tr><th>계열</th><th>추가 수련치</th><th>전환 불가</th><th>전환 가능</th></tr></thead><tbody>'+
- entries.map(x=>'<tr><td>'+escape(x.name)+'</td><td>'+(x.extra===null?'—':x.extra)+'</td><td>'+(x.fixed===null?'—':x.fixed)+'</td><td>'+(x.transferable===null?'—':x.transferable)+'</td></tr>').join('')+
- '</tbody></table><p class="micro">전환 가능 합계: '+(total===null?'자료 부족':total+'점')+' · 실제 전환 시 받는 인물의 수련 상한을 따릅니다.</p></section>';
+ const sum=key=>entries.every(e=>e[key]!==null)?entries.reduce((n,e)=>n+e[key],0):null;
+ const total=sum('current'),available=sum('transferable');
+ return '<section class="card"><h3>무학 수련치 · 6계열</h3><p class="micro">산부진 원본 무학 882개 및 수련 비율표를 이용합니다. 각 계열의 현재 적용 상한은 1500점이며 검왕각·극락곡 대련은 전환에서 제외합니다. 판별 불가능한 무학은 수치를 추정하지 않습니다.</p>'+
+ '<div class="wiki-detail-fields"><div class="wiki-field"><span>현재 총수련치</span><b>'+fmt(total)+'</b></div><div class="wiki-field"><span>전환 가능한 추가 수련치</span><b>'+fmt(available)+'</b></div></div>'+
+ '<table class="module-table"><thead><tr><th>계열</th><th>무학</th><th>추가 잔액</th><th>적용 / 1500</th><th>전환 가능</th></tr></thead><tbody>'+
+ entries.map(x=>'<tr><td>'+escape(x.name)+'</td><td>'+fmt(x.learned)+'</td><td>'+fmt(x.extra)+'</td><td>'+fmt(x.current)+(x.overflow>0?' (초과 '+x.overflow+')':'')+'</td><td>'+fmt(x.transferable)+'</td></tr>').join('')+
+ '</tbody></table>'+
+ entries.map(x=>'<details><summary>'+escape(x.name)+' · 학습 무학 '+x.skills.length+'개'+(x.unknown?' · 미판별 '+x.unknown+'개':'')+'</summary>'+
+ (x.skills.length?'<table class="module-table"><thead><tr><th>무학 ID</th><th>복사 무학 ID</th><th>수련치</th></tr></thead><tbody>'+x.skills.map(k=>'<tr><td>'+escape(k.id)+'</td><td>'+(k.copiedId||'—')+'</td><td>'+fmt(k.current)+'</td></tr>').join('')+'</tbody></table>':'<p class="micro">기록된 무학이 없습니다.</p>')+'</details>').join('')+
+ '<p class="micro">전환 시 받는 인물의 잔여 수련 상한도 적용됩니다. 원본 무학 자료가 없거나 불완전하면 계산 대신 — 표시합니다.</p></section>';
 }
 function characterSanbujinMetrics(root,role){
  const id=String(role.id),isMain=role.type==='주인공';
@@ -918,4 +947,4 @@ window.addEventListener('message',e=>{
   window.NangmanFullTranslationAudit={scan,scanAll(){return scan({includeHidden:true});}};
 })();
 </script>
-</body></html>
+<script src="./shared/sanbujin_cultivation_data.js"></script></body></html>
