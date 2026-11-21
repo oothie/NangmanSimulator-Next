@@ -155,7 +155,7 @@ function permutations(values){
 function fitObservations(input,observations,options={}){
  const list=Array.isArray(observations)?observations:[observations];
  if(!ready(input))throw Error('제릉 분기 후보를 탐색할 세이브 시드가 없습니다.');
- if(!list.length||list.length>100)throw Error('관측 기록은 1~100개를 입력하세요.');
+ if(list.length>100)throw Error('관측 기록은 최대 100개까지 입력하세요.');
  const tests=list.map(row=>({
   serial:Number(row.serial),itemId:row.itemId==null?null:Number(row.itemId),
   color:row.color==null?null:Number(row.color),
