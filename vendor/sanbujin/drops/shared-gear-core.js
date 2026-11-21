@@ -34,6 +34,22 @@ function merge(field,dungeon,order){
  return {events:events.length,equipment,byItem:[...receipt].map(([id,count])=>({id,count})),
   total90:equipment.length,mode:order,qualityUnverified:true};
 }
+function compareOrders(field,dungeon){
+ const labels=['field-first','dungeon-first','alternate'];
+ const models=labels.map(order=>merge(field,dungeon,order));
+ const ids=[...new Set(models.flatMap(model=>model.byItem.map(item=>item.id)))].sort((a,b)=>a-b);
+ return ids.map(id=>({
+  itemId:id,
+  count:models[0].byItem.find(x=>x.id===id)?.count||0,
+  orders:models.map((model,index)=>{
+   const sequence=model.equipment.filter(x=>x.itemId===id);
+   return {order:labels[index],firstSource:sequence[0]?.source||null,
+    firstStep:sequence[0]?.step??null,
+    colorSequence:sequence.map(x=>x.color),
+    sources:sequence.map(x=>x.source)};
+  })
+ }));
+}
 function project(save,target,event,fieldCount,dungeonCount,order,equipment){
  if(!save||typeof save!=='object'||!target||target.kind!=='story'||Number(target.lv)<90)
   throw Error('90레벨 이상 필드 특수몹 보상 함수를 선택하세요');
@@ -49,6 +65,7 @@ function project(save,target,event,fieldCount,dungeonCount,order,equipment){
   time:0,interval:30,bait:'normal'},equipment||{});
  const dungeonRows=dungeon.predict(dungeonState,event,dungeonCount);
  const plan=merge(field,dungeonRows,order);
+ const alternatives=compareOrders(field,dungeonRows);
  const data=Array.isArray(save)?save[0]:save;
  const eds=data?.Rnds?.Eds??data?.rnds?.eds??{};
  const hasPerItemSeed=id=>{
@@ -58,8 +75,9 @@ function project(save,target,event,fieldCount,dungeonCount,order,equipment){
  };
  return {...plan,equipment:plan.equipment.map(x=>({...x,hasSharedSeed:hasPerItemSeed(x.itemId)})),
   byItem:plan.byItem.map(x=>({...x,hasSharedSeed:hasPerItemSeed(x.id)})),
+  alternatives,scenarioOnly:true,
   fieldCount,dungeonCount,fieldNpc:target.npcId,
   dungeonBoss:event.boss,dungeonId:event.id};
 }
-root.SBJSharedGearCore={merge,project,GEAR90};
+root.SBJSharedGearCore={merge,compareOrders,project,GEAR90};
 })(window);
