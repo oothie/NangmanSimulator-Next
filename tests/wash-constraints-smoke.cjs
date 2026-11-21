@@ -3,13 +3,13 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..'),host=fs.readFileSync(path.join(root,'vendor/yysim/engine-host.html'),'utf8'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const body=host.match(/<script>([\s\S]*?)<\/script>/);assert(body);
-let listener,called=0;const sent=[],parent={postMessage(x){sent.push(x)}};
+let listener,called=0,objectShape=false;const sent=[],parent={postMessage(x){sent.push(x)}};
 const native={window:{addEventListener(op,fn){if(op==='message')listener=fn}},location:{origin:'https://n.example'},parent,
  TALENT_DATA:{261:{name:'拳脚无双',pinzhi:4},262:{name:'剑术无双',pinzhi:4}},ZZ_DATA:{},
  initWasm:async()=>true,wasmInitEngine:()=>true,
  wasmGetState(){return {role_id:1,seed:123}},
- wasmGetAvailableTalents(){called++;return [{id:261}]},
- wasmGetConflicts(){called++;return [{id:261,opponent_id:262}]}
+ wasmGetAvailableTalents(){called++;return objectShape?{items:[{id:261}]}:[{id:261}]},
+ wasmGetConflicts(){called++;return objectShape?{pairs:[{id:261,opponent_id:262}]}:[{id:261,opponent_id:262}]}
 };
 vm.createContext(native);vm.runInContext(body[1],native);
 async function req(op,requestId){await listener({origin:'https://n.example',source:parent,
@@ -22,6 +22,9 @@ async function req(op,requestId){await listener({origin:'https://n.example',sour
  assert.equal(result.data.conflicts.length,1);
  assert.equal(result.data.nameIds['剑术无双'],'262');
  assert.equal(called,2);
+ objectShape=true;
+ const structured=await req('talent-constraints',3);
+ assert(structured.ok&&structured.data.conflicts.pairs.length===1,'native object conflict data retained');
  assert(html.includes('washConflictInspect'));
  assert(html.includes("washEngine.call('talent-constraints')"));
  assert(html.includes('window.__nangmanTalentKoName=characterTalentName;'));
