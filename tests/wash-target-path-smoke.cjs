@@ -5,7 +5,7 @@ const root=path.join(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.
 const host=fs.readFileSync(path.join(root,'vendor/yysim/engine-host.html'),'utf8');
 const main=host.match(/<script>([\s\S]*?)<\/script>/);
 assert(main,'WASM inline host event router');
-let onMessage,originalState={role_id:10044,seed:777,sex:2},targetCalls=[],washCalls=[];
+let onMessage,originalState={role_id:10044,seed:777,sex:2},targetCalls=[],washCalls=[],outputShape='array';
 const posted=[],parent={postMessage(data){posted.push(data)}};
 const talentData={'261':{name:'拳脚无双',pinzhi:4},'262':{name:'剑术无双',pinzhi:4},
  '260':{name:'两仪相合',pinzhi:3}};
@@ -13,7 +13,7 @@ const env={window:{addEventListener(name,fn){if(name==='message')onMessage=fn}},
  location:{origin:'https://local.example'},parent,
  initWasm:async()=>true,wasmInitEngine:()=>true,TALENT_DATA:talentData,ZZ_DATA:{},
  wasmGetState:()=>({...originalState}),wasmSetState:()=>true,
- wasmPreviewExchangePads:(targets,maxPad)=>{targetCalls.push({targets,maxPad});return [{pad:12}]},
+ wasmPreviewExchangePads:(targets,maxPad)=>{targetCalls.push({targets,maxPad});return outputShape==='array'?[{pad:12}]:{paths:[{pad:3}]}},
  wasmWashUntilTalentName:(name,count)=>{washCalls.push({name,count});originalState={...originalState,seed:888};return [{wash:1}]}
 };
 vm.createContext(env);vm.runInContext(main[1],env);
@@ -36,6 +36,10 @@ async function send(requestId,op,payload){
  assert.equal(targetCalls.length,1,'invalid target never reaches native RNG');
  const blocked=await send(4,'exchange-pads',{targets:[{purpleId:261,conflictId:262}],maxPad:6000});
  assert.equal(blocked.ok,false,'bounded exchange path');
+ outputShape='object';
+ const objectResult=await send(7,'exchange-pads',{targets:[{purpleId:261,conflictId:262}],maxPad:200});
+ assert(objectResult.ok&&objectResult.data.results.paths.length===1,
+  'native structured object response must not be discarded');
  const wash=await send(5,'until-talent',{talentId:261,count:400});
  assert(wash.ok&&wash.data.state.seed===888,'purple target mutating WASM result has a state');
  assert.deepEqual(washCalls.map(x=>x.name),['拳脚无双']);
