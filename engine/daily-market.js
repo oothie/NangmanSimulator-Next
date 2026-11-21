@@ -164,7 +164,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
     }
    };
    test(today,stale?now:clock||now,'저장된 현재 판매 목록','current');
-   if(!hasSeed)return events;
+   if(!forecastOk)return events;
    const r=rng.clone();let l=lucky;
    const paid=()=>{
     const threshold=16.666666666666668+l,hit=r.chance('guishishop',threshold);
