@@ -11,6 +11,15 @@ function dataFor(item){
 function open(item){
  const {id,cfg,color}=dataFor(item);
  if(!id||!cfg.id)return false;
+ // Embedded in the simulator: navigate to the integrated full-page detail,
+ // preserving previous search and save state; never open the old modal.
+ if(window.parent!==window&&window.NANGMAN_EMBEDDED_EQUIP){
+  window.parent.postMessage({kind:'nangman-equip-open-detail',equipment:{
+   ID:id,Color:color,OnlyID:item?.OnlyID??item?.only_id??item?.onlyId,
+   CZSeed:item?.CZSeed,MJSeed:item?.MJSeed,S:item?.S
+  }},location.origin);
+  return true;
+ }
  const type=Number(cfg.type||0),weapon=type>=1&&type<=4,orange=color===5||Number(cfg.weapon_color)===5;
  const name=String(cfg.koName||ko(cfg.name)||'장비 #'+id);
  document.querySelector('#nangmanEquipmentDialog')?.remove();
