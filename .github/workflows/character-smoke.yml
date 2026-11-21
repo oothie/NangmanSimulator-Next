@@ -31,3 +31,5 @@ jobs:
         run: node tests/character-layout-smoke.cjs
       - name: Compare independent six-track cultivation with source
         run: node tests/cultivation-crosscheck.cjs
+      - name: Validate wash, quest and drop module integration
+        run: node tests/module-integration-smoke.cjs
