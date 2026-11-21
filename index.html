@@ -449,6 +449,15 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .equip-detail-buttons button:disabled{opacity:.4}
 #equipDetailStatus{font-size:14px;line-height:1.6;margin-top:15px}
 .equipment-host[data-equipment-tab=detail]{background:transparent}
+
+/* Detailed character stat breakdown */
+.role-stat-breakdown{margin:14px 0;border:1px solid var(--border);border-radius:8px;background:var(--panel);padding:10px 13px}
+.role-stat-breakdown summary{cursor:pointer;font-size:15px;font-weight:700;padding:4px 0 10px}
+.role-stat-breakdown table{font-variant-numeric:tabular-nums;min-width:610px}
+.role-stat-breakdown th,.role-stat-breakdown td{font-size:14px;padding:10px 12px}
+.role-stat-breakdown tr th:first-child{text-align:left}
+.role-stat-breakdown tr td:last-child{font-weight:700;color:var(--green)}
+.role-grid.final-grid .stat-cell .sub{font-size:11px;color:var(--sub)}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
 /* v0.8.5: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
@@ -2174,7 +2183,7 @@ function characterSourceBaseStats(raw){
 }
 function characterSourceBasePanel(raw){
  const entries=characterSourceBaseStats(raw);
- return '<section class="card"><h3> 공식 · 인물 기본 능력치</h3>'+
+ return '<section class="card"><h3>원본 공식 · 인물 기본 능력치</h3>'+
  '<p class="micro">원본 computeFinalStats.body에서 분리한 12개 초기·기본 계산값입니다. 공격·기혈·회피·속도·인내·진원은 무보정 사대 자질 기준이며, 무학·재능 등의 추가 사대 자질 보정은 포함하지 않습니다. 강기·내경 성장치는 레벨 93부터 반영됩니다. 장비·무학·재능·경맥 등이 적용되기 전의 중간값이며, 실제 전투 패널 수치가 아닙니다.</p>'+
  '<div class="wiki-detail-fields">'+entries.map(x=>'<div class="wiki-field"><span>'+escape(x.label)+'</span><b>'+escape(x.value)+'</b><small class="micro">'+escape(x.formula)+'</small></div>').join('')+'</div></section>';
 }
@@ -2251,7 +2260,7 @@ function yyOriginalCultivationEffects(raw){
 function yyOriginalCultivationEffectsView(role){
  const items=yyOriginalCultivationEffects(role?.raw||{});
  const fmt=v=>Number(v.toFixed(3)).toLocaleString('ko-KR');
- return yyRoleSection(' 수련 전투 보정',
+ return yyRoleSection('수련 전투 보정',
  '<p class="micro">원본 u0/Od 공식: (저장 수련 + 습득 무학 수련)을 1,500으로 제한하고, 해당 계열 자질 계수 × 0.025를 곱합니다. 복제 무학 수련 및 이전 가능 수련은 기록과 계산 방향이 다를 수 있어 별개로 표시합니다.</p>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>계열</th><th>수련</th><th>자질 계수</th><th>원본 수련 보정</th><th>무학 기록</th></tr></thead><tbody>'+
  items.map(x=>'<tr><td>'+escape(x.label)+'</td><td>'+(x.current===null?'미확인':fmt(x.current))+'</td>'+
@@ -2276,7 +2285,7 @@ function yyRoleBaseAptitudesView(role){
 function yyRoleBaseIntermediate(role){
  const entries=characterSourceBaseStats(role?.raw||{});
  return yyRoleSection('계산 검증 가능한 기본값',
- yyRoleStatGrid(entries.map(item=>[item.label,item.value,' 공식의 초기값']),'base-intermediate')+
+ yyRoleStatGrid(entries.map(item=>[item.label,item.value,'원본 공식의 초기값']),'base-intermediate')+
  '<p class="micro">장비·경맥·무학·재능 및 전투 최종 보정이 적용되기 전 값입니다. 위 전투 패널의 최종 능력치를 대체하지 않습니다.</p>');
 }
 /* Character sheet from persisted save: exact visible equipped flat stats
@@ -2336,27 +2345,52 @@ function characterMeridianFlatSubtotal(raw){
  }
  return totals;
 }
+
+/* Source-equivalent visible subtotal.
+ * Gear has LvProp enhancement, deduplicated saved affixes, weapon-type HIT gating;
+ * never add a reported subtotal back into the save or label it final combat.
+ */
 function characterCombatSubtotal(role){
  const raw=role?.raw||{};
  const computed=characterSourceBaseStats(raw);
- const sourceMap={
-  '공격':'공격 초기값','기혈':'기혈 초기값','방어':'방어 기본값',
-  '명중':'명중 기본값','회피':'회피 초기값','속도':'속도 초기값',
-  '막기':'막기 기본값','인내':'인내 초기값','내경':'내경 기본값',
-  '강기':'강기 기본값','집기':'집기 기본값'
- };
- const equipment=characterGearCombatSubtotal(raw);
- const meridians=characterMeridianFlatSubtotal(raw);
- const rows=Object.entries(sourceMap).map(([label,baseName])=>{
-  const baseRow=computed.find(x=>x.label===baseName);
-  const base=Number(baseRow?.value),flat=equipment.totals[label]||0,meridian=meridians[label]||0;
-  const valid=baseRow&&Number.isFinite(base);
-  return [label,valid?(base+flat+meridian).toLocaleString('ko-KR',{maximumFractionDigits:2}):'—',
-   valid?'기본 '+Number(base.toFixed(2))+(flat?' · 장비 +'+Number(flat.toFixed(2)):'')+(meridian?' · 경맥 +'+Number(meridian.toFixed(2)):''):'기본 계산 미확인'];
+ const sourceNames=[
+  ['공격','공격 초기값'],['기혈','기혈 초기값'],['방어','방어 기본값'],
+  ['명중','명중 기본값'],['회피','회피 초기값'],['속도','속도 초기값'],
+  ['막기','막기 기본값'],['인내','인내 초기값'],['내경','내경 기본값'],
+  ['강기','강기 기본값'],['집기','집기 기본값']
+ ];
+ const gearRows=characterEquipSourceStats(raw);
+ const lookup=Object.fromEntries(gearRows.map(x=>[x.label==='초식방어'?'막기':x.label,x]));
+ const weapon=characterEquipCombatSplit(raw),meridian=characterMeridianFlatSubtotal(raw);
+ const formatter=n=>Number(n.toFixed(2)).toLocaleString('ko-KR',{maximumFractionDigits:2});
+ const rows=sourceNames.map(([name,baseName])=>{
+  const saved=computed.find(x=>x.label===baseName);
+  const base=Number(saved?.value),known=saved&&Number.isFinite(base);
+  const w=name==='공격'?weapon.weapon.atk+weapon.other.atk:
+    name==='명중'?weapon.weapon.hit+weapon.other.hit:null;
+  const g=lookup[name];
+  const gear=w!=null?w:g?(g.base+g.affix):0;
+  const mer=Number(meridian[name])||0;
+  const net=known?base+gear+mer:null;
+  const note=known?'기본·장비·경맥 부분합계':'기본값 미확인';
+  return {name,base:known?base:null,gear,mer,net,note};
  });
- return '<section class="role-section"><p class="wr-kicker">전투 능력치 · 기본·장비·경맥 합산</p>'+
- '<p class="role-status-note">기본 성장치, 장비의 기본·추가 수치, 경맥의 고정 증가분을 합산했습니다. 무학·정진·재능·비기·경맥 비율 효과·버프 등이 아직 미반영되어 게임의 최종 전투 수치와 다릅니다.</p>'+
- yyRoleStatGrid(rows,'final-grid')+'</section>';
+ const summary='<div class="role-grid stat-grid final-grid">'+rows.map(x=>[
+  x.name,x.net===null?'—':formatter(x.net),x.note
+ ]).map(([label,value,note])=>
+ '<div class="stat-cell"><span class="label">'+escape(label)+'</span><span class="value accent">'+escape(value)+'</span><span class="sub">'+escape(note)+'</span></div>').join('')+'</div>';
+ const table='<details class="role-stat-breakdown" open><summary>계산 근거 · 능력치별 합산 내역</summary>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>항목</th><th>인물 기본</th><th>장비(강화·부여 포함)</th><th>경맥 고정</th><th>부분 합계</th></tr></thead><tbody>'+
+ rows.map(x=>'<tr><th>'+escape(x.name)+'</th><td>'+(x.base===null?'—':formatter(x.base))+
+ '</td><td>'+formatter(x.gear)+'</td><td>'+formatter(x.mer)+'</td><td><b>'+(x.net===null?'—':formatter(x.net))+'</b></td></tr>').join('')+
+ '</tbody></table></div></details>';
+ const activeTypes=weapon.activeType?({1:'권법',2:'도법',3:'검법',4:'창·곤'}[weapon.activeType]||'미확인'):'미확인';
+ return '<section class="role-section"><p class="wr-kicker">전투 능력치 · 계산 가능한 부분 합계</p>'+
+ '<p class="role-status-note">원본 인물 기본 산식 + 장비 강화 계수(LvProp)·저장 부여 옵션 + 경맥 고정 증가를 분리해 계산했습니다. 무기 명중은 장착 외공 계열 기준입니다. 비율형 옵션·무학·재능·비기·버프·최종 곱셈 계수는 아직 포함하지 않아 인게임 최종 전투 능력치가 아닙니다.</p>'+
+ summary+table+
+ '<p class="micro">현재 외공 계열: '+escape(activeTypes)+
+ (weapon.weaponHitEligibilityKnown?' · 무기 명중 유형 판정 적용':' · 무기 명중 유형 미확인')+
+ ' · 장비 분류 미확인 '+weapon.unknown.length+'개. 중복 부여 옵션을 재합산하지 않습니다.</p></section>';
 }
 function yyRolePanel(role){
  const a=role.raw||{},source=(window.CHAR_DATA||{})[String(role.id)]||{},gender=Number(a.Sex)===1?'남':Number(a.Sex)===2?'여':'—';
@@ -2947,7 +2981,7 @@ function characterView(){
    case 'panel': body=yyRolePanel(role);break;
    case 'equip':body=yyRoleEquip(role)+characterEquipSourceView(raw)+characterEquipCombatSplitView(raw);break;
    case 'talent':body=yyRoleTalent(role);break;
-   case 'detail':body=yyRoleDetail(role);break;
+   case 'detail':body=characterCombatSubtotal(role)+yyRoleDetail(role);break;
    case 'training':body=yyCultivationView(role)+yyOriginalCultivationEffectsView(role)+yyCultivationCrossCheckView(role)+yyProgressView(save,role,'training')+characterTrainingView(raw)+characterMeridianView(raw);break;
    case 'consumable':body=yyProgressView(save,role,'consumable');break;
    case 'hengshan':body='<section class="role-section"><p class="wr-kicker">직무</p><p class="micro">항산파는 한국 서버 미출시 항목입니다. 원본 메뉴만 유지합니다.</p></section>';break;
