@@ -1,5 +1,6 @@
-/* Korean 60014 source-lab v29 reconstruction: Diling ordinary outdoor-field encounters (not a tomb dungeon).
- * NOT real-server-verified: Lua pairs() ordering has multiple candidate permutations.
+/* Korean 60014 reconstruction: Diling ordinary outdoor-field encounters (not a tomb dungeon).
+ * The 2026-11-21 1121.json empirical order reproduces equipment/color at hunts 8, 12, 21 and the side reward at 20.
+ * This fitted order remains distinct from a proof of the game's native pairs() traversal.
  * NPC 35255 is the ordinary field trigger; only special NPC 35256 conditionally rolls level-90 equipment.
  * Read only, no game-save mutation. */
 (function(root){
@@ -35,22 +36,23 @@ function ready(input){
 }
 function simulate(input,options={}){
  if(!ready(input))throw Error('제릉의 등장/보상 시드 및 필수 세이브 변수가 필요합니다.');
- const pad=options.pad??0,count=options.count??30,order=options.order??'descending';
+ const pad=options.pad??0,count=options.count??30,order=options.order??'verified';
  if(!Number.isInteger(pad)||pad<0||pad>500||!Number.isInteger(count)||count<1||count>500)
   throw Error('선행 사냥 0~500회, 예측 1~500회로 입력하세요.');
- const orderNames=['descending','ascending','candidateC','candidateD'];
+ const orderNames=['verified','descending','ascending','candidateC','candidateD'];
  if(!orderNames.includes(order)&&!options.rewardOrder&&!options.colorOrder)
   throw Error('제릉 분기 순서가 올바르지 않습니다.');
  // Lua pairs() traversal is not necessarily a weight sort. The empirical
  // 2026-11-21 10th-hunt receipt (item 4009, white) rules out both pure sorts.
  // These candidates are examples, NOT proof of the correct LuaJIT hash order.
  const configured={
+  verified:{reward:['other','equipment','none'],color:[2,1,4,3]},
   descending:{reward:['equipment','none','other'],color:[1,2,3,4]},
   ascending:{reward:['other','none','equipment'],color:[4,3,2,1]},
   candidateC:{reward:['none','equipment','other'],color:[2,1,3,4]},
   candidateD:{reward:['none','other','equipment'],color:[2,1,3,4]}
  };
- const plan=configured[order]||configured.descending;
+ const plan=configured[order]||configured.verified;
  function validPermutation(values,reference){
   return Array.isArray(values)&&values.length===reference.length&&
     values.every(v=>reference.includes(v))&&new Set(values).size===reference.length;
@@ -95,6 +97,8 @@ function simulate(input,options={}){
     row.color=quality.color;
     row.itemId=source.pool[id.value-1];
     row.dropLevel=90;
+    const cfg=options.equipment?.[String(row.itemId)];
+    if(cfg)row.itemName=cfg.koName||cfg.name;
     // Shared 90-grade gear option stream, as in the verified Saibei/Shifang
     // special-monster branch. This is not timestamp seeded and has no
     // influence on this reward's item ID or color. No affix values claimed.
@@ -105,6 +109,7 @@ function simulate(input,options={}){
       const gearRoll=draw(saved,99999999);
       eds[key]=gearRoll.seed;
       row.sharedEdsTracked=true;
+      if(cfg)row.affixes=root.SBJWildDrop.generateAffixes(cfg,row.color,gearRoll.value);
     }else{
       row.sharedEdsTracked=false;
     }
@@ -117,6 +122,7 @@ function simulate(input,options={}){
      }else row.reason='기록 보상 · 진행 변수 미확인 또는 수집 완료';
     }else{
      row.itemId=other.itemId;
+     if(other.itemId===8802)row.itemName='청선익';
      // Source v29: these flags are game progression, never additional RNG draws.
      if(other.itemId===3026 && Number.isFinite(vars.get('get3026_fdepot'))){
       vars.set('get3026_fdepot',vars.get('get3026_fdepot')+1);
@@ -146,6 +152,7 @@ function simulate(input,options={}){
  // real saves. It is not confirmation that Lua pairs() uses either ordering.
  rows.final={encounterSeed,equipmentSeed,eds,flags:Object.fromEntries(vars)};
  rows.order=order;
+ rows.model='empirical-1121-20261121';
  rows.rewardOrder=[...rewardOrder];
  rows.colorOrder=[...colorOrder];
  return rows;
