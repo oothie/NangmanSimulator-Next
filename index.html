@@ -1523,7 +1523,7 @@ function yyAccountCrossCheckView(entries){
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>캐릭터</th><th>계열</th><th>독립 계산</th><th>원본 계산</th><th>상태</th></tr></thead><tbody>'+
  rows.filter(x=>x.mismatch||x.unknown).map(x=>'<tr><td>'+escape(x.role)+'</td><td>'+escape(names[x.kind]||x.kind)+'</td>'+
  '<td>'+(x.learned??'—')+'</td><td>'+(x.origin??'—')+'</td><td>'+(x.mismatch?'불일치':'미확인')+'</td></tr>').join('')+
- '</tbody></table></div></details>':'<p class="micro">저장된 무학 수련치와 단계표 계산이 모두 일치했습니다. 실제 게임 화면과의 교차 검증은 별도로 필요합니다.</p>');
+ '</tbody></table></div></details>':'<p class="micro">저장된 무학 수련치와 단계표 계산이 모두 일치했습니다. 실제 게임 화면과의 교차 검증은 별도로 필요합니다.</p>'));
 }
 function yyAccountHistoryView(entries){
  const ledger=[];
