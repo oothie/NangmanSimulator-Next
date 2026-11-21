@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.9.8</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.9.9</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -201,7 +201,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.9.8: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.9.9: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -381,7 +381,7 @@ body{background:var(--bg)!important}
 .quest-branch-item small{font-size:11px;color:var(--sub);overflow-wrap:anywhere}
 .quest-branch-item>span{font-size:12px;white-space:nowrap;color:var(--sub)}
 
-/* v0.9.8: yy-sim spacing in native calculator containers. */
+/* v0.9.9: yy-sim spacing in native calculator containers. */
 .equip-primary-tabs{gap:5px;flex-wrap:wrap}
 .equip-primary-tabs button{min-height:36px;padding:8px 12px;border-radius:6px}
 .equipment-runtime-status{border-radius:7px;border:1px solid var(--border);border-left:3px solid var(--gold);background:var(--paper);color:var(--text)}
@@ -390,12 +390,12 @@ body{background:var(--bg)!important}
 .equipment-host iframe{border-radius:8px;background:var(--panel)}
 @media(max-width:700px){.equip-primary-tabs button{font-size:12px;padding:7px 10px}.drop-workspace{min-height:640px}.equipment-runtime-status{padding:9px 11px}}
 
-/* v0.9.8: CSV downloads are intentionally removed from the visible site. */
+/* v0.9.9: CSV downloads are intentionally removed from the visible site. */
 #washHistoryExport,#washPreviewExport,#washPathExport,
 #downloadAccountCultivation,#questBranchExport,#questExportCsv,
 button[data-export-csv],a[download$=".csv"]{display:none!important}
 
-/* v0.9.8: readable wash and equipment navigation */
+/* v0.9.9: readable wash and equipment navigation */
 .equip-directory,.equip-detail-full{padding:18px 0}
 .equip-directory>input{width:min(100%,700px);padding:13px;font-size:16px}
 .equip-directory-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin:18px 0}
@@ -412,7 +412,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .talent{min-height:86px}.talent-text b{font-size:15px}.talent-text small,.config-item,.wash-grade{font-size:13px}
 @media(max-width:700px){.equip-directory-list,.equip-detail-rows{grid-template-columns:1fr}}
 
-/* v0.9.8: wash automatic search readable selection panels */
+/* v0.9.9: wash automatic search readable selection panels */
 .wash-auto-groups{display:grid;gap:14px;margin:15px 0 18px}
 .wash-auto-group{border:1px solid var(--border);background:var(--panel);border-radius:9px;padding:3px 14px}
 .wash-auto-group>summary{font-size:16px;font-weight:750;padding:12px 2px;cursor:pointer}
@@ -511,7 +511,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 [data-theme=ink] .equip-detail-full,[data-theme=ink] .equip-detail-full *{border-color:var(--border)}
 .wiki-equipment-details{width:100%;max-width:390px;margin:14px 0;padding:11px 14px!important;display:block;background:transparent!important;border:1px solid var(--gold)!important;color:var(--text)!important;font-weight:700}.wiki-equipment-details:hover{background:#ad8b4c22!important}
 
-/* v0.9.8: distinct equipment detail controls; colors signal functions, while
+/* v0.9.9: distinct equipment detail controls; colors signal functions, while
    their surfaces and active states use the integrated paper/ink palette. */
 .equip-detail-full .equip-detail-buttons{
  display:grid!important;
@@ -594,7 +594,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 @media(max-width:930px){.equip-detail-full .equip-detail-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:520px){.equip-detail-full .equip-detail-buttons{gap:9px!important}.equip-detail-full .equip-detail-choice{min-height:90px!important;padding:12px!important}.equip-detail-full .equip-detail-choice strong{font-size:17px!important}.equip-detail-full .equip-detail-choice span{font-size:11px!important}}
 
-/* v0.9.8: unified site controls and accessible low-contrast equipment tabs. */
+/* v0.9.9: unified site controls and accessible low-contrast equipment tabs. */
 :root{color-scheme:light}
 [data-theme=ink]{color-scheme:dark}
 .btn.primary{background:var(--gold)!important;border-color:var(--gold)!important;color:#fff!important;font-weight:700}
@@ -607,7 +607,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 [data-theme=ink] .equip-detail-full select{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
 @media(max-width:700px){.equip-primary-tabs button{font-size:14px!important;min-height:44px!important}}
 
-/* v0.9.8: compact four-function equipment navigation, warm site-native accents. */
+/* v0.9.9: compact four-function equipment navigation, warm site-native accents. */
 .equip-detail-full .equip-detail-buttons{gap:8px!important;margin:14px 0 12px!important}
 .equip-detail-full .equip-detail-choice{
  min-height:64px!important;padding:10px 13px!important;gap:3px!important;
@@ -635,9 +635,14 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .quest-branch-filters button.active{border-color:var(--gold);background:#ad8b4c24;font-weight:750}
 .quest-more{display:block;margin:13px auto;padding:9px 20px;min-height:42px}
 .quest-catalog-item{border:1px solid var(--border);border-radius:6px;padding:12px;margin:9px 0;background:var(--panel)}
+.quest-relation-group{margin:12px 0}.quest-relations{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.quest-relation{font-size:13px!important;text-align:left;max-width:100%;overflow-wrap:anywhere}
+.quest-relation-missing{display:inline-block;border:1px dashed var(--border);border-radius:5px;padding:7px 9px;color:var(--sub);font-size:12px}
+.quest-condition{margin-top:15px;border-top:1px solid var(--border);padding-top:12px}
+.quest-condition .quest-field{min-width:0}.quest-condition small{display:block;margin-top:5px;color:var(--sub);font-size:12px}
 .quest-catalog-item summary{cursor:pointer;overflow-wrap:anywhere}.quest-catalog-description{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;max-width:100%;font-size:14px}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
-/* v0.9.8: compact wash view. Calculation controls are not changed. */
+/* v0.9.9: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
 .layout .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 16px;margin-bottom:9px}
 .layout .hero h2{font-size:18px;margin:0}
@@ -1234,12 +1239,12 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
 let equipTab='find',equipSearch='',equipFindLevel='all',equipFindType='all',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questSourceError='';
-let questTab='current',questSearch='',questBranchFilter='active',questVisibleLimit=200,questCatalogLimit=150,questCategory='all';let characterFilter='';
+let questTab='current',questSearch='',questBranchFilter='active',questVisibleLimit=200,questCatalogLimit=150,questCategory='all',questFocusedId=null;let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.9.8</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
+return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.9.9</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
 }
 
 function embeddedEngine(url,label,caption){
@@ -3322,26 +3327,86 @@ function questCatalogRows(){
  }
  return [...index.values()].sort((a,b)=>Number(a.source!=='60014')-Number(b.source!=='60014')||Number(a.id)-Number(b.id)||a.id.localeCompare(b.id,'ko'));
 }
+function questSubIds(x){
+ const raw=x?.subtask;
+ const values=raw==null?[]:Array.isArray(raw)?raw:[raw];
+ return [...new Set(values.map(v=>String(v).trim()).filter(v=>/^\\d+$/.test(v)))];
+}
+function questParentIndex(){
+ const parents=new Map();
+ const original=window.NANGMAN_QUEST_60014?.quests||{};
+ for(const [parent,row] of Object.entries(original)){
+  for(const id of questSubIds(row)){
+   if(!parents.has(id))parents.set(id,[]);
+   parents.get(id).push(String(parent));
+  }
+ }
+ return parents;
+}
 function questCatalogState(x){
  const task=save?.Task;
  if(task?.id!=null&&String(task.id)===String(x.id))return '현재 주요 임무';
  const record=save?.Branch?.[x.id];
- // Only exact numeric Branch keys may refer to APK task_branch IDs.
+ // Numeric task_branch identifiers and script-name Branch keys are different namespaces.
  if(!record||typeof record!=='object')return '세이브 상태 미확인';
  const step=Number(record.step);
- return Number.isInteger(step)?step===-1?'완료 기록':step>=0?'진행 기록 · 단계 '+step:'판정 불가':'판정 불가';
+ return Number.isInteger(step)?step===-1?'분기 완료 기록':step>=0?'분기 진행 기록 · 단계 '+step:'판정 불가':'판정 불가';
+}
+function questConditionParts(req){
+ if(req==null)return [];
+ const terms=Array.isArray(req)&&Array.isArray(req[0])?req:[req];
+ return terms.map(term=>{
+  if(!Array.isArray(term))return {label:'내부 조건',code:JSON.stringify(term)};
+  const [type,key,op,value]=term;
+  if(Number(type)===1&&term.length===2)return {label:'주요 이야기 진행 코드',code:String(key)};
+  if(Number(type)===2&&term.length>=4)return {label:'분기 기록 · '+String(key),code:String(op)+' '+String(value),branchKey:String(key),operator:String(op),value};
+  if(Number(type)===3&&term.length>=4)return {label:'이벤트 변수 · '+String(key),code:String(op)+' '+String(value)};
+  if(Number(type)===4&&term.length>=4)return {label:'내부 종류 4 · '+String(key),code:String(op)+' '+String(value)};
+  return {label:'기타 원본 조건',code:JSON.stringify(term)};
+ });
+}
+function questConditionSavePart(part){
+ if(!part.branchKey)return '';
+ const branch=save?.Branch?.[part.branchKey];
+ if(!branch||typeof branch!=='object'||!Number.isInteger(Number(branch.step)))return ' · 세이브 기록 없음';
+ const actual=Number(branch.step);
+ const target=Number(part.value);
+ if(!Number.isFinite(target))return ' · 세이브 단계 '+actual;
+ const tests={'==':a=>a===target,'>=':a=>a>=target,'<=':a=>a<=target,'>':a=>a>target,'<':a=>a<target,'!=':a=>a!==target};
+ const fn=tests[part.operator];
+ return ' · 저장 단계 '+actual+(fn?' · 조건 '+(fn(actual)?'일치':'불일치'):'');
+}
+function questRelationButtons(ids,original,kind){
+ if(!ids.length)return '';
+ return '<div class="quest-relation-group"><b>'+escape(kind)+' · '+ids.length+'개</b><div class="quest-relations">'+
+ ids.map(id=>{
+  const row=original[id];
+  return row?'<button type="button" class="btn quest-relation" data-quest-open="'+escape(id)+'">#'+escape(id)+' · '+escape(row.name||'이름 미확인')+'</button>':
+   '<span class="quest-relation-missing">#'+escape(id)+' · 원본에 항목 없음</span>';
+ }).join('')+'</div></div>';
 }
 function questCatalogDetail(x){
+ const original=window.NANGMAN_QUEST_60014?.quests||{};
+ const ids=questSubIds(x),parents=questParentIndex().get(String(x.id))||[];
  const data=[['분류',x.typeName],['원본 ID',x.id]];
  if(x.type2name)data.push(['세부 분류',x.type2name]);
  if(x.branches!=null)data.push(['분기 수',x.branches]);
- if(x.subtask!=null)data.push(['하위 임무 ID',x.subtask]);
- if(x.finishReq!=null)data.push(['완료 조건 원본값',JSON.stringify(x.finishReq)]);
- if(x.reward!=null)data.push(['특수 보상 원본값',JSON.stringify(x.reward)]);
+ const conds=questConditionParts(x.finishReq);
+ let conditions='';
+ if(conds.length){
+  conditions='<section class="quest-condition"><strong>원본 진행·완료 판정 조건</strong><div class="quest-record-data">'+
+  conds.map(part=>'<div class="quest-field"><span>'+escape(part.label)+'</span><b>'+escape(part.code)+'</b><small>'+escape(questConditionSavePart(part))+'</small></div>').join('')+
+  '</div><p class="micro">여러 조건의 결합 방식은 원본 실행 로직 대조 전까지 확정하지 않습니다. 저장 단계 비교는 조건의 일부만 보여주며 실제 임무 완료를 보증하지 않습니다.</p></section>';
+ }
+ let reward='';
+ if(Array.isArray(x.reward)&&x.reward.length>=3){
+  const [kind,id,count]=x.reward;
+  reward='<p class="micro">특수 보상 원본 · 종류 '+escape(kind)+' / ID '+escape(id)+' / 수량 '+escape(count)+' (이름·지급 여부 미검증)</p>';
+ }else if(x.reward!=null)reward='<p class="micro">특수 보상 원본 · '+escape(JSON.stringify(x.reward))+'</p>';
  return '<div class="quest-record-data">'+data.map(([key,value])=>'<div class="quest-field"><span>'+escape(key)+'</span><b>'+escape(value)+'</b></div>').join('')+'</div>'+
  (x.description?'<p class="quest-catalog-description">'+escape(x.description)+'</p>':'<p class="micro">원본 설명 없음</p>')+
- (x.subtask!=null?'<button type="button" class="btn" data-quest-open="'+escape(x.subtask)+'">하위 임무 #'+escape(x.subtask)+' 찾기</button>':'')+
- '<p class="micro">원본 내부 값은 실제 게임의 완료 조건·보상 문구로 확정 번역하지 않았습니다.</p>';
+ questRelationButtons(parents,original,'상위 임무')+
+ questRelationButtons(ids,original,'하위 임무')+conditions+reward;
 }
 function questRecordDetails(record){
  if(!record||typeof record!=='object')return '';
@@ -3402,7 +3467,8 @@ function questView(){
     '<p class="micro">진행 중인 분기 기록이 없습니다.</p>')+
    card('위탁 임무',questDelegatedDetails(data));
  }else if(questTab==='catalog'){
-  const visible=catalog.filter(x=>(questCategory==='all'||x.group===questCategory)&&
+  const visible=catalog.filter(x=>questFocusedId!=null?x.id===questFocusedId:
+   (questCategory==='all'||x.group===questCategory)&&
    (x.id+' '+x.name+' '+x.description+' '+x.typeName+' '+x.type2name).toLowerCase().includes(q));
   const groups=[['all','전체'],['main','주요 이야기'],['companion','동료'],['regional','지역·지선'],
    ['sect','문파'],['dungeon','관문'],['sub','분기·하위'],['event','이벤트'],['other','기타']];
@@ -3412,6 +3478,7 @@ function questView(){
    (questSourceError?'<p class="notice">'+escape(questSourceError)+'</p>':'')+
    '<label class="wiki-search-label"><input type="search" id="questSearch" placeholder="임무 이름·지역·ID·설명 검색" value="'+escape(questSearch)+'"></label>'+
    '<div class="quest-branch-filters" role="group" aria-label="임무 종류">'+groups.map(([id,label])=>'<button type="button" data-quest-category="'+id+'" aria-pressed="'+(questCategory===id)+'" class="'+(questCategory===id?'active':'')+'">'+label+'</button>').join('')+'</div>'+
+   (questFocusedId!=null?'<button type="button" class="btn" id="questClearFocus">전체 임무 목록으로</button>':'')+
    '<p class="micro">검색 결과 '+visible.length+'건 · 표시 '+Math.min(visible.length,questCatalogLimit)+'건</p>'+
    (visible.length?'<div class="quest-result-list">'+visible.slice(0,questCatalogLimit).map(x=>
     '<details class="quest-catalog-item"><summary><strong>'+escape(x.name)+'</strong> <small>#'+escape(x.id)+' · '+escape(x.typeName)+' · '+escape(questCatalogState(x))+'</small></summary>'+
@@ -3468,11 +3535,12 @@ if($('marketAutoNext'))$('marketAutoNext').onclick=()=>{marketAutoStep++;render(
 if($('marketAutoReset'))$('marketAutoReset').onclick=()=>{marketAutoStep=0;render()};
 if($('marketSimReset'))$('marketSimReset').onclick=()=>{marketSimStep=0;render()};
 
-if($('questSearch'))$('questSearch').oninput=e=>{questSearch=e.target.value;questVisibleLimit=200;questCatalogLimit=150;const pos=e.target.selectionStart;render();const field=$('questSearch');if(field){field.focus();field.setSelectionRange(pos,pos)}};
+if($('questSearch'))$('questSearch').oninput=e=>{questSearch=e.target.value;questFocusedId=null;questVisibleLimit=200;questCatalogLimit=150;const pos=e.target.selectionStart;render();const field=$('questSearch');if(field){field.focus();field.setSelectionRange(pos,pos)}};
 document.querySelectorAll('[data-quest-filter]').forEach(el=>el.onclick=()=>{questBranchFilter=el.dataset.questFilter;questVisibleLimit=200;render()});
 document.querySelectorAll('[data-quest-more]').forEach(el=>el.onclick=()=>{if(el.dataset.questMore==='branch')questVisibleLimit+=200;else questCatalogLimit+=150;render()});
-document.querySelectorAll('[data-quest-category]').forEach(el=>el.onclick=()=>{questCategory=el.dataset.questCategory;questCatalogLimit=150;render()});
-document.querySelectorAll('[data-quest-open]').forEach(el=>el.onclick=()=>{questCategory='all';questSearch=String(el.dataset.questOpen);questCatalogLimit=150;render();const row=document.querySelector('.quest-catalog-item');if(row){row.open=true;row.scrollIntoView({block:'nearest'})}});
+document.querySelectorAll('[data-quest-category]').forEach(el=>el.onclick=()=>{questCategory=el.dataset.questCategory;questFocusedId=null;questCatalogLimit=150;render()});
+document.querySelectorAll('[data-quest-open]').forEach(el=>el.onclick=()=>{questCategory='all';questSearch='';questFocusedId=String(el.dataset.questOpen);questCatalogLimit=150;render();const row=document.querySelector('.quest-catalog-item');if(row){row.open=true;row.scrollIntoView({block:'nearest'})}});
+if($('questClearFocus'))$('questClearFocus').onclick=()=>{questFocusedId=null;questSearch='';questCategory='all';questCatalogLimit=150;render()};
 if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  const csv=window.NangmanQuest.csv(window.NangmanQuest.model(save));
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
@@ -3480,7 +3548,7 @@ if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  link.download='Nangman_Quest_Branches_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.9.8',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.9.9',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 
 if($('equipSearch'))$('equipSearch').oninput=e=>{equipSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipSearch');x.focus();x.setSelectionRange(p,p)};
 if($('equipOwnSearch'))$('equipOwnSearch').oninput=e=>{equipOwnSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipOwnSearch');x.focus();x.setSelectionRange(p,p)};
@@ -3776,7 +3844,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.9.8',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.9.9',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;equipmentLastOriginalTab=null;render()}});
@@ -4513,7 +4581,7 @@ window.addEventListener('message',e=>{
  }
 });
 </script>
-<!-- v0.9.8: read-only localization audit with hidden dialogs, select choices and element paths. -->
+<!-- v0.9.9: read-only localization audit with hidden dialogs, select choices and element paths. -->
 <script>
 (function(){
   const hanja=/[\u3400-\u9fff]/;
