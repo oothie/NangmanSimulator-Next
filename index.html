@@ -1992,7 +1992,7 @@ function questView(){
    card('위탁 임무 저장 목록',
     '<p class="micro">WeiTuoTask.accept / task 배열은 원본 저장 키만 표시합니다. 완료·미완료 상태라고 추정하지 않습니다.</p>'+
     '<div class="wiki-detail-fields">'+
-    [['수락 기록',data.delegated.accept],['임무 기록',data.delegated.recorded]].map(([label,arr])=>
+    [['수락 기록',data.delegated.accepted],['임무 기록',data.delegated.recorded]].map(([label,arr])=>
     '<div class="wiki-field"><span>'+label+' ('+arr.length+'개)</span><b>'+escape(arr.join(', ')||'기록 없음')+'</b></div>').join('')+'</div>');
  }else if(questTab==='catalog'){
   const visible=catalog.filter(x=>(x.id+' '+x.name+' '+x.description).toLowerCase().includes(q));
