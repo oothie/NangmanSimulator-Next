@@ -65,6 +65,8 @@ jobs:
         run: node tests/wash-until-exchange-smoke.cjs
       - name: Verify 1–4 stage native wash and exchange transaction
         run: node tests/wash-chain-smoke.cjs
+      - name: Verify goal-only Domakbeop talent inventory audit
+        run: node tests/wash-goal-audit-smoke.cjs
       - name: Compile integrated simulator and embedded native HTML scripts
         run: node tests/html-inline-syntax.cjs
       - name: Verify native purple path goal and cost sorting
