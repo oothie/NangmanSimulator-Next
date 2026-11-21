@@ -55,6 +55,8 @@ jobs:
         run: node tests/wash-slot-controls.cjs
       - name: Verify native wash conflict inspection and removed A/B tool
         run: node tests/wash-constraints-smoke.cjs
+      - name: Validate real embedded yy-sim WASM output shapes
+        run: node tests/wasm-runtime-integration.cjs
       - name: Verify purple equipment result filters
         run: node tests/drop-quality-filter-smoke.cjs
       - name: Verify exported wild and dungeon drop CSV
