@@ -388,7 +388,7 @@ function wikiKoMap(){
  for(const row of wikiRows()){
   if(row.source!=='crafts'&&row.source!=='arts')continue;
   const key=String(row.obj.n||'').trim();
-  const translated=(window.NANGMAN_WIKI_CRAFT_KO||{})[key];
+  const translated=(row.source==='arts'?(window.NANGMAN_WIKI_ARTS_KO||{})[key]:(window.NANGMAN_WIKI_CRAFT_KO||{})[key]);
   if(translated&&!m.has(row.key))m.set(row.key,translated);
  }
  return m;
@@ -580,6 +580,7 @@ window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.
 <script src="./data/wiki-status-54506-ko.js"></script>
 <script src="./data/wiki-status-v620.js"></script>
 <script src="./data/wiki-craft-ko.js"></script>
+<script src="./data/wiki-arts-ko.js"></script>
 <script type="module">
 import {loadKoreanWikiNames} from './data/korean-wiki-index.js';
 import {loadV620KoreanReference} from './data/v620-korean-reference.js';
