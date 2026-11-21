@@ -118,6 +118,20 @@ const path=require('node:path');
    fourTarget.preserved&&!fourTarget.partial,
    'native 3 purple + 1 green with global_vars: '+JSON.stringify(fourTarget));
   console.log('PASS: native 3-purple+green final goals, 24 permuted branches, stable WASM global_vars',JSON.stringify(fourTarget));
+  const freshGoals=await page.evaluate(async()=>{
+   const {washSearchEngine}=await import('./engine/local-engine-bridge.js');
+   const native=await washSearchEngine.call('state');
+   const empty={...native,seed:'447882174',role_id:10044,zizhi:154,
+    talents:[{id:171,locked:false},{id:172,locked:false}],
+    total_pills:0,total_wash:0,bag_pills:20000,has_bag_pills:true,
+    global_vars:{nlliandu_tf:0,talent_LingYue:1,mh_tianfu_401:1}};
+   await washSearchEngine.call('set-state',empty);
+   const result=await washSearchEngine.call('auto-intermediate-search',{
+    desiredIds:[271,272,250,184],horizon:1200,topN:5});
+   return {scanned:result?.result?.scanned,routeCount:result?.result?.routes?.length,
+    warnings:result?.warnings,partial:result?.result?.partial};
+  });
+  console.log('DIAGNOSTIC: four targets from scratch, 3 purple + green',JSON.stringify(freshGoals));
   const retryPage=await browser.newPage();
   let failedAssets=0;
   await retryPage.route(/\/wasm_data\.js\?rev=0\.10\.7/,async route=>{
