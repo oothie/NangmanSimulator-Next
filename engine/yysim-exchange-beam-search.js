@@ -187,7 +187,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
     // Branch on holding an earlier lower-grade car (non-target) so the
     // next same-type purple may be exchangeable. Keep this temporary and
     // verifiable; never force-lock all remaining slots.
-    if(!nextTemp&&washNo%10===4&&idsIn(saved.state,ids).length<=1&&locked(saved.state)<2){
+    if(!nextTemp&&washNo%10===4&&idsIn(saved.state,ids).length<=1&&locked(saved.state)<3){
      const tickets=saved.state.talents.map((t,i)=>({t,i})).filter(({t,i})=>
       i<3&&!t.locked&&!ids.includes(Number(t.id))&&
       [1,2,3].includes(Number(qualityFor(Number(t.id)))));
