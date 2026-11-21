@@ -45,6 +45,8 @@ async function request(op,payload){
  'rendered simulated talent slots expose native actions');
  assert(index.includes("op==='washEngineToggleLock'||op==='washEngineExchangeTalent'"));
  assert(index.includes("state.undoStates.push(snapshot)"));
+ assert(index.includes('id="washMainFive"')&&index.includes('id="washMainTen"'));
+ assert(index.includes("btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10'"));
  assert(index.includes('state.liveTalents=applied.talents||[]'),'initial slots from wasm set-state');
  assert(index.includes('state.liveTalents=restored?.talents||[]'),'undo refreshes simulated slots');
  console.log('PASS: native WASM lock max three and unlocked exchange, save-only controls/undo');
