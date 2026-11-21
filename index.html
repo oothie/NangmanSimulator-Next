@@ -579,7 +579,7 @@ if(sub==='path'){
   }
  }
  pathText=pathText.replace(/[\u3400-\u9fff]+/g,'원본 명칭 미연결');
- const resultCount=reports?Array.isArray(reports.results)?reports.results.length:
+ const resultCount=!reports?null:Array.isArray(reports.results)?reports.results.length:
   Array.isArray(reports.results?.paths)?reports.results.paths.length:
   Array.isArray(reports.results?.candidates)?reports.results.candidates.length:null;
  const summary=reports?'<p class="micro">원본 yy-sim WASM '+(resultCount==null?'경로 자료 반환':('후보 '+escape(resultCount)+'건'))+' · '+escape(reports.maxPad)+'회까지 탐색 · 가상 세수 · 실제 서버 미검증</p>':
