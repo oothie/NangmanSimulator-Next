@@ -11600,7 +11600,17 @@ function searchRoutePanel270(h,o){
  const route=`<div class="mini"><b>제작 경로</b><p class="meta">${esc(o.rt?.npc?.place||'')} · ${esc(o.rt?.npc?.name||'')}에서 「${esc(o.rt?.p?.paper?.name||o.rt?.p?.label||ename(cfg))}」 제작 시퀀스의 <b>#${o.make?.index||''}</b> 결과입니다.</p><div class="route"><span class="tag">제작 #${o.make?.index||''}</span>${o.xl?.flags?.some(Boolean)?`<span class="arrow218">→</span><span class="tag">정련 보존 ${o.xl.flags.filter(Boolean).length}</span>`:''}${o.mj?`<span class="arrow218">→</span><span class="tag">${esc(o.mj.mat?.name||'특수재료')} 망정 #${o.mj.roll?.index||o.mj.attempts||''}</span>`:''}</div></div>`;
  h.innerHTML=route+`<div class="mini"><b>검색 결과 실제 소모량</b><div class="meta">${esc(searchCostText269(o))}</div></div>`;
 }
-function showDetailTop233(obj,backView,initialTab){R.sel=obj;R.detailBack233=backView||R.view;R.detailTab=initialTab||'xl';const m=q('#rmain');m.innerHTML=`<button type="button" class="back218" id="dback233">← 이전 목록</button><div id="dtop233"></div>`;q('#dback233').onclick=()=>{const back=R.detailBack233||'find';open(back);if(back==='find'&&R.results.length){requestAnimationFrame(()=>requestAnimationFrame(()=>{const rr=q('#rresults');if(!rr)return;const localY=rr.getBoundingClientRect().top+window.scrollY;try{if(window.parent&&window.parent!==window&&window.frameElement){const frameY=window.frameElement.getBoundingClientRect().top+window.parent.scrollY;window.parent.scrollTo(0,Math.max(0,frameY+localY-12))}else{window.scrollTo(0,Math.max(0,localY-12))}}catch(_){rr.scrollIntoView({block:'start'})}}))}};paintDetail(q('#dtop233'),obj);window.scrollTo(0,0)}
+function showDetailTop233(obj,backView,initialTab){R.sel=obj;R.detailBack233=backView||R.view;R.detailTab=initialTab||'xl';const m=q('#rmain');m.innerHTML=`<button type="button" class="back218" id="dback233">← 이전 목록</button><div id="dtop233"></div>`;q('#dback233').onclick=()=>{const back=R.detailBack233||'find';open(back);if(back==='find'&&R.results.length){requestAnimationFrame(()=>requestAnimationFrame(()=>{const rr=q('#rresults');if(!rr)return;const localY=rr.getBoundingClientRect().top+window.scrollY;try{if(window.parent&&window.parent!==window&&window.frameElement){const frameY=window.frameElement.getBoundingClientRect().top+window.parent.scrollY;window.parent.scrollTo(0,Math.max(0,frameY+localY-12))}else{window.scrollTo(0,Math.max(0,localY-12))}}catch(_){rr.scrollIntoView({block:'start'})}}))}};paintDetail(q('#dtop233'),obj);window.scrollTo(0,0);
+ if(window.parent!==window&&!window.__nangman350SuppressDetailEvent){
+  const eq=obj.equip||obj,token=(window.__nangman350TokenSeq=(window.__nangman350TokenSeq||0)+1);
+  window.__nangman350ActiveDetail={token,obj,backView:R.detailBack233};
+  const id=Number(eq?.id??eq?.ID);
+  if(Number.isInteger(id)&&id>0)window.parent.postMessage({
+   kind:'nangman-equip-open-detail',
+   equipment:{ID:id,Color:Number(eq.color??eq.Color??0),OnlyID:eq.only_id??eq.OnlyID??0,__nangman350DetailToken:token}
+  },location.origin);
+ }
+}
 function paintDetail(h,obj){if(!h||!obj)return;const e=obj.equip||obj,cfg=EQUIP_DATA.equipment[String(e.id)]||{};const sc=obj.make&&obj.recipe?`<div class="mini search-cost270"><b>검색 결과 실제 소모량</b><div class="meta">${esc(searchCostText269(obj))}</div></div>`:'';const loc=obj.make&&obj.rt?`<div class="detail-region277"><b>${esc(routeDisplayName(obj.rt)||obj.rt?.npc?.place||obj.rt?.npc?.name||'')}</b> <span>· #${Number(obj.make?.index||0)}</span></div>`:'';h.innerHTML=`<section class="rb-detail233">${rkDetailHead233(e,cfg)}${loc}${obj.make&&obj.recipe?searchPenInfo270(obj):''}${sc}<div class="tabs218" id="dtabs"></div><div id="dpanel"></div></section>`;const tabs=[['route','장비'],['xl','정련'],['mj','망정']];if([1,2,3,4].includes(Number(cfg.type||e.typ)))tabs.push(['cl','촉련']);chips(h.querySelector('#dtabs'),tabs.map(x=>({v:x[0],n:x[1]})),v=>R.detailTab===v,v=>{R.detailTab=v;paintDetail(h,obj)});paintDetailPanel(h.querySelector('#dpanel'),obj,R.detailTab)}
 function moneyText271(wen){const n=Math.max(0,Math.floor(Number(wen)||0)),ny=Math.floor(n/1000),pn=n%1000;return `${ny?ny.toLocaleString('ko-KR')+'냥 ':''}${pn||!ny?pn.toLocaleString('ko-KR')+'푼':''}`.trim()}
 /* 기존 장비 페이지 전체의 은전 표기에도 동일한 냥/푼 단위를 사용한다. */
@@ -11790,6 +11800,14 @@ function paintOwnedDetailPage(m,e){showDetailTop233(e,'owned')}
 
 window.nangman350FocusEquipment=function(snapshot,initialTab){
  if(!snapshot)return {ok:false,message:'장비 정보가 없습니다'};
+ const cached=window.__nangman350ActiveDetail;
+ if(cached&&snapshot.__nangman350DetailToken!=null&&
+    Number(snapshot.__nangman350DetailToken)===cached.token){
+  window.__nangman350SuppressDetailEvent=true;
+  try{showDetailTop233(cached.obj,cached.backView||'find',initialTab||'route')}
+  finally{window.__nangman350SuppressDetailEvent=false}
+  return {ok:true,source:'live-result',message:'선택한 계산 결과의 원본 정련·망정·촉련 상세'};
+ }
  syncOwned();
  const id=Number(snapshot.ID??snapshot.id??snapshot.equip_id??snapshot.equipId),onlyId=Number(snapshot.OnlyID??snapshot.only_id??snapshot.onlyId??0);
  const catalogOnly=!!snapshot.catalogOnly;
