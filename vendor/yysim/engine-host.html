@@ -97,7 +97,10 @@ try{
    throw Error('최종 세수 맥 조합 탐색 모듈이 준비되지 않았습니다');
   const result=await window.YYWashIntermediateSearch.run({
    ids,horizon,topN,getState:wasmGetState,setState:wasmSetState,
-   doWash:wasmDoWash,isolated:true,
+   doWash:wasmDoWash,getConflicts:wasmGetConflicts,
+   doExchange:wasmExchangeTalent,
+   qualityFor:id=>Number(TALENT_DATA[String(id)]?.pinzhi||0),
+   isolated:true,
    freshBranch:async initial=>{
     // Reinstantiate the genuine yy-sim WASM on every lock branch rather
     // than reverting a mutated WASM engine via set_state.
