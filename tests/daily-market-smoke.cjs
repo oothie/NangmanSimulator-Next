@@ -30,7 +30,7 @@ assert.equal(result.seedOk,true,'actual guishishop seed field recognized');
 assert.equal(result.missed,3,'source 12h rotation lag');
 assert.deepEqual(Array.from(result.today,x=>x.id),[10,118,12,7,32,41],
  'matches yy-sim source Mc() regular weighted-RNG sequence');
-const paid=result.getPaid(2).map(x=>Array.from(x.items,it=>it.id));
+const paid=Array.from(result.getPaid(2),x=>Array.from(x.items,it=>it.id));
 assert.deepEqual(paid,[[118,100,33,7,41,32],[100,33,32,22,12,118]],
  'matches original weighted paid refresh including rare item');
 const times=result.findTargets([4,40,10],5);
