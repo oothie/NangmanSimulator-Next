@@ -50,7 +50,7 @@ function signature(s){
   JSON.stringify(s.global_vars||{})].join('|');
 }
 async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
- doExchange,freshBranch,qualityFor,yieldControl=async()=>{},
+ doExchange,freshBranch,qualityFor,yieldControl=async()=>{},onProgress=()=>{},
  beamWidth=24}){
  if(typeof getConflicts!=='function'||typeof doExchange!=='function')
   throw Error('WASM 치환 탐색 함수가 없습니다');
@@ -229,7 +229,14 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
   }
   diverse.sort((a,b)=>rank(b.state,ids,original)-rank(a.state,ids,original));
   current=diverse.slice(0,beamWidth);maxActive=Math.max(maxActive,current.length);
-  if(washNo%40===0)await yieldControl();
+  if(washNo%25===0||completed.length){
+   onProgress({stage:'WASM 치환·임시 잠금 확장 탐색',phase:'exchange',
+    completed:washNo,total:horizon,percentage:Math.min(99,Math.round(100*washNo/horizon)),
+    wash:washNo,horizon,checked:visited,found:completed.length,
+    bestPills:completed.length?Math.min(...completed.map(x=>x.pills)):null,
+    maxGoals,goalCount:ids.length,exchangeSuccesses,active:current.length});
+  }
+  if(washNo%25===0)await yieldControl();
  }
  completed.sort((a,b)=>a.pills-b.pills||a.washes-b.washes||a.exchanges-b.exchanges);
  return {routes:completed.slice(0,topN),scanned:expanded,trajectories:visited,
