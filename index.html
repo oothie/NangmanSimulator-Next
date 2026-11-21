@@ -2143,9 +2143,21 @@ function yyRoleTalent(role){
  const raw=role.raw||{},bornId=Number(raw.BornTalent?.ID)||0;
  const bornData=(window.BORN_TALENT_DATA||{})[String(bornId)];
  const bornName=bornId?characterTalentName(bornId):'없음';
- const description=bornData?.effects?.length?
-  bornData.effects.map(x=>Array.isArray(x)?String(x[0])+': '+String(x[1]):'').filter(Boolean).join(' · '):'';
- const born=yyRoleSlot(bornName,(description||'ID '+bornId),'','is-locked');
+ const bornEffectKo={
+   partner_tak:'동료 공격',guaji:'자동 사냥',hp:'기혈',atk:'공격',def:'방어',
+   str:'완력',con:'근골',dex:'신법',hit:'명중',dodge:'회피',parry:'초식방어',
+   renxing:'인내',weapon:'무기 위력',def_ign:'관통',dmg_off:'피해면역',
+   sword_add:'검법 위력',blade_add:'도법 위력',stick_add:'창곤 위력',
+   unarmed_add:'권법 위력',map_move:'이동 속도',kang_debuff:'상태이상 면역',
+   losthp_atk:'기혈 감소 시 공격',targetlosthp_atk:'상대 기혈 감소 시 공격',
+   red_cool:'재사용 대기 감소',po_dodge:'회피 관통',po_parry:'초식방어 관통',
+   cost_dazao:'제작 비용',cost_cuilian:'촉련 비용',yl_add:'경험치 획득'
+ };
+ const effects=bornData?.effects?.filter(x=>Array.isArray(x)&&bornEffectKo[x[0]])
+   .map(x=>bornEffectKo[x[0]]+' '+(typeof x[1]==='number'&&Math.abs(x[1])<1?
+     (Math.round(x[1]*10000)/100)+'%':String(x[1])))
+   .slice(0,5).join(' · ')||'';
+ const born=yyRoleSlot(bornName,effects||('ID '+bornId),'','is-locked');
  return yyRoleSection('선천 재능',born)+(role.type==='주인공'?'':yyRoleSection('지원 재능',characterBattleSupport(role)));
 }
 function yyRoleExtraCombat(raw){
