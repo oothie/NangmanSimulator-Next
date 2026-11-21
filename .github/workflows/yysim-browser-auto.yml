@@ -3,6 +3,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'index.html'
       - 'engine/local-engine-bridge.js'
       - 'engine/yysim-intermediate-search.js'
       - 'engine/yysim-exchange-beam-search.js'
