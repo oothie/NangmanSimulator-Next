@@ -53,7 +53,8 @@ async function call(op,payload){
  assert.equal(washed.data.requested,5);
  assert((await call('set-state',initial)).ok);
  const collision=await call('until-exchange',{count:30});
- assert(collision.ok,'real WASM native until-exchange command succeeds');
+ console.log('ACTUAL_COLLISION_RESPONSE',JSON.stringify(collision).slice(0,2000));
+ assert(collision.ok,'real WASM native until-exchange command succeeds: '+JSON.stringify(collision.data));
  assert(collision.data.performed>=0&&collision.data.performed<=30,
   'native search must stop within configured wash bound');
  if(collision.data.found)assert(collision.data.conflict?.can_exchange===true,
