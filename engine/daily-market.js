@@ -120,9 +120,10 @@ function currentShelf(saved,catalog){
 }
 function predict(save,source,now=Math.floor(Date.now()/1000)){
  const src=source?.shops?.guishi||[];
- const shop=save?.RandShop||{},clock=n(shop.Time),hasSeed=
-  Object.prototype.hasOwnProperty.call(save?.Rnds?.Sds||{},'guishishop')&&
-  Number.isFinite(Number(save.Rnds.Sds.guishishop));
+ const shop=save?.RandShop||{},clock=n(shop.Time),rawSeed=save?.Rnds?.Sds?.guishishop;
+ const numericSeed=Number(rawSeed);
+ const hasSeed=rawSeed!==null&&rawSeed!==undefined&&rawSeed!==''&&
+  Number.isSafeInteger(numericSeed)&&numericSeed>0;
  const rng=new KeyRng(save?.Rnds?.Sds||{});
  const {available,soldOut}=marketPool(src,shop,save,now),vip=vipLevel(save);
  const slots=n(shop.Buy)<10?3:n(shop.Buy)<30?4:n(shop.Buy)<60?5:6;
