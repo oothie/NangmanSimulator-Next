@@ -19,7 +19,8 @@ const subsets=(initial)=>{
  }
  return result.sort((a,b)=>a.length-b.length);
 };
-async function run({ids,horizon=3000,topN=12,getState,setState,doWash,yieldControl=async()=>{}}){
+async function run({ids,horizon=3000,topN=12,getState,setState,doWash,
+ freshBranch=null,isolated=false,yieldControl=async()=>{}}){
  if(!Array.isArray(ids)||!ids.length||ids.length>4||new Set(ids).size!==ids.length||
   ids.some(id=>!Number.isInteger(id)))throw Error('목표 재능은 서로 다른 ID 1~4개여야 합니다');
  if(!Number.isInteger(horizon)||horizon<1||horizon>5000)throw Error('탐색 범위는 1~5000회입니다');
@@ -48,11 +49,23 @@ async function run({ids,horizon=3000,topN=12,getState,setState,doWash,yieldContr
  };
  try{
   for(const [branch,indices] of masks.entries()){
-   // The original snapshot is already in memory for the first trajectory;
-   // avoid an unnecessary, possibly lossy set_state roundtrip here.
-   if(branch>0&&!restore()){
-    if(warnings.length<8)warnings.push(rollbackFailure);
-    break;
+   // A disposable native instance is created for EACH new branch. This does
+   // not depend on set_state restoring a mutated instance after thousands of
+   // real washes (the save-specific failure reported by the user).
+   if(branch>0){
+    if(typeof freshBranch==='function'){
+     let fresh=null;
+     try{fresh=await freshBranch(initial)}
+     catch(error){rollbackFailure='독립 WASM 분기 생성 실패: '+String(error?.message||error)}
+     if(fresh){
+      const changed=Object.keys(initial).filter(k=>snapshot(initial[k])!==snapshot(fresh[k]));
+      if(changed.length)rollbackFailure='별도 WASM 분기 입력 불일치 ('+changed.slice(0,6).join(', ')+')';
+     }
+     if(rollbackFailure){if(warnings.length<8)warnings.push(rollbackFailure);break}
+    }else if(!restore()){
+     if(warnings.length<8)warnings.push(rollbackFailure);
+     break;
+    }
    }
    const start=getState(),next={...start,talents:start.talents.map(t=>({...t}))};
    for(const i of indices)next.talents[i].locked=true;
@@ -98,10 +111,9 @@ async function run({ids,horizon=3000,topN=12,getState,setState,doWash,yieldContr
    await yieldControl();
   }
  }finally{
-  // Searches run in a separate disposable WASM engine. Restoration is still
-  // checked for diagnostics, but a non-roundtrippable save must not discard
-  // verified results from earlier branches or damage the user's live engine.
-  if(!restore()&&warnings.length<8)warnings.push(rollbackFailure);
+  // The caller owns/discards a dedicated search WASM instance. Never attempt
+  // to rewind the user's actual simulator or a disposable native trajectory.
+  if(!isolated&&!restore()&&warnings.length<8)warnings.push(rollbackFailure);
  }
  routes.sort((a,b)=>a.pills-b.pills||a.washes-b.washes||a.lock_indices.length-b.lock_indices.length);
  return {routes:routes.slice(0,topN),scanned,
