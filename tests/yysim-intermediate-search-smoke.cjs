@@ -65,6 +65,17 @@ const doWash=()=>{
   route.final_slots.some(slot=>slot.id===id))));
  assert(!four.warnings.some(w=>w.includes('global_vars')),
   'same native global_vars values with different key order must not fail');
+ current=clone(special);
+ const changedValue=await source.run({ids:[271,272,250,184],horizon:3,topN:6,
+  getState,setState,doWash,isolated:true,
+  freshBranch:async initial=>{
+   current=clone(initial);
+   current.global_vars.talent_LingYue=999;
+   return getState();
+  }});
+ assert.equal(changedValue.partial,true,'actual global_var value changes must terminate unsafe search');
+ assert.equal(changedValue.scanned,1,'stop before a contaminated next branch');
+ assert(changedValue.warnings.some(w=>w.includes('global_vars')));
  current=clone(INITIAL);
  const impossible=await source.run({ids:[999],horizon:3,topN:2,getState,setState,doWash});
  assert.equal(impossible.routes.length,0);
