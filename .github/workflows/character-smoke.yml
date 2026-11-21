@@ -1,0 +1,31 @@
+name: Character regression checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'tests/**'
+      - '.github/workflows/character-smoke.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'tests/**'
+      - '.github/workflows/character-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  character:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate character source regression
+        run: node tests/character-source-smoke.cjs
+      - name: Validate yy-sim role page and saved progress
+        run: node tests/character-layout-smoke.cjs
