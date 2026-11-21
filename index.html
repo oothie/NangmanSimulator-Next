@@ -757,7 +757,7 @@ if(sub==='auto'){
  const talent=id=>talentName(id)+' (#'+id+')';
  const searchOptions=state.autoOptions||{};
  const optionsHtml='';
- const choices=catalog.map(group=>'<details class="wash-auto-group" +(group.quality===4||group.items.some(t=>selectedTargets.includes(t.id))?'open':'')+'><summary>'+
+ const choices=catalog.map(group=>'<details class="wash-auto-group" '+(group.quality===4||group.items.some(t=>selectedTargets.includes(t.id))?'open':'')+'><summary>'+
   (group.quality===4?'자맥 (자색)':group.quality===3?'파맥 (파란색)':'녹맥 (녹색)')+
   ' · '+group.items.length+'개</summary><div class="fields" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px">'+
   group.items.map(t=>'<label style="display:flex;align-items:center;gap:7px"><input type="checkbox" data-yy-auto-id="'+t.id+'" '+checked(t.id)+'> '+escape(talent(t.id))+'</label>').join('')+'</div></details>').join('');
