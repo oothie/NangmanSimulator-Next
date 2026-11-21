@@ -107,7 +107,6 @@
   const forecastHost=$('tombForecastOutput'),forecastStatus=$('tombForecastStatus');
   const forecastCount=$('tombForecastCount'),forecastPad=$('tombForecastPad');
   const forecastCsv=$('tombForecastCsv');
-  const evidenceOn=$('tombEvidenceApply'),evidenceNoEarlier=$('tombEvidenceNoEarlier');
   const colorName=n=>color[n]||'등급 미확인';
   const gearName=id=>EQUIP_DATA.equipment?.[id]?.koName||
     ko(EQUIP_DATA.equipment?.[id]?.name||'장비 #'+id);
@@ -150,7 +149,7 @@
    const agreed=summary.filter(x=>x.confirmedByModel&&x.spawn).length;
    const box=node('div','','tomb-prediction-metrics');
    for(const [name,value] of [
-     ['앞으로 사냥',count+'회'],['특수몹 예상',seen+'회'],
+     ['조우 이벤트 호출',count+'회'],['특수몹 발생 가설',seen+'회'],
      ['보상 후보',candidates.length+'/144'],['특수몹 보상 합의',agreed+'회']
    ]){
      const stat=node('span','');stat.append(node('b',value),node('small',name));box.append(stat);
@@ -166,7 +165,7 @@
    for(const x of summary){
      const tr=document.createElement('tr');
      if(x.spawn)tr.classList.add('tomb-special');
-     forecastCell(tr,x.serial+'회');
+     forecastCell(tr,x.serial+'번 호출');
      forecastCell(tr,x.spawn?'35256 등장':'일반 전투');
      const result= x.confirmedByModel?x.label:
        x.label+' · '+x.examples.join(' / ')+(x.alternatives>4?' 외':'');
@@ -196,20 +195,18 @@
     forecastStatus.textContent='예측에 필요한 세이브 데이터 누락: '+missing.join(', ');return;
    }
    try{
-    const observed=evidenceOn.checked;
-    const constraints=observed?[{serial:9,itemId:4009,color:1,spawn:true,
-      noGearBefore:evidenceNoEarlier.checked}]:[];
-    const search=tomb.fitObservations(current,constraints,{count:count+pad});
+    // Do NOT equate an actual 9th field battle with 35255 event call #9.
+    const search=tomb.fitObservations(current,[],{count:count+pad});
     if(!search.matches.length){
-      forecastStatus.textContent='실측 9회차 수라장갑 백색과 현재 제릉 등장 판정이 불일치합니다. 보상 순서만 바꿔서는 수정할 수 없습니다. 실측에 맞는 50회 결과는 아직 계산할 수 없으며, 임의 시드 보정은 적용하지 않았습니다.';
+      forecastStatus.textContent='현재 모델에 맞는 보상 후보가 없습니다. 실제 일반 사냥 회차와 35255 조우 호출 회차를 동일하다고 가정하지 마세요.';
       return;
     }
     tombForecastSummary=summarizeCandidates(search.matches,pad,count);
-    showForecast(tombForecastSummary,search.matches,count,pad,observed);
+    showForecast(tombForecastSummary,search.matches,count,pad,false);
     const missing=Object.values(current.eds||{}).length===0?' · 장비별 Eds 저장이 없어 옵션 시드는 일부 미연결입니다.':'';
-    forecastStatus.textContent=count+'회 제릉 필드 예측 · '+search.matches.length+
+    forecastStatus.textContent=count+'회 35255 원본 조우 이벤트 가설 · '+search.matches.length+
       '/'+search.tested+'개 분기 순서 후보'+
-      (observed?' · 9회차 수라장갑 백색 실측 제약 적용':' · 실측 제약 미적용')+
+      ' · 실제 필드 사냥 횟수와 이벤트 호출 횟수의 매핑 미확정'+
       (current.gate3007Unknown?' · 진행 조건 3007 미기록 (통과 가정)':'')+missing;
     forecastCsv.disabled=false;
    }catch(error){forecastStatus.textContent='제릉 계산 오류: '+String(error.message||error);}
@@ -263,24 +260,18 @@
   }
   $('tombGateRun').onclick=renderTombGateAudit;
   $('tombForecastRun').onclick=runTombForecast;
-  for(const e of [forecastCount,forecastPad,evidenceOn,evidenceNoEarlier])
-    e.addEventListener('change',forecastReset);
-  evidenceOn.onchange=()=>{
-    evidenceNoEarlier.disabled=!evidenceOn.checked;
-    if(!evidenceOn.checked)evidenceNoEarlier.checked=false;
-    forecastReset();
-  };
+  for(const e of [forecastCount,forecastPad])e.addEventListener('change',forecastReset);
   forecastCsv.onclick=()=>{
    if(!tombForecastSummary.length)return;
    window.SBJDropExport.save('Nangman_Diling_Candidate_Consensus',[
-    {title:'사냥 회차',key:'serial'},
+    {title:'35255 이벤트 호출 번호(사냥회차 아님)',key:'serial'},
     {title:'특수몹 등장',value:x=>x.spawn?'예':'아니오'},
     {title:'결과 합의 여부',value:x=>x.confirmedByModel?'모든 후보 동일':'미확정'},
     {title:'보상 결과',key:'label'},
     {title:'다른 후보 종류',key:'alternatives'},
     {title:'대표 후보',value:x=>x.examples.join(' / ')},
     {title:'90레벨 장비 Eds 추적',value:x=>x.trackedEds===true?'추적':x.trackedEds===false?'시드 누락':'미확정/해당 없음'},
-    {title:'검증 상태',value:()=> 'Lua 순서 144개 중 조건 충족 후보 · 실제 서버 분기 미검증 · 시간 보정 없음'}
+    {title:'검증 상태',value:()=> '35255 이벤트 호출 순서 가설 · 실제 일반 사냥 회차 대응 미확정 · 시간 보정 없음'}
    ],tombForecastSummary);
   };
   $('wildTime').value = new Date(Date.now() + 28800000).toISOString().slice(0, 19);
