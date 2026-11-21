@@ -449,17 +449,32 @@ function wikiImgTag(x,large=false){
  return '<img class="wiki-art '+(large?'large':'')+'" loading="lazy" alt="" src="'+escape(wikiImage(x))+'" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src=\''+fallback+'\'}else this.style.opacity=\'.24\'">';
 }
 function wikiEffectDescription(x){
- if(x.source!=='buff'||!Array.isArray(x.obj.fx))return '';
- const names={atk:'공격력',def:'방어력',hit:'명중',dodge:'회피',parry:'초식방어',speed:'속도',hp:'기혈',hp_max:'최대 기혈',hp_n:'현재 기혈',mp_back:'기 모으기',po_dodge:'회피 무시',po_parry:'초식방어 무시',dmg_off:'피해면역'};
- const parts=x.obj.fx.map(([key,num])=>{
-  const n=Number(num);
-  if(!Object.prototype.hasOwnProperty.call(names,key)||!Number.isFinite(n))return '';
-  // 기 모으기는 -1.01/1.01 등에서 '1칸'을 뜻한다. 이를 101%로 표시하지 않는다.
-  if(key==='mp_back'&&Math.abs(n)>=1&&Math.abs(n)<10)return names[key]+' '+(n>=0?'+':'−')+Number(Math.abs(n).toFixed(2))+'칸';
-  if(Math.abs(n)>1)return '';
-  return names[key]+' '+(n>=0?'+':'−')+Number((Math.abs(n)*100).toFixed(2))+'%';
+ if(x.source!=='buff')return '';
+ const names={atk:'공격력',def:'방어력',hit:'명중',rating:'명중률',dodge:'회피',parry:'초식방어',speed:'속도',hp:'기혈',hp_max:'최대 기혈',hp_n:'현재 기혈',hp_back:'기혈 회복',mp:'내력',mp_n:'현재 내력',mp_back:'기 모으기',po_dodge:'회피 무시',po_parry:'초식방어 무시',dmg_off:'피해면역',dmg_ref:'피해 반사',dun:'보호막',renxing:'인내',cure_sj:'받는 치료',kang_debuff:'상태이상 저항',map_move:'이동 속도',weapon_add:'무기 피해',blood:'흡혈',hpdun:'기혈 보호막'};
+ const korean=(window.NANGMAN_V620_BUFF_KO||{})[String(x.id)];
+ let pairs=[];
+ if(korean&&korean[3]){
+  const meta=korean[3];
+  for(let i=1;i<=12;i++){
+   const key=meta['buff_type_'+i],value=meta['buff_fudu_'+i];
+   if(key!=null&&value!=null)pairs.push([key,value]);
+  }
+ }else if(Array.isArray(x.obj.fx))pairs=x.obj.fx;
+ const percent=/^(atk|def|hit|rating|dodge|parry|speed|hp|hp_max|hp_n|po_dodge|po_parry|dmg_off|dmg_ref|kang_debuff|cure_sj|map_move|weapon_add|blood)$/.test.bind(null);
+ const parts=pairs.map(([key,value])=>{
+  const n=Number(value),label=names[key];
+  if(!label||!Number.isFinite(n)||Math.abs(n)>100000)return '';
+  const ratio=percent(String(key));
+  let unit='원본 계수',num=Math.abs(n);
+  if(ratio){unit='%';num=num*100}
+  else if(key==='mp_back'){unit='칸'}
+  else if(key==='hp_back'&&num>1){unit=''}
+  else if(key==='renxing'&&num>1){unit=''}
+  else if(key==='dun'||key==='hpdun'){unit='%';num=num*100}
+  const number=Number(num.toFixed(2));
+  return label+' '+(n<0?'−':'+')+number+(unit==='원본 계수'?' (원본 계수)':unit);
  }).filter(Boolean);
- return parts.length?'<div class="wiki-effects"><strong>상태 효과 데이터</strong><p>'+escape(parts.join(' · '))+'</p></div>':'';
+ return parts.length?'<div class="wiki-effects"><strong>'+(korean?'한국판 V6.20 효과 데이터':'원본 상태 효과 데이터')+'</strong><p>'+escape(parts.join(' · '))+'</p></div>':'';
 }
 function wikiFormatField(key,v){
  const labels={lv:'요구 레벨',grade:'등급',type:'종류',cat:'분류',kind:'무학 유형',clan:'문파',atk:'공격',parry:'방어·막기',prop:'내공 속성',fx:'효과',kf:'연결 무학',suoshu:'소속'};
