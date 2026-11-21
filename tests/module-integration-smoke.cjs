@@ -64,26 +64,15 @@ assert(source.includes('state.undoStates.push(snapshot);state.log.push(result);s
  'next-purple run has reversible state snapshot');
 
 
-const questAPI=new Function('wikiRows','wikiKoMap','wikiName','card','tabRow','moduleHero','escape','save','questTab','questSearch','questLocatedOnly',
- section('function questSaveModel(root){','function others(){')+
- ';return {questSaveModel,questView,questCatalogRows}')(
- ()=>[{cat:'quest',id:'9999999',key:'items:9999999',obj:{n:'원본 임무',desc:'원본 기록'}},{cat:'item',id:10}],
- ()=>new Map(),x=>x.obj.n,(title,html)=>'<section>'+title+html+'</section>',
- ()=>'<nav>임무 메뉴</nav>',(n,t)=>'<h2>'+n+'</h2>',x=>String(x),
- {Task:{id:9999999,trace:true,recv:1784781076},
-  WeiTuoTask:{accept:[105,118],task:[105,107,118]},
-  SoloNpc:{'32150':{m:'sfj',x:17,y:7},'32237':{r:-1}}},
- 'current','','true'=== 'false'
- );
-const questSave=questAPI.questSaveModel({
- Task:{id:9999999,trace:true},WeiTuoTask:{accept:[105],task:[105,118]},
- SoloNpc:{'32150':{m:'sfj',x:17,y:7},'32237':{r:-1}}});
-assert.equal(questSave.current.id,9999999);
-assert.equal(questSave.delegated.accepted.length,1);
-assert.equal(questSave.npcRecords.length,2);assert.equal(questSave.located.length,1);
-assert.equal(questSave.located[0].map,'sfj');
-assert(questAPI.questView().includes('다음 이야기 준비 중'),'original story 9999999 sentinel localized');
-assert.equal(questAPI.questCatalogRows().length,1,'only source quest rows indexed');
+const questSource=section('function questSaveModel(root){','function others(){');
+assert(questSource.includes('function questRecordDetails('),'saved quest detail rendering is available');
+assert(questSource.includes('function questDelegatedDetails('),'commission history is expandable');
+assert(questSource.includes("['current','주요 임무']"),'main quest tab present');
+assert(questSource.includes("['branch','임무 진행도']"),'quest progress tab present');
+assert(!questSource.includes("['npc','NPC 위치']"),'NPC location tab removed');
+assert(!questSource.includes('SoloNpc'),'quest UI does not read position records');
+assert(!questSource.includes('questLocatedOnly'),'obsolete NPC state removed');
+assert(questSource.includes("다음 이야기 준비 중"),'main story sentinel preserved');
 const dropSource=section('// Persistent drop engine:',"window.addEventListener('message',event=>{\n if(event.origin!==location.origin||event.data?.kind!=='nangman-native-equipment')");
 const elements={},posts=[],events={};
 const host={hidden:true,children:[],appendChild(x){this.children.push(x)}};
@@ -129,4 +118,4 @@ events.message({origin:'https://sim.example',source:dropWindow,data:{
 assert(elements.dropRuntimeStatus.textContent.includes('적용 확인됨'),'matching revision confirms save');
 dropAPI.setSave(null);dropAPI.updateDropVisibility();
 assert.equal(posts.at(-1)[0].save,null,'clearing save clears drop engine');
-console.log('PASS: yy-sim save->WASM mapping, role invalidation, purple sequence, quest records and persistent drop');
+console.log('PASS: yy-sim save->WASM mapping, role invalidation, purple sequence, detailed quest records without NPC locations and persistent drop');
