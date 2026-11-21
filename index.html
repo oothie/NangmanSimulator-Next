@@ -401,6 +401,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 <script src="./vendor/yysim/char_data.js"></script>
 <script src="./vendor/yysim/born_talent_data.js"></script>
 <script src="./vendor/yysim/battle_talent_data.js"></script>
+<script src="./data/battle-talent-names-ko.js?rev=v082"></script>
 <script src="./vendor/yysim/life_hedao_data.js"></script>
 <script src="./vendor/yysim/daily_data.js"></script>
 <script src="./data/market-item-ko.js?rev=20261121a"></script>
@@ -2128,7 +2129,7 @@ function yyRoleTalent(role){
  const description=bornData?.effects?.length?
   bornData.effects.map(x=>Array.isArray(x)?String(x[0])+': '+String(x[1]):'').filter(Boolean).join(' · '):'';
  const born=yyRoleSlot(bornName,(description||'ID '+bornId),'','is-locked');
- return yyRoleSection('선천 재능',born)+yyRoleSection('지원 재능',characterBattleSupport(role));
+ return yyRoleSection('선천 재능',born)+(role.type==='주인공'?'':yyRoleSection('지원 재능',characterBattleSupport(role)));
 }
 function yyRoleExtraCombat(raw){
  // 세수 kL: 게임 저장 추가 전투 능력치는 별도 그리드로 표시한다.
