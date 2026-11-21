@@ -63,7 +63,8 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
  const matched=idsIn(original,ids);
  let current=[{state:deepClone(original),actions:[],washes:0,exchanges:0}];
  const completed=[],warnings=[];
- let visited=0,expanded=0,stopReason=null;
+ let visited=0,expanded=0,stopReason=null,maxGoals=idsIn(original,ids).length,
+  maxGoalsAt=0,maxActive=1,exchangeSuccesses=0;
  for(let washNo=1;washNo<=horizon;washNo++){
   const pool=[];
   for(const node of current){
@@ -96,6 +97,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
       const diff=afterX.talents.map(t=>Number(t.id)).filter(id=>
        !beforeX.talents.some(p=>Number(p.id)===id));
       if(diff.length!==1)continue;
+      exchangeSuccesses++;
       variants.push({state:afterX,exchanges:node.exchanges+1,
        actions:actionsUntil(node.actions,washNo).concat({
         kind:'exchange',from,to:diff[0],talent:diff[0],
@@ -105,6 +107,8 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
     }
    }
    for(const variant of variants){
+    const have=idsIn(variant.state,ids).length;
+    if(have>maxGoals){maxGoals=have;maxGoalsAt=washNo}
     if(ids.every(id=>has(variant.state,id))){
      const amount=cost(original,variant.state);
      if(Number.isFinite(amount)&&amount>=0){
@@ -144,12 +148,13 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
    }
   }
   diverse.sort((a,b)=>rank(b.state,ids,original)-rank(a.state,ids,original));
-  current=diverse.slice(0,beamWidth);
+  current=diverse.slice(0,beamWidth);maxActive=Math.max(maxActive,current.length);
   if(washNo%40===0)await yieldControl();
  }
  completed.sort((a,b)=>a.pills-b.pills||a.washes-b.washes||a.exchanges-b.exchanges);
  return {routes:completed.slice(0,topN),scanned:expanded,trajectories:visited,
   partial:!!stopReason,beamWidth,washesExecuted:visited,
+  maxGoals,maxGoalsAt,maxActive,exchangeSuccesses,
   warnings:stopReason?[stopReason,...warnings]:warnings,
   error:completed.length?null:'WASM 치환 분기를 포함한 제한 탐색에서 목표 4맥을 최종 슬롯에 모두 보유한 경로가 발견되지 않았습니다'};
 }
