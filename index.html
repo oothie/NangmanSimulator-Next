@@ -383,6 +383,14 @@ function wikiKoMap(){
  for(const [id,entry] of Object.entries(window.NANGMAN_54506_SKILLS_KO||{}))m.set((Number(entry[2])===1?'crafts:':'arts:')+id,{name:entry[0],desc:entry[1],source:'한국판 54506'});
  for(const [id,entry] of Object.entries(window.NANGMAN_54506_BUFF_KO||{}))m.set('buff:'+id,{name:entry[0],desc:entry[1],icon:entry[2],source:'한국판 54506'});
  for(const [id,entry] of Object.entries(window.NANGMAN_V620_BUFF_KO||{}))m.set('buff:'+id,{name:entry[0],desc:entry[1],icon:entry[2],source:'한국판 V6.20'});
+ // 비기·기예 이름은 원문이 정확히 일치하는 경우에만 나무위키 보조 번역을 연결한다.
+ // 한국판 V6.20 ID별 자료가 확인되면 그 결과를 우선하여 덮어쓴다.
+ for(const row of wikiRows()){
+  if(row.source!=='crafts'&&row.source!=='arts')continue;
+  const key=String(row.obj.n||'').trim();
+  const translated=(window.NANGMAN_WIKI_CRAFT_KO||{})[key];
+  if(translated&&!m.has(row.key))m.set(row.key,translated);
+ }
  return m;
 }
 function wikiHasChinese(value){return /[\u3400-\u9fff]/.test(String(value||''))}
@@ -571,6 +579,7 @@ window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.
 <script src="./data/wiki-skills-54506-ko.js"></script>
 <script src="./data/wiki-status-54506-ko.js"></script>
 <script src="./data/wiki-status-v620.js"></script>
+<script src="./data/wiki-craft-ko.js"></script>
 <script type="module">
 import {loadKoreanWikiNames} from './data/korean-wiki-index.js';
 import {loadV620KoreanReference} from './data/v620-korean-reference.js';
