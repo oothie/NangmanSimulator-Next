@@ -23,7 +23,7 @@ const context={window,escape,characterNumber:(o,k)=>o?.[k]??'—',
  wikiKoMap:()=>new Map([['equips:5015',{name:'한국판 완갑'}]]),
  koreanWiki:[],console};
 vm.createContext(context);
-vm.runInContext(section('const characterCraftIds=','// 산부진 role_status_data.js 원본의 확정'),context);
+vm.runInContext(section('const characterMeridianNames=','// 산부진 role_status_data.js 원본의 확정'),context);
 vm.runInContext(section('function characterTalentName(','function characterView(){'),context);
 const role={name:'시험 인물',raw:{
  Equips:[{ID:5015,Color:4,Level:12,Hit:700,EnExts:[{Key:'sword_add',Value:0.0475}],EnMans:[{Key:'atk',Value:69}]},{ID:7163,Level:0}],
