@@ -1355,17 +1355,19 @@ function wikiSourceIcon(x){
 function wikiImage(x){
  if(!x)return '';
  const id=String(x.id),raw=String(wikiSourceIcon(x)||'').trim();
+ const root='https://yy-sim.pages.dev/icons/';
+ // The original skill PNGs are served at /icons/skill/<skill ID>.png.
+ // Verified from the live source: 301 (음률) and 309 (오금희) are real PNGs.
+ if(x.source==='crafts'||x.source==='arts'){
+  const token=raw?String(raw).split(/[\\/]/).pop().replace(/\.png$/i,''):id;
+  return /^\d+$/.test(token)&&Number(token)>0?root+'skill/'+token+'.png':'';
+ }
  if(!raw)return '';
  const name=raw.split(/[\\/]/).pop().replace(/\.png$/i,'');
- const root='https://yy-sim.pages.dev/icons/';
  if(x.cat==='buff'){
   // Never use buff ID as image ID, and never replace one sprite with another guessed sprite.
   if(/^icon_buff_[a-zA-Z0-9_-]+$/i.test(name))return root+'buff/'+name+'.png';
   return '';
- }
- if(x.source==='crafts'||x.source==='arts'){
-  // Only source-linked image keys; plain skill IDs are never an acceptable fallback.
-  return /^\d+$/.test(name)&&Number(name)>0?root+'item/'+name+'.png':'';
  }
  if(x.source==='equips'){
   const token=Number(name);
