@@ -16,6 +16,7 @@ const primary=tomb.trace(initial,{count:2,order:'descending'});
 const after={Rnds:{Sds:{rollenemy_tomb:primary.final.encounterSeed,
  seed_35256:primary.final.equipmentSeed}},
  globalVariable:{...before.globalVariable,rollenemy_tomb2:primary.final.flags.rollenemy_tomb2}};
+const snapshotAfter=JSON.stringify(after);
 const changed=compare.diff(before,after);
 assert(changed.seeds.length===2&&changed.flags.length>0);
 assert(changed.gearPool.length===8,'source 90-level equipment pool retained');
@@ -26,7 +27,7 @@ assert(result.cases.some(c=>c.order==='descending'&&c.mismatches===0&&c.missing=
  'generated checkpoint should match same model order');
 assert.equal(result.cases.find(c=>c.order==='descending').checks.length,3);
 assert.equal(JSON.stringify(before),snapshot,'comparison never modifies saved before state');
-assert.equal(JSON.stringify(after),JSON.stringify(after),'after-save JSON preserved');
+assert.equal(JSON.stringify(after),snapshotAfter,'after-save JSON preserved');
 assert.throws(()=>compare.reconcile(before,after,501),/1~500/);
 const noSeed={Rnds:{Sds:{}},globalVariable:before.globalVariable};
 assert(compare.reconcile(noSeed,after,2).cases.length===0,'missing before RNG blocks candidate ordering');
@@ -39,4 +40,7 @@ assert(html.includes('id="tombCompareCount"')&&html.includes('src="./tomb-compar
 assert(html.includes('src="./tomb-compare.js"'));
 assert(html.indexOf('tomb-core.js')<html.indexOf('tomb-compare-core.js'));
 assert(html.indexOf('tomb-compare-core.js')<html.indexOf('tomb-compare.js'));
+assert(html.indexOf('<section id="wildDrop"')<html.indexOf('<section id="tombSaveCompare"'));
+assert(!html.slice(html.indexOf('<section id="wildDrop"'),html.indexOf('<section id="tombSaveCompare"')).includes('</section>'),
+ 'save comparison remains nested inside the wild tab');
 console.log('PASS: Diling before/after saved RNG delta and dual-source-order hypothesis checks');
