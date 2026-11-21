@@ -67,7 +67,7 @@ try{
   send(requestId,true,{results,state,limit,talentId:id,sourceName:entry.name});
   return
  }
- if(op==='until-exchange'){
+ if(op==='until-exchange'||op==='until-exchange-and-replace'){
   const limit=Number(payload?.count??500);
   const target=payload?.talentId==null?null:Number(payload.talentId);
   if(!Number.isInteger(limit)||limit<1||limit>1000)
@@ -104,10 +104,37 @@ try{
    wasmSetState(start);
    throw error;
   }
+  let exchange=null;
+  if(op==='until-exchange-and-replace'&&matched){
+   const current=wasmGetState();
+   const index=Number(matched.index);
+   const fresh=wasmGetConflicts();
+   if(!Array.isArray(fresh)||!Number.isInteger(index)||
+      index<0||index>=current?.talents?.length||
+      current.talents[index].locked||
+      !fresh.some(x=>Number(x?.index)===index&&x?.can_exchange===true)){
+    wasmSetState(start);
+    throw Error('충돌 판정이 변경되어 다음 치환 전체를 이전 상태로 복구했습니다');
+   }
+   try{
+    exchange=wasmExchangeTalent(index);
+    if(!exchange||exchange.success!==true){
+     wasmSetState(start);
+     throw Error('원본 WASM 치환 실패: 이전 세수 상태까지 복구했습니다');
+    }
+   }catch(err){
+    wasmSetState(start);
+    throw err;
+   }
+  }
   const state=wasmGetState();
+  if(!state||!Number.isFinite(Number(state.seed))){
+   wasmSetState(start);
+   throw Error('치환 후 상태 검증 실패: 다음 치환 전체를 이전 상태로 복구했습니다');
+  }
   send(requestId,true,{results:outcomes,state,found:!!matched,
     conflict:matched,performed:outcomes.length,limit,stopReason:stopped,
-    targetId:target});
+    targetId:target,exchange,autoExchanged:exchange?.success===true});
   return
  }
  if(op==='toggle-lock'){
