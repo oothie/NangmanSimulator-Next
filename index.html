@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.41</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.42</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -196,7 +196,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.7.41: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.7.42: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -264,7 +264,7 @@ body{background:var(--bg)!important}
 
 </style></head>
 <body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터</small></div><nav class="nav" id="nav"></nav><div class="tools"><button id="saveLink" class="save-link">세이브</button><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
-<main class="page"><div class="heading"><h1 id="title">세수 시뮬레이션</h1><span class="micro" id="status">세이브 미연결</span><div class="session-meta"><span class="session-label">보유 세수단 <b id="washBag">—</b></span><button id="import" class="btn">세이브 불러오기</button><input id="file" type="file" accept=".json,application/json" hidden></div></div><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="산부진 장비 계산 영역"></section></main><footer class="foot">독립 사이트 v0.7.41 · yy-sim 화면 구성 참고 · 한국판 계산 엔진 검증 후 연결</footer></div>
+<main class="page"><div class="heading"><h1 id="title">세수 시뮬레이션</h1><span class="micro" id="status">세이브 미연결</span><div class="session-meta"><span class="session-label">보유 세수단 <b id="washBag">—</b></span><button id="import" class="btn">세이브 불러오기</button><input id="file" type="file" accept=".json,application/json" hidden></div></div><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="산부진 장비 계산 영역"></section></main><footer class="foot">독립 사이트 v0.7.42 · yy-sim 화면 구성 참고 · 한국판 계산 엔진 검증 후 연결</footer></div>
 <script src="./vendor/sanbujin/shared/equip_data.js"></script>
 <script src="./vendor/yysim/char_data.js"></script>
 <script src="./vendor/yysim/born_talent_data.js"></script>
@@ -401,7 +401,7 @@ function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><div class="micro">낭만강호 · 한국판 통합 시뮬레이터</div><h2>'+name+'</h2></div><span class="micro">v0.7.41</span></div><p class="module-lead">'+lead+'</p>'
+return '<div class="module-head"><div><div class="micro">낭만강호 · 한국판 통합 시뮬레이터</div><h2>'+name+'</h2></div><span class="micro">v0.7.42</span></div><p class="module-lead">'+lead+'</p>'
 }
 
 function embeddedEngine(url,label,caption){
@@ -1093,7 +1093,7 @@ function characterBattleSupport(role){
  '<div class="wiki-field"><span>세이브 지원 가능 상태</span><b>'+status+'</b></div>'+
  '</div><p class="micro">'+(effects.length?effects.join(' · '):'원본 정량 효과 계수 없음')+' · 재능 ID는 실제 BornTalent.ID에서 조회하며 전투 효과 적용 여부·수치는 아직 계산하지 않습니다.</p>';
 }
-function characterSourceBasePanel(raw){
+function characterSourceBaseStats(raw){
  // yy-sim computeFinalStats.body의 독립 산식만 이식. 원본 Grow 계수의 Lv 93 문턱을 보존한다.
  const lv=Number(raw?.Level);
  const num=key=>Number(raw?.[key]??0);
@@ -1109,6 +1109,10 @@ function characterSourceBasePanel(raw){
   const valid=raw!=null&&Number.isFinite(lv)&&lv>=0&&keys.every(key=>raw[key]==null||Number.isFinite(Number(raw[key])));
   return {label,value:valid?Number(calc().toFixed(3)):'—',formula};
  });
+ return entries;
+}
+function characterSourceBasePanel(raw){
+ const entries=characterSourceBaseStats(raw);
  return '<section class="card"><h3>yy-sim 원본 공식 · 인물 기본 능력치</h3>'+
  '<p class="micro">원본 computeFinalStats.body에서 독립적으로 계산 가능한 6개 기본값입니다. 강기·내경 성장치는 레벨 93부터 반영됩니다. 장비·무학·재능·경맥 등이 적용되기 전의 중간값이며, 실제 전투 패널 수치가 아닙니다.</p>'+
  '<div class="wiki-detail-fields">'+entries.map(x=>'<div class="wiki-field"><span>'+escape(x.label)+'</span><b>'+escape(x.value)+'</b><small class="micro">'+escape(x.formula)+'</small></div>').join('')+'</div></section>';
@@ -1155,6 +1159,12 @@ function yyRoleSavedCultivationSummary(role){
  return yyRoleSection('수련 현황',yyRoleStatGrid(rows,'cultivation-grid')+
  '<p class="micro">수련치 상세·이전 가능 수련과 교차 검증은 수련 메뉴에서 확인할 수 있습니다.</p>');
 }
+function yyRoleBaseIntermediate(role){
+ const entries=characterSourceBaseStats(role?.raw||{});
+ return yyRoleSection('계산 검증 가능한 기본값',
+ yyRoleStatGrid(entries.map(item=>[item.label,item.value,'yy-sim 원본 공식의 초기값']),'base-intermediate')+
+ '<p class="micro">장비·경맥·무학·재능 및 전투 최종 보정이 적용되기 전 값입니다. 위 전투 패널의 최종 능력치를 대체하지 않습니다.</p>');
+}
 function yyRolePanel(role){
  const a=role.raw||{},source=(window.CHAR_DATA||{})[String(role.id)]||{},gender=Number(a.Sex)===1?'남':Number(a.Sex)===2?'여':'—';
  const ident=[['ID',a.ID??role.id],[role.type==='주인공'?'문파':'소속',a.ShiLi||source.sl||((a.MenPai!=null)?'문파 #'+a.MenPai:'—')],['성별',gender],['나이',a.Age],['자질 경험치',a.ZiZhiExp],
@@ -1163,7 +1173,7 @@ function yyRolePanel(role){
  return yyRoleSection('신분',yyRoleStatGrid(ident,'identity-grid'))+
  yyRoleSection('전투', '<p class="role-status-note">yy-sim의 최종 능력치 계산은 아직 연결되지 않았습니다. 중간 계산값을 게임 최종값처럼 표시하지 않습니다.</p>'+
  yyRoleStatGrid(combat,'final-grid'))+
- yyRoleActiveLoadout(role)+yyRoleSavedCultivationSummary(role);
+ yyRoleBaseIntermediate(role)+yyRoleActiveLoadout(role)+yyRoleSavedCultivationSummary(role);
 }
 function yyRoleEquip(role){
  const raw=role.raw||{},gear=characterEntries(raw.Equips).filter(x=>x&&Number(x.ID)>0);
@@ -1758,7 +1768,7 @@ function others(){
  const [name,desc]=info[v];
  return '<div class="module-wrap">'+moduleHero(name,desc)+'<div class="module-panel"><h3>기능 준비 중</h3><p class="micro">'+desc+'</p></div></div>';
 }
-function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);render()});if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.7.41',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);render()});if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip')equipTab=id;if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.7.42',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 if($('nativeEngineFrame')){
  const frame=$('nativeEngineFrame');
  frame.onload=()=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};
@@ -1905,7 +1915,7 @@ window.addEventListener('message',e=>{
  }
 });
 </script>
-<!-- v0.7.41: read-only localization audit with hidden dialogs, select choices and element paths. -->
+<!-- v0.7.42: read-only localization audit with hidden dialogs, select choices and element paths. -->
 <script>
 (function(){
   const hanja=/[\u3400-\u9fff]/;
