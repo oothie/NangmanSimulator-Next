@@ -10,11 +10,12 @@ function section(a,b){
  return html.slice(start,end);
 }
 const window={
- EQUIP_DATA:{equipment:{5015:{type:6},5209:{type:7}},fashion:{7163:{type:10}}},
+ EQUIP_DATA:{equipment:{5015:{type:6,koName:'우스아대'},5209:{type:7}},fashion:{7163:{type:10,koName:'청조가랑'}}},
  NANGMAN_CRAFT_ID_KO:{'301':{name:'음률',desc:'기예'}},
  NANGMAN_ARTS_ID_KO:{'391':{name:'유서유경',desc:'비기'}},
  NANGMAN_SANBUJIN_JINGMAI:{'101':[['atk',50],['hit',40],['str',5],['con',5]]},
- NANGMAN_TALENT_NAMES_KO:{'285':'병기 애호','260':'양의상합'}
+ NANGMAN_TALENT_NAMES_KO:{'285':'병기 애호','260':'양의상합'},
+ NANGMAN_SANBUJIN_LIFE_META:{'301':{type:1},'391':{type:2,effects:[['def_ign',30,0.01],['atk',60,0.01]]}}
 };
 const escape=x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const context={window,escape,characterNumber:(o,k)=>o?.[k]??'—',
@@ -23,7 +24,7 @@ const context={window,escape,characterNumber:(o,k)=>o?.[k]??'—',
  koreanWiki:[],console};
 vm.createContext(context);
 vm.runInContext(section('const characterCraftIds=','// 산부진 role_status_data.js 원본의 확정'),context);
-vm.runInContext(section('function characterWashTalents(','function characterView(){'),context);
+vm.runInContext(section('function characterTalentName(','function characterView(){'),context);
 const role={name:'시험 인물',raw:{
  Equips:[{ID:5015,Color:4,Level:12,Hit:700,EnExts:[{Key:'sword_add',Value:0.0475}],EnMans:[{Key:'atk',Value:69}]},{ID:7163,Level:0}],
  JingMais:[{ID:101,Index:11,Order:1,Tong:false},{ID:105,Index:5,Order:-1,Tong:true}],
@@ -36,9 +37,9 @@ let htmlEquip=vm.runInContext('characterEquipView',context)(role.raw);
 assert.match(htmlEquip,/한국판 완갑/);assert.match(htmlEquip,/4\.8%/);assert.match(htmlEquip,/공격 \+69/);
 let htmlMer=vm.runInContext('characterMeridianView',context)(role.raw);
 assert.match(htmlMer,/수소음경/);assert.match(htmlMer,/10 \/ 10/);assert.match(htmlMer,/음맥/);
-assert.match(htmlMer,/공격 \\+50/);assert.match(htmlMer,/선택 보너스: 완력 \\+5/);
+assert.match(htmlMer,/공격 [+]50/);assert.match(htmlMer,/선택 보너스: 완력 [+]5/);
 let htmlLife=vm.runInContext('characterLifeView',context)(role.raw);
-assert.match(htmlLife,/음률/);assert.match(htmlLife,/기예 · 1개/);assert.match(htmlLife,/비기 · 1개/);
+assert.match(htmlLife,/음률/);assert.match(htmlLife,/기예 · 1개/);assert.match(htmlLife,/비기 · 1개/);assert.match(htmlLife,/방어 관통 [+]6[.]67%/);
 let htmlWash=vm.runInContext('characterWashView',context)(role,{XiSui:3273});
 assert.match(htmlWash,/3273/);assert.match(htmlWash,/79/);assert.match(htmlWash,/병기 애호/);
 assert.equal(vm.runInContext('characterWashTalents',context)(role).length,3);
