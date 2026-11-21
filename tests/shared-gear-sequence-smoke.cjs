@@ -33,6 +33,10 @@ const before=JSON.stringify(save);
 const output=core.project(save,wild,dungeonBoss,30,15,'alternate',{});
 assert.equal(output.events,45);
 assert.equal(output.mode,'alternate');
+assert(output.byItem.every(x=>typeof x.hasSharedSeed==='boolean'),'shared per-ID Eds flags available');
+assert(output.equipment.every(x=>typeof x.hasSharedSeed==='boolean'));
+assert(output.equipment.filter(x=>x.itemId===4009).every(x=>x.hasSharedSeed===true),
+ 'Eds[4009] exists in supplied original save');
 assert(output.equipment.every(x=>core.GEAR90.includes(x.itemId)&&x.inPlan>=1));
 assert.equal(JSON.stringify(save),before,'projection never mutates user save');
 assert.throws(()=>core.project(save,wild,dungeonBoss,101,15,'alternate',{}),/1~100회/);
@@ -43,5 +47,6 @@ for(const x of ['id="sharedGear"','id="sharedGearForm"','id="sharedRun"','id="sh
 assert(html.includes('./shared-gear-core.js')&&html.includes('./shared-gear.js'));
 assert(nav.includes("shared: $('sharedGear')"),'shared mode is navigable');
 assert(ui.includes('현재 세이브 이후 계획 내'),'no fabricated lifetime sequence ID');
+assert(ui.includes('원본 Eds 확인'),'display only seed presence, never raw RNG');
 assert(ui.includes('실게임 품질/정련/망정 미검증'),'no invented complete gear stats');
 console.log('PASS: common 90-gear per-ID receipt ordinal across field/dungeon, color independent, source RNG untouched');
