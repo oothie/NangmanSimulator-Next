@@ -36,6 +36,9 @@ const shape=v=>Array.isArray(v)?'array['+v.length+']':
  const targets=[{purple_name:'九阴鬼脉',conflict_name:'玄阳神脉'}];
  context.targets=targets;
  const pads=vm.runInContext('wasmPreviewExchangePads(targets,80)',context);
+ context.targetsNew=[{purple_name:'拳脚无双',conflict_name:'剑术无双'}];
+ const actualRoutes=vm.runInContext('wasmPreviewExchangePads(targetsNew,80)',context);
+ console.log('NATIVE_TARGET_ROUTE_SAMPLE',JSON.stringify(actualRoutes.filter(x=>x.error||x.nodes?.some(n=>n.chain?.length)).slice(0,4)).slice(0,5000));
  assert(Array.isArray(preview.purples),'real native preview has purple list');
  assert(Array.isArray(preview.luck_pool),'real native preview has luck-pool list');
  assert(Array.isArray(constraints),'real native conflicts are slot records');
