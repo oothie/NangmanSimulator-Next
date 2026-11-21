@@ -584,6 +584,7 @@ function washSandbox(){
  '<div class="history" style="max-height:280px;overflow:auto;white-space:pre-wrap">'+escape(state.output||'엔진 초기화 → 시험 상태 설정 → 세수 실행 순서로 진행하세요.')+'</div>'+slots+'</section>';
 }
 function wash(){
+if(sub!=='sim'&&sub!=='auto')sub='sim';
 const r=roles[selected];
 const groups=['주인공','동료','이탈'];
 const aside='<aside class="aside"><div class="aside-title"><strong>캐릭터 선택 (총 '+roles.length+'명)</strong></div><input type="search" id="search" placeholder="이름 / 태그 / 소속 / ID 검색" value="'+escape(filter)+'"><div class="roles">'+roleList()+'</div></aside>';
@@ -595,7 +596,7 @@ const fig='<div class="figures">'+[
  ['자질',r?.raw?.ZiZhi??'—']
 ].map(([label,value])=>'<div class="fig"><b>'+escape(value)+'</b><span>'+label+'</span></div>').join('')+'</div>'
 const hero='<header class="hero"><div><h2>'+escape(r?.name||'캐릭터 미선택')+'</h2><div class="micro">'+meta+'</div></div>'+fig+'</header>';
-const tabbar='<nav class="tabs">'+[['sim','세수'],['auto','자동 탐색'],['exchange','자맥 시퀀스'],['path','도맥법']].map(([id,t])=>'<button data-sub="'+id+'" class="'+(sub===id?'active':'')+'">'+t+'</button>').join('')+'</nav>';
+const tabbar='<nav class="tabs">'+[['sim','세수'],['auto','자동 탐색']].map(([id,t])=>'<button data-sub="'+id+'" class="'+(sub===id?'active':'')+'">'+t+'</button>').join('')+'</nav>';
 let body='';
 if(sub==='sim'){
  const attrs=[['Str','완력'],['Con','근골'],['Dex','신법'],['Int','내식']];
