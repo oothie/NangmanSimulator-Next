@@ -58,5 +58,5 @@ const absent=api.traceEds([{itemId:4209,color:4}],{});
 assert.equal(absent.equipment[0].edsKnown,false);
 assert.equal(absent.equipment[0].mjSeed,undefined,'never invent missing seeds');
 const originalTable=fs.readFileSync(path.join(root,'vendor/sanbujin/drops/shared-gear-core.js'),'utf8');
-assert(originalTable.includes('traceEds(plan.equipment,eds)'));
+assert(originalTable.includes('traceEds(plan.equipment,eds,equipment||{})'));
 console.log('PASS: 5 historical equipment receipts, exact Eds MJ/CZ and affixes (5.4%+77, speed 65, speed 71), no mutation');
