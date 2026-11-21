@@ -1359,6 +1359,10 @@ function wikiImage(x){
  // The original skill PNGs are served at /icons/skill/<skill ID>.png.
  // Verified from the live source: 301 (음률) and 309 (오금희) are real PNGs.
  if(x.source==='crafts'||x.source==='arts'){
+  const known=(wikiSource||wikiFallbackSource||{})[x.source]||[];
+  const verified=Array.isArray(known)&&known.some(row=>String(row.id)===id)||
+   (x.source==='crafts'?(window.NANGMAN_CRAFT_ID_KO||{})[id]:(window.NANGMAN_ARTS_ID_KO||{})[id]);
+  if(!verified)return '';
   const token=raw?String(raw).split(/[\\/]/).pop().replace(/\.png$/i,''):id;
   return /^\d+$/.test(token)&&Number(token)>0?root+'skill/'+token+'.png':'';
  }
