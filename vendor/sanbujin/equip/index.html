@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>낭만강호 · 산부진 장비 원본</title>
+    <title>낭만강호 · 장비</title>
     <meta name="description" content="原版游戏装备打造/精炼/淬炼序列预测">
     <link rel="stylesheet" href="../shared/simulator.css">
     <link rel="stylesheet" href="./equip.css">
@@ -30,7 +30,7 @@
     <meta name="twitter:image" content="https://tool.launch-ai.cloud/suanbujin/share-cover.jpg">
     
 <meta name="apple-mobile-web-app-title" content="낭만강호 시뮬레이터"><script defer src="../shared/i18n.js"></script><style>
-/* 낭만강호 통합 사이트 내부용: 원본 산부진 화면과 엔진 UI 보존 */
+/* Integrated equipment UI. */
 html,body{max-width:100%;overflow-x:hidden}body{margin:0}
 body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 </style><link rel="stylesheet" href="../shared/app/appearance.css"><link rel="stylesheet" href="../shell/shell.css"><link rel="stylesheet" href="../shared/app/theme.css"><link rel="stylesheet" href="../shared/app/workbench.css"><link rel="stylesheet" href="../shared/app/feature-page.css"><script>
@@ -514,7 +514,7 @@ window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==parent||event.data?.kind!=='nangman-save')return;
  latest=event.data.save;
  try{
- if(typeof loadSaveData!=='function')throw Error('산부진 장비 원본 함수를 불러오지 못했습니다'); loadSaveData(latest);
+ if(typeof loadSaveData!=='function')throw Error('장비 계산 기능을 불러오지 못했습니다'); loadSaveData(latest);
  parent.postMessage({kind:'nangman-embedded-status',module:'equip',status:'save-loaded'},location.origin);
  }catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'equip',status:'error',message:String(err.message||err)},location.origin)}
 });
@@ -549,7 +549,7 @@ window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-st
    if(worked){
     confirmedVersion=version;
     signal('applied','한국판 세이브가 '+moduleName+' 계산기에 적용됐습니다.',version);
-   }else signal('error',error||'WASM 또는 산부진 원본 세이브 로더가 아직 준비되지 않았습니다.',version);
+   }else signal('error',error||'세이브 적용 기능을 준비 중입니다.',version);
   }catch(e){signal('error',String(e.message||e),version)}
   finally{
    running=false;
@@ -565,7 +565,7 @@ window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-st
  });
  window.addEventListener('load',()=>{
   try{window.YYJHI18n?.set('ko-KR')}catch(e){}
-  signal('ready','원본 엔진 준비됨');
+  signal('ready','계산 준비됨');
   if(saved)apply();
  });
 })();
