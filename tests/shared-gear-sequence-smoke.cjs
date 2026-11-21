@@ -13,6 +13,13 @@ const snapshot=JSON.stringify([field,dungeon]);
 let first=core.merge(field,dungeon,'field-first');
 let reversed=core.merge(field,dungeon,'dungeon-first');
 let alternating=core.merge(field,dungeon,'alternate');
+const alternatives=Array.from(core.compareOrders(field,dungeon));
+const sameItem=alternatives.find(x=>x.itemId===5009);
+assert(sameItem&&sameItem.count===4);
+assert.deepEqual(Array.from(sameItem.orders,x=>x.firstSource),['field','dungeon','field']);
+assert.deepEqual(Array.from(sameItem.orders,x=>x.colorSequence.length),[4,4,4]);
+assert.deepEqual(Array.from(sameItem.orders,x=>x.firstStep),[1,1,1]);
+assert.deepEqual(Array.from(sameItem.orders,x=>x.colorSequence[0]),[1,4,1]);
 assert.deepEqual(Array.from(first.equipment.filter(x=>x.itemId===5009),x=>x.inPlan),[1,2,3,4]);
 assert.deepEqual(Array.from(alternating.equipment.filter(x=>x.itemId===5009),x=>x.source),
  ['field','dungeon','field','dungeon']);
@@ -33,6 +40,9 @@ const before=JSON.stringify(save);
 const output=core.project(save,wild,dungeonBoss,30,15,'alternate',{});
 assert.equal(output.events,45);
 assert.equal(output.mode,'alternate');
+assert(output.scenarioOnly===true,'only chronological modeling; no invented shared RNG forecast');
+assert(Array.isArray(output.alternatives));
+assert(output.alternatives.every(entry=>entry.orders.length===3));
 assert(output.byItem.every(x=>typeof x.hasSharedSeed==='boolean'),'shared per-ID Eds flags available');
 assert(output.equipment.every(x=>typeof x.hasSharedSeed==='boolean'));
 assert(output.equipment.filter(x=>x.itemId===4009).every(x=>x.hasSharedSeed===true),
@@ -48,5 +58,8 @@ assert(html.includes('./shared-gear-core.js')&&html.includes('./shared-gear.js')
 assert(nav.includes("shared: $('sharedGear')"),'shared mode is navigable');
 assert(ui.includes('현재 세이브 이후 계획 내'),'no fabricated lifetime sequence ID');
 assert(ui.includes('원본 Eds 확인'),'display only seed presence, never raw RNG');
+assert(ui.includes('sharedScenarioRows'),'three-order result table wired');
+assert(html.includes('id="sharedScenarioTable"'));
+assert(html.includes('순서를 바꿨을 때 실제 공유 RNG의 추가 소비'),'alternatives explicitly hypothetical');
 assert(ui.includes('실게임 품질/정련/망정 미검증'),'no invented complete gear stats');
 console.log('PASS: common 90-gear per-ID receipt ordinal across field/dungeon, color independent, source RNG untouched');
