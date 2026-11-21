@@ -96,7 +96,18 @@ try{
    throw Error('녹맥·파맥·자맥 재능을 서로 다르게 1~4개 선택하세요');
   if(!window.YYWashIntermediateSearch?.run)
    throw Error('최종 세수 맥 조합 탐색 모듈이 준비되지 않았습니다');
-  const report=event=>progress(requestId,event);
+  let lastProgressSent=0,lastProgressPhase='',lastProgressPercent=-1;
+  const report=event=>{
+   const now=Date.now(),phase=String(event.phase||'');
+   const percent=Number(event.percentage);
+   if(phase!==lastProgressPhase||Number(event.percentage)===100||
+      now-lastProgressSent>=120||
+      (Number.isFinite(percent)&&percent>=lastProgressPercent+5)){
+    progress(requestId,event);
+    lastProgressSent=now;lastProgressPhase=phase;
+    if(Number.isFinite(percent))lastProgressPercent=percent;
+   }
+  };
   report({stage:'순차 세수·잠금 분기 준비',phase:'init',completed:0,total:0,percentage:0,
    checked:0,found:0,bestPills:null});
   await new Promise(resolve=>setTimeout(resolve,0));
