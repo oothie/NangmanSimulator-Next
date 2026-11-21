@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'engine/yysim-*.js'
       - 'vendor/yysim/engine-host.html'
       - 'vendor/sanbujin/drops/**'
       - 'tests/**'
@@ -69,6 +70,8 @@ jobs:
         run: node tests/yysim-auto-search-smoke.cjs
       - name: Verify progressive native yy-sim target route search
         run: node tests/yysim-auto-progressive-smoke.cjs
+      - name: Verify strict native automatic route replay and rollback
+        run: node tests/yysim-route-replay-smoke.cjs
       - name: Verify original yy-sim source-linked purple exchange sequence
         run: node tests/yysim-source-linked-preview-smoke.cjs
       - name: Verify goal-only Domakbeop talent inventory audit
