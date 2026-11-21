@@ -82,5 +82,14 @@ assert(accountHtml.includes('계정 전체 수련 획득 이력'),'history ledge
 assert.equal((accountHtml.match(/data-character-jump/g)||[]).length,2,'account drilldown per role');
 assert.equal((accountHtml.match(/계정 공유 영구 성장/g)||[]).length,1,'shared growth displayed only once');
 assert(accountHtml.includes('인물 수'),'account summary');
+assert(accountHtml.includes('계정 전체 6계열 추가 수련 저장값'),'independent WXXW account totals');
+assert(accountHtml.includes('저장 추가 수련 합계'),'saved cultivation raw sum');
+assert(accountHtml.includes('권법'),'track label in account panel');
+const fallbackApi={cultivation:()=>({cultivation:{records:[]}})};
+const missingSource=accountFactory({RoleStatusData:fallbackApi},mainSave,roster,
+ (title,inner)=>'<section><h3>'+title+'</h3>'+inner+'</section>',value=>String(value),yyProgressEntries);
+const fallbackHtml=missingSource.yyAccountCultivationView();
+assert(fallbackHtml.includes('추가 120'),'saved WXXW remains visible when learned stats are unknown');
+assert(fallbackHtml.includes('저장 추가 수련 합계'),'saved WXXW all-roster sum without engine');
 
 console.log('PASS: yy-sim role page structure, all 9 tabs, selector wiring and version labels');
