@@ -714,9 +714,9 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 <script src="./engine/wash-conflict-model.js"></script>
 <script src="./engine/wash-chain-core.js"></script>
 <script src="./engine/wash-goal-audit.js"></script>
-<script src="./engine/yysim-auto-search.js"></script>
+<script src="./engine/yysim-auto-search.js?rev=0.10.7"></script>
 <script src="./engine/yysim-auto-progressive.js"></script>
-<script src="./engine/yysim-target-catalog.js?v=0.8.0"></script>
+<script src="./engine/yysim-target-catalog.js?rev=0.10.7"></script>
 <script src="./engine/yysim-route-replay.js"></script>
 <script src="./engine/yysim-wash-dashboard.js"></script>
 <script src="./engine/yysim-wash-history.js"></script>
@@ -1002,7 +1002,8 @@ if(sub==='auto'){
  const catalog=window.YYWashTargetCatalog||[];
  const supported=catalog.flatMap(g=>g.items.map(t=>t.id));
  const usesColors=state.autoResult?.colorSearch===true;
- const selectedTargets=Array.isArray(state.autoDesiredIds)?state.autoDesiredIds:[];
+ const selectedTargets=Array.isArray(state.autoDesiredIds)?state.autoDesiredIds.filter(id=>supported.includes(id)):[];
+  if(Array.isArray(state.autoDesiredIds)&&selectedTargets.length!==state.autoDesiredIds.length){state.autoDesiredIds=selectedTargets;state.autoResult=null;}
  const checked=id=>selectedTargets.includes(id)?'checked':'';
  const result=state.autoResult,searchData=result?.result;
  let analyzed=null;
@@ -4249,7 +4250,7 @@ js.onerror=()=>window.dispatchEvent(new Event('nangman-wiki-source-error'));
 document.head.append(js);
 </script>
 <script type="module">
-import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=0.10.6';
+import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=0.10.7';
 const state=window.__washRuntime={ready:false,active:false,error:'',output:'',loading:false,log:[],undoStates:[],generation:0};
 function syncWasmBag(obj){state.bagPills=obj?.has_bag_pills===true&&Number.isFinite(Number(obj.bag_pills))?Number(obj.bag_pills):null;}
 function announce(){window.dispatchEvent(new Event('nangman-wash-updated'))}
