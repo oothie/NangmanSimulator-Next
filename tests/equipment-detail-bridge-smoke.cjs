@@ -55,6 +55,6 @@ h.send({ID:5009,OnlyID:501},'strong',10,6);
 assert.equal(h.sent.at(-1).status,'unavailable','nonweapon cannot quench');
 assert(host.includes('engine/equipment-detail-bridge.js'),'native host loads the focus bridge');
 assert(main.includes("kind:'nangman-equip-focus'"),'integrated host requests seed-based sequences');
-assert(main.includes("kind:'nangman-equip-detail-status'"),'native status relayed to user');
+assert(main.includes("event.data?.kind!=='nangman-equip-detail-status'"),'native status relayed to user');
 assert(!main.includes("['npc','NPC 위치']"),'NPC location remains removed');
 console.log('PASS: equipment full-page detail bridge selects exact save item, runs all three native sequence modes, rejects invalid gear');
