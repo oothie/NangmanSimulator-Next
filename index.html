@@ -382,7 +382,10 @@ function wikiKoMap(){
  for(const [id,entry] of Object.entries(window.NANGMAN_STATUS_KO_BATCH_3||{}))m.set('buff:'+id,entry);
  for(const [id,entry] of Object.entries(window.NANGMAN_54506_SKILLS_KO||{}))m.set((Number(entry[2])===1?'crafts:':'arts:')+id,{name:entry[0],desc:entry[1],source:'한국판 54506'});
  for(const [id,entry] of Object.entries(window.NANGMAN_54506_BUFF_KO||{}))m.set('buff:'+id,{name:entry[0],desc:entry[1],icon:entry[2],source:'한국판 54506'});
- for(const [id,entry] of Object.entries(window.NANGMAN_V620_BUFF_KO||{}))m.set('buff:'+id,{name:entry[0],desc:entry[1],icon:entry[2],source:'한국판 V6.20'});
+ for(const [id,entry] of Object.entries(window.NANGMAN_V620_BUFF_KO||{})){
+  const key='buff:'+id,previous=m.get(key),hasDesc=!!String(entry[1]||'').trim();
+  m.set(key,{name:String(entry[0]||'').trim()||previous?.name||'',desc:hasDesc?entry[1]:(previous?.desc||''),icon:entry[2]||null,source:hasDesc?'한국판 V6.20':'한국판 V6.20 명칭 / 직접 번역 설명'});
+ }
  // 비기·기예 이름은 원문이 정확히 일치하는 경우에만 나무위키 보조 번역을 연결한다.
  // 한국판 V6.20 ID별 자료가 확인되면 그 결과를 우선하여 덮어쓴다.
  for(const row of wikiRows()){
@@ -428,6 +431,9 @@ function wikiDescription(x,ko){
  if(translated&&!wikiHasChinese(translated))return translated;
  const original=wikiCleanDescription(x.obj.desc||'').trim();
  if(original&&!wikiHasChinese(original))return original;
+ if(x.source==='buff'){
+  if((window.NANGMAN_V620_BUFF_KO||{})[x.id]||Array.isArray(x.obj.fx))return '상태 효과는 아래에 표시된 원본 수치 데이터를 참고하세요.';
+ }
  return '한국판 설명 미확보';
 }
 function wikiImage(x){
