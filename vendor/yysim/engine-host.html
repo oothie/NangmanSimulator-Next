@@ -27,7 +27,9 @@ try{
    return {purple_name:a.name,conflict_name:b.name};
   });
   const results=wasmPreviewExchangePads(mapped,maxPad);
-  send(requestId,true,{results:Array.isArray(results)?results:[],targets:mapped,maxPad});
+  if(results==null||typeof results!=='object'||results.error)
+   throw Error('원본 WASM 도맥법 경로 결과를 확인할 수 없습니다');
+  send(requestId,true,{results,targets:mapped,maxPad});
   return
  }
  if(op==='until-talent'){
