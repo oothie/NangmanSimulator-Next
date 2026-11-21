@@ -198,23 +198,39 @@ function fitObservations(input,observations,options={}){
 // This diagnostic reports event-call numbers, not guaranteed battle numbers.
 // It does not alter seeds or infer an offset from observations.
 function traceEncounterCalls(input,count=50){
+ if(!ready(input))throw Error('제릉 조우 진단용 원본 시드와 변수 누락');
  if(!Number.isInteger(count)||count<1||count>500)
   throw Error('원본 제릉 조우 호출 진단은 1~500회까지 가능합니다.');
- const result=simulate(input,{count,order:'descending'});
+ // Event-gate only: no seed_35256, reward, color, equipment or unrelated
+ // progression variables are read/advanced. Pure call sequence diagnostic.
+ const flags=new Map(input.flags);
+ let encounterSeed=input.encounterSeed;
+ const encounters=[];
+ for(let call=1;call<=count;call++){
+  const row={
+   call,spawn:false,encounterRoll:null,effectiveRoll:null,
+   thresholdBefore:null,thresholdAfter:null,
+   requiresProgressionCheck:input.gate3007Unknown,reason:null
+  };
+  if(flags.has('3007')&&flags.get('3007')<6){
+   row.reason='진행 조건 3007 미충족: 이 35256 경로를 실행하지 않음';
+   encounters.push(row);
+   continue;
+  }
+  const hit=draw(encounterSeed,1000);
+  encounterSeed=hit.seed;
+  row.encounterRoll=hit.value;
+  row.thresholdBefore=flags.get('rollenemy_tomb2');
+  row.effectiveRoll=hit.value-flags.get('eat_2659')*10;
+  row.spawn=row.effectiveRoll<=row.thresholdBefore;
+  row.thresholdAfter=row.thresholdBefore+(row.spawn?-200:100);
+  flags.set('rollenemy_tomb2',row.thresholdAfter);
+  encounters.push(row);
+ }
  return {
   units:'35255_event_calls_not_field_battles',
-  count,
-  gate3007Unknown:input.gate3007Unknown,
-  encounters:result.map(row=>({
-   call:row.serial,spawn:row.spawn,
-   encounterRoll:row.encounterRoll??null,
-   effectiveRoll:row.effectiveRoll??null,
-   thresholdBefore:row.rollenemyTomb2Before??null,
-   thresholdAfter:row.rollenemyTomb2After??null,
-   requiresProgressionCheck:input.gate3007Unknown,
-   reason:row.reason||null
-  })),
-  finalEncounterSeed:result.final.encounterSeed
+  count,gate3007Unknown:input.gate3007Unknown,encounters,
+  finalEncounterSeed:encounterSeed
  };
 }
 function trace(input,options){
