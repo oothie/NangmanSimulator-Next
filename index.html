@@ -194,6 +194,8 @@ body{background:var(--bg)!important}
 <body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터</small></div><nav class="nav" id="nav"></nav><div class="tools"><button id="saveLink" class="save-link">세이브</button><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
 <main class="page"><div class="heading"><h1 id="title">세수 시뮬레이션</h1><span class="micro" id="status">세이브 미연결</span><div class="session-meta"><span class="session-label">보유 세수단 <b id="washBag">—</b></span><button id="import" class="btn">세이브 불러오기</button><input id="file" type="file" accept=".json,application/json" hidden></div></div><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="산부진 장비 계산 영역"></section></main><footer class="foot">독립 사이트 v0.7.14 · yy-sim 화면 구성 참고 · 한국판 계산 엔진 검증 후 연결</footer></div>
 <script src="./shared/sanbujin_cultivation_data.js"></script>
+<script>window.KONGFU_DATA=window.NANGMAN_SANBUJIN_KONGFU;</script>
+<script src="./shared/sanbujin_role_status_data.js"></script>
 <script>
 (()=>{'use strict';const tabs=[['wash','세수'],['equip','장비'],['character','캐릭터'],['wiki','백과'],['daily','일일'],['drop','드랍'],['quest','임무'],['sect','항산'],['battle','전투']];let v=(['wash','character','wiki','daily','drop','quest','sect','battle','save'].includes(location.hash.slice(1))?location.hash.slice(1):'wash'),sub='sim',save=null,filename='',roles=[],selected=0,filter='';
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));const card=(t,x)=>'<section class="card"><h3>'+t+'</h3>'+x+'</section>';
@@ -692,8 +694,48 @@ function characterSanbujinMetrics(root,role){
   return '<div class="wiki-field"><span>'+names[i]+'</span><b>'+(n===null||!Number.isFinite(n)?'기록 없음':Math.max(0,Math.min(30,n)))+' / 30</b></div>';
  }).join('')+'</div></section>';
 }
+// 산부진 원본 RoleStatusData.evaluate()로 계산한 출처별 진행도.
+// 한국판 미출시 항산 관련 직책은 사용자 화면에서 제외한다.
+const characterProgressKo={
+ 'jhg-hanyuguan':'구혼각 한옥관','sea-hit':'해도 파도 수련','dali-pool':'창산 나비샘',
+ 'liushanmen-room':'육선문 폐관실','wanshache-room':'만사굴 석실',
+ 'wuchang':'무상단','zhenwu':'진무단','putizi':'보리자','huangquan':'황천수',
+ 'jiuyougu':'구유고','taiyi-seven':'칠보현단','cuiyuan-jindan':'취원금단',
+ 'ningtian-yugao':'응천옥고','mingshe-dan':'명사단','yougui-dan':'유귀단',
+ 'renqing-dan':'인청단','stone-lock':'가택 석쇄 힘겨루기','one-hp-pill':'자청금단',
+ 'pozhang-dan':'파장단','jhg-xuechi':'혈지 수련','liushanmen-longdou':'육선문 용투',
+ 'cultivation-summary':'무학 수련치'
+};
+const characterMetricKo={'攻击':'공격','气血':'기혈','防御':'방어','闪避':'회피',
+ '命中':'명중','速度':'속도','招架':'초식방어','韧性':'인내','臂力':'팔힘',
+ '身法':'신법','根骨':'근골','内息':'내식','内劲':'내기','罡气':'강기'};
+function characterSanbujinComplete(root,role){
+ const engine=window.RoleStatusData;
+ if(!engine?.evaluate)return '<p class="micro">산부진 원본 육성 데이터 엔진을 불러오지 못했습니다.</p>';
+ const groups=engine.evaluate(root,role.raw,role.type==='주인공'?'主角':'随从',{})||[];
+ const fmt=x=>x===null||x===undefined?'—':String(x);
+ const translate=s=>characterMetricKo[String(s)]||String(s||'');
+ const metrics=list=>Array.isArray(list)&&list.length?
+ '<div class="wiki-detail-fields">'+list.map(x=>'<div class="wiki-field"><span>'+escape(translate(x.label))+'</span><b>'+escape(fmt(x.current))+' / '+escape(fmt(x.max))+'</b></div>').join('')+'</div>':'';
+ const cards=[];
+ for(const group of groups){
+  if(group.id==='hengshan'||group.id==='cultivation')continue;
+  for(const entry of group.entries||[]){
+   const name=characterProgressKo[entry.id];
+   if(!name)continue;
+   const fields=entry.metrics||entry.permanentMetrics;
+   const gains=Array.isArray(entry.gains)&&entry.gains.length?'<p class="micro">고정 증가량: '+entry.gains.map(x=>translate(x.label)+' '+fmt(x.current)+' / '+fmt(x.max)).join(' · ')+'</p>':'';
+   const value=entry.current==null?'기록 없음':entry.current+' / '+(entry.max??'—');
+   const note=entry.id==='one-hp-pill'?'복용 당시 근골이 세이브에 없어 실제 기혈 증가량은 확정할 수 없습니다.':
+    entry.id==='stone-lock'?'전체 캐릭터가 공유하는 진행도입니다.':'산부진 원본 저장 데이터 기준';
+   cards.push('<section class="card"><h3>'+escape(name)+'</h3><p class="micro">'+escape(note)+'</p>'+
+    (entry.max!=null?'<p><strong>'+escape(value)+'</strong></p>':'')+metrics(fields)+gains+'</section>');
+  }
+ }
+ return '<section class="card"><h3>영구 육성 종합</h3><p class="micro">산부진 원본의 진행도·상한 계산을 연결했습니다. 항산 직책은 한국판 미출시 항목이므로 제외하며, 실제 복용 당시 조건이 보존되지 않은 확률형 효과는 확정값으로 표시하지 않습니다.</p></section>'+cards.join('');
+}
 function characterView(){
- const opts=[['overview','캐릭터 개요'],['growth','육성'],['martial','무학·재능'],['equipment','착용 장비'],['meridians','경맥·기록'],['training','지역 수련'],['consumable','단약·음식'],['cultivation','수련치'],['permanent','영구 속성']];
+ const opts=[['overview','캐릭터 개요'],['growth','육성'],['martial','무학·재능'],['equipment','착용 장비'],['meridians','경맥·기록'],['training','지역 수련'],['consumable','단약·음식'],['cultivation','수련치'],['permanent','영구 속성'],['complete','육성 종합']];
  const role=roles[selected]||roles[0]||null,raw=role?.raw||{};
  const selector=roles.length?'<nav class="simple-tabs" aria-label="캐릭터 선택">'+roles.map((r,i)=>'<button data-character-role="'+i+'" class="'+(i===selected?'active':'')+'">'+escape(r.name)+' · '+escape(r.level||'—')+'레벨</button>').join('')+'</nav>':'';
  let body='<p class="micro">상단에서 한국판 JSON 세이브를 불러오세요.</p>';
@@ -703,6 +745,8 @@ function characterView(){
   }else if(characterTab==='growth'){
    body='<section class="card"><h3>육성 세이브 수치</h3><p class="micro">아래 수치는 세이브에 저장된 원본 필드이며 전투 최종 능력치로 환산한 값이 아닙니다.</p>'+
    characterFields(raw,[['GrowHp','성장 기혈'],['GrowAttack','성장 공격'],['GrowDefence','성장 방어'],['GrowHit','성장 명중'],['GrowDodge','성장 회피'],['GrowSpeed','성장 속도'],['GrowRen','성장 인내'],['ExtHp','추가 기혈'],['ExtAttack','추가 공격'],['ExtDefence','추가 방어'],['ExtHit','추가 명중'],['ExtDodge','추가 회피'],['ExtSpeed','추가 속도'],['ExtRen','추가 인내']])+'</section>';
+  }else if(characterTab==='complete'){
+   body=characterSanbujinComplete(save,role);
   }else if(characterTab==='cultivation'){
    body=characterSanbujinCultivation(save,raw,role);
   }else if(characterTab==='permanent'){
