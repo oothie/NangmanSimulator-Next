@@ -57,7 +57,7 @@ for(const x of ['id="sharedGear"','id="sharedGearForm"','id="sharedRun"','id="sh
 assert(html.includes('./shared-gear-core.js')&&html.includes('./shared-gear.js'));
 assert(nav.includes("shared: $('sharedGear')"),'shared mode is navigable');
 assert(ui.includes('현재 세이브 이후 계획 내'),'no fabricated lifetime sequence ID');
-assert(ui.includes('원본 Eds 확인'),'display only seed presence, never raw RNG');
+assert(ui.includes('생성 RNG 연결'),'display Eds consumption ordinal, never raw RNG');
 assert(ui.includes('sharedScenarioRows'),'three-order result table wired');
 assert(html.includes('id="sharedScenarioTable"'));
 assert(html.includes('순서를 바꿨을 때 실제 공유 RNG의 추가 소비'),'alternatives explicitly hypothetical');
