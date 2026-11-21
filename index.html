@@ -3330,7 +3330,7 @@ function questCatalogRows(){
 function questSubIds(x){
  const raw=x?.subtask;
  const values=raw==null?[]:Array.isArray(raw)?raw:[raw];
- return [...new Set(values.map(v=>String(v).trim()).filter(v=>/^\\d+$/.test(v)))];
+ return [...new Set(values.map(v=>String(v).trim()).filter(v=>/^[0-9]+$/.test(v)))];
 }
 function questParentIndex(){
  const parents=new Map();
