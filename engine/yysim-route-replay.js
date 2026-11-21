@@ -64,6 +64,7 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
  if(!original||!Array.isArray(original.talents))
   throw Error('실행 전 WASM 상태가 올바르지 않습니다');
  let applied=0;
+ const audit=[];
  try{
   for(const [index,step] of steps.entries()){
    ensureSession();
@@ -116,6 +117,15 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
     if(!response?.result?.success||!response?.state?.talents?.some(t=>Number(t.id)===step.to))
      throw Error('원본 치환 결과에서 예상 재능을 확인하지 못했습니다');
    }
+   const after=await call('state');
+   if(!after||!Array.isArray(after.talents))
+    throw Error('원본 경로 실행 이후 WASM 상태 검증 실패');
+   audit.push({index:index+1,kind:step.kind,
+    luckInitializedBefore:state.luck_seed_inited===true,
+    luckInitializedAfter:after.luck_seed_inited===true,
+    exchangeDelta:Number(after.exchange_count||0)-Number(state.exchange_count||0),
+    bagPillsBefore:state.has_bag_pills===true?Number(state.bag_pills):null,
+    bagPillsAfter:after.has_bag_pills===true?Number(after.bag_pills):null});
    applied=index+1;
   }
   const state=await call('state');
@@ -127,8 +137,19 @@ async function run({route,nameIds,call,ensureSession=()=>{}}={}){
       (!!slot.locked)!==(!!state.talents[index]?.locked))))
    throw Error('원본 경로 최종 슬롯 수·재능 ID·잠금 상태와 실제 WASM 결과가 다릅니다');
   if(missing.length)throw Error('경로 재생 후 목표 자맥 미보유: '+missing.join(','));
+  const expectedPills=integer(route.estimatedPills);
+  const beforePills=original.has_bag_pills===true?integer(original.bag_pills):null;
+  const afterPills=state?.has_bag_pills===true?integer(state.bag_pills):null;
+  if(expectedPills!==null&&beforePills!==null&&afterPills!==null&&
+     beforePills-afterPills!==expectedPills)
+   throw Error('원본 자동 탐색 세수단 예상 소비 '+expectedPills+
+    '개와 실제 WASM 모의 소비 '+(beforePills-afterPills)+'개가 다릅니다');
+  const luckInitEvents=audit.filter(a=>!a.luckInitializedBefore&&a.luckInitializedAfter);
   ensureSession();
-  return {original,state,steps:applied,verified:true};
+  return {original,state,steps:applied,verified:true,audit,
+   luckInitializedDuringReplay:luckInitEvents.length>0,
+   luckInitActionKinds:luckInitEvents.map(e=>e.kind),
+   pillsConsumed:beforePills!==null&&afterPills!==null?beforePills-afterPills:null};
  }catch(error){
   try{
    ensureSession();
