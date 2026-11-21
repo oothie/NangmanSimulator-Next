@@ -36,7 +36,7 @@ for(const x of tracks){
  assert.equal(x.current,x.originalCurrent,'independent current cultivation in '+x.id);
 }
 assert.equal(tracks.find(x=>x.id==='3').recognized,1,'copied sword appears in sword category');
-const recordedCopy=context.yyRoleCultivationModel(role).records.find(x=>x.id==='3').skills.find(x=>x.id===20010);
+const recordedCopy=context.yyRoleCultivationModel(role).records.find(x=>x.id==='2').skills.find(x=>x.id===20010);
 assert.equal(recordedCopy.copyId,20030,'copy-origin ID must persist through source calculation');
 
 const unknown={...sample,Taolus:[{ID:999999,Chong:10,Level:3}]};
