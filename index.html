@@ -411,6 +411,20 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .equip-primary-tabs{flex-wrap:wrap}.equip-primary-tabs button,.tabs button,.wash-buttons button{font-size:15px!important;min-height:44px}
 .talent{min-height:86px}.talent-text b{font-size:15px}.talent-text small,.config-item,.wash-grade{font-size:13px}
 @media(max-width:700px){.equip-directory-list,.equip-detail-rows{grid-template-columns:1fr}}
+
+/* v0.8.5: wash automatic search readable selection panels */
+.wash-auto-groups{display:grid;gap:14px;margin:15px 0 18px}
+.wash-auto-group{border:1px solid var(--border);background:var(--panel);border-radius:9px;padding:3px 14px}
+.wash-auto-group>summary{font-size:16px;font-weight:750;padding:12px 2px;cursor:pointer}
+.wash-auto-group .fields{gap:10px!important;padding:4px 0 14px;grid-template-columns:repeat(auto-fit,minmax(225px,1fr))!important}
+.wash-auto-group label{align-items:center!important;gap:10px!important;font-size:14px!important;line-height:1.45;min-height:40px;padding:7px 9px;border:1px solid var(--border);background:var(--paper);border-radius:6px}
+.wash-auto-group input[type=checkbox]{width:18px!important;height:18px!important;flex:0 0 18px;accent-color:var(--green)}
+.wash-auto-search{max-width:700px}.wash-auto-search input{font-size:16px;padding:12px}
+.wash-section>.section-header h3{font-size:17px}
+.wash-section .actions .btn{font-size:15px;padding:11px 16px}
+.wash-section .module-table{font-size:14px}
+.wash-section .module-table th{font-weight:750}
+.character-equip-row .btn{min-width:98px;min-height:40px;margin-left:auto}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
 /* v0.8.5: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
@@ -743,7 +757,7 @@ if(sub==='auto'){
  const talent=id=>talentName(id)+' (#'+id+')';
  const searchOptions=state.autoOptions||{};
  const optionsHtml='';
- const choices=catalog.map(group=>'<details '+(group.quality===4||group.items.some(t=>selectedTargets.includes(t.id))?'open':'')+'><summary>'+
+ const choices=catalog.map(group=>'<details class="wash-auto-group" +(group.quality===4||group.items.some(t=>selectedTargets.includes(t.id))?'open':'')+'><summary>'+
   (group.quality===4?'자맥 (자색)':group.quality===3?'파맥 (파란색)':'녹맥 (녹색)')+
   ' · '+group.items.length+'개</summary><div class="fields" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px">'+
   group.items.map(t=>'<label style="display:flex;align-items:center;gap:7px"><input type="checkbox" data-yy-auto-id="'+t.id+'" '+checked(t.id)+'> '+escape(talent(t.id))+'</label>').join('')+'</div></details>').join('');
@@ -792,7 +806,7 @@ if(sub==='auto'){
   '<p class="micro">'+(r?'선택 인물 '+escape(r.name)+' · 계산 시 세이브 자동 연결':'먼저 세이브를 불러오세요')+'</p>'+ 
   '<p class="micro">녹맥·파맥의 일부 재능명은 원문을 직접 번역한 임시 한국어 표기입니다. 확인된 한국판 이름을 우선 사용합니다.</p>'+
   '<div class="section-header"><h3>목표 재능</h3></div>'+
-  '<div class="fields"><label>재능명·ID 검색<input type="search" id="yyAutoFilter" placeholder="찾을 재능명 또는 ID" value="'+escape(state.autoFilter||'')+'"></label></div>'+choices+
+  '<div class="fields wash-auto-search"><label>재능명·ID 검색<input type="search" id="yyAutoFilter" placeholder="찾을 재능명 또는 ID" value="'+escape(state.autoFilter||'')+'"></label></div><div class="wash-auto-groups">'+choices+'</div>'+
   '<div class="actions"><button type="button" class="btn" id="yyAutoPreset" hidden>4자맥 기본 목표 적용</button>'+
   '<button type="button" class="btn" id="yyAutoClear">선택 초기화</button><span class="micro">선택 '+selectedTargets.length+' / 4개</span></div>'+
   '<div class="section-header"><h3>계산</h3></div>'+
@@ -1801,7 +1815,7 @@ function characterEquipView(raw){
  });
  return '<section class="card"><h3>착용 장비 · '+list.length+'개</h3>'+
  '<p class="micro">세이브의 Equips 목록만 표시합니다. 장비·의상은 실제 저장된 장착 상태이며 강화 단계 및 부여 옵션을 함께 표시합니다.</p>'+
- '<div class="character-equip-list">'+sorted.map(eq=>{
+ '<div class="character-equip-list">'+sorted.map((eq,index)=>{
   const entry=available[String(eq.ID)]||fashions[String(eq.ID)]||{};
   const type=Number(entry.type)||0,isFashion=type>=10;
   const koName=ko.get('equips:'+eq.ID)?.name;
@@ -1816,7 +1830,7 @@ function characterEquipView(raw){
    characterEquipPropRows(eq.EnNoXLExts,'기타 추가 옵션')+
    characterEquipPropRows(eq.EnSpecials,'특수 옵션');
   return '<div class="character-equip-row"><div><b>'+escape(name)+'</b><span class="micro"> '+escape(characterEquipTypes[type]||'장비')+' · ID '+escape(eq.ID)+
-   (isFashion?' · 의상':(' · '+escape(characterEquipColors[Number(eq.Color)]||'등급 미확인')+' · 강화 +'+escape(eq.Level||0)))+'</span></div>'+attrs+'</div>';
+   (isFashion?' · 의상':(' · '+escape(characterEquipColors[Number(eq.Color)]||'등급 미확인')+' · 강화 +'+escape(eq.Level||0)))+'</span></div>'+attrs+'<button type="button" class="btn" data-character-equip-open="'+index+'">장비 상세</button></div>';
  }).join('')+'</div></section>';
 }
 function characterMeridianEffect(id,progress,order,index){
@@ -3110,6 +3124,12 @@ const openDetail=(eq,source)=>{
  history.pushState({equipmentDetail:true},'','#equip-detail');
  v='equip';render();window.scrollTo(0,0);
 };
+document.querySelectorAll('[data-character-equip-open]').forEach(x=>x.onclick=()=>{
+ const role=roles[selected],catalog=equipCatalog();
+ const list=Object.values(role?.raw?.Equips||{}).filter(e=>e&&typeof e==='object'&&Number(e.ID)>0);
+ list.sort((a,b)=>(Number(catalog[String(a.ID)]?.type)||99)-(Number(catalog[String(b.ID)]?.type)||99));
+ const eq=list[Number(x.dataset.characterEquipOpen)];if(eq)openDetail(eq,role.name+' · 착용');
+});
 document.querySelectorAll('[data-equip-id]').forEach(x=>x.onclick=()=>openDetail({ID:Number(x.dataset.equipId)},'장비 도감'));
 document.querySelectorAll('[data-equip-owned]').forEach(x=>x.onclick=()=>{const e=equipInventory()[Number(x.dataset.equipOwned)];if(e)openDetail(e.eq,e.source)});
 if($('equipBack'))$('equipBack').onclick=()=>{if(location.hash==='#equip-detail')history.back();else{equipDetail=null;equipTab=equipPrevious;render()}};
