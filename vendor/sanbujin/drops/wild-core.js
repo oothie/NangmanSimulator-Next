@@ -108,7 +108,7 @@
     return result;
   }
 
-  function predict(input, target, options, equipment) {
+  function predictWithState(input, target, options, equipment) {
     if (!usable(input.seed) || target.kind === 'tigerbone' && !usable(input.tigerSeed)) throw Error('현재 세이브에 해당 대상의 드랍 순서가 없습니다');
     const state = {...input, sds: {...input.sds}, eds: {...input.eds}};
     const rows = [];
@@ -127,8 +127,15 @@
       }
       rows.push({...row, serial: index + 1, padding: index < options.pad});
     }
-    return rows;
+    return {rows,final:{
+      seed:state.seed,tigerSeed:state.tigerSeed,drought:state.drought,
+      // Return copied streams only for verification; never mutate archive.
+      sds:{...state.sds},eds:{...state.eds}
+    }};
+  }
+  function predict(input,target,options,equipment){
+    return predictWithState(input,target,options,equipment).rows;
   }
 
-  root.SBJWildDrop = {open, predict, usable, draw, choose};
+  root.SBJWildDrop = {open,predict,predictWithState,usable,draw,choose};
 })(window);
