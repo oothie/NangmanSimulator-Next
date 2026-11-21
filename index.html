@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.18</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.7.19</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -196,7 +196,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.7.18: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.7.19: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -715,6 +715,21 @@ function characterEquipPropRows(value,label){
   return escape(characterEquipProps[key]||key)+(Number.isFinite(v)&&v<0?' ':' +')+escape(amount);
  }).join(' · ')+'</div>';
 }
+// 검증 가능한 세이브 장착 장비의 기본 수치만 합산한다. 옵션/정련/전투 공식을 더하지 않는다.
+function characterEquipBaseSummary(raw){
+ const gears=characterEntries(raw?.Equips).filter(e=>e&&typeof e==='object'&&Number(e.ID)>0);
+ const fields=[['Atk','공격'],['Def','방어'],['Hp','기혈'],['Hit','명중'],['Dodge','회피'],['Speed','속도'],['Parry','초식방어'],['RenXing','인내'],['Neijin','내경'],['Gangqi','강기']];
+ const sums=fields.map(([key,label])=>{
+  const present=gears.some(e=>e[key]!==undefined&&e[key]!==null&&e[key]!=='');
+  const value=gears.reduce((n,e)=>{const v=Number(e[key]);return n+(Number.isFinite(v)?v:0)},0);
+  return {key,label,present,value};
+ }).filter(x=>x.present);
+ const count=key=>gears.reduce((n,e)=>n+characterEntries(e[key]).filter(p=>p&&typeof p==='object'&&p.Key).length,0);
+ return '<section class="card"><h3>착용 장비 기본 능력치 합계</h3>'+
+ '<p class="micro">현재 인물 Equips '+gears.length+'개의 숫자 필드만 합한 값입니다. 추가 옵션·망정·강화·경맥·무학 및 전투 공식은 포함하지 않으므로 실제 게임의 최종 능력치가 아닙니다.</p>'+
+ (sums.length?'<div class="wiki-detail-fields">'+sums.map(({label,value})=>'<div class="wiki-field"><span>'+escape(label)+'</span><b>'+escape(Number(value.toFixed(3)))+'</b></div>').join('')+'</div>':'<p class="micro">장비 기본 수치 기록 없음</p>')+
+ '<p class="micro">부여 옵션 기록: 추가 '+count('EnExts')+'개 · 망정 '+count('EnMans')+'개 · 특수 '+count('EnSpecials')+'개 · 기타 '+count('EnNoXLExts')+'개 (중복 효과 합산 없음)</p></section>';
+}
 function characterEquipView(raw){
  const list=characterEntries(raw.Equips).filter(x=>x&&typeof x==='object'&&Number(x.ID)>0);
  const cfg=window.EQUIP_DATA||{},available=cfg.equipment||{},fashions=cfg.fashion||{};
@@ -987,8 +1002,9 @@ function characterView(){
     '<section class="card"><h3>인물 정보</h3>'+characterFields(raw,[['Level','레벨'],['MaxLevel','레벨 상한'],['ID','인물 ID'],['MenPai','문파 ID'],['Age','나이'],['ZiZhi','자질'],['ZiZhiExp','자질 경험치']])+'</section>'+
     '<section class="card"><h3>수련 상태</h3>'+characterFields(raw,[['GongLi','공력'],['Point','남은 수련점'],['TotalPoint','누적 수련점'],['Favour','호감도'],['TalLucky','세수 천장 저장값']])+'</section>'+
     '</div><section class="card"><h3>기본 자질</h3>'+characterFields(raw,[['Str','팔힘 배분'],['Dex','신법 배분'],['Con','근골 배분'],['Int','내식 배분'],['BornStr','태생 팔힘'],['BornDex','태생 신법'],['BornCon','태생 근골'],['BornInt','태생 내식'],['StrGift','팔힘 잠재력'],['DexGift','신법 잠재력'],['ConGift','근골 잠재력'],['IntGift','내식 잠재력']])+'</section>'+
+    characterEquipBaseSummary(raw)+
     '<p class="micro">yy-sim 원본의 최종 전투 능력치 계산은 아직 연결되지 않아, 실제 세이브에 기록된 값만 표시합니다.</p>';
-  }else if(characterTab==='equip')body=characterEquipView(raw);
+  }else if(characterTab==='equip')body=characterEquipBaseSummary(raw)+characterEquipView(raw);
   else if(characterTab==='meridians')body=characterMeridianView(raw);
   else if(characterTab==='craft')body=characterLifeView(raw);
   else if(characterTab==='wash-info')body=characterWashView(role,save);
