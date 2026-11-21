@@ -359,7 +359,7 @@ const wikiCategories=[
 window.addEventListener('nangman-wiki-loaded',e=>{
  koreanWiki=e.detail;
  if(wikiFallbackSource)wikiFallbackSource.martial=koreanWiki.filter(entry=>['외공','내공','경공'].includes(entry.category)).map(entry=>({id:entry.id,n:entry.name,kind:entry.category,desc:''}));
- if(v==='wiki')render();
+ if(v==='wiki'||v==='character')render();
 });
 window.addEventListener('nangman-v620-wiki-loaded',e=>{
  v620Wiki=e.detail;
@@ -368,7 +368,7 @@ window.addEventListener('nangman-v620-wiki-loaded',e=>{
   equips:Object.entries(v620Wiki.equips||{}).map(([id,info])=>({id:Number(id),n:info[0],desc:info[1]||'',type:info[2]||0,icon:info[3]||Number(id)})),
   martial:koreanWiki.filter(entry=>['외공','내공','경공'].includes(entry.category)).map(entry=>({id:entry.id,n:entry.name,kind:entry.category,desc:''})),crafts:[],arts:[],buff:Object.entries(window.NANGMAN_V620_BUFF_KO||{}).map(([id,entry])=>({id:Number(id),n:entry[0],desc:entry[1]||'',icon:entry[2]||''}))
  };
- if(v==='wiki')render();
+ if(v==='wiki'||v==='character')render();
 });
 window.addEventListener('nangman-wiki-source-ready',e=>{wikiSource=e.detail;wikiSourceError='';if(v==='wiki')render()});
 window.addEventListener('nangman-wiki-source-error',()=>{wikiSourceError='yy-sim 원본 백과 데이터를 불러오지 못했습니다.';if(v==='wiki')render()});
