@@ -22,7 +22,8 @@ function open(archive){
   global.map(x=>[String(x?.Key??x?.key??x?.Name??x?.name),number(x)]) :
   Object.entries(global).map(([key,value])=>[String(key),number(value)]));
  return {equipmentSeed:number(seeds.seed_35256),encounterSeed:number(seeds.rollenemy_tomb),
-  flags,missingFlags:required.filter(key=>!flags.has(key)||!Number.isFinite(flags.get(key)))};
+  flags,gate3007Unknown:!flags.has('3007') || !Number.isFinite(flags.get('3007')),
+  missingFlags:required.filter(key=>!flags.has(key)||!Number.isFinite(flags.get(key)))};
 }
 function ready(input){
  return !!input&&usable(input.equipmentSeed)&&usable(input.encounterSeed)&&input.missingFlags.length===0;
