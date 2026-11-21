@@ -31,6 +31,7 @@ async function send(requestId,op,payload){
  assert.equal(targetCalls.length,1);
  assert.equal(targetCalls[0].maxPad,500);
  assert.equal(targetCalls[0].targets[0].purple_name,'拳脚无双');
+ assert.equal(result.data.nameIds['拳脚无双'],'261','source names mapped to id for Korean display');
  const invalid=await send(3,'exchange-pads',{targets:[{purpleId:260,conflictId:262}],maxPad:500});
  assert.equal(invalid.ok,false,'lower quality talent not accepted');
  assert.equal(targetCalls.length,1,'invalid target never reaches native RNG');
@@ -54,5 +55,6 @@ async function send(requestId,op,payload){
  assert(html.includes('state.undoStates.push(snapshot);state.log.push(result);'),
   'targeted wash saves undo snapshot');
  assert(html.includes('state.pathReports=null;'),'invalidated cached path cannot outlive save');
+ assert(html.includes('pathText=pathText.split(nativeName).join(characterTalentName(id))'),'path display uses Korean talent labels');
  console.log('PASS: original WASM target-path and purple wash command safeguards, main UI/undo bridge');
 })().catch(err=>{console.error(err);process.exitCode=1});
