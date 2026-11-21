@@ -1,0 +1,64 @@
+{
+  "savedAt": "2026-11-21T19:27:50+09:00",
+  "source": "user-supplied 1121.json, pre-verification; snapshot alone does not prove reset-ticket effect",
+  "rng": {
+    "seed_lsby": 661129739
+  },
+  "globalVariables": {
+    "fuben_chongzhi_num": 67,
+    "win_lsby": 135,
+    "quick_lsby": 23,
+    "fuben_lsby": 1,
+    "num_fuben": 0,
+    "quick_fuben": 1
+  },
+  "hypothesis": "User reports daily attempts exhausted and one additional run using dungeon reset ticket; exact ticket-use timestamp relative to save not independently verified",
+  "actualRound1": [
+    {
+      "npc": 35260,
+      "boss": "윤무",
+      "itemId": 0,
+      "color": 0
+    },
+    {
+      "npc": 35264,
+      "boss": "고리",
+      "itemId": 5209,
+      "color": 2
+    },
+    {
+      "npc": 35268,
+      "boss": "이뢰운",
+      "itemId": 4209,
+      "color": 2
+    }
+  ],
+  "userObservedSanbujinApk": [
+    {
+      "npc": 35260,
+      "itemId": 5609,
+      "color": 1
+    },
+    {
+      "npc": 35264,
+      "itemId": 5209,
+      "color": 1
+    },
+    {
+      "npc": 35268,
+      "itemId": 4409,
+      "color": 1
+    }
+  ],
+  "userObservedYysim": {
+    "npc": 35264,
+    "itemId": 5209,
+    "color": 2
+  },
+  "caveats": [
+    "Actual after-run seed is not provided",
+    "yy-sim source not fetched; only user-reported output",
+    "Cannot attribute discrepancy to reset ticket without before/after"
+  ],
+  "protection": "Never adjust RNG draw count to force-match this fixture without source evidence; preserve original wild drop engine"
+}
