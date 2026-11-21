@@ -30,6 +30,18 @@ html[data-nangman-theme="dark"]{color-scheme:dark;--host-bg:#252830;--host-panel
 html[data-nangman-theme="dark"] #rk218 .back218,html[data-nangman-theme="dark"] #rk218 .tag,html[data-nangman-theme="dark"] #rk218 .detail-region277,html[data-nangman-theme="dark"] #rk218 .unique-pick247{background:var(--host-panel)!important;color:var(--host-text)!important;border-color:var(--host-border)!important}
 `;
 themeStyle.textContent+="\n\n/* v0.9.0: integrated-site equipment presentation; suppress embedded duplicate header. */\n#rk218>.rk218-top,#rk218>.rhome,body>.app-container.equip-app{display:none!important}\nhtml,body{margin:0!important;padding:0!important;overflow-x:hidden!important;background:var(--host-bg)!important}\nhtml{--host-bg:#fffdf7;--host-panel:#f8f4eb;--host-card:#fffdf7;--host-text:#231e17;--host-sub:#776e60;--host-border:#d6caba;--host-accent:#336f52;--host-active:#dfecdf;--host-hover:#f0e9dd;--host-muted:#f5efe5;--host-shadow:0 2px 7px rgba(65,48,30,.05)}\nhtml[data-nangman-theme=\"dark\"]{--host-bg:#252830;--host-panel:#1d2027;--host-card:#252830;--host-text:#e9e3d9;--host-sub:#b9b1a6;--host-border:#44454d;--host-accent:#76bb8c;--host-active:#284535;--host-hover:#333943;--host-muted:#23262d;--host-shadow:none}\n#rk218{margin:0!important;padding:4px 0 20px!important;border:0!important;max-width:100%!important;min-width:0!important;width:100%!important;font-size:15px!important;line-height:1.6!important}\n#rk218 #rmain{display:grid;gap:14px;min-width:0}\n#rk218 .box218,#rk218 .rb-detail233,#rk218 .rb-card233,#rk218 .mini,#rk218 .grp218,#rk218 .recipe-card,#rk218 .picker237,#rk218 .rk237-total,#rk218 .rb-card,#rk218 .auto339-box,#rk218 .config-panel,#rk218 .rk218-jianwang-live,#rk218 .rk240-slot,#rk218 .rk240-allhint{background:var(--host-card)!important;color:var(--host-text)!important;border:1px solid var(--host-border)!important;box-shadow:var(--host-shadow)!important;border-radius:9px!important}\n#rk218 .box218{margin:0!important;overflow:visible!important}\n#rk218 .box218>summary{padding:15px 18px!important;background:var(--host-panel)!important;color:var(--host-text)!important;font-size:16px!important;font-weight:750!important;border-radius:8px!important;cursor:pointer}\n#rk218 .bbody{padding:15px!important;background:transparent!important;color:var(--host-text)!important}\n#rk218 .mini,#rk218 .grp218,#rk218 .rb-card233{padding:14px!important}\n#rk218 .glab,#rk218 .panel-header h2,#rk218 .rb-detail233 h2{font-size:16px!important;color:var(--host-text)!important}\n#rk218 .meta,#rk218 .note218,#rk218 .side-text275,#rk218 .side-title275,#rk218 .r225reg.none{color:var(--host-sub)!important}\n#rk218 .tabs218{position:static!important;top:auto!important;z-index:auto!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important;overflow-x:visible!important;background:transparent!important;padding:0 0 12px!important;border-bottom:1px solid var(--host-border)!important}\n#rk218 .tabs218 button,#rk218 .chip,#rk218 .back218,#rk218 .rbtn,#rk218 .btn,#rk218 .jh-home-btn{padding:9px 13px!important;min-height:42px!important;border-radius:7px!important;background:var(--host-panel)!important;color:var(--host-text)!important;border:1px solid var(--host-border)!important;font-size:14px!important;font-weight:650!important;box-shadow:none!important}\n#rk218 .tabs218 button.on,#rk218 .chip.on,#rk218 .rbtn.primary,#rk218 .btn.primary{background:var(--host-active)!important;color:var(--host-accent)!important;border-color:var(--host-accent)!important;box-shadow:inset 0 -2px 0 var(--host-accent)!important}\n#rk218 .tabs218 button:nth-child(2){border-left:3px solid #648cb4!important}\n#rk218 .tabs218 button:nth-child(3){border-left:3px solid #a079b9!important}\n#rk218 .tabs218 button:nth-child(4){border-left:3px solid #63a58b!important}\n#rk218 .tabs218 button:disabled,#rk218 button:disabled{opacity:.46!important;cursor:not-allowed!important}\n#rk218 button:hover:not(:disabled){background:var(--host-hover)!important;color:var(--host-text)!important}\n#rk218 .tabs218 button.on:hover,#rk218 .chip.on:hover,#rk218 .rbtn.primary:hover{background:var(--host-active)!important;color:var(--host-accent)!important}\n#rk218 input:not([type=checkbox]):not([type=radio]),#rk218 select,#rk218 textarea,#rk218 .rinput,#rk218 .rsel,#rk218 .num218{background:var(--host-panel)!important;color:var(--host-text)!important;border:1px solid var(--host-border)!important;border-radius:6px!important;min-height:40px!important;font-size:14px!important;padding:8px 10px!important;max-width:100%!important}\n#rk218 input[type=checkbox],#rk218 input[type=radio]{min-width:17px!important;min-height:17px!important;accent-color:var(--host-accent)!important}\n#rk218 table{border-color:var(--host-border)!important;font-size:14px!important}\n#rk218 table th,#rk218 .regionTbl225 th,#rk218 .unique-seq-table227 th{background:var(--host-panel)!important;color:var(--host-text)!important;border-color:var(--host-border)!important;font-size:13px!important;font-weight:750!important}\n#rk218 table td,#rk218 .regionTbl225 td,#rk218 .unique-seq-table227 td,#rk218 .sticky225,#rk218 .sticky227{background:var(--host-card)!important;color:var(--host-text)!important;border-color:var(--host-border)!important;font-size:13px!important;line-height:1.55!important}\n#rk218 table tr:hover td{background:var(--host-hover)!important}\n#rk218 .tag,#rk218 .detail-region277,#rk218 .unique-pick247,#rk218 .rk-initial-special-value250,#rk218 .rk240-allhint,#rk218 .unique-special247,#rk218 .detail-controls218{background:var(--host-panel)!important;color:var(--host-text)!important;border-color:var(--host-border)!important}\n#rk218 .detail-controls218{display:flex!important;gap:12px!important;flex-wrap:wrap!important;padding:12px!important;margin:12px 0!important}\n#rk218 .scroll218,#rk218 .regionScroll225,#rk218 .unique-seq-scroll227{max-width:100%!important;overflow-x:auto!important;scrollbar-color:var(--host-border) transparent}\n#rk218 .rb-detail233{padding:16px!important}\n#rk218 .detail-table218 th,#rk218 .detail-table218 td{padding:9px 12px!important}\n@media(max-width:700px){#rk218 .box218>summary{padding:12px!important}#rk218 .bbody{padding:10px!important}#rk218 .tabs218 button,#rk218 .chip{min-height:40px!important}#rk218 .rb-detail233{padding:10px!important}}\n";
+// This stylesheet must be last in document order: the original page appends
+// legacy !important styles after </html>, which override head styles otherwise.
+function applyHostPresentation(){
+ if(document.body&&themeStyle.parentNode!==document.body)document.body.appendChild(themeStyle);
+ const root=document.getElementById('rk218');
+ if(!root)return;
+ // Do not merely hide the empty top row: remove the legacy navigation node.
+ const duplicate=root.querySelector(':scope > .rk218-top');
+ if(duplicate)duplicate.remove();
+ // The old simulation also renders an empty home/navigation row in some modes.
+ root.querySelectorAll(':scope > .rhome').forEach(el=>el.remove());
+}
 document.head.appendChild(themeStyle);
 function capMangjing(){
  const field=document.getElementById('specialAttachCount');
@@ -51,7 +63,7 @@ function go(view){
   if(typeof window.rk218Open!=='function')throw Error('원본 장비 화면이 준비되지 않았습니다');
   window.rk218Open(view);
   reply('navigated',view+' 화면 선택됨');
-  requestAnimationFrame(()=>{capMangjing();syncHeight()});
+  requestAnimationFrame(()=>{applyHostPresentation();capMangjing();syncHeight()});
  }catch(e){reply('error','장비 화면 전환 오류: '+String(e.message||e))}
 }
 window.addEventListener('message',e=>{
@@ -80,7 +92,7 @@ window.addEventListener('message',e=>{
  }
  if(d.kind==='nangman-equipment-theme'){
   document.documentElement.dataset.nangmanTheme=d.theme==='dark'?'dark':'light';
-  capMangjing();
+  applyHostPresentation();capMangjing();
  }
 });
 let previousHeight=0;
@@ -94,12 +106,12 @@ function syncHeight(){
 window.addEventListener('load',()=>{
  reply('ready','v3.50 장비 계산 엔진 로드 완료');
  go(active);
- syncHeight();
+ applyHostPresentation();syncHeight();
  if(typeof ResizeObserver==='function'){
   const resize=new ResizeObserver(()=>syncHeight());
   resize.observe(document.documentElement);
   if(document.getElementById('rk218'))resize.observe(document.getElementById('rk218'));
-  const mutation=new MutationObserver(()=>{capMangjing();syncHeight()});
+  const mutation=new MutationObserver(()=>{applyHostPresentation();capMangjing();syncHeight()});
   if(document.getElementById('rk218'))mutation.observe(document.getElementById('rk218'),{childList:true,subtree:true});
  }
 });
