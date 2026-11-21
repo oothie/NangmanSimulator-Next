@@ -6,6 +6,9 @@
 (function(root){
 'use strict';
 const deepClone=x=>JSON.parse(JSON.stringify(x));
+const canonical=x=>Array.isArray(x)?x.map(canonical):
+ x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;
+const sameState=(a,b)=>JSON.stringify(canonical(a))===JSON.stringify(canonical(b));
 const has=(s,id)=>s?.talents?.some(t=>Number(t.id)===id);
 const idsIn=(s,ids)=>ids.filter(id=>has(s,id));
 const locked=s=>(s?.talents||[]).filter(t=>t.locked).length;
@@ -86,7 +89,12 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
  for(let washNo=1;washNo<=horizon;washNo++){
   const pool=[];
   for(const node of current){
-   if(!setState(node.state)){stopReason='WASM 분기 상태 적용 실패';break}
+   // Re-entering WASM through set_state on EVERY single wash erases
+   // transient native exchange context. Keep the live instance untouched
+   // while following the same branch and restore only when switching.
+   if(!sameState(getState(),node.state)&&!setState(node.state)){
+    stopReason='WASM 분기 상태 적용 실패';break
+   }
    const previous=getState();
    if(!previous||previous.talents.length!==node.state.talents.length){
     stopReason='WASM 분기 재진입 검증 실패';break
