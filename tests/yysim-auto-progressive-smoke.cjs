@@ -29,6 +29,14 @@ async function call(op,config){
  assert.equal(res.bestPills,7);
  assert.equal(res.result.routes.length,2,'same native candidate across stages deduplicated');
  assert.equal(res.result.scanned,600,'sum is documented as overlapping scan work');
+ let extendedCalls=0;
+ const fallback=await p.run({api,desiredIds:[268],maxPad:30,horizon:3000,topN:8,
+  call:async()=>{extendedCalls++;return {nativeFunction:'wasmSearchWashRoutes',
+   result:{scanned:4,routes:[]}};}});
+ assert.equal(extendedCalls,5,'missing goals automatically extend search in two bounded stages');
+ assert.deepEqual(Array.from(fallback.history,x=>[x.maxPad,x.horizon]),
+  [[3,300],[8,900],[30,3000],[100,4000],[200,5000]]);
+ assert.equal(fallback.bestPills,null,'no candidates still cannot be marked complete');
  assert.equal(res.globallyOptimal,false,'native optimal:false cannot mean guaranteed best globally');
  assert(res.progressive===true&&res.history.length===3);
  assert.equal(api.routeOutcome(res.result,[268]).routes[0].estimatedPills,7);
