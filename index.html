@@ -1389,6 +1389,8 @@ function wikiImage(x){
  // The original skill PNGs are served at /icons/skill/<skill ID>.png.
  // Verified from the live source: 301 (음률) and 309 (오금희) are real PNGs.
  if(x.source==='crafts'||x.source==='arts'){
+  const skillKey=/^icon_skill_\d+$/.test(name)?name:'icon_skill_'+id;
+  if(window.NANGMAN_SKILL_ICON_DATA?.[skillKey])return window.NANGMAN_SKILL_ICON_DATA[skillKey];
   const known=(wikiSource||wikiFallbackSource||{})[x.source]||[];
   const verified=Array.isArray(known)&&known.some(row=>String(row.id)===id)||
    (x.source==='crafts'?(window.NANGMAN_CRAFT_ID_KO||{})[id]:(window.NANGMAN_ARTS_ID_KO||{})[id]);
@@ -1471,9 +1473,13 @@ function wikiFormatField(key,v){
 function ensureWikiOriginalBuffIcons(){
  if(window.__nangmanBuffIconsStarted)return;
  window.__nangmanBuffIconsStarted=true;
- const tasks=Array.from({length:19},(_,i)=>new Promise(resolve=>{
+ const sources=[
+  ...Array.from({length:19},(_,i)=>'./data/wiki-buff-icons-'+String(i).padStart(2,'0')+'.js?rev=v090'),
+  ...Array.from({length:6},(_,i)=>'./data/wiki-skill-icons-'+String(i).padStart(2,'0')+'.js?rev=v090')
+ ];
+ const tasks=sources.map(src=>new Promise(resolve=>{
   const script=document.createElement('script');
-  script.src='./data/wiki-buff-icons-'+String(i).padStart(2,'0')+'.js?rev=v090';
+  script.src=src;
   script.onload=()=>resolve(true);script.onerror=()=>resolve(false);
   document.head.appendChild(script);
  }));
