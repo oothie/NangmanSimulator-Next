@@ -20,6 +20,7 @@ function go(view){
   if(typeof window.rk218Open!=='function')throw Error('원본 장비 화면이 준비되지 않았습니다');
   window.rk218Open(view);
   reply('navigated',view+' 화면 선택됨');
+  requestAnimationFrame(syncHeight);
  }catch(e){reply('error','장비 화면 전환 오류: '+String(e.message||e))}
 }
 window.addEventListener('message',e=>{
@@ -50,8 +51,23 @@ window.addEventListener('message',e=>{
   document.documentElement.dataset.nangmanTheme=d.theme==='dark'?'dark':'light';
  }
 });
+let previousHeight=0;
+function syncHeight(){
+ const height=Math.max(document.documentElement.scrollHeight,document.body?.scrollHeight||0);
+ if(height>0&&Math.abs(height-previousHeight)>12&&window.parent!==window){
+  previousHeight=height;
+  window.parent.postMessage({kind:'nangman-equipment-height',height},origin);
+ }
+}
 window.addEventListener('load',()=>{
  reply('ready','v3.50 장비 계산 엔진 로드 완료');
  go(active);
+ syncHeight();
+ if(typeof ResizeObserver==='function'){
+  const resize=new ResizeObserver(()=>syncHeight());
+  resize.observe(document.documentElement);
+  if(document.getElementById('rk218'))resize.observe(document.getElementById('rk218'));
+ }
 });
+
 })();
