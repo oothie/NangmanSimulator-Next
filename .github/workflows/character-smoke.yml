@@ -37,3 +37,5 @@ jobs:
         run: node tests/cultivation-crosscheck.cjs
       - name: Validate wash, quest and drop module integration
         run: node tests/module-integration-smoke.cjs
+      - name: Validate workflow data quality and save synchronization
+        run: node tests/workflow-integration-smoke.cjs
