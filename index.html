@@ -425,6 +425,17 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .wash-section .module-table{font-size:14px}
 .wash-section .module-table th{font-weight:750}
 .character-equip-row .btn{min-width:98px;min-height:40px;margin-left:auto}
+
+/* Mission details, without location directory */
+.quest-branch-item{display:block!important;padding:14px;border:1px solid var(--border);border-radius:7px;margin-bottom:9px;background:var(--panel)}
+.quest-branch-item summary{cursor:pointer}.quest-branch-item summary small{color:var(--sub);margin-left:8px}
+.quest-record-data{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin:14px 0}
+.quest-field{padding:9px;border:1px solid var(--border);background:var(--paper);border-radius:6px}
+.quest-field span{display:block;color:var(--sub);font-size:12px}.quest-field b{overflow-wrap:anywhere}
+.quest-raw pre,.quest-delegated pre{white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;max-height:250px;font-size:12px}
+.quest-delegated{padding:12px;border-bottom:1px solid var(--border)}
+.quest-delegated summary{cursor:pointer;font-weight:700}
+.quest-delegated-row{border:1px solid var(--border);padding:10px;margin:9px 0;border-radius:6px}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
 /* v0.8.5: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
@@ -2951,9 +2962,7 @@ function questBranchView(){
  '<button type="button" data-quest-filter="'+key+'" class="'+(filter===key?'active':'')+'">'+label+'</button>').join('')+'</div>'+
  '<p class="micro">검색 결과 '+rows.length+'건 · 한국판 명칭은 대조된 항목만 적용하고 나머지는 원본 내부 ID를 유지합니다.</p>'+
  (rows.length?'<div class="quest-branch-list">'+rows.slice(0,200).map(x=>
- '<div class="quest-branch-item"><div><b>'+escape(x.name)+'</b><small>ID '+escape(x.id)+
- ' · 단계 '+escape(x.step??'—')+(x.traced?' · 추적 표시':'')+'</small>'+
- '<small>'+escape(x.detail)+'</small></div><span>'+escape(x.status)+'</span></div>').join('')+'</div>':
+ '<details class="quest-branch-item"><summary><b>'+escape(x.name)+'</b> <small>ID '+escape(x.id)+' · 단계 '+escape(x.step??'—')+(x.traced?' · 추적 표시':'')+'</small></summary><p>'+escape(x.detail)+'</p><span>'+escape(x.status)+'</span>'+questRecordDetails(save?.Branch?.[x.id])+'</details>').join('')+'</div>':
  '<p class="micro">조건에 맞는 기록이 없습니다.</p>')+
  (rows.length>200?'<p class="micro">처음 200건만 표시합니다. 검색어를 입력해 결과를 좁혀 주세요.</p>':''));
 }
@@ -2987,9 +2996,30 @@ function questExportCsv(model,selectedArea=''){
  const csv=rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
  return '\uFEFF'+csv+'\r\n';
 }
+
+function questRecordDetails(record){
+ if(!record||typeof record!=='object')return '';
+ const fields={step:'진행 단계',trace:'추적',hint:'알림',recv:'수락 시각',sign:'분기값',finish:'완료 여부',count:'진행 횟수',progress:'진행도',state:'저장 상태',status:'원본 처리 상태'};
+ const rows=Object.entries(fields).filter(([key])=>Object.prototype.hasOwnProperty.call(record,key)).map(([key,label])=>{
+  let value=record[key];
+  if(key==='recv'&&Number(value)>1000000000&&Number(value)<4102444800)value=marketDate(Number(value));
+  else if(typeof value==='boolean')value=value?'예':'아니요';
+  else if(typeof value==='object')value=JSON.stringify(value);
+  return '<div class="quest-field"><span>'+escape(label)+'</span><b>'+escape(value??'—')+'</b></div>';
+ });
+ return '<div class="quest-record-data">'+rows.join('')+'</div><details class="quest-raw"><summary>세이브 원본 기록</summary><pre>'+escape(JSON.stringify(record,null,2))+'</pre></details>';
+}
+function questDelegatedDetails(data){
+ return [['수락한 위탁',data.delegated.accepted],['위탁 기록',data.delegated.recorded]].map(([title,values])=>
+ '<details class="quest-delegated"><summary>'+title+' · '+values.length+'건</summary>'+
+ (values.length?values.slice(0,100).map((item,i)=>'<div class="quest-delegated-row"><b>'+(i+1)+'번</b><pre>'+
+ escape(typeof item==='object'?JSON.stringify(item,null,2):String(item))+'</pre></div>').join(''):'<p class="micro">기록 없음</p>')+
+ '</details>').join('');
+}
 function questView(){
  const data=questSaveModel(save),catalog=questCatalogRows(),q=questSearch.trim().toLowerCase();
- const nav=tabRow([['current','주요 임무'],['branch','임무 진행도'],['catalog','임무 자료'],['npc','NPC 위치']],questTab,'quest');
+ if(questTab==='npc')questTab='current';
+ const nav=tabRow([['current','주요 임무'],['branch','임무 진행도'],['catalog','임무 자료']],questTab,'quest');
  let content='';
  if(questTab==='branch')content=questBranchView();
  else if(questTab==='current'){
@@ -3004,7 +3034,7 @@ function questView(){
   const traced=current.filter(x=>x.traced);
   const summary='<div class="market-stats">'+[
    ['현재 분기',branch.active+'개'],['완료 기록',branch.done+'개'],
-   ['추적 표시',branch.traced+'개'],['NPC 좌표',data.located.length+'명']
+   ['추적 표시',branch.traced+'개'],['기록 합계',branch.rows.length+'개']
   ].map(([name,value])=>'<div class="stat-cell"><span class="label">'+name+'</span><span class="value">'+value+'</span></div>').join('')+'</div>';
   content=summary+card('현재 주요 임무',!save?'<p class="micro">상단에서 세이브를 불러오세요.</p>':
    '<div class="wiki-detail-fields">'+[
@@ -3022,11 +3052,9 @@ function questView(){
       ['내부 ID',x.id],['현재 단계',x.step],['추적',x.traced?'예':'아니요'],
       ['시작 기록',x.received?marketDate(x.received):'기록 없음']
      ].map(([label,value])=>'<div class="wiki-field"><span>'+escape(label)+'</span><b>'+escape(value)+'</b></div>').join('')+'</div>'+
-     '<p>'+escape(x.detail||'상세 기록 없음')+'</p></details>').join('')+'</div>':
+     '<p>'+escape(x.detail||'상세 기록 없음')+'</p>'+questRecordDetails(save?.Branch?.[x.id])+'</details>').join('')+'</div>':
     '<p class="micro">진행 중인 분기 기록이 없습니다.</p>')+
-   card('위탁 임무', '<div class="wiki-detail-fields">'+
-    [['수락',data.delegated.accepted],['기록',data.delegated.recorded]].map(([label,arr])=>
-    '<div class="wiki-field"><span>'+label+' '+arr.length+'개</span><b>'+escape(arr.slice(0,40).join(' · ')||'기록 없음')+'</b></div>').join('')+'</div>');
+   card('위탁 임무',questDelegatedDetails(data));
  }else if(questTab==='catalog'){
   const visible=catalog.filter(x=>(x.id+' '+x.name+' '+x.description).toLowerCase().includes(q));
   content=card('한국판 임무 자료',
@@ -3037,24 +3065,9 @@ function questView(){
     '<details><summary><strong>'+escape(x.name)+'</strong> <small>#'+escape(x.id)+'</small></summary><p class="micro">'+escape(x.description||'원본 설명 없음')+'</p></details>').join('')+'</div>':
     '<div class="notice">조회 가능한 임무 항목이 없습니다. 기존 백과에 연결된 임무 데이터만 검색합니다.</div>')+
    (visible.length>150?'<p class="micro">처음 150건만 표시합니다. 검색어를 입력해 결과를 좁혀 주세요.</p>':''));
- }else{
-  const areas=questAreaSummary(data);
-  const matched=data.npcRecords.filter(x=>(!questLocatedOnly||x.located)&&
-   (!q||(x.id+' '+x.map+' '+(x.located?x.x+','+x.y:'')).toLowerCase().includes(q)));
-  content=card('세이브 NPC 위치 조회',
-   '<p class="micro">SoloNpc의 실제 지도 코드(m)와 좌표(x,y)만 읽습니다. 해당 NPC가 임무 대상인지, 게임에서 지금 등장하는지는 별도 확인이 필요합니다.</p>'+
-   '<label class="wiki-search-label"><input id="questSearch" type="search" placeholder="NPC ID / 지도 코드 / 좌표 검색" value="'+escape(questSearch)+'"></label>'+
-   '<label class="micro"><input type="checkbox" id="questLocatedOnly" '+(questLocatedOnly?'checked':'')+'> 좌표 기록 있는 NPC만 표시</label>'+
-   '<div class="quest-area-summary"><strong>좌표가 저장된 지역 '+areas.length+'곳</strong><div class="quest-area-pills">'+
-    areas.slice(0,18).map(x=>'<button type="button" data-quest-map="'+escape(x.code)+'">'+escape(x.code)+' · '+x.count+'명</button>').join('')+'</div>'+
-    '<span class="micro">지역을 누르면 해당 지도 코드로 검색합니다. 원본 지도 코드를 표시하며 한국어 지역명을 임의 지정하지 않습니다.</span></div>'+
-   '<div class="actions"><button class="btn" type="button" id="questExportCsv">NPC·임무 기록 CSV 내보내기</button></div>'+
-   '<p class="micro">세이브 NPC '+data.npcRecords.length+'명 · 좌표 확인 '+data.located.length+'명 · 검색 결과 '+matched.length+'명</p>'+
-   '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>NPC ID</th><th>원본 지도 코드</th><th>X</th><th>Y</th><th>좌표 상태</th></tr></thead><tbody>'+
-   matched.slice(0,180).map(x=>'<tr><td>'+escape(x.id)+'</td><td>'+escape(x.map||'—')+'</td><td>'+(x.located?x.x:'—')+'</td><td>'+(x.located?x.y:'—')+'</td><td>'+(x.located?'저장됨':'미기록')+'</td></tr>').join('')+
-   '</tbody></table></div>'+(matched.length>180?'<p class="micro">처음 180건만 표시합니다. NPC ID나 지도 코드로 검색해 주세요.</p>':''));
  }
- return '<div class="module-wrap">'+moduleHero('임무','한국판 임무 저장값과 NPC 좌표·백과 연결 정보를 조회합니다.')+
+
+ return '<div class="module-wrap">'+moduleHero('임무','현재 주요 임무·분기 진행·위탁 기록을 세이브 기반으로 표시합니다.')+
  nav+'<div class="module-panel">'+content+'</div></div>';
 }
 function others(){
