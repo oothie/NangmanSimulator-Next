@@ -110,8 +110,12 @@ function vipLevel(save){
  for(let i=1;i<VIP_DUNGEON.length;i++)if(dungeon>=VIP_DUNGEON[i]&&VIP_DUNGEON[i]>0&&i>vip){vip=i;via||='관문 횟수 추정'}
  return {vip,via:via||(vip?'세이브 추정':'미확인'),gold};
 }
-function halfDay(t){return Math.floor(Math.max(t,0)/43200)}
-function nextHalfDay(t){return (halfDay(t)+1)*43200}
+// Korean server ghost market resets at 08:00 and 20:00 KST
+// (UTC 23:00 and 11:00). The former UTC 00/12 calculation was one hour late.
+// The shift must apply to both the bucket index and its returned Unix timestamp.
+const GUISHI_ROTATION_SHIFT=3600;
+function halfDay(t){return Math.floor(Math.max(t+GUISHI_ROTATION_SHIFT,0)/43200)}
+function nextHalfDay(t){return (halfDay(t)+1)*43200-GUISHI_ROTATION_SHIFT}
 function resetDay(t){return Math.floor(Math.max(t+10800,0)/86400)}
 function currentShelf(saved,catalog){
  return (saved||[]).map(x=>catalog.find(y=>y.id===n(x?.ID??x?.id))||
@@ -153,7 +157,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
    if(!forecastOk)return [];
    const r=rng.clone(),out=[];
    for(let i=1;i<=Math.min(90,Math.max(0,Math.floor(limit)));i++){
-    const time=(halfDay(now)+i)*43200;
+    const time=nextHalfDay(now)+(i-1)*43200;
     out.push({step:i,time,items:draw(r,available,false,false,slots)});
    }
    return out;
@@ -180,7 +184,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000)){
    if(mode==='paid-now')return events;
    let lastDay=resetDay(now),remain=0;
    for(let i=1;i<=Math.min(180,Math.max(0,Math.floor(maxPeriods)))&&seen.size<targets.size;i++){
-    const time=(halfDay(now)+i)*43200,day=resetDay(time);
+    const time=nextHalfDay(now)+(i-1)*43200,day=resetDay(time);
     if(day>lastDay){remain=paidMax;lastDay=day}
     test(draw(r,available,false,false,slots),time,'정시 변경 '+i+'회','timed');
     if(mode==='mixed'){
