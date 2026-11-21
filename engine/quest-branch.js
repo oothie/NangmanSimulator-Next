@@ -38,29 +38,37 @@ const prefixNames={cd:'성도',ly:'낙양',hz:'항주',nyz:'남양도',taz:'태�
  td:'천도문',ty:'태을교',cl:'창랑',gs:'고소',yz:'유주',fmz:'봉명집',
  emei:'아미'};
 
+let questIndexSource=null,questConditionIndex=new Map();
 function questLinkedInfo(id){
  const catalog=root.NANGMAN_QUEST_60014?.quests||{};
- const matched=[];
- for(const row of Object.values(catalog)){
-  const req=row?.finish_req;
-  const checks=Array.isArray(req)&&Array.isArray(req[0])?req:[req];
-  if(checks.some(x=>Array.isArray(x)&&String(x[1])===id&&(Number(x[0])===2||Number(x[0])===3)))
-   matched.push(row);
+ if(catalog!==questIndexSource){
+  questIndexSource=catalog;questConditionIndex=new Map();
+  for(const row of Object.values(catalog)){
+   const req=row?.finish_req;
+   const checks=Array.isArray(req)&&Array.isArray(req[0])?req:[req];
+   for(const term of checks){
+    if(!Array.isArray(term)||![2,3].includes(Number(term[0]))||typeof term[1]!=='string')continue;
+    const key=term[1],list=questConditionIndex.get(key)||[];
+    if(!list.some(x=>x.id===row.id))list.push(row);
+    questConditionIndex.set(key,list);
+   }
+  }
  }
+ const matched=questConditionIndex.get(id)||[];
  if(!matched.length)return null;
  const names=[...new Set(matched.map(x=>String(x.name||'').trim()).filter(Boolean))];
  if(names.length===1){
   const primary=matched.find(x=>Number(x.type)!==99)||matched[0];
   return {name:names[0]+' · 진행 기록',
-    detail:'한국판 임무 「'+names[0]+'」의 판정 조건에 사용되는 분기 기록입니다. '+String(primary.description||'').replace(/#[0-9a-f]{6}#/gi,'').slice(0,220),
-    source:'condition'};
+   detail:'한국판 임무 「'+names[0]+'」의 판정 조건에 사용되는 분기 기록입니다. '+String(primary.description||'').replace(/#[0-9a-f]{6}#/gi,'').slice(0,220),
+   source:'condition'};
  }
  return {name:'관련 임무 · '+names[0]+(names.length>1?' 외 '+(names.length-1)+'건':''),
   detail:'다음 한국판 임무들의 판정 조건에서 공통으로 참조합니다: '+names.slice(0,8).join(' / ')+'. 완료 임무를 단정할 수 없습니다.',
   source:'shared-condition'};
 }
 function labelForBranch(id){
- if(verified[id])return {name:verified[id][0],detail:verified[id][1],source:'verified'};
+ if(verified[id]&&verified[id][0]!=='상세 미확인 임무')return {name:verified[id][0],detail:verified[id][1],source:'verified'};
  const recruit=/^(10[0-9]{3})(?:_(add|open|join|recruit|task))$/i.exec(id);
  if(recruit&&partnerNames[recruit[1]]){
   const person=partnerNames[recruit[1]],suffix=recruit[2].toLowerCase();
