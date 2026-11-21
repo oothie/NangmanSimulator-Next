@@ -1,6 +1,6 @@
-/* Korean 60014 source-lab v29 reconstruction: Diling OUTER wild encounters.
+/* Korean 60014 source-lab v29 reconstruction: Diling ordinary outdoor-field encounters (not a tomb dungeon).
  * NOT real-server-verified: Lua pairs() reward ordering remains two hypotheses.
- * NPC 35255 is the ordinary trigger; only 35256 conditionally rolls equipment.
+ * NPC 35255 is the ordinary field trigger; only special NPC 35256 conditionally rolls level-90 equipment.
  * Read only, no game-save mutation. */
 (function(root){
 'use strict';
