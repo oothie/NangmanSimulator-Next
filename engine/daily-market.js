@@ -99,6 +99,16 @@ function draw(rng,pool,gold,rare,slots){
  return result;
 }
 function vipLevel(save){
+ // Prefer explicit tier fields in the imported game save. GoldStep is the
+ // save's numeric recharge tier (0..5); separate heuristics are only fallback.
+ const candidates=[
+  ['VIP',save?.VIP],['Vip',save?.Vip],['vip',save?.vip],
+  ['VipLevel',save?.VipLevel],['VIPLevel',save?.VIPLevel],
+  ['GoldStep',save?.GoldStep]
+ ];
+ const explicit=candidates.find(([key,value])=>value!=null&&value!==''&&
+  Number.isInteger(Number(value))&&Number(value)>=0&&Number(value)<VIP_REFRESH.length);
+ if(explicit)return {vip:Number(explicit[1]),via:'세이브 '+explicit[0],gold:null,exact:explicit[0]!=='GoldStep'};
  const gold=decoded(save?.GoldSum??save?.goldsum??save?.goldSum??save?._server?.goldsum??save?._server?.GoldSum);
  let vip=0,via=gold>0?'누적 충전':'';
  for(let i=1;i<VIP_GOLD.length;i++)if(gold>=VIP_GOLD[i])vip=i;
