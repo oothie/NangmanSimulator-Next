@@ -468,6 +468,11 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .wiki-art-placeholder{background:transparent!important;border-color:transparent!important;font-size:0!important}
 .wiki-art-placeholder.large{background:transparent!important;border-color:transparent!important}
 .wiki-result-row:has(.wiki-art-placeholder:not([style*="display:none"])) .wiki-art-placeholder{width:38px;height:38px}
+
+/* Original v3.50 equipment frame: entire page height, no nested scrolling */
+.equipment-workspace{height:auto!important;min-height:680px}
+.equipment-host[data-equipment-tab="nangman-v350"]{height:auto}
+.equipment-host[data-equipment-tab="nangman-v350"] iframe{min-height:720px;height:900px;max-height:none}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
 /* v0.8.7: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
@@ -3632,6 +3637,15 @@ window.addEventListener('message',event=>{
  }else if(event.data.status==='error'&&event.data.version===dropSaveVersion){
   dropStatus='드랍 세이브 적용 오류: '+String(event.data.message||'알 수 없음');updateDropRuntimeStatus();
  }
+});
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.data?.kind!=='nangman-equipment-height')return;
+ const frame=equipmentFrames.get('nangman-v350');
+ if(event.source!==frame?.contentWindow)return;
+ const height=Number(event.data.height);
+ if(!Number.isFinite(height)||height<200||height>50000)return;
+ const safe=Math.max(720,Math.min(45000,Math.ceil(height)+24));
+ if(Math.abs((parseInt(frame.style.height,10)||0)-safe)>12)frame.style.height=safe+'px';
 });
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.data?.kind!=='nangman-native-equipment')return;
