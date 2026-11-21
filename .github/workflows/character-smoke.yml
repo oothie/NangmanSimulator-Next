@@ -42,6 +42,8 @@ jobs:
         run: node tests/workflow-integration-smoke.cjs
       - name: Verify seeded ghost market prediction parity
         run: node tests/daily-market-smoke.cjs
+      - name: Verify independent scheduled and paid shop forecasts
+        run: node tests/daily-market-scenarios-smoke.cjs
       - name: Verify full Korean mission Branch ledger
         run: node tests/quest-branch-smoke.cjs
       - name: Verify Diling 100-level field 90-equipment drop integration
@@ -102,6 +104,12 @@ jobs:
         run: node tests/drop-quality-filter-smoke.cjs
       - name: Verify 90-level field/dungeon shared per-item receipt sequence
         run: node tests/shared-gear-sequence-smoke.cjs
+      - name: Verify historical 32299 special-NPC drop seed replay
+        run: node tests/wild-special-32299-verified.cjs
+      - name: Verify five historical shared Eds equipment seeds
+        run: node tests/drop-eds-history-verified.cjs
+      - name: Verify ordered multi-boss shared dungeon RNG
+        run: node tests/dungeon-shared-sequence-smoke.cjs
       - name: Audit Korean 90-level gear source pools and tomb 100-to-90 behavior
         run: node tests/drop-90-catalog-parity.cjs
       - name: Verify exported wild and dungeon drop CSV
