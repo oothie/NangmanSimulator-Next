@@ -6930,6 +6930,9 @@ async function runEquipAutoSweep() {
     var saveState = typeof loadShareStore === 'function' ? loadShareStore() : null;
     // 통합 탭은 메모리의 한국판 JSON을 직접 전달한다. 빠른 조회는 저장소에 없는 경우에도 이 데이터를 사용한다.
     var sourceSave = (state && state.saveData) || (saveState && saveState.data);
+    if(window.SBJ_FEATURE_PAGE==='equip-quick' && !(state && state.saveData)) {
+        setStatus('상단에서 현재 세이브를 다시 불러오세요. 이전 계산 결과는 사용하지 않습니다.');return;
+    }
     var makeRnd = sourceSave && typeof extractEquipMakeRnd === 'function' ? extractEquipMakeRnd(sourceSave) : null;
     if (!makeRnd) { setStatus('불러온 세이브에서 장비 제작 정보(MakeRnd)를 찾지 못했습니다.'); return; }
 
@@ -7040,7 +7043,10 @@ async function runEquipAutoSweep() {
             });
         }
 
-        /* 把自己的收藏按同一口径也列出来，避免「我明明有这件」却查不到 */
+        /* Favorites are user-local historical results, not predictions from the loaded save.
+       Fast lookup must not merge them into current-save RNG calculations. */
+    if(window.SBJ_FEATURE_PAGE!=='equip-quick') {
+    /* 把自己的收藏按同一口径也列出来，避免「我明明有这件」却查不到 */
         try {
             var favs = JSON.parse(localStorage.getItem('yyjh_auto_favs_v1') || '[]');
             favs.forEach(function (item) {
@@ -7080,6 +7086,8 @@ async function runEquipAutoSweep() {
                 } catch (e) { }
             });
         } catch (error) { }
+
+    }
 
         if (!found.length) {
             setStatus('조건을 만족하는 장비가 없습니다 (' + craftLimit + '회 이내, 단일 옵션 경로 연금니 총 소모 ≤' + lianjinLimit + ', 품질 ≥ ' + qualityLabel + '）。');
