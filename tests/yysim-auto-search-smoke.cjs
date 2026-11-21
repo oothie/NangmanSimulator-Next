@@ -38,6 +38,13 @@ assert.equal(invalidCost.routes[0].estimatedPills,null,'negative native cost can
 assert.equal(invalidCost.routes[0].executable,false);
 const alreadyPresent=api.routeOutcome({routes:[{pills:0,washes:0,exchanges:0,pad:0,final_slots:[{id:268}]}]},[268]);
 assert.equal(alreadyPresent.routes[0].executable,true,'zero-action already-held goal is safe');
+const ranking=api.routeOutcome({routes:[
+ {pills:5,washes:1,exchanges:1,pad:0,final_slots:[{id:268}]},
+ {pills:25,washes:1,exchanges:1,pad:0,actions:[{kind:'exchange'}],final_slots:[{id:268}]}
+]},[268]);
+assert.equal(ranking.routes[0].estimatedPills,5,'original pill cost outranks our incomplete action replay support');
+assert.equal(ranking.routes[0].executable,false);
+assert.equal(ranking.routes[1].executable,true);
 assert.equal(route.estimatedPills,24);
 assert.equal(route.estimatedWashes,3);
 assert.equal(route.exchanges,1);
