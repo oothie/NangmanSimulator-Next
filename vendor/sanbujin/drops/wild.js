@@ -214,6 +214,54 @@
     forecastCsv.disabled=false;
    }catch(error){forecastStatus.textContent='제릉 계산 오류: '+String(error.message||error);}
   }
+  // Source-scope audit, deliberately NOT labelled '50 wild hunts'.
+  // The 9th actual battle's white 4009 cannot be equated to gate call #9
+  // without the missing 35255 combat -> walk-event invocation schedule.
+  function renderTombGateAudit(){
+   const status=$('tombGateStatus'),out=$('tombGateOutput');
+   out.replaceChildren();
+   if(!archive){
+    status.textContent='먼저 제릉 사냥 전 세이브를 불러오세요.';return;
+   }
+   const state=tomb.open(archive);
+   if(!tomb.ready(state)){
+    status.textContent='조우 시드/조건 변수 부족: '+
+      [...state.missingFlags,!engine.usable(state.encounterSeed)?'rollenemy_tomb':'',
+       !engine.usable(state.equipmentSeed)?'seed_35256':''].filter(Boolean).join(', ');
+    return;
+   }
+   try{
+    const diagnostic=tomb.traceEncounterCalls(state,50);
+    const nine=diagnostic.encounters[8],ten=diagnostic.encounters[9];
+    const count=diagnostic.encounters.filter(r=>r.spawn).length;
+    status.textContent='원본 35255 조건부 이벤트를 50회 연속 호출한 가상 계산: 특수몹 '+count+
+      '회 · 내부 호출 9번 '+(nine.spawn?'등장':'미등장')+
+      ', 10번 '+(ten.spawn?'등장':'미등장')+
+      ' · 일반 사냥 50회의 정확한 출현 예측이 아닙니다.'+
+      (diagnostic.gate3007Unknown?' · 진행 조건 3007 확인 불가':'');
+    const table=node('table','','tomb-prediction-table');
+    const thead=node('thead',''),head=node('tr','');
+    for(const name of ['이벤트 호출','RNG 판정값','비교 기준','결과','다음 기준']){
+     forecastCell(head,name,'th');
+    }
+    thead.append(head);table.append(thead);
+    const body=node('tbody','');
+    for(const r of diagnostic.encounters){
+     const tr=node('tr','','');
+     if(r.call===9)tr.classList.add('tomb-gate-mismatch');
+     if(r.spawn)tr.classList.add('tomb-special');
+     forecastCell(tr,r.call+'번'+(r.call===9?' · 실측 9회와 직접 비교 불가':''));
+     forecastCell(tr,r.encounterRoll==null?'게이트 미호출':String(r.encounterRoll));
+     forecastCell(tr,r.thresholdBefore==null?'—':String(r.effectiveRoll)+' ≤ '+r.thresholdBefore);
+     forecastCell(tr,r.spawn?'35256 등장':'35256 미등장');
+     forecastCell(tr,r.thresholdAfter==null?'—':String(r.thresholdAfter));
+     body.append(tr);
+    }
+    table.append(body);out.append(table);
+    out.append(node('p','이 표는 실제 9번째 전투에서 수라장갑(4009) 백색을 얻었다는 실측을 취소하거나 설명하지 않습니다. 실제 일반 사냥과 35255 이벤트 호출 사이 관계를 원본 소스로 확인하기 전까지 드랍 회차 확정은 중단합니다.','progress-note'));
+   }catch(error){status.textContent='제릉 조우 진단 오류: '+String(error.message||error);}
+  }
+  $('tombGateRun').onclick=renderTombGateAudit;
   $('tombForecastRun').onclick=runTombForecast;
   for(const e of [forecastCount,forecastPad,evidenceOn,evidenceNoEarlier])
     e.addEventListener('change',forecastReset);
