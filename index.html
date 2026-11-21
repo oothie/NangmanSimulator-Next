@@ -546,8 +546,11 @@ if(sub==='auto'){
    '<div class="micro">'+(x.globallyOptimal?'원본 최적 판정':'탐색 범위 내 후보 · 최단 보장 없음')+'</div></td>'+
    '<td><details '+(i===0?'open':'')+'><summary>원본 경로 '+(i+1)+' · 단계 '+x.actions.length+'개</summary>'+
    '<div class="micro">최종 슬롯: '+slots+'</div>'+
+   '<button type="button" class="btn" data-yy-copy-route="'+i+'">한국어 경로 복사</button>'+
    (actions?'<ol style="padding-left:20px;margin:6px 0">'+actions+'</ol>':
-    '<p class="micro">추가 세수·치환 없이 현재 보유 재능으로 충족</p>')+
+    '<p class="micro">'+(x.complete&&x.estimatedWashes===0&&x.exchanges===0?
+     '현재 보유 자맥만으로 목표 충족 · 추가 실행 불필요':
+     '원본 상세 실행 단계가 제공되지 않았습니다. 세수·치환 결과를 임의로 추정하지 않습니다.')+'</p>')+
    (x.source?.slot_plan?'<p class="micro">슬롯 계획 및 자질 개방 비용은 원본 단계대로 별도 확인</p>':'')+
    '</details></td></tr>';
  }).join('')+'</tbody></table></div>':'';
@@ -2550,6 +2553,34 @@ if($('yyAutoClear'))$('yyAutoClear').onclick=()=>{
 };
 if($('yyAutoConnect'))$('yyAutoConnect').onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineImport'}}));
+document.querySelectorAll('[data-yy-copy-route]').forEach(el=>el.onclick=async()=>{
+ try{
+  const runtime=window.__washRuntime||{},api=window.YYWashAutoSearch;
+  const report=runtime.autoResult;
+  if(!api||!report)throw Error('먼저 원본 자동 탐색을 실행하세요');
+  const rows=api.routeOutcome(report.result,report.desiredIds).routes;
+  const route=rows[Number(el.dataset.yyCopyRoute)];
+  if(!route)throw Error('복사할 경로를 찾을 수 없습니다');
+  const nameOf=id=>characterTalentName(id)+' (#'+id+')';
+  const textLines=['yy-sim 원본 WASM 자동 세수 탐색 결과',
+   '목표: '+route.goalIds.map(nameOf).join(' / '),
+   '예상 세수단: '+(route.estimatedPills??'미확정'),
+   '모의 세수 횟수: '+(route.estimatedWashes??'미확정'),
+   '치환 횟수: '+(route.exchanges??'미확정'),
+   '선행 세수: '+(route.pad??'미확정'),
+   '목표 보유: '+(route.complete?'전부':'부족 '+route.missingIds.map(nameOf).join(', ')),
+   '검증: 원본 검색 범위 내 후보 / 한국판 실게임 및 전역 최적 미확정',''];
+  route.actions.forEach((action,i)=>{
+   const step=api.describeAction(action,report.nameIds||{},characterTalentName);
+   textLines.push((i+1)+'. '+step.label+' · '+step.detail+
+    (step.wash==null?'':' · 세수 '+step.wash+'회차')+
+    (step.pills==null?'':' · 누적 단약 '+step.pills));
+  });
+  if(!route.actions.length)textLines.push('원본 실행 단계 없음');
+  textLines.push('최종 재능: '+route.finalSlots.map(x=>nameOf(x.id)+(x.locked?' [잠금]':'')).join(' / '));
+  await navigator.clipboard.writeText(textLines.join('\n'));
+ }catch(error){alert(String(error.message||error))}
+});
 if($('yyAutoRun'))$('yyAutoRun').onclick=()=>{
  try{
   const runtime=window.__washRuntime||{};
