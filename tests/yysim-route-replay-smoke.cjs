@@ -56,6 +56,28 @@ const call=async(op,p)=>{
  assert.deepEqual(current,beforeUpgrade,'mismatched native final state must be restored');
  await assert.rejects(()=>api.run({route:{...empty,finalSlots:[{id:271,locked:false},{id:268,locked:false}]},call}),/최종 슬롯/);
  assert.deepEqual(current,beforeUpgrade,'wrong native final slot count must be restored');
+ const earlier=clone(current);
+ current={...current,has_bag_pills:true,bag_pills:100,luck_seed_inited:false};
+ const beforePaid=clone(current);
+ // Synthetic WASM response with real consumption counters; no seed guesses.
+ const paidCall=async(op,p)=>{
+  if(op==='state')return clone(current);
+  if(op==='set-state'){current=clone(p);return clone(current)}
+  if(op==='wash'){
+   current.seed+=p.count;current.bag_pills-=p.count*2;
+   return {state:clone(current),performed:p.count};
+  }
+  throw Error('unsupported '+op);
+ };
+ const paidRoute={...route([{kind:'wash_to',wash_no:2}],2),estimatedPills:4};
+ const paid=await api.run({route:paidRoute,call:paidCall});
+ assert.equal(paid.pillsConsumed,4);
+ assert.equal(paid.audit.length,1);
+ assert.equal(paid.luckInitializedDuringReplay,false);
+ current=clone(beforePaid);
+ await assert.rejects(()=>api.run({route:{...paidRoute,estimatedPills:3},call:paidCall}),/세수단 예상 소비/);
+ assert.deepEqual(current,beforePaid,'pill-cost mismatch restores all WASM state');
+ current=earlier;
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
  assert(html.includes('data-yy-replay-route'));
  assert(html.includes('washEngineReplayRoute'));
