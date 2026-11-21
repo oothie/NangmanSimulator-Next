@@ -25,6 +25,16 @@ assert.equal(trace.encounters[9].call,10);
 assert.equal(trace.encounters[9].encounterRoll,280);
 assert.equal(trace.encounters[9].spawn,true);
 assert.equal(trace.encounters.filter(x=>x.spawn).length,17);
+const withStoryGate=model.open({
+ Rnds:{Sds:{rollenemy_tomb:1456365169,seed_35256:492075794}},
+ globalVariable:{'3007':4,eat_2659:9,rollenemy_tomb2:200}
+});
+const storyTrace=model.traceEncounterCalls(withStoryGate,5);
+assert(storyTrace.encounters.every(row=>!row.spawn&&row.encounterRoll===null));
+assert.equal(storyTrace.finalEncounterSeed,withStoryGate.encounterSeed,
+ 'blocked progression gate must not consume random');
+assert.equal(trace.encounters[9].reason,null,
+ 'pure gate trace must not consume or include unrelated reward branches');
 const observed=model.fitObservations(state,[{serial:9,spawn:true,itemId:4009,color:1}],{count:50});
 assert.equal(observed.tested,144);
 assert.equal(observed.matches.length,0,'reward sorting cannot solve missing special encounter at call 9');
