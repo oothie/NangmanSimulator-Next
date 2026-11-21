@@ -8,6 +8,8 @@ on:
       - 'engine/yysim-*.js'
       - 'vendor/yysim/engine-host.html'
       - 'vendor/sanbujin/drops/**'
+      - 'vendor/sanbujin/equip/**'
+      - 'engine/equipment-detail-bridge.js'
       - 'tests/**'
       - '.github/workflows/character-smoke.yml'
   pull_request:
@@ -15,6 +17,8 @@ on:
       - 'index.html'
       - 'vendor/yysim/engine-host.html'
       - 'vendor/sanbujin/drops/**'
+      - 'vendor/sanbujin/equip/**'
+      - 'engine/equipment-detail-bridge.js'
       - 'tests/**'
       - '.github/workflows/character-smoke.yml'
   workflow_dispatch:
@@ -46,6 +50,8 @@ jobs:
         run: node tests/daily-market-scenarios-smoke.cjs
       - name: Verify full Korean mission Branch ledger
         run: node tests/quest-branch-smoke.cjs
+      - name: Validate equipment full-page WASM sequence bridge
+        run: node tests/equipment-detail-bridge-smoke.cjs
       - name: Verify Diling 100-level field 90-equipment drop integration
         run: node tests/tomb-field-smoke.cjs
       - name: Verify Diling two-save RNG hypothesis comparison
