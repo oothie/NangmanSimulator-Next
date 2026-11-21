@@ -43,6 +43,11 @@ invalidate(1);assert.equal(runtime.active,true,'same selected role leaves state 
 invalidate(10058);assert.equal(runtime.active,false,'other role invalidates engine');
 assert.equal(runtime.preview,null);assert.equal(runtime.undoStates.length,0);
 assert.equal(runtime.log.length,0);
+assert.equal(runtime.generation,1,'invalidated role increments WASM generation');
+assert(source.includes('const generation=state.generation||0;'),'WASM command captures session generation');
+assert(source.includes('ensureSession();'),'WASM results rejected after role switch');
+assert(source.includes('JSON.stringify(result.state)!==JSON.stringify(snapshot)'),
+ 'until-purple result remains undoable even if array is empty after state change');
 const wasmHost=fs.readFileSync(path.join(__dirname,'..','vendor','yysim','engine-host.html'),'utf8');
 assert(wasmHost.includes("op==='preview'"),'WASM host exposes read-only preview');
 assert(wasmHost.includes('wasmPreviewSequence(count)'),'WASM host forwards exact original sequence operation');
