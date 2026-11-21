@@ -38,6 +38,18 @@ async function call(op,payload){
   'already equipped goals yield zero-wash native automatic path');
  assert.equal(Number((await call('state')).data.seed),447882174,
   'automatic path search is read-only');
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'..','engine','yysim-auto-search.js'),'utf8'),sandbox);
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'..','engine','yysim-auto-progressive.js'),'utf8'),sandbox);
+ const progressive=await sandbox.window.YYWashProgressive.run({
+  call:async(name,payload)=>{const reply=await call(name,payload);if(!reply.ok)
+   throw Error(String(reply.data?.error||'native host rejected'));return reply.data;},
+  api:sandbox.window.YYWashAutoSearch,desiredIds:[271,250],
+  maxPad:0,horizon:30,topN:3
+ });
+ assert(progressive.progressive===true&&progressive.bestPills===0,
+  'native progressive route retains a zero-cost preexisting two-purple candidate');
+ assert.equal(Number((await call('state')).data.seed),447882174,
+  'progressive native search remains read-only');
  const sourceNew=await call('auto-search',{desiredIds:[268],maxPad:4,horizon:300,topN:3});
  assert(sourceNew.ok&&Array.isArray(sourceNew.data.result.routes));
  console.log('REAL_AUTOROUTE_SAMPLE',JSON.stringify(sourceNew.data.result).slice(0,3800));
