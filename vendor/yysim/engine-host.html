@@ -38,7 +38,7 @@ try{
    const purple=Number(entry?.purpleId),conflict=Number(entry?.conflictId);
    const a=TALENT_DATA[String(purple)],b=TALENT_DATA[String(conflict)];
    if(!Number.isInteger(purple)||!Number.isInteger(conflict)||!a?.name||!b?.name||
-      a.pinzhi!==4||b.pinzhi!==4)throw Error('자맥/충돌맥은 원본 자색 재능 ID로 입력하세요');
+      a.pinzhi!==4||b.pinzhi!==4||a.name==='备用天赋'||b.name==='备用天赋')throw Error('원본 자색 재능만 선택하세요. 예비 재능은 제외됩니다');
    return {purple_name:a.name,conflict_name:b.name};
   });
   const results=wasmPreviewExchangePads(mapped,maxPad);
@@ -51,7 +51,7 @@ try{
  if(op==='until-talent'){
   const id=Number(payload?.talentId),limit=Number(payload?.count??1000);
   const entry=TALENT_DATA[String(id)];
-  if(!Number.isInteger(id)||!entry?.name||entry.pinzhi!==4||
+  if(!Number.isInteger(id)||!entry?.name||entry.pinzhi!==4||entry.name==='备用天赋'||
     !Number.isInteger(limit)||limit<1||limit>5000)
    throw Error('원본 자색 재능 ID와 세수 횟수 1~5000회를 입력하세요');
   const snapshot=wasmGetState();
