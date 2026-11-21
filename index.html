@@ -2559,7 +2559,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    throw Error('현재 선택된 캐릭터가 변경되었습니다.');
   const result=await washEngine.call('talent-constraints');
   ensureSession();
-  if(!Array.isArray(result?.available)||!Array.isArray(result?.conflicts))
+  if(!result?.available||typeof result.available!=='object'||!result?.conflicts||typeof result.conflicts!=='object')
    throw Error('원본 가용 재능·충돌 관계 결과가 올바르지 않습니다.');
   const translate=text=>{
    let output=JSON.stringify(text,null,2);
@@ -2568,11 +2568,12 @@ window.addEventListener('nangman-wash-command',async e=>{
    }
    return output.replace(/[\u3400-\u9fff]+/g,'미번역 원본 명칭');
   };
+  const countEntries=x=>Array.isArray(x)?x.length:Object.keys(x||{}).length;
   state.constraints=result;
-  state.constraintsDisplay='가용 재능 ('+result.available.length+'건)\n'+translate(result.available)+
-   '\n\n충돌 관계 ('+result.conflicts.length+'건)\n'+translate(result.conflicts);
-  state.output='선택 인물 원본 WASM 가용 재능 '+result.available.length+
-   '건 · 충돌 관계 '+result.conflicts.length+'건을 확인했습니다. 모의 세수 상태는 변경되지 않습니다.';
+  state.constraintsDisplay='가용 재능 ('+countEntries(result.available)+'개 항목)\n'+translate(result.available)+
+   '\n\n충돌 관계 ('+countEntries(result.conflicts)+'개 항목)\n'+translate(result.conflicts);
+  state.output='선택 인물 원본 WASM 가용 재능 '+countEntries(result.available)+
+   '개 항목 · 충돌 관계 '+countEntries(result.conflicts)+'개 항목을 확인했습니다. 모의 세수 상태는 변경되지 않습니다.';
  }else if(op==='washEnginePads'){
   if(!state.active||state.origin!=='save')throw Error('현재 인물 세이브를 WASM에 연결하세요.');
   if(window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
@@ -2609,13 +2610,16 @@ window.addEventListener('nangman-wash-command',async e=>{
   if(!snapshot||!Number.isFinite(Number(snapshot.seed)))throw Error('WASM 실행 전 상태를 읽지 못했습니다.');
   const result=await washEngine.call('until-talent',{talentId,count:limit});
   ensureSession();
-  if(!result?.state||!Array.isArray(result.results))
+  if(!result?.state||!result.results||typeof result.results!=='object')
    throw Error('목표 자맥 실행 후 상태가 없어 결과를 적용할 수 없습니다.');
-  if(JSON.stringify(result.state)!==JSON.stringify(snapshot)||result.results.length){
+  const resultCount=Array.isArray(result.results)?result.results.length:
+   Array.isArray(result.results.items)?result.results.items.length:
+   Array.isArray(result.results.results)?result.results.results.length:0;
+  if(JSON.stringify(result.state)!==JSON.stringify(snapshot)||resultCount){
    state.undoStates.push(snapshot);state.log.push(result);
   }
   state.preview=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.liveTalents=result.state.talents||[];state.targetTalentId=talentId;
-  state.output='원본 WASM 목표 자맥 '+talentId+' 조회 · 실행 결과 '+result.results.length+
+  state.output='원본 WASM 목표 자맥 '+talentId+' 조회 · 실행 결과 '+resultCount+
    '건 · 게임 세이브 원본 변경 없음 · 실게임 검증 전\n'+JSON.stringify(result,null,2);
  }else if(op==='washEngineUntilGold'){
   if(!state.active||state.origin!=='save')throw Error('먼저 한국판 세이브를 WASM에 연결하세요.');
