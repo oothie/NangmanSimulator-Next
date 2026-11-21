@@ -2587,6 +2587,9 @@ if($('nativeEngineFrame')){
 }
 if($('dropRetrySave'))$('dropRetrySave').onclick=()=>{dropSaveVersion++;sendSaveToDrop(true);updateDropRuntimeStatus()};document.querySelectorAll('[data-drop-mode]').forEach(el=>el.onclick=()=>{dropSelectedMode=el.dataset.dropMode;sendDropMode();render()});if($('dailyOpenDrop'))$('dailyOpenDrop').onclick=()=>{dropSelectedMode='dungeon';v='drop';location.hash='drop';render()};if($('equipmentRetrySave'))$('equipmentRetrySave').onclick=()=>{equipmentStatus[equipTab]='세이브 재전송 중';broadcastEquipmentSave();if($('equipmentRuntimeStatus'))$('equipmentRuntimeStatus').textContent=equipmentStatus[equipTab];};window.__nangmanTalentKoName=characterTalentName;window.__nangmanBuildWashState=yyWashStateFromSave;window.__nangmanWashSaveSource=()=>({save,role:roles[selected]});document.querySelectorAll('[id^="washEngine"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:btn.id,seed:$('washSeedInput')?.value,roleId:$('washRoleInput')?.value,zizhi:$('washZizhiInput')?.value,count:$('washTimesInput')?.value}})));document.querySelectorAll('[id^="washMain"]').forEach(btn=>btn.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:({washMainOnce:'washEngineOnce',washMainFive:'washEngineMulti',washMainTen:'washEngineMulti',washMainHundred:'washEngineMulti',washMainMulti:'washEngineMulti',washMainUndo:'washEngineUndo',washMainGold:'washEngineUntilGold'})[btn.id],count:btn.id==='washMainFive'?'5':btn.id==='washMainTen'?'10':btn.id==='washMainHundred'?'100':($('washMainCount')?.value||'10')}})));if($('washMainCount'))$('washMainCount').onchange=()=>{const n=Number($('washMainCount').value);if(Number.isInteger(n)&&n>=1&&n<=100)(window.__washRuntime||{}).mainCount=n};
 document.querySelectorAll('[data-wash-main-lock]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineToggleLock',index:Number(el.dataset.washMainLock)}})));
+if($('washMainResetRole'))$('washMainResetRole').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineImport'}}));
+if($('washMainUpgrade'))$('washMainUpgrade').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUpgradeZizhi'}}));
+if($('washMainScan'))$('washMainScan').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEnginePreview',count:3000}}));
 if($('washMainNextConflict'))$('washMainNextConflict').onclick=()=>window.dispatchEvent(
  new CustomEvent('nangman-wash-command',{detail:{op:'washEngineUntilExchange',count:500}}));
 if($('washChainAuto'))$('washChainAuto').onclick=()=>window.dispatchEvent(
@@ -2978,7 +2981,8 @@ window.addEventListener('nangman-wash-command',async e=>{
  try{
  // Original yy-sim applies the selected save immediately for normal wash actions.
  const automaticOps=new Set(['washEngineOnce','washEngineMulti','washEngineUntilGold',
-  'washEngineUntilExchange','washEngineUntilExchangeAuto','washEngineAutoChain']);
+  'washEngineUntilExchange','washEngineUntilExchangeAuto','washEngineAutoChain',
+  'washEngineUpgradeZizhi','washEnginePreview']);
  if(automaticOps.has(op)&&(!state.active||state.origin!=='save'||
      state.linkedRoleId!==window.__nangmanWashSaveSource?.()?.role?.id)){
   const source=window.__nangmanWashSaveSource?.();
@@ -3034,6 +3038,19 @@ window.addEventListener('nangman-wash-command',async e=>{
     talents:[],tal_lucky:0,total_wash:0,total_pills:0,gold_count:0,pity_count:0,exchange_count:0});
   const next=await washEngine.call('set-state',data);
   state.origin='test';state.linkedRoleId=null;state.lastConflict=null;state.active=true;state.liveTalents=next?.talents||[];syncWasmBag(next);state.log=[];state.undoStates=[];state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.output='시험 상태 설정 완료\n'+JSON.stringify(next,null,2);
+ }else if(op==='washEngineUpgradeZizhi'){
+  if(!state.active||state.origin!=='save')throw Error('선택 캐릭터의 세수 상태를 연결하세요');
+  const snapshot=await washEngine.call('state');
+  if(Number(snapshot?.zizhi)>=154)throw Error('이미 네 번째 재능 슬롯까지 개방한 최고 자질입니다');
+  const result=await washEngine.call('upgrade-zizhi');
+  ensureSession();
+  if(!result?.state||Number(result.state.zizhi)!==Number(snapshot.zizhi)+1)
+   throw Error('원본 WASM 자질 상승 결과를 검증하지 못했습니다');
+  state.undoStates.push(snapshot);
+  state.log.push({kind:'upgrade-zizhi',from:snapshot.zizhi,to:result.state.zizhi});
+  state.preview=null;state.autoResult=null;state.autoProgress=null;
+  state.output='원본 yy-sim 가상 자질 상승: '+snapshot.zizhi+' → '+result.state.zizhi+
+   ' · 실제 게임 아이템 소모 없음 · 되돌리기 가능';
  }else if(op==='washEnginePreview'){
   if(!state.active)throw Error('먼저 현재 캐릭터 세이브를 WASM에 연결하세요.');
   if(state.origin==='save'&&window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
