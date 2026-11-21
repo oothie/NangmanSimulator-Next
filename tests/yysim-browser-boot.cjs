@@ -153,6 +153,7 @@ const path=require('node:path');
        const from=numeric(action.from),to=numeric(action.to);
        const at=current.talents.findIndex(t=>Number(t.id)===from);
        if(at<0)throw Error('exchange source '+from+' missing at '+washed);
+       if(current.talents[at].locked)await washSearchEngine.call('toggle-lock',{index:at});
        const res=await washSearchEngine.call('exchange-talent',{index:at});
        if(!res.state.talents.some(t=>Number(t.id)===to))
         throw Error('exchange '+from+' → '+to+' mismatch at '+washed);
