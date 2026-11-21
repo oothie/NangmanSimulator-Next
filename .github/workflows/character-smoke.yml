@@ -49,3 +49,5 @@ jobs:
         run: node tests/tomb-compare-smoke.cjs
       - name: Compare Diling source v29 RNG independently
         run: node tests/tomb-source-parity.cjs
+      - name: Verify native wash target path and undo bridge
+        run: node tests/wash-target-path-smoke.cjs
