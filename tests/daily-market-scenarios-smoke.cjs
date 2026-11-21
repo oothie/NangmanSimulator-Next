@@ -26,6 +26,12 @@ assert(hybrid.some(x=>x.via==='paid'),'legacy mixed scenario kept internal');
 assert.deepEqual(Array.from(state.findTargets(ids,8,{mode:'timed-only'}),x=>x.item.id),
  Array.from(onlyTimes,x=>x.item.id),'same save/plan deterministic');
 assert.throws(()=>state.findTargets(ids,8,{mode:'unknown'}),/시나리오/);
+for(const invalid of [0,-1,1.5,'',null,'abc']){
+ const broken=market.predict({...archive,Rnds:{Sds:{guishishop:invalid}}},source,now);
+ assert.equal(broken.seedOk,false,'invalid RNG seed must block forecasts: '+invalid);
+ assert.equal(broken.timed(2).length,0);
+ assert.equal(broken.getPaid(2).length,0);
+}
 assert.equal(JSON.stringify(archive),original,'no actual save changes');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(html.includes("mode:'timed-only'"));
