@@ -991,7 +991,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='auto',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
+let equipTab='auto',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
@@ -1407,6 +1407,8 @@ function dailyMarketView(){
  const paid=state.seedOk?state.getPaid(allowance.left,{vip:vipChoice}):[];
  const timed=state.seedOk?state.timed(periods):[];
  const timedWithPaid=state.seedOk&&simSteps>0?state.timed(periods,{vip:vipChoice,paidSteps:simSteps}):[];
+ const autoStep=Math.min(timed.length,Math.max(0,Number(marketAutoStep)||0));
+ const autoForecast=autoStep?timed[autoStep-1]:null;
  const targetIds=marketQuery.trim()&&state.seedOk?lookup.map(x=>x.id).slice(0,25):[];
  const timedTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'timed-only'}):[];
  const paidTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'paid-now',vip:vipChoice}):[];
@@ -1432,7 +1434,7 @@ function dailyMarketView(){
  '<div class="actions market-sim-controls">'+
  '<label>VIP 등급 <select id="marketVipSelect" aria-label="VIP 등급 수동 선택">'+[0,1,2,3,4,5].map(l=>'<option value="'+l+'" '+(vipChoice===l?'selected':'')+'>VIP '+l+' · 하루 '+window.NangmanMarket.VIP_REFRESH[l]+'회</option>').join('')+'</select></label>'+  
  '<button id="marketSimNext" class="btn primary" '+(!state.seedOk||simSteps>=allowance.left?'disabled':'')+'>원보 갱신 1회 (모의)</button>'+
- '<button id="marketAutoNext" class="btn" '+(!state.seedOk?'disabled':'')+'>무료 자동 갱신 결과 보기</button>'+
+
  '<button id="marketSimReset" class="btn" '+(!simSteps?'disabled':'')+'>처음으로</button></div>'+
  '<p class="micro">선택 VIP '+vipChoice+' · 총 '+allowance.max+'회 · 세이브상 사용 '+allowance.used+'회 · 남은 '+allowance.left+'회 · 모의 사용 '+simSteps+'회</p>'+
  (simulated?
@@ -1441,7 +1443,11 @@ function dailyMarketView(){
   '<h5>갱신 전 현재 상품</h5>'+marketItemTable(state.today,ko,'current'))+
  '</section>'+
  '<section class="market-section" data-market-panel="current"><h4>세이브 기준 귀시 판매 상품'+(state.stale?' · 경과 시드 복원':'')+'</h4>'+
- marketItemTable(state.today,ko,'current')+'</section>'+
+ marketItemTable(state.today,ko,'current')+
+ '<div class="actions market-sim-controls"><button id="marketAutoNext" class="btn primary" '+(!state.seedOk||autoStep>=timed.length?'disabled':'')+'>다음 무료 자동 갱신</button>'+ 
+ '<button id="marketAutoReset" class="btn" '+(!autoStep?'disabled':'')+'>현재 상품으로</button></div>'+ 
+ (autoForecast?'<h4>자동 갱신 '+autoStep+'회차 · '+escape(marketDate(autoForecast.time))+'</h4>'+marketItemTable(autoForecast.items,ko):'')+
+ '<p class="micro">무료 자동 갱신은 예정 정시 교체를 예측만 합니다. 실제 게임 세이브와 원보는 변경되지 않습니다.</p></section>'+
  '<section class="market-section" data-market-panel="strategy">'+marketStrategyMarkup(state,ko)+'</section>'+
  '<section class="market-section" data-market-panel="search"><h4>상품 검색 · 향후 첫 등장 시점</h4>'+
   '<input id="marketQuery" type="search" placeholder="한국어 이름 / 아이템 ID / 상품 ID 검색" value="'+escape(marketQuery)+'" aria-label="귀시 상품 검색">'+
@@ -3007,7 +3013,8 @@ document.querySelectorAll('[data-market-panel]').forEach(el=>{el.hidden=el.datas
 document.querySelectorAll('[data-market-tab]').forEach(el=>el.onclick=()=>{marketPanel=el.dataset.marketTab;render()});
 
 if($('marketSimNext'))$('marketSimNext').onclick=()=>{marketSimStep++;render()};
-if($('marketAutoNext'))$('marketAutoNext').onclick=()=>{marketPanel='schedule';render();const first=document.querySelector('[data-market-panel="schedule"] details');if(first)first.open=true};
+if($('marketAutoNext'))$('marketAutoNext').onclick=()=>{marketAutoStep++;render()};
+if($('marketAutoReset'))$('marketAutoReset').onclick=()=>{marketAutoStep=0;render()};
 if($('marketSimReset'))$('marketSimReset').onclick=()=>{marketSimStep=0;render()};
 
 if($('questSearch'))$('questSearch').oninput=e=>{questSearch=e.target.value;const pos=e.target.selectionStart;render();const field=$('questSearch');if(field){field.focus();field.setSelectionRange(pos,pos)}};if($('questLocatedOnly'))$('questLocatedOnly').onchange=e=>{questLocatedOnly=e.target.checked;render()};
@@ -3424,7 +3431,7 @@ document.addEventListener('nangman-equip-navigate',event=>{
  if(!equipmentTabs.some(x=>x[0]===target))return;
  equipTab=target;v='equip';location.hash='equip';render();
 });
-window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));});window.addEventListener('nangman-equip-update',()=>{if(v==='equip'){const p=$('equipPaper')?.value,n=$('equipNpc')?.value,c=$('equipPreviewCount')?.value;render();if(p&&$('equipPaper'))$('equipPaper').value=p;if(n&&$('equipNpc'))$('equipNpc').value=n;if(c&&$('equipPreviewCount'))$('equipPreviewCount').value=c;}});window.addEventListener('nangman-wash-updated',()=>{if(v==='wash')render()});window.__nangmanForwardSave=frame=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};$('saveLink').onclick=()=>$('file').click();$('clearTopSave').onclick=async()=>{if(!confirm('이 브라우저에 저장된 세이브를 삭제할까요?'))return;try{await window.NangmanPrivateSave?.clear()}catch(e){console.warn('로컬 세이브 삭제 실패',e)}save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch(e){}render()};$('file').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{if(f.size>50e6)throw Error('파일 용량 50MB 초과');let obj=JSON.parse(await f.text());let root=obj?.data?.MainRole?obj.data:obj?.save?.MainRole?obj.save:obj;if(Array.isArray(root))root=root.find(x=>x&&typeof x==='object'&&!Array.isArray(x))||null;if(!root||typeof root!=='object'||Array.isArray(root))throw Error('한국판 세이브 객체를 찾지 못했습니다');save=root;filename=f.name;roles=getRoles(root);marketSimStep=0;marketStrategyResults=null;invalidateWashLink();broadcastEquipmentSave();dropSaveVersion++;sendSaveToDrop();try{await window.NangmanPrivateSave.store(root,f.name);sessionStorage.removeItem('nangman_shared_save_v1')}catch(err){console.warn('브라우저 로컬 세이브 저장 실패',err)}const embedded=$('nativeEngineFrame');if(embedded?.contentWindow)embedded.contentWindow.postMessage({kind:'nangman-save',save:root},location.origin);window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:root}));selected=0;render()}catch(err){alert('불러오기 실패: '+err.message)}};function theme(t){document.documentElement.dataset.theme=t;$('paper').classList.toggle('on',t==='paper');$('ink').classList.toggle('on',t==='ink');for(const frame of equipmentFrames.values())sendThemeToEquipment(frame,t);sendThemeToDrop(t);try{localStorage.setItem('nangman-theme',t)}catch{}}$('paper').onclick=()=>theme('paper');$('ink').onclick=()=>theme('ink');try{theme(localStorage.getItem('nangman-theme')==='ink'?'ink':'paper')}catch{theme('paper')}render();window.NangmanPrivateSave?.read().then(record=>{if(record?.data&&!save){save=record.data;roles=getRoles(save);filename=record.filename||'최근 세이브';selected=0;invalidateWashLink();broadcastEquipmentSave();dropSaveVersion++;sendSaveToDrop();window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));render()}}).catch(err=>console.warn('로컬 세이브 복구 실패',err))
+window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));});window.addEventListener('nangman-equip-update',()=>{if(v==='equip'){const p=$('equipPaper')?.value,n=$('equipNpc')?.value,c=$('equipPreviewCount')?.value;render();if(p&&$('equipPaper'))$('equipPaper').value=p;if(n&&$('equipNpc'))$('equipNpc').value=n;if(c&&$('equipPreviewCount'))$('equipPreviewCount').value=c;}});window.addEventListener('nangman-wash-updated',()=>{if(v==='wash')render()});window.__nangmanForwardSave=frame=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};$('saveLink').onclick=()=>$('file').click();$('clearTopSave').onclick=async()=>{if(!confirm('이 브라우저에 저장된 세이브를 삭제할까요?'))return;try{await window.NangmanPrivateSave?.clear()}catch(e){console.warn('로컬 세이브 삭제 실패',e)}save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch(e){}render()};$('file').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{if(f.size>50e6)throw Error('파일 용량 50MB 초과');let obj=JSON.parse(await f.text());let root=obj?.data?.MainRole?obj.data:obj?.save?.MainRole?obj.save:obj;if(Array.isArray(root))root=root.find(x=>x&&typeof x==='object'&&!Array.isArray(x))||null;if(!root||typeof root!=='object'||Array.isArray(root))throw Error('한국판 세이브 객체를 찾지 못했습니다');save=root;filename=f.name;roles=getRoles(root);marketSimStep=0;marketAutoStep=0;marketStrategyResults=null;invalidateWashLink();broadcastEquipmentSave();dropSaveVersion++;sendSaveToDrop();try{await window.NangmanPrivateSave.store(root,f.name);sessionStorage.removeItem('nangman_shared_save_v1')}catch(err){console.warn('브라우저 로컬 세이브 저장 실패',err)}const embedded=$('nativeEngineFrame');if(embedded?.contentWindow)embedded.contentWindow.postMessage({kind:'nangman-save',save:root},location.origin);window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:root}));selected=0;render()}catch(err){alert('불러오기 실패: '+err.message)}};function theme(t){document.documentElement.dataset.theme=t;$('paper').classList.toggle('on',t==='paper');$('ink').classList.toggle('on',t==='ink');for(const frame of equipmentFrames.values())sendThemeToEquipment(frame,t);sendThemeToDrop(t);try{localStorage.setItem('nangman-theme',t)}catch{}}$('paper').onclick=()=>theme('paper');$('ink').onclick=()=>theme('ink');try{theme(localStorage.getItem('nangman-theme')==='ink'?'ink':'paper')}catch{theme('paper')}render();window.NangmanPrivateSave?.read().then(record=>{if(record?.data&&!save){save=record.data;roles=getRoles(save);filename=record.filename||'최근 세이브';selected=0;invalidateWashLink();broadcastEquipmentSave();dropSaveVersion++;sendSaveToDrop();window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));render()}}).catch(err=>console.warn('로컬 세이브 복구 실패',err))
 })();
 </script>
 <script src="./data/wiki-status-dictionary-ko.js"></script>
