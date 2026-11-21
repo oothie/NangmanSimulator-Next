@@ -124,61 +124,6 @@
     }catch(err){$('dungeonStatus').textContent=String(err.message||err);}
   };
 
-  // Dungeon-wide boss-by-boss hypothesis. Unlike the single-boss preview,
-  // this shares the seed map across all boss rewards in chronological order.
-  // Do not portray this as Korean-server-verified or compensate for reset
-  // tickets without a verified before/after save delta.
-  let allBossRows=[];
-  function resetAllBoss(){
-    allBossRows=[];
-    $('dungeonAllStatus').textContent='';
-    $('dungeonAllResults').replaceChildren();
-    $('dungeonAllExport').disabled=true;
-  }
-  $('dungeonAllRun').onclick=()=>{
-    resetAllBoss();
-    try {
-      const rounds=Number($('dungeonAllRounds').value);
-      if(!Number.isInteger(rounds)||rounds<1||rounds>40)
-        throw Error('관문 1~40회만 예측할 수 있습니다');
-      const bosses=catalog.filter(e=>e.dungeon===area.value && !!e.outer);
-      if(!bosses.length)throw Error('해당 관문의 일반 장비 보상 보스가 없습니다');
-      const ids=Array.from({length:rounds},()=>bosses).flat();
-      if(ids.length>500)throw Error('보스별 보상 호출은 500회 이내만 지원합니다');
-      allBossRows=engine.predictSequence(input,ids);
-      const hits=allBossRows.filter(x=>x.item);
-      $('dungeonAllStatus').textContent='가설 '+rounds+'회 · '+bosses.length+
-        '명/회 · 일반 장비 '+hits.length+'개 · 자색 '+hits.filter(x=>x.color===4).length+
-        '개 · 90레벨 장비 공유 시드 추적 '+(allBossRows.equipmentStream?.tracked||0)+'건'+(allBossRows.equipmentStream?.missing?' · 시드 누락 '+allBossRows.equipmentStream.missing+'건':'')+' · 한국판 실측 불일치 사례가 있는 미검증 계산';
-      $('dungeonAllResults').replaceChildren(...allBossRows.map((r,i)=>record(
-        '제 '+(Math.floor(i/bosses.length)+1)+'회 / '+ko(r.boss)+' · '+
-          (r.item?(EQUIP_DATA.equipment?.[r.item]?.koName||
-            ko(EQUIP_DATA.equipment?.[r.item]?.name||'장비 #'+r.item)):
-            '일반 장비 없음'),
-        r.item?(colors[r.color]||'등급 미확인')+' · ID '+r.item+(r.sharedEdsTracked?' · ID별 Eds '+r.sameItemOrder+'번째':r.sharedEdsTracked===false?' · 옵션 시드 누락':''):
-          '보스별 보상 함수 모형')));
-      $('dungeonAllExport').disabled=false;
-    }catch(error){$('dungeonAllStatus').textContent=String(error.message||error);}
-  };
-  $('dungeonAllRounds').addEventListener('input',resetAllBoss);
-  area.addEventListener('change',resetAllBoss);
-  document.addEventListener('yyjh-save',resetAllBoss);
-  $('dungeonAllExport').onclick=()=>{
-    if(!allBossRows.length)return;
-    const bosses=catalog.filter(e=>e.dungeon===area.value && !!e.outer);
-    window.SBJDropExport.save('Nangman_Dungeon_Boss_By_Boss_Unverified',[
-      {title:'관문 회차',value:r=>Math.floor((r.index-1)/bosses.length)+1},
-      {title:'보스',value:r=>ko(r.boss)},
-      {title:'보상 함수',key:'eventId'},
-      {title:'장비 ID',key:'item'},
-      {title:'한국판 장비명',value:r=>r.item?(EQUIP_DATA.equipment?.[r.item]?.koName||ko(EQUIP_DATA.equipment?.[r.item]?.name||'장비 #'+r.item)):''},
-      {title:'색상',value:r=>colors[r.color]||''},
-      {title:'90레벨 장비 Eds 추적',value:r=>r.sharedEdsTracked===true?'추적':r.sharedEdsTracked===false?'누락':''},
-      {title:'같은 장비 ID 후속 횟수',key:'sameItemOrder'},
-      {title:'검증 상태',value:()=> '보스별 공유 RNG 예측 · 일부 결과 실측 불일치'}
-    ],allBossRows);
-  };
-
   let sequenceRows=[];
   const plan=$('dungeonSequencePlan'),seqStatus=$('dungeonSequenceStatus');
   $('dungeonSequenceAdd').onclick=()=>{
