@@ -519,6 +519,13 @@ if(sub==='path'){
  const runtime=window.__washRuntime||{};
  const valid=runtime.active&&runtime.origin==='save'&&runtime.linkedRoleId===r?.id&&!runtime.loading;
  const reports=runtime.pathReports;
+ let pathText=reports?JSON.stringify(reports.results,null,2):'';
+ if(reports?.nameIds&&typeof reports.nameIds==='object'){
+  for(const [nativeName,id] of Object.entries(reports.nameIds).sort((a,b)=>b[0].length-a[0].length)){
+   if(nativeName)pathText=pathText.split(nativeName).join(characterTalentName(id));
+  }
+ }
+ pathText=pathText.replace(/[\u3400-\u9fff]+/g,'원본 명칭 미연결');
  const resultCount=reports?Array.isArray(reports.results)?reports.results.length:
   Array.isArray(reports.results?.paths)?reports.results.paths.length:
   Array.isArray(reports.results?.candidates)?reports.results.candidates.length:null;
@@ -534,7 +541,7 @@ if(sub==='path'){
  '<div class="fields"><label>목표 쌍 (자맥ID:충돌맥ID, 한 줄에 하나 · 최대 4개)<textarea id="washPathPairs" rows="4" placeholder="예: 261:262">'+escape(pairs)+'</textarea></label>'+
  '<label>최대 탐색 횟수<input id="washPathLimit" type="number" min="1" max="5000" value="'+escape(num)+'"></label></div>'+
  '<div class="actions"><button class="btn primary" id="washPathRun" '+(!valid?'disabled':'')+'>원본 도맥법 경로 후보 조회</button></div>'+
- summary+(reports?'<details><summary>원본 계산 결과 구조 확인</summary><pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(JSON.stringify(reports.results,null,2).slice(0,18000))+'</pre></details>':'')+
+ summary+(reports?'<details><summary>원본 계산 결과 구조 확인</summary><pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(pathText.slice(0,18000))+'</pre></details>':'')+
  '<div class="section-header"><h3>목표 자맥까지 모의 세수</h3></div>'+
  '<p class="micro">원본 WASM의 <code>wash_until_talent_name</code> 실행을 사용합니다. 최대 5000회, 실행 전 상태 저장 후 되돌리기 가능. 현재 목표 자맥의 한국 서버 적중 여부는 미검증입니다.</p>'+
  '<div class="fields"><label>목표 자맥<select id="washTalentTarget"><option value="">선택</option>'+purpleSourceIds.map(id=>'<option value="'+id+'" '+(String(id)===single?'selected':'')+'>'+escape(characterTalentName(id))+' (#'+id+')</option>').join('')+'</select></label></div>'+
