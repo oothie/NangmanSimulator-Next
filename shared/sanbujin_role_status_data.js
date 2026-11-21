@@ -515,6 +515,7 @@
                 }
                 skills.push({
                     id: skill.ID,
+                    copyId: copied ? copiedId : null,
                     name: cfg && cfg.name || '未知武学（' + skill.ID + '）',
                     copiedName: copied ? (copyCfg && copyCfg.name || '未知武学（' + copiedId + '）') : null,
                     chong: readNumber(skill.Chong), level: readNumber(skill.Level),
