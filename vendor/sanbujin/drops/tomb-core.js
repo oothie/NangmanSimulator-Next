@@ -72,7 +72,15 @@ function simulate(input,options={}){
   }
   rows.push(row);
  }
+ // A modelled final state is for comparing alternative hypotheses against two
+ // real saves. It is not confirmation that Lua pairs() uses either ordering.
+ rows.final={encounterSeed,equipmentSeed,flags:Object.fromEntries(vars)};
+ rows.order=order;
  return rows;
 }
-root.SBJTombDrop={source,open,ready,predict:simulate};
+function trace(input,options){
+ const rows=simulate(input,options);
+ return {rows,final:rows.final,order:rows.order};
+}
+root.SBJTombDrop={source,open,ready,predict:simulate,trace};
 })(window);
