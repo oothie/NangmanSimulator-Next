@@ -8,6 +8,10 @@ const b64=vm.runInContext('EMBEDDED_WASM_B64',ctx),data=Buffer.from(b64,'base64'
 const error='路径搜索只能预选紫脉';
 const bytes=Buffer.from(error,'utf8'),at=data.indexOf(bytes);
 console.log('WASM_SCHEMA_BYTES',data.length,'ERROR_OFFSET',at);
+const searchAt=data.indexOf(Buffer.from('SearchReqdesired_ids'));
+console.log('AUTO_SEARCH_FIELDS',searchAt,searchAt>=0?
+ data.subarray(searchAt,searchAt+360).toString('latin1').replace(/[^\\x20-\\x7e]/g,'·'):null);
+
 function strings(start,end){
  const text=data.subarray(Math.max(0,start),Math.min(data.length,end)).toString('utf8');
  const ascii=[...text.matchAll(/[a-zA-Z_][a-zA-Z0-9_]{3,80}/g)].map(x=>({key:x[0],pos:x.index})).filter((v,i,a)=>a.findIndex(x=>x.key===v.key)===i);
