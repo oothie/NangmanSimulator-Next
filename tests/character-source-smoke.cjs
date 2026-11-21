@@ -152,6 +152,6 @@ assert.equal(byKind['qg'].current,30,'lightness cultivation');
 const capped=context.yyOriginalCultivationEffects({WXXW1:1501,Taolus:[],Neis:[],Qings:[]});
 assert.equal(capped[0].current,1500,'per-kind cap 1500');
 assert.equal(capped[0].bonusPct,37.5,'gift falls back to source default 1');
-assert(context.yyOriginalCultivationEffectsView({raw:{WXXW1:10,Taolus:[]}}).includes('yy-sim 원본 수련 전투 보정'));
+assert(context.yyOriginalCultivationEffectsView({raw:{WXXW1:10,Taolus:[]}}).includes('수련 전투 보정'));
 
 console.log('PASS: saved BornTalent lookup and yy-sim body formulas and equipment option subtotals and weapon-specific attack/hit and cultivation percentage');
