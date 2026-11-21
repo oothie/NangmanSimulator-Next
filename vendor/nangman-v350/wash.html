@@ -360,7 +360,19 @@ body>main>h1,.integrated-subtitle,#moduleSwitch,#sharedSaveBar,#characterModule,
 #washModule{display:block!important;margin:0!important;max-width:none!important}
 #v350EmbeddedSave{display:none}
 </style>
-</head>
+<style id="nangman-v350-dark">
+html[data-theme=ink] body{background:#17191e!important;color:#e9e3d9!important}
+html[data-theme=ink] .card,html[data-theme=ink] .good,html[data-theme=ink] .warn,
+html[data-theme=ink] .bad,html[data-theme=ink] .sim-left,html[data-theme=ink] .sim-right,
+html[data-theme=ink] details,html[data-theme=ink] .scroll{
+ background:#252830!important;color:#e9e3d9!important;border-color:#454750!important}
+html[data-theme=ink] input,html[data-theme=ink] button,
+html[data-theme=ink] select,html[data-theme=ink] textarea,
+html[data-theme=ink] table,html[data-theme=ink] th,html[data-theme=ink] td{
+ background-color:#242730!important;color:#ece6dd!important;border-color:#52545b!important}
+html[data-theme=ink] .active,html[data-theme=ink] button.primary{
+ background:#765c37!important;color:#fff!important}
+</style></head>
 <body>
 <main>
 <h1>낭만강호 시뮬레이터 v3.50</h1>
@@ -3168,7 +3180,12 @@ rawBody.innerHTML=""; nBody.innerHTML=""; candidateSel.innerHTML="";
 <script id="nangman-v350-wash-bridge">
 (function(){
  window.addEventListener('message',async function(e){
-  if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-v350-load')return;
+  if(e.origin!==location.origin||e.source!==parent)return;
+  if(e.data?.kind==='nangman-v350-theme'){
+   document.documentElement.dataset.theme=e.data.theme==='ink'?'ink':'paper';
+   return;
+  }
+  if(e.data?.kind!=='nangman-v350-load')return;
   const data=e.data;
   try{
    if(!data.save||typeof data.save!=='object')throw Error('세이브 JSON이 없습니다');
