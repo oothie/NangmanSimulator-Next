@@ -189,7 +189,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
     if(!nextTemp&&washNo%10===4&&idsIn(saved.state,ids).length<=1&&locked(saved.state)<2){
      const tickets=saved.state.talents.map((t,i)=>({t,i})).filter(({t,i})=>
       i<3&&!t.locked&&!ids.includes(Number(t.id))&&
-      [2,3].includes(Number(qualityFor(Number(t.id)))));
+      [1,2,3].includes(Number(qualityFor(Number(t.id)))));
      for(const {t,i} of tickets.slice(0,2)){
       const holding=deepClone(saved.state);holding.talents[i].locked=true;
       if(!setState(holding))continue;
