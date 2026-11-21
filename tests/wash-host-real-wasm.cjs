@@ -4,7 +4,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const dir=path.join(__dirname,'..','vendor','yysim'),sent=[],events={};
 const parent={postMessage(payload){sent.push(payload)}};
 const sandbox={console,TextEncoder,TextDecoder,WebAssembly,Uint8Array,DataView,ArrayBuffer,
- atob:s=>Buffer.from(s,'base64').toString('binary'),Math,Date,location:{origin:'https://nangman.test',protocol:'https:'},parent,
+ atob:s=>Buffer.from(s,'base64').toString('binary'),Math,Date,setTimeout,location:{origin:'https://nangman.test',protocol:'https:'},parent,
  window:{addEventListener(name,handler){events[name]=handler}}};
 vm.createContext(sandbox);
 for(const file of ['wasm_data.js','core_glue.js','data.js']){
