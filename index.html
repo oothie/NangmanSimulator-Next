@@ -298,6 +298,17 @@ body{background:var(--bg)!important}
 .market-search-row small{font-size:11px;color:var(--sub);text-align:right}
 .market-period-label{display:block;font-size:12px;margin:10px 0;color:var(--sub)}
 #marketQuery{width:100%;max-width:560px}
+.market-strategy{padding:16px;border:1px solid var(--border);border-radius:8px;background:var(--paper);margin-bottom:16px}
+.market-strategy-controls{display:flex;align-items:end;gap:9px;flex-wrap:wrap}
+.market-strategy-controls label{min-width:190px;flex:1;font-size:12px;color:var(--sub)}
+.market-strategy-controls select{display:block;width:100%;margin-top:5px;padding:9px;background:var(--panel);border:1px solid var(--border);border-radius:6px;color:var(--text)}
+.market-strategy-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:13px}
+.market-strategy-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:13px}
+.market-strategy-card strong{display:block;margin-bottom:9px}
+.market-strategy-metrics{display:flex;flex-direction:column;gap:4px}
+.market-strategy-metrics b{font-size:16px}
+.market-strategy-metrics span{font-size:12px;color:var(--green)}
+.market-strategy-steps{font-size:12px;line-height:1.8;padding-left:21px;max-height:270px;overflow:auto}
 .market-nav{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--border);margin:17px 0 6px;padding-bottom:8px}
 .market-nav button{padding:10px 13px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--text)}
 .market-nav button.active{border-color:var(--gold);background:var(--paper);font-weight:700}
@@ -1205,6 +1216,50 @@ function marketDate(ts){
  if(!Number.isFinite(ts)||ts<=0)return '기록 없음';
  return new Date(ts*1000).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
 }
+function marketStrategyMarkup(state,ko){
+ const featured=[223,224,222,225];
+ const available=state.available||[];
+ const rare=available.filter(x=>x.rare===1&&!featured.includes(Number(x.id)));
+ const sorted=[...featured.map(id=>available.find(x=>Number(x.id)===id)).filter(Boolean),...rare];
+ const choices=sorted.map(item=>'<option value="'+item.id+'" '+(marketStrategyTarget===item.id?'selected':'')+'>'+escape(marketCatalogName(item,ko))+' · 상품 #'+item.id+'</option>').join('');
+ const selected=available.find(x=>Number(x.id)===marketStrategyTarget);
+ const views=marketStrategyResults;
+ const result=views?'<div class="market-strategy-results">'+[
+  ['cheapest','최소 원보 소모'],['fastest','가장 빠른 획득']
+ ].map(([key,label])=>{
+  const r=views[key];
+  if(!r?.found)return '<div class="market-strategy-card"><strong>'+label+'</strong><p class="micro">'+escape(r?.error||'계산 결과 없음')+' · 탐색 상태 '+(r?.expanded||0)+'개</p></div>';
+  const when=marketDate(r.when);
+  const steps=r.steps||[];
+  const grouped=[];
+  for(const entry of steps){
+   if(entry.kind==='paid'&&grouped.length&&grouped[grouped.length-1].kind==='paid'&&grouped[grouped.length-1].time===entry.time){
+    grouped[grouped.length-1].count++;
+    grouped[grouped.length-1].items=entry.items;
+   }else grouped.push({...entry,count:1});
+  }
+  return '<div class="market-strategy-card"><strong>'+label+'</strong>'+
+   '<div class="market-strategy-metrics"><b>'+escape(when)+'</b><span>원보 갱신 '+r.paid+'회 · 갱신비 '+r.cost+'원보</span></div>'+
+   '<p class="micro">발견 상품: '+escape(marketCatalogName(r.item,ko))+
+    ' · 상품 구매 가격은 별도입니다.</p>'+
+   '<ol class="market-strategy-steps">'+grouped.map(x=>'<li>'+
+     (x.kind==='current'?'현재 상품에서 구매':
+      x.kind==='auto'?'자동 갱신 '+escape(marketDate(x.time))+' 후 확인':
+      escape(marketDate(x.time))+' 이후 원보 갱신 '+x.count+'회')+'</li>').join('')+'</ol>'+
+   '<small class="micro">검색 상태 '+r.expanded+'개 · 해당 기간/모형 범위에서 계산한 경로</small></div>';
+ }).join('')+'</div>':'<p class="micro">목표를 선택하고 탐색하면 비용 최소와 날짜 최우선의 두 경로를 비교합니다.</p>';
+ return '<div class="market-strategy">'+
+  '<h4>한정 상품 갱신 전략 찾기</h4>'+
+  '<p class="micro">원보 갱신 20원보/회 · 선택 VIP 하루 한도 · 08:00/20:00 자동 교체를 조합합니다. 현재 세이브 이후 게임에서 추가 갱신을 했다면 최신 세이브를 불러오세요.</p>'+
+  '<div class="market-strategy-controls">'+
+   '<label>목표 상품 <select id="marketStrategyTarget">'+choices+'</select></label>'+
+   '<label>탐색 범위 <select id="marketStrategyPeriods">'+[4,8,12,20,28].map(x=>
+     '<option value="'+x+'" '+(marketStrategyPeriods===x?'selected':'')+'>'+x+'회 자동 교체 (최대 '+Math.ceil(x/2)+'일)</option>').join('')+'</select></label>'+
+   '<button id="marketStrategyRun" class="btn primary" '+(!state.seedOk||!selected?'disabled':'')+'>최적 갱신 경로 계산</button>'+
+  '</div>'+result+
+  '<p class="micro">탐색 노드 상한을 적용하므로 미발견은 절대 불가능을 의미하지 않습니다. 미래의 확률 추정이 아니라 현재 시드에 대한 조건부 RNG 계산입니다.</p>'+
+ '</div>';
+}
 function dailyMarketView(){
  if(!save)return '<p class="role-status-note">상단에서 한국판 세이브를 불러오면 저장된 귀시 상품과 RNG 시퀀스를 조회할 수 있습니다.</p>';
  if(!window.NangmanMarket||!window.DAILY_DATA?.shops?.guishi)
@@ -1253,6 +1308,7 @@ function dailyMarketView(){
  '<section class="market-section" data-market-panel="current"><h4>세이브 기준 귀시 판매 상품'+(state.stale?' · 경과 시드 복원':'')+'</h4>'+
  marketItemTable(state.today,ko,'current')+'</section>'+
  '<section class="market-section" data-market-panel="search"><h4>상품 검색 · 향후 첫 등장 시점</h4>'+
+ marketStrategyMarkup(state,ko)+
  '<input id="marketQuery" type="search" placeholder="한국어 이름 / 아이템 ID / 상품 ID 검색" value="'+escape(marketQuery)+'" aria-label="귀시 상품 검색">'+
  '<label class="market-period-label">정시 교체 예측 범위 <select id="marketPeriods">'+[3,6,9,12].map(x=>
  '<option value="'+x+'" '+(x===periods?'selected':'')+'>'+x+'회</option>').join('')+'</select></label>'+
@@ -2679,7 +2735,17 @@ function others(){
 }
 function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('saveLink').classList.toggle('active',v==='save');$('title').textContent=v==='wash'?'세수 시뮬레이션':v==='save'?'세이브 관리':v==='quest'?'임무 검색':v==='sect'?'항산파 (미구현)':v==='battle'?'전투 (미구현)':Object.fromEntries(tabs)[v];$('status').textContent=save?'세이브 연결 · '+roles.length+'명 · '+filename:'한국판 세이브 미연결';$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();updateDropVisibility();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);invalidateWashLink(roles[selected]?.id);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);invalidateWashLink(roles[selected]?.id);render()});if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);invalidateWashLink(roles[selected]?.id);characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};if($('marketQuery'))$('marketQuery').oninput=e=>{marketPanel='search';marketQuery=e.target.value;const caret=e.target.selectionStart;render();const field=$('marketQuery');if(field){field.focus();field.setSelectionRange(caret,caret)}};
 if($('marketPeriods'))$('marketPeriods').onchange=e=>{marketPeriods=Number(e.target.value);render()};
-if($('marketVipSelect'))$('marketVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;render()};
+if($('marketVipSelect'))$('marketVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;marketStrategyResults=null;render()};
+if($('marketStrategyTarget'))$('marketStrategyTarget').onchange=e=>{marketStrategyTarget=Number(e.target.value);marketStrategyResults=null;render()};
+if($('marketStrategyPeriods'))$('marketStrategyPeriods').onchange=e=>{marketStrategyPeriods=Number(e.target.value);marketStrategyResults=null;render()};
+if($('marketStrategyRun'))$('marketStrategyRun').onclick=()=>{
+ const state=window.NangmanMarket.predict(save,window.DAILY_DATA);
+ marketStrategyResults={
+  cheapest:state.searchStrategy([marketStrategyTarget],{vip:marketVipOverride,periods:marketStrategyPeriods,maxStates:6500,mode:'cheapest'}),
+  fastest:state.searchStrategy([marketStrategyTarget],{vip:marketVipOverride,periods:marketStrategyPeriods,maxStates:6500,mode:'fastest'})
+ };
+ render();
+};
 document.querySelectorAll('[data-market-panel]').forEach(el=>{el.hidden=el.dataset.marketPanel!==marketPanel});
 document.querySelectorAll('[data-market-tab]').forEach(el=>el.onclick=()=>{marketPanel=el.dataset.marketTab;render()});
 
@@ -2963,7 +3029,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
 if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.7.93',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;marketSimStep=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()};window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
+if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>{save=null;filename='';roles=[];selected=0;marketSimStep=0;marketStrategyResults=null;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch{};render()};window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 const equipmentStatus=Object.create(null);
 const equipmentFrames=new Map();
