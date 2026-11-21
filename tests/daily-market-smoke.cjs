@@ -50,6 +50,14 @@ const noSeed=api.predict({RandShop:{Items:[{ID:4,Buyed:1}],Time:now,Buy:0},
 assert.equal(noSeed.seedOk,false,'missing guishishop seed blocks forecast');
 assert.equal(noSeed.getPaid().length,0,'no hallucinated future stock without seed');
 assert.equal(noSeed.today[0].buyed,1,'saved purchase status survives');
+const ancient=api.predict({...save,RandShop:{...save.RandShop,Time:1,Items:[{ID:4}]}},shopData,now);
+assert.equal(ancient.historyBlocked,true,'extremely stale market history is blocked rather than partially replayed');
+assert.equal(ancient.seedPresent,true,'original RNG seed still distinguishable from missing seed');
+assert.equal(ancient.seedOk,false,'never publish a speculative forecast from truncated history');
+assert.equal(ancient.today[0].id,4,'saved shelf remains visible when ancient replay is blocked');
+assert.equal(ancient.getPaid(2).length,0,'blocked history has no paid prediction');
+assert.equal(ancient.timed(2).length,0,'blocked history has no timed prediction');
+assert.equal(ancient.findTargets([40],5).length,0,'blocked history has no invented future target');
 const sold=api.predict({Rnds:save.Rnds,RandShop:{
  ...save.RandShop,Counts:[{One:100,Two:100}]
 }}, {ver:1,shops:{guishi:catalog.map(x=>x.id===100?{...x,stock:1}:x)}},now);
