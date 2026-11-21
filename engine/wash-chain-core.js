@@ -30,6 +30,11 @@ async function run({call,ensureSession=()=>{},steps=2,maxWashes=500,targetId=nul
    // A bounded goal list never silently exchanges an unrelated talent.
    // Stop rather than free-running when all explicitly requested targets are processed.
    if(targets&&index>=targets.length){stop='targets-completed';break}
+   const beforeStep=targets?await call('state'):null;
+   ensureSession();
+   if(targets&&(!beforeStep||!Array.isArray(beforeStep.talents)))
+    throw Error('목표 자맥 보존 검사를 위한 원본 WASM 슬롯을 읽지 못했습니다');
+   const preserved=targets?targets.filter(id=>beforeStep.talents.some(x=>x?.id===id)):[];
    const result=await call('until-exchange-and-replace',{
     count:maxWashes,talentId:goalId
    });
@@ -43,6 +48,9 @@ async function run({call,ensureSession=()=>{},steps=2,maxWashes=500,targetId=nul
     throw Error('실제 치환 성공 상태와 충돌 판정이 일치하지 않습니다');
    if(goalId!=null&&result.targetId!==goalId)
     throw Error('원본 WASM이 요청한 목표 자맥과 다른 재능을 탐색했습니다');
+   if(targets&&(!Array.isArray(result.state.talents)||
+      preserved.some(id=>!result.state.talents.some(x=>x?.id===id))))
+    throw Error('원본 WASM 실행 도중 이미 확보한 목표 자맥이 사라져 모든 단계를 복구했습니다');
    if(result.found===true&&result.autoExchanged!==true)
     throw Error('원본 WASM이 치환 가능이라고 표시했으나 치환하지 못했습니다');
    actions.push({step:index+1,targetId:goalId,performed:result.performed,
@@ -61,8 +69,11 @@ async function run({call,ensureSession=()=>{},steps=2,maxWashes=500,targetId=nul
   if(!state||!Number.isFinite(Number(state.seed))||
      Number(state.role_id)!==Number(initial.role_id))
    throw Error('자동 치환 종료 상태를 확인할 수 없습니다');
+  const presentTargets=targets?targets.filter(id=>state.talents?.some(x=>x?.id===id)):null;
   return {initial,state,actions,totalWashes,exchanges,requestedSteps:steps,
    targeted:!!targets,requestedTargets:targets?[...targets]:null,
+   presentTargets,missingTargets:targets?targets.filter(id=>!presentTargets.includes(id)):null,
+   goalsComplete:targets?presentTargets.length===targets.length:null,
    stopReason:stop,changed:JSON.stringify(initial)!==JSON.stringify(state)};
  }catch(error){
   // If the session has changed, do not restore the old role over a newly
