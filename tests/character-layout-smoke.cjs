@@ -87,7 +87,8 @@ assert(accountHtml.includes('저장 추가 수련 합계'),'saved cultivation ra
 assert(accountHtml.includes('권법'),'track label in account panel');
 const fallbackApi={cultivation:()=>({cultivation:{records:[]}})};
 const missingSource=accountFactory({RoleStatusData:fallbackApi},mainSave,roster,
- (title,inner)=>'<section><h3>'+title+'</h3>'+inner+'</section>',value=>String(value),yyProgressEntries);
+ (title,inner)=>'<section><h3>'+title+'</h3>'+inner+'</section>',value=>String(value),yyProgressEntries,
+ value=>Array.isArray(value)?value:value&&typeof value==='object'?Object.values(value):[]);
 const fallbackHtml=missingSource.yyAccountCultivationView();
 assert(fallbackHtml.includes('추가 120'),'saved WXXW remains visible when learned stats are unknown');
 assert(fallbackHtml.includes('저장 추가 수련 합계'),'saved WXXW all-roster sum without engine');
