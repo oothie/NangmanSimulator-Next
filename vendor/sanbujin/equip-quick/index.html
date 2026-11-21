@@ -897,7 +897,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
 </script>
 
 
-<script>(function(){window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-save')return;try{const d=e.data.save;if(typeof loadParsedSaveData!=='function')throw Error('자동 장비 로더 미준비');loadParsedSaveData(d,true);parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'save-loaded'},location.origin)}catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'error',message:String(err.message||err)},location.origin)}});window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'ready'},location.origin));})();</script><script id="nangman-integrated-equipment-bridge">
+<script id="nangman-integrated-equipment-bridge">
 (function(){
  const moduleName="equip-quick",isAuto=true;
  let saved=null,requestedVersion=0,confirmedVersion=-1,running=false,retryTimer=null;
@@ -912,13 +912,23 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
   try{
    const root=Array.isArray(saved)?saved[0]:saved;
    if(!root||typeof root!=='object')throw Error('한국판 세이브 JSON 객체가 없습니다.');
+   const makeRnd=root.MakeRnd;
+   if(!makeRnd||typeof makeRnd!=='object'||
+      !makeRnd.Seeds||!makeRnd.LuckySeeds||!makeRnd.IDSeeds||!makeRnd.MakeLucky)
+     throw Error('장비 제작 시드(MakeRnd)의 필수 항목이 없습니다.');
    for(let n=0;n<48;n++){
     try{
      if(isAuto&&typeof loadParsedSaveData==='function'){
       const hasRole=(root.MainRole&&root.MainRole.ID!=null)||(Array.isArray(root.Roles)&&root.Roles.some(v=>v?.ID!=null))||(Array.isArray(root.Leavers)&&root.Leavers.some(v=>v?.ID!=null));
       if(!hasRole)throw Error('한국판 세이브의 MainRole/Roles/Leavers 데이터가 없습니다.');
       const r=loadParsedSaveData(root,true);if(r&&typeof r.then==='function')await r;
-      if(typeof state==='undefined'||!Array.isArray(state.saveRoles)||!state.saveRoles.length)throw Error('빠른 조회에서 캐릭터 목록을 읽지 못했습니다.');
+      if(typeof state==='undefined'||!Array.isArray(state.saveRoles)||!state.saveRoles.length||
+        state.saveData!==root)
+        throw Error('현재 세이브가 장비 계산기에 적용되지 않았습니다.');
+      const model=typeof extractEquipMakeRnd==='function'?extractEquipMakeRnd(state.saveData):null;
+      if(!model||!model.Seeds||!model.LuckySeeds||!model.IDSeeds||!model.MakeLucky)
+        throw Error('현재 세이브의 제작 시드가 계산기로 전달되지 않았습니다.');
+      window.NangmanQuickSaveApplied={centerId:String(root.CenterID??''),version:requestedVersion,roles:state.saveRoles.length};
       worked=true;break;
      }
      if(!isAuto&&typeof loadSaveData==='function'){
@@ -942,6 +952,14 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
   if(!Number.isInteger(e.data.version))return;
   if(confirmedVersion===e.data.version)return;
   saved=e.data.save;requestedVersion=e.data.version;
+  confirmedVersion=-1;
+  try{
+    if(typeof state!=='undefined'){state.saveData=null;state.saveRoles=[];}
+    if(typeof equipAutoInitialMakeState!=='undefined')equipAutoInitialMakeState=null;
+    const results=document.getElementById('equipAutoSweepResults');if(results)results.replaceChildren();
+    const label=document.getElementById('equipAutoSweepStatus');
+    if(label){label.textContent='새 세이브 적용 중';label.hidden=false;}
+  }catch(e){}
   clearTimeout(retryTimer);retryTimer=setTimeout(apply,125);
  });
  window.addEventListener('load',()=>{
