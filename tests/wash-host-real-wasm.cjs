@@ -62,6 +62,15 @@ async function call(op,payload){
  assert(washed.ok&&washed.data.performed===5&&washed.data.partial===false,'native 5 wash result count');
  assert.equal(washed.data.requested,5);
  assert((await call('set-state',initial)).ok);
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'..','engine','wash-chain-core.js'),'utf8'),sandbox);
+ const chain=await sandbox.window.NangmanWashChain.run({
+  call:async(name,payload)=>{const reply=await call(name,payload);if(!reply.ok)
+   throw Error(String(reply.data?.error||'native host rejected'));return reply.data;},
+  steps:2,maxWashes:20
+ });
+ assert(chain&&chain.actions.length>=1&&chain.actions.length<=2);
+ assert(chain.totalWashes<=40);
+ assert((await call('set-state',initial)).ok,'real multistage WASM simulation rolls back');
  const atomic=await call('until-exchange-and-replace',{count:30});
  assert(atomic.ok,'real yy-sim WASM atomic conflict/exchange API returns valid result');
  assert.equal(typeof atomic.data.autoExchanged,'boolean');
