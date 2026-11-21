@@ -9,7 +9,11 @@
 /* 낭만강호 통합 사이트 내부용: 원본 산부진 화면과 엔진 UI 보존 */
 html,body{max-width:100%;overflow-x:hidden}body{margin:0}
 body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
-</style><style>body{background:#f5f0e8;color:#2b2722;font-family:system-ui,"Malgun Gothic",sans-serif;padding:16px}button,input,select{font:inherit}button{cursor:pointer}nav.drop-modes{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}nav.drop-modes button{padding:8px 14px;border:1px solid #bba98e;border-radius:5px;background:#f8f5f0}.wild-form{padding:14px 0}.wild-fields{display:flex;gap:12px;flex-wrap:wrap}label{display:inline-grid;gap:6px;margin:4px}input,select{padding:7px;border:1px solid #b5a995;border-radius:5px}ol.wild-results{line-height:1.7}body{min-height:700px}</style></head><body class="sbj-web"><main class="hub-main progress-main">
+</style><style>body{background:#f5f0e8;color:#2b2722;font-family:system-ui,"Malgun Gothic",sans-serif;padding:16px}button,input,select{font:inherit}button{cursor:pointer}nav.drop-modes{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}nav.drop-modes button{padding:8px 14px;border:1px solid #bba98e;border-radius:5px;background:#f8f5f0}.wild-form{padding:14px 0}.wild-fields{display:flex;gap:12px;flex-wrap:wrap}label{display:inline-grid;gap:6px;margin:4px}input,select{padding:7px;border:1px solid #b5a995;border-radius:5px}ol.wild-results{line-height:1.7}body{min-height:700px}</style><style>
+.dungeon-coverage{padding:14px 16px;background:#fdfaf3;border:1px solid #cdbca5;border-radius:8px;margin:12px 0}
+.dungeon-coverage strong{font-size:16px}
+.dungeon-coverage p{margin:8px 0 0;font-size:13px;line-height:1.6}
+</style></head><body class="sbj-web"><main class="hub-main progress-main">
 <header class="progress-heading"><span class="hub-mark" aria-hidden="true">낭</span><div><h1>드랍 시뮬레이션</h1><p>세이브의 난수 순서로 장비와 보물 드랍을 예측합니다.</p></div></header>
 <nav class="drop-modes" aria-label="드랍 종류">
   <button type="button" id="dropWildLink" aria-controls="wildDrop">필드 드랍</button>
@@ -54,6 +58,11 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 </section>
 </section>
 <section id="dungeonDrop" class="wild-panel" aria-label="관문 드랍" hidden>
+  <div class="dungeon-coverage" role="note">
+    <strong>전 관문 일반 장비 드랍 예측</strong>
+    <p>등록된 모든 관문·보스 보상 함수를 조회하며, 90레벨 이상 관문에서는 90레벨 일반 장비를 대상으로 합니다. 각 보상 함수를 순서대로 계산하는 가설 모델이며, 최종 정련·망정 옵션과 실제 게임에서의 보스 간 추가 RNG 소비는 아직 검증 중입니다.</p>
+    <p id="dungeonCoverageStatus" class="progress-note"></p>
+  </div>
   <form id="dungeonForm" class="wild-form">
     <div class="wild-fields">
       <label>관문<select id="dungeonArea"></select></label>
@@ -83,14 +92,17 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   <p id="dungeonStatus" role="status"></p>
   <ol id="dungeonResults" class="wild-results"></ol>
  <details id="dungeonSequencePanel">
-  <summary>여러 관문 우두머리 연속 보상 · 공유 RNG 순서</summary>
+  <summary>여러 관문 연속 드랍 · 보스 순서 지정 (전체 관문 지원)</summary>
   <p class="progress-note">같은 RNG 키(seed_byj 등)를 공유하는 우두머리들은 처치 순서에 따라 다음 보상이 달라집니다. 원본 우두머리별 독립 예측과 별도 계산하며, 일반 관문 보상 함수 호출만 연결합니다. 사냥 중 다른 난수 사용 이벤트는 포함하지 않습니다. 특히 벽유교의 35221 우두머리는 원본 보상 함수가 아직 복원되지 않아 선택 목록에서 빠져 있습니다. 이 계획을 벽유교 전체 클리어의 정확한 예측으로 해석하지 마세요.</p>
   <div class="wild-fields">
    <label>처치 계획 (관문 드랍 ID를 쉼표로 구분)<textarea id="dungeonSequencePlan" rows="2" placeholder="drop_35214_equip, drop_35219_equip" style="min-width:300px;max-width:100%"></textarea></label>
-   <button type="button" id="dungeonSequenceAdd">현재 선택 우두머리 추가</button>
+   <button type="button" id="dungeonSequenceAdd">선택 우두머리 추가</button>
+   <button type="button" id="dungeonSequenceAddArea">현재 관문 보스 전체 추가</button>
+   <button type="button" id="dungeonSequenceClear">처치 계획 초기화</button>
    <button type="button" id="dungeonSequenceRun">연속 보상 예측</button>
    <button type="button" id="dungeonSequenceExport" disabled>연속 보상 CSV</button>
   </div>
+  <p class="progress-note">관문을 선택한 뒤 <b>현재 관문 보스 전체 추가</b>를 누르세요. 다른 관문으로 이동해 반복하면 사용자가 정한 진행 순서대로 모든 보상 시드를 이어서 계산합니다. 같은 관문의 도전 변형과 일반 보상은 별개이므로, 한 번의 관문 실행에 두 변형을 동시에 추가하지 않습니다.</p>
   <p id="dungeonSequenceStatus" role="status"></p>
   <ol id="dungeonSequenceResults" class="wild-results"></ol>
  </details>
