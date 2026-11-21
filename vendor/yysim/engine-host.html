@@ -66,6 +66,90 @@ try{
     nativeFunction:'wasmSearchWashRoutes'});
   return
  }
+ if(op==='auto-color-search'){
+  // Added by Nangman Simulator, not an original yy-sim automatic route.
+  // The only RNG operations are the genuine WASM wash_until_talent_name calls.
+  const ids=payload?.desiredIds;
+  if(!Array.isArray(ids)||ids.length<1||ids.length>4||
+     new Set(ids).size!==ids.length||
+     ids.some(id=>!Number.isInteger(id)||!TALENT_DATA[String(id)]?.name||
+       ![2,3,4].includes(TALENT_DATA[String(id)].pinzhi)||
+       TALENT_DATA[String(id)].name==='备用天赋'))
+   throw Error('원본 데이터에 존재하는 서로 다른 녹맥·파맥·자맥 1~4개만 선택하세요');
+  const original=wasmGetState();
+  if(!original||!Array.isArray(original.talents))throw Error('원본 WASM 세수 상태를 읽을 수 없습니다');
+  const allOrders=(values)=>{
+   if(values.length===1)return [values];
+   return values.flatMap((value,index)=>allOrders(values.filter((_,j)=>j!==index))
+    .map(tail=>[value,...tail]));
+  };
+  const orders=allOrders(ids),results=[],errors=[];
+  const caps=[Math.max(100,Math.min(900,Number(payload?.horizon)||900)),3000];
+  const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
+   .filter(([,v])=>v?.name&&v.name!=='备用天赋').map(([id,v])=>[v.name,Number(id)]));
+  let trials=0;
+  const restore=()=>{
+   if(!wasmSetState(original)||JSON.stringify(wasmGetState())!==JSON.stringify(original))
+    throw Error('자동 탐색 후 원본 WASM 상태 복구 검증 실패');
+  };
+  try{
+   for(let pass=0;pass<caps.length;pass++){
+    // Search all target orders on an identical isolated original snapshot.
+    // More expensive second pass only if no complete order was found.
+    for(const order of orders){
+     restore();
+     trials++;
+     try{
+      const actions=[],initial=wasmGetState();
+      let count=0;
+      for(let j=0;j<order.length;j++){
+       const id=order[j],entry=TALENT_DATA[String(id)];
+       let state=wasmGetState();
+       if(!state?.talents?.some(x=>Number(x.id)===id)){
+        const batch=wasmWashUntilTalentName(entry.name,caps[pass]);
+        if(!Array.isArray(batch))throw Error('원본 WASM 세수 단계 결과를 확인할 수 없습니다');
+        count+=batch.length;
+        state=wasmGetState();
+        actions.push({kind:'wash_until',talent:entry.name,wash_no:count,
+         note:'원본 WASM wash_until_talent_name · '+batch.length+'회'});
+       }
+       const slot=state?.talents?.findIndex(x=>Number(x.id)===id)??-1;
+       if(slot<0)throw Error('탐색 한도 내 미발견: '+entry.name);
+       if(j<order.length-1&&!state.talents[slot].locked&&
+          state.talents.filter(x=>x.locked===true).length<3){
+        const copy={...state,talents:state.talents.map(x=>({...x}))};
+        copy.talents[slot].locked=true;
+        if(!wasmSetState(copy))throw Error('원본 WASM 슬롯 잠금 거부');
+        const next=wasmGetState();
+        if(next?.talents?.[slot]?.locked!==true)
+         throw Error('잠금 결과 검증 실패');
+        actions.push({kind:'lock',talent:entry.name,wash_no:count});
+       }
+      }
+      const final=wasmGetState();
+      if(!final?.talents||!ids.every(id=>final.talents.some(x=>Number(x.id)===id)))
+       throw Error('목표 재능을 모든 슬롯에 동시에 확보하지 못함');
+      const cost=final.has_bag_pills===true&&initial.has_bag_pills===true?
+       Number(initial.bag_pills)-Number(final.bag_pills):
+       Number(final.total_pills)-Number(initial.total_pills);
+      if(!Number.isFinite(cost)||cost<0)throw Error('실제 WASM 소비 비용 확인 실패');
+      results.push({order_ids:order,pad:0,pills:cost,washes:count,exchanges:0,
+       actions,final_slots:final.talents,optimal:false,
+       source:'nangman_native_multicolor_sequential_search'});
+     }catch(err){if(errors.length<8)errors.push(String(err.message||err));}
+     // Give the UI and message queue a chance between expensive native scans.
+     if(trials%2===0)await new Promise(resolve=>setTimeout(resolve,0));
+    }
+    if(results.length)break;
+   }
+  }finally{restore()}
+  results.sort((a,b)=>a.pills-b.pills||a.washes-b.washes);
+  send(requestId,true,{nativeFunction:'wasmColorSequentialSearch',desiredIds:ids,
+   nameIds,results:{routes:results.slice(0,12),scanned:trials,
+    error:results.length?null:'원본 WASM 순차 세수에서는 해당 목표 조합을 찾지 못했습니다'},
+   limits:{orders:orders.length,passes:results.length?1:2,caps},warnings:errors});
+  return
+ }
  if(op==='sequence-pads'){
   // Source yy-sim: route selection is by purple *wash_no* rather than
   // manually entered ID pair; the first conflict_wash_no uses wash_times.
