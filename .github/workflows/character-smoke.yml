@@ -29,3 +29,5 @@ jobs:
         run: node tests/character-source-smoke.cjs
       - name: Validate yy-sim role page and saved progress
         run: node tests/character-layout-smoke.cjs
+      - name: Compare independent six-track cultivation with source
+        run: node tests/cultivation-crosscheck.cjs
