@@ -930,7 +930,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
    if(worked){
     confirmedVersion=version;
     signal('applied','한국판 세이브가 '+moduleName+' 계산기에 적용됐습니다.',version);
-   }else signal('error',error||'WASM 또는 산부진 원본 세이브 로더가 아직 준비되지 않았습니다.',version);
+   }else signal('error',error||'세이브 적용 기능을 준비 중입니다.',version);
   }catch(e){signal('error',String(e.message||e),version)}
   finally{
    running=false;
@@ -946,7 +946,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
  });
  window.addEventListener('load',()=>{
   try{window.YYJHI18n?.set('ko-KR')}catch(e){}
-  signal('ready','원본 엔진 준비됨');
+  signal('ready','계산 준비됨');
   if(saved)apply();
  });
 })();
