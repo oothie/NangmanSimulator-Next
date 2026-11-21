@@ -18,6 +18,7 @@
     rows = [];
     $('wildStatus').textContent = '';
     $('wildResults').replaceChildren();
+    $('wildExport').disabled = true;
   }
 
   function configure() {
@@ -59,6 +60,7 @@
 
   function render() {
     const host = $('wildResults'), onlyHits = $('wildOnlyHits').checked;
+    $('wildExport').disabled = !rows.length;
     const quality=$('wildQuality').value;
     const qualifying=rows.filter(row=>quality==='purple'?row.color===4:
       quality==='equip'?Boolean(row.color):true);
@@ -100,6 +102,31 @@
   for (const id of ['wildPad', 'wildCount', 'wildBait', 'wildTime', 'wildInterval', 'wildTombOrder']) $(id).addEventListener('input', reset);
   $('wildOnlyHits').onchange = () => { if (rows.length) render(); };
   $('wildQuality').onchange = () => { if (rows.length) render(); };
+  $('wildExport').onclick=()=>{
+    try{
+      const mode=$('wildQuality').value;
+      const scoped=rows.filter(row=>(mode==='purple'?row.color===4:mode==='equip'?!!row.color:true)&&
+        (!$('wildOnlyHits').checked||row.itemId||row.spawn));
+      const target=targets[Number(picker.value)];
+      const fields=[
+        {title:'회차',key:'serial'},
+        {title:'선행/본회차',value:row=>row.padding?'선행':'예측'},
+        {title:'지역',value:()=>ko(target.location)},
+        {title:'NPC ID',value:row=>row.npcId||target.npcId},
+        {title:'장비/아이템 ID',key:'itemId'},
+        {title:'한국판 이름',value:row=>EQUIP_DATA.equipment?.[row.itemId]?.koName||
+          ko(row.itemName||'')},
+        {title:'색상',value:row=>color[row.color]||''},
+        {title:'예상 추가 옵션(검증 전)',value:row=>row.affixes?
+          row.affixes.map(a=>a.prop+':'+a.value).join('; '):''},
+        {title:'한계',value:row=>target.kind==='tomb'?'제릉 분기 가설·최종 정련/망정 미연결':
+          target.kind==='story'?'특수몹 보상 호출 · 일반 사냥 회차 아님 · 최종 정련/망정 미연결':
+          '세이브 시드 기반 가상 계산 · 실게임/최종 정련 검증 필요'}
+      ];
+      window.SBJDropExport.save('Nangman_Wild_Drop_'+target.npcId,fields,scoped);
+    }catch(err){$('wildStatus').textContent=String(err.message||err);}
+  };
+
   form.onsubmit = event => {
     event.preventDefault();
     reset();
