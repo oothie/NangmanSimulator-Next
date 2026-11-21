@@ -19,6 +19,12 @@ const noObservation=model.fitObservations(input,[],{count:30});
 assert.equal(noObservation.tested,144);
 assert.equal(noObservation.matches.length,144);
 const itemObservation=[{serial:10,itemId:4009,color:1,spawn:true}];
+// Corrected user observation: white Shura gauntlet on hunt NINE.
+const corrected=model.fitObservations(input,[{serial:9,itemId:4009,color:1,spawn:true}],{count:50});
+assert.equal(corrected.matches.length,0,'no weight ordering can make an absent special monster drop on hunt 9');
+const ninthBaseline=model.predict(input,{count:9,order:'candidateD'})[8];
+assert.equal(ninthBaseline.spawn,false,'9th encounter disagrees before reward selection');
+assert.equal(ninthBaseline.encounterRoll,825);
 const qualified=model.fitObservations(input,itemObservation,{count:30});
 assert.equal(qualified.matches.length,24,'10th 4009 white leaves 24 order models in this synthetic example');
 const firstGear=model.fitObservations(input,[{...itemObservation[0],noGearBefore:true}],{count:30});
@@ -50,4 +56,4 @@ for(const id of ['tombForecastRun','tombForecastCount','tombForecastPad','tombFo
 }
 assert(ui.includes('tomb.fitObservations(current,constraints'));
 assert(html.includes('aria-label="제릉 세이브 전후 비교" hidden'));
-console.log('PASS: 144 order candidates; 24 receipt fits, 12 no-earlier-gear fits; Diling Eds not time; immutable save');
+console.log('PASS: corrected ninth hunt has zero valid model candidates; 144 model orders all reject ninth spawn; no fabricated 50-hunt forecast');
