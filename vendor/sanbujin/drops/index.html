@@ -14,6 +14,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 <nav class="drop-modes" aria-label="드랍 종류">
   <button type="button" id="dropWildLink" aria-controls="wildDrop">필드 드랍</button>
   <button type="button" id="dropDungeonLink" aria-controls="dungeonDrop">관문 드랍</button>
+  <button type="button" id="dropSharedLink" aria-controls="sharedGear">90급 공용 장비 순서</button>
   <button type="button" id="dropTreasureLink" aria-controls="treasureDrop">보물지도</button>
 </nav>
 <section id="wildDrop" class="wild-panel" aria-label="필드 드랍">
@@ -71,6 +72,31 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   <p id="dungeonStatus" role="status"></p>
   <ol id="dungeonResults" class="wild-results"></ol>
 </section>
+<section id="sharedGear" class="wild-panel" aria-label="90레벨 필드 관문 공용 장비 획득 순서 계획" hidden>
+ <h2>90레벨 장비 공용 획득 순서</h2>
+ <p class="progress-note">새북·십방집 등의 특수몹 보상 함수와 관문 우두머리 보상 순서를 교차 배치해, 동일 장비 ID가 현재 세이브 이후 계획 내 몇 번째로 등장하는지 비교합니다. 이는 실게임 획득 확정이나 최종 정련·망정 옵션 예측이 아닙니다.</p>
+ <form id="sharedGearForm" class="wild-form">
+  <div class="wild-fields">
+   <label>필드 특수몹 보상<select id="sharedWildTarget"></select></label>
+   <label>관문 우두머리<select id="sharedDungeonTarget"></select></label>
+   <label>필드 보상 함수 호출 횟수<input id="sharedWildCount" type="number" min="1" max="100" value="20" required></label>
+   <label>관문 보상 횟수<input id="sharedDungeonCount" type="number" min="1" max="100" value="5" required></label>
+   <label>보상 처리 순서<select id="sharedOrder">
+    <option value="field-first">필드 보상 전부 → 관문 보상</option>
+    <option value="dungeon-first">관문 보상 전부 → 필드 보상</option>
+    <option value="alternate">필드 1회 → 관문 1회 교대</option>
+   </select></label>
+  </div>
+  <div class="wild-actions"><button id="sharedRun" type="submit" disabled>공용 장비 획득 순서 계산</button>
+   <button id="sharedExport" type="button" disabled>예상 획득 순서 CSV</button></div>
+ </form>
+ <p class="progress-note">일반 필드 사냥 1회마다 특수몹 보상 함수가 호출되는 것이 아닙니다. 지역별 특수몹 등장 횟수의 정확한 환산은 아직 연결되지 않았습니다. 두 원본 보상 함수가 다른 RNG에 추가 영향을 주는 실제 플레이 행동은 포함하지 않습니다. 유일 주황 장비와 100레벨 더미 장비는 계산 대상에서 제외합니다.</p>
+ <p id="sharedStatus" role="status"></p>
+ <div style="overflow:auto"><table id="sharedTable" class="treasure-table" hidden>
+  <thead><tr><th>계획 순번</th><th>보상 출처</th><th>출처 내 회차</th><th>장비 ID·한국판 이름</th><th>색상 (미검증)</th><th>동일 장비의 계획 내 획득 순번</th></tr></thead>
+  <tbody id="sharedRows"></tbody>
+ </table></div>
+</section>
 <section id="treasureDrop" class="wild-panel" aria-label="보물지도드랍" hidden>
   <form id="treasureForm" class="wild-form">
     <div class="treasure-heading">
@@ -116,6 +142,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 <script defer src="./drop-export.js"></script><script defer src="./wild-data.js"></script><script defer src="./wild-core.js"></script><script defer src="./tomb-core.js"></script><script defer src="./tomb-compare-core.js"></script><script defer src="./tomb-compare.js"></script><script defer src="./wild.js"></script>
 <script defer src="./dungeon-data.js"></script><script defer src="./dungeon-orange.js"></script>
 <script defer src="./dungeon-core.js"></script><script defer src="./dungeon.js"></script>
+<script defer src="./shared-gear-core.js"></script><script defer src="./shared-gear.js"></script>
 <script defer src="./treasure-core.js"></script><script defer src="./treasure.js"></script>
 <script>
 /* Same-origin save relay; data stays in user's browser. */
@@ -123,7 +150,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 let latest=null;
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==parent||event.data?.kind!=='nangman-drop-mode')return;
- const target={wild:'dropWildLink',dungeon:'dropDungeonLink',treasure:'dropTreasureLink'}[event.data.mode];
+ const target={wild:'dropWildLink',dungeon:'dropDungeonLink',shared:'dropSharedLink',treasure:'dropTreasureLink'}[event.data.mode];
  if(target)document.getElementById(target)?.click();
 });
 window.addEventListener('message',event=>{
