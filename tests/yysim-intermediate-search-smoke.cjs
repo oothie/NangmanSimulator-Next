@@ -32,6 +32,16 @@ const doWash=()=>{
  assert.deepEqual(Array.from(best.actions,a=>[a.kind,a.wash_no]),
   [['wash_to',1],['lock',1],['wash_to',3]]);
  assert.deepEqual(current,INITIAL,'standalone test resets native state');
+ for(const goals of [[184,185,191],[184,185,191,186]]){
+  const solved=await source.run({ids:goals,horizon:12,topN:20,getState,setState,doWash});
+  assert(solved.routes.length>0,'native lock order can preserve '+goals.length+' goals');
+  const best=solved.routes[0];
+  assert.equal(best.washes,goals.length,'goal order reaches final simultaneous set');
+  assert.equal(best.pills,goals.length*3,'lowest cost of explored orders');
+  for(const id of goals)assert(best.final_slots.some(t=>t.id===id),'goal '+id+' retained in final slots');
+  assert.equal(best.intermediate_goals,false);
+  assert.deepEqual(current,INITIAL,'3/4-target search restores native state');
+ }
  const impossible=await source.run({ids:[999],horizon:3,topN:2,getState,setState,doWash});
  assert.equal(impossible.routes.length,0);
  assert.deepEqual(current,INITIAL);
