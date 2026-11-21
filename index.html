@@ -460,7 +460,7 @@ function wikiEffectDescription(x){
    if(key!=null&&value!=null)pairs.push([key,value]);
   }
  }else if(Array.isArray(x.obj.fx))pairs=x.obj.fx;
- const percent=/^(atk|def|hit|rating|dodge|parry|speed|hp|hp_max|hp_n|po_dodge|po_parry|dmg_off|dmg_ref|kang_debuff|cure_sj|map_move|weapon_add|blood)$/.test.bind(null);
+ const percent=key=>/^(atk|def|hit|rating|dodge|parry|speed|hp|hp_max|hp_n|po_dodge|po_parry|dmg_off|dmg_ref|kang_debuff|cure_sj|map_move|weapon_add|blood)$/.test(key);
  const parts=pairs.map(([key,value])=>{
   const n=Number(value),label=names[key];
   if(!label||!Number.isFinite(n)||Math.abs(n)>100000)return '';
