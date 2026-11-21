@@ -463,6 +463,11 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .equip-directory-toolbar input{width:min(100%,440px);flex:1 1 260px;font-size:16px}
 .equip-directory-toolbar select{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:11px 15px;min-height:46px;font-size:15px}
 @media(max-width:620px){.equip-directory-toolbar select{flex:1 1 42%}}
+
+/* Neutral image-missing styling matching the original wiki layout */
+.wiki-art-placeholder{background:transparent!important;border-color:transparent!important;font-size:0!important}
+.wiki-art-placeholder.large{background:transparent!important;border-color:transparent!important}
+.wiki-result-row:has(.wiki-art-placeholder:not([style*="display:none"])) .wiki-art-placeholder{width:38px;height:38px}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
 /* v0.8.6: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
@@ -1351,40 +1356,56 @@ function wikiDescription(x,ko){
  }
  return '한국판 설명 미확보';
 }
+function wikiSourceIcon(x){
+ const o=x?.obj||{},id=String(x?.id||''),source=x?.source;
+ // Priority: verified Korean V6.20 buff sprite > matching 54506 sprite > original source row.
+ if(x?.cat==='buff'){
+  const sources=[(window.NANGMAN_V620_BUFF_KO||{})[id]?.[2],
+   (window.NANGMAN_54506_BUFF_KO||{})[id]?.[2],
+   (window.NANGMAN_STATUS_KO||{})[id]?.icon,o.icon,o.pic];
+  return sources.find(v=>v!=null&&String(v).trim())||'';
+ }
+ if(source==='crafts'||source==='arts'){
+  // ID is a skill identifier, NOT an icon filename. Use only actual icon fields.
+  const exact=source==='crafts'?(window.NANGMAN_CRAFT_ID_KO||{})[id]:(window.NANGMAN_ARTS_ID_KO||{})[id];
+  const original=(wikiSource||wikiFallbackSource||{})[source]||[];
+  const matching=Array.isArray(original)?original.find(v=>String(v.id)===id):null;
+  return [o.icon,o.pic,o.img,o.image,o.iconId,o.icon_id,
+   matching?.icon,matching?.pic,matching?.img,matching?.image,
+   exact?.icon,exact?.pic,exact?.img].find(v=>v!=null&&String(v).trim())||'';
+ }
+ return o.icon??o.pic??o.img??o.id??'';
+}
 function wikiImage(x){
  if(!x)return '';
- const o=x.obj||{};
- const base='https://yy-sim.pages.dev/icons/';
- if(x.source==='equips'){
-  const token=Number(o.icon??o.id);
-  return Number.isInteger(token)&&token>0?base+'equip/'+token+'.png':'';
- }
+ const id=String(x.id),raw=String(wikiSourceIcon(x)||'').trim();
+ if(!raw)return '';
+ const name=raw.split(/[\\/]/).pop().replace(/\.png$/i,'');
+ const root='https://yy-sim.pages.dev/icons/';
  if(x.cat==='buff'){
-  // The Korean V6.20 table stores sprite filenames, not generic item IDs.
-  const sprite=String((window.NANGMAN_V620_BUFF_KO||{})[String(o.id)]?.[2]||
-    (window.NANGMAN_54506_BUFF_KO||{})[String(o.id)]?.[2]||o.icon||'').split('/').pop().replace(/\.png$/i,'');
-  return /^icon_buff_[a-zA-Z0-9_-]+$/.test(sprite)?base+'buff/'+sprite+'.png':'';
+  // Never use buff ID as image ID, and never replace one sprite with another guessed sprite.
+  if(/^icon_buff_[a-zA-Z0-9_-]+$/i.test(name))return root+'buff/'+name+'.png';
+  return '';
  }
  if(x.source==='crafts'||x.source==='arts'){
-  // Never treat a craft/secret-art ID as an icon ID when source icon is missing.
-  const supplied=o.icon??o.pic??o.img??o.image??o.iconId??o.icon_id;
-  if(supplied==null||supplied==='')return '';
-  const token=String(supplied).split('/').pop().replace(/\.png$/i,'');
-  return /^\d+$/.test(token)&&Number(token)>0?base+'item/'+token+'.png':'';
+  // Only source-linked image keys; plain skill IDs are never an acceptable fallback.
+  return /^\d+$/.test(name)&&Number(name)>0?root+'item/'+name+'.png':'';
  }
- const raw=x.source==='martial'?(o.pic??o.icon):o.icon??o.id;
- const token=Number(raw);
- return Number.isInteger(token)&&token>0?base+'item/'+token+'.png':'';
+ if(x.source==='equips'){
+  const token=Number(name);
+  return Number.isInteger(token)&&token>0?root+'equip/'+token+'.png':'';
+ }
+ const token=Number(name);
+ return Number.isInteger(token)&&token>0?root+'item/'+token+'.png':'';
 }
 function wikiImgTag(x,large=false){
- const target=wikiImage(x);
- const ch=x?.cat==='buff'?'상':x?.cat==='craft'?'기':x?.cat==='arts'?'비':'•';
- const cls='wiki-art-placeholder'+(large?' large':'');
- const fallback='<span class="'+cls+'" role="img" aria-label="이미지 자료 없음"'+
-  (target?' style="display:none"':'')+'>'+ch+'</span>';
- if(!target)return fallback;
- return '<img class="wiki-art '+(large?'large':'')+'" loading="lazy" alt="" src="'+escape(target)+
-  '" onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'inline-grid\'">'+fallback;
+ const url=wikiImage(x),empty='wiki-art-placeholder'+(large?' large':'');
+ // Restore the previous neutral no-image treatment; do not show fictitious '기/비/상'
+ // picture glyphs or a broken browser image when the source PNG is absent.
+ const fallback='<span class="'+empty+'" aria-hidden="true"'+(url?' style="display:none"':'')+'></span>';
+ if(!url)return fallback;
+ return '<img class="wiki-art '+(large?'large':'')+'" loading="lazy" alt="" src="'+escape(url)+
+  '" onerror="this.onerror=null;this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'inline-grid\'">'+fallback;
 }
 function wikiEffectDescription(x){
  if(x.source!=='buff')return '';
