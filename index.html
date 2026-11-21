@@ -3781,21 +3781,21 @@ if($('washV350Frame')){
   const query=String($('yyAutoFilter')?.value||'').trim().toLocaleLowerCase();
   const runtime=window.__washRuntime||{};runtime.autoFilter=query;
   document.querySelectorAll('[data-yy-auto-id]').forEach(el=>{
-   const label=el.closest('label');
-   if(!label)return;
-   const show=!query||label.textContent.toLocaleLowerCase().includes(query);
-   label.style.display=show?'flex':'none';
-   if(show&&query){const group=label.closest('details');if(group)group.open=true}
+   const show=!query||el.textContent.toLocaleLowerCase().includes(query);
+   el.hidden=!show;
+   el.style.display=show?'flex':'none';
+   if(show&&query){const group=el.closest('details');if(group)group.open=true}
   });
  };
  if($('yyAutoFilter').value)$('yyAutoFilter').oninput();
 }
-document.querySelectorAll('[data-yy-auto-id]').forEach(el=>el.onchange=()=>{
+document.querySelectorAll('.wash-auto-choice[data-yy-auto-id]').forEach(el=>el.onclick=()=>{
  const id=Number(el.dataset.yyAutoId),runtime=window.__washRuntime||{};
  const ids=Array.isArray(runtime.autoDesiredIds)?[...runtime.autoDesiredIds]:[];
- if(el.checked&&!ids.includes(id)&&ids.length>=4){alert('자동 탐색 목표는 최대 4개까지 선택할 수 있습니다.');el.checked=false;return}
- runtime.autoDesiredIds=el.checked?[...ids.filter(x=>x!==id),id]:ids.filter(x=>x!==id);
- runtime.autoResult=null;
+ const adding=!ids.includes(id);
+ if(adding&&ids.length>=4){alert('자동 탐색 목표는 최대 4개까지 선택할 수 있습니다.');return}
+ runtime.autoDesiredIds=adding?[...ids,id]:ids.filter(x=>x!==id);
+ runtime.autoResult=null;runtime.autoProgress=null;
  render();
 });
 if($('yyAutoPreset'))$('yyAutoPreset').onclick=()=>{
