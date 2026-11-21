@@ -93,7 +93,10 @@ function describeAction(action,nameIds={},nameFor=()=>null){
   if(!raw)return '재능 미확인';
   const linked=nameIds?.[String(raw)];
   const direct=/^\d+$/.test(String(raw))?Number(raw):null;
-  const id=linked!=null?Number(linked):direct;
+  const koreanMatches=linked==null&&direct==null?
+   [...new Set(Object.values(nameIds).map(Number).filter(id=>
+    Number.isSafeInteger(id)&&String(nameFor(id)||'')===String(raw)))]:[];
+  const id=linked!=null?Number(linked):direct??(koreanMatches.length===1?koreanMatches[0]:null);
   if(!Number.isSafeInteger(id)||id<=0)return '원본 재능 ID 미연결';
   const localized=String(nameFor(id)||'').trim();
   return (localized&&localized!=='재능 #'+id?localized:'재능 #'+id)+' (#'+id+')';
