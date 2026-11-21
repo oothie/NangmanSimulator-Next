@@ -360,6 +360,40 @@ body>main>h1,.integrated-subtitle,#moduleSwitch,#sharedSaveBar,#characterModule,
 #washModule{display:block!important;margin:0!important;max-width:none!important}
 #v350EmbeddedSave{display:none}
 </style>
+<style id="nangman-v350-site-theme">
+:root{--site-bg:#f3eee3;--site-paper:#f8f4eb;--site-panel:#fffdf7;--site-text:#231e17;--site-muted:#776e60;--site-line:#d6caba;--site-accent:#9c7941}
+html[data-theme="ink"]{--site-bg:#131419;--site-paper:#1d2027;--site-panel:#252830;--site-text:#e9e3d9;--site-muted:#aba59c;--site-line:#44454d;--site-accent:#cca76b;color-scheme:dark}
+html,body{background:var(--site-bg)!important;color:var(--site-text)!important;font-family:system-ui,"Malgun Gothic",sans-serif!important;font-size:14px;line-height:1.5}
+main{padding:0!important}
+#washModule>.card,#washModule>details.card{background:var(--site-panel)!important;color:var(--site-text)!important;border:1px solid var(--site-line)!important;border-radius:9px!important;padding:15px!important;margin:0 0 13px!important;box-shadow:none!important}
+#washModule .card,#washModule .sim-left,#washModule .sim-right,#washModule .scroll{background:var(--site-panel)!important;color:var(--site-text)!important;border-color:var(--site-line)!important;box-shadow:none!important}
+#washModule h2{font-size:18px;color:var(--site-text);margin:0 0 11px}
+#washModule .small{color:var(--site-muted)!important;font-size:13px}
+#washModule input,#washModule select,#washModule button{font-family:inherit!important;font-size:14px;color:var(--site-text)!important;background:var(--site-paper)!important;border:1px solid var(--site-line)!important;border-radius:7px!important}
+#washModule button{min-height:38px;padding:8px 12px;transition:background .15s,border-color .15s}
+#washModule button:hover:not(:disabled){border-color:var(--site-accent)!important}
+#washModule button.primary,#washModule .tabs button.active,#washModule .n-subtabs button.active{background:var(--site-accent)!important;border-color:var(--site-accent)!important;color:#fff!important;font-weight:700}
+html[data-theme=ink] #washModule button.primary,html[data-theme=ink] #washModule .tabs button.active,html[data-theme=ink] #washModule .n-subtabs button.active{color:#17191e!important}
+#washModule .tabs{gap:8px;margin-bottom:14px}
+#washModule .tabs button{min-height:44px;padding:10px 15px;font-size:15px!important}
+#washModule .good,#washModule .warn,#washModule .bad{background:var(--site-paper)!important;border:1px solid var(--site-line)!important;color:var(--site-text)!important}
+#washModule .scroll,#washModule #simRecentLog{border-color:var(--site-line)!important;background:var(--site-paper)!important}
+#washModule th,#washModule td{border-color:var(--site-line)!important;color:var(--site-text)}
+#washModule th{background:var(--site-paper)!important}
+#washModule td.num{background:var(--site-panel)!important}
+#washModule .q1{background:var(--site-panel)!important}
+#washModule .q2{background:color-mix(in srgb,#34875b 17%,var(--site-panel))!important}
+#washModule .q3{background:color-mix(in srgb,#3976bb 17%,var(--site-panel))!important}
+#washModule .q4{background:color-mix(in srgb,#9b65b3 18%,var(--site-panel))!important}
+#washModule #roleSel{display:none!important}
+#washModule .v350-role-controls{gap:12px}
+#washModule #roleInfo{font-size:14px!important;color:var(--site-text)!important;margin-top:7px}
+#washModule #specialCard>summary{font-size:16px!important}
+#washModule .sim-right>.card{border-radius:8px!important}
+#washModule .sim-cost-badge,#washModule .badge{background:var(--site-paper)!important;border-color:var(--site-line)!important;color:var(--site-text)!important}
+@media(max-width:1100px){#simPane.active{height:auto!important;overflow:visible!important}}
+@media(max-width:700px){#washModule>.card,#washModule>details.card{padding:10px!important}#washModule .tabs button{font-size:14px!important;flex:1 1 auto}#washModule button{min-height:40px}}
+</style>
 <style id="nangman-v350-dark">
 html[data-theme=ink] body{background:#17191e!important;color:#e9e3d9!important}
 html[data-theme=ink] .card,html[data-theme=ink] .good,html[data-theme=ink] .warn,
@@ -400,11 +434,11 @@ html[data-theme=ink] .active,html[data-theme=ink] button.primary{
 
   <section id="washModule" class="module-pane active">
 <div class="card">
-<h2>캐릭터</h2>
-<div class="row">
-<select id="roleSel"></select>
+<h2>현재 캐릭터</h2>
+<div class="row v350-role-controls">
+<select id="roleSel" hidden aria-hidden="true" tabindex="-1"></select>
 <label>VIP <select id="vipSel"><option>0</option><option selected>1</option></select></label>
-<span class="small" style="line-height:1.5"><b>VIP0</b>: VIP 전용 추가 자질 없음 · <b>VIP1</b>: 양의상합, 구음귀맥, 현양신맥, 혼원기맥, 일심겸용, 주인공 성별에 따라 한마음의 형제/한마음 한뜻의 자매 · <b></b>: 일반 캐릭터 추가 자질 없음 <span style="opacity:.75"></span></span>
+
 </div>
 <div id="roleInfo" class="small" style="margin-top:8px"></div>
 <div id="status" style="margin-top:8px"></div>
@@ -425,7 +459,7 @@ html[data-theme=ink] .active,html[data-theme=ink] button.primary{
 <button data-pane="simPane">모의 세수작</button>
 <button data-pane="nPane">무한교체 N표</button>
 <button data-pane="pityPane">천장·도맥/카맥</button>
-<button data-pane="rulesPane">규칙 정리</button>
+
 </div>
 
 <div id="rawPane" class="pane active">
@@ -529,21 +563,6 @@ html[data-theme=ink] .active,html[data-theme=ink] button.primary{
 <div id="pityResult" hidden></div><div id="daoFirstResult" hidden></div><div id="rawFullSummary" hidden></div><table hidden><tbody id="rawFullBody"></tbody></table>
 </div>
 
-<div id="rulesPane" class="pane">
-<div class="good" style="line-height:1.8">
-<b>v21 상태기계 규칙</b><br>
-① 원시맥은 세이브의 BornTalent.S/RC, 캐릭터 조건, 중복 제거를 그대로 사용.<br>
-② 무한교체는 캐릭터의 <b>첫 치환</b>에서만 가능하고 첫 천장 이전 자연 자맥만 시작점으로 사용.<br>
-③ 충돌맥+자맥을 잠근 뒤 남은 칸을 N회 실제 세수한 각각의 상태가 서로 다른 치환서열을 고정함. <b>남은 자유칸에서 다음 자맥이 처음 뜨는 N부터는 무한교체 불가</b>이며, 바로 직전 N까지만 유효.<br>
-④ 최초 치환 뒤 Luck seed는 고정. 이후 어떤 원시 자맥을 충돌재료로 쓰든 치환 1회마다 같은 고정서열을 다음으로 소비.<br>
-⑤ 동시에, 다음 치환 결과의 충돌맥을 <b>치환 전에 미리 잠가</b> 현재 결과를 즉시 다시 치환하는 연쇄치환도 허용.<br>
-⑥ 일심겸용은 일반 충돌맥 없음. 신맥은 서로 다른 신맥끼리만 충돌.<br>
-⑦ 첫 천장이 먼저 발생하면 이후 신규 무한교체 시작 불가. 첫 치환 후 천장이 오면 고정 Luck 서열에서 자동으로 자맥을 소비함.<br>
-⑧ 카맥/잡맥은 잠긴 동일 맥 때문에 뒤의 같은 맥이 삼켜져 원시 위치와 천장 삽입 위치가 이동하는 현상을 실제 wash 엔진으로 계산.<br><br>
-<b>교차검증 자료:</b> TapTap 「简单谈谈洗脉的经验吧」「柳某人的洗脉要诀」「洗脉要点」,
-巴哈姆特 「師妹的洗脈小學堂」「新手洗脈法」, BWIKI 「首紫跳脉原理和洗脉方法」「洗髓天赋」.
-</div>
-</div>
 
 </div>
 
@@ -3077,7 +3096,7 @@ async function loadSelectedSave(){
    calcProgress.style.width="100%";
    const roleCount=roleSel.options.length;
    roleInfo.textContent=`${f.name} · 캐릭터 ${roleCount}명 불러옴`;
-   status.innerHTML='<div class="good">세이브 JSON을 정상적으로 불러왔습니다. 캐릭터를 선택한 뒤 원시 자맥 탭에서 원시맥 계산을 누르세요.</div>';
+   status.innerHTML='<div class="good">세이브가 연결되었습니다. 왼쪽에서 선택한 캐릭터의 세수를 계산할 수 있습니다.</div>';
    setTimeout(()=>{calcProgress.style.width="0%"},500);
  }catch(e){
    SAVE=null;
@@ -3109,7 +3128,7 @@ saveFile.onchange=()=>{
 };
 calcBtn.onclick=compute;
 roleSel.onchange=()=>{
- roleInfo.textContent="캐릭터 선택됨 · 원시 자맥 탭에서 원시맥 계산 버튼을 누르세요.";
+ roleInfo.textContent=(roleObj()?.Name||'선택된 캐릭터')+' · 세수 계산 대상';
  rawSlots.dataset.userSet="0"; syncRawSlots(true);
  renderSpecialChecks();
  if(SIM)status.innerHTML='<div class="warn">모의 세수작은 기존 캐릭터 상태를 유지 중입니다. 새 캐릭터로 바꾸려면 모의 세수작 탭에서 ‘현재 세이브 상태로 시작’을 다시 누르세요.</div>';
@@ -3195,7 +3214,10 @@ rawBody.innerHTML=""; nBody.innerHTML=""; candidateSel.innerHTML="";
    await loadSelectedSave();
    if(data.roleId!=null){
     const match=[...roleSel.options].find(x=>String(x.value)===String(data.roleId));
-    if(match){roleSel.value=match.value;roleSel.onchange?.()}
+    if(!match)throw Error('선택된 캐릭터를 3.50 세수 데이터에서 찾을 수 없습니다: '+data.roleId);
+     if(roleSel.value!==match.value){roleSel.value=match.value;roleSel.onchange?.();}
+     else{syncRawSlots(true);renderSpecialChecks();}
+     roleInfo.textContent=(roleObj()?.Name||'선택된 캐릭터')+' · 세수 계산 대상';
    }
    const source=window.parent;
    source.postMessage({kind:'nangman-v350-loaded',roleId:roleSel.value},location.origin);
