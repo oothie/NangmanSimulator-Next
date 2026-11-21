@@ -23,6 +23,8 @@ function reset(){
  $('sharedExport').disabled=true;
  $('sharedTable').hidden=true;
  $('sharedRows').replaceChildren();
+ $('sharedScenarioTable').hidden=true;
+ $('sharedScenarioRows').replaceChildren();
  $('sharedStatus').textContent='';
  $('sharedByItem').textContent='';
 }
@@ -74,6 +76,20 @@ $('sharedGearForm').onsubmit=evt=>{
    return tr;
   }));
   $('sharedTable').hidden=rows.length===0;
+  const alternatives=Array.isArray(output.alternatives)?output.alternatives:[];
+  const formatFirst=order=>{
+   if(order?.firstStep==null)return '획득 없음';
+   const source=order.firstSource==='field'?'필드':'관문';
+   return source+' · 전체 '+order.firstStep+'번째 보상'+
+     (order.colorSequence.length?' · '+(colors[order.colorSequence[0]]||'색상 미확인'):'');
+  };
+  $('sharedScenarioRows').replaceChildren(...alternatives.map(entry=>{
+   const tr=document.createElement('tr');
+   tr.append(cell(entry.itemId+' · '+gearName(entry.itemId)),cell(entry.count),
+    ...entry.orders.map(formatFirst).map(cell));
+   return tr;
+  }));
+  $('sharedScenarioTable').hidden=alternatives.length===0;
   if(rows.length===0)$('sharedStatus').textContent+=' · 이 계획에는 장비 드랍 예상이 없습니다';
   $('sharedExport').disabled=rows.length===0;
  }catch(err){$('sharedStatus').textContent=String(err.message||err)}
