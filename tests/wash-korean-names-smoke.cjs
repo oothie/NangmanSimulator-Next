@@ -41,4 +41,8 @@ assert(native.includes('const talentName=id=>characterTalentName(id)'));
 assert(native.includes('api.describeAction(a,mapNames,talentName)'));
 assert(native.includes('talentName(a.id)'));
 assert(index.includes('./shared/sanbujin_talent_names_ko.js'));
+assert(index.includes('options.desiredIds.map(id=>'),'auto search status should format Korean goal names');
+assert(!index.includes("options.desiredIds.join(', ')"),'raw numeric IDs must not replace the goal-name list');
+assert(index.includes("window.__nangmanTalentKoName?.(talentId)"),'collision target should show Korean name');
+
 console.log('PASS: all '+original.length+' original yy-sim talents mapped to Korean; 71 searchable color goals, character/preview/route names share one resolver');
