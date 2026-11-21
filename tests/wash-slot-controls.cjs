@@ -6,7 +6,7 @@ const hostSrc=fs.readFileSync(path.join(root,'vendor/yysim/engine-host.html'),'u
 const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const main=hostSrc.match(/<script>([\s\S]*?)<\/script>/);
 assert(main);
-const native={get:0,set:0,exchange:0};
+const native={get:0,set:0,exchange:0,shouldReject:false};
 let state={role_id:10,seed:111,talents:[
  {id:261,locked:true},{id:262,locked:true},{id:263,locked:true},{id:264,locked:false}
 ]};
@@ -16,7 +16,7 @@ const ctx={window:{addEventListener(key,cb){if(key==='message')listener=cb}},par
  TALENT_DATA:{},ZZ_DATA:{},initWasm:async()=>true,wasmInitEngine:()=>true,
  wasmGetState(){native.get++;return JSON.parse(JSON.stringify(state))},
  wasmSetState(next){native.set++;state=JSON.parse(JSON.stringify(next));return true},
- wasmExchangeTalent(index){native.exchange++;state.talents[index].id=270;state.seed+=1;return index===3?null:{changed:index}}
+ wasmExchangeTalent(index){native.exchange++;state.talents[index].id=270;state.seed+=1;return index===3?null:native.shouldReject?{success:false,error:'native rejected'}:{success:true,changed:index}}
 };
 vm.createContext(ctx);vm.runInContext(main[1],ctx);
 async function request(op,payload){
@@ -40,6 +40,10 @@ async function request(op,payload){
  const failed=await request('exchange-talent',{index:3});
  assert.equal(failed.ok,false,'native null result must not be displayed as successful exchange');
  assert.equal(JSON.stringify(state),preFailure,'native error rollback restores saved WASM copy');
+ native.shouldReject=true;
+ const blocked=await request('exchange-talent',{index:0});
+ assert.equal(blocked.ok,false,'native explicit success:false is a failed exchange');
+ assert.equal(JSON.stringify(state),preFailure,'failed exchange restores original slot state');
  assert.equal((await request('toggle-lock',{index:9})).ok,false,'index capped');
  assert(index.includes("data-wash-lock=\"")&&index.includes("data-wash-exchange=\""),
  'rendered simulated talent slots expose native actions');
