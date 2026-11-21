@@ -78,6 +78,8 @@ for(const id of ['yyAutoRun','yyAutoPreset','yyAutoClear']){
 assert(html.includes("['auto','원본 자동 탐색']"));
 for(const id of ['yyAutoPad','yyAutoHorizon','yyAutoTopN','yyAutoConnect','yyAutoProgressive'])assert(!html.includes('id="'+id+'"'),'automatic search must not expose internal controls: '+id);
 assert(html.includes('선택 자맥 자동 계산'));
+assert(html.includes("detail:{op:'washEngineAutoProgressive',...input}"),'single click must execute internal progressive native search');
+assert(html.includes('maxPad:30,horizon:3000,topN:12'),'bounded internal defaults are not user inputs');
 assert(html.includes("washEngine.call('auto-search',options)"));
 assert(html.includes('state.autoResult=null;'));
 assert(html.includes('yy-sim WASM'));
