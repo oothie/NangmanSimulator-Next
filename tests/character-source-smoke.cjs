@@ -92,6 +92,17 @@ assert.equal(split.other.atk,96,'nonweapon attack affix');
 assert.equal(split.other.hit,731,'nonweapon hit');
 assert.equal(split.unknown.length,1,'unknown weapon category not guessed');
 assert.equal(split.complete,false,'metadata incomplete');
+context.window.KONGFU_DATA={taolu:{'21470':{type:3},'21330':{type:2}}};
+const sword=context.characterEquipCombatSplit({Taolus:[{ID:21470,Active:true}],
+ Equips:[{ID:7283,Atk:935,LvProp:129,EnExts:[{Key:'sword_add',Value:0.0475}]},
+ {ID:5015,EnExts:[{Key:'sword_add',Value:0.02275}]}]});
+assert.equal(sword.weaponKey,'sword_add','active sword type from source table');
+assert(Math.abs(sword.weaponBonus-.07025)<1e-9,'sword attack percentage across all equipment');
+const noActive=context.characterEquipCombatSplit({Taolus:[{ID:21470,Active:false}],Equips:[{ID:7283}]});
+assert.equal(noActive.weaponBonus,null,'no invented active weapon type');
+assert.match(context.characterEquipCombatSplitView({Taolus:[{ID:21470,Active:true}],
+ Equips:[{ID:5015,EnExts:[{Key:'sword_add',Value:0.02275}]}]}),/2.275%/);
+
 assert.match(context.characterEquipCombatSplitView({Equips:[{ID:999999,Atk:12}]}),/장비 분류 미확인/);
 
 console.log('PASS: saved BornTalent lookup and yy-sim body formulas and equipment option subtotals and weapon-specific attack/hit');
