@@ -5,6 +5,7 @@ on:
     paths:
       - 'engine/local-engine-bridge.js'
       - 'engine/yysim-intermediate-search.js'
+      - 'engine/yysim-exchange-beam-search.js'
       - 'vendor/yysim/engine-host.html'
       - 'vendor/yysim/core_glue.js'
       - 'tests/yysim-browser-boot.cjs'
