@@ -477,7 +477,7 @@ const fig='<div class="figures">'+[
  ['자질',r?.raw?.ZiZhi??'—']
 ].map(([label,value])=>'<div class="fig"><b>'+escape(value)+'</b><span>'+label+'</span></div>').join('')+'</div>'
 const hero='<header class="hero"><div><h2>'+escape(r?.name||'캐릭터 미선택')+'</h2><div class="micro">'+meta+' · <button class="text-action" type="button" disabled>캐릭터 초기화</button></div></div>'+fig+'</header>';
-const tabbar='<nav class="tabs">'+[['sim','세수'],['auto','자동 탐색'],['exchange','치환 시퀀스'],['path','경로 탐색']].map(([id,t])=>'<button data-sub="'+id+'" class="'+(sub===id?'active':'')+'">'+t+'</button>').join('')+'</nav>';
+const tabbar='<nav class="tabs">'+[['sim','세수'],['auto','원본 자동 탐색'],['exchange','자맥·치환 시퀀스'],['path','수동 경로 분석']].map(([id,t])=>'<button data-sub="'+id+'" class="'+(sub===id?'active':'')+'">'+t+'</button>').join('')+'</nav>';
 let body='';
 if(sub==='sim'){
  const attrs=[['Str','완력'],['Con','근골'],['Dex','신법'],['Int','내식']];
@@ -496,7 +496,7 @@ if(sub==='sim'){
  const canUndo=canRun&&Array.isArray(runtime.undoStates)&&runtime.undoStates.length>0;
  const buttons='<section class="wash-section"><div class="wash-ops"><div class="pity-area"><div class="micro">세수 실험 진행도</div><div class="pity-track"><div class="pity-fill" style="width:0%"></div></div><div class="micro">원본 세이브 TalLucky '+escape(r?.raw?.TalLucky??'—')+' · 자맥 천장 예측 미검증</div></div>'+
  '<div class="fields"><label>자동 충돌·치환 단계<select id="washChainSteps"><option value="1">1단계</option><option value="2" selected>2단계</option><option value="3">3단계</option><option value="4">4단계</option></select></label><label>단계별 탐색 한도<select id="washChainLimit"><option value="100">100회</option><option value="500" selected>500회</option><option value="1000">1000회</option></select></label></div>'+
- '<div class="wash-buttons"><button class="btn primary" id="washChainAuto" '+(!canRun?'disabled':'')+'>연속 충돌 탐색 + 자동 치환 (WASM)</button>'+
+ '<div class="wash-buttons"><button class="btn primary" id="washChainAuto" '+(!canRun?'disabled':'')+'>모의 연속 치환 (자동 경로 탐색과 별도)</button>'+
  '<button class="btn" id="washMainAutoConflict" '+(!canRun?'disabled':'')+'>다음 충돌까지 세수 + 치환 (한 번에)</button>'+
  '<button class="btn" id="washMainNextConflict" '+(!canRun?'disabled':'')+'>다음 치환·충돌맥까지 모의 세수</button>'+
  '<button class="btn" id="washMainGold" '+(!canRun?'disabled':'')+' title="원본 WASM의 자맥 도달 실행, 1000회 상한">다음 자맥까지 (최대 1000회)</button>'+
@@ -753,7 +753,7 @@ if(sub==='path'){
  const single=String(runtime.targetTalentId??'');
  const num=runtime.pathLimit??900;
  body='<section class="wash-section"><div class="section-header"><h3>도맥법 목표 자맥·충돌맥 탐색</h3></div>'+
- '<p class="micro">yy-sim 원본 WASM의 <code>preview_exchange_pads</code>를 직접 호출하는 읽기 전용 탐색입니다. 현재 인물 세이브 연결 후 실행하며 게임 내 세수단을 소비하지 않습니다.</p>'+
+ '<p class="micro">이 화면은 자맥·충돌맥 ID를 직접 지정하는 <b>수동 경로 분석</b>입니다. yy-sim 원본 <code>search_wash_routes</code>의 자동 최적 경로를 찾으려면 상단 <b>원본 자동 탐색</b> 탭을 사용하세요. 게임 내 세수단은 소비하지 않습니다.</p>'+
  '<div class="fields"><label>자맥 선택<select id="washPathPurplePick">'+purpleOptions+'</select></label><label>충돌맥 선택<select id="washPathConflictPick">'+purpleOptions+'</select></label></div>'+
  '<div class="actions"><button class="btn" id="washPathAdd">선택한 맥 쌍 추가</button></div>'+
  '<div class="fields"><label>목표 쌍 (자맥ID:충돌맥ID, 한 줄에 하나 · 최대 4개)<textarea id="washPathPairs" rows="4" placeholder="예: 261:262">'+escape(pairs)+'</textarea></label>'+
