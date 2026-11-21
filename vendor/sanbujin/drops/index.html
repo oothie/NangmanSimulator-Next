@@ -108,6 +108,11 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 (function(){
 let latest=null;
 window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==parent||event.data?.kind!=='nangman-drop-mode')return;
+ const target={wild:'dropWildLink',dungeon:'dropDungeonLink',treasure:'dropTreasureLink'}[event.data.mode];
+ if(target)document.getElementById(target)?.click();
+});
+window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==parent||event.data?.kind!=='nangman-save')return;
  latest=event.data.save;
  const version=event.data.version;
