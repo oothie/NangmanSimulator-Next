@@ -25,6 +25,23 @@ for(const file of ['wasm_data.js','core_glue.js','data.js']){
   {targetIds:[]},
   {target_ids:[271],max_total_pills:30,max_nodes:10,search_depth:1},
   {targetIds:[271],options:{maxTotalPills:30,maxNodes:10,searchDepth:1}},
+  {targets:[271],limit:20},
+  {targets:[{id:271}],limit:20},
+  {targets:[{talent_id:271}],limit:20},
+  {purpleIds:[271],limit:20},
+  {purple_ids:[271],limit:20},
+  {targetPurples:[271],limit:20},
+  {target_purples:[271],limit:20},
+  {selectedPurples:[271],limit:20},
+  {selected_purples:[271],limit:20},
+  {selectedTalentIds:[271],limit:20},
+  {selected_talents:[271],limit:20},
+  {desiredTalents:[271],limit:20},
+  {targetTalentIds:[271],limit:20},
+  {purple_names:['转世金仙'],limit:20},
+  {target_names:['转世金仙'],limit:20},
+  {targets:['转世金仙'],limit:20},
+  {wanted:[271],limit:20},
  ];
  for(const [i,query] of queries.entries()){
   context.query=query;
