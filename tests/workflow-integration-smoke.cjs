@@ -59,5 +59,9 @@ assert(wash.indexOf("state.undoStates.pop()")>wash.indexOf("const restored=await
 assert(wash.includes("Number(restored?.seed)!==Number(snapshot.seed)"),
  'undo restores correct seed');
 assert(wash.includes("parsed>100"),'do not silently clamp invalid multi-count');
+assert(wash.includes('ensureSession();'),'discard stale async WASM results after role switch');
+assert(html.includes('state.generation=(state.generation||0)+1'),'invalidate old WASM generation');
+assert(wash.includes("washEngine.call('until-gold',{count:1000})"),'native purple-until bounded call');
+
 assert(html.includes("function yyRolePanel(role){"),'character panel remains connected');
 console.log('PASS: saved quest/NPC validity, CSV, versioned drop handshake and WASM rollback guards');
