@@ -52,4 +52,35 @@ assert.equal(yyProgressEntries({},main,'training').available,false,'unknown if g
 assert(source.includes('function yyRoleExtraCombat('),'source kL combat-extra detail');
 assert(source.includes('ExtMpFirst'),'extra true-essence stat included');
 assert(source.includes('ExtParry'),'extra parry stat included');
-console.log('PASS: yy-sim role page structure, all 8 tabs, selector wiring and version labels');
+// Extended tab: account-wide current cultivation, historical progress and shared counters.
+assert(source.includes("['account','계정 전체']"),'account-wide training tab');
+assert(source.includes("data-character-jump"),'account-to-role training drilldown');
+const accountCode=source.slice(source.indexOf('function yyRoleCultivationModel('),source.indexOf('function characterView(){'));
+assert(accountCode.includes('function yyAccountHistoryView('),'historical cultivation source ledger');
+const accountFactory = new Function('window','save','roles','yyRoleSection','escape','yyProgressEntries',
+ accountCode+';return {yyRoleCultivationModel,yyAccountCultivationView};');
+const mainSave={globalVariable:{
+ '3255_atk':20,'muren_addXW1':10,'2630_1':3,'2630_10058':2,'home_ssrx_max':12
+}};
+const roster=[
+ {name:'주인공',type:'주인공',id:1,level:90,raw:{ID:1,Level:90,WXXW1:120,WXXW2:100,WXXW3:80,WXXW4:50,WXXWng:70,WXXWqg:60}},
+ {name:'동료',type:'동료',id:10058,level:90,raw:{ID:10058,Level:90,WXXW1:40,WXXW2:20,WXXW3:0,WXXW4:0,WXXWng:10,WXXWqg:0}}
+];
+const statusApi={cultivation:(save,role)=>({cultivation:{records:[1,2,3,4,'ng','qg'].map(k=>({
+ kind:k,current:(role['WXXW'+k]||0)+100,extra:role['WXXW'+k]||0,learned:100,fixed:0,
+ transferable:role['WXXW'+k]||0,raw:(role['WXXW'+k]||0)+100,overflow:0,
+ history:k===1?[{name:'紫阳书院指点',current:20}]:[],unknownSkills:[]
+}))}})};
+const {yyRoleCultivationModel,yyAccountCultivationView}=accountFactory(
+ {RoleStatusData:statusApi},mainSave,roster,(title,inner)=>'<section><h3>'+title+'</h3>'+inner+'</section>',
+ value=>String(value),yyProgressEntries
+);
+assert.equal(yyRoleCultivationModel(roster[0]).records.length,6,'all six cultivation branches');
+assert.equal(yyRoleCultivationModel(roster[0]).records[0].history[0].name,'자양서원 지도','Korean history names');
+const accountHtml=yyAccountCultivationView();
+assert(accountHtml.includes('계정 전체 수련 획득 이력'),'history ledger visible');
+assert.equal((accountHtml.match(/data-character-jump/g)||[]).length,2,'account drilldown per role');
+assert.equal((accountHtml.match(/계정 공유 영구 성장/g)||[]).length,1,'shared growth displayed only once');
+assert(accountHtml.includes('인물 수'),'account summary');
+
+console.log('PASS: yy-sim role page structure, all 9 tabs, selector wiring and version labels');
