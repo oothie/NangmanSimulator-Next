@@ -102,6 +102,23 @@ try{
      try{
       const actions=[],initial=wasmGetState();
       let count=0;
+      // In the original yy-sim aptitude model, 4 simultaneous goals
+      // require four slots. Upgrade only the WASM *copy*, not real inventory.
+      let aptitude=Number(initial.zizhi);
+      if(!Number.isInteger(aptitude)||aptitude<150||aptitude>154)
+       throw Error('원본 WASM 자질 단계 확인 실패');
+      while(Number(ZZ_DATA[String(aptitude)]?.num_talent)<order.length){
+       if(aptitude>=154)throw Error('최대 자질에서 목표 슬롯 부족');
+       const current=wasmGetState();
+       const next={...current,zizhi:aptitude+1,
+        str_gift:Number(current.str_gift||0)+100,
+        con_gift:Number(current.con_gift||0)+100};
+       if(!wasmSetState(next)||Number(wasmGetState()?.zizhi)!==aptitude+1)
+        throw Error('WASM 가상 자질 상승 실패');
+       aptitude++;
+       actions.push({kind:'open_slot',note:'开槽至 '+aptitude+'（'+
+        Number(ZZ_DATA[String(aptitude)]?.num_talent)+' 格）',wash_no:0});
+      }
       for(let j=0;j<order.length;j++){
        const id=order[j],entry=TALENT_DATA[String(id)];
        let state=wasmGetState();
