@@ -36,6 +36,23 @@ const shape=v=>Array.isArray(v)?'array['+v.length+']':
  const targets=[{purple_name:'九阴鬼脉',conflict_name:'玄阳神脉'}];
  context.targets=targets;
  const pads=vm.runInContext('wasmPreviewExchangePads(targets,80)',context);
+ assert(Array.isArray(preview.purples),'real native preview has purple list');
+ assert(Array.isArray(preview.luck_pool),'real native preview has luck-pool list');
+ assert(Array.isArray(constraints),'real native conflicts are slot records');
+ assert(Array.isArray(available),'real native available talents are IDs');
+ assert(Array.isArray(pads)&&pads.length===81,'real native exchange pads include pad 0 through 80');
+ assert(pads.every(row=>row&&Number.isInteger(row.pad)&&Array.isArray(row.nodes)&&
+   'pills' in row&&'washes' in row&&'exchanges' in row),'actual pad cost and steps');
+ assert(preview.purples.every(row=>Number.isInteger(row.wash_no)&&
+   Number.isInteger(row.wash_times)&&Number.isInteger(row.talent_id)),
+  'purple preview exposes original event, cycle and talent ID');
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'..','engine','wash-path-model.js'),'utf8'),context);
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'..','engine','wash-preview-model.js'),'utf8'),context);
+ context.nativePads=pads;context.nativePreview=preview;
+ const pathCandidates=vm.runInContext('window.NangmanWashPath.inspect(nativePads,1)',context);
+ const purples=vm.runInContext('window.NangmanWashPreview.normalize(nativePreview)',context);
+ assert.equal(pathCandidates.length,81,'native path candidates parsed by UI model');
+ assert.equal(purples.length,preview.purples.length,'native preview parsed by UI model');
  assert.equal(JSON.stringify(vm.runInContext('wasmGetState()',context)),before,
   'read-only previews must not modify live WASM state');
  for(const [name,value] of [['preview',preview],['conflicts',constraints],['available',available],['pads',pads]]){
