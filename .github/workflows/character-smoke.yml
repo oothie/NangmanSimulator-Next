@@ -70,6 +70,8 @@ jobs:
         run: node tests/wash-until-exchange-smoke.cjs
       - name: Verify 1–4 stage native wash and exchange transaction
         run: node tests/wash-chain-smoke.cjs
+      - name: Validate original yy-sim automatic search and Korean route steps
+        run: node tests/yysim-auto-search-smoke.cjs
       - name: Verify goal-only Domakbeop talent inventory audit
         run: node tests/wash-goal-audit-smoke.cjs
       - name: Verify original WASM goal-only three-slot lock
