@@ -3728,7 +3728,10 @@ window.addEventListener('message',event=>{
  if(match.length>1&&request.CZSeed!=null)match=match.filter(x=>Number(x.eq.CZSeed)===Number(request.CZSeed));
  if(match.length>1&&request.MJSeed!=null)match=match.filter(x=>Number(x.eq.MJSeed)===Number(request.MJSeed));
  const chosen=match.length===1?match[0]:null;
- const item=chosen?.eq||{ID:id,Color:Number(request.Color)||0};
+ const item=chosen?.eq||(request.CZSeed!=null&&request.MJSeed!=null&&request.S!=null&&
+ (Array.isArray(request.EnExts)||Array.isArray(request.exts))
+ ?{...request,ID:id,Color:Number(request.Color??request.color)||0}
+ :{ID:id,Color:Number(request.Color??request.color)||0});
  if(!equipDetail){
   equipPrevious=equipTab;equipPreviousView=v;
   history.pushState({equipmentDetail:true,previousView:v,previousTab:equipTab},'','#equip-detail');
