@@ -48,8 +48,18 @@ function project(save,target,event,fieldCount,dungeonCount,order,equipment){
  const field=wild.predict(fieldState,target,{pad:0,count:fieldCount,
   time:0,interval:30,bait:'normal'},equipment||{});
  const dungeonRows=dungeon.predict(dungeonState,event,dungeonCount);
- return {...merge(field,dungeonRows,order),fieldCount,dungeonCount,
-  fieldNpc:target.npcId,dungeonBoss:event.boss,dungeonId:event.id};
+ const plan=merge(field,dungeonRows,order);
+ const data=Array.isArray(save)?save[0]:save;
+ const eds=data?.Rnds?.Eds??data?.rnds?.eds??{};
+ const hasPerItemSeed=id=>{
+  const value=eds[String(id)];
+  const number=Number(value?.Value??value?.value??value?.V??value?.v??value);
+  return Number.isSafeInteger(number)&&number>0;
+ };
+ return {...plan,equipment:plan.equipment.map(x=>({...x,hasSharedSeed:hasPerItemSeed(x.itemId)})),
+  byItem:plan.byItem.map(x=>({...x,hasSharedSeed:hasPerItemSeed(x.id)})),
+  fieldCount,dungeonCount,fieldNpc:target.npcId,
+  dungeonBoss:event.boss,dungeonId:event.id};
 }
 root.SBJSharedGearCore={merge,project,GEAR90};
 })(window);
