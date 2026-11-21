@@ -13,6 +13,20 @@ try{
   send(requestId,true,{preview:wasmPreviewSequence(count),count});
   return
  }
+ if(op==='talent-constraints'){
+  const before=wasmGetState();
+  if(!before)throw Error('원본 세수 상태를 확인할 수 없습니다');
+  const available=wasmGetAvailableTalents();
+  const conflicts=wasmGetConflicts();
+  const after=wasmGetState();
+  if(!after||JSON.stringify(before)!==JSON.stringify(after))
+   throw Error('재능 조회 중 WASM 상태가 변경됐습니다. 원본 결과를 적용하지 않습니다');
+  if(!Array.isArray(available)||!Array.isArray(conflicts))
+   throw Error('원본 WASM 재능·충돌 자료 구조를 확인할 수 없습니다');
+  const nameIds=Object.fromEntries(Object.entries(TALENT_DATA).filter(([,x])=>x?.name).map(([id,x])=>[x.name,id]));
+  send(requestId,true,{available,conflicts,nameIds});
+  return
+ }
  if(op==='exchange-pads'){
   const targets=payload?.targets;
   const maxPad=Number(payload?.maxPad??900);
