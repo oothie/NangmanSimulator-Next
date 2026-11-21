@@ -594,7 +594,7 @@ if(sub==='sim'){
  '<span class="micro">'+historyPage.page+' / '+historyPage.pages+' 페이지</span>'+
  '<button class="btn" id="washHistoryNext" '+(historyPage.page>=historyPage.pages?'disabled':'')+'>다음 페이지</button>'+
  '<label>페이지당 <select id="washHistorySize">'+[50,100,200].map(n=>'<option value="'+n+'" '+(historyPage.size===n?'selected':'')+'>'+n+'</option>').join('')+'</select></label></div>'+
- (washRuns.length?'<details><summary>마지막 실행 묶음 원본 자료</summary><pre class="history" style="white-space:pre-wrap;max-height:320px;overflow:auto">'+escape(JSON.stringify(washRuns.at(-1),null,2))+'</pre></details>':'')+
+ (visibleRuns.length?'<details><summary>마지막 실행 묶음 원본 자료</summary><pre class="history" style="white-space:pre-wrap;max-height:320px;overflow:auto">'+escape(JSON.stringify(visibleRuns.at(-1),null,2))+'</pre></details>':'')+
  '</section>';
  body=config+settings+skills+buttons+qualityPanel+nextPurple+history+'<details class="wash-section"><summary>고급 WASM 조작 및 진단</summary>'+washSandbox()+roleDataPanel()+diagnosticPanel()+'</details>';
 }
@@ -3100,7 +3100,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    throw Error('WASM에서 세이브 시드·캐릭터가 일치하지 않아 실행을 중단했습니다.');
   state.origin='save';state.linkedRoleId=source.role.id;state.lastConflict=null;state.active=true;state.liveTalents=applied.talents||[];syncWasmBag(applied);
   state.seed=String(mapped.seed);state.roleId=String(mapped.role_id);state.zizhi=String(mapped.zizhi);
-  state.log=[];state.undoStates=[];state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.output='현재 인물 세이브 상태를 WASM에 적용했습니다. 이 결과는 실게임 검증 전 독립 시뮬레이션입니다.\n'+
+  state.log=[];state.undoStates=[];state.historyHiddenBefore=0;state.historyPage=1;state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.output='현재 인물 세이브 상태를 WASM에 적용했습니다. 이 결과는 실게임 검증 전 독립 시뮬레이션입니다.\n'+
    JSON.stringify({roleId:applied.role_id,zizhi:applied.zizhi,sex:applied.sex,locked:applied.talents?.filter(x=>x.locked).length,
     talLucky:applied.tal_lucky,mode:applied.mode},null,2);
   // Successful import stays usable even if this auxiliary native inspection fails.
@@ -3119,7 +3119,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   Object.assign(data,{seed:state.seed,role_id:Number(state.roleId),zizhi:Number(state.zizhi)||153,sex:1,vip:1,
     talents:[],tal_lucky:0,total_wash:0,total_pills:0,gold_count:0,pity_count:0,exchange_count:0});
   const next=await washEngine.call('set-state',data);
-  state.origin='test';state.linkedRoleId=null;state.lastConflict=null;state.active=true;state.liveTalents=next?.talents||[];syncWasmBag(next);state.log=[];state.undoStates=[];state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.output='시험 상태 설정 완료\n'+JSON.stringify(next,null,2);
+  state.origin='test';state.linkedRoleId=null;state.lastConflict=null;state.active=true;state.liveTalents=next?.talents||[];syncWasmBag(next);state.log=[];state.undoStates=[];state.historyHiddenBefore=0;state.historyPage=1;state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.output='시험 상태 설정 완료\n'+JSON.stringify(next,null,2);
  }else if(op==='washEngineConfigure'){
   if(!state.active||state.origin!=='save')throw Error('선택 인물의 세수 WASM 연결이 필요합니다');
   const sex=Number(e.detail.sex),vip=Number(e.detail.vip);
@@ -3254,7 +3254,7 @@ window.addEventListener('nangman-wash-command',async e=>{
     throw Error('자동 탐색 WASM 세이브 연결 실패');
    state.origin='save';state.linkedRoleId=source.role.id;state.active=true;
    state.liveTalents=applied.talents||[];syncWasmBag(applied);
-   state.log=[];state.undoStates=[];state.lastConflict=null;
+   state.log=[];state.undoStates=[];state.historyHiddenBefore=0;state.historyPage=1;state.lastConflict=null;
   }
   const api=window.YYWashAutoSearch;
   if(!api?.options)throw Error('원본 자동 탐색 표시 모듈이 로드되지 않았습니다');
