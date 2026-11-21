@@ -52,13 +52,15 @@ function routeOutcome(raw,selected){
  });
  routes.sort((a,b)=>{
   if(a.complete!==b.complete)return a.complete?-1:1;
-  if(a.executable!==b.executable)return a.executable?-1:1;
+  // A cheap valid native path must never be outranked by a more expensive
+  // path merely because our separate replay bridge supports its actions.
   for(const key of ['estimatedPills','estimatedWashes','exchanges','pad']){
    const av=a[key],bv=b[key];
    if(av==null&&bv!=null)return 1;
    if(bv==null&&av!=null)return -1;
    if(av!=null&&bv!=null&&av!==bv)return av-bv;
   }
+  if(a.executable!==b.executable)return a.executable?-1:1;
   return a.index-b.index;
  });
  const stats={scanned:int(raw.scanned)??0,total:routes.length,
