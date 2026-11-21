@@ -829,8 +829,37 @@ function characterSanbujinComplete(root,role){
  }
  return '<section class="card"><h3>영구 육성 종합</h3><p class="micro">산부진 원본의 진행도·상한 계산을 연결했습니다. 항산 직책은 한국판 미출시 항목이므로 제외하며, 실제 복용 당시 조건이 보존되지 않은 확률형 효과는 확정값으로 표시하지 않습니다.</p></section>'+cards.join('');
 }
+
+// 세수 세이브 정보: BornTalent 1칸 + Talents 목록을 실제 저장 기록에서 수집.
+// 잠금, 정진 및 원시맥/치환맥의 예측은 서로 다른 데이터이므로 임의 변환하지 않는다.
+function characterWashTalents(role){
+ const raw=role?.raw||{};
+ const first=raw.BornTalent&&typeof raw.BornTalent==='object'&&Number(raw.BornTalent.ID)>0?[raw.BornTalent]:[];
+ const all=[...first,...characterEntries(raw.Talents).filter(x=>x&&Number(x.ID)>0)];
+ return all.map((x,index)=>({slot:index+1,id:Number(x.ID),locked:x.Lock===true,rc:Number.isFinite(Number(x.RC))?Number(x.RC):null,time:String(x.Time||'')}));
+}
+function characterWashView(role,root){
+ const raw=role?.raw||{},talents=characterWashTalents(role),index=Number(root?.XiSui),count=Number(raw.RXiSui);
+ const global=Number.isFinite(index)?String(index):'—';
+ const perRole=Number.isFinite(count)?String(count):'—';
+ const slots=Math.max(4,talents.length);
+ return '<section class="card"><h3>세수 저장 정보 · '+escape(role?.name||'캐릭터')+'</h3>'+
+ '<p class="micro">실제 JSON의 BornTalent·Talents·RXiSui·XiSui를 표시합니다. 세수 다음 결과·자맥 천장까지의 거리 계산과는 별개입니다.</p>'+
+ '<div class="wiki-detail-fields">'+
+ '<div class="wiki-field"><span>전체 세수 기록 (XiSui)</span><b>'+escape(global)+'</b></div>'+
+ '<div class="wiki-field"><span>선택 캐릭터 기록 (RXiSui)</span><b>'+escape(perRole)+'</b></div>'+
+ '<div class="wiki-field"><span>자질 (ZiZhi)</span><b>'+escape(characterNumber(raw,'ZiZhi'))+'</b></div>'+
+ '<div class="wiki-field"><span>원본 재능 (BornTalent)</span><b>'+escape(raw.BornTalent?.ID??'—')+'</b></div>'+
+ '</div><h4>현재 저장된 재능 '+talents.length+'개</h4>'+
+ '<table class="module-table"><thead><tr><th>슬롯</th><th>재능</th><th>잠금</th><th>원본 RC</th></tr></thead><tbody>'+
+ Array.from({length:slots},(_,i)=>{
+  const t=talents[i];
+  return '<tr><td>'+(i+1)+'</td><td>'+(t?'재능 #'+escape(t.id):'비어 있음')+'</td><td>'+(t?(t.locked?'잠금':'해제'):'—')+'</td><td>'+(t?escape(t.rc??'—'):'—')+'</td></tr>';
+ }).join('')+'</tbody></table></section>';
+}
+
 function characterView(){
- const opts=[['overview','캐릭터 개요'],['growth','육성'],['martial','무학·재능'],['equipment','착용 장비'],['meridians','경맥·기록'],['training','지역 수련'],['consumable','단약·음식'],['cultivation','수련치'],['permanent','영구 속성'],['complete','육성 종합']];
+ const opts=[['overview','캐릭터 개요'],['growth','육성'],['martial','무학·재능'],['equipment','착용 장비'],['meridians','경맥'],['craft','기예·비기'],['wash-info','세수 정보'],['training','지역 수련'],['consumable','단약·음식'],['cultivation','수련치'],['permanent','영구 속성'],['complete','육성 종합']];
  const role=roles[selected]||roles[0]||null,raw=role?.raw||{};
  const selector=roles.length?'<nav class="simple-tabs" aria-label="캐릭터 선택">'+roles.map((r,i)=>'<button data-character-role="'+i+'" class="'+(i===selected?'active':'')+'">'+escape(r.name)+' · '+escape(r.level||'—')+'레벨</button>').join('')+'</nav>':'';
  let body='<p class="micro">상단에서 한국판 JSON 세이브를 불러오세요.</p>';
@@ -848,13 +877,17 @@ function characterView(){
    body=characterSanbujinMetrics(save,role);
   }else if(characterTab==='training'||characterTab==='consumable'){
    body=characterProgressView(save,role,characterTab);
+  }else if(characterTab==='craft'){
+   body=characterLifeView(raw);
+  }else if(characterTab==='wash-info'){
+   body=characterWashView(role,save);
   }else if(characterTab==='equipment'||characterTab==='meridians'){
    body=characterSavedCollections(raw,characterTab);
   }else{
    const talents=(Array.isArray(raw.Talents)?raw.Talents:[]).filter(x=>x&&Number(x.ID)>0);
    const t='<section class="card"><h3>재능 · '+talents.length+'개</h3>'+
    (talents.length?'<div class="wiki-detail-fields">'+talents.map(x=>'<div class="wiki-field"><span>재능 ID '+escape(x.ID)+'</span><b>잠금: '+(Number(x.Lock)?'예':'아니요')+'</b></div>').join('')+'</div>':'<p class="micro">세이브에 등록된 재능이 없습니다.</p>')+'</section>';
-   body=t+characterSkillRows(raw,'Taolus','외공')+characterSkillRows(raw,'Neis','내공')+characterSkillRows(raw,'Qings','경공')+characterSkillRows(raw,'LifeSkills','기예');
+   body=t+characterSkillRows(raw,'Taolus','외공')+characterSkillRows(raw,'Neis','내공')+characterSkillRows(raw,'Qings','경공');
   }
  }
  return '<div class="module-wrap">'+moduleHero('캐릭터','세이브에 저장된 인물별 원본 능력치·육성·무학 조회')+selector+tabRow(opts,characterTab,'character')+body+
