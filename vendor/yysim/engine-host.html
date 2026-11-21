@@ -145,7 +145,7 @@ try{
   }finally{restore()}
   results.sort((a,b)=>a.pills-b.pills||a.washes-b.washes);
   send(requestId,true,{nativeFunction:'wasmColorSequentialSearch',desiredIds:ids,
-   nameIds,results:{routes:results.slice(0,12),scanned:trials,
+   nameIds,result:{routes:results.slice(0,12),scanned:trials,
     error:results.length?null:'원본 WASM 순차 세수에서는 해당 목표 조합을 찾지 못했습니다'},
    limits:{orders:orders.length,passes:results.length?1:2,caps},warnings:errors});
   return
