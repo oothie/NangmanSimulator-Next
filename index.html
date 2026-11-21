@@ -4502,10 +4502,15 @@ window.addEventListener('nangman-wash-command',async e=>{
   const allowed=(window.YYWashTargetCatalog||[]).flatMap(g=>g.items.map(t=>t.id));
   const options=api.options(e.detail,isColor?allowed:
    [248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277]);
+  let lastProgressPaint=0,lastProgressPhase='';
   const updateProgress=progress=>{
    if(state.generation!==generation||!state.loading||!progress)return;
    state.autoProgress={...progress};
-   announce();
+   const now=performance.now(),phase=String(progress.phase||'');
+   if(phase!==lastProgressPhase||Number(progress.percentage)===100||
+      now-lastProgressPaint>=120){
+    lastProgressPaint=now;lastProgressPhase=phase;announce();
+   }
   };
   updateProgress({phase:'init',stage:'선택한 목표와 세이브 검증',percentage:0,
    completed:0,total:0,checked:0,found:0,bestPills:null});
