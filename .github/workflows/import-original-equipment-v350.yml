@@ -32,6 +32,7 @@ jobs:
           b64=m.group(1)
           engine=base64.b64decode(b64).decode('utf-8')
           assert '<html' in engine.lower() or '<!doctype' in engine.lower()
+          (out/'equipment.html').write_text(engine,encoding='utf-8')
           # The original engine is archived as base64 chunks; preserve bytes verbatim.
           for p in out.glob('*.js'):p.unlink()
           for n,i in enumerate(range(0,len(b64),220000),1):
@@ -39,7 +40,7 @@ jobs:
               'window.NANGMAN_V350_PARTS=window.NANGMAN_V350_PARTS||[];'+
               'window.NANGMAN_V350_PARTS['+str(n-1)+']='+
               json.dumps(b64[i:i+220000])+';\n',encoding='utf-8')
-          markers=['applySharedSaveJson','applySave','makeSequence','eSet','eDetail','eTables','fBag','fBagRows','dTabs','dCommon','ePart','eEq']
+          markers=['applySharedSaveJson','loadSaveData','jhOpen','setBagMode','jhRenderHome','jhSearch','jhFinder','jhAuto','eSet','eDetail','eTables','fBag','dTabs','eEq']
           report={'source':'oothie/NangmanSimulator/Nangman_Integrated_Simulator_v3_50.html',
            'sha256':hashlib.sha256(engine.encode()).hexdigest(),
            'original_bytes':len(engine.encode()),'source_bytes':len(src.encode()),
