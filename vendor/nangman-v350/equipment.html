@@ -5754,7 +5754,7 @@ input,select,textarea,button,.config-panel,.manual-panel,.action-panel,.result-p
 </div>
 <div class="config-group">
 <label>예측 횟수</label>
-<input id="specialAttachCount" max="5000" min="1" type="number" value="20"/>
+<input id="specialAttachCount" max="200" min="1" type="number" value="20"/>
 </div>
 </div>
 <div class="config-row">
@@ -11090,9 +11090,10 @@ function paintDetailPanel(h,o,tab){
   const finalExts=(finalEq.exts||[]).map((x,i)=>`${i+1}. ${propLabel218(x.prop)} +${formatPropValue(x.prop,x.value)}`).join(' · ')||'—';const gradeProps=[...new Set((finalEq.exts||[]).map(x=>x.prop))].filter(p=>rkRefineTheoreticalMax256(EQUIP_DATA.equipment[String(finalEq.id)]||baseCfg,p)>0);const gradeHtml=gradeProps.map(p=>`<span class="rk-grade-line256">${esc(propLabel218(p))} ${rkGradeBadge256(finalEq,p)}</span>`).join('');
   const kept=flags.filter(Boolean).length;
   h.innerHTML=`
-  <div class="detail-controls218"><label>표시 횟수 <select class="rinput" id="dxln">${[20,50,100,200].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v}</option>`).join('')}</select></label><span class="meta">보존 ${kept}회 · 전체 소모 ${esc(rkCostText218(base,rows,o.xl?.lastAccept))}</span></div>
+  <div class="detail-controls218"><label>옵션별 조회 <select class="rinput" id="dxlslot"><option value="0">전체 옵션</option>${[1,2,3].map(v=>`<option value="${v}" ${Number(o._rkXlSlot)===v?'selected':''}>옵션 ${v}</option>`).join('')}</select></label><label>표시 횟수 <select class="rinput" id="dxln">${[20,50,100,200].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v}</option>`).join('')}</select></label><span class="meta">보존 ${kept}회 · 전체 소모 ${esc(rkCostText218(base,rows,o.xl?.lastAccept))}</span></div>
   <div class="mini"><b>보존 선택 결과</b><div class="meta">최종 XLLevel ${finalEq.XLLevel??finalEq.xl_level??0}</div><div class="props">${esc(finalExts)}</div></div>
-  <div class="scroll218"><table class="tbl218 detail-table218"><thead><tr><th>보존</th><th>#</th><th>슬롯</th><th>기존 옵션 → 새 옵션</th><th>비용</th><th>정련 단계</th></tr></thead><tbody>${rows.map((x,i)=>{const old=x.old_prop?`${propLabel218(x.old_prop.prop)} +${formatPropValue(x.old_prop.prop,x.old_prop.value)}`:'—';const np=x.prop?`${propLabel218(x.prop.prop)} +${formatPropValue(x.prop.prop,x.prop.value)}`:'—';return `<tr class="${flags[i]?'row-keep':''}"><td><input type="checkbox" data-rkxl="${i}" ${flags[i]?'checked':''}></td><td>${x.index||i+1}</td><td>슬롯 ${x.slot||''}</td><td>${esc(old)} → <b>${esc(np)}</b></td><td>×${x.cost_mult||1}</td><td>${x.xl_level_before??''} → ${x.xl_level??''}</td></tr>`}).join('')}</tbody></table></div>`;
+  <div class="scroll218"><table class="tbl218 detail-table218"><thead><tr><th>보존</th><th>#</th><th>슬롯</th><th>기존 옵션 → 새 옵션</th><th>비용</th><th>정련 단계</th></tr></thead><tbody>${rows.filter(x=>!o._rkXlSlot||Number(x.slot)===Number(o._rkXlSlot)).map((x,i)=>{const old=x.old_prop?`${propLabel218(x.old_prop.prop)} +${formatPropValue(x.old_prop.prop,x.old_prop.value)}`:'—';const np=x.prop?`${propLabel218(x.prop.prop)} +${formatPropValue(x.prop.prop,x.prop.value)}`:'—';return `<tr class="${flags[i]?'row-keep':''}"><td><input type="checkbox" data-rkxl="${i}" ${flags[i]?'checked':''}></td><td>${x.index||i+1}</td><td>옵션 ${x.slot||''}</td><td>${esc(old)} → <b>${esc(np)}</b></td><td>×${x.cost_mult||1}</td><td>${x.xl_level_before??''} → ${x.xl_level??''}</td></tr>`}).join('')}</tbody></table></div>`;
+  h.querySelector('#dxlslot').onchange=ev=>{o._rkXlSlot=Number(ev.target.value)||0;paintDetailPanel(h,o,'xl')};
   h.querySelector('#dxln').onchange=ev=>{o._rkXlN=Number(ev.target.value);paintDetailPanel(h,o,'xl')};
   h.querySelectorAll('[data-rkxl]').forEach(cb=>cb.onchange=()=>{o._rkXlFlags[Number(cb.dataset.rkxl)]=cb.checked;paintDetailPanel(h,o,'xl')});
   return;
