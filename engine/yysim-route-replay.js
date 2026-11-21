@@ -1,0 +1,107 @@
+/* Conservative yy-sim native search route replay. No simulated RNG guesses.
+ * Operates only on a copied WASM state and rolls back all steps on failure.
+ * Unsupported native action kinds or slot opening are rejected before replay.
+ */
+(function(root){
+'use strict';
+const integer=v=>v!==null&&v!==undefined&&v!==''&&Number.isSafeInteger(Number(v))?Number(v):null;
+function plan(route,nameIds={}){
+ if(!route?.complete||!route.executable||!Array.isArray(route.actions))
+  throw Error('목표가 완성되고 원본 단계가 제공된 경로만 모의 실행할 수 있습니다');
+ const ids=route.goalIds||[],actions=route.actions;
+ if(!actions.length){
+  if(route.estimatedWashes===0&&route.exchanges===0)return [];
+  throw Error('실행 단계가 누락되어 경로를 재생할 수 없습니다');
+ }
+ const allowed=new Set(['lock','unlock','wash_to','exchange','keep','skip']);
+ const planned=[];
+ let washes=0;
+ for(const [i,action] of actions.entries()){
+  const kind=String(action?.kind||'');
+  if(!allowed.has(kind))
+   throw Error('원본 경로 단계 '+(i+1)+' ('+(kind||'알 수 없음')+')은 아직 재생할 수 없습니다');
+  const resolve=(name)=>{
+   if(name==null||name==='')return null;
+   const id=integer(nameIds[String(name)]);
+   if(id===null||id<1)throw Error('원본 재능 이름과 ID 매핑이 없어 경로를 안전하게 실행할 수 없습니다: '+String(name));
+   return id;
+  };
+  if(kind==='lock'||kind==='unlock'){
+   planned.push({kind,id:resolve(action.talent)});
+  }else if(kind==='wash_to'){
+   const target=integer(action.wash_no);
+   if(target===null||target<washes||target>5000)
+    throw Error('원본 세수 회차가 역행하거나 범위를 벗어났습니다');
+   planned.push({kind,count:target-washes,target});
+   washes=target;
+  }else if(kind==='exchange'){
+   if(Array.isArray(action.chain)&&action.chain.length>1)
+    throw Error('연쇄 치환의 분기 조건은 아직 1:1 재생되지 않습니다');
+   planned.push({kind,from:resolve(action.from),to:resolve(action.to||action.talent)});
+  }else planned.push({kind});
+ }
+ if(integer(route.estimatedWashes)!==washes)
+  throw Error('원본 경로의 총 세수 횟수와 단계별 세수 횟수가 다릅니다');
+ return planned;
+}
+async function run({route,nameIds,call,ensureSession=()=>{}}={}){
+ if(typeof call!=='function')throw Error('WASM 호출이 없습니다');
+ const steps=plan(route,nameIds);
+ ensureSession();
+ const original=await call('state');
+ if(!original||!Array.isArray(original.talents))
+  throw Error('실행 전 WASM 상태가 올바르지 않습니다');
+ let applied=0;
+ try{
+  for(const [index,step] of steps.entries()){
+   ensureSession();
+   const state=await call('state');
+   if(!state||!Array.isArray(state.talents))throw Error('현재 재능 슬롯을 읽을 수 없습니다');
+   if(step.kind==='lock'||step.kind==='unlock'){
+    const at=state.talents.findIndex(t=>Number(t.id)===step.id);
+    if(at<0)throw Error('경로 재능이 현재 슬롯에 없습니다');
+    const want=step.kind==='lock';
+    if(!!state.talents[at].locked!==want){
+     const response=await call('toggle-lock',{index:at});
+     if(response?.state?.talents?.[at]?.locked!==want)
+      throw Error('원본 WASM 잠금 결과가 경로와 다릅니다');
+    }
+   }else if(step.kind==='wash_to'){
+    let remaining=step.count;
+    while(remaining>0){
+     const count=Math.min(100,remaining);
+     const response=await call('wash',{count});
+     if(response?.performed!==count||!response?.state)
+      throw Error('세수단 부족 또는 원본 실행 회차 불일치');
+     remaining-=count;
+     ensureSession();
+    }
+   }else if(step.kind==='exchange'){
+    const conflicts=await call('talent-constraints');
+    const candidates=Array.isArray(conflicts?.conflicts)?conflicts.conflicts:[];
+    const at=candidates.find(row=>row?.can_exchange===true&&
+      state.talents[Number(row.index)]?.id===step.from);
+    if(!at)throw Error('원본 경로의 치환 가능 슬롯이 현재 WASM 충돌과 다릅니다');
+    const response=await call('exchange-matched',{index:Number(at.index)});
+    if(!response?.state?.talents?.some(t=>Number(t.id)===step.to))
+     throw Error('원본 치환 결과에서 예상 재능을 확인하지 못했습니다');
+   }
+   applied=index+1;
+  }
+  const state=await call('state');
+  const missing=(route.goalIds||[]).filter(id=>!state?.talents?.some(t=>Number(t.id)===Number(id)));
+  if(missing.length)throw Error('경로 재생 후 목표 자맥 미보유: '+missing.join(','));
+  ensureSession();
+  return {original,state,steps:applied,verified:true};
+ }catch(error){
+  try{
+   ensureSession();
+   const restored=await call('set-state',original);
+   if(JSON.stringify(restored)!==JSON.stringify(original))
+    throw Error('복원 후 WASM 전체 상태가 이전 상태와 다릅니다');
+  }catch(e){error.message+=' / 롤백 검증 오류: '+String(e.message||e)}
+  throw error;
+ }
+}
+root.YYWashRouteReplay={plan,run};
+})(window);
