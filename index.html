@@ -1,10 +1,10 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.9.5</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.9.6</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}button,input{font:inherit;color:inherit}button{cursor:pointer}button:disabled{opacity:.43;cursor:not-allowed}
 .shell{max-width:1320px;margin:auto;padding:16px}.top{display:flex;align-items:center;gap:24px;background:var(--paper);border:1px solid var(--border);border-radius:8px;padding:15px 20px;box-shadow:0 4px 18px #4139260d}.brand{font-family:serif;font-size:25px;flex-shrink:0}.brand small{display:block;font:11px system-ui;color:var(--sub);letter-spacing:1px}.nav{display:flex;gap:2px;flex:1;flex-wrap:wrap}.nav button,.save-link{padding:8px 12px;border:0;background:transparent;border-radius:5px;color:var(--sub)}.nav button.active,.nav button:hover,.save-link.active{background:#ad8b4c28;color:var(--text);font-weight:700}.nav button.active{border-bottom:2px solid var(--gold)}.tools{display:flex;align-items:center;gap:8px;margin-left:auto}.theme{display:flex;border:1px solid var(--border);border-radius:6px;padding:2px;gap:2px}.theme button{border:0;background:transparent;padding:5px 8px;font-size:12px;border-radius:4px;color:var(--sub)}.theme button.on{background:var(--panel);color:var(--text)}
-.page{margin-top:15px;background:var(--paper);border:1px solid var(--border);border-radius:8px;padding:18px 20px 25px}.heading{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;border-bottom:1px solid var(--border);padding:1px 0 16px}.heading h1{font:700 23px Georgia,serif;margin:0}.muted{color:var(--sub)}.micro{font-size:12px;color:var(--sub)}.btn{background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:8px 12px}.btn.primary{background:#477b59;border-color:#477b59;color:white}.btn:hover:not(:disabled){filter:brightness(.97)}
+.page{margin-top:15px;background:var(--paper);border:1px solid var(--border);border-radius:8px;padding:18px 20px 25px}.heading{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;border-bottom:1px solid var(--border);padding:1px 0 16px}.heading h1{font:700 23px Georgia,serif;margin:0}.muted{color:var(--sub)}.micro{font-size:12px;color:var(--sub)}.btn{background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:8px 12px}.btn.primary{background:var(--gold);border-color:var(--gold);color:#fff}.btn:hover:not(:disabled){filter:brightness(.97)}
 .layout{display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px;margin-top:15px}.aside,.work,.card{border:1px solid var(--border);background:var(--panel);border-radius:7px}.aside{padding:14px;align-self:start}.work{padding:18px;min-width:0}.aside-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}.role-g{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}.role-title{display:flex;justify-content:space-between;color:var(--sub);font-size:12px}.role{display:flex;width:100%;align-items:center;gap:10px;background:none;border:1px solid transparent;border-radius:6px;padding:8px;text-align:left}.role.active,.role:hover{background:#a3884b21;border-color:var(--border)}.avatar{width:33px;height:33px;display:grid;place-items:center;border-radius:50%;background:var(--paper);border:1px solid var(--border);color:var(--green);flex-shrink:0}.role b,.role small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.role small{font-size:11px;color:var(--sub)}.roles{max-height:65vh;overflow:auto}input{width:100%;padding:9px;border:1px solid var(--border);background:var(--paper);border-radius:5px}
 .hero{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:15px}.hero h2{font:700 23px Georgia,serif;margin:0 0 6px}.figures{display:flex;gap:4px;flex-wrap:wrap}.fig{padding:0 11px;text-align:center;border-left:1px solid var(--border)}.fig b{display:block;font:600 23px Georgia,serif}.fig span{font-size:11px;color:var(--sub)}.fig.purple b{color:var(--purple)}
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin:13px 0 15px;overflow-x:auto}.tabs button{border:0;border-bottom:2px solid transparent;background:none;padding:9px 14px;white-space:nowrap;color:var(--sub)}.tabs button.active{color:var(--text);border-bottom-color:var(--gold);font-weight:700}.card{padding:16px;margin:0 0 13px}.card h3{font-size:15px;margin:0 0 12px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.stat{text-align:center;background:var(--paper);border:1px solid var(--border);border-radius:5px;padding:10px}.stat b{display:block;font-size:19px}.stat span{color:var(--sub);font-size:11px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.fields label{font-size:12px;color:var(--sub);display:block;margin-bottom:5px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.notice{padding:12px;background:#a88a4e15;border-left:3px solid var(--gold);font-size:12px;color:var(--sub);margin:12px 0}.history{background:var(--paper);border:1px solid var(--border);padding:12px;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}.blank{text-align:center;padding:24px;color:var(--sub)}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}.foot{text-align:center;color:var(--sub);font-size:11px;padding:22px}
@@ -201,7 +201,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.9.5: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.9.6: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -381,7 +381,7 @@ body{background:var(--bg)!important}
 .quest-branch-item small{font-size:11px;color:var(--sub);overflow-wrap:anywhere}
 .quest-branch-item>span{font-size:12px;white-space:nowrap;color:var(--sub)}
 
-/* v0.9.5: yy-sim spacing in native calculator containers. */
+/* v0.9.6: yy-sim spacing in native calculator containers. */
 .equip-primary-tabs{gap:5px;flex-wrap:wrap}
 .equip-primary-tabs button{min-height:36px;padding:8px 12px;border-radius:6px}
 .equipment-runtime-status{border-radius:7px;border:1px solid var(--border);border-left:3px solid var(--gold);background:var(--paper);color:var(--text)}
@@ -390,12 +390,12 @@ body{background:var(--bg)!important}
 .equipment-host iframe{border-radius:8px;background:var(--panel)}
 @media(max-width:700px){.equip-primary-tabs button{font-size:12px;padding:7px 10px}.drop-workspace{min-height:640px}.equipment-runtime-status{padding:9px 11px}}
 
-/* v0.9.5: CSV downloads are intentionally removed from the visible site. */
+/* v0.9.6: CSV downloads are intentionally removed from the visible site. */
 #washHistoryExport,#washPreviewExport,#washPathExport,
 #downloadAccountCultivation,#questBranchExport,#questExportCsv,
 button[data-export-csv],a[download$=".csv"]{display:none!important}
 
-/* v0.9.5: readable wash and equipment navigation */
+/* v0.9.6: readable wash and equipment navigation */
 .equip-directory,.equip-detail-full{padding:18px 0}
 .equip-directory>input{width:min(100%,700px);padding:13px;font-size:16px}
 .equip-directory-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin:18px 0}
@@ -412,7 +412,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .talent{min-height:86px}.talent-text b{font-size:15px}.talent-text small,.config-item,.wash-grade{font-size:13px}
 @media(max-width:700px){.equip-directory-list,.equip-detail-rows{grid-template-columns:1fr}}
 
-/* v0.9.5: wash automatic search readable selection panels */
+/* v0.9.6: wash automatic search readable selection panels */
 .wash-auto-groups{display:grid;gap:14px;margin:15px 0 18px}
 .wash-auto-group{border:1px solid var(--border);background:var(--panel);border-radius:9px;padding:3px 14px}
 .wash-auto-group>summary{font-size:16px;font-weight:750;padding:12px 2px;cursor:pointer}
@@ -511,7 +511,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 [data-theme=ink] .equip-detail-full,[data-theme=ink] .equip-detail-full *{border-color:var(--border)}
 .wiki-equipment-details{width:100%;max-width:390px;margin:14px 0;padding:11px 14px!important;display:block;background:transparent!important;border:1px solid var(--gold)!important;color:var(--text)!important;font-weight:700}.wiki-equipment-details:hover{background:#ad8b4c22!important}
 
-/* v0.9.5: distinct equipment detail controls; colors signal functions, while
+/* v0.9.6: distinct equipment detail controls; colors signal functions, while
    their surfaces and active states use the integrated paper/ink palette. */
 .equip-detail-full .equip-detail-buttons{
  display:grid!important;
@@ -593,8 +593,21 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 [data-theme=ink] .equip-detail-full .equip-detail-choice.is-active:after{background:#252830!important;color:var(--choice-ink)!important}
 @media(max-width:930px){.equip-detail-full .equip-detail-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:520px){.equip-detail-full .equip-detail-buttons{gap:9px!important}.equip-detail-full .equip-detail-choice{min-height:90px!important;padding:12px!important}.equip-detail-full .equip-detail-choice strong{font-size:17px!important}.equip-detail-full .equip-detail-choice span{font-size:11px!important}}
+
+/* v0.9.6: unified site controls and accessible low-contrast equipment tabs. */
+:root{color-scheme:light}
+[data-theme=ink]{color-scheme:dark}
+.btn.primary{background:var(--gold)!important;border-color:var(--gold)!important;color:#fff!important;font-weight:700}
+[data-theme=ink] .btn.primary{color:#151515!important}
+.equip-primary-tabs button{font-size:15px!important;min-height:44px!important;padding:10px 14px!important}
+.equip-primary-tabs button:focus-visible,
+.equip-detail-buttons button:focus-visible{outline:3px solid var(--gold)!important;outline-offset:2px!important}
+.equipment-runtime-status,.equip-detail-full,.equip-detail-operations{color:var(--text)}
+[data-theme=ink] .equip-detail-full input,
+[data-theme=ink] .equip-detail-full select{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
+@media(max-width:700px){.equip-primary-tabs button{font-size:14px!important;min-height:44px!important}}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
-/* v0.9.5: compact wash view. Calculation controls are not changed. */
+/* v0.9.6: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
 .layout .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 16px;margin-bottom:9px}
 .layout .hero h2{font-size:18px;margin:0}
@@ -1195,7 +1208,7 @@ function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.9.5</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
+return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.9.6</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
 }
 
 function embeddedEngine(url,label,caption){
@@ -3386,7 +3399,7 @@ if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  link.download='Nangman_Quest_Branches_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch=''}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.9.5',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch=''}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.9.6',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 
 if($('equipSearch'))$('equipSearch').oninput=e=>{equipSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipSearch');x.focus();x.setSelectionRange(p,p)};
 if($('equipOwnSearch'))$('equipOwnSearch').oninput=e=>{equipOwnSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipOwnSearch');x.focus();x.setSelectionRange(p,p)};
@@ -3682,7 +3695,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.9.5',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.9.6',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;equipmentLastOriginalTab=null;render()}});
@@ -4073,7 +4086,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   }
   state.lastConflict=null;state.liveTalents=result.state.talents;syncWasmBag(result.state);state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';
   state.output=(action==='toggle-lock'?'원본 WASM 잠금 변경':'원본 WASM 치환 실행')+
-   ' · 슬롯 '+(index+1)+' · 실게임과 무관한 가상 상태\\n'+JSON.stringify(result,null,2);
+   ' · 슬롯 '+(index+1)+' · 실게임과 무관한 가상 상태\n'+JSON.stringify(result,null,2);
  }else if(op==='washEngineConstraints'){
   if(!state.active||state.origin!=='save')
    throw Error('먼저 해당 캐릭터의 세이브를 WASM에 연결하세요.');
@@ -4419,7 +4432,7 @@ window.addEventListener('message',e=>{
  }
 });
 </script>
-<!-- v0.9.5: read-only localization audit with hidden dialogs, select choices and element paths. -->
+<!-- v0.9.6: read-only localization audit with hidden dialogs, select choices and element paths. -->
 <script>
 (function(){
   const hanja=/[\u3400-\u9fff]/;
