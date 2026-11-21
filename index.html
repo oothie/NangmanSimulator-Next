@@ -654,7 +654,8 @@ if(sub==='path'){
  '<p class="micro">원본 WASM의 <code>wash_until_talent_name</code> 실행을 사용합니다. 최대 5000회, 실행 전 상태 저장 후 되돌리기 가능. 현재 목표 자맥의 한국 서버 적중 여부는 미검증입니다.</p>'+
  '<div class="fields"><label>목표 자맥<select id="washTalentTarget"><option value="">선택</option>'+purpleSourceIds.map(id=>'<option value="'+id+'" '+(String(id)===single?'selected':'')+'>'+escape(characterTalentName(id))+' (#'+id+')</option>').join('')+'</select></label></div>'+
  '<div class="fields"><label>다음 치환 탐색 한도<select id="washNextConflictLimit"><option value="100" '+(runtime.nextConflictLimit===100?'selected':'')+'>100회</option><option value="500" '+((runtime.nextConflictLimit??500)===500?'selected':'')+'>500회</option><option value="1000" '+(runtime.nextConflictLimit===1000?'selected':'')+'>1000회</option></select></label></div>'+
- '<div class="actions"><button id="washPathChain" class="btn primary" '+(!valid?'disabled':'')+'>입력한 목표 자맥 순서대로 연속 충돌·치환</button></div>'+
+ '<div class="actions"><button id="washPathLockGoals" class="btn" '+(!valid?'disabled':'')+'>현재 보유한 목표 자맥 잠금 (최대 3칸)</button>'+
+ '<button id="washPathChain" class="btn primary" '+(!valid?'disabled':'')+'>입력한 목표 자맥 순서대로 연속 충돌·치환</button></div>'+
  '<p class="micro">목표 쌍에 입력한 자맥 ID들을 1~4단계의 순서로 사용하며 해당 재능과 관련된 충돌만 치환합니다. 도맥법 최단 경로와 잠금 자동 배치는 아직 미지원이며, 중도 실패 시 실행 시작 상태로 복구됩니다.</p>'+
  '<div class="actions"><button id="washNextTargetConflict" class="btn" '+(!valid?'disabled':'')+'>선택 목표 관련 다음 충돌까지</button>'+
  '<button id="washNextTargetAuto" class="btn primary" '+(!valid?'disabled':'')+'>목표 관련 충돌 발견 시 자동 치환</button></div>'+
@@ -2493,6 +2494,19 @@ if($('washNextTargetConflict'))$('washNextTargetConflict').onclick=()=>{
  window.dispatchEvent(new CustomEvent('nangman-wash-command',
   {detail:{op:'washEngineUntilExchange',count:limit,talentId:Number(target)}}));
 };
+if($('washPathLockGoals'))$('washPathLockGoals').onclick=()=>{
+ const text=String($('washPathPairs')?.value||'');
+ try{
+  const api=window.NangmanWashGoal;
+  if(!api)throw Error('목표 슬롯 검사 모듈이 준비되지 않았습니다');
+  const allowed=[248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277];
+  const pairs=api.parsePairs(text,allowed);
+  const targetIds=pairs.map(x=>x.purpleId);
+  if(window.__washRuntime)window.__washRuntime.targetPairs=text;
+  window.dispatchEvent(new CustomEvent('nangman-wash-command',{
+   detail:{op:'washEngineLockGoals',targetIds}}));
+ }catch(err){alert(String(err?.message||err))}
+};
 if($('washPathChain'))$('washPathChain').onclick=()=>{
  const input=String($('washPathPairs')?.value||'').trim();
  const lines=input.split(/[\n,;]+/).map(x=>x.trim()).filter(Boolean);
@@ -2815,6 +2829,35 @@ window.addEventListener('nangman-wash-command',async e=>{
   state.lastConflict=null;state.preview=null;state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.liveTalents=result.state.talents||[];syncWasmBag(result.state);state.targetTalentId=talentId;
   state.output='원본 WASM 목표 자맥 '+talentId+' 조회 · 실행 결과 '+resultCount+
    '건 · 게임 세이브 원본 변경 없음 · 실게임 검증 전\n'+JSON.stringify(result,null,2);
+ }else if(op==='washEngineLockGoals'){
+  if(!state.active||state.origin!=='save'||!state.linkedRoleId||
+     window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
+   throw Error('먼저 선택 캐릭터의 세이브를 원본 WASM에 연결하세요');
+  const targetIds=e.detail.targetIds;
+  if(!Array.isArray(targetIds)||targetIds.length<1||targetIds.length>4)
+   throw Error('목표 자맥은 1~4개만 선택하세요');
+  const snapshot=await washEngine.call('state');
+  if(!snapshot||!Array.isArray(snapshot.talents))
+   throw Error('기존 재능 잠금 상태를 읽지 못했습니다');
+  const result=await washEngine.call('lock-present-goals',{targetIds});
+  ensureSession();
+  if(!result?.state||!Array.isArray(result.state.talents)||
+     result.locked>3||result.applied?.length>3)
+   throw Error('원본 WASM 목표 잠금 적용 결과가 올바르지 않습니다');
+  if(JSON.stringify(result.state)!==JSON.stringify(snapshot)){
+   state.undoStates.push(snapshot);
+   state.log.push({type:'goal-lock',targetIds,applied:result.applied,
+    missing:result.missing,maxed:result.maxed});
+   state.preview=null;state.previewNameIds=null;state.pathReports=null;
+   state.constraints=null;state.constraintsDisplay='';
+  }
+  state.lastConflict=null;state.liveTalents=result.state.talents||[];
+  syncWasmBag(result.state);
+  state.output='원본 WASM 목표 자맥 잠금 · 이번 잠금 '+result.applied.length+
+   '칸 · 현재 총 잠금 '+result.locked+'칸 / 최대 3칸 · 없는 목표 '+
+   (result.missing?.length?result.missing.join(', '):'없음')+' · 추가 잠금 불가 '+
+   (result.maxed?.length?result.maxed.join(', '):'없음')+
+   ' · 실제 세이브 원본 변경 없음';
  }else if(op==='washEngineAutoChain'){
   if(!state.active||state.origin!=='save'||!state.linkedRoleId)
    throw Error('선택 캐릭터 세이브를 WASM에 연결해야 연속 치환을 실행할 수 있습니다.');
