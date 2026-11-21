@@ -5698,6 +5698,7 @@ function equipAutoCandidateHtml(candidate, options) {
             </span>
             <span class="equip-auto-card-actions" data-card-v="4">
                     <span class="equip-auto-actions-scroll">
+                    <button type="button" class="equip-auto-shared-detail" data-nangman-equipment-id="${escapeAiHtml(String(EQUIP_DATA.papers[String(candidate.paperId)]?.dz_equip||0))}" data-nangman-equipment-color="${escapeAiHtml(String(candidate.color||0))}">장비 상세</button>
                     <button type="button" class="equip-auto-region-compare" data-region-id="${escapeAiHtml(String(candidate.id))}" title="다른 장인에게 제작할 경우의 지역 추가 옵션 보기"><span class="act-full">다른 장인 추가 옵션</span><span class="act-short">추가 옵션</span></button>
                     ${options && options.refine ? '<button type="button" class="equip-auto-refine-seq" data-refine-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">정련 데이터</span><span class="act-short">정련</span></button>' : ''}
                     ${options && options.forge && equipAutoCanForge(candidate) ? '<button type="button" class="equip-auto-forge" data-forge-id="' + escapeAiHtml(String(candidate.id)) + '"><span class="act-full">촉련 보기</span><span class="act-short">촉련</span></button>' : ''}
