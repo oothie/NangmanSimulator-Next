@@ -987,7 +987,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='quick',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='strategy',marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
+let equipTab='auto',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='strategy',marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questTab='current',questSearch='',questLocatedOnly=true,questBranchFilter='active';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
@@ -1002,7 +1002,7 @@ function embeddedEngine(url,label,caption){
 }
 
 const equipmentTabs=[
- ['quick','빠른 조회','equip-quick'],['auto','자동 탐색','equip-auto'],
+ ['auto','장비 찾기','equip-auto'],
  ['manual','수동 제작·정련','equip'],['region','지역별 제작 목록','equip-region'],['orange','주황 장비 순서','equip-orange'],
  ['jianwang','검왕각 수동','jianwang-manual'],['jianwangAuto','검왕각 자동','jianwang-auto']
 ];
