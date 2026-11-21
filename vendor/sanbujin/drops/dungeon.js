@@ -175,7 +175,7 @@
       {title:'색상',value:r=>colors[r.color]||''},
       {title:'90레벨 장비 Eds 추적',value:r=>r.sharedEdsTracked===true?'추적':r.sharedEdsTracked===false?'누락':''},
       {title:'같은 장비 ID 후속 횟수',key:'sameItemOrder'},
-      {title:'검증 상태',value:()=> '산부진 보스별 공유 RNG 가설 · 실측 불일치 · 초기화권 시드 재설정 확인 전'}
+      {title:'검증 상태',value:()=> '보스별 공유 RNG 예측 · 일부 결과 실측 불일치'}
     ],allBossRows);
   };
 
