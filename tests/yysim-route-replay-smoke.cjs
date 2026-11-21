@@ -5,12 +5,13 @@ const ctx={window:{}};vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname,'../engine/yysim-route-replay.js'),'utf8'),ctx);
 const api=ctx.window.YYWashRouteReplay;
 const route=(actions,washes=0,exchanges=0)=>({complete:true,executable:true,
- goalIds:[271],estimatedWashes:washes,exchanges,actions});
+ goalIds:[271],estimatedWashes:washes,estimatedPills:0,pad:0,exchanges,actions});
 assert.throws(()=>api.plan(route([{kind:'open_slot'}])),/자질 조건/);
 assert.equal(api.plan(route([{kind:'open_slot',note:'开槽至 154（4 格）'}]))[0].requiredSlots,4);
 assert.throws(()=>api.plan(route([{kind:'exchange',from:'旧',to:'新'}],0,1),{}),/매핑/);
 assert.throws(()=>api.plan(route([{kind:'wash_to',wash_no:2}],3)),/총 세수/);
 assert.throws(()=>api.plan(route([{kind:'wash_to',wash_no:1}],1,1)),/총 치환/);
+assert.throws(()=>api.plan({...route([],0,0),estimatedPills:1}),/실행 단계/);
 const raw={seed:3,role_id:10044,zizhi:151,str_gift:30,con_gift:50,talents:[{id:271,locked:false}]};
 let current=JSON.parse(JSON.stringify(raw)),fail=false;
 const clone=x=>JSON.parse(JSON.stringify(x));
