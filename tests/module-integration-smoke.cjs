@@ -46,6 +46,15 @@ assert.equal(runtime.log.length,0);
 const wasmHost=fs.readFileSync(path.join(__dirname,'..','vendor','yysim','engine-host.html'),'utf8');
 assert(wasmHost.includes("op==='preview'"),'WASM host exposes read-only preview');
 assert(wasmHost.includes('wasmPreviewSequence(count)'),'WASM host forwards exact original sequence operation');
+assert(wasmHost.includes("op==='until-gold'"),'yy-sim original next purple wasm operation available');
+assert(wasmHost.includes('wasmWashUntilGold(limit)'),'host calls the original native until-gold API');
+assert(wasmHost.includes('limit>5000'),'until-gold hard execution cap');
+assert(source.includes('id="washMainGold"'),'next-purple button enabled for imported save');
+assert(source.includes("op==='washEngineUntilGold'"),'next-purple button connected to native bridge');
+assert(source.includes("washEngine.call('until-gold',{count:1000})"),'bounded native next purple call');
+assert(source.includes('state.undoStates.push(snapshot);state.log.push(result);state.preview=null;'),
+ 'next-purple run has reversible state snapshot');
+
 
 const questAPI=new Function('wikiRows','wikiKoMap','wikiName','card','tabRow','moduleHero','escape','save','questTab','questSearch','questLocatedOnly',
  section('function questSaveModel(root){','function others(){')+
