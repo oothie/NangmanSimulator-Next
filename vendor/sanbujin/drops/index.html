@@ -1,5 +1,5 @@
 <!doctype html><html lang="ko"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><title>낭만강호 · 산부진 드랍 원본</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><title>낭만강호 · 드랍</title>
 
 <script defer src="../shared/pako.min.js"></script><script defer src="../shared/save_decrypt.js"></script>
 
@@ -50,7 +50,18 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 #tombGateOutput{overflow:auto;max-height:420px}
 .tomb-gate-mismatch{background:#fff0e5;font-weight:700}
 </style>
-<link rel="stylesheet" href="../shared/app/nangman-yy-unified.css?rev=v0800"><script defer src="../shared/app/nangman-yy-theme-sync.js?rev=v0800"></script>
+<link rel="stylesheet" href="../shared/app/nangman-yy-unified.css?rev=v0810"><script defer src="../shared/app/nangman-yy-theme-sync.js?rev=v0810"></script>
+
+<style id="nangman-drop-single-nav">
+/* Parent 드랍 tabs remain the only visible navigation; hidden buttons stay in
+   the DOM to preserve the same-origin message-driven mode switching. */
+body .progress-heading,body nav.drop-modes{display:none!important}
+body.sbj-web{padding:10px 12px!important;min-height:0}
+body .hub-main{max-width:100%;margin:0;padding:0}
+body .wild-panel{margin-top:0}
+body .dungeon-coverage{padding:9px 12px!important}
+body .dungeon-coverage strong{font-size:14px}
+</style>
 </head><body class="sbj-web"><main class="hub-main progress-main">
 <header class="progress-heading"><span class="hub-mark" aria-hidden="true">낭</span><div><h1>드랍 시뮬레이션</h1><p>세이브의 난수 순서로 장비와 보물 드랍을 예측합니다.</p></div></header>
 <nav class="drop-modes" aria-label="드랍 종류">
@@ -102,7 +113,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
         <label>첫 사냥 판정 시각(중국 표준시)<input id="wildTime" type="datetime-local" step="1" required></label>
         <label>사냥 간격(초)<input id="wildInterval" type="number" min="1" max="86400" value="30" required></label>
       </div>
-      <p class="progress-note">이 시각은 <strong>일부 저레벨 aidrop 장비의 추가 옵션</strong> 계산에만 사용합니다. 드랍 장비 ID·색상 판정에는 사용하지 않습니다. 중국 표준시는 한국 시간보다 1시간 느립니다. <strong>새북·십방집 90레벨 특수몹과 제릉은 저장된 장비별 Eds 시드</strong>를 사용하므로 이 시간 입력을 적용하지 않습니다.</p>
+      <p class="progress-note">시간 입력은 일부 저레벨 장비의 추가 옵션에만 적용됩니다. 중국 표준시는 한국보다 1시간 느립니다.</p>
     </details>
     <p id="wildHint" class="progress-note"></p>
     <div class="wild-actions"><button type="submit" id="wildRun">드랍 예측</button><label><input type="checkbox" id="wildOnlyHits" checked>드랍 결과만 보기</label><label>장비 등급<select id="wildQuality"><option value="all">전체</option><option value="equip">장비만</option><option value="purple">자색 장비만</option></select></label><button type="button" id="wildExport" disabled>드랍 결과 CSV</button></div>
@@ -125,8 +136,8 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 </section>
 <section id="dungeonDrop" class="wild-panel" aria-label="관문 드랍" hidden>
   <div class="dungeon-coverage" role="note">
-    <strong>전 관문 일반 장비 드랍 예측</strong>
-    <p>등록된 모든 관문·보스 보상 함수를 조회하며, 90레벨 이상 관문에서는 90레벨 일반 장비를 대상으로 합니다. 각 보상 함수를 순서대로 계산하는 가설 모델이며, 최종 정련·망정 옵션과 실제 게임에서의 보스 간 추가 RNG 소비는 아직 검증 중입니다.</p>
+    <strong>관문 장비 드랍</strong>
+    <p>일부 관문 결과는 예측 모델이며 최종 정련·망정은 포함되지 않습니다.</p>
     <p id="dungeonCoverageStatus" class="progress-note"></p>
   </div>
   <form id="dungeonForm" class="wild-form">
@@ -146,7 +157,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   </section>
   <section aria-label="관문 우두머리별 드랍 가설" class="drop-orange">
     <h2>관문 전체 우두머리별 예측 비교</h2>
-    <p class="progress-note">현재 관문의 모든 보스를 선택된 순서대로 연결합니다. <strong>산부진 보상 함수 모형</strong>이며 한국 서버 실측과 차이가 확인되었습니다. 초기화권 사용 여부로 시드를 임의 보정하지 않습니다. 동일 관문 1회에서 보스를 연속 처치하는 경우만 가정합니다.</p>
+    <p class="progress-note">보스를 처치 순서대로 계산합니다. 일부 결과는 실측과 차이가 있을 수 있습니다.</p>
     <div class="wild-actions">
       <label>관문 회차<input id="dungeonAllRounds" type="number" min="1" max="40" value="3"></label>
       <button type="button" id="dungeonAllRun">모든 보스 순차 예측 (미검증)</button>
@@ -159,7 +170,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   <ol id="dungeonResults" class="wild-results"></ol>
  <details id="dungeonSequencePanel">
   <summary>여러 관문 연속 드랍 · 보스 순서 지정 (전체 관문 지원)</summary>
-  <p class="progress-note">같은 RNG 키(seed_byj 등)를 공유하는 우두머리들은 처치 순서에 따라 다음 보상이 달라집니다. 원본 우두머리별 독립 예측과 별도 계산하며, 일반 관문 보상 함수 호출만 연결합니다. 사냥 중 다른 난수 사용 이벤트는 포함하지 않습니다. 특히 벽유교의 35221 우두머리는 원본 보상 함수가 아직 복원되지 않아 선택 목록에서 빠져 있습니다. 이 계획을 벽유교 전체 클리어의 정확한 예측으로 해석하지 마세요.</p>
+  <p class="progress-note">같은 RNG 키를 사용하는 보스는 처치 순서에 영향을 받습니다. 미복원 보스는 제외됩니다.</p>
   <div class="wild-fields">
    <label>처치 계획 (관문 드랍 ID를 쉼표로 구분)<textarea id="dungeonSequencePlan" rows="2" placeholder="drop_35214_equip, drop_35219_equip" style="min-width:300px;max-width:100%"></textarea></label>
    <button type="button" id="dungeonSequenceAdd">선택 우두머리 추가</button>
@@ -175,7 +186,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 </section>
 <section id="sharedGear" class="wild-panel" aria-label="90레벨 필드 관문 공용 장비 획득 순서 계획" hidden>
  <h2>90레벨 장비 공용 획득 순서</h2>
- <p class="progress-note">새북·십방집 등의 특수몹 보상 함수와 관문 우두머리 보상 순서를 교차 배치해, 동일 장비 ID가 현재 세이브 이후 계획 내 몇 번째로 등장하는지 비교합니다. 이는 실게임 획득 확정이나 최종 정련·망정 옵션 예측이 아닙니다.</p>
+ <p class="progress-note">필드와 관문 보상에서 동일 장비의 획득 순서를 비교합니다.</p>
  <form id="sharedGearForm" class="wild-form">
   <div class="wild-fields">
    <label>필드 특수몹 보상<select id="sharedWildTarget"></select></label>
@@ -191,7 +202,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   <div class="wild-actions"><button id="sharedRun" type="submit" disabled>공용 장비 획득 순서 계산</button>
    <button id="sharedExport" type="button" disabled>예상 획득 순서 CSV</button></div>
  </form>
- <p class="progress-note">일반 필드 사냥 1회마다 특수몹 보상 함수가 호출되는 것이 아닙니다. 지역별 특수몹 등장 횟수의 정확한 환산은 아직 연결되지 않았습니다. 두 원본 보상 함수가 다른 RNG에 추가 영향을 주는 실제 플레이 행동은 포함하지 않습니다. 유일 주황 장비와 100레벨 더미 장비는 계산 대상에서 제외합니다.</p>
+ <p class="progress-note">유일 주황 장비와 100레벨 더미 장비는 제외합니다. 필드 사냥과 특수몹 호출 회차는 구분됩니다.</p>
  <p id="sharedStatus" role="status"></p>
  <div id="sharedByItem" class="progress-note" aria-label="장비별 공용 시드 확인"></div>
  <div style="overflow:auto"><table id="sharedTable" class="treasure-table" hidden>
@@ -199,7 +210,7 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
   <tbody id="sharedRows"></tbody>
  </table></div>
  <h3>같은 보상 결과에서 처리 순서 3가지 비교</h3>
- <p class="progress-note">필드·관문 개별 보상 결과는 고정하고 처리 순서만 바꾼 가상 비교입니다. 순서를 바꿨을 때 실제 공유 RNG의 추가 소비나 최종 정련·망정 변화까지 재계산한 것이 아닙니다.</p>
+ <p class="progress-note">처리 순서 비교는 가상 계산입니다.</p>
  <div style="overflow:auto"><table id="sharedScenarioTable" class="treasure-table" hidden>
   <thead><tr><th>장비 ID·이름</th><th>계획 내 총 획득</th><th>필드 전부 → 관문</th><th>관문 전부 → 필드</th><th>교대 처리</th></tr></thead>
   <tbody id="sharedScenarioRows"></tbody>
