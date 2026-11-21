@@ -29,6 +29,16 @@ const missingFlag=tomb.open({...save,globalVariable:{3007:6}});
 assert.equal(tomb.ready(missingFlag),false,'missing threshold flag blocks predictions');
 const locked=tomb.open({...save,globalVariable:{...save.globalVariable,3007:0}});
 assert(Array.from(tomb.predict(locked,{count:8}),r=>r.spawn).every(v=>!v),'normal encounter without unlock never treated as 35256');
+const clueSave={...save,globalVariable:{...save.globalVariable,treasure_hunting_cbt:5}};
+const clueBefore=JSON.stringify(clueSave);
+const clueTrace=tomb.trace(tomb.open(clueSave),{count:1,order:'descending'});
+assert.equal(clueTrace.rows.length,1);
+assert.equal(clueTrace.rows[0].spawn,true,'max threshold triggers special event');
+assert.equal(clueTrace.rows[0].extraItemId,9415,'source treasure clue side effect');
+assert.equal(clueTrace.final.flags.treasure_hunting_cbt,3,'source resets clue flag after reward');
+assert.equal(JSON.stringify(clueSave),clueBefore,'source save never mutated by clue modelling');
+assert(Number.isSafeInteger(clueTrace.final.encounterSeed)&&Number.isSafeInteger(clueTrace.final.equipmentSeed),
+ 'modeled end states retained for before/after comparisons');
 const secondary=Array.from(tomb.predict(open,{count:8,order:'ascending'}));
 assert.equal(secondary.length,8,'comparison hypothesis available');
 const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
