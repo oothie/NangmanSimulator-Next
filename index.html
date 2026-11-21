@@ -2158,6 +2158,31 @@ function characterGearCombatSubtotal(raw){
  }
  return {totals,source};
 }
+function characterMeridianFlatSubtotal(raw){
+ const source=window.NANGMAN_SANBUJIN_JINGMAI||{};
+ const name={atk:'공격',hp:'기혈',def:'방어',hit:'명중',
+  dodge:'회피',parry:'막기',speed:'속도',renxing:'인내',
+  gq_base:'강기',gangqi:'강기',neijin:'내경',mp_back:'집기'};
+ const totals={};
+ for(const jm of characterEntries(raw?.JingMais)){
+  const cfg=source[String(jm?.ID)];
+  if(!Array.isArray(cfg))continue;
+  const index=Number(jm.Index);
+  if(!Number.isFinite(index))continue;
+  const progress=Math.max(0,Math.min(10,index-1))/10;
+  const rows=[[cfg[0],progress],[cfg[1],progress]];
+  if(index>10)rows.push([Number(jm.Order)>0?cfg[2]:cfg[3],1]);
+  for(const [entry,factor] of rows){
+   if(!Array.isArray(entry)||!name[entry[0]])continue;
+   const amount=Number(entry[1])*factor;
+   if(!Number.isFinite(amount)||!amount)continue;
+   // Percentage and proportional effects cannot be added to flat panel values.
+   if(['hp_back','def_ign','dmg_off','po_parry','po_dodge'].includes(entry[0]))continue;
+   totals[name[entry[0]]]=(totals[name[entry[0]]]||0)+amount;
+  }
+ }
+ return totals;
+}
 function characterCombatSubtotal(role){
  const raw=role?.raw||{};
  const computed=characterSourceBaseStats(raw);
@@ -2168,15 +2193,16 @@ function characterCombatSubtotal(role){
   '강기':'강기 기본값','집기':'집기 기본값'
  };
  const equipment=characterGearCombatSubtotal(raw);
+ const meridians=characterMeridianFlatSubtotal(raw);
  const rows=Object.entries(sourceMap).map(([label,baseName])=>{
   const baseRow=computed.find(x=>x.label===baseName);
-  const base=Number(baseRow?.value),flat=equipment.totals[label]||0;
+  const base=Number(baseRow?.value),flat=equipment.totals[label]||0,meridian=meridians[label]||0;
   const valid=baseRow&&Number.isFinite(base);
-  return [label,valid?(base+flat).toLocaleString('ko-KR',{maximumFractionDigits:2}):'—',
-   valid?'기본 '+Number(base.toFixed(2))+(flat?' · 장비 +'+Number(flat.toFixed(2)):''):'기본 계산 미확인'];
+  return [label,valid?(base+flat+meridian).toLocaleString('ko-KR',{maximumFractionDigits:2}):'—',
+   valid?'기본 '+Number(base.toFixed(2))+(flat?' · 장비 +'+Number(flat.toFixed(2)):'')+(meridian?' · 경맥 +'+Number(meridian.toFixed(2)):''):'기본 계산 미확인'];
  });
- return '<section class="role-section"><p class="wr-kicker">전투 능력치 · 기본 및 장비 합산</p>'+
- '<p class="role-status-note">장비 기본값·추가 옵션을 현재 세이브에서 합산했습니다. 무학·경맥·재능·버프 등 미반영 효과가 있어 게임의 최종 전투 수치와 다를 수 있습니다.</p>'+
+ return '<section class="role-section"><p class="wr-kicker">전투 능력치 · 기본·장비·경맥 합산</p>'+
+ '<p class="role-status-note">기본 성장치, 장비의 기본·추가 수치, 경맥의 고정 증가분을 합산했습니다. 무학·정진·재능·비기·경맥 비율 효과·버프 등이 아직 미반영되어 게임의 최종 전투 수치와 다릅니다.</p>'+
  yyRoleStatGrid(rows,'final-grid')+'</section>';
 }
 function yyRolePanel(role){
