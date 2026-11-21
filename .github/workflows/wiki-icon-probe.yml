@@ -1,0 +1,25 @@
+name: Audit wiki icon paths
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/wiki-icon-probe.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check actual icon responses
+        shell: bash
+        run: |
+          for route in \
+            buff/icon_buff_10.png buff/10.png item/301.png item/309.png \
+            crafts/301.png craft/301.png arts/309.png art/309.png \
+            skill/301.png skill/309.png misc/301.png buff/icon_buff_01.png \
+            item/4000.png equip/4000.png; do
+            uri="https://yy-sim.pages.dev/icons/$route"
+            result="$(curl --location --silent --output /tmp/yyicon --write-out '%{http_code}|%{content_type}|%{size_download}' --max-time 15 "$uri" || true)"
+            echo "$route: $result"
+          done
