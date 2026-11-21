@@ -1,0 +1,28 @@
+// Filter user-visible purple equipment results without changing original model RNG.
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const root=path.resolve(__dirname,'..','vendor/sanbujin/drops');
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const wild=fs.readFileSync(path.join(root,'wild.js'),'utf8');
+const dungeon=fs.readFileSync(path.join(root,'dungeon.js'),'utf8');
+for(const x of ['wildQuality','dungeonQuality'])assert(html.includes('id="'+x+'"'));
+assert(html.includes('value="purple"'));
+assert(wild.includes("quality==='purple'?row.color===4"));
+assert(wild.includes("quality==='equip'?Boolean(row.color):true"));
+assert(dungeon.includes("quality==='purple'?rows.filter(row=>row.item&&row.color===4):rows"));
+assert(wild.includes("$('wildQuality').onchange"));
+assert(dungeon.includes("$('dungeonQuality').onchange"));
+const ctx={window:{}};vm.createContext(ctx);
+for(const file of ['wild-data.js','wild-core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx);
+const engine=ctx.window.SBJWildDrop;
+const target=ctx.window.SBJWildCatalog.find(x=>x.kind==='story'&&x.branches?.some(b=>b.equipIds?.length));
+assert(target,'source original story enemy');
+const fake={Rnds:{Sds:{[target.seedKey]:12090813,mdrop:77777777},Eds:{4009:89712}}};
+const before=JSON.stringify(fake);
+const projected=Array.from(engine.predict(engine.open(fake,target),target,{count:100,pad:0,time:1000,interval:30},{}));
+assert.equal(projected.length,100);
+const purple=projected.filter(x=>x.color===4);
+assert(purple.every(x=>x.color===4&&x.itemId));
+assert.equal(JSON.stringify(fake),before,'display filtering must never change saved RNG');
+assert(projected.filter(x=>x.color===4).length<=projected.filter(x=>x.color).length);
+console.log('PASS: field and dungeon purple filters, preserved RNG and source prediction');
