@@ -95,6 +95,29 @@ const path=require('node:path');
    'native final green-blue minimum candidate: '+JSON.stringify(finalSearch));
   console.log('PASS: dynamically discovered green+blue stay simultaneously in final slots, min candidate <= observed path; live state intact',JSON.stringify(finalSearch));
 
+  const fourTarget=await page.evaluate(async()=>{
+   const {washEngine,washSearchEngine}=await import('./engine/local-engine-bridge.js');
+   const live=await washEngine.call('state');
+   const state={...live,zizhi:154,seed:'447882174',role_id:10044,sex:1,vip:1,
+    talents:[{id:271,locked:true},{id:272,locked:true},
+     {id:250,locked:true},{id:171,locked:false}],
+    total_pills:0,total_wash:0,bag_pills:20000,has_bag_pills:true,
+    global_vars:{nlliandu_tf:0,talent_LingYue:1,mh_tianfu_401:1}};
+   const prepared=await washSearchEngine.call('set-state',state);
+   const result=await washSearchEngine.call('auto-intermediate-search',{
+    desiredIds:[271,272,250,184],horizon:160,topN:8});
+   const routes=result?.result?.routes||[];
+   return {scanned:result?.result?.scanned,trajectories:result?.result?.trajectories,
+    partial:result?.result?.partial,routeCount:routes.length,
+    valid:routes.every(row=>[271,272,250,184].every(id=>
+     row.final_slots.some(slot=>Number(slot.id)===id))),
+    preserved:JSON.stringify(live)===JSON.stringify(await washEngine.call('state')),
+    warnings:result?.warnings,globalVars:prepared?.global_vars};
+  });
+  assert(fourTarget.scanned===24&&fourTarget.routeCount>0&&fourTarget.valid&&
+   fourTarget.preserved&&!fourTarget.partial,
+   'native 3 purple + 1 green with global_vars: '+JSON.stringify(fourTarget));
+  console.log('PASS: native 3-purple+green final goals, 24 permuted branches, stable WASM global_vars',JSON.stringify(fourTarget));
   const retryPage=await browser.newPage();
   let failedAssets=0;
   await retryPage.route(/\/wasm_data\.js\?rev=0\.10\.7/,async route=>{
