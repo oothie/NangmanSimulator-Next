@@ -13,6 +13,7 @@ on:
       - 'tests/equipment-detail-bridge-smoke.cjs'
       - 'tests/nangman-v350-equipment-smoke.cjs'
       - 'tests/wiki-icon-structure.cjs'
+      - 'tests/wiki-icon-mapping-smoke.cjs'
       - 'tests/quest-branch-smoke.cjs'
       - 'tests/character-source-smoke.cjs'
       - 'tests/character-layout-smoke.cjs'
@@ -33,6 +34,8 @@ jobs:
           node-version: '22'
       - name: Audit original wiki craft and arts icon fields
         run: node tests/wiki-icon-structure.cjs
+      - name: Check verified craft, secret-art and buff image URLs
+        run: node tests/wiki-icon-mapping-smoke.cjs
       - name: Character stat source
         run: node tests/character-source-smoke.cjs
       - name: Character page layout
