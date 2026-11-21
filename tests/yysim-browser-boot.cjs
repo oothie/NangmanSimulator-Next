@@ -128,6 +128,43 @@ const path=require('node:path');
    await washSearchEngine.call('set-state',empty);
    const purple=await washSearchEngine.call('auto-search',{
     desiredIds:[271,272,250],horizon:1200,maxPad:20,topN:3});
+   await washSearchEngine.call('set-state',empty);
+   let replayDiagnostic={attempted:false};
+   if(purple?.result?.routes?.length){
+    const route=purple.result.routes[0],audit=[];
+    let washed=0;
+    try{
+     for(const action of route.actions||[]){
+      const target=Number(action.wash_no)||0;
+      while(washed<target){
+       const res=await washSearchEngine.call('wash',{count:1});
+       if(res.performed!==1)throw Error('wash '+(washed+1)+' incomplete');
+       washed++;
+      }
+      const current=await washSearchEngine.call('state');
+      const numeric=name=>Number(purple.nameIds?.[String(name)]||
+       (/^\d+$/.test(String(name))?name:0));
+      if(action.kind==='lock'||action.kind==='unlock'){
+       const id=numeric(action.talent),at=current.talents.findIndex(t=>Number(t.id)===id);
+       if(at<0)throw Error('talent '+id+' unavailable at '+washed+' for '+action.kind);
+       if(!!current.talents[at].locked!==(action.kind==='lock'))
+        await washSearchEngine.call('toggle-lock',{index:at});
+      }else if(action.kind==='exchange'){
+       const from=numeric(action.from),to=numeric(action.to);
+       const at=current.talents.findIndex(t=>Number(t.id)===from);
+       if(at<0)throw Error('exchange source '+from+' missing at '+washed);
+       const res=await washSearchEngine.call('exchange-talent',{index:at});
+       if(!res.state.talents.some(t=>Number(t.id)===to))
+        throw Error('exchange '+from+' → '+to+' mismatch at '+washed);
+      }
+      audit.push([action.kind,washed]);
+     }
+     const last=await washSearchEngine.call('state');
+     replayDiagnostic={attempted:true,washed,matched:[271,272,250].every(id=>
+      last.talents.some(t=>Number(t.id)===id)),slots:last.talents,
+      audit:audit.slice(-8)};
+    }catch(error){replayDiagnostic={attempted:true,washed,error:String(error.message||error),audit:audit.slice(-8)}}
+   }
    console.log('NATIVE_THREE_PURPLE',JSON.stringify({
     routeCount:purple?.result?.routes?.length,firstRoute:purple?.result?.routes?.[0]
    }).slice(0,10000));
@@ -136,6 +173,7 @@ const path=require('node:path');
    return {scanned:result?.result?.scanned,routeCount:result?.result?.routes?.length,
     nativePurpleCount:purple?.result?.routes?.length,
     nativePurpleFirst:purple?.result?.routes?.[0],
+    purpleReplay:replayDiagnostic,
     warnings:result?.warnings,partial:result?.result?.partial};
   });
   console.log('DIAGNOSTIC: four targets from scratch, 3 purple + green',JSON.stringify(freshGoals));
