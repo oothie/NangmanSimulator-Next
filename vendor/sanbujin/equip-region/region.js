@@ -32,7 +32,7 @@ function loadRoutes(){
  for(const npc of sortedCraftsmen()){
   for(const pick of papersForNpc(npc.id)){
    const equip=data.equipment?.[String(pick.equipId)];
-   if(!equip)continue;
+   if(!equip||Number(equip.weapon_color)===5||Number(pick.paper?.min_color)===5)continue;
    const key=String(npc.id)+':'+String(pick.selectId)+':'+String(equip.id);
    if(seen.has(key))continue;seen.add(key);
    const method=[5,6,7].includes(n(equip.type))?'sew':'forge';
@@ -43,22 +43,28 @@ function loadRoutes(){
 }
 function candidates(){return routes.filter(x=>(!state.level||n(x.equip.lv)===n(state.level))&&(!state.method||x.method===state.method)&&(!state.part||n(x.equip.type)===n(state.part))&&(!state.equip||n(x.equip.id)===n(state.equip)))}
 function render(){
- const lvs=[...new Set(routes.map(x=>n(x.equip.lv)).filter(Boolean))].sort((a,b)=>b-a);
+ // Roboking's cascading selection: never show every paper/equipment at once.
+ const lvs=[...new Set(routes.map(x=>n(x.equip.lv)).filter(v=>v>=1))].sort((a,b)=>b-a);
  setOptions('regionLevel',lvs.map(id=>({id,label:id+'급'})),state.level,'레벨 선택');
- const a=routes.filter(x=>!state.level||n(x.equip.lv)===n(state.level));
- setOptions('regionMethod',[{id:'forge',label:'단조'},{id:'sew',label:'봉제'}].filter(o=>a.some(x=>x.method===o.id)),state.method,'제작 방식 선택');
- const b=a.filter(x=>!state.method||x.method===state.method);
+ const show=(id,on)=>{const el=$(id).closest('label');el.hidden=!on;el.style.display=on?'grid':'none'};
+ const a=state.level?routes.filter(x=>n(x.equip.lv)===n(state.level)):[];
+ show('regionMethod',!!state.level);
+ setOptions('regionMethod',[{id:'forge',label:'단조 재료'},{id:'sew',label:'봉제 재료'}].filter(o=>a.some(x=>x.method===o.id)),state.method,'제작 재료 선택');
+ const b=state.method?a.filter(x=>x.method===state.method):[];
+ show('regionPart',!!state.method);
  const parts=[...new Set(b.map(x=>n(x.equip.type)))].sort((x,y)=>x-y);
  setOptions('regionPart',parts.map(id=>({id,label:typeName(id)})),state.part,'부위 선택');
- const c=b.filter(x=>!state.part||n(x.equip.type)===n(state.part));
- const eqs=[...new Map(c.map(x=>[n(x.equip.id),x.equip])).values()].sort((x,y)=>configName(x).localeCompare(configName(y),'ko'));
+ const c=state.part?b.filter(x=>n(x.equip.type)===n(state.part)):[];
+ show('regionEquip',!!state.part);
+ const eqs=[...new Map(c.map(x=>[n(x.equip.id),x.equip])).values()].filter(x=>!(Number(x.weapon_color)===5)).sort((x,y)=>configName(x).localeCompare(configName(y),'ko'));
  setOptions('regionEquip',eqs.map(e=>({id:e.id,label:configName(e)+' (#'+e.id+')'})),state.equip,'장비 선택');
  const list=candidates();
- $('regionStatus').textContent=list.length?list.length+'개 제작 경로':'제작 경로 없음';
+ $('regionStatus').textContent=state.equip?list.length+'개 지역 제작 경로':state.part?eqs.length+'종 장비':'레벨 · 재료 · 부위 · 장비 순서로 선택하세요';
  $('regionRun').disabled=!state.equip||!list.length;
  const display=state.equip?list:[];
- $('regionList').innerHTML=display.length?'<table><thead><tr><th>지역</th><th>장인</th><th>장비</th><th>제작 방식</th></tr></thead><tbody>'+
- display.map(x=>'<tr><td>'+escapeHtml(tr(x.npc.place||''))+'</td><td>'+escapeHtml(tr(x.npc.name||''))+'</td><td>'+escapeHtml(configName(x.equip))+'</td><td>'+(x.method==='sew'?'봉제':'단조')+'</td></tr>').join('')+'</tbody></table>':'';
+ $('regionList').innerHTML=display.length?'<div class="region-scroll"><table><thead><tr><th>지역</th><th>장인</th><th>장비</th><th>제작 방식</th><th>상세</th></tr></thead><tbody>'+
+ display.map(x=>'<tr><td>'+escapeHtml(tr(x.npc.place||''))+'</td><td>'+escapeHtml(tr(x.npc.name||''))+'</td><td>'+escapeHtml(configName(x.equip))+'</td><td>'+(x.method==='sew'?'봉제':'단조')+'</td><td><button type="button" class="region-detail" data-region-detail="'+n(x.equip.id)+'">장비 상세</button></td></tr>').join('')+'</tbody></table></div>':'';
+ $('regionList').querySelectorAll('[data-region-detail]').forEach(btn=>btn.onclick=()=>window.NangmanEquipmentDetail?.open({id:Number(btn.dataset.regionDetail)}));
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function setState(field,val){
@@ -94,9 +100,9 @@ function preview(){
   if(!row)return '—';
   const color=tr(colors[String(row.color)]||String(row.color||''));
   const ext=(row.exts||[]).map(x=>tr(props[x.prop]||x.prop)+' '+(typeof formatPropValue==='function'?formatPropValue(x.prop,x.value):String(x.value))).join(' · ');
-  return escapeHtml(color)+(ext?'<small>'+escapeHtml(ext)+'</small>':'');
+  return '<span class="region-quality region-quality-'+Number(row.color||0)+'">'+escapeHtml(color)+'</span>'+(ext?'<small>'+escapeHtml(ext)+'</small>':'');
  }
- $('regionStatus').textContent='현재 세이브 기준 20회 제작 순서';
+ $('regionStatus').textContent='현재 세이브 기준 · 장인별 20회 제작 결과';
  $('regionList').innerHTML='<div class="region-scroll"><table><thead><tr><th>회차</th>'+
  outputs.map(x=>'<th>'+escapeHtml(tr(x.rt.npc.place||''))+' · '+escapeHtml(tr(x.rt.npc.name||''))+'</th>').join('')+
  '</tr></thead><tbody>'+Array.from({length:20},(_,i)=>'<tr><td>'+(i+1)+'</td>'+
