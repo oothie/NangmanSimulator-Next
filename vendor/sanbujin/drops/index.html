@@ -44,6 +44,12 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
 .tomb-prediction-table .tomb-unknown{color:#935a25;font-weight:700}
 .tomb-prediction-table .tomb-known{font-weight:700}
 </style>
+<style>.tomb-gate-diagnostic{padding:10px 12px;margin:14px 0;border:1px solid #d6c8b5;border-radius:7px}
+.tomb-gate-diagnostic>summary{cursor:pointer;font-size:14px;font-weight:700}
+#tombGateRun{margin:8px 0}
+#tombGateOutput{overflow:auto;max-height:420px}
+.tomb-gate-mismatch{background:#fff0e5;font-weight:700}
+</style>
 </head><body class="sbj-web"><main class="hub-main progress-main">
 <header class="progress-heading"><span class="hub-mark" aria-hidden="true">낭</span><div><h1>드랍 시뮬레이션</h1><p>세이브의 난수 순서로 장비와 보물 드랍을 예측합니다.</p></div></header>
 <nav class="drop-modes" aria-label="드랍 종류">
@@ -68,8 +74,15 @@ body .yyhx-manual-header,body .sbj-site-nav{display:none!important}
    <label><input id="tombEvidenceNoEarlier" type="checkbox" disabled> 첫 8회에는 장비 드랍이 없었음</label>
    <small>반드시 해당 사냥을 시작하기 전 세이브일 때만 체크하세요. 다른 세이브라면 체크하지 않습니다.</small>
   </div>
-  <p id="tombForecastStatus" role="status">세이브를 불러오면 앞으로의 제릉 필드 사냥 결과를 예측할 수 있습니다.</p>
+  <p id="tombForecastStatus" role="status">현재 세이브의 제릉 보상 후보를 점검합니다. 35255 조우 호출 횟수와 일반 사냥 횟수의 대응은 검증되지 않았습니다.</p>
   <div id="tombForecastOutput"></div>
+  <details id="tombGateDiagnostic" class="tomb-gate-diagnostic">
+   <summary>원본 35255 조건부 조우 판정 · 내부 호출 50회 확인</summary>
+   <p class="progress-note"><strong>이 표의 호출 회차는 실제 필드 사냥 회차가 아닙니다.</strong> 원본 이벤트 경로가 35255 조우 후 실행된다는 사실만 확인됐으며, 일반 전투 1회마다 호출되는지는 미확정입니다. 사용자 실측 9회차와 원본 호출 9회차가 같다는 가정을 해서는 안 됩니다.</p>
+   <button type="button" id="tombGateRun">제릉 조건부 조우 50회 진단</button>
+   <p id="tombGateStatus" role="status"></p>
+   <div id="tombGateOutput"></div>
+  </details>
   <p class="progress-note">새북·십방집 특수몹처럼 제릉 90레벨 일반 장비는 <strong>저장된 장비 ID별 Eds 난수</strong>로 장비 옵션 시퀀스를 진행합니다. 사냥 실측 시각은 이 드랍 ID·색상 판정의 입력 변수가 아닙니다. 일부 저레벨 aidrop 장비 옵션만 실제 판정 시각(초)을 사용합니다.</p>
   <p class="progress-note">두 단순 정렬 가설은 9회차 수라장갑 백색 실측과 불일치했습니다. 이 화면은 보상 3! × 색상 4! = 144가지 순서를 계산하며, 결과가 여러 가지면 <b>미확정</b>으로 표시합니다. 분기 순서뿐 아니라 다른 RNG 소비·진행 조건이 틀렸을 가능성도 남아 있습니다.</p>
  </section>
