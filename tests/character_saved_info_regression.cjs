@@ -13,7 +13,8 @@ const window={
  EQUIP_DATA:{equipment:{5015:{type:6},5209:{type:7}},fashion:{7163:{type:10}}},
  NANGMAN_CRAFT_ID_KO:{'301':{name:'음률',desc:'기예'}},
  NANGMAN_ARTS_ID_KO:{'391':{name:'유서유경',desc:'비기'}},
- NANGMAN_SANBUJIN_JINGMAI:{'101':[['atk',50],['hit',40],['str',5],['con',5]]}
+ NANGMAN_SANBUJIN_JINGMAI:{'101':[['atk',50],['hit',40],['str',5],['con',5]]},
+ NANGMAN_TALENT_NAMES_KO:{'285':'병기 애호','260':'양의상합'}
 };
 const escape=x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const context={window,escape,characterNumber:(o,k)=>o?.[k]??'—',
@@ -39,8 +40,8 @@ assert.match(htmlMer,/공격 \\+50/);assert.match(htmlMer,/선택 보너스: 완
 let htmlLife=vm.runInContext('characterLifeView',context)(role.raw);
 assert.match(htmlLife,/음률/);assert.match(htmlLife,/기예 · 1개/);assert.match(htmlLife,/비기 · 1개/);
 let htmlWash=vm.runInContext('characterWashView',context)(role,{XiSui:3273});
-assert.match(htmlWash,/3273/);assert.match(htmlWash,/79/);assert.match(htmlWash,/재능 #285/);
-assert.equal(vm.runInContext('characterWashTalents',context)(role).length,4);
+assert.match(htmlWash,/3273/);assert.match(htmlWash,/79/);assert.match(htmlWash,/병기 애호/);
+assert.equal(vm.runInContext('characterWashTalents',context)(role).length,3);
 context.wikiSource=null;context.wikiFallbackSource=null;
 vm.runInContext(section('function wikiRows(){','function wikiKoMap(){'),context);
 const rows=vm.runInContext('wikiRows',context)();
