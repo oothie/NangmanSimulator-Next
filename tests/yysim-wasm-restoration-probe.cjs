@@ -32,6 +32,29 @@ for(const file of ['wasm_data.js','core_glue.js','data.js'])
  const wash=attempt('one-wash',()=>{vm.runInContext('wasmDoWash()',ctx)});
  const twice=attempt('two-washes',()=>{vm.runInContext('wasmDoWash();wasmDoWash()',ctx)});
  console.log('SUMMARY',JSON.stringify({zero:zero.different.length,lock:lock.different.length,wash:wash.different.length,twice:twice.different.length}));
+ // Input global_vars from a Korean save may have values that are normalized
+ // or omitted by native set_state on the SECOND import.
+ const globalsScenarios=[
+  {wash_complete:12,random_test:2},
+  {talent_LingYue:1,none:null,skip:0},
+  {nlliandu_tf:0,talent_QiLingBi:0,mh_tianfu_401:1},
+  {nested:{p:1,q:2},stateful:'123',tf:true}
+ ];
+ for(const g of globalsScenarios){
+  const prepared={...original,global_vars:g,zizhi:154,
+   talents:[{id:271,locked:true},{id:272,locked:true},{id:250,locked:true},{id:184,locked:false}]};
+  ctx.globalsInput=prepared;
+  const set=vm.runInContext('wasmSetState(globalsInput)',ctx);
+  const first=vm.runInContext('wasmGetState()',ctx);
+  ctx.canonical=first;
+  vm.runInContext('initWasm()',ctx);
+  vm.runInContext('wasmInitEngine(TALENT_DATA,ZZ_DATA)',ctx);
+  const restored=vm.runInContext('wasmSetState(canonical)',ctx);
+  const second=vm.runInContext('wasmGetState()',ctx);
+  const keys=Object.keys(first).filter(k=>JSON.stringify(first[k])!==JSON.stringify(second?.[k]));
+  console.log('GLOBAL_REINIT',JSON.stringify({input:g,set,restored,firstGlobals:first?.global_vars,secondGlobals:second?.global_vars,keys}).slice(0,3000));
+ }
+ vm.runInContext('wasmSetState(inputOriginal)',ctx);
  const scenarios=[
   {label:'present-3slots-1lock',talents:[{id:401,locked:true},{id:260,locked:false},{id:278,locked:false}],zizhi:153},
   {label:'present-4slots-2lock',talents:[{id:401,locked:true},{id:260,locked:true},{id:278,locked:false},{id:184,locked:false}],zizhi:154},
