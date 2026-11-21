@@ -72,10 +72,12 @@ assert.equal(t[2].conflict_wash_no,0,'only first selected purple attaches confli
 assert.equal(api.previewPadLimit([21,76]),54);
 assert.equal(api.previewPadLimit([21]),30);
 const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
-for(const id of ['yyAutoRun','yyAutoPad','yyAutoHorizon','yyAutoTopN','yyAutoPreset','yyAutoPreview']){
+for(const id of ['yyAutoRun','yyAutoPreset','yyAutoClear']){
  assert(html.includes('id="'+id+'"'),id);
 }
 assert(html.includes("['auto','원본 자동 탐색']"));
+for(const id of ['yyAutoPad','yyAutoHorizon','yyAutoTopN','yyAutoConnect','yyAutoProgressive'])assert(!html.includes('id="'+id+'"'),'automatic search must not expose internal controls: '+id);
+assert(html.includes('선택 자맥 자동 계산'));
 assert(html.includes("washEngine.call('auto-search',options)"));
 assert(html.includes('state.autoResult=null;'));
 assert(html.includes('yy-sim WASM'));
