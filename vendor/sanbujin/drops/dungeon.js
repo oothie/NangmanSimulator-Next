@@ -5,8 +5,8 @@
   const engine = window.SBJDungeonDrop, catalog = window.SBJDungeonCatalog;
   const groups = [...new Set(catalog.map(event => event.dungeon))];
   const area = $('dungeonArea'), boss = $('dungeonBoss');
-  const sections = {wild: $('wildDrop'), dungeon: $('dungeonDrop'), treasure: $('treasureDrop')};
-  const links = {wild: $('dropWildLink'), dungeon: $('dropDungeonLink'), treasure: $('dropTreasureLink')};
+  const sections = {wild: $('wildDrop'), dungeon: $('dungeonDrop'), shared: $('sharedGear'), treasure: $('treasureDrop')};
+  const links = {wild: $('dropWildLink'), dungeon: $('dropDungeonLink'), shared: $('dropSharedLink'), treasure: $('dropTreasureLink')};
   const colors = ['', '백색 장비', '녹색 장비', '청색 장비', '자색 장비'];
   let input, rows = [];
 
