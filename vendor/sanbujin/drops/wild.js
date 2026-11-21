@@ -177,7 +177,7 @@
    table.append(body);scroll.append(table);article.append(scroll);
    forecastHost.append(box,article);
    if(observed){
-     forecastHost.append(node('p',candidates.length+'개 순서 후보가 현재 입력한 10회차 실측에 부합합니다. 같은 결과가 나오는 모델이 여러 개이므로 다음 드랍을 확정할 수는 없습니다.','progress-note'));
+     forecastHost.append(node('p',candidates.length+'개 순서 후보가 현재 입력한 9회차 실측에 부합합니다. 같은 결과가 나오는 모델이 여러 개이므로 다음 드랍을 확정할 수는 없습니다.','progress-note'));
    }
    forecastHost.append(node('p','정렬 순서 144개를 동일한 가능성으로 취급한 것이 아니며, 후보 개수는 드랍 확률을 뜻하지 않습니다. 등장 순서 자체가 잘못됐다면 이 계산도 불일치할 수 있습니다.','progress-note'));
   }
@@ -197,11 +197,11 @@
    }
    try{
     const observed=evidenceOn.checked;
-    const constraints=observed?[{serial:10,itemId:4009,color:1,spawn:true,
+    const constraints=observed?[{serial:9,itemId:4009,color:1,spawn:true,
       noGearBefore:evidenceNoEarlier.checked}]:[];
     const search=tomb.fitObservations(current,constraints,{count:count+pad});
     if(!search.matches.length){
-      forecastStatus.textContent='실측 기록에 맞는 보상 순서 후보가 없습니다. 현재 세이브가 그 10회 사냥 직전 파일인지 확인하세요. 시드 보정은 적용하지 않았습니다.';
+      forecastStatus.textContent='실측 9회차 수라장갑 백색과 현재 제릉 등장 판정이 불일치합니다. 보상 순서만 바꿔서는 수정할 수 없습니다. 실측에 맞는 50회 결과는 아직 계산할 수 없으며, 임의 시드 보정은 적용하지 않았습니다.';
       return;
     }
     tombForecastSummary=summarizeCandidates(search.matches,pad,count);
@@ -209,7 +209,7 @@
     const missing=Object.values(current.eds||{}).length===0?' · 장비별 Eds 저장이 없어 옵션 시드는 일부 미연결입니다.':'';
     forecastStatus.textContent=count+'회 제릉 필드 예측 · '+search.matches.length+
       '/'+search.tested+'개 분기 순서 후보'+
-      (observed?' · 10회차 수라장갑 백색 실측 제약 적용':' · 실측 제약 미적용')+
+      (observed?' · 9회차 수라장갑 백색 실측 제약 적용':' · 실측 제약 미적용')+
       (current.gate3007Unknown?' · 진행 조건 3007 미기록 (통과 가정)':'')+missing;
     forecastCsv.disabled=false;
    }catch(error){forecastStatus.textContent='제릉 계산 오류: '+String(error.message||error);}
