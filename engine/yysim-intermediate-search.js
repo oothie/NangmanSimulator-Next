@@ -38,6 +38,7 @@ function costOf(initial,final){
  return Number.isFinite(fromBag)&&fromBag>=0?fromBag:total;
 }
 async function run({ids,horizon=900,topN=8,getState,setState,doWash,
+ getConflicts=null,doExchange=null,qualityFor=()=>0,
  freshBranch=null,isolated=false,yieldControl=async()=>{}}){
  if(!Array.isArray(ids)||ids.length<1||ids.length>4||new Set(ids).size!==ids.length||
     ids.some(id=>!Number.isSafeInteger(id)||id<=0))
@@ -47,13 +48,18 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
  const initial=getState();
  if(!initial||!Array.isArray(initial.talents))throw Error('WASM 세수 원본 상태를 불러올 수 없습니다');
  const orders=permute(ids),routes=[],warnings=[];
+ // Native exchange may change the luck pool and purple RNG sequence. Compare
+ // both no-exchange and verified exchange variants on independent WASM copies.
+ const policies=typeof getConflicts==='function'&&typeof doExchange==='function'?
+  ['none','unwanted','all']:['none'];
+ const plans=policies.flatMap(policy=>orders.map(order=>({order,policy})));
  let scanned=0,executed=0,early=0,partial=false;
  const restore=()=>{
   if(!setState(initial)||!equals(getState(),initial))throw Error('WASM 별도 탐색 상태 초기화 불일치');
  };
  const warning=msg=>{if(warnings.length<8&&!warnings.includes(msg))warnings.push(msg)};
  try{
-  for(let branch=0;branch<orders.length;branch++){
+  for(let branch=0;branch<plans.length;branch++){
    if(branch){
     if(typeof freshBranch==='function'){
      let loaded;
@@ -67,7 +73,8 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
     }else restore();
    }
    scanned++;
-   const order=orders[branch],actions=[];
+   const {order,policy}=plans[branch],actions=[];
+   let exchanges=0;
    const hasOtherLocks=initial.talents.some(t=>t.locked&&!ids.includes(Number(t.id)));
    const requiredSlots=Math.min(4,Math.max(ids.length+Number(hasOtherLocks),
      countLocked(initial)+ids.filter(id=>!initial.talents.some(t=>t.locked&&Number(t.id)===id)).length));
@@ -116,8 +123,54 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
      break;
     }
     washes++;executed++;
-    if(washes%50===0)await yieldControl();
     if(finalMatches(after,ids)){found=true;break;}
+    if(policy!=='none'&&after.talents.some(t=>Number(qualityFor(Number(t.id)))===4&&!t.locked)){
+     // Exchange only genuine WASM-conflict-qualified purple slots, and never
+     // assume a predicted purple outcome. Record the native observed target.
+     // Limit repeated same-wash exchanges to avoid cycling indefinitely.
+     const seen=new Set();
+     for(let turn=0;turn<3;turn++){
+      const candidateState=getState();
+      if(finalMatches(candidateState,ids)){found=true;break}
+      const candidates=getConflicts();
+      if(!Array.isArray(candidates))break;
+      const candidate=candidates.find(row=>{
+       const i=Number(row?.index),talent=candidateState.talents[i];
+       return row?.can_exchange===true&&Number.isInteger(i)&&i>=0&&i<4&&
+        talent&&!talent.locked&&Number(qualityFor(Number(talent.id)))===4&&
+        (policy==='all'||!ids.includes(Number(talent.id)))&&
+        !seen.has(i+':'+talent.id);
+      });
+      if(!candidate)break;
+      const index=Number(candidate.index),beforeExchange=getState();
+      seen.add(index+':'+beforeExchange.talents[index].id);
+      const result=doExchange(index);
+      const afterExchange=getState();
+      if(!result?.success||!afterExchange?.talents||
+       equals(afterExchange,beforeExchange)){
+       // A denied native exchange cannot be treated as a valid route.
+       if(!equals(afterExchange,beforeExchange))
+        throw Error('WASM 치환 거절 후 상태 변경: 분기 '+(branch+1));
+       break;
+      }
+      exchanges++;
+      const from=Number(beforeExchange.talents[index]?.id);
+      const incoming=afterExchange.talents.map(t=>Number(t.id));
+      const nextId=incoming.find(id=>!beforeExchange.talents.some(t=>Number(t.id)===id));
+      // When a native exchange shifts multiple slots, track observed delta
+      // and restrict replay to unambiguous one-to-one final transitions.
+      if(!Number.isInteger(nextId)){
+       warning('치환 결과가 단일 재능으로 확인되지 않아 경로를 건너뜁니다');
+       blocked=true;break;
+      }
+      actions.push({kind:'exchange',talent:nextId,from,to:nextId,
+       wash_no:washes,note:'실제 WASM 충돌 치환 · 슬롯 '+(index+1)});
+      if(finalMatches(afterExchange,ids)){found=true;break}
+     }
+    }
+    if(blocked)break;
+    if(washes%50===0)await yieldControl();
+    if(finalMatches(getState(),ids)){found=true;break;}
     // Only mark goals that continue to exist at the end. Past encounters
     // never satisfy the final combination.
    }
@@ -134,10 +187,11 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
     }
     if(washes>lastWash)steps.push({kind:'wash_to',wash_no:washes});
     if(washes<horizon)early++;
-    routes.push({order_ids:order,pad:0,pills,washes,exchanges:0,
+    routes.push({order_ids:order,pad:0,pills,washes,exchanges,
      final_slots:copy(final.talents),actions:steps,
      intermediate_goals:false,optimal:false,
-     source:'wasm_native_final_slots',lock_order:order.slice()});
+     source:'wasm_native_final_slots',lock_order:order.slice(),
+     exchange_policy:policy});
    }
    await yieldControl();
   }
@@ -147,7 +201,7 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
   }
  }
  routes.sort((a,b)=>a.pills-b.pills||a.washes-b.washes||a.actions.length-b.actions.length);
- return {routes:routes.slice(0,topN),scanned,trajectories:orders.length,
+ return {routes:routes.slice(0,topN),scanned,trajectories:plans.length,
   washesExecuted:executed,stoppedEarly:early,partial,
   error:routes.length?null:'탐색한 모든 획득 순서에서 목표 맥이 최종 슬롯에 함께 남는 경로를 찾지 못했습니다',
   warnings};
