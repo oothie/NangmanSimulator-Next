@@ -2,7 +2,7 @@
 
 배포 사이트: https://nangman-sim.pages.dev/
 
-현재 UI 버전: **v0.7.16**
+현재 UI 버전: **v0.7.18**
 
 ## 설계 기준
 - yy-sim 화면 구조를 참고해 한국어 UI를 자체 구현합니다.
@@ -231,3 +231,11 @@
 - 캐릭터 탭을 능력치/장비/재능/상세 중심으로 재구성하고, 경맥·생활기술·세수 조회는 별도 편의 탭으로 유지했습니다.
 - 태생 재능(BornTalent)·세수 재능(Talents)을 구분하고, yy-sim 원본 지원 재능은 별도 `BattleTalent` 필드가 아니라 태생 재능 ID의 지원 데이터와 CanZhu를 함께 이용함을 확인했습니다. 현재 지원 재능 상세 데이터는 **미연결**로 명시합니다.
 - 최종 전투 수치 계산·yy-sim 데이터 원본 로딩은 아직 미연결입니다. 이번 단계는 원본 화면과 저장 스키마 대조에 한정합니다.
+
+## v0.7.17–v0.7.18 캐릭터 세이브 및 yy-sim 데이터 연동
+- 실제 한국판 저장 세이브에서 Taolus/Neis/Qings의 Active 값으로 사용 중 무학을 구분하고 위쪽에 정렬합니다.
+- 개별 캐릭터의 WXXW1/2/3/4/ng/qg 저장값을 그대로 보여주는 수련치 메뉴를 추가했습니다. 수련 효과 역산은 하지 않습니다.
+- yy-sim 제공 vendor/yysim/char_data.js, born_talent_data.js, battle_talent_data.js, life_hedao_data.js를 캐릭터 화면에 직접 로드합니다.
+- 동료 지원 재능 ID는 CHAR_DATA[인물 ID].talent에서 찾아 BATTLE_TALENT_DATA와 연결합니다. 태생 재능 BornTalent와 분리합니다.
+- 생활기술·기예 효과 메타데이터를 산부진 대신 yy-sim LIFE_HEDAO_DATA.skills에서 읽습니다. 한국어 명칭은 한국판 ID 대응표를 우선합니다.
+- 원본 데이터 파일 4개 존재 및 index 인라인 일반 스크립트 구문 확인. 실제 브라우저 E2E와 최종 능력치 계산은 미완료입니다.
