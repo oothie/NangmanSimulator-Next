@@ -402,8 +402,29 @@ function wikiName(x,ko){
  return '한국판 명칭 미확인';
 }
 function wikiCleanDescription(value){return String(value||'').replace(/#[0-9a-fA-F]{6}#/g,'').replace(/\\n/g,'\n')}
+function wikiV620EffectText(id,index,explicitPercent){
+ const record=(window.NANGMAN_V620_BUFF_KO||{})[String(id)];
+ const meta=record&&record[3]||{};
+ const value=Number(meta['buff_fudu_'+index]);
+ if(!Number.isFinite(value))return '';
+ const type=String(meta['buff_type_'+index]||'');
+ const percentage=/^(atk|def|hit|rating|dodge|parry|speed|hp|hp_n|hp_max|po_parry|po_dodge|dmg_off|dmg_ref|cure_sj|kang_debuff|blood|map_move|weapon_add)$/.test(type);
+ const magnitude=percentage ? Math.abs(value)*100 : Math.abs(value);
+ const number=Number(magnitude.toFixed(2));
+ // 원문이 이미 %를 붙이는 경우 기호를 중복하지 않는다.
+ return (value<0?'−':'')+number+(percentage&&!explicitPercent?'%':'');
+}
+function wikiV620Description(id,value){
+ return String(value||'').replace(/\{buff_fudu_(\d+)\}(%?)/g,(all,n,pct)=>wikiV620EffectText(id,n,!!pct)+(pct?'%':'')).replace(/\{buff_round\}/g,()=>{
+  const row=(window.NANGMAN_V620_BUFF_KO||{})[String(id)];
+  const count=Number(row&&row[3]&&row[3].buff_round);
+  return Number.isFinite(count)&&count>=0?String(count):'지속';
+ });
+}
+
 function wikiDescription(x,ko){
- const translated=wikiCleanDescription(ko.get(x.key)?.desc||'').trim();
+ const rawTranslation=ko.get(x.key)?.desc||'';
+ const translated=wikiCleanDescription(ko.get(x.key)?.source==='한국판 V6.20'?wikiV620Description(x.id,rawTranslation):rawTranslation).trim();
  if(translated&&!wikiHasChinese(translated))return translated;
  const original=wikiCleanDescription(x.obj.desc||'').trim();
  if(original&&!wikiHasChinese(original))return original;
