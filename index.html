@@ -644,6 +644,40 @@ function characterSkillRows(raw,key,type){
  (entries.length?'<table class="module-table"><thead><tr><th>이름 / ID</th><th>레벨</th><th>정진</th></tr></thead><tbody>'+
  entries.map(item=>'<tr><td>'+escape(named.get(String(item.ID))||'#'+item.ID)+' <small>#'+escape(item.ID)+'</small></td><td>'+escape(characterNumber(item,'Level'))+'</td><td>'+escape(characterNumber(item,'Chong'))+'</td></tr>').join('')+'</tbody></table>':'<p class="micro">수련 기록이 없습니다.</p>')+'</section>';
 }
+// 산부진 원본 LIFE_HEDAO_DATA 단계별 성장 효과. 최종 전투 능력치로 오인하지 않는다.
+const characterLifeEffectNames={
+ weapon_sword:'검 계열',weapon_stick:'창·곤 계열',zq_max:'진기 상한',zq_js:'진기 회복',
+ atk:'공격',def:'방어',hit:'명중',hp:'기혈',speed:'속도',dodge:'회피',parry:'초식방어',
+ renxing:'인내',str:'완력',con:'근골',dex:'신법',int:'내식',sword_add:'검법',
+ unarmed_add:'권법',blade_add:'도법',stick_add:'창·곤',po_parry:'초식방어 무시',
+ po_dodge:'회피 무시',def_ign:'방어 관통',dmg_off:'피해면역',
+ hp_back:'기혈 회복',mp_f:'진원',mp_back:'기 회복',xx_prob:'치명타 확률',
+ atk_extend:'피해 확산',kang_debuff:'약화 저항',blood:'흡혈'
+};
+function characterLifeEffectSummary(record,raw){
+ const cfg=(window.NANGMAN_SANBUJIN_LIFE_META||{})[String(record.ID)];
+ if(!cfg)return '';
+ const level=Math.max(0,Number(record.Level)||0),menpai=Number(raw?.MenPai);
+ let rows=cfg.effects||[];
+ if(cfg.mp_sk!=null&&menpai!==Number(cfg.mp_sk)){
+  rows=cfg.slots?.length?cfg.slots.map(x=>x.pan||x.effect).filter(Boolean):cfg.panEffects?.length?cfg.panEffects:rows;
+ }
+ if(!rows.length)return '원본 효과 수치 없음';
+ const known=[],other=[];
+ for(const row of rows){
+  if(!Array.isArray(row)||row.length<3)continue;
+  const key=String(row[0]),step=Number(row[1]),value=Number(row[2]);
+  if(!Number.isFinite(step)||step<=0||!Number.isFinite(value))continue;
+  const stages=Math.floor(level/step);
+  if(!stages)continue;
+  const amount=stages*value,label=characterLifeEffectNames[key];
+  if(!label){other.push(key);continue}
+  const isRate=Math.abs(value)<1;
+  known.push(label+' +'+(isRate?Number((amount*100).toFixed(2))+'%':Number(amount.toFixed(2))));
+ }
+ return known.join(' · ')+(other.length?(known.length?' · ':'')+'기타 효과 '+other.length+'종':'')||'현재 레벨에서 활성 효과 없음';
+}
+
 function characterLifeView(raw){
  const all=[...characterEntries(raw.LifeSkills),...characterEntries(raw.LifeProps)];
  const meta=window.NANGMAN_SANBUJIN_LIFE_META||{};
@@ -655,8 +689,8 @@ function characterLifeView(raw){
  groups.map(([key,label])=>{
   const entries=[...unique.values()].filter(x=>Number(meta[String(x.ID)]?.type)===(key==='craft'?1:2)).sort((a,b)=>Number(a.ID)-Number(b.ID));
   return '<section class="card"><h3>'+label+' · '+entries.length+'개</h3>'+
-  (entries.length?'<table class="module-table"><thead><tr><th>한국판 이름</th><th>레벨</th><th>잠금</th></tr></thead><tbody>'+
-  entries.map(x=>'<tr><td>'+escape(characterSkillName(x.ID,key))+' <small>#'+escape(x.ID)+'</small></td><td>'+escape(x.Level)+'</td><td>'+(x.Lock===true?'잠금':'—')+'</td></tr>').join('')+'</tbody></table>':'<p class="micro">수련 기록이 없습니다.</p>')+'</section>';
+  (entries.length?'<table class="module-table"><thead><tr><th>한국판 이름</th><th>레벨</th><th>효과 (원본 성장 계수)</th><th>잠금</th></tr></thead><tbody>'+
+  entries.map(x=>'<tr><td>'+escape(characterSkillName(x.ID,key))+' <small>#'+escape(x.ID)+'</small></td><td>'+escape(x.Level)+'</td><td class="micro">'+escape(characterLifeEffectSummary(x,raw))+'</td><td>'+(x.Lock===true?'잠금':'—')+'</td></tr>').join('')+'</tbody></table>':'<p class="micro">수련 기록이 없습니다.</p>')+'</section>';
  }).join('');
 }
 function characterEquipPropRows(value,label){
