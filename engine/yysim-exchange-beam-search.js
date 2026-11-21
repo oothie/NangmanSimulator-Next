@@ -167,6 +167,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
      continue;
     }
     if(washNo===horizon)continue;
+    if(washNo===4&&!probeSlots.length)probeSlots=[{step:washNo,goals:idsIn(variant.state,ids),locked:locked(variant.state),talents:variant.state.talents.map(t=>[t.id,t.locked,qualityFor(Number(t.id))])}];
     if(!sameState(getState(),variant.state)&&!setState(variant.state))continue;
     let forLock=getState(),nextActions=variant.actions,nextTemp=variant.temporary;
     if(nextTemp&&idsIn(forLock,ids).length>=2){
