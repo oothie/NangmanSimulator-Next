@@ -68,5 +68,5 @@ assert(html.includes('function dailyMarketView(){'),'market panel rendered');
 assert(html.includes("id=\"marketQuery\""),'item target search bound');
 assert(html.includes("id=\"marketPeriods\""),'forecast horizon dropdown bound');
 assert(html.includes("dailyTab==='ghost'?dailyMarketView()"),'daily ghost tab enabled');
-assert(html.includes("한국판 상품 구성·버전 차이"),'unverified Korean parity disclosed');
+assert(html.includes("다른 캐릭터·시드는 별도 검증 대상"),'unverified Korean parity disclosed');
 console.log('PASS: yy-sim source market RNG parity, weights, seed safety, Korean UI and sold-out handling');
