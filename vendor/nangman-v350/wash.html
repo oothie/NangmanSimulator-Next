@@ -3186,6 +3186,14 @@ rawBody.innerHTML=""; nBody.innerHTML=""; candidateSel.innerHTML="";
    window.parent.postMessage({kind:'nangman-v350-error',error:String(error?.message||error)},location.origin);
   }
  });
+ const reportHeight=()=>{
+  const h=Math.ceil(Math.max(document.documentElement.scrollHeight,document.body.scrollHeight))+24;
+  window.parent.postMessage({kind:'nangman-v350-height',height:h},location.origin);
+ };
+ if(typeof ResizeObserver==='function'){
+  new ResizeObserver(reportHeight).observe(document.querySelector('main')||document.body);
+ }
+ window.addEventListener('load',reportHeight);
  window.parent.postMessage({kind:'nangman-v350-ready'},location.origin);
 })();
 </script></body></html>
