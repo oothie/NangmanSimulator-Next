@@ -79,5 +79,7 @@ jobs:
         run: node tests/drop-quality-filter-smoke.cjs
       - name: Verify 90-level field/dungeon shared per-item receipt sequence
         run: node tests/shared-gear-sequence-smoke.cjs
+      - name: Audit Korean 90-level gear source pools and tomb 100-to-90 behavior
+        run: node tests/drop-90-catalog-parity.cjs
       - name: Verify exported wild and dungeon drop CSV
         run: node tests/drop-csv-smoke.cjs
