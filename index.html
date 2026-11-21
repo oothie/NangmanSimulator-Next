@@ -519,7 +519,10 @@ if(sub==='path'){
  const runtime=window.__washRuntime||{};
  const valid=runtime.active&&runtime.origin==='save'&&runtime.linkedRoleId===r?.id&&!runtime.loading;
  const reports=runtime.pathReports;
- const summary=reports?'<p class="micro">원본 yy-sim WASM 후보 '+escape(Array.isArray(reports.results)?reports.results.length:0)+'건 · '+escape(reports.maxPad)+'회까지 탐색 · 가상 세수 · 실제 서버 미검증</p>':
+ const resultCount=reports?Array.isArray(reports.results)?reports.results.length:
+  Array.isArray(reports.results?.paths)?reports.results.paths.length:
+  Array.isArray(reports.results?.candidates)?reports.results.candidates.length:null;
+ const summary=reports?'<p class="micro">원본 yy-sim WASM '+(resultCount==null?'경로 자료 반환':('후보 '+escape(resultCount)+'건'))+' · '+escape(reports.maxPad)+'회까지 탐색 · 가상 세수 · 실제 서버 미검증</p>':
  '<p class="micro">목표 자맥과 충돌맥의 원본 재능 ID를 입력해 탐색을 시작하세요. 정확한 잠금·치환 수행은 아직 자동화하지 않습니다.</p>';
  const pairs=String(runtime.targetPairs??'').trim();
  const single=String(runtime.targetTalentId??'');
@@ -2590,12 +2593,16 @@ window.addEventListener('nangman-wash-command',async e=>{
   });
   const result=await washEngine.call('exchange-pads',{targets,maxPad:count});
   ensureSession();
-  if(!Array.isArray(result?.results))throw Error('WASM 경로 탐색 결과를 읽지 못했습니다.');
+  if(!result?.results||typeof result.results!=='object'||result.results.error)
+   throw Error('WASM 경로 탐색 결과를 읽지 못했습니다.');
   state.pathReports=result;
   state.targetPairs=String(e.detail.pairs||'');
   state.pathLimit=count;
-  state.output='yy-sim 원본 도맥법 경로 후보 '+result.results.length+
-   '건 · '+count+'회 한도 · 원본 세이브 변화 없음';
+  const found=Array.isArray(result.results)?result.results.length:
+   Array.isArray(result.results.paths)?result.results.paths.length:
+   Array.isArray(result.results.candidates)?result.results.candidates.length:null;
+  state.output='yy-sim 원본 도맥법 경로 자료 '+(found==null?'수신':found+'건')+
+   ' · '+count+'회 한도 · 원본 세이브 변화 없음';
  }else if(op==='washEngineUntilTalent'){
   if(!state.active||state.origin!=='save')throw Error('현재 인물 세이브를 WASM에 연결하세요.');
   if(window.__nangmanWashSaveSource?.()?.role?.id!==state.linkedRoleId)
