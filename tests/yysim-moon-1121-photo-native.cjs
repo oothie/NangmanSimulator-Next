@@ -134,11 +134,11 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vend
   failures:mixed.diagnostics.failures.slice(0,3),
   replayErrors:mixed.diagnostics.purpleReplayErrors||[]
  }));
- assert.equal(mixed.routes[0]?.pills,916,
-  'Mixed-grade native optimization must recover photo-verified 916 pill path');
+ assert.equal(mixed.routes[0]?.pills,910,
+  'Mixed-grade native search must beat photo-verified 916 with a 910 pill path');
  assert.equal(mixed.routes[0]?.washes,175);
  assert([268,262,237,204].every(id=>mixed.routes[0].final_slots.some(t=>
   Number(t.id)===id&&t.locked)));
  assert(wasmSetState(initial));
- console.log('PASS MOON_1121_AUTO_OPTIMIZED_916');
+ console.log('PASS MOON_1121_AUTO_OPTIMIZED_910');
 })().catch(e=>{console.error(e);process.exitCode=1});
