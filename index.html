@@ -715,7 +715,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 <script src="./engine/wash-chain-core.js"></script>
 <script src="./engine/wash-goal-audit.js"></script>
 <script src="./engine/yysim-auto-search.js?rev=0.10.18"></script>
-<script src="./engine/yysim-auto-progressive.js"></script>
+<script src="./engine/yysim-auto-progressive.js?rev=20261122-progress"></script>
 <script src="./engine/yysim-target-catalog.js?rev=0.10.18"></script>
 <script src="./engine/yysim-route-replay.js"></script>
 <script src="./engine/yysim-wash-dashboard.js"></script>
@@ -1071,7 +1071,7 @@ if(sub==='auto'){
   '<div class="section-header"><h3>계산</h3></div>'+
   '<div class="actions"><button type="button" class="btn primary" id="yyAutoRun" '+(!r||!save||state.loading||!selectedTargets.length||selectedTargets.some(id=>(window.YYWashTargetCatalog||[]).some(g=>g.quality!==4&&g.items.some(t=>Number(t.id)===Number(id))))?'disabled':'')+'>'+(state.loading?'자동탐색 진행 중…':selectedTargets.some(id=>(window.YYWashTargetCatalog||[]).some(g=>g.quality!==4&&g.items.some(t=>Number(t.id)===Number(id))))?'녹·파맥 확장 준비 중':'선택 재능 자동 계산')+'</button></div>'+
   (state.autoProgress?(()=>{const p=state.autoProgress;
-    const percent=Number.isFinite(Number(p.percentage))?Math.min(100,Math.max(0,Math.round(Number(p.percentage)))):null;
+    const percent=p.indeterminate||p.percentage==null?null:Number.isFinite(Number(p.percentage))?Math.min(100,Math.max(0,Math.round(Number(p.percentage)))):null;
     const completed=Number.isFinite(Number(p.completed))?Number(p.completed):null;
     const total=Number.isFinite(Number(p.total))?Number(p.total):null;
     return '<div class="wash-search-progress" role="status" aria-live="polite" style="margin:12px 0;padding:14px 16px;border:1px solid var(--border, currentColor);border-radius:12px">'+
@@ -1079,10 +1079,11 @@ if(sub==='auto'){
      '<div class="micro" style="margin:6px 0">'+
      (completed!=null&&total>0?'분기·회차 '+escape(completed.toLocaleString())+' / '+escape(total.toLocaleString())+' · ':'')+
      (Number.isFinite(Number(p.checked))?'검사한 WASM 세수 '+escape(Number(p.checked).toLocaleString())+'회 · ':'')+
-     '발견 후보 '+escape(p.found??0)+'개 · 현재 최소 세수단 '+escape(p.bestPills==null?'미발견':p.bestPills+'개')+
+     (p.indeterminate?'원본 엔진 계산 경과 '+escape(p.elapsedSeconds??0)+'초 · 후보 개수는 계산 완료 후 확인': '발견 후보 '+escape(p.found??0)+'개 · 현재 최소 세수단 '+escape(p.bestPills==null?'미발견':p.bestPills+'개'))+
      (p.maxGoals!=null?' · 확보한 목표 최대 '+escape(p.maxGoals)+' / '+escape(p.goalCount||selectedTargets.length):'')+'</div>'+
-     '<div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+escape(percent??0)+'" aria-label="자동탐색 진행률" style="height:10px;border-radius:12px;overflow:hidden;background:var(--surface-2,rgba(128,128,128,.18))">'+
-     '<div style="height:100%;width:'+escape(percent??6)+'%;background:var(--accent,#9a668e);transition:width .2s"></div></div>'+
+     (p.indeterminate?'<div role="progressbar" aria-label="원본 WASM 계산 실행 중" style="height:10px;border-radius:12px;overflow:hidden;background:var(--surface-2,rgba(128,128,128,.18))"><div style="height:100%;width:100%;background:repeating-linear-gradient(110deg,var(--accent,#9a668e) 0 12px,transparent 12px 25px);opacity:.65"></div></div>':
+      '<div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+escape(percent??0)+'" aria-label="자동탐색 진행률" style="height:10px;border-radius:12px;overflow:hidden;background:var(--surface-2,rgba(128,128,128,.18))">'+
+     '<div style="height:100%;width:'+escape(percent??6)+'%;background:var(--accent,#9a668e);transition:width .2s"></div></div>')+
      '<div class="micro" style="margin-top:5px">'+(percent==null?'진행 단계 갱신 중':percent+'% · 현재 단계 기준')+' · 전체 경로의 전역 최솟값 보장 없음</div></div>';
    })():'')+
   (state.error?'<div class="notice">'+escape(state.error)+'</div>':'')+
@@ -4519,8 +4520,8 @@ window.addEventListener('nangman-wash-command',async e=>{
    await window.YYWashProgressive.run({
     call:(name,payload)=>washEngine.call(name,payload),
     ensureSession,api,...options,
-    onProgress:progress=>updateProgress({...progress,stage:'원본 자맥 경로 단계 '+progress.phase,
-     percentage:Number(progress.total)>0?Math.min(99,Math.round(100*Number(progress.phase)/Number(progress.total))):null})
+    onProgress:progress=>updateProgress({...progress,
+     percentage:progress.indeterminate?null:progress.phase==='verified'?100:null})
    }):
    await washEngine.call('auto-search',options);
   ensureSession();
