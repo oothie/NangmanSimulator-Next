@@ -106,6 +106,15 @@ assert(search,'Original WASM search export absent');
 const wrapper=inspect(search.index);
 assert(wrapper.calls.some(x=>x.index===78),'Native search wrapper must reach function 78');
 const solver=inspect(78);
+// Function 78 is a search-request adapter: the actual heavy calculation
+// occurs through its single call to function 4. Function 30 is called on
+// both sides of that call and is likely a representation/serialization
+// helper, but that semantic inference is not yet independently verified.
+const highLevelCalls=solver.calls.filter(x=>[4,30].includes(x.index))
+ .map(x=>({offset:x.offset,index:x.index,bodyBytes:x.bodyBytes}));
+assert.deepEqual(highLevelCalls.map(x=>x.index),[30,4,30],
+ 'Original WASM adapter / search core call order changed');
+const coreSearch=inspect(4);
 const tally=new Map();
 for(const c of solver.calls){
  const entry=tally.get(c.index)||{index:c.index,bodyBytes:c.bodyBytes,calls:0};
@@ -192,6 +201,8 @@ const gradeReviewSites=gradeReviewSitesFor(solver);
 const dependencies=[...tally.values()].sort((a,b)=>b.calls-a.calls||a.index-b.index);
 const byBody=[...tally.values()].sort((a,b)=>b.bodyBytes-a.bodyBytes).slice(0,12);
 const candidateCallees=[];
+const coreComparisons=comparisonWindows(coreSearch);
+const coreGradeReview=gradeReviewSitesFor(coreSearch);
 for(const item of tally.values()){
  if(item.bodyBytes===null||item.bodyBytes>22000)continue;
  try{
@@ -228,6 +239,8 @@ while(queue.length){
  }
 }
 assert.equal(solver.bodyBytes,4055,'Native solver changed; re-characterize original yy-sim binary');
+assert.equal(coreSearch.bodyBytes,20164,'Original yy-sim core search function changed');
+assert.equal(coreGradeReview.length,13,'Core search immediate-four comparison sites changed');
 assert.equal(solver.instructions.length,1824,'Unexpected native instruction count');
 assert.equal(solver.callCount,83,'Unexpected native search call instruction count');
 assert.equal(tally.size,29,'Unexpected native search dependency count');
@@ -239,6 +252,9 @@ assert(solver.calls.some(x=>x.index===30)&&solver.calls.some(x=>x.index===4),
  'Missing important downstream WASM calls');
 console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  wrapper:{index:wrapper.index,bodyBytes:wrapper.bodyBytes,calls:wrapper.calls.map(x=>x.index)},
+ adapterCoreCalls:highLevelCalls,
+ coreSearch:{index:4,bodyBytes:coreSearch.bodyBytes,opcodeCount:coreSearch.instructions.length,
+  comparisonsNear2or3or4:coreComparisons.length,gradeFourReviewSites:coreGradeReview.length},
  solver:{index:solver.index,bodyBytes:solver.bodyBytes,callInstructions:solver.callCount,uniqueDependencies:tally.size},
  mostFrequent:dependencies.slice(0,15),largestDependencies:byBody,
  solverConstants:[...constantCounts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,20),
