@@ -234,7 +234,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
         // native talent event, bounded by a small local wash window.
         const resyncTo=(id)=>{
          if(idsOf(getState()).includes(id))return;
-         const maxCorrection=Math.min(24,horizon);
+         const maxCorrection=Math.min(64,horizon);
          for(let delta=1;delta<=maxCorrection;delta++){
           const at=count(getState(),'total_wash');
           const washed=doWash();
@@ -242,6 +242,14 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
            throw Error('원본 WASM 보정 세수 실패');
           washShift++;
           diagnostics.scannedWashes++;
+          // Every original WASM wash costs nonnegative pills. Once a
+          // candidate already costs as much as a complete verified route,
+          // further washes cannot improve the minimum found so far.
+          const incumbent=Math.min(Infinity,...routes.map(r=>r.pills));
+          if(count(getState(),'total_pills')-count(initial,'total_pills')>=incumbent){
+           diagnostics.prunedByCost=(diagnostics.prunedByCost||0)+1;
+           throw Error('이미 검증된 경로보다 세수단이 더 필요한 후보');
+          }
           if(idsOf(getState()).includes(id)){
            diagnostics.adaptiveResync=(diagnostics.adaptiveResync||0)+1;
            combined.push({kind:'wash_to',wash_no:count(getState(),'total_wash'),
