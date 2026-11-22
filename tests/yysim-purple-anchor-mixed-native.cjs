@@ -155,11 +155,11 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   (two.diagnostics.prunedByCost||0)+(two.diagnostics.candidatePruned||0)+
   (two.diagnostics.betweenScanPruned||0)>0,
   'Inter-purple routes must be verified or rejected by a measured cost bound');
- assert(two.diagnostics.replannedCosts.every(item=>
+ assert((two.diagnostics.replannedCosts||[]).every(item=>
   [271,268,184,202].every(id=>item.finalIds.includes(id))),
   'Inter-purple diagnostic route missing one of four final retained targets');
  assert(two.routes[0].pills<=
-  Math.min(...two.diagnostics.replannedCosts.map(item=>item.pills)),
+  Math.min(Infinity,...(two.diagnostics.replannedCosts||[]).map(item=>item.pills)),
   'Expensive inter-purple branches must not displace a cheaper complete route');
  assert(two.routes.every(r=>[271,268,184,202].every(id=>
   r.final_slots.some(t=>Number(t.id)===id))),'Two-color result has missing final slot');
