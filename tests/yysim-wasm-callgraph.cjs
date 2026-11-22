@@ -201,6 +201,41 @@ const gradeReviewSites=gradeReviewSitesFor(solver);
 const dependencies=[...tally.values()].sort((a,b)=>b.calls-a.calls||a.index-b.index);
 const byBody=[...tally.values()].sort((a,b)=>b.bodyBytes-a.bodyBytes).slice(0,12);
 const candidateCallees=[];
+// Native quality checks may compare a loaded TalentData grade against
+// literals 2, 3 or 4; unlike an arbitrary literal-four search, retain the
+// immediately preceding load opcode and its field offset. These are merely
+// dataflow clues, not a permission to modify the original WASM.
+const qualityDataflowCandidates=[];
+const exploredFromCore=new Set();
+const coreQueue=[{index:4,depth:0}];
+while(coreQueue.length){
+ const {index,depth}=coreQueue.shift();
+ if(exploredFromCore.has(index)||depth>2)continue;
+ exploredFromCore.add(index);
+ let decoded;
+ try{decoded=index===4?coreSearch:inspect(index)}
+ catch(_){continue}
+ const ins=decoded.instructions;
+ for(let i=0;i<ins.length;i++){
+  if(ins[i].opcode!==65||![2,3,4].includes(ins[i].value))continue;
+  const next=ins.slice(i+1,i+4);
+  const compare=next.find(x=>x.opcode>=70&&x.opcode<=79);
+  if(!compare)continue;
+  const prior=ins.slice(Math.max(0,i-5),i);
+  const load=[...prior].reverse().find(x=>x.opcode>=40&&x.opcode<=53);
+  if(!load)continue;
+  qualityDataflowCandidates.push({functionIndex:index,depth,
+   literal:ins[i].value,literalOffset:ins[i].offset,
+   comparisonOpcode:compare.opcode,loadOpcode:load.opcode,
+   memoryOffset:load.memOffset??null,
+   instructionGap:i-ins.indexOf(load)});
+ }
+ if(depth<2)for(const child of decoded.calls){
+  if(child.bodyBytes!==null&&child.bodyBytes<=50000&&
+     !exploredFromCore.has(child.index))
+   coreQueue.push({index:child.index,depth:depth+1});
+ }
+}
 const coreComparisons=comparisonWindows(coreSearch);
 const coreGradeReview=gradeReviewSitesFor(coreSearch);
 for(const item of tally.values()){
@@ -255,6 +290,8 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  adapterCoreCalls:highLevelCalls,
  coreSearch:{index:4,bodyBytes:coreSearch.bodyBytes,opcodeCount:coreSearch.instructions.length,
   comparisonsNear2or3or4:coreComparisons.length,gradeFourReviewSites:coreGradeReview.length},
+ exploredCoreFunctions:exploredFromCore.size,
+ qualityDataflowCandidates:qualityDataflowCandidates.slice(0,70),
  solver:{index:solver.index,bodyBytes:solver.bodyBytes,callInstructions:solver.callCount,uniqueDependencies:tally.size},
  mostFrequent:dependencies.slice(0,15),largestDependencies:byBody,
  solverConstants:[...constantCounts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,20),
