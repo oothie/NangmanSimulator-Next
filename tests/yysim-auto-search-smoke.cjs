@@ -15,12 +15,24 @@ const catalog=[{quality:4,items:[271,272,250,268].map(id=>({id}))},
 const fourPurples=[271,272,250,268];
 assert.equal(api.recommendedHorizon(fourPurples,catalog),2500,
  '1121 four-purple route ending at wash 1770 must not be rejected by horizon 900');
-assert.equal(api.recommendedHorizon([271,272,250,204],catalog),900,
- 'mixed-grade native probing retains its existing independent horizon');
-assert.equal(api.recommendedHorizon([271,272,250],catalog),900,
- 'three-purple searches retain original bounded behavior');
+assert.equal(api.recommendedHorizon([271,272,250,204],catalog),2500,
+ 'mixed purple-blue or purple-green search must use 2500 washes');
+assert.equal(api.recommendedHorizon([271,272,250],catalog),2500,
+ 'three-purple searches also use the unified 2500 wash horizon');
 assert.equal(api.options({desiredIds:fourPurples,horizon:api.recommendedHorizon(fourPurples,catalog)},[...allowed,272,250]).horizon,2500);
 
+// Native Chinese/English errors stay inside diagnostics and never reach UI.
+assert.equal(api.koreanError('未找到可行路线').includes('찾지 못했습니다'),true);
+assert.equal(api.koreanError('不支持此组合').includes('지원하지 않습니다'),true);
+assert.equal(api.koreanError('WASM state restore failed: global_vars').includes('복원하지 못했습니다'),true);
+assert.equal(api.koreanError('Execution failed').includes('오류가 발생했습니다'),true);
+assert.equal(api.koreanError('검색 범위 내 경로 없음'), '선택한 재능을 모두 보유하는 경로를 설정한 세수 범위에서 찾지 못했습니다.');
+const invalidNative=api.routeOutcome({routes:[],error:'不支持绿色天赋'},[271]);
+assert(!/[\\u3400-\\u9fff]/.test(invalidNative.stats.error),'raw Chinese error must not escape native adapter');
+const badNativeRoute=api.routeOutcome({routes:[{
+ pills:3,washes:1,exchanges:0,pad:0,error:'未找到可行路线',
+ final_slots:[{id:271}],actions:[]}]},[271]);
+assert(!/[\\u3400-\\u9fff]/.test(badNativeRoute.routes[0].warnings.join(' ')),'route warnings must be localized');
 assert.throws(()=>api.options({desiredIds:[271],maxPad:201,horizon:300,topN:5},allowed),/제한/);
 assert.throws(()=>api.options({desiredIds:[271],maxPad:5,horizon:5001,topN:5},allowed),/제한/);
 const sample={routes:[{
@@ -99,7 +111,7 @@ for(const id of ['yyAutoPad','yyAutoHorizon','yyAutoTopN','yyAutoConnect','yyAut
 assert(html.includes('선택 재능 자동 계산'));
 assert(html.includes("op:'washEngineAutoProgressive'"),'all grades use original WASM route search');
 assert(html.includes('maxPad:0,horizon,topN:8'),'native automatic search must preserve original unpadded WASM call');
-assert(html.includes('recommendedHorizon(ids,catalog)'),'four-purple native horizon must follow selected grade');
+assert(html.includes('recommendedHorizon(ids,catalog)'),'automatic search must use uniform 2500 wash horizon');
 assert(html.includes("washEngine.call('auto-search',options)"));
 assert(html.includes('state.autoResult=null;'));
 assert(!html.includes("'auto-intermediate-search'"),'obsolete sequential search must stay removed');
