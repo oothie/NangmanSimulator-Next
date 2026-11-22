@@ -78,7 +78,7 @@ function inspect(index){
   else if(opcode===14){const n=uleb(cur);for(let i=0;i<=n;i++)uleb(cur)}
   else if(opcode===17||opcode===19){uleb(cur);uleb(cur)}
   else if(opcode===28){const n=uleb(cur);cur.pos+=n}
-  else if(opcode>=40&&opcode<=62){uleb(cur);uleb(cur)}
+  else if(opcode>=40&&opcode<=62){uleb(cur);instr.memOffset=uleb(cur)}
   else if(opcode===63||opcode===64)cur.pos++;
   else if(opcode===65||opcode===66){
    const value=signedLeb(cur);
@@ -172,6 +172,22 @@ function comparisonWindows(decoded){
  return rows;
 }
 const searchQualityBoundaryCandidates=comparisonWindows(solver);
+// Preserve memory offsets around quality-range candidates for human review.
+const structuralBoundarySites=[];
+for(const index of [78,30]){
+ const decoded=index===78?solver:inspect(index);
+ const candidates=comparisonWindows(decoded);
+ for(const site of candidates){
+  const position=decoded.instructions.findIndex(x=>x.offset===site.offset);
+  const preceding=decoded.instructions.slice(Math.max(0,position-4),position);
+  const following=decoded.instructions.slice(position+1,position+6);
+  structuralBoundarySites.push({functionIndex:index,...site,
+   preceding:preceding.map(x=>({opcode:x.opcode,offset:x.offset,
+    value:x.value??null,memOffset:x.memOffset??null})),
+   following:following.map(x=>({opcode:x.opcode,offset:x.offset,
+    value:x.value??null}))});
+ }
+}
 const gradeReviewSites=gradeReviewSitesFor(solver);
 const dependencies=[...tally.values()].sort((a,b)=>b.calls-a.calls||a.index-b.index);
 const byBody=[...tally.values()].sort((a,b)=>b.bodyBytes-a.bodyBytes).slice(0,12);
@@ -230,6 +246,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  fourUseCandidates,
  gradeComparisonReviewSites:gradeReviewSites,
  searchQualityBoundaryCandidates,
+ structuralBoundarySites,
  candidateCallees:candidateCallees.slice(0,25),
  reachableFunctions:reachable.length,
  nestedReviewSites:nestedGradeSites.sort((a,b)=>a.depth-b.depth||b.total-a.total).slice(0,35)
