@@ -181,6 +181,8 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  assert.equal(alreadyComplete.routes.length,1,
   'An already complete save must yield its exact zero-pill final route');
  assert.equal(alreadyComplete.routes[0].pills,0);
+ assert.equal(alreadyComplete.routes[0].optimal,true,
+  'Zero additional pills is a proven mathematical global minimum');
  assert(alreadyComplete.routes[0].final_slots.every(t=>t.locked),
   'Already held green talent must be locked in resulting path');
  console.log('YY_ALREADY_COMPLETE_WASM '+JSON.stringify(
