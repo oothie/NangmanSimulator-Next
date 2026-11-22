@@ -18,6 +18,24 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   total_wash:0,total_pills:0,bag_pills:20000,has_bag_pills:true}));
  const source=wasmGetState();
  const base=YYWashNativeSearchGuard.canonicalJson(source);
+ // A real character may have no original purple backbone in the selected
+ // horizon. This must NOT be reported as a green/blue scan with 0 candidates.
+ // Verify all purple orders are tried without mutating the save.
+ let emptyNativeAttempts=0;
+ const emptyAnchorGuard={...YYWashNativeSearchGuard,
+  run:()=>{emptyNativeAttempts++;return {routes:[],scanned:0,error:'no native anchor'};}};
+ const unavailable=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[271,268,272,184],maxPad:20,horizon:900,topN:2,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:emptyAnchorGuard
+ });
+ assert.equal(emptyNativeAttempts,6,'Three purple targets must retry all native target orders');
+ assert.equal(unavailable.routes.length,0);
+ assert.equal(unavailable.diagnostics.purpleNoRoute,true);
+ assert.equal(unavailable.diagnostics.scannedWashes,0);
+ assert.match(unavailable.error,/자맥.*0개/);
+ assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base);
  const talentIds=new Map(Object.entries(TALENT_DATA).map(([id,t])=>
   [String(t.name),Number(id)]));
  function replayReturnedRoute(route,origin=source){
