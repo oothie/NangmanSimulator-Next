@@ -67,6 +67,17 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   }
  }
 
+ // Bounded interval sampling must not ignore the whole middle when
+ // there are many valid green/blue native events between purple anchors.
+ const sampleEvents=Array.from({length:21},(_,i)=>({time:i+100}));
+ const sampled=YYWashPurpleAnchorMixed.sampleIntervalCandidates(sampleEvents);
+ assert.equal(sampled.length,8);
+ assert.deepEqual(sampled.slice(0,2).map(x=>x.time),[100,101]);
+ assert.deepEqual(sampled.slice(-2).map(x=>x.time),[119,120]);
+ assert(sampled.some(x=>x.time>=108&&x.time<=112),
+  'Native mixed-grade sampling skipped middle of purple interval');
+ assert.deepEqual(YYWashPurpleAnchorMixed.sampleIntervalCandidates(sampleEvents.slice(0,5)),
+  sampleEvents.slice(0,5),'Short interval candidates must not be discarded');
  assert(YYWashPurpleAnchorMixed.requestShape([271,268,272,184],TALENT_DATA));
  assert(YYWashPurpleAnchorMixed.requestShape([271,268,272,202],TALENT_DATA),
   'Three-purple plus blue must enter purple-anchored extension');
