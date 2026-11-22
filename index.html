@@ -3514,7 +3514,7 @@ function characterView(){
   const visible=all.filter(({r})=>(r.name+' '+r.id+' '+(r.raw?.ShiLi||'')+' '+(r.raw?.MenPai??'')).toLowerCase().includes(characterFilter.toLowerCase()));
   if(!all.length)return '';
   return '<div class="role-btn-group"><div class="role-btn-group-title">'+label+' <span>'+all.length+'</span></div>'+
-   visible.map(({r,i})=>'<button type="button" class="role-btn '+(i===selected?'active':'')+'" data-character-role="'+i+'" aria-pressed="'+(i===selected)+'">'+
+   visible.map(({r,i})=>'<button type="button" class="role-btn '+(characterTab!=='account'&&i===selected?'active':'')+'" data-character-role="'+i+'" aria-pressed="'+(characterTab!=='account'&&i===selected)+'">'+
     '<span class="role-btn-avatar">'+escape(r.name.slice(0,1)||'?')+'</span><span class="role-btn-body"><strong class="role-btn-name">'+escape(r.name)+'</strong>'+
     '<small class="role-btn-meta">Lv'+escape(r.level??'—')+' · '+escape(r.raw?.ShiLi||'ID '+r.id)+'</small></span></button>').join('')+'</div>';
  }).join('')+'</div></aside>';
