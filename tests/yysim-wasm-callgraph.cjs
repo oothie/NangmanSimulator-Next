@@ -236,6 +236,21 @@ while(coreQueue.length){
    coreQueue.push({index:child.index,depth:depth+1});
  }
 }
+// Capture the original core's native event-generator call operands and
+// neighbors without renaming any unknown field as a quality-grade filter.
+const nativeEventCalls=[];
+for(let i=0;i<coreSearch.instructions.length;i++){
+ const instruction=coreSearch.instructions[i];
+ if(instruction.opcode!==16)continue;
+ const destination=coreSearch.calls.find(x=>x.offset===instruction.offset);
+ if(!destination||![13,75,117,16,227].includes(destination.index))continue;
+ nativeEventCalls.push({offset:instruction.offset,destination:destination.index,
+  preceding:coreSearch.instructions.slice(Math.max(0,i-12),i)
+   .map(x=>({opcode:x.opcode,offset:x.offset,value:x.value??null,
+    memoryOffset:x.memOffset??null}))});
+}
+assert(nativeEventCalls.some(x=>x.destination===13),
+ 'Expected direct original purple candidate generation call');
 const coreComparisons=comparisonWindows(coreSearch);
 const coreGradeReview=gradeReviewSitesFor(coreSearch);
 for(const item of tally.values()){
@@ -405,6 +420,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  coreSearch:{index:4,bodyBytes:coreSearch.bodyBytes,opcodeCount:coreSearch.instructions.length,
   comparisonsNear2or3or4:coreComparisons.length,gradeFourReviewSites:coreGradeReview.length},
  exploredCoreFunctions:exploredFromCore.size,
+ nativeEventCalls,
  qualityDataflowCandidates:qualityDataflowCandidates.slice(0,70),
  solver:{index:solver.index,bodyBytes:solver.bodyBytes,callInstructions:solver.callCount,uniqueDependencies:tally.size},
  mostFrequent:dependencies.slice(0,15),largestDependencies:byBody,
