@@ -37,6 +37,10 @@ assert.equal(owned.blocked({flags:new Map(),owned:new Set([5422])},5422),
  '보유 중');
 assert.equal(owned.blocked({flags:new Map([['drop_5422_33650',2]]),owned:new Set()},5422),
  '전용 장비 획득 완료 기록');
+assert.equal(owned.blocked({flags:new Map([['get_2926',10]]),owned:new Set()},2926),
+ '획득 상한 10개 충족','maximum collected fragments must no longer be forecast');
+assert.equal(owned.blocked({flags:new Map([['get_9072_40372',1]]),owned:new Set()},9072),
+ '과거 획득 기록','historical boss-specific drop receipts must suppress one-time rewards');
 assert.equal(owned.blocked({flags:new Map([['get_2920',1]]),owned:new Set()},2920),'',
  'repeatable fragments must not be permanently blocked');
 assert.equal(owned.blocked({flags:new Map([['get_2364',1]]),owned:new Set()},2364),
@@ -48,6 +52,14 @@ assert.equal(flags.has('drop_9438_44122'),false);
 assert.equal(JSON.stringify([...empty.flags]),preserved);
 assert.equal(owned.filterRewards(empty,[5422,9438,2364],{throughLiuCompleted:true}).join(','),
  '9438,2364');
+const liuInput=engine.SBJDungeonDrop.open({Rnds:{Sds:{seed_lsby:978587497}},
+ globalVariable:{win_lsby:15}});
+const liuNpcs=[35260,35264,35268];
+const liuCatalogue=engine.SBJDungeonYYAdapter.fullCatalog(engine.SBJDungeonCatalog);
+const liuEvents=liuNpcs.map(id=>liuCatalogue.find(e=>e.id==='drop_'+id+'_equip'));
+const liuReplay=engine.SBJDungeonDrop.predictSequence(liuInput,liuEvents);
+assert(liuReplay.every(row=>row.nativeReplay),
+ 'original Liu manor 2001-2003 SeedRandom path must be executable');
 const all=engine.SBJDungeonYYAdapter.fullCatalog(engine.SBJDungeonCatalog);
 const seeds={};for(const e of all.filter(e=>e.outer))if(e.outerSeed)seeds[e.outerSeed]=978587497;
 const save={Rnds:{Sds:seeds,Eds:{}},globalVariable:{win_ywf:20,win_byj:9}};
