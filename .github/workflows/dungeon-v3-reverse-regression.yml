@@ -1,0 +1,18 @@
+name: Dungeon v3 reverse regression
+on:
+  push:
+    paths:
+      - 'vendor/sanbujin/drops/dungeon-v3-reverse-exact.js'
+      - 'tests/dungeon-v3-reverse-exact-smoke.cjs'
+      - '.github/workflows/dungeon-v3-reverse-regression.yml'
+  workflow_dispatch:
+jobs:
+  reverse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact inverse RNG formula
+        run: node tests/dungeon-v3-reverse-exact-smoke.cjs
