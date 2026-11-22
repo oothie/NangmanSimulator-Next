@@ -56,6 +56,35 @@ function resultNode(r,engine){
  }else wrap.append(make('span','yy-sim 보상 가중치·순서 기준','dungeon-dual-footnote'));
  return wrap;
 }
+function renderV2(input,dungeon){
+ const target=$('dungeonV2Body'),note=$('dungeonV2Status'),engine=root.SBJDungeonV2;
+ if(!target||!note||!engine)return;
+ target.replaceChildren();
+ try{
+  const plan=engine.planDungeons([dungeon.id]);
+  const options={throughLiuCompleted:!!$('dungeonThroughLiuCompleted')?.checked};
+  const src=engine.source(input,plan,options);
+  const san=engine.native(input,plan,combined,options);
+  const bySource=new Map(src.rows.map(x=>[x.npcId,x]));
+  const byNative=new Map(san.rows.map(x=>[x.npcId,x]));
+  const describe=x=>{
+   if(!x?.supported)return x?.reason||'실행 경로 미복원';
+   return x.item?nameOf(x.item)+' · ID '+x.item+' · '+(colors[x.color]||'색상 미확인'):'일반 장비 없음';
+  };
+  for(const entry of plan){
+   const tr=make('tr');
+   const translated=bossOverrides[entry.npc.name]||
+    root.SBJ_KOREAN?.translate?.(entry.npc.name)||entry.npc.name;
+   cell(tr,translated,'dungeon-dual-boss');
+   cell(tr,describe(bySource.get(entry.npc.id)));
+   cell(tr,describe(byNative.get(entry.npc.id)));
+   target.append(tr);
+  }
+  note.textContent='진단용 · yy-sim 모델 RNG 호출 '+src.trace.length+
+   '회 / 산부진 원본 RNG 호출 '+san.trace.length+
+   '회 · 불일치 원인 추적 중 · 실제 게임 결과와 일치하는 것으로 검증되지 않음';
+ }catch(error){note.textContent='신규 RNG 엔진 검사 오류: '+String(error?.message||error)}
+}
 function render(){
  const current=source.find(d=>d.id===area.value);
  body.replaceChildren();
@@ -70,6 +99,7 @@ function render(){
   const input=root.SBJDungeonDrop.open(save);
   const options={throughLiuCompleted:!!$('dungeonThroughLiuCompleted')?.checked};
   const result=root.SBJDungeonDual.compare(input,current,combined,original,options);
+  renderV2(input,current);
   const yy=new Map(result.yy.rows.map(r=>[r.npcId,r]));
   const san=new Map(result.san.rows.map(r=>[r.npcId,r]));
   for(const npc of result.bosses){
