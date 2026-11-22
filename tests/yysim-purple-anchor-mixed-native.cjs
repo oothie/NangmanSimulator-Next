@@ -430,22 +430,10 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
   guard:YYWashNativeSearchGuard
  });
- // Ground truth 4019 purple-only: inspect original WASM order-dependent costs.
- const nativeOrders=[];
- for(const order of [[272,249,266],[272,266,249],[249,272,266],
-   [249,266,272],[266,272,249],[266,249,272]]){
-  assert(wasmSetState(mapped1121));
-  const raw=YYWashNativeSearchGuard.run({
-   getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes
-  },{desired_ids:order,max_pad:20,horizon:900,top_n:8});
-  nativeOrders.push({order,returned:raw.routes.length,
-   costs:raw.routes.map(x=>({pills:x.pills,
-    washes:x.actions?.at(-1)?.wash_no??null,
-    steps:x.actions?.length||0})).slice(0,8)});
- }
- console.log('YY_1121_PURPLE_NATIVE_ORDER_COMPARISON '+JSON.stringify(nativeOrders));
+ // Verified original-WASM purple-only results depend on max_pad.
+ // Keep only the two regression-critical probes; wide pad sweeps are costly.
  const nativePadVariants=[];
- for(const max_pad of [0,5,10,15,20,25,30]){
+ for(const max_pad of [0,20]){
   assert(wasmSetState(mapped1121));
   const native=YYWashNativeSearchGuard.run({
    getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes
@@ -455,6 +443,10 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
    actions:route.actions?.length||0
   }))});
  }
+ assert.equal(nativePadVariants[0].costs[0]?.pills,4019);
+ assert.equal(nativePadVariants[0].costs[0]?.washes,826);
+ assert.equal(nativePadVariants[1].costs[0]?.pills,4039);
+ assert.equal(nativePadVariants[1].costs[0]?.washes,830);
  console.log('YY_1121_PURPLE_NATIVE_PADDING '+JSON.stringify(nativePadVariants));
  assert(wasmSetState(mapped1121));
  const noPadMixed=await YYWashPurpleAnchorMixed.run({
