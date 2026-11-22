@@ -5,8 +5,8 @@
  */
 'use strict';
 self.window=self;
-importScripts('./wasm_data.js?rev=0.10.29','./core_glue.js?rev=0.10.29',
- './data.js?rev=0.10.29','../../engine/yysim-native-search-guard.js?rev=0.10.29');
+importScripts('./wasm_data.js?rev=0.10.30','./core_glue.js?rev=0.10.30',
+ './data.js?rev=0.10.30','../../engine/yysim-native-search-guard.js?rev=0.10.30');
 let nativeReady=null;
 async function ensureReady(){
  if(!nativeReady){
