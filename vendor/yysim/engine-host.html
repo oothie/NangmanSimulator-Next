@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>yy-sim 세수 엔진</title></head><body><script src="./wasm_data.js?rev=0.10.21"></script><script src="./core_glue.js?rev=0.10.21"></script><script src="./data.js?rev=0.10.21"></script><script src="../../engine/yysim-target-catalog.js?rev=0.10.20"></script><script src="../../engine/yysim-native-search-guard.js?rev=0.10.21"></script><script>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>yy-sim 세수 엔진</title></head><body><script src="./wasm_data.js?rev=0.10.21"></script><script src="./core_glue.js?rev=0.10.21"></script><script src="./data.js?rev=0.10.21"></script><script src="../../engine/yysim-target-catalog.js?rev=0.10.20"></script><script src="../../engine/yysim-native-search-guard.js?rev=0.10.26"></script><script>
 let ready=false;
 const washSelectableIds=()=>new Set((window.YYWashTargetCatalog||[])
  .flatMap(group=>group.items||[]).map(item=>Number(item.id)));
@@ -41,7 +41,7 @@ try{
   const available=wasmGetAvailableTalents();
   const conflicts=wasmGetConflicts();
   const after=wasmGetState();
-  if(!after||JSON.stringify(before)!==JSON.stringify(after))
+  if(!after||!window.YYWashNativeSearchGuard.statesEqual(before,after))
    throw Error('재능 조회 중 WASM 상태가 변경됐습니다. 원본 결과를 적용하지 않습니다');
   if(!available||typeof available!=='object'||available.error||
      !conflicts||typeof conflicts!=='object'||conflicts.error)
@@ -118,9 +118,11 @@ try{
    conflict_wash_no:x.conflict_wash_no,lock_only:x.lock_only}));
   const results=wasmPreviewExchangePads(targets,pad);
   const after=wasmGetState();
-  if(!after||JSON.stringify(before)!==JSON.stringify(after)){
-   wasmSetState(before);
-   throw Error('원본 연동 치환 탐색이 WASM 세수 상태를 변경하여 복구했습니다');
+  if(!after||!window.YYWashNativeSearchGuard.statesEqual(before,after)){
+   const restored=wasmSetState(before);
+   if(!restored||!window.YYWashNativeSearchGuard.statesEqual(before,wasmGetState()))
+    throw Error('원본 연동 치환 탐색 상태 복구 검증 실패');
+   throw Error('원본 연동 치환 탐색 중 실제 WASM 상태 변경 감지 · 복구 완료');
   }
   if(!results||typeof results!=='object'||results.error)
    throw Error('원본 연동 치환 탐색 결과 구조를 확인할 수 없습니다');
