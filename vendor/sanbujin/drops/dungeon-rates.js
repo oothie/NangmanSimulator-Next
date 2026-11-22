@@ -71,7 +71,8 @@ const GATES={
 };
 function probability(op,input){
  const base=baseChance(op),flags=input?.flags;
- if(!flags||!(flags instanceof Map))return {base,real:null,gate:null};
+ if(!flags||!(flags instanceof Map)||!Object.keys(input?.seeds||{}).length)
+  return {base,real:null,gate:null};
  const gate=GATES[op.flag],required=gate?Number(flags.get(gate[0])||0)>=gate[1]:true;
  const current=Number(flags.get(op.win)||0);
  const adjusted={...op,th:Number(op.th)+current*Number(op.mul||1)};
