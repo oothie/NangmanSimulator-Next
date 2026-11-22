@@ -5,6 +5,8 @@ on:
     paths:
       - 'index.html'
       - 'engine/daily-market.js'
+      - 'engine/market-strategy-worker.js'
+      - 'tests/market-fastest-astar-regression.cjs'
       - 'vendor/nangman-v350/equipment.html'
       - 'vendor/nangman-v350/embedded-bridge.js'
       - 'tests/market-quantity-strategy-smoke.cjs'
@@ -22,6 +24,8 @@ jobs:
           node-version: '22'
       - name: Verify full quantity and free ghost market routes
         run: node tests/market-quantity-strategy-smoke.cjs
+      - name: Verify A-star shortest-period routes and cancelable worker
+        run: node tests/market-fastest-astar-regression.cjs
       - name: Preserve original first-appearance and VIP market searches
         run: |
           node tests/market-second-server-vip-strategy-regression.cjs
