@@ -83,7 +83,7 @@ function actionsToRoute(actions,final,base,original,desiredIds,window='last-purp
   anchor_window:window,native_verified:true
  };
 }
-async function run({desiredIds,maxPad=20,horizon=900,topN=8,
+async function run({desiredIds,maxPad=0,horizon=900,topN=8,
  talents,getState,setState,search,doWash,exchangeTalent,
  guard,progress=()=>{}}={}){
  const shape=requestShape(desiredIds,talents);
