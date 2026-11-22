@@ -193,9 +193,12 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
      actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
       wash_no:time});
     }
-    // Replan remaining purple(s) from the ACTUAL native state, with
-    // green/blue target locked. This avoids assuming the original route's
-    // RNG sequence survives an additional locked slot.
+    // Replan the remaining purple using the ORIGINAL native search,
+    // starting from the state where the nearest green/blue is already locked.
+    // The native solver searches its selected purples only and may request
+    // unlocking a purple or color which is already a retained objective.
+    // Such actions are not valid in the mixed goal: refuse only that unlock,
+    // then replay every subsequent wash/exchange on the ORIGINAL WASM state.
     const branchState=clone(getState());
     const remaining=shape.purple.filter(id=>!idsOf(branchState).includes(id));
     if(remaining.length){
@@ -206,6 +209,10 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
        horizon:Math.min(horizon,300),top_n:2});
       diagnostics.replanNativeRoutes=(diagnostics.replanNativeRoutes||0)+
        (replanned?.routes?.length||0);
+      const protectedIds=new Set([
+       ...shape.purple.filter(id=>idsOf(branchState).includes(id)),
+       ...shape.colors.filter(id=>idsOf(branchState).includes(id))
+      ]);
       diagnostics.replanExamples=diagnostics.replanExamples||[];
       if(diagnostics.replanExamples.length<4)diagnostics.replanExamples.push({
        atWash:time,targets:remaining,received:replanned?.routes?.length||0,
@@ -214,7 +221,105 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
        currentWash:count(branchState,'total_wash'),
        finalIds:replanned?.routes?.[0]?.final_slots?.map(t=>t.id)||[]
       });
-     }catch(e){diagnostics.replanErrors=(diagnostics.replanErrors||0)+1}
+      for(const continuation of replanned?.routes||[]){
+       const nativeActions=Array.isArray(continuation.actions)?
+        continuation.actions:[];
+       if(!nativeActions.length)continue;
+       restore(branchState);
+       const combined=[...actions];
+       try{
+        for(const step of nativeActions){
+         const washNo=Number(step.wash_no);
+         if(!Number.isSafeInteger(washNo)||
+            washNo<count(getState(),'total_wash'))
+          throw Error('재탐색의 세수 회차가 이전 회차로 돌아갑니다');
+         washTo(washNo);
+         const id=names.get(String(step.talent));
+         if(['lock','unlock','keep'].includes(step.kind)){
+          // A native purple-only search has no knowledge of green/blue
+          // objectives. Keep all already secured goals locked.
+          if(step.kind==='unlock'&&protectedIds.has(id)){
+           diagnostics.protectedUnlocks=(diagnostics.protectedUnlocks||0)+1;
+           continue;
+          }
+          if(step.kind==='unlock'&&!idsOf(getState()).includes(id))continue;
+          if(!id)throw Error('원본 재탐색 잠금 단계 ID 누락');
+          lockId(id,step.kind!=='unlock');
+         }else if(step.kind==='exchange'){
+          const sourceId=names.get(String(step.from));
+          const targetId=names.get(String(step.to||step.talent));
+          const slot=getState().talents.findIndex(t=>number(t.id)===sourceId);
+          if(slot<0||!targetId)throw Error('재탐색 치환 원맥이 달라졌습니다');
+          if(protectedIds.has(sourceId))
+           throw Error('이미 보유한 목표 맥을 치환할 수 없습니다');
+          const done=exchangeTalent(slot);
+          if(!done||done.error||!idsOf(getState()).includes(targetId))
+           throw Error('재탐색 WASM 치환 결과 불일치');
+         }else if(!['wash_to','skip'].includes(step.kind))
+          throw Error('원본 재탐색 미지원 단계: '+step.kind);
+         combined.push({...step,
+          pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
+        }
+        if(!hasAll(getState(),shape.purple))
+         throw Error('재탐색 후 기존 자맥과 마지막 자맥을 동시에 보유하지 못했습니다');
+        const beforeFinalize=getState();
+        const retained=new Set([...shape.purple,...shape.colors]);
+        if(!setState({...beforeFinalize,talents:beforeFinalize.talents.map(t=>({
+         ...t,locked:retained.has(number(t.id))
+        }))}))throw Error('원본 WASM 최종 목표 잠금 설정 실패');
+        for(const talent of beforeFinalize.talents){
+         const id=number(talent.id),want=retained.has(id);
+         if(talent.locked!==want)combined.push({
+          kind:want?'lock':'unlock',
+          talent:talents[String(id)]?.name||String(id),
+          wash_no:count(beforeFinalize,'total_wash')
+         });
+        }
+        const held=new Set(shape.colors.filter(id=>idsOf(getState()).includes(id)));
+        for(let extra=0;extra<=horizon;extra++){
+         if(held.size===shape.colors.length&&hasAll(getState(),desiredIds)){
+          const final=getState();
+          routes.push(actionsToRoute(combined,final,initial,native,
+           desiredIds,'purple-between-replanned'));
+          diagnostics.replanComplete=(diagnostics.replanComplete||0)+1;
+          break;
+         }
+         if(extra===horizon)break;
+         const at=count(getState(),'total_wash');
+         const washed=doWash();
+         if(!washed||washed.error||count(getState(),'total_wash')!==at+1)break;
+         diagnostics.scannedWashes++;
+         for(const colorId of shape.colors){
+          if(held.has(colorId)||!idsOf(getState()).includes(colorId))continue;
+          lockId(colorId,true);held.add(colorId);
+          const here=count(getState(),'total_wash');
+          combined.push({kind:'wash_to',wash_no:here,
+           note:'재탐색 마지막 자맥 이후 녹·파맥 후보'});
+          combined.push({kind:'lock',
+           talent:talents[String(colorId)]?.name||String(colorId),
+           wash_no:here});
+         }
+         if(extra%50===49){
+          progress({phase:'anchor-between',scannedWashes:diagnostics.scannedWashes,
+           candidateRoutes:routes.length});
+          await new Promise(resolve=>setTimeout(resolve,0));
+         }
+        }
+       }catch(error){
+        diagnostics.replanRejected=(diagnostics.replanRejected||0)+1;
+        if((diagnostics.replanRejectReasons||[]).length<4){
+         diagnostics.replanRejectReasons=diagnostics.replanRejectReasons||[];
+         diagnostics.replanRejectReasons.push(String(error?.message||error));
+        }
+       }
+      }
+     }catch(e){
+      diagnostics.replanErrors=(diagnostics.replanErrors||0)+1;
+      if((diagnostics.replanRejectReasons||[]).length<4){
+       diagnostics.replanRejectReasons=diagnostics.replanRejectReasons||[];
+       diagnostics.replanRejectReasons.push(String(e?.message||e));
+      }
+     }
      restore(branchState);
     }
     for(let i=next;i<originalActions.length;i++){
