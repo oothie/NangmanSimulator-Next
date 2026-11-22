@@ -12,7 +12,7 @@ function canonicalJson(value){
  const normalize=input=>{
   if(Array.isArray(input))return input.map(normalize);
   if(input&&typeof input==='object'){
-   const normalized={};
+   const normalized=Object.create(null);
    for(const key of Object.keys(input).sort())normalized[key]=normalize(input[key]);
    return normalized;
   }
