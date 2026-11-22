@@ -12,11 +12,11 @@ const fakeWindow={
   {quality:4,items:[{id:271},{id:268},{id:272}]}],
  addEventListener:(name,fn)=>listeners[name]=fn
 };
-const TALENT_DATA={'184':{id:184,pinzhi:2,name:'气息浑厚'},
- '202':{id:202,pinzhi:3,name:'四两拨千斤'},
- '271':{id:271,pinzhi:4,name:'转世金仙'},
- '268':{id:268,pinzhi:4,name:'天生神力'},
- '272':{id:272,pinzhi:4,name:'岿然顶天'}};
+const TALENT_DATA={'184':{id:184,pinzhi:2,type:177,name:'气息浑厚'},
+ '202':{id:202,pinzhi:3,type:202,name:'四两拨千斤'},
+ '271':{id:271,pinzhi:4,type:271,name:'转世金仙'},
+ '268':{id:268,pinzhi:4,type:268,name:'天生神力'},
+ '272':{id:272,pinzhi:4,type:272,name:'岿然顶天'}};
 let requestCount=0,returnCompleteMixed=false;
 const ctx={window:fakeWindow,parent:fakeParent,location:{origin:'https://local.test'},
  TALENT_DATA,ZZ_DATA:{},EMBEDDED_WASM_B64:'fixture',setTimeout,
@@ -66,6 +66,15 @@ async function message(op,payload){
  assert.equal(requestCount,3,'Only the original WASM was invoked, once per request');
  assert.equal(state.seed,1234);
  assert.equal(state.global_vars.a,1);
+ // Native type overlap is impossible regardless of selected color.
+ const counter=requestCount;
+ TALENT_DATA['271'].type=177;
+ await listeners.message({origin:ctx.location.origin,source:fakeParent,
+  data:{kind:'nangman-engine-command',requestId:98,op:'auto-search',
+   payload:{desiredIds:[184,271],maxPad:0,horizon:90,topN:3}}});
+ assert.equal(sent.at(-1).ok,false,'Same-family green/purple request must be rejected');
+ assert.equal(requestCount,counter,'Impossible goal must not invoke expensive WASM search');
+ TALENT_DATA['271'].type=271;
  const bad=await listeners.message({origin:ctx.location.origin,source:fakeParent,
   data:{kind:'nangman-engine-command',requestId:99,op:'auto-search',
    payload:{desiredIds:[184,999],maxPad:0,horizon:90,topN:3}}});
