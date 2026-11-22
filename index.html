@@ -868,7 +868,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 <script src="./vendor/yysim/life_hedao_data.js"></script>
 <script src="./vendor/yysim/daily_data.js"></script>
 <script src="./data/market-item-ko.js?rev=20261121a"></script>
-<script src="./engine/daily-market.js?rev=20261121a"></script>
+<script src="./engine/daily-market.js?rev=0.10.61"></script>
 <script src="./engine/quest-branch.js?rev=v0101"></script>
 <script src="./engine/wash-path-model.js"></script>
 <script src="./engine/wash-preview-model.js"></script>
@@ -4860,7 +4860,7 @@ function updateEquipmentVisibility(){
   host.dataset.equipmentTab=frameKey;
   const frame=document.createElement('iframe');
   frame.title=tab[1]+' 엔진';frame.loading='eager';frame.referrerPolicy='same-origin';
-  frame.src=original?'./vendor/nangman-v350/equipment.html?rev=0.10.60':
+  frame.src=original?'./vendor/nangman-v350/equipment.html?rev=0.10.61':
    './vendor/sanbujin/'+tab[2]+'/index.html?rev=v097';
   frame.addEventListener('load',()=>{
    sendThemeToEquipment(frame);sendSaveToEquipment(frame);
