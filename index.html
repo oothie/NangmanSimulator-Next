@@ -1056,11 +1056,15 @@ if(sub==='auto'){
  }).join('')+'</tbody></table></div>':'';
  const anchorStats=result?.nativeDiagnostics?.method==='purple-anchor-nearest-native-wash'?result.nativeDiagnostics:null;
  const resultStatus=analyzed?'<p class="micro">'+
-  (anchorStats?'자맥 WASM 호출 '+escape(anchorStats.purpleAttempts??(anchorStats.preexistingPurple?0:1))+'회 · 녹·파맥 실측 검사 '+escape(anchorStats.scannedWashes??0)+'회':
+  (anchorStats?'자맥 WASM 호출 '+escape(anchorStats.purpleNativeCalls??anchorStats.purpleAttempts??(anchorStats.preexistingPurple?0:1))+'회 · 녹·파맥 실측 검사 '+escape(anchorStats.scannedWashes??0)+'회':
    (usesColors?'원본 WASM 최종 결과 탐색 ':'원본 WASM 자동 경로 ')+(result?.progressive?'원본 1회 호출 · 검사 ':'탐색 ')+escape(analyzed.stats.scanned)+'개 분기')+(result?.exchangeBeam?' · 실제 WASM 치환 확장 '+escape(result.exchangeBeamStates||0)+'상태 검사':'')+' · 경로 '+escape(analyzed.stats.total)+'개 · 목표 확보 '+escape(analyzed.stats.complete)+'개 · 실행 단계 확인 '+escape(analyzed.stats.actionable)+'개</p>'+
   '<p>'+escape(api.statusText(analyzed))+'</p>'+
   (usesColors&&result?.nativeDiagnostics?.incomplete>0?
    '<p class="micro">원본 WASM이 반환한 미완성 경로 '+escape(result.nativeDiagnostics.incomplete)+'개는 목표 재능이 최종 슬롯에 모두 없어서 제외했습니다.</p>':'')+
+  (anchorStats?.purpleBackboneCosts?.length>1?
+   '<p class="micro">원본 자맥 후보 비교: '+
+   anchorStats.purpleBackboneCosts.map(x=>'선행 '+escape(x.maxPad)+' · '+escape(x.pills)+'개').join(' / ')+
+   ' · 최종 4맥 비용으로 결정</p>':'')+
   (anchorStats?.purpleNoRoute?
    '<p class="micro">자맥 기준 경로 0개: 원본 WASM 자맥 순서를 재검사했지만 일치 경로를 찾지 못해 녹·파맥 분기가 시작되지 않았습니다.</p>':
    anchorStats?.purpleReplayNoRoute?
