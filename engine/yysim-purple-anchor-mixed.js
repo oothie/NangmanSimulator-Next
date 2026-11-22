@@ -319,6 +319,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
           const final=getState();
           routes.push(actionsToRoute(combined,final,initial,native,
            desiredIds,'purple-between-replanned'));
+          reportBest('anchor-between');
           diagnostics.replanComplete=(diagnostics.replanComplete||0)+1;
           break;
          }
@@ -390,6 +391,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
       const final=getState();
       routes.push(actionsToRoute(actions,final,initial,native,
        desiredIds,'purple-between'));
+      reportBest('anchor-between');
       break;
      }
      if(offset===horizon)break;
@@ -420,6 +422,10 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
   purpleTargets:shape.purple,colorTargets:shape.colors,
   purpleRoutes:0,replayed:0,failures:[],scannedWashes:0,
   windows:['purple-between','last-purple-after']};
+ const reportBest=(phase)=>progress({phase,scannedWashes:diagnostics.scannedWashes,
+  candidateRoutes:routes.length,bestPills:routes.length?
+   Math.min(...routes.map(r=>r.pills)):null});
+
  let baseline=null;
  try{
   restore(initial);
@@ -478,6 +484,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
      if(!shape.purple.every(id=>final.talents.some(t=>number(t.id)===id&&t.locked)))
       throw Error('자맥 확정 슬롯이 혼합 결과에서 잠기지 않았습니다');
      routes.push(actionsToRoute(tailActions,final,initial,native,desiredIds));
+     reportBest('anchor-wash');
      break;
     }
     if(offset%50===0){
