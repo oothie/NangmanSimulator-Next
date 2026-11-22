@@ -67,13 +67,29 @@ const GATES={
  'drop_5422_33650':['win_ywf',12],
  'drop_5427_50883':['win_byjzt',6],
  'drop_5223_50910':['win_byjzt',10],
- 'drop_9430_44122':['win_byjzt',14]
+ 'drop_9430_44122':['win_byjzt',14],
+ 'drop_7264_35219':['win_byj',3],
+ 'drop_7262_35214':['win_byj',11],
+ 'drop_7263_35214':['win_byj',11],
+ 'drop_7267_35221':['win_byj',6],
+ 'drop_5020_35260':['win_lsby',7],
+ 'drop_8913_35264':['win_lsby',13],
+ 'drop_5628_35264':['win_lsby',9],
+ 'drop_8914_35268':['win_lsby',21],
+ 'drop_8917_35268':['win_lsby',13]
+};
+const QUEST_GATES={
+ 'drop_6559_40170':['jwg_zhenpai_jwj',1],
+ 'drop_6443_33862':['ty_xiaoqingshenshi',4]
 };
 function probability(op,input){
  const base=baseChance(op),flags=input?.flags;
  if(!flags||!(flags instanceof Map)||!Object.keys(input?.seeds||{}).length)
   return {base,real:null,gate:null};
- const gate=GATES[op.flag],required=gate?Number(flags.get(gate[0])||0)>=gate[1]:true;
+ const gate=GATES[op.flag],quest=QUEST_GATES[op.flag];
+ if(quest&&!flags.has(quest[0]))return {base,real:null,gate:null,unknownQuest:true};
+ const required=(gate?Number(flags.get(gate[0])||0)>=gate[1]:true)&&
+   (!quest||Number(flags.get(quest[0]))===quest[1]);
  const current=Number(flags.get(op.win)||0);
  const adjusted={...op,th:Number(op.th)+current*Number(op.mul||1)};
  return {base,real:required?baseChance(adjusted):0,
@@ -126,6 +142,7 @@ function render(target,event,input){
    const score=Number.isFinite(chance.base)?percent(chance.base):'미확인';
    const conditions=[];
    if(chance.gate)conditions.push('선행 조건 '+chance.gate.name+' ≥ '+chance.gate.min);
+   if(chance.unknownQuest)conditions.push('임무 분기 미복원');
    if(op.win)conditions.push('누적값 '+op.win);
    if(Number(op.mul)!==1)conditions.push('보정 계수 ×'+op.mul);
    if(op.cap!=null)conditions.push('획득 상한 '+op.cap);
