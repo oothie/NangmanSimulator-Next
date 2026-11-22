@@ -133,8 +133,16 @@ async function scan(){
   setStatus('선택 캐릭터 원시 자맥·치환맥 조회 중…');
   await new Promise(r=>setTimeout(r,30));
   const before=wasmGetState();
-  const data=wasmPreviewSequence(count);
-  if(!guard.statesEqual(wasmGetState(),before))throw Error('원본 미리보기 상태 변경 감지');
+  let data=null,previewError=null;
+  try{data=wasmPreviewSequence(count)}
+  catch(e){previewError=e}
+  if(!guard.statesEqual(wasmGetState(),before)){
+   const restored=wasmSetState(before);
+   if(!restored||!guard.statesEqual(wasmGetState(),before))
+    throw Error('원본 미리보기 세수 상태 복원 실패');
+   throw Error('원본 미리보기 실행 중 상태 변경 감지 · 복원 완료');
+  }
+  if(previewError)throw previewError;
   if(!data||!Array.isArray(data.purples))throw Error('원본 미리보기 결과 형식 오류');
   preview=data;showPreview();setStatus(role.name+' · '+count+'회차 원시 자맥 '+data.purples.length+'개 확인');
  }finally{busy=false;goals();$('scan').disabled=false}
