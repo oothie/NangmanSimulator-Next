@@ -63,7 +63,7 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vend
  lock(177,true);wash(7,'lock 177 7');assert.equal(pills(),434);
  lock(271,true);wash(5,'lock 271 5');assert.equal(pills(),484);
  exchange(271,276);exchange(276,262);
- lock(177,false);wash(19,'lock two purples 19');assert.equal(pills(),636);
+ lock(177,false);lock(262,true);wash(19,'lock two purples 19');assert.equal(pills(),636);
  lock(237,true);wash(28,'lock two purples and green 28');assert.equal(pills(),916);
  lock(204,true);step('four final talents');
  assert([268,262,237,204].every(id=>snapshot().talents.some(t=>
