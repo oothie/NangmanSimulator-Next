@@ -687,6 +687,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .wash-guide-step{display:grid;grid-template-columns:43px minmax(0,1fr);gap:14px;padding:14px 15px;border:1px solid var(--border);border-radius:9px;background:var(--paper)}
 .wash-guide-number{display:flex;justify-content:center;align-items:center;border-radius:50%;width:35px;height:35px;border:1px solid var(--border);font-size:16px;font-weight:800}
 .wash-guide-step-body{min-width:0}
+.wash-guide-timing{font-size:15px;font-weight:750;color:var(--text);margin-bottom:8px;padding:8px 10px;border-radius:6px;border:1px solid var(--border)}
 .wash-guide-step-body strong{display:block;font-size:18px;line-height:1.4}
 .wash-guide-step-detail{margin:5px 0;font-size:16px;line-height:1.5;overflow-wrap:anywhere}
 .wash-guide-metrics{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;color:var(--sub);font-size:14px}
@@ -1060,8 +1061,12 @@ if(sub==='auto'){
     kind==='keep'?'목표 재능 유지':kind==='skip'?'건너뛰기':detail.label;
    const wash=detail.wash==null?'':'<span>세수 '+escape(detail.wash)+'회차</span>';
    const pills=detail.pills==null?'':'<span>누적 '+escape(Number(detail.pills).toLocaleString())+'개</span>';
+   const previousWash=n?Number(x.actions[n-1]?.wash_no??0):0;
+   const currentWash=detail.wash==null?null:Number(detail.wash);
+   const newWashes=currentWash!==null&&currentWash>previousWash?
+    '<div class="wash-guide-timing">이전 단계에서 '+escape((currentWash-previousWash).toLocaleString())+'회 더 세수한 뒤 진행</div>':'';
    return '<li class="wash-guide-step'+importance+'"><span class="wash-guide-number">'+(n+1)+'</span>'+
-    '<div class="wash-guide-step-body"><strong>'+escape(verb)+'</strong>'+
+    '<div class="wash-guide-step-body">'+newWashes+'<strong>'+escape(verb)+'</strong>'+
     '<div class="wash-guide-step-detail">'+escape(detail.detail)+'</div>'+
     '<div class="wash-guide-metrics">'+wash+pills+'</div></div></li>';
   }).join('');
