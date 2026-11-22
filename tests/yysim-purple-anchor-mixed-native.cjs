@@ -22,6 +22,12 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  assert(YYWashPurpleAnchorMixed.requestShape([271,268,272,202],TALENT_DATA),
   'Three-purple plus blue must enter purple-anchored extension');
  assert(YYWashPurpleAnchorMixed.requestShape([271,268,184,202],TALENT_DATA));
+ assert(YYWashPurpleAnchorMixed.requestShape([271,268,184,186],TALENT_DATA),
+  'Two purple plus two distinct green families must be eligible');
+ assert(YYWashPurpleAnchorMixed.requestShape([271,268,202,204],TALENT_DATA),
+  'Two purple plus two distinct blue families must be eligible');
+ assert.equal(YYWashPurpleAnchorMixed.requestShape([271,268,184,185],TALENT_DATA),null,
+  'Purple and lower-grade talent with the same native family must collide');
  assert.equal(YYWashPurpleAnchorMixed.requestShape([271,184],TALENT_DATA),null);
  const out=await YYWashPurpleAnchorMixed.run({
   desiredIds:[271,268,272,184],maxPad:0,horizon:40,topN:1,
