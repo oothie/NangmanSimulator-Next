@@ -207,6 +207,54 @@
     ];
     window.SBJDropExport.save('Nangman_Dungeon_Shared_Boss_Sequence',columns,sequenceRows);
   };
+  // Compare deterministic predictions against results entered after a
+  // real 1122-save run. Never mutate the uploaded save or RNG state.
+  $('dungeonActualRun').onclick=()=>{
+    const status=$('dungeonActualStatus'),host=$('dungeonActualResults');
+    host.replaceChildren();
+    const source=$('dungeonActualSource').value==='sequence'?sequenceRows:rows;
+    if(!source?.length){status.textContent='먼저 해당 관문 보상 예측을 실행하세요.';return}
+    const colors={없음:0,미드랍:0,백색:1,흰색:1,녹색:2,청색:3,파랑:3,자색:4,보라:4};
+    const entries=$('dungeonActualRows').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    if(!entries.length){status.textContent='실제 드랍 결과를 한 줄 이상 입력하세요.';return}
+    const recorded=new Map();
+    try{
+     for(const line of entries){
+      const fields=line.split(/[\t,，;]+/).map(x=>x.trim());
+      if(fields.length<3)throw Error('실측 형식: 회차, 장비 ID, 색상 — '+line);
+      const index=Number(fields[0]),item=Number(fields[1]);
+      const code=fields[2];
+      const color=Object.prototype.hasOwnProperty.call(colors,code)?colors[code]:Number(code);
+      if(!Number.isInteger(index)||index<1||index>source.length||
+         !Number.isInteger(item)||item<0||
+         !Number.isInteger(color)||color<0||color>4)
+       throw Error('회차 또는 장비 ID·색상을 확인하세요: '+line);
+      if(recorded.has(index))throw Error('중복된 회차: '+index);
+      recorded.set(index,{item,color});
+     }
+    }catch(error){status.textContent=error.message;return}
+    const table=document.createElement('table'),head=document.createElement('tr');
+    for(const col of ['회차','예상 장비','예상 등급','실측 장비','실측 등급','대조']){
+     const cell=document.createElement('th');cell.textContent=col;head.append(cell)
+    }
+    table.append(head);
+    let matched=0,mismatched=0;
+    for(const [index,observed] of [...recorded].sort((a,b)=>a[0]-b[0])){
+     const expected=source[index-1],item=Number(expected.item||0),color=Number(expected.color||0);
+     const sameItem=item===observed.item,sameColor=color===observed.color;
+     const matchedRow=sameItem&&sameColor;
+     if(matchedRow)matched++;else mismatched++;
+     const row=document.createElement('tr');
+     for(const val of [index,item||'미드랍',color||'—',observed.item||'미드랍',observed.color||'—',matchedRow?'일치':!sameItem?'장비 ID 불일치':'등급 불일치']){
+      const cell=document.createElement('td');cell.textContent=String(val);row.append(cell)
+     }
+     row.lastElementChild.className=matchedRow?'match':'mismatch';
+     table.append(row);
+    }
+    host.append(table);
+    status.textContent='1122 실측 대조 · '+recorded.size+'회 입력 · 일치 '+matched+
+     '회 · 불일치 '+mismatched+'회 · 미입력 회차는 비교에서 제외';
+  };
   $('dungeonCount').oninput = reset;
   $('dungeonForm').onsubmit = event => {
     event.preventDefault();
