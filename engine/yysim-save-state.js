@@ -47,7 +47,7 @@ function build(save,role,original){
   mode:'seed',seed,luck_seed:luck==null?0:num(luck),luck_seed_inited:luck!=null,
   role_id:id,salt,born_rc:num(raw.BornTalent?.RC),has_born_talent:Number(raw.BornTalent?.ID)>0,
   rng_variant:'73324',zizhi:num(raw.ZiZhi,153),sex:num(raw.Sex,1),vip:num(original?.vip,1),
-  talents:tal,tal_lucky:num(raw.TalLucky),
+  talents:talent,tal_lucky:num(raw.TalLucky),
   total_wash:0,total_talent_bars:0,total_pills:0,bag_pills:bag,has_bag_pills:true,
   gold_count:0,pity_count:0,quality_counts:{1:0,2:0,3:0,4:0},
   last_purple_total_pills:null,exchange_count:0,
