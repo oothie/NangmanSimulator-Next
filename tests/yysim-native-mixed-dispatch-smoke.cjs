@@ -1,0 +1,66 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const html=fs.readFileSync(path.join(root,'vendor/yysim/engine-host.html'),'utf8');
+const inline=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]);
+assert.equal(inline.length,1);
+const sent=[],state={seed:1234,global_vars:{b:2,a:1},talents:[]},listeners={};
+const fakeParent={postMessage:x=>sent.push(x)};
+const fakeWindow={
+ YYWashTargetCatalog:[{quality:2,items:[{id:184}]},{quality:3,items:[{id:202}]},
+  {quality:4,items:[{id:271},{id:268},{id:272}]}],
+ addEventListener:(name,fn)=>listeners[name]=fn
+};
+const TALENT_DATA={'184':{id:184,pinzhi:2,name:'气息浑厚'},
+ '202':{id:202,pinzhi:3,name:'四两拨千斤'},
+ '271':{id:271,pinzhi:4,name:'转世金仙'},
+ '268':{id:268,pinzhi:4,name:'天生神力'},
+ '272':{id:272,pinzhi:4,name:'岿然顶天'}};
+let requestCount=0;
+const ctx={window:fakeWindow,parent:fakeParent,location:{origin:'https://local.test'},
+ TALENT_DATA,ZZ_DATA:{},EMBEDDED_WASM_B64:'fixture',setTimeout,
+ initWasm:async()=>true,wasmInitEngine:()=>true,wasmGetState:()=>JSON.parse(JSON.stringify(state)),
+ wasmSearchWashRoutes:req=>{
+  requestCount++;
+  const routes=req.desired_ids.includes(184)?[
+   {pills:7,washes:1,pad:0,exchanges:0,
+    final_slots:[{id:271},{id:202}]}]:
+   [{pills:6,washes:1,pad:0,exchanges:0,
+    final_slots:req.desired_ids.map(id=>({id}))}];
+  return {routes};
+ }};
+vm.createContext(ctx);
+vm.runInContext(fs.readFileSync(path.join(root,'engine/yysim-native-search-guard.js'),'utf8'),ctx);
+vm.runInContext(inline[0],ctx,{filename:'engine-host-inline.js'});
+async function message(op,payload){
+ const requestId=sent.length+1;
+ await listeners.message({origin:ctx.location.origin,source:fakeParent,
+  data:{kind:'nangman-engine-command',requestId,op,payload}});
+ const response=sent.at(-1);
+ assert.equal(response.requestId,requestId);
+ assert.equal(response.ok,true,JSON.stringify(response.data));
+ return response.data;
+}
+(async()=>{
+ await message('init');
+ const mixed=await message('auto-search',{desiredIds:[271,202,184],maxPad:0,horizon:90,topN:3});
+ assert.equal(mixed.nativeFunction,'wasmSearchWashRoutes');
+ assert.equal(mixed.nativeDiagnostics.isMixed,true);
+ assert.equal(mixed.nativeDiagnostics.returned,1);
+ assert.equal(mixed.nativeDiagnostics.complete,0,'Transient native route is not a final success');
+ assert.equal(mixed.nativeDiagnostics.incomplete,1);
+ assert.equal(mixed.nativeDiagnostics.unsupportedNotProven,true);
+ assert.equal(mixed.result.routes[0].pills,7,'Preserve original route for diagnostics');
+ const purple=await message('auto-search',{desiredIds:[271,268,272],maxPad:0,horizon:90,topN:3});
+ assert.equal(purple.nativeDiagnostics.isMixed,false);
+ assert.equal(purple.nativeDiagnostics.complete,1);
+ assert.equal(requestCount,2,'Only the original WASM was invoked, once per request');
+ assert.equal(state.seed,1234);
+ assert.equal(state.global_vars.a,1);
+ const bad=await listeners.message({origin:ctx.location.origin,source:fakeParent,
+  data:{kind:'nangman-engine-command',requestId:99,op:'auto-search',
+   payload:{desiredIds:[184,999],maxPad:0,horizon:90,topN:3}}});
+ assert.equal(sent.at(-1).ok,false,'Unknown/dummy talent must be rejected');
+ console.log('PASS: original WASM accepts green blue purple requests, but partial final slots are not successes');
+})().catch(error=>{console.error(error);process.exitCode=1});
