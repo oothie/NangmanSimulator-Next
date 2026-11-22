@@ -82,8 +82,10 @@
     }
     return result;
   }
-  function replay(input,events){
+  function replay(input,events,options={}){
     const step=stream(input),vars=new Map(input.flags),temp=new Map();
+    const owned=root.SBJDungeonUniqueOwnership;
+    owned?.preventExisting(input,vars,options);
     const scope=where=>where==='temp'?temp:vars;
     const state={level:input.level,
       branch:key=>{if(!vars.has(key))throw Error('미복원 임무 분기: '+key);return Number(vars.get(key))},
@@ -101,6 +103,7 @@
       if(!native){
         rows.push({...resolveEvent(step,event),nativeReplay:false});i++;continue;
       }
+      owned?.preventExisting(input,vars,options);
       const previous=new Map(vars);
       const seedCheckpoint=step.snapshot(),flagCheckpoint=new Map(vars),tempCheckpoint=new Map(temp);
       try{native.run(state)}catch(error){
@@ -125,29 +128,30 @@
           .filter(op=>op.t==='uniq'&&Number(op.npc)===npc&&
             Number(vars.get(op.flag)||0)===1&&Number(previous.get(op.flag)||0)!==1)
           .map(op=>Number(op.item)).filter(Number.isFinite);
+        const availableSpecial=owned?owned.filterRewards(input,specialDrops,options):specialDrops;
         rows.push({kind:isEquip?'equip':isWeapon?'weapon':'none',
-          item,color:item?color:0,nativeReplay:true,specialDrops});
+          item,color:item?color:0,nativeReplay:true,specialDrops:availableSpecial});
       }
       i+=native.ids.length;
     }
     return rows;
   }
-  function predict(input,event,count){
+  function predict(input,event,count,options={}){
     if(!Number.isInteger(count)||count<1||count>500)
       throw Error('관문 보상 예측은 1~500회까지 가능합니다');
-    const rows=replay(input,Array.from({length:count},()=>event))
+    const rows=replay(input,Array.from({length:count},()=>event),options)
       .map((x,i)=>({index:i+1,...x}));
     rows.equipmentStream=trackEquipment(input,rows);
     return rows;
   }
-  function predictSequence(input,events){
+  function predictSequence(input,events,options={}){
     if(!Array.isArray(events)||events.length<1||events.length>500)
       throw Error('관문 연속 보상은 1~500개 사건으로 입력하세요');
     for(const event of events) {
       if(!event?.outer||!event?.color||missing(input,event).length)
        throw Error('연속 보상에 필요한 우두머리 난수 시드가 없습니다: '+String(event?.id||'미확인'));
     }
-    const rows=replay(input,events).map((x,i)=>({
+    const rows=replay(input,events,options).map((x,i)=>({
       index:i+1,eventId:events[i].id,dungeon:events[i].dungeon,
       boss:events[i].boss,...x
     }));
