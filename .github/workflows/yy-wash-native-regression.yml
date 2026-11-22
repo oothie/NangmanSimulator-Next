@@ -27,6 +27,7 @@ on:
       - 'tests/yysim-anchor-native-probe.cjs'
       - 'engine/yysim-purple-anchor-mixed.js'
       - 'tests/yysim-purple-anchor-mixed-native.cjs'
+      - 'tests/yysim-purple-anchor-blue-isolated.cjs'
       - 'index.html'
       - '.github/workflows/yy-wash-native-regression.yml'
   pull_request:
@@ -55,6 +56,7 @@ on:
       - 'tests/yysim-anchor-native-probe.cjs'
       - 'engine/yysim-purple-anchor-mixed.js'
       - 'tests/yysim-purple-anchor-mixed-native.cjs'
+      - 'tests/yysim-purple-anchor-blue-isolated.cjs'
       - 'index.html'
       - '.github/workflows/yy-wash-native-regression.yml'
   workflow_dispatch:
@@ -122,5 +124,7 @@ jobs:
         run: node tests/yysim-anchor-native-probe.cjs
       - name: Verify user-requested purple-anchor nearest green-blue search against original WASM
         run: node tests/yysim-purple-anchor-mixed-native.cjs
+      - name: Compare fresh original-WASM three-purple-blue search against prior-history result
+        run: node tests/yysim-purple-anchor-blue-isolated.cjs
       - name: Verify original WASM native call graph
         run: node tests/yysim-wasm-callgraph.cjs
