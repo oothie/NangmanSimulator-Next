@@ -28,11 +28,11 @@ assert.equal(api.koreanError('WASM state restore failed: global_vars').includes(
 assert.equal(api.koreanError('Execution failed').includes('오류가 발생했습니다'),true);
 assert.equal(api.koreanError('검색 범위 내 경로 없음'), '선택한 재능을 모두 보유하는 경로를 설정한 세수 범위에서 찾지 못했습니다.');
 const invalidNative=api.routeOutcome({routes:[],error:'不支持绿色天赋'},[271]);
-assert(!/[\\u3400-\\u9fff]/.test(invalidNative.stats.error),'raw Chinese error must not escape native adapter');
+assert(!/[\u3400-\u9fff]/.test(invalidNative.stats.error),'raw Chinese error must not escape native adapter');
 const badNativeRoute=api.routeOutcome({routes:[{
  pills:3,washes:1,exchanges:0,pad:0,error:'未找到可行路线',
  final_slots:[{id:271}],actions:[]}]},[271]);
-assert(!/[\\u3400-\\u9fff]/.test(badNativeRoute.routes[0].warnings.join(' ')),'route warnings must be localized');
+assert(!/[\u3400-\u9fff]/.test(badNativeRoute.routes[0].warnings.join(' ')),'route warnings must be localized');
 assert.throws(()=>api.options({desiredIds:[271],maxPad:201,horizon:300,topN:5},allowed),/제한/);
 assert.throws(()=>api.options({desiredIds:[271],maxPad:5,horizon:5001,topN:5},allowed),/제한/);
 const sample={routes:[{
