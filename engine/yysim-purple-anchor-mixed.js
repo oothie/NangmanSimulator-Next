@@ -597,9 +597,45 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
      wash_no:count(initial,'total_wash')
     })),pills:0,pad:0,order_ids:[...shape.purple]
    }]};
-  }else baseline=guard.run({getState,setState,search},
-   {desired_ids:shape.purple,max_pad:maxPad,horizon,top_n:topN});
+  }else{
+   // The native optimizer can traverse candidate order differently.
+   // Retry alternative purple orders only when the original request has
+   // returned NO anchor routes. All retries use the same bounded original
+   // native WASM, with unchanged talent grades and save state.
+   const permutations=values=>{
+    if(values.length<=1)return [[...values]];
+    return values.flatMap((id,i)=>permutations(values.filter((_,j)=>j!==i))
+     .map(tail=>[id,...tail]));
+   };
+   const attempted=new Set();
+   diagnostics.purpleAttempts=0;
+   diagnostics.purpleAttemptResults=[];
+   for(const order of permutations(shape.purple)){
+    const key=order.join(',');
+    if(attempted.has(key))continue;
+    attempted.add(key);
+    restore(initial);
+    const attempt=guard.run({getState,setState,search},
+     {desired_ids:order,max_pad:maxPad,horizon,top_n:topN});
+    diagnostics.purpleAttempts++;
+    diagnostics.purpleAttemptResults.push({
+     order,returned:attempt?.routes?.length||0,
+     scanned:attempt?.scanned??0,error:attempt?.error||null
+    });
+    if(!baseline)baseline=attempt;
+    if(attempt?.routes?.length){
+     baseline=attempt;
+     break;
+    }
+    // Preserve the original request error when no permutation works.
+   }
+  }
   diagnostics.purpleRoutes=baseline?.routes?.length||0;
+  diagnostics.purpleNoRoute=diagnostics.purpleRoutes===0;
+  if(diagnostics.purpleNoRoute)diagnostics.failures.push(
+   '원본 WASM 자맥 기준 경로 0개 · 선택 자맥 순서 '+(diagnostics.purpleAttempts||1)+
+   '개 검사 · 녹·파맥 탐색 시작 전 중단');
+  for(const native of baseline?.routes||[]){
   for(const native of baseline?.routes||[]){
    let replayed;
    const marks=[];
