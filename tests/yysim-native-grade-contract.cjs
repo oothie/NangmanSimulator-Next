@@ -56,6 +56,41 @@ const path=require('node:path');
      if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
       throw Error('read-only grade probe modified native state');
     }
+    // Explicitly test combinations against FINAL native slots, not transient
+    // acquisitions or the presence of a JSON "routes" array. This isolates
+    // whether original behavior rejects IDs at the request boundary or
+    // produces paths that drop some goals before reaching the final state.
+    const sets=[
+     {name:'purple-only',ids:[271]},
+     {name:'green-only',ids:[184]},
+     {name:'blue-only',ids:[191]},
+     {name:'green-purple',ids:[184,271]},
+     {name:'blue-purple',ids:[191,271]},
+     {name:'green-blue-purple',ids:[184,191,271]}
+    ];
+    const mixedGoalResults=[];
+    for(const target of sets){
+     let response=null,error=null;
+     try{response=wasmSearchWashRoutes({
+      desired_ids:target.ids,max_pad:0,horizon:30,top_n:2
+     })}catch(err){error=String(err?.message||err)}
+     const paths=Array.isArray(response?.routes)?response.routes:[];
+     const complete=paths.filter(route=>{
+      const last=new Set((route.final_slots||[]).map(t=>Number(t.id)));
+      return target.ids.every(id=>last.has(id));
+     });
+     mixedGoalResults.push({name:target.name,ids:target.ids,
+      routes:paths.length,complete:complete.length,
+      cheapestComplete:complete.reduce((best,r)=>
+       Number.isSafeInteger(Number(r.pills))&&Number(r.pills)>=0?
+        Math.min(best,Number(r.pills)):best,Infinity),
+      error:error||response?.error||null});
+     if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
+      throw Error('mixed-grade native route probe modified original WASM state');
+    }
+    mixedGoalResults.forEach(x=>{
+     if(x.cheapestComplete===Infinity)x.cheapestComplete=null;
+    });
     // Characterize optional fields described by original Rust serde metadata.
     // This is diagnostic only: do not enable flags in user-facing auto-search.
     const optionalRequests=[
@@ -76,13 +111,16 @@ const path=require('node:path');
      if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
       throw Error('original native request field probe mutated state');
     }
-    return {rows,requestVariants,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
+    return {rows,mixedGoalResults,requestVariants,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
    })()`);
    const state=await washSearchEngine.call('state');
    return {outcome,preserved:JSON.stringify(state)===JSON.stringify(await washSearchEngine.call('state'))};
   });
   assert(audit.outcome.unchanged&&audit.preserved,'native grade audit mutated live state');
   assert.equal(audit.outcome.rows.length,3);
+  assert.equal(audit.outcome.mixedGoalResults.length,6);
+  assert(audit.outcome.mixedGoalResults.every(row=>
+   row.complete<=row.routes),'never accept transient mixed goals as final routes');
   console.log('ORIGINAL_YY_SIM_GRADE_CONTRACT',JSON.stringify(audit.outcome));
  }finally{await browser?.close();server.kill('SIGTERM')}
 })().catch(err=>{console.error(err);process.exitCode=1});
