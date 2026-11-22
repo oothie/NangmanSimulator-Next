@@ -56,6 +56,12 @@ function resultNode(r,engine){
  }else wrap.append(make('span','yy-sim 보상 가중치·순서 기준','dungeon-dual-footnote'));
  return wrap;
 }
+function currentSeedBelongs(key,id){
+ if(id==='byj')return key==='seed_byj';
+ if(id==='lsby')return key==='seed_lsby';
+ if(id==='dcy')return /^seed_dcy_/.test(key);
+ return false;
+}
 let inverseAfter=null;
 function renderV3(input,dungeon){
  const target=$('dungeonV3Body'),note=$('dungeonV3Status'),trace=$('dungeonV3Trace');
@@ -68,6 +74,26 @@ function renderV3(input,dungeon){
   const measured=[...v2.fixture.byj,...v2.fixture.dcy,...v2.fixture.lsby];
   const result=engine.rebuild(input,inverseAfter,plan,combined,measured,options);
   const src=result.models.source,san=result.models.native;
+  const crossTarget=$('dungeonV3CrossAudit');
+  if(crossTarget){
+   const cross=root.SBJDungeonV3CrossAudit?.inspect(src,san,input,inverseAfter);
+   if(!cross){crossTarget.textContent='독립 엔진 호출 비교 스크립트를 불러오지 못했습니다.'}
+   else{
+    const relevant=cross.rows.filter(r=>currentSeedBelongs(r.key,dungeon.id));
+    crossTarget.textContent=relevant.map(r=>{
+     const where=r.differingBound?
+      '최초 추첨 범위 차이: '+r.differingBound.call+'번째 호출 · yy-sim '+r.differingBound.sourceBound+
+      ' / 산부진 '+r.differingBound.nativeBound:
+      r.differentCallCounts?'동일 접두 구간 이후 총 호출 횟수 차이':
+      '표면상 호출 범위 일치 (분기 방향은 별도 확인)';
+     const ending=r.actualEnd===null?'종료 세이브 미등록':
+      '실측 종료 시드: yy-sim '+(r.source.match?'일치':'불일치')+
+      ' / 산부진 '+(r.native.match?'일치':'불일치');
+     return r.key+' · yy-sim '+r.source.calls+'회 / 산부진 '+r.native.calls+
+      '회\\n'+where+'\\n'+ending;
+    }).join('\\n\\n')||'선택한 관문의 RNG 호출 추적 없음';
+   }
+  }
   const expected=new Map(measured.map(x=>[Number(x.npc),x]));
   const labelRow=x=>x?.item?nameOf(x.item)+' · '+(colors[x.color]||'색상 미확인'):'일반 장비 없음';
   const describe=(row,check)=>{
