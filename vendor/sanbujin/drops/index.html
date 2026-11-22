@@ -62,7 +62,15 @@ body .wild-panel{margin-top:0}
 body .dungeon-coverage{padding:9px 12px!important}
 body .dungeon-coverage strong{font-size:14px}
 </style>
-<script defer src="../shared/app/nangman-no-csv.js?rev=v082"></script><script defer src="../../../shared/korean-terms.js?rev=v083"></script><link rel="stylesheet" href="../../../shared/readability-v084.css?v=084"></head><body class="sbj-web"><main class="hub-main progress-main">
+<script defer src="../shared/app/nangman-no-csv.js?rev=v082"></script><script defer src="../../../shared/korean-terms.js?rev=v083"></script><link rel="stylesheet" href="../../../shared/readability-v084.css?v=084"><style>
+.dungeon-rates{border:1px solid var(--border,#b5a995);border-radius:9px;padding:14px;margin:14px 0;background:var(--panel,#fff)}
+.dungeon-rates h3{margin:0 0 8px;font-size:16px}
+.dungeon-rate-stats{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.dungeon-rate-stats span{border:1px solid var(--border,#b5a995);border-radius:5px;padding:6px 9px}
+.dungeon-rate-table{width:100%;border-collapse:collapse;font-size:13px}
+.dungeon-rate-table th,.dungeon-rate-table td{border-bottom:1px solid var(--border,#b5a995);padding:7px 9px;text-align:left}
+.dungeon-rate-table th:nth-child(n+2),.dungeon-rate-table td:nth-child(n+2){text-align:right}
+</style></head><body class="sbj-web"><main class="hub-main progress-main">
 <header class="progress-heading"><span class="hub-mark" aria-hidden="true">낭</span><div><h1>드랍 시뮬레이션</h1><p>세이브의 난수 순서로 장비와 보물 드랍을 예측합니다.</p></div></header>
 <nav class="drop-modes" aria-label="드랍 종류">
   <button type="button" id="dropWildLink" aria-controls="wildDrop">필드 드랍</button>
@@ -152,6 +160,7 @@ body .dungeon-coverage strong{font-size:14px}
       <label><input type="checkbox" id="dungeonOnlyHits" checked>장비 드랍만 보기</label><label>장비 등급<select id="dungeonQuality"><option value="all">전체</option><option value="purple">자색 장비만</option></select></label><button type="button" id="dungeonExport" disabled>드랍 결과 CSV</button>
     </div>
   </form>
+  <section id="dungeonRates" class="dungeon-rates" aria-label="보스별 일반 장비 드랍 확률"></section>
   <section id="dungeonOrange" class="drop-orange" hidden aria-labelledby="dungeonOrangeTitle">
     <h2 id="dungeonOrangeTitle">전용 주황 장비</h2><ul id="dungeonOrangeList" class="wild-results"></ul>
   </section>
@@ -250,7 +259,9 @@ body .dungeon-coverage strong{font-size:14px}
 <script defer src="../shared/equip_data.js"></script>
 <script defer src="./drop-export.js"></script><script defer src="./wild-data.js?rev=20261121g"></script><script defer src="./wild-core.js?rev=20261121a"></script><script defer src="./tomb-core.js?rev=20261122-h109"></script><script defer src="./tomb-compare-core.js"></script><script defer src="./tomb-compare.js"></script><script defer src="./wild.js?rev=20261122-h109"></script>
 <script defer src="./dungeon-data.js?rev=20261121a"></script><script defer src="./dungeon-orange.js"></script>
-<script defer src="./dungeon-core.js?rev=20261121a"></script><script defer src="./dungeon.js?rev=20261121a"></script>
+<script defer src="./dungeon-core.js?rev=20261121a"></script><script defer src="../../yysim/daily_data.js?rev=73618"></script>
+<script defer src="./dungeon-rates.js?rev=0.10.69"></script>
+<script defer src="./dungeon.js?rev=0.10.69"></script>
 <script defer src="./shared-gear-core.js"></script><script defer src="./shared-gear.js"></script>
 <script defer src="./treasure-core.js"></script><script defer src="./treasure.js"></script>
 <script>
