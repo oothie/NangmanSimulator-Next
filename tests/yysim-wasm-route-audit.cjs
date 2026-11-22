@@ -52,8 +52,41 @@ const routes=funcs.find(x=>x.name==='search_wash_routes');
 if(!routes)throw Error('WASM route export search_wash_routes not found; inspect glue contract');
 const bodyIndex=routes.index-imports;
 if(bodyIndex<0||bodyIndex>=bodySizes.length)throw Error('WASM native route export index points outside code bodies');
+// The export is wasm-bindgen JSON glue, not the actual route solver.
+// Decode its direct 'call' candidates and identify the largest local callee.
+// The wrapper is simple enough that raw 0x10 scanning is diagnostic only;
+// do not modify native instructions using this heuristic.
+const directCalls=[];
+const routeBodyOffset=(()=>{
+ let cursor=8;
+ while(cursor<bytes.length){
+  const id=bytes[cursor++],p={pos:cursor},length=readInt(p),end=p.pos+length;
+  if(id===10){
+   const n=readInt(p);
+   for(let i=0;i<n;i++){
+    const size=readInt(p),start=p.pos;
+    if(i===bodyIndex)return {start,size};
+    p.pos+=size;
+   }
+  }
+  cursor=end;
+ }
+ throw Error('WASM function body not found');
+})();
+for(let i=0;i<routeBodyOffset.size;i++){
+ if(bytes[routeBodyOffset.start+i]!==0x10)continue;
+ const cursor={pos:routeBodyOffset.start+i+1};
+ const target=readInt(cursor);
+ const candidateSize=target>=imports&&target-imports<bodySizes.length?
+  bodySizes[target-imports]:null;
+ if(candidateSize!==null)directCalls.push({functionIndex:target,bodyBytes:candidateSize});
+}
+const searchCallees=directCalls.filter(x=>x.functionIndex!==routes.index&&x.bodyBytes>1000)
+ .sort((a,b)=>b.bodyBytes-a.bodyBytes);
+if(!searchCallees.length)throw Error('WASM search solver target could not be located');
 const record={moduleBytes:bytes.length,importedFunctions:imports,definedFunctions:bodySizes.length,
  nativeRouteFunctionIndex:routes.index,nativeRouteBodyBytes:bodySizes[bodyIndex],
+ searchWrapperCalls:directCalls,solverCandidate:searchCallees[0],
  relatedExports:funcs.map(x=>({name:x.name,index:x.index})),
  searchExportPresent:exported.some(x=>x.name==='search_wash_routes'&&x.kind==='function')};
 console.log('YY_SIM_ORIGINAL_WASM_STRUCTURE',JSON.stringify(record));
