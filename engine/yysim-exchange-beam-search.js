@@ -47,7 +47,7 @@ function rank(state,ids,base){
 function signature(s){
  return [s.seed,s.luck_seed,s.luck_seed_inited,s.tal_lucky,s.pity_count,s.exchange_count,
   s.talents.map(t=>t.id+(t.locked?'L':'')).join(':'),
-  JSON.stringify(s.global_vars||{})].join('|');
+  JSON.stringify(canonical(s.global_vars||{}))].join('|');
 }
 async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
  doExchange,freshBranch,qualityFor,yieldControl=async()=>{},onProgress=()=>{},
@@ -219,16 +219,33 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
    if(!buckets.has(key))buckets.set(key,[]);
    buckets.get(key).push(node);
   }
-  const diverse=[];
+  const diverse=[],representatives=[];
+  // De-duplicate BEFORE applying the per-goal-mask quota, and preserve one
+  // representative for every attained-goal mask before filling the beam.
   for(const rows of buckets.values()){
    rows.sort((a,b)=>rank(b.state,ids,original)-rank(a.state,ids,original));
-   for(const n of rows.slice(0,Math.max(2,Math.floor(beamWidth/6)))){
-    const id=signature(n.state);
-    if(!used.has(id)){used.add(id);diverse.push(n)}
+   const unique=[];
+   for(const n of rows){
+    const key=signature(n.state);
+    if(used.has(key))continue;
+    used.add(key);unique.push(n);
+   }
+   if(unique.length){
+    representatives.push(unique[0]);
+    diverse.push(...unique.slice(1,Math.max(2,Math.floor(beamWidth/6))));
    }
   }
-  diverse.sort((a,b)=>rank(b.state,ids,original)-rank(a.state,ids,original));
-  current=diverse.slice(0,beamWidth);maxActive=Math.max(maxActive,current.length);
+  const score=(a,b)=>rank(b.state,ids,original)-rank(a.state,ids,original);
+  representatives.sort(score);diverse.sort(score);
+  current=representatives.slice(0,beamWidth);
+  const chosen=new Set(current.map(n=>signature(n.state)));
+  for(const n of diverse){
+   if(current.length>=beamWidth)break;
+   const key=signature(n.state);
+   if(!chosen.has(key)){chosen.add(key);current.push(n)}
+  }
+  current.sort(score);
+  maxActive=Math.max(maxActive,current.length);
   if(washNo%25===0||completed.length){
    onProgress({stage:'WASM 치환·임시 잠금 확장 탐색',phase:'exchange',
     completed:washNo,total:horizon,percentage:Math.min(99,Math.round(100*washNo/horizon)),
