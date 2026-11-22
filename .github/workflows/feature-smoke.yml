@@ -20,6 +20,7 @@ on:
       - 'tests/character-source-smoke.cjs'
       - 'tests/character-layout-smoke.cjs'
       - 'tests/account-record-resources-smoke.cjs'
+      - 'tests/account-growth-counts-smoke.cjs'
       - 'tests/html-inline-syntax.cjs'
       - '.github/workflows/feature-smoke.yml'
   workflow_dispatch:
@@ -47,6 +48,8 @@ jobs:
         run: node tests/character-layout-smoke.cjs
       - name: Account-wide Jianghu and map resource save data
         run: node tests/account-record-resources-smoke.cjs
+      - name: Person and account numerical growth records
+        run: node tests/account-growth-counts-smoke.cjs
       - name: Korean quest branch state
         run: node tests/quest-branch-smoke.cjs
       - name: Equipment sequence and save identity
