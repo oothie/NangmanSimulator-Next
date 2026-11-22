@@ -15,14 +15,33 @@ function selectedIds(raw,allowed){
   throw Error('자동 탐색은 서로 다른 녹맥·파맥·자맥 재능을 1~4개 선택해야 합니다');
  return ids;
 }
-// Four purple goals can require well over 900 native wash iterations.
-// Keep the original single-call WASM path; mixed-grade searches retain their
-// existing bounded horizon until their separate search extension is validated.
-function recommendedHorizon(ids,catalog){
- const list=Array.isArray(ids)?ids.map(Number):[];
- const purple=new Set((catalog||[]).filter(group=>Number(group.quality)===4)
-  .flatMap(group=>group.items||[]).map(item=>Number(item.id)));
- return list.length===4&&list.every(id=>purple.has(id))?2500:900;
+// Use the same original WASM search horizon for purple and mixed-grade goals.
+// The four-target 1121 path may need more than 1,770 native washes.
+function recommendedHorizon(ids,catalog){return 2500;}
+// Native messages are untrusted diagnostics, not user-facing Korean copy.
+// Preserve already-localized messages and convert all other languages into
+// meaningful Korean statuses without showing raw WASM text.
+function koreanError(value,fallback='원본 세수 자동탐색에서 오류가 발생했습니다.'){
+ const raw=typeof value==='string'?value:String(value?.message??value??'').trim();
+ if(!raw)return fallback;
+ const ko=/[가-힣]/.test(raw), han=/[\u3400-\u9fff]/.test(raw);
+ const full=raw.toLowerCase();
+ if(/global_vars|state restore|restore failed|状态恢复|恢复失败|复原失败/.test(full))
+  return '원본 WASM의 세수 상태를 복원하지 못했습니다. 세이브를 다시 연결한 뒤 재시도하세요.';
+ if(/timeout|time.?out|超时|시간 초과/.test(full))
+  return '원본 세수 자동탐색 시간이 초과되었습니다. 현재 캐릭터와 세이브 상태를 다시 확인하세요.';
+ if(/same type|same family|conflict|冲突|同类|동일 계열/.test(full))
+  return '선택한 재능끼리 충돌하거나 동일 계열이라 최종 슬롯에 함께 보유할 수 없습니다.';
+ if(/not found|no route|not reachable|未找到|找不到|无解|没有找到|无法找到|탐색 범위|경로 없음/.test(full))
+  return '선택한 재능을 모두 보유하는 경로를 설정한 세수 범위에서 찾지 못했습니다.';
+ if(/unsupported|not supported|不支持|不允许|不合法|invalid request|非法|无效/.test(full))
+  return '원본 WASM이 선택한 재능 조합 또는 탐색 요청을 지원하지 않습니다.';
+ if(/out of memory|memory allocation|内存不足|메모리 부족/.test(full))
+  return '세수 탐색에 필요한 메모리가 부족합니다. 페이지를 새로고침한 뒤 다시 시도하세요.';
+ if(/wasm|panic|unreachable|abort|failed|error|exception|错误|失败|异常/.test(full)&&!ko)
+  return '원본 WASM 자동탐색 실행 중 오류가 발생했습니다. 세이브와 선택 재능을 확인하세요.';
+ if(ko&&!han&&!/[\u0400-\u04ff]/.test(raw))return raw;
+ return fallback;
 }
 function options(raw,allowed){
  const ids=selectedIds(raw.desiredIds||[],allowed);
@@ -51,7 +70,7 @@ function routeOutcome(raw,selected){
   const executable=isComplete&&hasCost&&(hasSteps||(washes===0&&exchanges===0&&pills===0&&pad===0));
   const warnings=[...(!hasCost?['원본 비용 정보 누락 또는 음수']:[]),
     ...(isComplete&&!hasSteps&&(washes!==0||exchanges!==0)?['원본 실행 단계 미제공']:[]),
-    ...(route?.error?['원본 경로 오류: '+String(route.error)]:[])];
+    ...(route?.error?['원본 경로 오류: '+koreanError(route.error)]:[])];
   return {index,source:route,
    goalIds:ids,finalIds,matchedIds,missingIds:ids.filter(id=>!matchedIds.includes(id)),intermediateGoals:intermediate,
    acquiredEvents:Array.isArray(route?.acquired_events)?route.acquired_events:[],
@@ -79,7 +98,7 @@ function routeOutcome(raw,selected){
  const stats={scanned:int(raw.scanned)??0,total:routes.length,
   complete:routes.filter(r=>r.complete).length,
   actionable:routes.filter(r=>r.executable).length,
-  error:typeof raw.error==='string'?raw.error:null,
+  error:typeof raw.error==='string'?koreanError(raw.error):null,
   missing:Array.isArray(raw.missing)?raw.missing.length:0};
  return {routes,stats,selectedIds:ids};
 }
@@ -165,6 +184,6 @@ function previewPadLimit(washNos){
  if(ids.length<2)return 30;
  return Math.max(0,Math.min(200,ids[1]-ids[0]-1));
 }
-root.YYWashAutoSearch={selectedIds,options,recommendedHorizon,routeOutcome,statusText,readableStep,
+root.YYWashAutoSearch={selectedIds,options,recommendedHorizon,koreanError,routeOutcome,statusText,readableStep,
  describeAction,previewTarget,previewPadLimit};
 })(window);
