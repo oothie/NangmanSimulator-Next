@@ -1,0 +1,31 @@
+name: yy-sim original WASM mixed-grade characterization
+
+on:
+  push:
+    paths:
+      - 'tests/yysim-native-grade-contract.cjs'
+      - 'vendor/yysim/engine-host.html'
+      - 'engine/yysim-native-search-guard.js'
+      - 'vendor/yysim/wasm_data.js'
+      - '.github/workflows/yy-wash-browser-grade.yml'
+  workflow_dispatch:
+
+jobs:
+  observe-original-grades:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated Chromium harness
+        run: |
+          npm install --no-save --package-lock=false playwright@^1.56.0
+          npx playwright install --with-deps chromium
+      - name: Run read-only native WASM grade and mixed-goal characterization
+        run: node tests/yysim-native-grade-contract.cjs
