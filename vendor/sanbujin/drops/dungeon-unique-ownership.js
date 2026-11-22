@@ -7,8 +7,9 @@ const throughLiu=['trm','tyj','kgm','ywf','dcy','byj','lsby'];
 const list=()=>root.DAILY_DATA?.dungeons||[];
 const equipment=()=>root.EQUIP_DATA?.equipment||{};
 const isUniqueEquipment=op=>Number(op?.cap)===1&&!!equipment()[Number(op.item)];
-const oneTimeOps=()=>list().flatMap(d=>(d.ops||[]).filter(op=>op.t==='uniq'&&
-  Number(op.cap)===1).map(op=>({...op,dungeonId:d.id})));
+const rewardOps=()=>list().flatMap(d=>(d.ops||[]).filter(op=>op.t==='uniq')
+ .map(op=>({...op,dungeonId:d.id})));
+const oneTimeOps=()=>rewardOps().filter(op=>Number(op.cap)===1);
 const completedIds=()=>new Set(oneTimeOps().filter(op=>
   throughLiu.includes(op.dungeonId)&&isUniqueEquipment(op)).map(op=>Number(op.item)));
 const flagNum=(flags,key)=>Number(flags?.get(key)||0);
@@ -18,16 +19,24 @@ function reason(input,op,options={}){
  if(isUniqueEquipment(op)&&options.throughLiuCompleted&&completedIds().has(id))
    return '유씨별원까지 전용 주황 장비 획득 완료';
  if(input?.owned?.has(id))return '보유 중';
- if(flagNum(flags,op.gotKey)>0||flagNum(flags,'get_'+id)>0)
+ if(flagNum(flags,op.gotKey)>0||flagNum(flags,'get_'+id)>0||
+   flagNum(flags,'get_'+id+'_'+Number(op.npc))>0)
    return '과거 획득 기록';
  // Some client exports persist the one-time receipt in the drop flag.
  if(flagNum(flags,op.flag)>=2)return '전용 장비 획득 완료 기록';
  return '';
 }
 function blocked(input,id,options={}){
- const ops=oneTimeOps().filter(op=>Number(op.item)===Number(id));
+ const ops=rewardOps().filter(op=>Number(op.item)===Number(id));
  if(!ops.length)return '';
- return ops.map(op=>reason(input,op,options)).find(Boolean)||'';
+ for(const op of ops){
+  const history=reason(input,op,options);
+  if(history)return history;
+  const limit=Number(op.cap);
+  if(limit>1&&flagNum(input?.flags,op.gotKey)>=limit)
+    return '획득 상한 '+limit+'개 충족';
+ }
+ return '';
 }
 function preventExisting(input,vars,options={}){
  for(const op of oneTimeOps()){
@@ -46,6 +55,6 @@ function filterRewards(input,items,options={}){
  return results;
 }
 root.SBJDungeonUniqueOwnership={
- oneTimeOps,completedIds,isUniqueEquipment,reason,blocked,preventExisting,filterRewards
+ rewardOps,oneTimeOps,completedIds,isUniqueEquipment,reason,blocked,preventExisting,filterRewards
 };
 })(window);
