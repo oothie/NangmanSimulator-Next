@@ -77,6 +77,26 @@ const cheaper={pad:0,pills:7,washes:3,exchanges:1,optimal:false,
   row.checked===55&&row.found===1&&row.bestPills===888),
   'True native four-slot progress best pill cost must reach the existing UI');
 
+ // A real loaded save may already have all four goals, making zero
+ // additional pills a PROVEN global minimum. Do not drop zero as falsy.
+ const zeroHeld={
+  pad:0,pills:0,washes:0,exchanges:0,optimal:true,
+  actions:[{kind:'keep',talent:'转世金仙',wash_no:0}],
+  final_slots:[{id:271,locked:true},{id:268,locked:true},
+   {id:272,locked:true},{id:184,locked:true}]
+ };
+ const zeroResponse=await p.run({api,desiredIds:[271,268,272,184],
+  maxPad:0,horizon:900,topN:1,
+  call:async()=>({nativeFunction:'wasmSearchWashRoutes',
+   nativeDiagnostics:{isMixed:true,preexistingPurple:true},
+   result:{scanned:0,routes:[zeroHeld]}})});
+ assert.equal(zeroResponse.bestPills,0,'Verified zero pills must be retained');
+ assert.equal(zeroResponse.globallyOptimal,true,
+  'Mathematically exact zero-pill result must stay globally optimal');
+ assert.equal(zeroResponse.result.routes.length,1);
+ const zeroParsed=api.routeOutcome(zeroResponse.result,[271,268,272,184]);
+ assert.equal(zeroParsed.routes[0].executable,true);
+ assert.equal(zeroParsed.routes[0].estimatedPills,0);
  assert.equal(result.globallyOptimal,false,'native optimal false stays false');
  assert.equal(result.history.length,1);
  assert.equal(result.history[0].horizon,1500);
