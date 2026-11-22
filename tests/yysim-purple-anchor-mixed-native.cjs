@@ -62,6 +62,21 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
      assert(wasmSetState({...state,talents:state.talents.map((t,j)=>
       i===j?{...t,locked:action.kind!=='unlock'}:t)}),
       'Returned route lock/unlock rejected');
+    }else if(action.kind==='open_slot'){
+     const match=String(action.note||'').match(/15[1-4]/);
+     assert(match,'Native open_slot replay needs aptitude requirement');
+     const target=Number(match[0]);
+     while(Number(wasmGetState().zizhi)<target){
+      const beforeUpgrade=wasmGetState();
+      const applied={...beforeUpgrade,zizhi:Number(beforeUpgrade.zizhi)+1,
+       str_gift:Number(beforeUpgrade.str_gift||0)+100,
+       con_gift:Number(beforeUpgrade.con_gift||0)+100};
+      assert(wasmSetState(applied),'Original WASM aptitude upgrade rejected');
+      const afterUpgrade=wasmGetState();
+      assert.equal(Number(afterUpgrade.zizhi),applied.zizhi);
+      assert.equal(Number(afterUpgrade.str_gift),applied.str_gift);
+      assert.equal(Number(afterUpgrade.con_gift),applied.con_gift);
+     }
     }else if(action.kind==='exchange'){
      const id=talentIds.get(String(action.from));
      const index=state.talents.findIndex(t=>Number(t.id)===id);
@@ -370,6 +385,16 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  });
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),roleBefore,
   '1121 Yi Il-jin fixture must restore original WASM state');
+ if(roleMixed.routes.length){
+  const native=roleMixed.routes[0];
+  assert([272,249,266,234].every(id=>native.final_slots.some(t=>
+   Number(t.id)===id&&t.locked)),
+   '1121 four selected talents must survive together in final WASM slots');
+  const replayReport=replayReturnedRoute(native,wasmGetState());
+  assert.equal(replayReport.pills,native.pills);
+  assert(native.actions.some(step=>step.kind==='open_slot'),
+   'Aptitude 153 user route must include an original open_slot action');
+ }
  console.log('YY_USER_1121_YI_ILJIN_MIXED '+JSON.stringify({
   goals:[272,249,266,234],zizhi:153,
   routes:roleMixed.routes.length,
