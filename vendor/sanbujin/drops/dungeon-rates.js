@@ -91,8 +91,13 @@ function probability(op,input){
  const required=(gate?Number(flags.get(gate[0])||0)>=gate[1]:true)&&
    (!quest||Number(flags.get(quest[0]))===quest[1]);
  const current=Number(flags.get(op.win)||0);
+ const acquired=Number(flags.get(op.gotKey)||0);
+ const capped=Number.isFinite(Number(op.cap))&&Number(op.cap)>0&&
+   (acquired>=Number(op.cap)||
+    Number(op.cap)===1&&((Number(flags.get(op.flag)||0)>=2)||
+      input.owned?.has(Number(op.item))));
  const adjusted={...op,th:Number(op.th)+current*Number(op.mul||1)};
- return {base,real:required?baseChance(adjusted):0,
+ return {base,real:required&&!capped?baseChance(adjusted):0,
   gate:gate?{name:gate[0],min:gate[1],met:required}:null,
   state:current};
 }
