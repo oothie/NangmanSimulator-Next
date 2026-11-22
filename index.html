@@ -3287,7 +3287,7 @@ function yyCultivationView(role){
  '</tbody></table></div>'+
  '<div class="yy-cult-history">'+m.records.map(x=>x.history.length?
   '<p class="micro"><b>'+escape(x.name)+'</b> · 과거 수련 획득 이력: '+x.history.map(h=>escape(h.name)+' '+h.value).join(' / ')+'</p>':'').join('')+'</div>'+
- '<details class="yy-account-history"><summary>습득 무학별 수련 기여분 상세 보기</summary>'+
+ '<div class="account-track"><div class="account-track-top"><strong>습득 무학별 수련 기여분</strong></div>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>계열</th><th>무학</th><th>복제 원본</th><th>정진</th><th>수련</th><th>기여</th></tr></thead><tbody>'+
  m.records.flatMap(x=>x.skills.map(k=>{
   const ko=(window.NANGMAN_54506_MARTIAL_KO||{})[String(k.id)];
@@ -3295,7 +3295,7 @@ function yyCultivationView(role){
   return '<tr><td>'+escape(x.name)+'</td><td>'+escape(label)+' <small>#'+escape(k.id)+'</small></td>'+
   '<td>'+(k.copyId?'#'+escape(k.copyId):'—')+'</td><td>'+escape(k.chong??'—')+'</td><td>'+escape(k.level??'—')+'</td><td>'+(k.current===null?'미확인':k.current)+'</td></tr>';
  })).join('')+
- '</tbody></table></div></details>'+
+ '</tbody></table></div></div>'+
  '<p class="micro">총 수련 '+(m.total??'미확인')+' / 9,000 · 저장 추가 수련 합계 '+(m.savedExtra??'미확인')+
  ' · 이전 가능 합계 '+(m.transferable??'미확인')+'. 수련 이전 이력은 과거 기록이며 현재 수련치와 단순 합산하지 않습니다.</p>');
 }
@@ -3624,8 +3624,8 @@ function yyRoleGrowthOverview(role,kind){
    const v=g.values[0];
    return '<div class="account-track"><div class="account-track-top"><span>'+escape(g.title)+'</span>'+
     '<b class="account-count '+(v.max!=null&&v.current>=v.max?'is-complete':'')+'">'+escape(counter(v))+'</b></div>'+
-    accountProgressBar(v.current,v.max,kind==='training'?'teal':'violet')+
-    '<small>'+escape(v.label)+(v.max==null?' · 상한 미확인':'')+'</small></div>';
+    (v.max!=null?accountProgressBar(v.current,v.max,kind==='training'?'teal':'violet'):'')+
+    '<small>'+escape(v.label)+'</small></div>';
   }
   return '<div class="account-track"><div class="account-track-top"><strong>'+escape(g.title)+'</strong><small> · '+g.values.length+'개 세부 수치</small></div>'+
    '<div class="yy-progress-list">'+g.values.map(v=>'<div class="yy-progress-row"><span>'+escape(v.label)+'</span>'+
@@ -4077,7 +4077,7 @@ function yyAccountGrowthDashboard(entries,mode='consumable'){
   '<tr><th scope="row">'+escape(item.title)+(item.label==='복용'?'':' <small>· '+escape(item.label)+'</small>')+'</th>'+
   item.values.map(v=>'<td>'+(v?
     '<strong class="account-count '+(v.current==null?'is-zero':v.max!=null&&v.current>=v.max?'is-complete':v.current>0?'is-progress':'is-zero')+'">'+
-     escape(numeric(v))+'</strong>'+accountProgressBar(v.current,v.max,color):
+     escape(numeric(v))+'</strong>'+(v.max!=null?accountProgressBar(v.current,v.max,color):''):
     '<span class="micro">해당 없음</span>')+'</td>').join('')+'</tr>'
  ).join('');
  const stats='<div class="account-kpis">'+[
