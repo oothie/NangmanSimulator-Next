@@ -3595,6 +3595,13 @@ function yyAccountRecordAndResourceView(section='jianghu'){
    });
  const officialStumpCount=Number.isFinite(Number(gv.find_TotalShuDun))?
   Number(gv.find_TotalShuDun):null;
+ // Historical public resource counts for comparison only (2022 Chinese edition).
+ // These are not Korean-server 60014 verified totals and must never be shown as official completion.
+ const historicalStumpTotals={
+  wyc:5,nyz:5,ly:5,lxz:5,taz:5,fmz:5,swz:5,gs:6,nl:5,hz:4,
+  lqz:4,ywg:2,cd:4,dh:5,yz:4,sfj:4,sb:5,shaolin:4,qc:5,
+  hss:5,taiyi:5,lingyue:4,hua:5,hsn:4
+ };
  const stumpMap=new Map();
  for(const mark of stumpMarks){
   if(!stumpMap.has(mark.mid))stumpMap.set(mark.mid,[]);
@@ -3652,13 +3659,17 @@ function yyAccountRecordAndResourceView(section='jianghu'){
   .sort((a,b)=>b.stumps.length-a.stumps.length||a.name.localeCompare(b.name,'ko'));
  const cards=visibleMaps.slice(0,60).map(m=>{
   const known=m.entries.filter(x=>x.type!=='종류 미확인'),unknown=m.entries.filter(x=>x.type==='종류 미확인');
+  const reference=historicalStumpTotals[m.id];
   const detail=known.map(x=>'<tr><td>'+escape(x.type)+'</td><td>#'+escape(x.id)+'</td><td>'+escape(x.flag)+'</td></tr>').join('');
   return '<details class="account-resource-card"><summary>'+escape(m.name)+' <small>('+escape(m.id)+')</small>'+
-   '<small> · 그루터기 '+m.stumps.length+'개 획득 기록</small></summary>'+
+   '<small> · 그루터기 '+m.stumps.length+' / '+(reference??'?')+'개'+(reference?' · 중국 구판 참고':'')+'</small></summary>'+
    (m.stumps.length?'<div class="account-track-top"><span>그루터기 획득</span><b>'+m.stumps.length+'개</b></div>'+
    '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>그루터기 ID</th><th>저장 상태</th></tr></thead><tbody>'+
    m.stumps.map(t=>'<tr><td>'+escape(t.id)+' <small>'+escape(t.key)+'</small></td><td>획득 기록 확인</td></tr>').join('')+'</tbody></table></div>':'')+
-   '<div class="account-track-top"><span>확인된 상자·그루터기</span><b>'+known.length+'건</b></div>'+
+   (reference?'<div class="account-track-top"><span>중국 구판 지도별 수량 대비</span><b>'+m.stumps.length+' / '+reference+'</b></div>'+
+     accountProgressBar(Math.min(m.stumps.length,reference),reference,'teal')+
+     '<small>참고용 비교이며 한국판 획득 완료율이 아닙니다.</small>':'')+
+   '<div class="account-track-top"><span>외형으로 확인된 오브젝트</span><b>'+known.length+'건</b></div>'+
    accountProgressBar(known.length,m.entries.length,'amber')+
    '<small>tmxObj 유형 식별 비율이며, 위 그루터기 획득 수와는 별도의 저장 자료입니다.</small>'+
    (detail?'<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>종류</th><th>오브젝트</th><th>상태 기록</th></tr></thead><tbody>'+detail+'</tbody></table></div>':'')+
@@ -3683,7 +3694,7 @@ function yyAccountRecordAndResourceView(section='jianghu'){
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>저장 키</th><th>원본값</th></tr></thead><tbody>'+
  boxCandidates.slice(0,100).map(x=>'<tr><td>'+escape(x.key)+'</td><td>'+escape(x.value)+'</td></tr>').join('')+
  '</tbody></table></div><p class="micro">일부 값은 임무·이벤트 상자의 임시 상태입니다. 보물상자 획득 건수로 합산하지 않았습니다.</p>'):'')+
- '<p class="micro">오브젝트 유형 식별 막대는 지도 변경 기록의 분류 비율이며 실제 획득 완료율이 아닙니다.</p>')+'</section>';
+ '<p class="micro">일부 맵의 참고 목표 수량은 2022년 중국판 공개 자료 기준입니다. 한국 서버의 실제 그루터기 총수와 반드시 일치하지는 않습니다. 상자·그루터기의 전역 완성 판정에는 게임 원본 맵 오브젝트 설정 대조가 필요합니다.</p>')+'</section>';
 
 }
 
