@@ -412,21 +412,6 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
    'Aptitude 153 user route must include an original open_slot action');
  }
  console.log('YY_1121_INCOMPLETE_FIXTURE_ROUTE '+JSON.stringify({pills:roleMixed.routes[0]?.pills??null,washes:roleMixed.routes[0]?.washes??null}));
- // Ground truth 4019 purple-only: inspect original WASM order-dependent costs.
- const nativeOrders=[];
- for(const order of [[272,249,266],[272,266,249],[249,272,266],
-   [249,266,272],[266,272,249],[266,249,272]]){
-  assert(wasmSetState(mapped1121));
-  const raw=YYWashNativeSearchGuard.run({
-   getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes
-  },{desired_ids:order,max_pad:20,horizon:900,top_n:8});
-  nativeOrders.push({order,returned:raw.routes.length,
-   costs:raw.routes.map(x=>({pills:x.pills,
-    washes:x.actions?.at(-1)?.wash_no??null,
-    steps:x.actions?.length||0})).slice(0,8)});
- }
- console.log('YY_1121_PURPLE_NATIVE_ORDER_COMPARISON '+JSON.stringify(nativeOrders));
- assert(wasmSetState(mapped1121));
  // Separate source-state parity from the originally published minimal
  // 4285 fixture. These are scalar fields from the same Yi Il-jin save,
  // with the 7,592-key private globalVariable map intentionally omitted.
@@ -445,6 +430,21 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
   guard:YYWashNativeSearchGuard
  });
+ // Ground truth 4019 purple-only: inspect original WASM order-dependent costs.
+ const nativeOrders=[];
+ for(const order of [[272,249,266],[272,266,249],[249,272,266],
+   [249,266,272],[266,272,249],[266,249,272]]){
+  assert(wasmSetState(mapped1121));
+  const raw=YYWashNativeSearchGuard.run({
+   getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes
+  },{desired_ids:order,max_pad:20,horizon:900,top_n:8});
+  nativeOrders.push({order,returned:raw.routes.length,
+   costs:raw.routes.map(x=>({pills:x.pills,
+    washes:x.actions?.at(-1)?.wash_no??null,
+    steps:x.actions?.length||0})).slice(0,8)});
+ }
+ console.log('YY_1121_PURPLE_NATIVE_ORDER_COMPARISON '+JSON.stringify(nativeOrders));
+ assert(wasmSetState(mapped1121));
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),mappedBefore);
  assert.equal(mappedResult.routes[0]?.pills,4299,
   '1121 Yi Il-jin mapped save state must reproduce site pill cost 4299');
