@@ -193,6 +193,30 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
      actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
       wash_no:time});
     }
+    // Replan remaining purple(s) from the ACTUAL native state, with
+    // green/blue target locked. This avoids assuming the original route's
+    // RNG sequence survives an additional locked slot.
+    const branchState=clone(getState());
+    const remaining=shape.purple.filter(id=>!idsOf(branchState).includes(id));
+    if(remaining.length){
+     diagnostics.replanAttempts=(diagnostics.replanAttempts||0)+1;
+     try{
+      const replanned=guard.run({getState,setState,search},{
+       desired_ids:remaining,max_pad:Math.min(maxPad,20),
+       horizon:Math.min(horizon,300),top_n:2});
+      diagnostics.replanNativeRoutes=(diagnostics.replanNativeRoutes||0)+
+       (replanned?.routes?.length||0);
+      diagnostics.replanExamples=diagnostics.replanExamples||[];
+      if(diagnostics.replanExamples.length<4)diagnostics.replanExamples.push({
+       atWash:time,targets:remaining,received:replanned?.routes?.length||0,
+       error:replanned?.error||null,
+       firstAction:replanned?.routes?.[0]?.actions?.[0]||null,
+       currentWash:count(branchState,'total_wash'),
+       finalIds:replanned?.routes?.[0]?.final_slots?.map(t=>t.id)||[]
+      });
+     }catch(e){diagnostics.replanErrors=(diagnostics.replanErrors||0)+1}
+     restore(branchState);
+    }
     for(let i=next;i<originalActions.length;i++){
      apply(originalActions[i]);
      // Actual next native wash steps; the original route may have diverged
