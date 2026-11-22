@@ -50,10 +50,12 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
  const orders=permute(ids),routes=[],warnings=[];
  // Native exchange may change the luck pool and purple RNG sequence. Compare
  // both no-exchange and verified exchange variants on independent WASM copies.
- const policies=typeof getConflicts==='function'&&typeof doExchange==='function'?
+ const policies=typeof getConflicts==='function'&&typeof doExchange==='function'&&
+  ids.some(id=>Number(qualityFor(id))===4)?
   ['none','unwanted','all']:['none'];
  const plans=policies.flatMap(policy=>orders.map(order=>({order,policy})));
  let scanned=0,executed=0,early=0,partial=false;
+ let bestPills=Infinity,pruned=0;
  const progress=(branch,step,stage='순차 세수·잠금 경로 탐색')=>{
   const best=routes.length?Math.min(...routes.map(x=>x.pills)):null;
   onProgress({stage,phase:'sequential',completed:branch,total:plans.length,
@@ -81,6 +83,8 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
    scanned++;
    progress(branch,0);
    const {order,policy}=plans[branch],actions=[];
+   // A verified incumbent provides a cost ceiling for later orders.
+   // Never treat its value as an exhaustive/global minimum.
    let exchanges=0;
    const hasOtherLocks=initial.talents.some(t=>t.locked&&!ids.includes(Number(t.id)));
    const requiredSlots=Math.min(4,Math.max(ids.length+Number(hasOtherLocks),
@@ -108,6 +112,11 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
    let index=0;
    while(!found&&!blocked&&washes<=horizon){
     state=getState();
+    // Every future operation only consumes more pills; equal-cost routes
+    // cannot improve the user's minimum-pill target. This is sound even
+    // when washes have nonuniform pill prices.
+    const spent=costOf(initial,state);
+    if(Number.isFinite(spent)&&spent>=bestPills){pruned++;break;}
     if(finalMatches(state,ids)){found=true;break;}
     while(index<order.length-1&&own(state,order[index])){
      const slot=state.talents.findIndex(t=>Number(t.id)===order[index]);
@@ -130,6 +139,9 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
      break;
     }
     washes++;executed++;
+    if(Number.isFinite(costOf(initial,after))&&costOf(initial,after)>bestPills){
+     pruned++;break;
+    }
     if(finalMatches(after,ids)){found=true;break;}
     if(policy!=='none'&&after.talents.some(t=>Number(qualityFor(Number(t.id)))===4&&!t.locked)){
      // Exchange only genuine WASM-conflict-qualified purple slots, and never
@@ -194,6 +206,7 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
     }
     if(washes>lastWash)steps.push({kind:'wash_to',wash_no:washes});
     if(washes<horizon)early++;
+    bestPills=Math.min(bestPills,pills);
     routes.push({order_ids:order,pad:0,pills,washes,exchanges,
      final_slots:copy(final.talents),actions:steps,
      intermediate_goals:false,optimal:false,
@@ -210,7 +223,7 @@ async function run({ids,horizon=900,topN=8,getState,setState,doWash,
  }
  routes.sort((a,b)=>a.pills-b.pills||a.washes-b.washes||a.actions.length-b.actions.length);
  return {routes:routes.slice(0,topN),scanned,trajectories:plans.length,
-  washesExecuted:executed,stoppedEarly:early,partial,
+  washesExecuted:executed,stoppedEarly:early,prunedByIncumbent:pruned,partial,
   error:routes.length?null:'탐색한 모든 획득 순서에서 목표 맥이 최종 슬롯에 함께 남는 경로를 찾지 못했습니다',
   warnings};
 }
