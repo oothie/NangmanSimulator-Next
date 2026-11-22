@@ -650,6 +650,74 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    }finally{restore(originalScan)}
   }
  }
+ // A first sighting lock changes the WASM draw sequence. For two
+ // lower-grade goals, consider later genuine sightings before locking either.
+ async function searchDeferredColorLocks(start,base,native,diagnostics,routes){
+  if(shape.purple.length!==2||shape.colors.length!==2||
+     shape.colors.some(id=>idsOf(start).includes(id)))return;
+  restore(start);
+  const events=[];
+  for(let offset=1;offset<=horizon;offset++){
+   const at=count(getState(),'total_wash'),ret=doWash();
+   if(!ret||ret.error||count(getState(),'total_wash')!==at+1)break;
+   diagnostics.scannedWashes++;
+   const state=clone(getState());
+   const colors=shape.colors.filter(id=>idsOf(state).includes(id));
+   if(colors.length)events.push({wash:at+1,state,colors});
+   const incumbent=Math.min(Infinity,...routes.map(r=>r.pills));
+   if(count(state,'total_pills')-count(initial,'total_pills')>=incumbent)break;
+   if(offset%75===0){progress({phase:'anchor-color-timing',
+    scannedWashes:diagnostics.scannedWashes,candidateRoutes:routes.length});
+    await new Promise(resolve=>setTimeout(resolve,0));}
+  }
+  const candidates=events.length<=32?events:
+   [...events.slice(0,20),...sampleIntervalCandidates(events.slice(20),12)];
+  diagnostics.deferredColorSightings=(diagnostics.deferredColorSightings||0)+events.length;
+  diagnostics.deferredColorExamined=(diagnostics.deferredColorExamined||0)+candidates.length;
+  for(const event of candidates){
+   if(count(event.state,'total_pills')-count(initial,'total_pills')>=
+      Math.min(Infinity,...routes.map(r=>r.pills)))continue;
+   try{
+    restore(event.state);
+    const actions=[...clone(base),{kind:'wash_to',wash_no:event.wash,
+     pills_after:count(getState(),'total_pills')-count(initial,'total_pills'),
+     note:'녹·파맥 잠금 시점 비교'}];
+    const held=new Set();
+    for(const id of event.colors){
+     lockId(id,true);held.add(id);
+     actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
+      wash_no:event.wash,
+      pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
+    }
+    for(let extra=0;extra<=horizon;extra++){
+     if(held.size===shape.colors.length&&hasAll(getState(),desiredIds)){
+      const complete=actionsToRoute(actions,getState(),initial,native,
+       desiredIds,'purple-color-delayed-lock');
+      routes.push(complete);
+      diagnostics.deferredColorCompleted=(diagnostics.deferredColorCompleted||0)+1;
+      reportBest('anchor-color-timing');break;
+     }
+     if(extra===horizon||reachedIncumbent())break;
+     const at=count(getState(),'total_wash'),ret=doWash();
+     if(!ret||ret.error||count(getState(),'total_wash')!==at+1)break;
+     diagnostics.scannedWashes++;
+     for(const id of shape.colors){
+      if(held.has(id)||!idsOf(getState()).includes(id))continue;
+      lockId(id,true);held.add(id);
+      const now=count(getState(),'total_wash');
+      const pills=count(getState(),'total_pills')-count(initial,'total_pills');
+      actions.push({kind:'wash_to',wash_no:now,pills_after:pills,
+       note:'나머지 녹·파맥 찾기'});
+      actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
+       wash_no:now,pills_after:pills});
+     }
+     if(extra%75===74){progress({phase:'anchor-color-timing',
+      scannedWashes:diagnostics.scannedWashes,candidateRoutes:routes.length});
+      await new Promise(resolve=>setTimeout(resolve,0));}
+    }
+   }catch(_){diagnostics.deferredColorRejected=(diagnostics.deferredColorRejected||0)+1;}
+  }
+ }
  const routes=[],diagnostics={method:'purple-anchor-nearest-native-wash',
   purpleTargets:shape.purple,colorTargets:shape.colors,
   purpleRoutes:0,replayed:0,failures:[],scannedWashes:0,
