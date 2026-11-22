@@ -19,6 +19,8 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  const source=wasmGetState();
  const base=YYWashNativeSearchGuard.canonicalJson(source);
  assert(YYWashPurpleAnchorMixed.requestShape([271,268,272,184],TALENT_DATA));
+ assert(YYWashPurpleAnchorMixed.requestShape([271,268,272,202],TALENT_DATA),
+  'Three-purple plus blue must enter purple-anchored extension');
  assert(YYWashPurpleAnchorMixed.requestShape([271,268,184,202],TALENT_DATA));
  assert.equal(YYWashPurpleAnchorMixed.requestShape([271,184],TALENT_DATA),null);
  const out=await YYWashPurpleAnchorMixed.run({
