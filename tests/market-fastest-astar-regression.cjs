@@ -36,6 +36,19 @@ const five=st.searchStrategy([223],{vip:0,mode:'fastest',
 assert.equal(five.found,true);
 assert.equal(five.when,1795554000);
 assert(progress.some(x=>x.expanded===5000&&x.limit===30000));
+// Full 15-page path must be found by actual RNG replays at a longer horizon.
+const fifteen=st.findFeasibleStrategy([223],{vip:0,quantity:15,periods:240});
+assert.equal(fifteen.found,true,'15 pages obtain a concrete route');
+assert.equal(fifteen.proven,false,'a feasible route is not an optimality proof');
+assert.equal(fifteen.purchases.length,15);
+assert.equal(fifteen.purchases.at(-1).totalAcquired,15);
+assert.equal(fifteen.when,1801609200);
+const candidate5=st.findFeasibleStrategy([223],{vip:0,quantity:5,periods:120});
+const shortestWithBound=st.searchStrategy([223],{vip:0,mode:'fastest',
+ quantity:5,periods:120,maxStates:30000,bestCandidate:candidate5});
+assert.equal(shortestWithBound.found,true);
+assert.equal(shortestWithBound.when,1795554000);
+assert.equal(shortestWithBound.proven,true);
 const limited=st.searchStrategy([223],{vip:0,mode:'fastest',
  quantity:15,periods:120,maxStates:1000});
 assert.equal(limited.found,false,'state-cap must not claim an exact result');
@@ -46,4 +59,7 @@ const worker=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),
 assert(html.includes('market-strategy-worker.js'));
 assert(html.includes('marketStrategyCancel'));
 assert(worker.includes('importScripts'));
-console.log('PASS: A* shortest-time regression, progress, cap honesty, cancellation UI and unchanged seed');
+assert(worker.includes("type:'candidate'"));
+assert(worker.includes('forecastPeriods'));
+assert(html.includes("const productText=x=>"));
+console.log('PASS: A* shortest-time, 15-item concrete route, bounds, UI, progress and unchanged save');
