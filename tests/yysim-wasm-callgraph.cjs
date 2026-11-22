@@ -146,6 +146,13 @@ for(const item of tally.values()){
  }
 }
 assert.equal(solver.bodyBytes,4055,'Native solver changed; re-characterize original yy-sim binary');
+assert.equal(solver.instructions.length,1824,'Unexpected native instruction count');
+assert.equal(solver.callCount,83,'Unexpected native search call instruction count');
+assert.equal(tally.size,29,'Unexpected native search dependency count');
+assert.equal(gradeReviewSites.length,0,'Unexpected new direct comparison candidate');
+assert(candidateCallees.some(x=>x.index===4&&x.sites?.length===13),
+ 'Native downstream comparison candidates changed; inspect source before edits');
+
 assert(solver.calls.some(x=>x.index===30)&&solver.calls.some(x=>x.index===4),
  'Missing important downstream WASM calls');
 console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
