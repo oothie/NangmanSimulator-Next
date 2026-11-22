@@ -63,6 +63,13 @@ const cheaper={pad:0,pills:7,washes:3,exchanges:1,optimal:false,
  assert.equal(partialGreen.result.routes.length,0,'No incomplete mixed route may be displayed as successful');
  assert.match(partialGreen.result.error,/최종 슬롯/);
  assert.equal(partialGreen.nativeDiagnostics.returned,1);
+ const translated=await p.run({api,desiredIds:[268],maxPad:0,horizon:2500,topN:8,
+  call:async()=>({nativeFunction:'wasmSearchWashRoutes',
+   result:{routes:[],error:'未找到可行路线'}})});
+ assert.equal(translated.result.error,
+  '선택한 재능을 모두 보유하는 경로를 설정한 세수 범위에서 찾지 못했습니다.');
+ assert(!/[\u3400-\u9fff]/.test(translated.result.error));
+
  const mixedProgress=[];
  await p.run({api,desiredIds:[268,184],maxPad:20,horizon:900,topN:5,
   onProgress:row=>mixedProgress.push(row),
@@ -122,7 +129,7 @@ const cheaper={pad:0,pills:7,washes:3,exchanges:1,optimal:false,
  await assert.rejects(()=>p.run({call:async()=>({}),api,desiredIds:[268,268],
   maxPad:3,horizon:300,topN:5}),/서로 다른/);
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
- assert(html.includes('./engine/yysim-auto-progressive.js?rev=20261122-purple-anchor-v15'));
+ assert(html.includes('./engine/yysim-auto-progressive.js?rev=0.10.55'));
  assert(html.includes("op==='washEngineAutoProgressive'"));
  assert(html.includes('p.indeterminate'),'WASM UI must report uncertain duration');
  assert(!html.includes('id="yyAutoProgressive"'),'no second automatic search button');
