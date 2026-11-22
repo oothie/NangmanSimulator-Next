@@ -30,10 +30,13 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
   onProgress({phase:detail.phase,total:null,indeterminate:true,
    elapsedSeconds:Math.floor((Date.now()-started)/1000),
    checked:detail.scannedWashes??null,found:detail.candidateRoutes??0,
+   nativeAttempts:detail.nativeAttempts??null,
    history:[],bestPills:detail.bestPills??null,
-   stage:detail.phase==='anchor-between'?
-    '확정한 자맥 사이에서 녹·파맥 후보 검사 중':
-    '마지막 자맥 이후 녹·파맥 실제 세수 계산 중'});
+   stage:detail.phase==='anchor-purple'?
+    '원본 WASM 자맥 기준 경로 탐색 '+detail.nativeAttempts+'회차':
+    detail.phase==='anchor-between'?
+     '확정한 자맥 사이에서 녹·파맥 후보 검사 중':
+     '마지막 자맥 이후 녹·파맥 실제 세수 계산 중'});
  })}
  finally{clearInterval(ticker)}
  ensureSession();
@@ -66,7 +69,9 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
    // The original native error may be Chinese (purple-only request guard).
    // The user-facing mixed-grade failure must use the confirmed Korean
    // final-slot diagnosis, without implying that any minimum was found.
-   error:best?null:mixedFailureMessage||native.result.error||'설정한 원본 탐색 범위 내 최종 경로 없음'},
+   error:best?null:(diagnostic?.method==='purple-anchor-nearest-native-wash'?
+    native.result.error:mixedFailureMessage)||native.result.error||
+    '설정한 원본 탐색 범위 내 최종 경로 없음'},
   bestPills:best?.estimatedPills??null,
   globallyOptimal:best?.globallyOptimal===true};
 }
