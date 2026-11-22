@@ -28,17 +28,25 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=0,horizon=25
  const ticker=setInterval(()=>{try{ensureSession();active()}catch(_){/* invalidated session */}},1000);
  let native;
  try{native=await call('auto-search',config,detail=>{
-  if(!detail||!/^anchor-/.test(String(detail.phase||'')))return;
-  latestStage={phase:detail.phase,total:null,indeterminate:true,
+  if(!detail||!detail.phase)return;
+  const done=Number.isFinite(Number(detail.completed))?Number(detail.completed):null;
+  const total=Number.isFinite(Number(detail.total))?Number(detail.total):null;
+  const isObserved=done!==null&&total>0&&done>=0&&done<=total;
+  const mixed=/^anchor-/.test(String(detail.phase));
+  latestStage={phase:detail.phase,total:isObserved?total:null,
+   completed:isObserved?done:null,indeterminate:!isObserved,
+   percentage:isObserved?Math.round(done/total*100):null,
    elapsedSeconds:Math.floor((Date.now()-started)/1000),
    checked:detail.scannedWashes??null,found:detail.candidateRoutes??0,
    nativeAttempts:detail.nativeAttempts??null,
    history:[],bestPills:detail.bestPills??null,
-   stage:detail.phase==='anchor-purple'?
-    '자맥 경로 찾는 중 · '+detail.nativeAttempts+'번째 탐색':
-    detail.phase==='anchor-between'?
-     '확정한 자맥 사이에서 녹·파맥 후보 검사 중':
-     '마지막 자맥 이후 녹·파맥 실제 세수 계산 중'};
+   stage:mixed?(detail.phase==='anchor-purple'?
+     '자맥 원본 경로 탐색 · '+(detail.nativeAttempts??0)+'번째 호출':
+     detail.phase==='anchor-between'?
+      '녹·파맥 실제 세수 탐색 · '+(detail.scannedWashes??0)+'회 검사':
+      '원본 재능 치환 경로 검증 · '+(detail.scannedWashes??0)+'회 검사'):
+    detail.stage||'원본 탐색 작업 단계 확인 중'};
+
   active();
  })}
  finally{clearInterval(ticker)}
@@ -63,7 +71,7 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=0,horizon=25
  const mixedFailureMessage=mixedFailure&&diagnostic.returned>0?
   '원본 WASM이 경로 '+diagnostic.returned+'개를 반환했지만 녹·파맥 포함 목표가 최종 슬롯에 모두 남지 않아 제외했습니다. 최저 세수단 미확정':
   mixedFailure?'원본 WASM 탐색 범위 안에서 녹·파맥 포함 최종 완성 경로를 찾지 못했습니다. 최저 세수단 미확정':null;
- onProgress({phase:'verified',total:1,indeterminate:false,elapsedSeconds:Math.floor((Date.now()-started)/1000),history,bestPills:best?.estimatedPills??null,
+ onProgress({phase:'verified',completed:4,total:4,percentage:100,indeterminate:false,elapsedSeconds:Math.floor((Date.now()-started)/1000),history,bestPills:best?.estimatedPills??null,
   stage:'자동탐색 결과 확인 완료'});
  return {nativeFunction:'wasmSearchWashRoutes',desiredIds:config.desiredIds,
   maxPad:config.maxPad,horizon:config.horizon,topN:config.topN,
