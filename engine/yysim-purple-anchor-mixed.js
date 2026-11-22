@@ -644,7 +644,13 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     return values.flatMap((id,i)=>permutations(values.filter((_,j)=>j!==i))
      .map(tail=>[id,...tail]));
    };
-   const attempted=new Set(),paddingModes=[...new Set([0,maxPad])];
+   // With two purple anchors, a more expensive purple-only route may
+   // become the cheapest FINAL four-talent path. Preserve diverse native
+   // anchor branches instead of stopping at the first purple-only winner.
+   const twoPurple=shape.purple.length===2;
+   const attempted=new Set(),paddingModes=[...new Set(
+    twoPurple?[0,5,10,20,maxPad]:[0,maxPad])];
+   const allMatching=[],seenBackbones=new Set();
    diagnostics.purpleAttempts=0;
    diagnostics.purpleNativeCalls=0;
    diagnostics.purpleAttemptResults=[];
@@ -673,7 +679,11 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
        const verified=replay(candidate);
        const measured=count(verified.state,'total_pills')-
         count(initial,'total_pills');
-       matching.push({...candidate,purplePad:pad,purpleMeasuredPills:measured});
+       const signature=JSON.stringify(candidate.actions||[]);
+       if(!seenBackbones.has(signature)){
+        seenBackbones.add(signature);
+        matching.push({...candidate,purplePad:pad,purpleMeasuredPills:measured});
+       }
       }catch(error){
        diagnostics.purpleReplayRejected=(diagnostics.purpleReplayRejected||0)+1;
        if((diagnostics.purpleReplayErrors||[]).length<6){
@@ -692,14 +702,21 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
      await new Promise(resolve=>setTimeout(resolve,0));
     }
     if(matching.length){
-     matching.sort((a,b)=>a.purpleMeasuredPills-b.purpleMeasuredPills);
-     baseline={...(baseline||{}),routes:matching};
-     diagnostics.purpleBackboneCosts=matching.map(x=>({
-      pills:x.purpleMeasuredPills,maxPad:x.purplePad,
-      washNo:x.actions?.at(-1)?.wash_no??null
-     }));
-     break;
+     allMatching.push(...matching);
+     if(!twoPurple)break;
     }
+   }
+   if(allMatching.length){
+    allMatching.sort((a,b)=>a.purpleMeasuredPills-b.purpleMeasuredPills);
+    // Each is independently replayed against the original native WASM;
+    // never assume the cheapest purple cost implies cheapest mixed cost.
+    const selected=allMatching.slice(0,twoPurple?16:topN);
+    baseline={...(baseline||{}),routes:selected};
+    diagnostics.purpleBackboneCosts=selected.map(x=>({
+     pills:x.purpleMeasuredPills,maxPad:x.purplePad,
+     washNo:x.actions?.at(-1)?.wash_no??null
+    }));
+    diagnostics.purpleBackboneAlternatives=allMatching.length;
    }
   }
   diagnostics.purpleRoutes=baseline?.routes?.length||0;
