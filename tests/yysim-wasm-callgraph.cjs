@@ -441,6 +441,10 @@ while(queue.length){
 // Link original Rust source-location metadata back to native function
 // indices. Source names are preserved by Rust panic/location descriptors.
 // This is stronger evidence than guessing from numeric quality constants.
+// Exact native error-string xrefs can locate purple-only request validation
+// more reliably than guessing a grade check from integer constants.
+const restrictedGoalError=Buffer.from('路径搜索只能预选紫脉','utf8');
+const nativeRestrictionAddresses=[];
 const sourceLocations=[];
 const sourceNames=['next_purple','exchange','memo','pity','slots','replay','start',
  'vehicle_wait','ticket','luck_walk','pad'];
@@ -462,6 +466,9 @@ while(dataPosition<bytes.length){
    const length=readInt(cursor),start=cursor.pos;
    if(memoryOffset!==null){
     const data=bytes.subarray(start,start+length);
+    let restrictedAt=-1;
+    while((restrictedAt=data.indexOf(restrictedGoalError,restrictedAt+1))>=0)
+     nativeRestrictionAddresses.push(memoryOffset+restrictedAt);
     for(const name of sourceNames){
      const needle=Buffer.from('src\\wash_search\\'+name+'.rs');
      let at=-1;
@@ -507,6 +514,21 @@ for(let index=importCount;index<importCount+functions.length;index++){
     sourceColumn:owner.column,wasmOffset:literal.offset});
    moduleFunctionMap.set(key,items);
   }
+ }
+}
+const nativeRestrictionXrefs=[];
+for(let index=importCount;index<importCount+functions.length;index++){
+ let decoded;
+ try{decoded=inspect(index)}catch(_){continue}
+ for(const constant of decoded.constants){
+  if(!nativeRestrictionAddresses.some(address=>
+    Math.abs(address-constant.value)<=32))continue;
+  const at=decoded.instructions.findIndex(x=>x.offset===constant.offset);
+  nativeRestrictionXrefs.push({functionIndex:index,offset:constant.offset,
+   pointer:constant.value,
+   nearby:decoded.instructions.slice(Math.max(0,at-8),at+12)
+    .map(x=>({offset:x.offset,opcode:x.opcode,
+     value:x.value??null,immediate:x.immediate??null,memOffset:x.memOffset??null}))});
  }
 }
 const originalRustModules=[...moduleFunctionMap.entries()].map(([name,refs])=>({
@@ -593,6 +615,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  candidateCallees:candidateCallees.slice(0,25),
  reachableFunctions:reachable.length,
  nestedReviewSites:nestedGradeSites.sort((a,b)=>a.depth-b.depth||b.total-a.total).slice(0,35),
+ nativePurpleRestriction:{addresses:nativeRestrictionAddresses,xrefs:nativeRestrictionXrefs.slice(0,25)},
  originalRustModules,
  moduleReachability,
  nativeFunctionSignatures
