@@ -108,6 +108,140 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    throw Error('원본 자맥 경로의 세수단 비용과 실제 재현 비용이 다릅니다');
   return {state:clone(state),actions:clone(actions)};
  }
+ // Reuse the ORIGINAL purple route timeline around the second (or first)
+ // confirmed purple. Insert a nearby color talent before the next native
+ // action, then validate ALL following purple steps on the actual WASM.
+ // A shifted seed/lock order often invalidates the original continuation:
+ // reject those branches rather than pretending the saved route still works.
+ async function searchBetween(native,marks,diagnostics,routes){
+  const prefixCount=shape.purple.length-1;
+  const candidates=marks.filter(m=>
+   shape.purple.filter(id=>m.state.talents.some(t=>
+    number(t.id)===id&&t.locked)).length===prefixCount);
+  const mark=candidates.at(-1);
+  if(!mark)return;
+  const originalActions=native.actions||[];
+  const apply=action=>{
+   const wash=Number(action.wash_no);
+   if(!Number.isSafeInteger(wash)||wash<count(getState(),'total_wash'))
+    throw Error('자맥 사이 후보로 원본 단계 회차가 역행했습니다');
+   washTo(wash);
+   if(['lock','unlock','keep'].includes(action.kind)){
+    const id=names.get(String(action.talent));
+    if(!id)throw Error('원본 자맥 단계 ID 없음');
+    if(action.kind==='unlock'&&!idsOf(getState()).includes(id))return;
+    lockId(id,action.kind!=='unlock');
+   }else if(action.kind==='exchange'){
+    const id=names.get(String(action.from));
+    const to=names.get(String(action.to||action.talent));
+    const index=getState().talents.findIndex(t=>number(t.id)===id);
+    if(index<0||!to)throw Error('자맥 사이 삽입 후 원맥이 사라졌습니다');
+    const ret=exchangeTalent(index);
+    if(!ret||ret.error||!idsOf(getState()).includes(to))
+     throw Error('자맥 사이 삽입 후 치환 결과가 달라졌습니다');
+   }else if(!['wash_to','skip'].includes(action.kind))
+    throw Error('원본 단계 미지원: '+action.kind);
+  };
+  restore(mark.state);
+  let next=mark.actionIndex+1;
+  // Complete other actions at the same confirmed-purple wash moment.
+  while(next<originalActions.length&&
+        Number(originalActions[next].wash_no)===mark.wash){
+   try{apply(originalActions[next])}catch(_){return}
+   next++;
+  }
+  if(next===originalActions.length)return;
+  const nextScheduled=Number(originalActions[next].wash_no);
+  const start=clone(getState());
+  // Lock previously confirmed purples; free the remaining movable slots.
+  const anchored=start.talents.map(t=>({...t,
+   locked:shape.purple.includes(number(t.id))}));
+  if(!setState({...start,talents:anchored}))return;
+  const opened=clone(getState());
+  const unlockSteps=start.talents.filter(t=>t.locked&&
+   !shape.purple.includes(number(t.id))).map(t=>({
+    kind:'unlock',talent:talents[String(t.id)]?.name||String(t.id),
+    wash_no:mark.wash
+   }));
+  const boundary=Math.min(nextScheduled-1,mark.wash+horizon);
+  if(boundary<=mark.wash)return;
+  let branches=0;
+  for(let time=mark.wash+1;time<=boundary;time++){
+   const washed=doWash();
+   if(!washed||washed.error)break;
+   diagnostics.scannedWashes++;
+   const originalScan=clone(getState());
+   const appearing=shape.colors.filter(id=>
+    originalScan.talents.some(t=>number(t.id)===id));
+   if(appearing.length===0)continue;
+   branches++;
+   if(branches>6)break;
+   try{
+    const actions=[
+     ...clone(originalActions.slice(0,next)),...clone(unlockSteps),
+     {kind:'wash_to',wash_no:time,note:'자맥 사이 녹·파맥 근접 탐색'}
+    ];
+    for(const id of appearing){
+     lockId(id,true);
+     actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
+      wash_no:time});
+    }
+    for(let i=next;i<originalActions.length;i++){
+     apply(originalActions[i]);
+     // Actual next native wash steps; the original route may have diverged
+     // and will then fail with an explicit ID/state check.
+     actions.push({...originalActions[i],
+      pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
+    }
+    if(!hasAll(getState(),shape.purple))
+     throw Error('자맥 사이 삽입 이후 마지막 자맥 유실');
+    const afterPurple=getState();
+    const allowed=new Set([...shape.purple,...shape.colors]);
+    const adjusted=afterPurple.talents.map(t=>({...t,
+     locked:allowed.has(number(t.id))}));
+    if(!setState({...afterPurple,talents:adjusted}))
+     throw Error('자맥 사이 보존 슬롯 설정 실패');
+    for(const t of afterPurple.talents){
+     const id=number(t.id),shouldLock=allowed.has(id);
+     if(t.locked!==shouldLock)actions.push({
+      kind:shouldLock?'lock':'unlock',
+      talent:talents[String(id)]?.name||String(id),
+      wash_no:count(afterPurple,'total_wash')});
+    }
+    // If one target appeared before the final purple, find the second
+    // after it; no target is counted unless it remains in the final state.
+    const held=new Set(shape.colors.filter(id=>idsOf(getState()).includes(id)));
+    for(let offset=0;offset<=horizon;offset++){
+     if(held.size===shape.colors.length&&hasAll(getState(),desiredIds)){
+      const final=getState();
+      routes.push(actionsToRoute(actions,final,initial,native,
+       desiredIds,'purple-between'));
+      break;
+     }
+     if(offset===horizon)break;
+     const before=count(getState(),'total_wash'),ret=doWash();
+     if(!ret||ret.error||count(getState(),'total_wash')!==before+1)break;
+     diagnostics.scannedWashes++;
+     for(const id of shape.colors){
+      if(held.has(id)||!idsOf(getState()).includes(id))continue;
+      lockId(id,true);held.add(id);
+      const washNo=count(getState(),'total_wash');
+      actions.push({kind:'wash_to',wash_no:washNo,
+       note:'마지막 자맥 이후 나머지 녹·파맥 탐색'});
+      actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
+       wash_no:washNo});
+     }
+     if(offset%50===0){
+      progress({phase:'anchor-between',scannedWashes:diagnostics.scannedWashes,
+       candidateRoutes:routes.length});
+      await new Promise(resolve=>setTimeout(resolve,0));
+     }
+    }
+   }catch(error){
+    diagnostics.betweenRejected=(diagnostics.betweenRejected||0)+1;
+   }finally{restore(originalScan)}
+  }
+ }
  const routes=[],diagnostics={method:'purple-anchor-nearest-native-wash',
   purpleTargets:shape.purple,colorTargets:shape.colors,
   purpleRoutes:0,replayed:0,failures:[],scannedWashes:0,
@@ -181,6 +315,10 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    }
    if(!stopped&&!routes.length)diagnostics.failures.push(
     '자맥 확정 이후 '+horizon+'회 내 최종 녹·파맥 조합 미발견');
+   // Also attempt the user-requested interval immediately after the
+   // earlier purple anchors, before the last purple's next locked step.
+   try{await searchBetween(native,marks,diagnostics,routes)}
+   catch(error){diagnostics.failures.push('자맥 사이 구간: '+String(error?.message||error))}
    restore(initial);
   }
  }finally{restore(initial)}
