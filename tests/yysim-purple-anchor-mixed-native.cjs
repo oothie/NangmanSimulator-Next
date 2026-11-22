@@ -385,6 +385,12 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  });
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),roleBefore,
   '1121 Yi Il-jin fixture must restore original WASM state');
+ assert(roleMixed.routes.length>0,
+  '1121 Yi Il-jin / 272+249+266+234 must find a native final four-goal route');
+ assert.equal(roleMixed.diagnostics.purpleReplayRejected||0,0,
+  'Original 1121-shaped purple route must no longer reject open_slot');
+ assert.equal(roleMixed.diagnostics.purpleAttempts,1,
+  'Successful first original-WASM purple order must not trigger six redundant calls');
  if(roleMixed.routes.length){
   const native=roleMixed.routes[0];
   assert([272,249,266,234].every(id=>native.final_slots.some(t=>
