@@ -348,6 +348,40 @@ const originalRustModules=[...moduleFunctionMap.entries()].map(([name,refs])=>({
  name,functions:[...new Set(refs.map(x=>x.functionIndex))].sort((a,b)=>a-b),
  sourceLocationReferences:refs.length,examples:refs.slice(0,6)
 })).sort((a,b)=>a.name.localeCompare(b.name));
+// Recover bounded concrete call paths from the core route engine to each
+// original Rust source module, avoiding name-based guesses about behavior.
+const corePredecessors=new Map([[4,null]]);
+const pendingCore=[4];
+while(pendingCore.length){
+ const current=pendingCore.shift();
+ let decoded;
+ try{decoded=current===4?coreSearch:inspect(current)}catch(_){continue}
+ for(const call of decoded.calls){
+  if(call.index<importCount||corePredecessors.has(call.index)||
+     call.bodyBytes===null)continue;
+  corePredecessors.set(call.index,current);
+  pendingCore.push(call.index);
+ }
+}
+function nativePathTo(index){
+ if(!corePredecessors.has(index))return null;
+ const chain=[];
+ let current=index;
+ while(current!==null){chain.push(current);current=corePredecessors.get(current)}
+ return chain.reverse();
+}
+const moduleReachability=originalRustModules.map(module=>({
+ name:module.name,
+ paths:module.functions.map(fn=>({functionIndex:fn,path:nativePathTo(fn)}))
+  .filter(item=>item.path!==null).sort((a,b)=>a.path.length-b.path.length)
+  .slice(0,5)
+}));
+assert(moduleReachability.find(x=>x.name==='next_purple')
+ ?.paths.some(x=>x.path.length===2&&x.path[0]===4&&x.path[1]===13),
+ 'Core search no longer directly calls a next_purple.rs function');
+assert(moduleReachability.find(x=>x.name==='exchange')?.paths.some(x=>
+ x.path.length>=2),'No native exchange module reachable from core search');
+
 assert(originalRustModules.some(x=>x.name==='next_purple'&&
  x.functions.includes(75)),'Original next_purple native code location changed');
 assert(originalRustModules.some(x=>x.name==='exchange'&&
@@ -383,5 +417,6 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  candidateCallees:candidateCallees.slice(0,25),
  reachableFunctions:reachable.length,
  nestedReviewSites:nestedGradeSites.sort((a,b)=>a.depth-b.depth||b.total-a.total).slice(0,35),
- originalRustModules
+ originalRustModules,
+ moduleReachability
 }));
