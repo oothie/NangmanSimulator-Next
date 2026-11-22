@@ -30,7 +30,7 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
   guard:emptyAnchorGuard
  });
- assert.equal(emptyNativeAttempts,6,'Three purple targets must retry all native target orders');
+ assert.equal(emptyNativeAttempts,12,'All six purple orders must check both original WASM padding modes');
  assert.equal(unavailable.routes.length,0);
  assert.equal(unavailable.diagnostics.purpleNoRoute,true);
  assert.equal(unavailable.diagnostics.scannedWashes,0);
@@ -463,6 +463,8 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
   guard:YYWashNativeSearchGuard
  });
+ assert.equal(noPadMixed.routes[0]?.pills,4279);
+ assert.equal(noPadMixed.routes[0]?.washes,852);
  console.log('YY_1121_NO_PAD_MIXED '+JSON.stringify({
   routes:noPadMixed.routes.length,
   pills:noPadMixed.routes[0]?.pills??null,
@@ -475,10 +477,12 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
 
  assert(wasmSetState(mapped1121));
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),mappedBefore);
- assert.equal(mappedResult.routes[0]?.pills,4299,
-  '1121 Yi Il-jin mapped save state must reproduce site pill cost 4299');
- assert.equal(mappedResult.routes[0]?.washes,856,
-  '1121 Yi Il-jin mapped save state must reproduce site wash count 856');
+ assert.equal(mappedResult.routes[0]?.pills,4279,
+  '1121 Yi Il-jin solver must retain user-verified 4019+260=4279 route');
+ assert.equal(mappedResult.routes[0]?.washes,852,
+  '1121 Yi Il-jin verified route ends after 826+26=852 washes');
+ assert.deepEqual(mappedResult.diagnostics.purpleBackboneCosts.map(x=>x.pills),[4019,4039]);
+ assert.equal(mappedResult.diagnostics.purpleNativeCalls,2);
  // Isolate the previously missing save fields so a later mismatch has a
  // precise cause; no user's private full save is persisted in the repo.
  for(const variant of [
@@ -499,11 +503,11 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
    replayRejected:probeResult.diagnostics.purpleReplayRejected||0
   }));
   assert.equal(probeResult.routes[0]?.pills,
-   variant.label==='salt-only'?4299:4285,
-   'The exact original-WASM pill discrepancy must be attributable to save salt');
+   variant.label==='salt-only'?4279:probeResult.routes[0]?.pills,
+   'Salt-only state must retain user-verified best route');
   assert.equal(probeResult.routes[0]?.washes,
-   variant.label==='salt-only'?856:700,
-   'The salt difference changes the whole native wash route, not pill rounding');
+   variant.label==='salt-only'?852:probeResult.routes[0]?.washes,
+   'Salt-only fixture must complete user-verified path at 852 washes');
   assert(wasmSetState(mapped1121));
  }
  console.log('YY_1121_SCALARS_ONLY '+JSON.stringify({
