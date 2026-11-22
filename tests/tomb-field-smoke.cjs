@@ -43,7 +43,8 @@ const secondary=Array.from(tomb.predict(open,{count:8,order:'ascending'}));
 assert.equal(secondary.length,8,'comparison hypothesis available');
 const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
 const ui=fs.readFileSync(path.join(dir,'wild.js'),'utf8');
-assert(html.includes('src="./tomb-core.js"')&&html.indexOf('tomb-core.js')<html.indexOf('src="./wild.js"'));
+assert(html.includes('src="./tomb-core.js?rev=20261122-h109"')&&
+ html.indexOf('tomb-core.js')<html.indexOf('src="./wild.js'));
 assert(html.includes('id="wildTombOrder"')&&ui.includes('tomb.predict(input,'));
 // Minimal, non-personal snapshot of RNG fields from the 2026-11-21 1121.json.
 // Confirmed 2026-11-22 hunt #109: Qingyun Chu 5609 blue, DEF+220, HIT+68.
