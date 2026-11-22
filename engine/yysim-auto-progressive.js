@@ -6,7 +6,7 @@
  */
 (function(root){
 'use strict';
-async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=0,horizon=900,topN=10,
+async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=0,horizon=2500,topN=10,
  onProgress=()=>{}}={}){
  if(typeof call!=='function'||!api?.options||!api?.routeOutcome)
   throw Error('자동탐색 엔진이 준비되지 않았습니다');
