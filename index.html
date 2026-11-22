@@ -3794,7 +3794,7 @@ function yyAccountGrowthDashboard(entries){
    byRole.map((entry,index)=>{
     const item=row.values[index];
     return '<td>'+(item?'<strong class="account-count '+(item.max!=null&&item.current>=item.max?'is-complete':item.current>0?'is-progress':'is-zero')+'">'+
-     (item.current==null?'—':item.current)+' / '+(item.max??'?')+(item.values.some(v=>v?.soft)?'+':'')+'</strong>'+
+     (item.current==null?'—':item.current)+' / '+(item.max??'?')+(item.soft?'+':'')+'</strong>'+
      accountProgressBar(item.current,item.max,color):'—')+'</td>';
    }).join('')+'</tr>').join('');
   const highlights=active.slice().sort((a,b)=>b.current-a.current).slice(0,12);
