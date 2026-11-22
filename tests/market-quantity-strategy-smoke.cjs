@@ -89,4 +89,16 @@ const long=st.searchStrategy([223],{mode:'free',quantity:9,periods:720});
 assert.equal(long.found,true);
 assert.equal(long.periods,720,'720 free forecast rotations must not be silently truncated');
 
+vm.runInContext(fs.readFileSync(path.join(root,'vendor/yysim/daily_data.js'),'utf8'),ctx);
+const actualPool=predict({
+ RandShop:{Counts:{223:0},Fresh:0,Time:now,Buy:80,Lucky:0,Items:[]},
+ Rnds:{Sds:{guishishop:978587497}}
+},ctx.window.DAILY_DATA,now,{slots:6});
+const actualFree=actualPool.searchStrategy([223],{mode:'free',quantity:15,periods:720});
+assert.equal(actualFree.mode,'free');
+assert.equal(actualFree.paid,0);
+assert(actualFree.acquired<=15||actualFree.found,'free real-pool forecast cannot exceed target');
+assert((actualFree.purchases||[]).every(x=>x.kind!=='paid'));
+console.log('REAL_POOL_FREE_15',JSON.stringify({found:actualFree.found,
+ acquired:actualFree.acquired,when:actualFree.when,periods:720,paid:actualFree.paid}));
 console.log('PASS: 9 remaining pages, deterministic free route, bought shelf isolation, whole-target cheapest/fastest and custom quantity UI');
