@@ -122,7 +122,7 @@ const cheaper={pad:0,pills:7,washes:3,exchanges:1,optimal:false,
  await assert.rejects(()=>p.run({call:async()=>({}),api,desiredIds:[268,268],
   maxPad:3,horizon:300,topN:5}),/서로 다른/);
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
- assert(html.includes('./engine/yysim-auto-progressive.js?rev=20261122-purple-anchor-v14'));
+ assert(html.includes('./engine/yysim-auto-progressive.js?rev=20261122-purple-anchor-v15'));
  assert(html.includes("op==='washEngineAutoProgressive'"));
  assert(html.includes('p.indeterminate'),'WASM UI must report uncertain duration');
  assert(!html.includes('id="yyAutoProgressive"'),'no second automatic search button');
