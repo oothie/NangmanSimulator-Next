@@ -167,10 +167,21 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
   const state=getState();
   if(!hasAll(state,shape.purple))
    throw Error('원본 자맥 경로를 실행했으나 최종 자맥을 모두 확보하지 못했습니다');
-  // A valid state is more important than matching route's optional extra
-  // locked fillers, but pills and the selected purple IDs must match.
-  if(count(state,'total_pills')-count(initial,'total_pills')!==number(route.pills))
-   throw Error('원본 자맥 경로의 세수단 비용과 실제 재현 비용이 다릅니다');
+  // A replayed native final state and its measured pill counter are the
+  // source of truth. Search metadata may cost a different set of retained
+  // filler locks. Do not discard an otherwise valid purple path solely
+  // because native search's estimate differs from the actual WASM replay.
+  const actualPills=count(state,'total_pills')-count(initial,'total_pills');
+  if(Number.isFinite(number(route.pills))&&actualPills!==number(route.pills)){
+   diagnostics.purpleCostAdjusted=(diagnostics.purpleCostAdjusted||0)+1;
+   if((diagnostics.purpleCostExamples||[]).length<4){
+    diagnostics.purpleCostExamples=diagnostics.purpleCostExamples||[];
+    diagnostics.purpleCostExamples.push({
+     predicted:number(route.pills),replayed:actualPills,
+     wash:count(state,'total_wash')-count(initial,'total_wash')
+    });
+   }
+  }
   return {state:clone(state),actions:clone(actions)};
  }
  // Reuse the ORIGINAL purple route timeline around the second (or first)
