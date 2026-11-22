@@ -54,7 +54,10 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
   maxPad:config.maxPad,horizon:config.horizon,topN:config.topN,
   nameIds:native.nameIds||{},history,progressive:true,nativeDiagnostics:diagnostic,
   result:{...native.result,routes:verified.map(x=>x.source),
-   error:best?null:native.result.error||mixedFailureMessage||'설정한 원본 탐색 범위 내 최종 경로 없음'},
+   // The original native error may be Chinese (purple-only request guard).
+   // The user-facing mixed-grade failure must use the confirmed Korean
+   // final-slot diagnosis, without implying that any minimum was found.
+   error:best?null:mixedFailureMessage||native.result.error||'설정한 원본 탐색 범위 내 최종 경로 없음'},
   bestPills:best?.estimatedPills??null,
   globallyOptimal:best?.globallyOptimal===true};
 }
