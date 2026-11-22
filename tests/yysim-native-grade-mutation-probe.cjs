@@ -25,45 +25,54 @@ const {chromium}=require('playwright'),cp=require('node:child_process'),path=req
    // All native calls are made in the scratch iframe; the live washEngine
    // and original TALENT_DATA are not modified.
    return frame.eval(`(function(){
-    const initial=wasmGetState(),id=184;
-    const oldGrade=TALENT_DATA[String(id)]?.pinzhi;
-    if(oldGrade!==2)throw Error('Expected native green talent 184');
-    const query=()=>{
+    const initial=wasmGetState();
+    const scenarios=[{id:184,gradeBefore:2,gradeProbe:4},
+                     {id:271,gradeBefore:4,gradeProbe:2}];
+    const probes=[];
+    const query=(id)=>{
      let response=null,exception=null;
      try{response=wasmSearchWashRoutes({
-      desired_ids:[id],max_pad:0,horizon:35,top_n:2
+      desired_ids:[id],max_pad:0,horizon:120,top_n:3
      })}catch(e){exception=String(e?.message||e)}
      return {error:exception||response?.error||null,
-      keys:response&&typeof response==='object'?Object.keys(response).slice(0,12):[],
+      keys:response&&typeof response==='object'?Object.keys(response).sort():[],
       total:response?.routes?.length??null,
       complete:(response?.routes||[]).filter(route=>
-       route?.final_slots?.some(slot=>Number(slot.id)===id)).length};
+       route?.final_slots?.some(slot=>Number(slot.id)===id)).length,
+      firstPills:response?.routes?.[0]?.pills??null};
     };
-    let before=null,spoofed=null,probeError=null;
-    try{
-     before=query();
-     TALENT_DATA[String(id)].pinzhi=4;
-     if(!wasmInitEngine(TALENT_DATA,ZZ_DATA))throw Error('Probe WASM data init rejected');
-     if(!wasmSetState(initial))throw Error('Probe state restore failed');
-     spoofed=query();
-    }catch(error){probeError=String(error?.message||error)}
-    finally{
-     TALENT_DATA[String(id)].pinzhi=oldGrade;
-     if(!wasmInitEngine(TALENT_DATA,ZZ_DATA)||!wasmSetState(initial))
-      throw Error('Unable to restore original WASM grade and state');
+    for(const scenario of scenarios){
+     const id=scenario.id,originalGrade=TALENT_DATA[String(id)]?.pinzhi;
+     if(originalGrade!==scenario.gradeBefore)
+      throw Error('Native fixture grade mismatch for '+id);
+     let before=null,spoofed=null,probeError=null;
+     try{
+      before=query(id);
+      TALENT_DATA[String(id)].pinzhi=scenario.gradeProbe;
+      if(!wasmInitEngine(TALENT_DATA,ZZ_DATA))throw Error('Probe init rejected');
+      if(!wasmSetState(initial))throw Error('Probe state injection failed');
+      spoofed=query(id);
+     }catch(e){probeError=String(e?.message||e)}
+     finally{
+      TALENT_DATA[String(id)].pinzhi=originalGrade;
+      if(!wasmInitEngine(TALENT_DATA,ZZ_DATA)||!wasmSetState(initial))
+       throw Error('Unable to restore original data after '+id);
+     }
+     const replay=query(id);
+     probes.push({id,originalGrade,probeGrade:scenario.gradeProbe,
+      before,spoofed,probeError,
+      restored:JSON.stringify(replay)===JSON.stringify(before),
+      gradeRestored:TALENT_DATA[String(id)]?.pinzhi===originalGrade});
     }
-    const replay=query();
-    return {id,originalGrade:oldGrade,baseline:before,spoofed,probeError,
-     searchOutputRestored:JSON.stringify(replay)===JSON.stringify(before),
-     restoredGrade:TALENT_DATA[String(id)].pinzhi,
-     originalSnapshotRestored:JSON.stringify(initial)===JSON.stringify(wasmGetState()),
-     warning:'Spoofing a grade changes the game pool, so no result is a valid gameplay route'};
+    return {probes,allRestored:probes.every(p=>p.restored&&p.gradeRestored),
+     stateRestored:JSON.stringify(initial)===JSON.stringify(wasmGetState()),
+     note:'Diagnostic grade mutations are never gameplay-valid predictions'};
    })()`);
   });
-  assert.equal(result.originalGrade,2);
-  assert.equal(result.restoredGrade,2);
-  assert(result.originalSnapshotRestored,'isolated WASM probe did not restore snapshot');
-  assert(result.searchOutputRestored,'reinitialized original WASM route response changed after diagnostic');
+  assert.equal(result.probes.length,2);
+  assert(result.allRestored,'native route outputs changed after isolated grade tests');
+  assert(result.stateRestored,'original WASM state not restored');
+  assert.deepEqual(result.probes.map(x=>x.id),[184,271]);
   console.log('NATIVE_GRADE_GATE_PROBE',JSON.stringify(result));
  }finally{await browser?.close();server.kill('SIGTERM')}
 })().catch(error=>{console.error(error);process.exitCode=1});
