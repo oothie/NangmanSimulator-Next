@@ -20,7 +20,7 @@ assert(html.includes('guard.statesEqual(stable,wasmGetState())'),
 assert(html.includes('ids:[271,268,272]'));
 assert(html.includes('ids:[271,268,272,184]'));
 assert(html.includes('final_slots'));
-assert(html.includes("new Worker('../vendor/yysim/native-search-worker.js')"),
+assert(html.includes("new Worker('../vendor/yysim/native-search-worker.js?rev=0.10.29')"),
  'Browser diagnosis should provide nonblocking original WASM Worker mode');
 assert(html.includes('reply.stateUnchanged!==true'),
  'Worker must confirm state unchanged after native route query');
