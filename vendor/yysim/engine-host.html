@@ -82,6 +82,8 @@ try{
   // and scan nearby green/blue talents in the free slots. The result is
   // accepted ONLY when all four actually remain in final WASM slots.
   const anchor=window.YYWashPurpleAnchorMixed?.requestShape(ids,TALENT_DATA);
+  if(!anchor&&ids.some(id=>Number(TALENT_DATA[String(id)]?.pinzhi)!==4))
+   throw Error('녹맥·파맥 혼합 자동탐색은 최종 4칸 목표로 자맥 3개+녹·파맥 1개 또는 자맥 2개+녹·파맥 2개를 선택해야 합니다.');
   if(anchor){
    const mixed=await window.YYWashPurpleAnchorMixed.run({
     desiredIds:ids,maxPad,horizon,topN,talents:TALENT_DATA,
