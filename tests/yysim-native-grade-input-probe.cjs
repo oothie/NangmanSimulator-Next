@@ -71,6 +71,13 @@ if(!process.argv.includes('--child')){
     'Native WASM state changed for '+goal.name);
    rows.push({name:goal.name,error:error||response?.error||null,
     routes:routes.length,complete:complete.length,
+    // Original result semantics: distinguish returned search order, final
+    // held talents, and transient acquisition events. These observations
+    // are NOT proofs of a green/blue route or of minimum pill cost.
+    nativeOrderIds:routes[0]?.order_ids||null,
+    finalIds:routes[0]?.final_slots?.map(t=>Number(t.id))||null,
+    reachedIds:routes[0]?.reached_ids||null,
+    actions:routes[0]?.actions?.map(a=>a.kind)||null,
     bestPills:complete.reduce((n,r)=>Math.min(n,Number(r.pills)||Infinity),Infinity)});
   }
   for(const x of rows)if(!Number.isFinite(x.bestPills))x.bestPills=null;
