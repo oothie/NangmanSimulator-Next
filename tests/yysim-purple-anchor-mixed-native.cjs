@@ -444,6 +444,19 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
     steps:x.actions?.length||0})).slice(0,8)});
  }
  console.log('YY_1121_PURPLE_NATIVE_ORDER_COMPARISON '+JSON.stringify(nativeOrders));
+ const nativePadVariants=[];
+ for(const max_pad of [0,5,10,15,20,25,30]){
+  assert(wasmSetState(mapped1121));
+  const native=YYWashNativeSearchGuard.run({
+   getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes
+  },{desired_ids:[272,249,266],max_pad,horizon:900,top_n:8});
+  nativePadVariants.push({max_pad,costs:native.routes.map(route=>({
+   pills:route.pills,washes:route.actions?.at(-1)?.wash_no??null,
+   actions:route.actions?.length||0
+  }))});
+ }
+ console.log('YY_1121_PURPLE_NATIVE_PADDING '+JSON.stringify(nativePadVariants));
+
  assert(wasmSetState(mapped1121));
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),mappedBefore);
  assert.equal(mappedResult.routes[0]?.pills,4299,
