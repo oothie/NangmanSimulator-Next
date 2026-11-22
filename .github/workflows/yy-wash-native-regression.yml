@@ -23,6 +23,7 @@ on:
       - 'tests/yysim-auto-progressive-smoke.cjs'
       - 'tests/yysim-wasm-callgraph.cjs'
       - 'tests/yysim-native-grade-input-probe.cjs'
+      - 'tests/yysim-native-quality-opcode-probe.cjs'
       - 'index.html'
       - '.github/workflows/yy-wash-native-regression.yml'
   pull_request:
@@ -47,6 +48,7 @@ on:
       - 'tests/yysim-auto-progressive-smoke.cjs'
       - 'tests/yysim-wasm-callgraph.cjs'
       - 'tests/yysim-native-grade-input-probe.cjs'
+      - 'tests/yysim-native-quality-opcode-probe.cjs'
       - 'index.html'
       - '.github/workflows/yy-wash-native-regression.yml'
   workflow_dispatch:
@@ -108,5 +110,7 @@ jobs:
         run: node tests/yysim-auto-search-smoke.cjs
       - name: Characterize grade input guard without modifying production WASM
         run: node tests/yysim-native-grade-input-probe.cjs
+      - name: Research-only isolate native next_purple grade-gate opcode sites
+        run: node tests/yysim-native-quality-opcode-probe.cjs
       - name: Verify original WASM native call graph
         run: node tests/yysim-wasm-callgraph.cjs
