@@ -42,6 +42,21 @@ The decoded neighborhoods predominantly show slot-vector initialization, clampin
 **Avoid using any of these core constants as a replacement for a proven pinzhi predicate.**
 The original native Rust source modules are only available as filenames embedded in the binary, not as editable source in this repository.
 
+## v0.10.32 implemented purple-anchored final-slot engine (production)
+The user changed the requested algorithm: use original yy-sim WASM to fix 3 or 2 purple targets, then scan the closest green/blue candidate between the earlier purple anchors and the last purple, or following the last purple.
+
+**Production implementation:** `engine/yysim-purple-anchor-mixed.js`, loaded by `vendor/yysim/engine-host.html` for exactly four targets with (3 purple + 1 green/blue) or (2 purple + 2 green/blue). The original `wasmSearchWashRoutes` is called with the PURPLE targets only. Its full native action sequence is replayed with the original WASM `wasmDoWash`, `wasmSetState` locks, and `wasmExchangeTalent`; reject if purple final IDs or native pill cost differ. On a reproducible final purple state, free only non-target slots and use **original WASM wash RNG** to lock the closest green/blue target(s), requiring all four goals simultaneously in final native slots. Native original state is checked/restored after every experimental branch. Candidate routes ranked by **actual native total pills** and retained only if replayed final slots match. Routes are bounded best-found; `optimal:false`, never claim proven global minimum.
+
+Additional inter-purple exploration: captures checkpoint after 2nd purple (or after 1st for 2-purple goals); scans nearest mixed-grade events before the next original action, tests continuing subsequent original purple actions and optional second target after final purple. These branches must be rejected when locks alter original RNG/required purple path; they never become false successes.
+
+**Two real unmodified WASM controls** using seed 447882174, role 10044, 4 slots, original talent dictionary:
+- [271,268,272,184] (3 purple + green): native cost **7357 pills**, 1001 washes, final all four locked [268,272,271,184]. Original purple backbone cost 6997; green found 36 native washes after it. State preserved.
+- [271,268,184,202] (2 purple + green + blue): native cost **5032 pills**, 711 washes, all four final locked [268,271,202,184]. Two green/blue IDs found over 113 WASM washes following the confirmed purple anchors. State preserved.
+These numbers are **only for the synthetic diagnostic fixture**, not a prediction for any user's save. The exact minimum across *all* possible branches is not proved.
+- On this fixture, sampled inter-purple candidates for 2 purple goals were rejected (6 divergences) due to native continuation changes, while after-last routes succeeded. This is correct conservative behavior.
+
+Tests: `tests/yysim-purple-anchor-mixed-native.cjs` runs both shapes against unmodified WASM; `tests/yysim-anchor-browser.cjs` exercises the production iframe via Playwright and verifies native final four-slot results and state preservation. Native + browser checks passed for earlier commits before v0.10.32 cache/version bump. `YYWashProgressive` and index forward true in-progress WASM wash scan counts, not fabricated percentages. Purple-only execution path unchanged.
+ 
 ## Pending next steps
 1. Follow the branch/dataflow preceding core4's native error builder; identify the grade predicate for the preselection and distinguish it from RNG's native quality distribution.
 2. Inspect function13 `next_purple` candidate-event loop beyond the 3 unsuccessful tested offsets.
