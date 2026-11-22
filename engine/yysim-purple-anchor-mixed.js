@@ -56,14 +56,19 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
   if(!setState(clone(state))||!guard.statesEqual(getState(),state))
    throw Error('원본 WASM 분기 상태를 복구할 수 없습니다');
  };
- const washTo=(target,pillCeiling=Infinity)=>{
+ const washTo=(target,pillCeiling=Infinity,beforeNativeWash=null)=>{
   const current=count(getState(),'total_wash');
   if(target<current||target-current>6000)
    throw Error('원본 WASM 세수 회차가 역행하거나 탐색 제한을 초과했습니다');
   for(let wash=current;wash<target;wash++){
+   if(beforeNativeWash)beforeNativeWash();
    const result=doWash();
-   if(!result||result.error||count(getState(),'total_wash')!==wash+1)
-    throw Error('원본 WASM 세수 '+(wash+1)+'회 진행 실패');
+   if(!result||result.error||count(getState(),'total_wash')!==wash+1){
+    const currentState=getState();
+    throw Error('원본 WASM 세수 '+(wash+1)+'회 진행 실패 · 잠금 '+
+     currentState.talents.filter(t=>t.locked).length+'/4 · 남은 재능 '+
+     currentState.talents.filter(t=>!t.locked).map(t=>t.id).join(','));
+   }
    if(count(getState(),'total_pills')-count(initial,'total_pills')>=pillCeiling)
     throw Error('검증된 최저 세수단보다 비싼 재탐색 분기');
   }
@@ -266,6 +271,27 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
        const combined=[...actions];
        try{
         let washShift=0;
+        // The native purple-only continuation may lock four slots even
+        // though one of them is a disposable filler. With a color target
+        // protected, that creates a deadlocked WASM wash. Explicitly free
+        // ONLY nonselected filler talents, recording every unlock step.
+        const freeDisposable=()=>{
+         const current=getState();
+         if(!current.talents.every(t=>t.locked))return;
+         const obsolete=current.talents.filter(t=>
+          !desiredIds.includes(number(t.id)));
+         if(!obsolete.length)return;
+         if(!setState({...current,talents:current.talents.map(t=>({
+          ...t,locked:desiredIds.includes(number(t.id))
+         }))}))throw Error('원본 WASM 임시 잠금 해제 실패');
+         for(const t of obsolete)combined.push({
+          kind:'unlock',
+          talent:talents[String(t.id)]?.name||String(t.id),
+          wash_no:count(current,'total_wash'),
+          note:'자맥 사이 원본 재탐색 교체 가능 칸 확보'});
+         diagnostics.autoFreedFillers=(diagnostics.autoFreedFillers||0)+
+          obsolete.length;
+        };
         // Keep the native path's action order. If locking an extra target
         // has shifted the original RNG, re-synchronize only at an exact
         // native talent event, bounded by a small local wash window.
@@ -274,6 +300,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
          const maxCorrection=Math.min(64,horizon);
          for(let delta=1;delta<=maxCorrection;delta++){
           const at=count(getState(),'total_wash');
+          freeDisposable();
           const washed=doWash();
           if(!washed||washed.error||count(getState(),'total_wash')!==at+1)
            throw Error('원본 WASM 보정 세수 실패');
@@ -298,6 +325,10 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
           '을 보정 세수 '+maxCorrection+'회에서 찾지 못했습니다');
         };
         for(const step of nativeActions){
+         if(hasAll(getState(),desiredIds)){
+          diagnostics.earlyFourGoal=(diagnostics.earlyFourGoal||0)+1;
+          break;
+         }
          const originalWash=Number(step.wash_no);
          if(!Number.isSafeInteger(originalWash))
           throw Error('재탐색의 세수 회차 정보가 없습니다');
@@ -307,7 +338,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
          const incumbent=Math.min(Infinity,...routes.map(r=>r.pills));
          if(count(getState(),'total_pills')-count(initial,'total_pills')>=incumbent)
           throw Error('검증된 최소 비용을 이미 초과한 재탐색 분기');
-         washTo(washNo,incumbent);
+         washTo(washNo,incumbent,freeDisposable);
          const id=names.get(String(step.talent));
          if(['lock','unlock','keep'].includes(step.kind)){
           // The original purple-only native plan would erase a previously
