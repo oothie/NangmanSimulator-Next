@@ -120,8 +120,12 @@ async function run(){
       throw Error('원본 WASM Worker 세수 상태 변경 감지');
      raw=reply.result;
     }
-   }catch(e){error=String(e?.message||e)}
-   finally{clearInterval(ticker)}
+   }catch(e){
+    const message=String(e?.message||e);
+    if(isolated&&/Worker 180초 응답 시간 초과|원본 WASM Worker 오류/.test(message))
+     throw Error('WASM Worker 실행 환경 오류: '+message);
+    error=message;
+   }finally{clearInterval(ticker)}
    const elapsedMs=Math.round((performance.now()-start)*100)/100;
    if(!guard.statesEqual(stable,wasmGetState()))
     throw Error('원본 WASM 상태가 변경됨: '+target.name);
