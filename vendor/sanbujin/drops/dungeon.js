@@ -65,6 +65,9 @@
     if (!shown.length) $('dungeonResults').append(record(quality==='purple'?'이 구간에서 자색 장비가 예측되지 않았습니다.':'이 구간에서 일반 장비가 예측되지 않았습니다.'));
   }
   function renderBoss() {
+    // The legacy per-boss panel is retained only for compatibility; do not
+    // calculate expensive orange previews for an invisible UI.
+    if ($('dungeonLegacy')?.hidden) return;
     reset();
     const event = selected();
     window.SBJDungeonRates?.render($('dungeonRates'),event,input);
