@@ -214,6 +214,46 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   }
   return {state:clone(state),actions:verifiedActions};
  }
+ // Original WASM minimizes the PURPLE-only prefix, but a slightly
+ // different legal lock/open-slot sequence can minimize all four talents.
+ // Generate a replay-validated alternative to the native relay route:
+ // open the last slot one wash earlier, and exchange A->B->purple without
+ // temporarily rearranging unrelated filler locks between those exchanges.
+ function alternateNativeTimelines(route){
+  if(shape.purple.length!==2||!Array.isArray(route.actions))return [];
+  const orig=route.actions;
+  const open=orig.findIndex((a,i)=>i>0&&a.kind==='open_slot'&&
+   /154/.test(String(a.note||''))&&
+   Number(a.wash_no)===Number(orig[i-1].wash_no)+1);
+  if(open<0)return [];
+  const actions=clone(orig),openWash=Number(actions[open].wash_no);
+  actions[open].wash_no=openWash-1;
+  for(let i=open+1;i<actions.length;i++){
+   const a=actions[i];
+   if(['wash_to','exchange'].includes(a.kind))break;
+   if(['lock','unlock','keep'].includes(a.kind)&&
+      Number(a.wash_no)>openWash-1)a.wash_no--;
+  }
+  const skip=new Set(),protectedIds=new Set(shape.purple);
+  for(let i=0;i<actions.length;i++){
+   if(actions[i].kind!=='exchange')continue;
+   for(let j=i+1;j<actions.length;j++){
+    if(Number(actions[j].wash_no)!==Number(actions[i].wash_no))break;
+    if(actions[j].kind!=='exchange')continue;
+    if(String(actions[i].to||actions[i].talent)!==String(actions[j].from))continue;
+    for(let k=i+1;k<j;k++){
+     const a=actions[k],id=names.get(String(a.talent));
+     if(['lock','unlock','keep'].includes(a.kind)&&
+        !protectedIds.has(id))skip.add(k);
+    }
+    break;
+   }
+  }
+  if(!skip.size)return [];
+  return [{...route,
+   actions:actions.filter((_,i)=>!skip.has(i)),
+   anchorVariant:'early-slot-direct-relay'}];
+ }
  // Reuse the ORIGINAL purple route timeline around the second (or first)
  // confirmed purple. Insert a nearby color talent before the next native
  // action, then validate ALL following purple steps on the actual WASM.
