@@ -31,9 +31,13 @@ function lookup(event){
   color.filter(x=>Number(x.color)===c).reduce((s,x)=>s+number(x.w),0)/colorSum:
   (event.color||[]).filter(x=>Number(x[0])===c).reduce((s,x)=>s+number(x[1]),0)/
    Math.max(1,(event.color||[]).reduce((s,x)=>s+number(x[1]),0))}));
+ const missingEquipPool=chance('equip')>0&&!(match.n.equip||[]).length;
+ const missingWeaponPool=chance('weapon')>0&&!(match.n.weapon||[]).length;
  return {npcId,dungeon:match.d.name,boss:match.n.name,
   equip:chance('equip'),weapon:chance('weapon'),none:chance('miss'),
-  colors,items:[...new Set(match.n.equip||[])],weapons:[...new Set(match.n.weapon||[])],
+  colors,items:[...new Set(missingEquipPool?event.equip?.ids||[]:match.n.equip||[])],
+  weapons:[...new Set(missingWeaponPool?event.weapon?.ids||[]:match.n.weapon||[])],
+  inferredPool:missingEquipPool||missingWeaponPool,
   uniques:match.n.uniques||[],source:'yy-sim',sum};
 }
 function fallback(event){
@@ -93,6 +97,11 @@ function render(target,event){
   d.colors.map(x=>({1:'백색',2:'녹색',3:'청색',4:'자색'}[x.color]+' '+percent(x.prob))).join(' · ')+
   ' · 개별 장비 확률은 균등한 장비 선택을 전제로 계산했습니다.';
  target.append(sub);
+ if(d.inferredPool){
+  const note=document.createElement('p');note.className='progress-note';
+  note.textContent='이 보스는 yy-sim 장비 후보 목록이 비어 있어 산부진 후보 장비 ID를 보완했습니다. 개별 장비 확률은 참고용입니다.';
+  target.append(note);
+ }
  if(d.source==='yy-sim'&&event?.outer){
   const oldTotal=event.outer.reduce((s,x)=>s+number(x[1]),0);
   const oldEquip=event.outer.filter(x=>x[0]==='equip').reduce((s,x)=>s+number(x[1]),0)/Math.max(1,oldTotal);
