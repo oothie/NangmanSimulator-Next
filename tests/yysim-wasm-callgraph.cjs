@@ -19,8 +19,15 @@ function uleb(cur){
  return value;
 }
 function signedLeb(cur){
- let byte;
- do{assert(cur.pos<bytes.length);byte=bytes[cur.pos++]}while(byte&128);
+ let byte,value=0,shift=0;
+ do{
+  assert(cur.pos<bytes.length);
+  byte=bytes[cur.pos++];
+  value+=(byte&127)*2**shift;
+  shift+=7;
+ }while(byte&128);
+ if(shift<32&&(byte&64))value-=2**shift;
+ return value;
 }
 function readName(cur){const n=uleb(cur),end=cur.pos+n;assert(end<=bytes.length);const val=bytes.toString('utf8',cur.pos,end);cur.pos=end;return val}
 let position=8,importCount=0,functions=[],exports=[];
@@ -72,7 +79,10 @@ function inspect(index){
   else if(opcode===28){const n=uleb(cur);cur.pos+=n}
   else if(opcode>=40&&opcode<=62){uleb(cur);uleb(cur)}
   else if(opcode===63||opcode===64)cur.pos++;
-  else if(opcode===65||opcode===66){const old=cur.pos;signedLeb(cur);if(opcode===65)constants.push({offset:at,bytes:cur.pos-old})}
+  else if(opcode===65||opcode===66){
+   const value=signedLeb(cur);
+   if(opcode===65)constants.push({offset:at,value});
+  }
   else if(opcode===67)cur.pos+=4;
   else if(opcode===68)cur.pos+=8;
   else if(opcode===208)cur.pos++;
@@ -88,7 +98,7 @@ function inspect(index){
   assert(cur.pos<=end,'Decoded past end of function '+index);
  }
  assert.equal(cur.pos,end);
- return {index,bodyBytes:size,callCount:calls.length,calls};
+ return {index,bodyBytes:size,callCount:calls.length,calls,constants};
 }
 const search=exports.find(x=>x.name==='search_wash_routes'&&x.kind===0);
 assert(search,'Original WASM search export absent');
@@ -100,6 +110,9 @@ for(const c of solver.calls){
  const entry=tally.get(c.index)||{index:c.index,bodyBytes:c.bodyBytes,calls:0};
  entry.calls++;tally.set(c.index,entry);
 }
+const constantCounts=new Map();
+for(const value of solver.constants.map(x=>x.value))
+ constantCounts.set(value,(constantCounts.get(value)||0)+1);
 const dependencies=[...tally.values()].sort((a,b)=>b.calls-a.calls||a.index-b.index);
 const byBody=[...tally.values()].sort((a,b)=>b.bodyBytes-a.bodyBytes).slice(0,12);
 assert.equal(solver.bodyBytes,4055,'Native solver changed; re-characterize original yy-sim binary');
@@ -108,5 +121,7 @@ assert(solver.calls.some(x=>x.index===30)&&solver.calls.some(x=>x.index===4),
 console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  wrapper:{index:wrapper.index,bodyBytes:wrapper.bodyBytes,calls:wrapper.calls.map(x=>x.index)},
  solver:{index:solver.index,bodyBytes:solver.bodyBytes,callInstructions:solver.callCount,uniqueDependencies:tally.size},
- mostFrequent:dependencies.slice(0,15),largestDependencies:byBody
+ mostFrequent:dependencies.slice(0,15),largestDependencies:byBody,
+ solverConstants:[...constantCounts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,20),
+ gradeFourCandidates:solver.constants.filter(x=>x.value===4).map(x=>x.offset)
 }));
