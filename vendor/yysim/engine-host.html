@@ -77,6 +77,45 @@ try{
      !Number.isInteger(topN)||topN<1||topN>20)
    throw Error('자동탐색 범위 및 결과 개수를 확인하세요');
   await new Promise(resolve=>setTimeout(resolve,0));
+  // Keep the original deterministic WASM search unchanged, but execute
+  // its synchronous native call in a Worker. A blocked iframe still causes a
+  // browser "page not responding" dialog even when the parent shows a spinner.
+  if(typeof Worker==='function'){
+   const startState=wasmGetState();
+   if(!startState||typeof startState!=='object')
+    throw Error('원본 자동탐색 시작 상태를 읽지 못했습니다');
+   const worker=new Worker('./native-auto-search-worker.js?rev=0.10.57');
+   const response=await new Promise((resolve,reject)=>{
+    const limit=setTimeout(()=>{
+     worker.terminate();
+     reject(Error('원본 세수 자동탐색이 5분 응답 제한을 초과했습니다'));
+    },295000);
+    let finished=false;
+    const close=()=>{if(finished)return false;finished=true;clearTimeout(limit);worker.terminate();return true};
+    worker.onmessage=event=>{
+     const packet=event.data||{};
+     if(packet.requestId!==requestId)return;
+     if(packet.kind==='nangman-native-auto-progress'){
+      if(!finished)progress(requestId,packet.data);
+      return;
+     }
+     if(packet.kind==='nangman-native-auto-result'&&close()){
+      if(packet.ok)resolve(packet.data);
+      else reject(Error(String(packet.error||'원본 세수 자동탐색 실행 오류')));
+     }
+    };
+    worker.onerror=error=>{
+     if(close())reject(Error('세수 탐색 작업자 실행 실패: '+String(error?.message||'원본 계산 파일을 확인하세요')));
+    };
+    worker.onmessageerror=()=>{if(close())reject(Error('세수 탐색 결과 전달에 실패했습니다'))};
+    try{worker.postMessage({kind:'nangman-native-auto-search',requestId,
+      state:startState,request:{desired_ids:ids,max_pad:maxPad,horizon,top_n:topN}})}
+    catch(error){if(close())reject(error)}
+   });
+   send(requestId,true,response);
+   return
+  }
+  throw Error('현재 브라우저는 백그라운드 세수 탐색을 지원하지 않습니다. 최신 브라우저에서 다시 시도하세요');
   // Requested 4-slot combinations: let ORIGINAL yy-sim first solve only
   // the 2/3 purple anchor goals, then replay that path with ORIGINAL WASM
   // and scan nearby green/blue talents in the free slots. The result is
