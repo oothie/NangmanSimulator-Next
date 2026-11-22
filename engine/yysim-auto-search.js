@@ -45,7 +45,7 @@ function koreanError(value,fallback='원본 세수 자동탐색에서 오류가 
 }
 function options(raw,allowed){
  const ids=selectedIds(raw.desiredIds||[],allowed);
- const maxPad=int(raw.maxPad??0),horizon=int(raw.horizon??900),topN=int(raw.topN??8);
+ const maxPad=int(raw.maxPad??0),horizon=int(raw.horizon??2500),topN=int(raw.topN??8);
  if(maxPad==null||maxPad<0||maxPad>200||
     horizon==null||horizon<20||horizon>5000||
     topN==null||topN<1||topN>20)
