@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.10.52</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.10.53</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -800,6 +800,8 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .wash-guide-slot{padding:10px 13px;border:1px solid var(--border);background:var(--paper);border-radius:8px;font-weight:700;font-size:15px}
 .wash-guide-alternative>summary{font-size:16px;padding:12px 0;cursor:pointer;font-weight:700}
 @media(max-width:640px){.wash-guide-route{padding:14px}.wash-guide-heading h4{font-size:29px}.wash-guide-step{padding:12px;grid-template-columns:36px minmax(0,1fr);gap:8px}.wash-guide-number{width:30px;height:30px}.wash-guide-step-body strong{font-size:16px}.wash-guide-step-detail{font-size:15px}}
+/* v0.10.53: hide all experimental appearance previews until original sprite mapping is verified. */
+.appearance-section,[data-appearance-role],.appearance-stage{display:none!important}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
 /* v0.10.52: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
@@ -826,7 +828,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 </style><script defer src="./shared/korean-terms.js?rev=v083"></script><link rel="stylesheet" href="./shared/readability-v085.css?v=084"><link rel="stylesheet" href="./vendor/sanbujin/shared/app/equipment-detail-v085.css?v=084"><script defer src="./vendor/sanbujin/shared/app/equipment-detail-v085.js?v=084"></script><style id="wiki-image-correction-v085">
 .wiki-art-placeholder{display:inline-grid;place-items:center;flex:none;width:38px;height:38px;border:1px solid var(--border);border-radius:7px;background:var(--panel);font-weight:800;font-size:14px;color:var(--sub)}
 .wiki-art-placeholder.large{width:72px;height:72px;font-size:23px}
-</style><script src="engine/character-appearance.js"></script><style>
+</style><style>
 .appearance-section{margin-bottom:16px}
 .appearance-section h3{margin:0 0 10px;font-size:1.08rem}
 .appearance-stage{width:min(100%,320px);aspect-ratio:3 / 4.8;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;margin:0 auto;background:var(--surface-soft,#eef0f4);border:1px solid var(--border,#b7beca);border-radius:10px}
@@ -1464,7 +1466,7 @@ if(sub==='path'){
  '<p class="micro">현재 모의 WASM은 충돌 판정 뒤 개별·연속 치환을 실행할 수 있지만, 도맥법의 복수 목표 최단 경로를 따라 잠금 슬롯을 자동 배치하는 단계는 미구현입니다.</p>'+
  '</section>';
 }
-return '<div class="layout">'+aside+'<div class="work">'+hero+(r?window.NangmanAppearance.section(r):'')+tabbar+body+'</div></div>';
+return '<div class="layout">'+aside+'<div class="work">'+hero +tabbar+body+'</div></div>';
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
@@ -4079,9 +4081,9 @@ function characterView(){
  if(characterTab==='account')body=yyRolePanel(role||roles[0]);
  else if(role){
   switch(characterTab){
-   case 'panel': body=window.NangmanAppearance.section(role)+yyRolePanel(role);break;
+   case 'panel': body=yyRolePanel(role);break;
    case 'equip':body=characterEquipView(raw)+characterEquipSourceView(raw)+characterEquipCombatSplitView(raw);break;
-   case 'talent':body=window.NangmanAppearance.section(role)+yyRoleTalent(role)+characterWashView(role,save);break;
+   case 'talent':body=yyRoleTalent(role)+characterWashView(role,save);break;
    case 'detail':body=characterDataAudit(role)+characterCombatFinal(role)+yyRoleDetail(role);break;
    case 'training':body=yyRoleGrowthOverview(role,'training')+yyCultivationView(role);break;
    case 'consumable':body=yyRoleGrowthOverview(role,'consumable');break;
