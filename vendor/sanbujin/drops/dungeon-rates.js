@@ -6,7 +6,7 @@ const number=v=>Number(v)||0;
 const percent=p=>Number.isFinite(p)?(p*100).toLocaleString('ko-KR',{maximumFractionDigits:3})+'%':'—';
 const localeName=id=>{
  const item=root.EQUIP_DATA?.equipment?.[id];
- return item?.koName||root.SBJ_KOREAN?.translate?.(item?.name||'')||'장비 #'+id;
+ return item?.koName||((item?.name&&root.SBJ_KOREAN?.translate?.(item.name))||item?.name)||'아이템 #'+id;
 };
 function lookup(event){
  const npcId=Number(String(event?.id||'').match(/^drop_(\d+)_equip$/)?.[1]);
