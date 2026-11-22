@@ -16,9 +16,11 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
  // branches nor an estimated percentage is available until it completes.
  // Report only genuinely observed elapsed time, never an invented percent.
  const started=Date.now();
- const active=()=>onProgress({phase:'native',total:null,indeterminate:true,
-  elapsedSeconds:Math.floor((Date.now()-started)/1000),
-  history:[],bestPills:null,stage:'원본 yy-sim WASM 경로 탐색 실행 중'});
+ let latestStage=null;
+ const active=()=>onProgress({...(
+  latestStage||{phase:'native',total:null,indeterminate:true,
+   history:[],bestPills:null,stage:'원본 yy-sim WASM 경로 탐색 실행 중'}),
+  elapsedSeconds:Math.floor((Date.now()-started)/1000)});
  active();
  // Let the browser paint before issuing the CPU-heavy iframe request.
  await new Promise(resolve=>setTimeout(resolve,0));
@@ -27,7 +29,7 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
  let native;
  try{native=await call('auto-search',config,detail=>{
   if(!detail||!/^anchor-/.test(String(detail.phase||'')))return;
-  onProgress({phase:detail.phase,total:null,indeterminate:true,
+  latestStage={phase:detail.phase,total:null,indeterminate:true,
    elapsedSeconds:Math.floor((Date.now()-started)/1000),
    checked:detail.scannedWashes??null,found:detail.candidateRoutes??0,
    nativeAttempts:detail.nativeAttempts??null,
@@ -36,7 +38,8 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
     '원본 WASM 자맥 기준 경로 탐색 '+detail.nativeAttempts+'회차':
     detail.phase==='anchor-between'?
      '확정한 자맥 사이에서 녹·파맥 후보 검사 중':
-     '마지막 자맥 이후 녹·파맥 실제 세수 계산 중'});
+     '마지막 자맥 이후 녹·파맥 실제 세수 계산 중'};
+  active();
  })}
  finally{clearInterval(ticker)}
  ensureSession();
