@@ -31,9 +31,12 @@ const path=require('node:path');
    const doc=frame.contentWindow.document;
    return {frameTheme:doc.documentElement.dataset.theme,
     bodyBg:getComputedStyle(doc.body).backgroundColor,
+    rawPaneBg:getComputedStyle(doc.querySelector('#rawPane')).backgroundColor,
     primary:getComputedStyle(doc.querySelector('#washModule')).color};
   });
   assert.equal(inkTheme.frameTheme,'ink','normal wash must switch to dark immediately');
+  assert.equal(inkTheme.rawPaneBg,'rgb(32, 36, 44)',
+   'raw purple sequence pane must use neutral dark background, not brown active-state highlight');
   await page.locator('#paper').click();
   await page.waitForFunction(()=>{
    const frame=document.querySelector('#washV350Frame');
