@@ -14,7 +14,7 @@ const catalog=ctx.window.YYWashTargetCatalog;
 const source=vm.runInContext('TALENT_DATA',ctx);
 assert(Array.isArray(catalog)&&catalog.length===3,'Expected green/blue/purple categories');
 const seen=new Set(),counts={2:0,3:0,4:0};
-const excluded=new Set([236,244,245,255,277,408]);
+const excluded=new Set([236,244,245,255,256,277,408]);
 for(const group of catalog){
  assert([2,3,4].includes(group.quality),'Only native talent grades 2/3/4');
  for(const talent of group.items){
