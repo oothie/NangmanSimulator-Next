@@ -1,5 +1,5 @@
 /* Korean 60014 reconstruction: Diling ordinary outdoor-field encounters (not a tomb dungeon).
- * The 2026-11-21 1121.json empirical order reproduces equipment/color at hunts 8, 12, 21 and the side reward at 20.
+ * The 1121.json model reproduces hunts 8, 12, 21, the side reward at 20, and\n * the 2026-11-22 verified hunt 109 (5609 blue, DEF +220, HIT +68).
  * This fitted order remains distinct from a proof of the game's native pairs() traversal.
  * NPC 35255 is the ordinary field trigger; only special NPC 35256 conditionally rolls level-90 equipment.
  * Read only, no game-save mutation. */
@@ -46,7 +46,10 @@ function simulate(input,options={}){
  // 2026-11-21 10th-hunt receipt (item 4009, white) rules out both pure sorts.
  // These candidates are examples, NOT proof of the correct LuaJIT hash order.
  const configured={
-  verified:{reward:['other','equipment','none'],color:[2,1,4,3]},
+  // 2026-11-22: 1121.json + 109th hunt receipt (5609 blue, DEF+220, HIT+68).
+  // Four color permutations reproduce every observed result through call 109;
+  // [3,2,1,4] is one representative, NOT a proof of native Lua pairs() order.
+  verified:{reward:['other','equipment','none'],color:[3,2,1,4]},
   descending:{reward:['equipment','none','other'],color:[1,2,3,4]},
   ascending:{reward:['other','none','equipment'],color:[4,3,2,1]},
   candidateC:{reward:['none','equipment','other'],color:[2,1,3,4]},
@@ -152,7 +155,7 @@ function simulate(input,options={}){
  // real saves. It is not confirmation that Lua pairs() uses either ordering.
  rows.final={encounterSeed,equipmentSeed,eds,flags:Object.fromEntries(vars)};
  rows.order=order;
- rows.model='empirical-1121-20261121';
+ rows.model='empirical-1121-20261122-h109';
  rows.rewardOrder=[...rewardOrder];
  rows.colorOrder=[...colorOrder];
  return rows;
