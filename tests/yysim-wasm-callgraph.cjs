@@ -60,7 +60,9 @@ while(position<bytes.length){
  position=end;
 }
 const named=new Map(exports.filter(x=>x.kind===0).map(x=>[x.index,x.name]));
+const instructionCache=new Map();
 function inspect(index){
+ if(instructionCache.has(index))return instructionCache.get(index);
  const functionBody=functions[index-importCount];
  assert(functionBody,'Invalid function index '+index);
  const {start,size}=functionBody,cur={pos:start},end=start+size;
@@ -99,7 +101,9 @@ function inspect(index){
   assert(cur.pos<=end,'Decoded past end of function '+index);
  }
  assert.equal(cur.pos,end);
- return {index,bodyBytes:size,callCount:calls.length,calls,constants,instructions};
+ const decoded={index,bodyBytes:size,callCount:calls.length,calls,constants,instructions};
+ instructionCache.set(index,decoded);
+ return decoded;
 }
 const search=exports.find(x=>x.name==='search_wash_routes'&&x.kind===0);
 assert(search,'Original WASM search export absent');
