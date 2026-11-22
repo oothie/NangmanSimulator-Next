@@ -593,6 +593,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  adapterCoreCalls:highLevelCalls,
  coreSearch:{index:4,bodyBytes:coreSearch.bodyBytes,opcodeCount:coreSearch.instructions.length,
   comparisonsNear2or3or4:coreComparisons.length,gradeFourReviewSites:coreGradeReview.length},
+ coreFourCandidates:coreGradeReview.map(x=>({...x,nearby:coreSearch.instructions.filter(y=>y.offset>=x.literalOffset-20&&y.offset<=x.literalOffset+14).map(y=>({offset:y.offset,opcode:y.opcode,value:y.value??null,immediate:y.immediate??null,memOffset:y.memOffset??null}))})),
  exploredCoreFunctions:exploredFromCore.size,
  nativeEventCalls,
  purpleCallOperands,
