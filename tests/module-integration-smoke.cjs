@@ -80,7 +80,7 @@ elements.dropWorkspace=host;elements.dropRuntimeStatus={textContent:''};
 const doc={documentElement:{dataset:{theme:'paper'}},createElement(name){assert.equal(name,'iframe');return {
   addEventListener(key,fn){this[key]=fn},contentWindow:{postMessage(...args){posts.push(args)}}
 }}};
-const win={addEventListener(key,fn){events[key]=fn}};
+const win={addEventListener(key,fn){const prev=events[key];events[key]=prev?(event=>{prev(event);fn(event)}):fn}};
 const dropAPI=new Function('document','window','location','$','v','save',dropSource+
  ';return {updateDropVisibility,sendSaveToDrop,sendDropMode,setMode:val=>dropSelectedMode=val,setView:val=>v=val,setSave:val=>{save=val;dropSaveVersion++}}')(
  doc,win,{origin:'https://sim.example'},k=>elements[k],'drop',null);
