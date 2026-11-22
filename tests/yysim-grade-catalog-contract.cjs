@@ -31,6 +31,23 @@ for(const group of catalog){
  }
 }
 assert(counts[2]>0&&counts[3]>0&&counts[4]>0,'Missing any expected grade');
+// Representative mixed-grade native probes must use different source type
+// families. Historically blue 191 and purple 271 were both type=177,
+// making the old "all final slots" test ambiguous for reasons unrelated to
+// native support for green or blue quality.
+const compatibleFixture=[184,202,271];
+assert.deepEqual(compatibleFixture.map(id=>Number(source[String(id)].pinzhi)),[2,3,4]);
+assert.equal(new Set(compatibleFixture.map(id=>Number(source[String(id)].type))).size,3,
+ 'Mixed grade fixture has overlapping native type families');
+assert.equal(Number(source['191'].type),Number(source['271'].type),
+ 'Former conflicting blue-purple regression fixture changed');
+const nativeContract=fs.readFileSync(
+ path.join(root,'tests/yysim-native-grade-contract.cjs'),'utf8');
+const workerContract=fs.readFileSync(
+ path.join(root,'tests/yysim-native-worker-parity.cjs'),'utf8');
+assert(nativeContract.includes('[184,202,271]'));
+assert(workerContract.includes('[184,202,271]'));
+
 const host=fs.readFileSync(path.join(root,'vendor/yysim/engine-host.html'),'utf8');
 assert(host.includes('TALENT_DATA[String(id)]?.pinzhi!==4'),
  'User-facing native search must remain purple-only until mixed-grade result validation');
