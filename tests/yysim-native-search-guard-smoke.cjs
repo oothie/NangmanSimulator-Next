@@ -75,4 +75,16 @@ assert.equal(JSON.stringify(malformed.state),malformed.before);
 const host=fs.readFileSync(path.resolve(__dirname,'../vendor/yysim/engine-host.html'),'utf8');
 assert(host.includes('yysim-native-search-guard.js'));
 assert(host.includes('guard.run({getState:wasmGetState,setState:wasmSetState'));
+
+// Prevent regressions where the original host compares Rust HashMap JSON
+// field order directly and falsely reports global_vars state corruption.
+assert(!host.includes('JSON.stringify(before)!==JSON.stringify(after)'),
+ 'Original WASM host contains an order-sensitive state comparison');
+assert(host.includes('YYWashNativeSearchGuard.statesEqual(before,after)'),
+ 'Original WASM native constraints/exchange reads must use semantic state equality');
+const nodeHarness=fs.readFileSync(
+ path.resolve(__dirname,'../tests/yysim-native-headless-grade.cjs'),'utf8');
+assert(nodeHarness.includes("name:'three-purple-plus-green'"),
+ 'Headless original WASM probe lost the 3 purple + 1 green regression');
+
 console.log('PASS: original WASM search keeps state unchanged or restores it even after native exceptions');
