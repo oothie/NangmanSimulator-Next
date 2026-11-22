@@ -2728,7 +2728,7 @@ function characterCombatFinal(role){
  const computed=characterCombatOriginal(role);
  if(!computed){
   return '<section class="role-section"><p class="wr-kicker">최종 전투 능력치</p>'+
-   '<p class="role-status-note">yy-sim 원본 계산에 필요한 데이터가 준비되지 않았거나 이 인물의 계산에 실패했습니다. 아래의 검증 가능한 기본·장비·경맥 부분합계를 확인하세요.</p></section>'+
+   '<p class="role-status-note">능력치 계산에 필요한 데이터가 부족하거나 이 인물의 계산에 실패했습니다. 아래의 검증 가능한 기본·장비·경맥 부분합계를 확인하세요.</p></section>'+
    characterCombatSubtotal(role);
  }
  const labels=[['hp','기혈'],['atk','공격'],['def','방어'],['hit','명중'],['dodge','회피'],['parry','초식방어'],
@@ -2756,12 +2756,12 @@ function characterCombatFinal(role){
    '<div class="yy-combat-stage-grid">'+values.map(([field,value])=>'<div><span>'+escape(properties[field]||field)+'</span><b>'+escape(fmt(value))+'</b></div>').join('')+
    '</div></details>';
  }).filter(Boolean).join('');
- return '<section class="role-section yy-combat-final"><p class="wr-kicker">최종 전투 능력치 · yy-sim 원본 계산</p>'+
- '<p class="role-status-note">yy-sim 원본의 최종 계산식과 원본 무학·초식·정진·경맥·재능·비기·장비·부여·진형 데이터를 적용했습니다. 동료·주인공의 세이브 저장값을 직접 계산한 결과입니다.</p>'+
+ return '<section class="role-section yy-combat-final"><p class="wr-kicker">최종 전투 능력치</p>'+
+ '<p class="role-status-note">세이브에 저장된 무학·초식·정진·경맥·재능·비기·장비·진형 정보를 반영해 계산합니다.</p>'+
  panel(labels)+
  '<details class="yy-combat-stage"><summary>추가 전투 효과</summary>'+panel(percents.map(x=>[...x,true]))+'</details>'+
  '<details class="yy-combat-stage"><summary>최종 사대 자질</summary>'+panel(four)+'</details>'+
- '<details class="yy-combat-stage"><summary>yy-sim 원본 계산 내역</summary>'+stages+'</details>'+
+ '<details class="yy-combat-stage"><summary>세부 계산 내역</summary>'+stages+'</details>'+
  
  '</section>';
 }
