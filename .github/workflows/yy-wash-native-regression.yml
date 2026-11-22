@@ -1,0 +1,51 @@
+name: yy-sim WASM native wash regression
+
+on:
+  push:
+    paths:
+      - 'engine/yysim-auto-search.js'
+      - 'engine/yysim-auto-progressive.js'
+      - 'vendor/yysim/wasm_data.js'
+      - 'tests/yysim-auto-search-smoke.cjs'
+      - 'tests/yysim-auto-progressive-smoke.cjs'
+      - 'tests/yysim-wasm-callgraph.cjs'
+      - 'index.html'
+      - '.github/workflows/yy-wash-native-regression.yml'
+  pull_request:
+    paths:
+      - 'engine/yysim-auto-search.js'
+      - 'engine/yysim-auto-progressive.js'
+      - 'vendor/yysim/wasm_data.js'
+      - 'tests/yysim-auto-search-smoke.cjs'
+      - 'tests/yysim-auto-progressive-smoke.cjs'
+      - 'tests/yysim-wasm-callgraph.cjs'
+      - 'index.html'
+      - '.github/workflows/yy-wash-native-regression.yml'
+  workflow_dispatch:
+
+jobs:
+  native-wash-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify JavaScript syntax
+        run: |
+          node --check engine/yysim-auto-search.js
+          node --check engine/yysim-auto-progressive.js
+          node --check tests/yysim-auto-progressive-smoke.cjs
+          node --check tests/yysim-wasm-callgraph.cjs
+          node --check tests/yysim-native-grade-contract.cjs
+      - name: Verify native single-call final-route minimum and UI
+        run: node tests/yysim-auto-progressive-smoke.cjs
+      - name: Verify original results adapter and final-slot goals
+        run: node tests/yysim-auto-search-smoke.cjs
+      - name: Verify original WASM native call graph
+        run: node tests/yysim-wasm-callgraph.cjs
