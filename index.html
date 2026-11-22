@@ -1025,7 +1025,7 @@ if(sub==='sim'){
 }
 if(sub==='auto'){
  const state=window.__washRuntime||{},api=window.YYWashAutoSearch;
- const catalog=window.YYWashTargetCatalog||[];
+ const catalog=window.YYWashTargetsForRole?.(r?.type)||[];
  const supported=catalog.flatMap(g=>g.items.map(t=>t.id));
  const usesColors=state.autoResult?.colorSearch===true;
  const selectedTargets=Array.isArray(state.autoDesiredIds)?state.autoDesiredIds.filter(id=>supported.includes(id)):[];
@@ -3844,6 +3844,7 @@ if($('washV350Frame')){
 }
 document.querySelectorAll('.wash-auto-choice[data-yy-auto-id]').forEach(el=>el.onclick=()=>{
  const id=Number(el.dataset.yyAutoId),runtime=window.__washRuntime||{};
+ if(!window.YYWashIsTargetAllowed?.(roles[selected]?.type,id))return;
  const ids=Array.isArray(runtime.autoDesiredIds)?[...runtime.autoDesiredIds]:[];
  const adding=!ids.includes(id);
  if(adding&&ids.length>=4){alert('자동 탐색 목표는 최대 4개까지 선택할 수 있습니다.');return}
@@ -4529,7 +4530,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   }
   const api=window.YYWashAutoSearch;
   if(!api?.options)throw Error('원본 자동 탐색 표시 모듈이 로드되지 않았습니다');
-  const allowedCatalog=(window.YYWashTargetCatalog||[]).flatMap(g=>
+  const allowedCatalog=(window.YYWashTargetsForRole?.(source.role.type)||[]).flatMap(g=>
    (g.items||[]).map(t=>({id:Number(t.id),grade:Number(g.quality)})));
   const options=api.options(e.detail,allowedCatalog.map(t=>t.id));
   const isColor=options.desiredIds.some(id=>
