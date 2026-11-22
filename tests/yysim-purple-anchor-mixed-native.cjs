@@ -145,8 +145,15 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  assert(blue.routes.every(r=>[271,268,272,202].every(id=>
   r.final_slots.some(t=>Number(t.id)===id&&t.locked))),
   'A returned 3-purple/blue route lacks a locked final target');
+ assert(blue.routes.length>0,
+  'Original WASM full 900-wash three-purple/blue target must yield a final route');
+ assert(blue.routes[0].pills>0&&blue.routes[0].pills<=4148,
+  'Blue goal now exceeds a previously replayed verified 4148-pill native route');
  assert(blue.routes.every(r=>r.optimal===false),
   'Bounded blue goal must not claim exact optimality');
+ for(const route of blue.routes)
+  console.log('YY_ANCHOR_ACTION_REPLAY_THREE_BLUE '+
+   JSON.stringify(replayReturnedRoute(route)));
  console.log('YY_PURPLE_ANCHOR_THREE_PURPLE_BLUE_NATIVE '+JSON.stringify({
   goals:[271,268,272,202],
   routes:blue.routes.map(r=>({pills:r.pills,finalIds:r.final_slots.map(t=>t.id)})),
