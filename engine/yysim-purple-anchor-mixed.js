@@ -637,61 +637,69 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
     })),pills:0,pad:0,order_ids:[...shape.purple]
    }]};
   }else{
-   // The native optimizer can traverse candidate order differently.
-   // Retry alternative purple orders only when the original request has
-   // returned NO anchor routes. All retries use the same bounded original
-   // native WASM, with unchanged talent grades and save state.
+   // The original WASM optimizer's pad limit is not monotonic: for the
+   // same save max_pad=0 can beat max_pad=20. Preserve BOTH native routes.
    const permutations=values=>{
     if(values.length<=1)return [[...values]];
     return values.flatMap((id,i)=>permutations(values.filter((_,j)=>j!==i))
      .map(tail=>[id,...tail]));
    };
-   const attempted=new Set();
+   const attempted=new Set(),paddingModes=[...new Set([0,maxPad])];
    diagnostics.purpleAttempts=0;
+   diagnostics.purpleNativeCalls=0;
    diagnostics.purpleAttemptResults=[];
    for(const order of permutations(shape.purple)){
     const key=order.join(',');
     if(attempted.has(key))continue;
     attempted.add(key);
-    restore(initial);
-    const attempt=guard.run({getState,setState,search},
-     {desired_ids:order,max_pad:maxPad,horizon,top_n:topN});
     diagnostics.purpleAttempts++;
-    diagnostics.purpleAttemptResults.push({
-     order,returned:attempt?.routes?.length||0,
-     scanned:attempt?.scanned??0,error:attempt?.error||null
-    });
-    diagnostics.purpleNativeScanned=(diagnostics.purpleNativeScanned||0)+
-     (Number(attempt?.scanned)||0);
-    progress({phase:'anchor-purple',nativeAttempts:diagnostics.purpleAttempts,
-     purpleRoutes:attempt?.routes?.length||0,
-     scannedWashes:diagnostics.scannedWashes,candidateRoutes:0});
-    await new Promise(resolve=>setTimeout(resolve,0));
-    diagnostics.purpleNativeReturned=(diagnostics.purpleNativeReturned||0)+
-     (attempt?.routes?.length||0);
-    if(!baseline)baseline={...attempt,routes:[]};
-    // A returned native route is not yet usable. Try replay against the
-    // original WASM state before committing to this ordering. If every
-    // route diverges, another purple ordering may still be replayable.
-    const replayable=[];
-    for(const candidate of attempt?.routes||[]){
-     try{replay(candidate);replayable.push(candidate)}
-     catch(error){
-      diagnostics.purpleReplayRejected=(diagnostics.purpleReplayRejected||0)+1;
-      if((diagnostics.purpleReplayErrors||[]).length<6){
-       diagnostics.purpleReplayErrors=diagnostics.purpleReplayErrors||[];
-       diagnostics.purpleReplayErrors.push({
-        order,reason:String(error?.message||error)
-       });
+    const matching=[];
+    for(const pad of paddingModes){
+     restore(initial);
+     const attempt=guard.run({getState,setState,search},
+      {desired_ids:order,max_pad:pad,horizon,top_n:topN});
+     diagnostics.purpleNativeCalls++;
+     diagnostics.purpleAttemptResults.push({
+      order,maxPad:pad,returned:attempt?.routes?.length||0,
+      scanned:attempt?.scanned??0,error:attempt?.error||null
+     });
+     diagnostics.purpleNativeScanned=(diagnostics.purpleNativeScanned||0)+
+      (Number(attempt?.scanned)||0);
+     diagnostics.purpleNativeReturned=(diagnostics.purpleNativeReturned||0)+
+      (attempt?.routes?.length||0);
+     if(!baseline)baseline={...attempt,routes:[]};
+     for(const candidate of attempt?.routes||[]){
+      try{
+       const verified=replay(candidate);
+       const measured=count(verified.state,'total_pills')-
+        count(initial,'total_pills');
+       matching.push({...candidate,purplePad:pad,purpleMeasuredPills:measured});
+      }catch(error){
+       diagnostics.purpleReplayRejected=(diagnostics.purpleReplayRejected||0)+1;
+       if((diagnostics.purpleReplayErrors||[]).length<6){
+        diagnostics.purpleReplayErrors=diagnostics.purpleReplayErrors||[];
+        diagnostics.purpleReplayErrors.push({
+         order,maxPad:pad,reason:String(error?.message||error)
+        });
+       }
       }
      }
+     restore(initial);
+     progress({phase:'anchor-purple',
+      nativeAttempts:diagnostics.purpleNativeCalls,
+      purpleRoutes:matching.length,scannedWashes:diagnostics.scannedWashes,
+      candidateRoutes:0});
+     await new Promise(resolve=>setTimeout(resolve,0));
     }
-    restore(initial);
-    if(replayable.length){
-     baseline={...attempt,routes:replayable};
+    if(matching.length){
+     matching.sort((a,b)=>a.purpleMeasuredPills-b.purpleMeasuredPills);
+     baseline={...(baseline||{}),routes:matching};
+     diagnostics.purpleBackboneCosts=matching.map(x=>({
+      pills:x.purpleMeasuredPills,maxPad:x.purplePad,
+      washNo:x.actions?.at(-1)?.wash_no??null
+     }));
      break;
     }
-    // Preserve the original request error when no permutation works.
    }
   }
   diagnostics.purpleRoutes=baseline?.routes?.length||0;
