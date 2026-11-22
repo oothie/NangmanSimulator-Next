@@ -182,7 +182,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
     originalScan.talents.some(t=>number(t.id)===id));
    if(appearing.length===0)continue;
    branches++;
-   if(branches>6)break;
+   if(branches>4)break;
    try{
     const actions=[
      ...clone(originalActions.slice(0,next)),...clone(unlockSteps),
@@ -228,36 +228,66 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
        restore(branchState);
        const combined=[...actions];
        try{
+        let washShift=0;
+        // Keep the native path's action order. If locking an extra target
+        // has shifted the original RNG, re-synchronize only at an exact
+        // native talent event, bounded by a small local wash window.
+        const resyncTo=(id)=>{
+         if(idsOf(getState()).includes(id))return;
+         const maxCorrection=Math.min(24,horizon);
+         for(let delta=1;delta<=maxCorrection;delta++){
+          const at=count(getState(),'total_wash');
+          const washed=doWash();
+          if(!washed||washed.error||count(getState(),'total_wash')!==at+1)
+           throw Error('원본 WASM 보정 세수 실패');
+          washShift++;
+          diagnostics.scannedWashes++;
+          if(idsOf(getState()).includes(id)){
+           diagnostics.adaptiveResync=(diagnostics.adaptiveResync||0)+1;
+           combined.push({kind:'wash_to',wash_no:count(getState(),'total_wash'),
+            note:'잠금 변경 이후 원본 경로 동기화'});
+           return;
+          }
+         }
+         throw Error('보호 목표 잠금 후 원본 경로에 필요한 재능 '+id+
+          '을 보정 세수 '+maxCorrection+'회에서 찾지 못했습니다');
+        };
         for(const step of nativeActions){
-         const washNo=Number(step.wash_no);
-         if(!Number.isSafeInteger(washNo)||
-            washNo<count(getState(),'total_wash'))
+         const originalWash=Number(step.wash_no);
+         if(!Number.isSafeInteger(originalWash))
+          throw Error('재탐색의 세수 회차 정보가 없습니다');
+         const washNo=originalWash+washShift;
+         if(washNo<count(getState(),'total_wash'))
           throw Error('재탐색의 세수 회차가 이전 회차로 돌아갑니다');
          washTo(washNo);
          const id=names.get(String(step.talent));
          if(['lock','unlock','keep'].includes(step.kind)){
-          // A native purple-only search has no knowledge of green/blue
-          // objectives. Keep all already secured goals locked.
+          // The original purple-only native plan would erase a previously
+          // confirmed purple/green objective. That is never allowed.
           if(step.kind==='unlock'&&protectedIds.has(id)){
            diagnostics.protectedUnlocks=(diagnostics.protectedUnlocks||0)+1;
            continue;
           }
           if(step.kind==='unlock'&&!idsOf(getState()).includes(id))continue;
           if(!id)throw Error('원본 재탐색 잠금 단계 ID 누락');
+          if(step.kind!=='unlock')resyncTo(id);
           lockId(id,step.kind!=='unlock');
          }else if(step.kind==='exchange'){
           const sourceId=names.get(String(step.from));
           const targetId=names.get(String(step.to||step.talent));
-          const slot=getState().talents.findIndex(t=>number(t.id)===sourceId);
-          if(slot<0||!targetId)throw Error('재탐색 치환 원맥이 달라졌습니다');
+          if(!sourceId||!targetId)throw Error('재탐색 치환 ID 누락');
           if(protectedIds.has(sourceId))
            throw Error('이미 보유한 목표 맥을 치환할 수 없습니다');
+          resyncTo(sourceId);
+          const slot=getState().talents.findIndex(t=>number(t.id)===sourceId);
+          if(slot<0)throw Error('재탐색 치환 원맥이 달라졌습니다');
           const done=exchangeTalent(slot);
           if(!done||done.error||!idsOf(getState()).includes(targetId))
            throw Error('재탐색 WASM 치환 결과 불일치');
          }else if(!['wash_to','skip'].includes(step.kind))
           throw Error('원본 재탐색 미지원 단계: '+step.kind);
          combined.push({...step,
+          wash_no:count(getState(),'total_wash'),
           pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
         }
         if(!hasAll(getState(),shape.purple))
