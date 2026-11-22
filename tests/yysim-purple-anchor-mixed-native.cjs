@@ -604,7 +604,7 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   moonLock(177,true);moonWash(7,'177 locked');photoStep('123');
   moonLock(271,true);moonWash(5,'271 locked');photoStep('128');
   moonExchange(271,276);moonExchange(276,262);
-  moonLock(177,false);moonWash(19,'two purple locked');photoStep('147');
+  moonLock(177,false);moonLock(262,true);moonWash(19,'two purple locked');photoStep('147');
   moonLock(237,true);moonWash(28,'plus green locked');photoStep('175');
   moonLock(204,true);photoStep('final');
   assert([268,262,237,204].every(id=>moonSnapshot().talents.some(t=>
