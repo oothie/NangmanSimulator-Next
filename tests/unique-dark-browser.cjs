@@ -14,6 +14,7 @@ const {chromium}=require('playwright');
    try{await page.goto('http://127.0.0.1:8782/#equip',{waitUntil:'domcontentloaded'});break}
    catch(error){if(i===29)throw error;await new Promise(r=>setTimeout(r,200))}
   }
+  await page.locator('[data-view="equip"]').click();
   await page.locator('[data-module-tab="equip:unique"]').click();
   await page.locator('#ink').click();
   await page.waitForFunction(()=>{
