@@ -44,6 +44,50 @@ function summary(state){
  const lockedWash=lockOk?wasmDoWash():null;
  const afterLockedWash=wasmGetState();
  assert(wasmSetState(start));
+ // Verify whether original route action timestamps are executable by the
+ // ORIGINAL native state machine (not by a custom RNG simulator).
+ const names=new Map(Object.entries(TALENT_DATA).filter(([,t])=>t?.name)
+  .map(([id,t])=>[t.name,Number(id)]));
+ const replayTrace=[];
+ let replayError=null,replayFinal=null;
+ try{
+  assert(wasmSetState(start));
+  for(const action of path0?.actions||[]){
+   const target=Number(action.wash_no);
+   if(!Number.isInteger(target)||target<0||target>1200)
+    throw Error('Invalid native action wash number '+target);
+   while(Number(wasmGetState().total_wash)<target){
+    const washed=wasmDoWash();
+    if(!washed||washed.error)throw Error('Native wash failed at '+target);
+   }
+   const stateNow=wasmGetState();
+   const currentId=names.get(action.talent);
+   const sourceId=names.get(action.from);
+   if(['lock','unlock','keep'].includes(action.kind)){
+    const targetId=currentId;
+    const index=stateNow.talents.findIndex(t=>t.id===targetId);
+    if(index<0)throw Error('Talent '+action.talent+' not held at wash '+target);
+    if(action.kind!=='keep'){
+     const talents=stateNow.talents.map((t,i)=>i===index?
+      {...t,locked:action.kind==='lock'}:t);
+     if(!wasmSetState({...stateNow,talents}))
+      throw Error('Native lock state failed at '+target);
+    }
+   }else if(action.kind==='exchange'){
+    const index=stateNow.talents.findIndex(t=>t.id===sourceId);
+    if(index<0)throw Error('Exchange source '+action.from+' not held at '+target);
+    const value=wasmExchangeTalent(index);
+    if(!value||value.error)throw Error('Native exchange failed at '+target+': '+JSON.stringify(value));
+   }else if(!['wash_to','skip'].includes(action.kind)){
+    throw Error('Unrecognized native route action '+action.kind);
+   }
+   replayTrace.push({kind:action.kind,wash:target,actualWash:wasmGetState().total_wash,
+    target:action.talent,pills:wasmGetState().total_pills,
+    ids:wasmGetState().talents.map(t=>t.id)});
+  }
+  replayFinal=summary(wasmGetState());
+ }catch(e){replayError=String(e.message||e)}
+ assert(wasmSetState(start));
  const out={native:{
   scanned:native.scanned,error:native.error,
   orderIds:path0?.order_ids,finalSlots:path0?.final_slots,
@@ -53,6 +97,7 @@ function summary(state){
    type:typeof preview,keys:Object.keys(preview||{}),
    purples:preview?.purples?.slice(0,5)},
   washes:washes.slice(0,6),stateSamples:states.slice(0,6),
+  routeReplay:{error:replayError,events:replayTrace.slice(0,25),final:replayFinal},
   lockBranch:{ok:lockOk,locked:summary(afterLock),
    firstWash:lockedWash,afterWash:summary(afterLockedWash)},
   preserved:YYWashNativeSearchGuard.canonicalJson(wasmGetState())===key};
