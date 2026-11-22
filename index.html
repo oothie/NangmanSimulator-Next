@@ -1083,29 +1083,18 @@ if(sub==='auto'){
    (i>0?'</details>':'')+'</section>';
  }).join('')+'</div>':'';
  const anchorStats=result?.nativeDiagnostics?.method==='purple-anchor-nearest-native-wash'?result.nativeDiagnostics:null;
- const resultStatus=analyzed?'<p class="micro">'+
-  (anchorStats?'자맥 WASM 호출 '+escape(anchorStats.purpleNativeCalls??anchorStats.purpleAttempts??(anchorStats.preexistingPurple?0:1))+'회 · 녹·파맥 실측 검사 '+escape(anchorStats.scannedWashes??0)+'회':
-   (usesColors?'원본 WASM 최종 결과 탐색 ':'원본 WASM 자동 경로 ')+(result?.progressive?'원본 1회 호출 · 검사 ':'탐색 ')+escape(analyzed.stats.scanned)+'개 분기')+(result?.exchangeBeam?' · 실제 WASM 치환 확장 '+escape(result.exchangeBeamStates||0)+'상태 검사':'')+' · 경로 '+escape(analyzed.stats.total)+'개 · 목표 확보 '+escape(analyzed.stats.complete)+'개 · 실행 단계 확인 '+escape(analyzed.stats.actionable)+'개</p>'+
-  '<p>'+escape(api.statusText(analyzed))+'</p>'+
-  (usesColors&&result?.nativeDiagnostics?.incomplete>0?
-   '<p class="micro">원본 WASM이 반환한 미완성 경로 '+escape(result.nativeDiagnostics.incomplete)+'개는 목표 재능이 최종 슬롯에 모두 없어서 제외했습니다.</p>':'')+
-  (anchorStats?.purpleBackboneCosts?.length>1?
-   '<p class="micro">원본 자맥 후보 비교: '+
-   anchorStats.purpleBackboneCosts.map(x=>'선행 '+escape(x.maxPad)+' · '+escape(x.pills)+'개').join(' / ')+
-   ' · 최종 4맥 비용으로 결정</p>':'')+
-  (anchorStats?.purpleNoRoute?
-   '<p class="micro">자맥 기준 경로 0개: 원본 WASM 자맥 순서를 재검사했지만 일치 경로를 찾지 못해 녹·파맥 분기가 시작되지 않았습니다.</p>':
-   anchorStats?.purpleReplayNoRoute?
-   '<p class="micro">자맥 기준 경로 '+escape(anchorStats.purpleNativeReturned||0)+'개를 받았지만 WASM 재현 '+escape(anchorStats.purpleReplayRejected||0)+'회 실패했습니다.</p>'+
-   '<details><summary>자맥 경로 재현 실패 원인 보기</summary><div class="micro">'+
+ const resultStatus=analyzed?
+  '<p class="micro">'+(analyzed.stats.complete?
+   '목표 재능을 모두 확보한 경로 '+analyzed.stats.complete+'개 · 세수단이 적은 순서로 표시':
+   '이번 탐색에서 목표 재능을 모두 확보하는 경로를 찾지 못했습니다.')+'</p>'+
+  (!analyzed.stats.complete&&searchData?.error?
+   '<p class="notice">'+escape(searchData.error)+'</p>':'')+
+  (!analyzed.stats.complete&&anchorStats?.purpleReplayNoRoute?
+   '<details><summary>탐색 실패 내용 보기</summary><div class="micro">'+
    (anchorStats.purpleReplayErrors||[]).slice(0,6).map(x=>
-    '자맥 순서 '+(x.order||[]).map(id=>escape(talentName(id))).join(' → ')+
-    ' · '+escape(x.reason||'원인 미상')).join('<hr>')+'</div></details>':
-   anchorStats&&analyzed.stats.complete===0&&anchorStats.replayed===0?
-   '<p class="micro">자맥 경로 '+escape(anchorStats.purpleNativeReturned??anchorStats.purpleRoutes??0)+'개를 받았지만 실제 WASM 경로 재현이 실패했습니다.</p>':'')+
-  (usesColors&&analyzed.stats.complete===0&&Array.isArray(result?.warnings)&&result.warnings.length?'<p class="micro">탐색 제한·상태 진단: '+[...new Set(result.warnings.map(w=>api.readableStep(w,mapNames,talentName)))].slice(0,3).map(escape).join(' / ')+'</p>':'')+
-  (Array.isArray(result?.history)?'<p class="micro">실행 조건: '+result.history.map(h=>'선행 '+h.maxPad+' · 자맥 범위 '+h.horizon+
-  ' · 후보 '+h.routes+'개').join(' / ')+'</p>':''):'<p class="micro">자맥만 선택하면 원본 자동 경로를 계산합니다. 녹맥·파맥도 최종 슬롯에 목표가 모두 남는 경로만 인정하고 확인한 경로를 세수단 최솟값 순서로 표시합니다.</p>';
+   '자맥 순서 '+(x.order||[]).map(id=>escape(talentName(id))).join(' → ')+
+   ' · '+escape(x.reason||'확인 불가')).join('<hr>')+'</div></details>':''):
+  '<p class="micro">자맥만 선택하거나, 자맥 2~3개와 녹맥·파맥을 합쳐 최종 4개 목표를 선택하세요.</p>';
  body='<section class="wash-section"><div class="section-header"><h3>자동 탐색</h3></div>'+
   
   '<p class="micro">'+(r?'선택 인물 '+escape(r.name)+' · 계산 시 세이브 자동 연결':'먼저 세이브를 불러오세요')+'</p>'+ 
@@ -1117,7 +1106,7 @@ if(sub==='auto'){
   '<div class="actions">'+
   '<button type="button" class="btn" id="yyAutoClear">선택 초기화</button><span class="micro">선택 '+selectedTargets.length+' / 4개</span></div>'+
   '<div class="section-header"><h3>계산</h3></div>'+
-  '<div class="actions"><button type="button" class="btn primary" id="yyAutoRun" '+(!r||!save||state.loading||!selectedTargets.length?'disabled':'')+'>'+(state.loading?'자동탐색 진행 중…':selectedTargets.some(id=>(window.YYWashTargetCatalog||[]).some(g=>g.quality!==4&&g.items.some(t=>Number(t.id)===Number(id))))?(selectedTargets.length===4&&[2,3].includes(selectedTargets.filter(id=>(window.YYWashTargetCatalog||[]).some(g=>g.quality===4&&g.items.some(t=>Number(t.id)===Number(id)))).length)?'자맥 기준 녹·파맥 자동 탐색':'녹·파맥 원본 WASM 실험 탐색'):'선택 재능 자동 계산')+'</button></div>'+
+  '<div class="actions"><button type="button" class="btn primary" id="yyAutoRun" '+(!r||!save||state.loading||!selectedTargets.length?'disabled':'')+'>'+(state.loading?'자동탐색 진행 중…':selectedTargets.some(id=>(window.YYWashTargetCatalog||[]).some(g=>g.quality!==4&&g.items.some(t=>Number(t.id)===Number(id))))?(selectedTargets.length===4&&[2,3].includes(selectedTargets.filter(id=>(window.YYWashTargetCatalog||[]).some(g=>g.quality===4&&g.items.some(t=>Number(t.id)===Number(id)))).length)?'선택 재능 자동 탐색':'선택 재능 자동 탐색'):'선택 재능 자동 계산')+'</button></div>'+
   (state.autoProgress?(()=>{const p=state.autoProgress;
     const percent=p.indeterminate||p.percentage==null?null:Number.isFinite(Number(p.percentage))?Math.min(100,Math.max(0,Math.round(Number(p.percentage)))):null;
     const completed=Number.isFinite(Number(p.completed))?Number(p.completed):null;
@@ -1136,7 +1125,7 @@ if(sub==='auto'){
    })():'')+
   (state.error?'<div class="notice">'+escape(state.error)+'</div>':'')+
   '<div class="section-header"><h3>탐색 결과</h3></div>'+resultStatus+card+
-  '<p class="micro">자질 개방 단계는  시뮬레이터의 상승 규칙을 가상 적용합니다. 실제 게임의 자질 재료 소비는 계산하지 않습니다. 지원되지 않는 연쇄 치환 분기는 자동 실행하지 않습니다.</p>'+
+  '<p class="micro">자질 슬롯 개방에 필요한 재료는 포함되지 않습니다. 실제 게임에서 실행하기 전 단계를 확인하세요.</p>'+
   '</section>';
 }
 if(sub==='exchange'){
@@ -3880,7 +3869,7 @@ document.querySelectorAll('[data-yy-replay-route]').forEach(el=>el.onclick=()=>w
   const route=rows[Number(el.dataset.yyCopyRoute)];
   if(!route)throw Error('복사할 경로를 찾을 수 없습니다');
   const nameOf=id=>characterTalentName(id)+' (#'+id+')';
-  const textLines=[' WASM 자동 세수 탐색 결과',
+  const textLines=['자동 세수 경로',
    '목표: '+route.goalIds.map(nameOf).join(' / '),
    '예상 세수단: '+(route.estimatedPills??'미확정'),
    '모의 세수 횟수: '+(route.estimatedWashes??'미확정'),
