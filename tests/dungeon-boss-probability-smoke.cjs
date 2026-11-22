@@ -33,8 +33,8 @@ const html=fs.readFileSync(path.join(root,'vendor/sanbujin/drops/index.html'),'u
 const code=fs.readFileSync(path.join(root,'vendor/sanbujin/drops/dungeon.js'),'utf8');
 assert(html.includes('dungeonRates'));
 assert(html.includes('dungeon-rates.js'));
-assert(html.includes('dungeonActualRows'));
+assert(!html.includes('dungeonActualRows'),'manual comparison panel stays absent');
 assert(code.includes('SBJDungeonRates?.render'));
-assert(code.includes('dungeonActualRun'));
+assert(!code.includes('dungeonActualRun'),'manual comparison handler stays absent');
 new vm.Script(code);
-console.log('PASS: yy-sim dungeon boss weights, 90 equipment pools, unique thresholds, and manual actual comparison');
+console.log('PASS: yy-sim dungeon boss weights, 90 equipment pools, unique thresholds, without manual actual comparison');
