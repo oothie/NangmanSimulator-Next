@@ -18,6 +18,54 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   total_wash:0,total_pills:0,bag_pills:20000,has_bag_pills:true}));
  const source=wasmGetState();
  const base=YYWashNativeSearchGuard.canonicalJson(source);
+ const talentIds=new Map(Object.entries(TALENT_DATA).map(([id,t])=>
+  [String(t.name),Number(id)]));
+ function replayReturnedRoute(route){
+  assert(wasmSetState(source),'Native replay could not restore fixture');
+  try{
+   let last=Number(source.total_wash);
+   for(const action of route.actions||[]){
+    const wash=Number(action.wash_no);
+    assert(Number.isInteger(wash)&&wash>=last,
+     'Returned route contains backward wash step '+JSON.stringify(action));
+    while(Number(wasmGetState().total_wash)<wash){
+     const n=Number(wasmGetState().total_wash);
+     const result=wasmDoWash();
+     assert(result&&!result.error&&Number(wasmGetState().total_wash)===n+1,
+      'Returned route native doWash failed at '+n);
+    }
+    last=wash;
+    const state=wasmGetState();
+    if(['lock','unlock','keep'].includes(action.kind)){
+     const id=talentIds.get(String(action.talent));
+     const i=state.talents.findIndex(t=>Number(t.id)===id);
+     assert(i>=0,'Returned route lock/unlock target absent '+JSON.stringify(action));
+     assert(wasmSetState({...state,talents:state.talents.map((t,j)=>
+      i===j?{...t,locked:action.kind!=='unlock'}:t)}),
+      'Returned route lock/unlock rejected');
+    }else if(action.kind==='exchange'){
+     const id=talentIds.get(String(action.from));
+     const index=state.talents.findIndex(t=>Number(t.id)===id);
+     assert(index>=0,'Returned route exchange source absent');
+     const x=wasmExchangeTalent(index);
+     assert(x&&!x.error&&x.success!==false,
+      'Returned route native exchange invalid '+JSON.stringify(action));
+    }else assert(['wash_to','skip'].includes(action.kind),
+      'Returned route has unknown step '+action.kind);
+   }
+   const final=wasmGetState();
+   const got=final.talents.map(t=>({id:Number(t.id),locked:!!t.locked}));
+   const expected=route.final_slots.map(t=>({id:Number(t.id),locked:!!t.locked}));
+   assert.deepEqual(got,expected,'Returned route actions do not replay to final four slots');
+   assert.equal(Number(final.total_pills)-Number(source.total_pills),
+    Number(route.pills),'Returned route native pill cost does not replay');
+   return {pills:Number(route.pills),steps:route.actions.length,finalIds:got.map(t=>t.id)};
+  }finally{
+   assert(wasmSetState(source));
+   assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base);
+  }
+ }
+
  assert(YYWashPurpleAnchorMixed.requestShape([271,268,272,184],TALENT_DATA));
  assert(YYWashPurpleAnchorMixed.requestShape([271,268,272,202],TALENT_DATA),
   'Three-purple plus blue must enter purple-anchored extension');
@@ -43,6 +91,8 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  assert(out.routes.every(r=>[271,268,272,184].every(id=>
   r.final_slots.some(t=>Number(t.id)===id))),'Unverified goal in results');
  assert(out.routes.every(r=>r.optimal===false),'Do not claim global optimality');
+ for(const route of out.routes)
+  console.log('YY_ANCHOR_ACTION_REPLAY_GREEN '+JSON.stringify(replayReturnedRoute(route)));
  // The second requested shape uses two purple anchors and TWO green/blue
  // final targets. It may be absent from a short bounded window, but never
  // accept merely having seen either target in an intermediate wash.
@@ -75,6 +125,8 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  assert(two.routes.every(r=>[271,268,184,202].every(id=>
   r.final_slots.some(t=>Number(t.id)===id))),'Two-color result has missing final slot');
  assert(two.routes.every(r=>r.optimal===false),'A bounded search is not globally optimal');
+ for(const route of two.routes)
+  console.log('YY_ANCHOR_ACTION_REPLAY_TWO_TWO '+JSON.stringify(replayReturnedRoute(route)));
  console.log('YY_PURPLE_ANCHOR_TWO_TWO_REAL_WASM '+JSON.stringify({
   shape:[271,268,184,202],
   routes:two.routes.map(r=>({pills:r.pills,washes:r.washes,final:r.final_slots,
