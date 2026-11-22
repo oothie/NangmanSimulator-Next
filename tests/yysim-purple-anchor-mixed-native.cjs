@@ -621,7 +621,7 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  assert.equal(moonMixed.routes[0]?.washes,175);
  assert([268,262,237,204].every(id=>moonMixed.routes[0].final_slots.some(t=>
   Number(t.id)===id&&t.locked)));
- const moonGuidedReplay=replayReturnedRoute(moonMixed.routes[0],moonState);
+ const moonGuidedReplay=replayReturnedRoute(moonMixed.routes[0],wasmGetState());
  assert.equal(moonGuidedReplay.pills,910,
   'The displayed Moon route must replay its steps through actual WASM to the exact final state');
  console.log('YY_MOON_1121_MIXED '+JSON.stringify({
