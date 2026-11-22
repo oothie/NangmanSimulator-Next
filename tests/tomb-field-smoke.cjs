@@ -45,18 +45,36 @@ const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
 const ui=fs.readFileSync(path.join(dir,'wild.js'),'utf8');
 assert(html.includes('src="./tomb-core.js"')&&html.indexOf('tomb-core.js')<html.indexOf('src="./wild.js"'));
 assert(html.includes('id="wildTombOrder"')&&ui.includes('tomb.predict(input,'));
-// 2026-11-22 field verification: 109th Diling special NPC 35256,
-// Qingyun Chu item and DEF 220 matched, but blue grade and HIT +68
-// disproved the formerly claimed green-grade forecast. No seed snapshot
-// accompanies this observation, so it MUST NOT be used to fabricate
-// a new color permutation or declare the underlying RNG corrected.
-const verified109={serial:109,npcId:35256,itemName:'청운추',
- predicted:{color:2,defense:220},actual:{color:3,defense:220,hit:68},
- otherItemsMatch:true};
-assert.equal(verified109.predicted.defense,verified109.actual.defense);
-assert.notEqual(verified109.predicted.color,verified109.actual.color);
-assert.equal(verified109.actual.color,3,'observed blue (not green)');
-assert.equal(verified109.actual.hit,68);
-assert(ui.includes('제109회 청운추 색상 불일치 확인'),
- 'UI must not claim all Diling colors are verified');
+// Minimal, non-personal snapshot of RNG fields from the 2026-11-21 1121.json.
+// Confirmed 2026-11-22 hunt #109: Qingyun Chu 5609 blue, DEF+220, HIT+68.
+// Four color traversal permutations are observationally equivalent through #109.
+// Do not treat this as proof of LuaJIT pairs() order in other saved games.
+const actualSave={Rnds:{Sds:{rollenemy_tomb:1456365169,seed_35256:492075794},
+ Eds:{5609:734963273}},globalVariable:{eat_2659:9,rollenemy_tomb2:200}};
+const qingyun={base:{def:800,dodge:475},exts:{
+ atk_add:[131,80],hit_add:[89,100],def_add:[214,100],hp_add:[420,100],
+ speed_add:[83,100],dodge_add:[105,100],parry_add:[83,100],
+ unarmed_add:[0.06,50],sword_add:[0.05,50],blade_add:[0.04,50],
+ stick_add:[0.05,50],hp_back:[100,5],mp_f:[12,5],
+ dmg_off:[0.01,5],dmg_ref:[0.03,5],renxing:[120,10]}};
+const observed=tomb.predict(tomb.open(actualSave),{count:109,
+ equipment:{5609:qingyun}});
+assert.equal(observed.length,109);
+assert.equal(observed[7].itemId,4009,'#8 original item preserved');
+assert.equal(observed[7].color,1,'#8 white preserved');
+assert.equal(observed[11].itemId,5409,'#12 original item preserved');
+assert.equal(observed[11].color,2,'#12 green preserved');
+assert.equal(observed[19].itemId,8802,'#20 side reward preserved');
+assert.equal(observed[20].itemId,4009,'#21 original item preserved');
+assert.equal(observed[20].color,1,'#21 white preserved');
+assert.equal(observed[108].npcId,35256,'#109 special NPC');
+assert.equal(observed[108].itemId,5609,'#109 Qingyun Chu');
+assert.equal(observed[108].color,3,'#109 verified blue quality');
+assert.equal(observed[108].affixes.length,2,'blue grade gets two affixes');
+assert.equal(observed[108].affixes[0].prop,'def_add');
+assert.equal(observed[108].affixes[0].value,220);
+assert.equal(observed[108].affixes[1].prop,'hit_add');
+assert.equal(observed[108].affixes[1].value,68);
+assert.equal(JSON.stringify(actualSave.Rnds.Eds),JSON.stringify({5609:734963273}),
+ 'prediction must not mutate source Eds');
 console.log('PASS: Diling 100 encounter / NPC 35256 / original 90-equipment pool / guarded hypotheses / UI');
