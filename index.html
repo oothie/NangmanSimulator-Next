@@ -1057,7 +1057,7 @@ if(sub==='auto'){
     kind==='exchange'?'재능 치환':kind==='open_slot'?'슬롯 개방':
     kind==='keep'?'목표 재능 유지':kind==='skip'?'건너뛰기':detail.label;
    const wash=detail.wash==null?'':'<span>세수 '+escape(detail.wash)+'회차</span>';
-   const pills=detail.pills==null?'':'<span>누적 '+escape(Number(detail.pills).toLocaleString())+'개</span>';
+   const pills=detail.pills==null?'':'<span>누적 세수단 '+escape(Number(detail.pills).toLocaleString())+'개</span>';
    const previousWash=n?Number(x.actions[n-1]?.wash_no??0):0;
    const currentWash=detail.wash==null?null:Number(detail.wash);
    const newWashes=currentWash!==null&&currentWash>previousWash?
