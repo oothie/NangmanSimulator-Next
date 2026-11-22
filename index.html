@@ -308,6 +308,13 @@ body{background:var(--bg)!important}
 .account-kpi strong{white-space:normal}
 @media(max-width:600px){.account-growth-table th:first-child{min-width:130px}.account-growth-table td{min-width:95px}}
 
+
+.account-resource-tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.account-resource-tags span{font-size:12px;padding:4px 8px;border-radius:5px;border:1px solid var(--border);background:var(--paper);color:var(--text);font-variant-numeric:tabular-nums}
+.account-map-page .account-resource-card{min-width:0}
+.account-map-page .account-resource-card summary{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.account-map-page .account-resource-card summary small{font-weight:600}
+
 .account-resource-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:9px}
 .account-resource-card{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:11px}
 .account-resource-card summary{cursor:pointer;font-weight:650}
@@ -3668,48 +3675,45 @@ function yyAccountRecordAndResourceView(section='jianghu'){
   '<span class="value">'+(row.value==null?'—':row.value.toLocaleString('ko-KR'))+'</span>'+
   '<span class="sub">'+escape(row.key)+'</span></div>').join('')+'</div>');
  if(section==='jianghu')return jianghuHtml;
- const q=String(accountMapSearch||'').trim().toLowerCase();
- const matches=perMap.filter(m=>!q||(m.name+' '+m.id+' '+m.entries.map(x=>x.type+' '+x.pic).join(' ')+' '+m.stumps.map(x=>x.key).join(' ')).toLowerCase().includes(q));
- const visibleMaps=matches.filter(m=>m.entries.length>0||m.stumps.length>0||q)
-  .sort((a,b)=>b.stumps.length-a.stumps.length||a.name.localeCompare(b.name,'ko'));
- const cards=visibleMaps.slice(0,60).map(m=>{
-  const known=m.entries.filter(x=>x.type!=='종류 미확인'),unknown=m.entries.filter(x=>x.type==='종류 미확인');
-  const reference=historicalStumpTotals[m.id];
-  const detail=known.map(x=>'<tr><td>'+escape(x.type)+'</td><td>#'+escape(x.id)+'</td><td>'+escape(x.flag)+'</td></tr>').join('');
-  return '<details class="account-resource-card"><summary>'+escape(m.name)+' <small>('+escape(m.id)+')</small>'+
-   '<small> · 그루터기 '+m.stumps.length+' / '+(reference??'?')+'개'+(reference?' · 중국 구판 참고':'')+'</small></summary>'+
-   (m.stumps.length?'<div class="account-track-top"><span>그루터기 획득</span><b>'+m.stumps.length+'개</b></div>'+
-   '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>그루터기 ID</th><th>저장 상태</th></tr></thead><tbody>'+
-   m.stumps.map(t=>'<tr><td>'+escape(t.id)+' <small>'+escape(t.key)+'</small></td><td>획득 기록 확인</td></tr>').join('')+'</tbody></table></div>':'')+
-   (reference?'<div class="account-track-top"><span>중국 구판 지도별 수량 대비</span><b>'+m.stumps.length+' / '+reference+'</b></div>'+
-     accountProgressBar(Math.min(m.stumps.length,reference),reference,'teal')+
-     '<small>참고용 비교이며 한국판 획득 완료율이 아닙니다.</small>':'')+
-   '<div class="account-track-top"><span>외형으로 확인된 오브젝트</span><b>'+known.length+'건</b></div>'+
-   accountProgressBar(known.length,m.entries.length,'amber')+
-   '<small>tmxObj 유형 식별 비율이며, 위 그루터기 획득 수와는 별도의 저장 자료입니다.</small>'+
-   (detail?'<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>종류</th><th>오브젝트</th><th>상태 기록</th></tr></thead><tbody>'+detail+'</tbody></table></div>':'')+
-   (unknown.length?accountFold('종류 확인 필요 '+unknown.length+'건 · 원본 일부',
-    '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>오브젝트</th><th>외형</th></tr></thead><tbody>'+
-    unknown.slice(0,30).map(x=>'<tr><td>#'+escape(x.id)+'</td><td>'+escape(x.pic||'—')+'</td></tr>').join('')+'</tbody></table></div>'):'')+'</details>';
- }).join('');
+ // Show ONLY the requested collectible kinds. Global quest boxes / mailboxes / mining
+ // markers are not counted as map treasure chests.
+ const confirmedChestStates=markers.filter(x=>x.type==='보물상자'&&
+  /(?:box|chest).*?(?:open|empty)|(?:open|empty).*?(?:box|chest)/i.test(x.pic));
+ const stumps=[...stumpMap.entries()].map(([mid,items])=>({id:mid,name:mapName(mid),items}))
+  .sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+ const chests=[...new Set(confirmedChestStates.map(x=>x.mid))].map(mid=>({
+  id:mid,name:mapName(mid),items:confirmedChestStates.filter(x=>x.mid===mid)
+ })).sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+ const search=String(accountMapSearch||'').trim().toLowerCase();
+ const stumpList=stumps.filter(x=>!search||(x.name+' '+x.id+' 그루터기').toLowerCase().includes(search));
+ const chestList=chests.filter(x=>!search||(x.name+' '+x.id+' 보물상자').toLowerCase().includes(search));
+ const line=(name,count,total,tag)=>'<div class="account-track-top"><span>'+escape(name)+'</span><strong>'+
+   escape(count)+' / '+(total==null?'?':escape(total))+'</strong></div>'+
+   (total!=null?accountProgressBar(count,total,tag):'<small>전체 개수 미확정 · 획득 기록만 표시</small>');
+ const stumpCards=stumpList.map(m=>
+   '<details class="account-resource-card"><summary>'+escape(m.name)+' <small>그루터기 '+m.items.length+'개 획득</small></summary>'+
+   line('획득 확인',m.items.length,null,'teal')+
+   '<div class="account-resource-tags">'+m.items.map(v=>
+    '<span title="'+escape(v.key)+'">#'+escape(v.id)+'</span>').join('')+'</div></details>').join('');
+ const chestCards=chestList.map(m=>
+  '<details class="account-resource-card"><summary>'+escape(m.name)+' <small>보물상자 후보 '+m.items.length+'개</small></summary>'+
+  '<p class="micro">저장된 열린/빈 상자 외형입니다. 실제 획득 여부는 지도 오브젝트표 대조 전 미확정입니다.</p>'+
+  '<div class="account-resource-tags">'+m.items.map(v=>
+   '<span title="'+escape(v.pic)+'">#'+escape(v.id)+'</span>').join('')+'</div></details>').join('');
  return '<section class="yy-account-overview account-map-page">'+
- yyRoleSection('지도자원 · 그루터기 / 보물상자',
  '<div class="account-kpis">'+[
- ['획득한 그루터기',stumpMarks.length+'개','shudun_ 실제 개별 획득 기록'],
- ['누적 그루터기 계정 기록',officialStumpCount==null?'—':officialStumpCount+'개',
-  officialStumpCount===stumpMarks.length?'개별 획득 목록과 일치':'전체 횟수와 개별 기록 차이 있을 수 있음'],
- ['그루터기 기록 지역',stumpMap.size+'곳','계정 실제 저장 키 기준'],
- ['상자·기타 오브젝트 유형 식별',identified.length+'건','지도 변경 외형 기반 · 완료 미확정']
- ].map(([t,v,n])=>'<div class="account-kpi"><small>'+escape(t)+'</small><strong>'+escape(v)+'</strong><small>'+escape(n)+'</small></div>').join('')+'</div>'+
- '<p class="role-status-note">그루터기 획득 여부는 60014 게임 데이터의 누적 그루터기 기록과 1121 세이브에서 검증된 shudun_ 개별 저장 키를 우선 사용합니다. 보물상자는 별도 원본 오브젝트와의 ID·좌표 대조 전에는 획득 완료로 판정하지 않습니다. 반복 채집·채광은 표시하지 않습니다.</p>'+
- '<label class="wiki-search-label">맵 검색<input type="search" id="accountMapSearch" placeholder="지역명 / 맵 코드 / 상자 / 그루터기" value="'+escape(accountMapSearch||'')+'"></label>'+
- '<p class="micro">지역 '+matches.length+'곳 · 변경 기록 '+visibleMaps.length+'곳 · 최대 60개 지도</p>'+
- (cards?'<div class="account-resource-list">'+cards+'</div>':'<p class="micro">조건에 맞는 지도 기록이 없습니다.</p>')+
- (boxCandidates.length?accountFold('보물상자 관련 저장 키 후보 '+boxCandidates.length+'건 · 미검증',
- '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>저장 키</th><th>원본값</th></tr></thead><tbody>'+
- boxCandidates.slice(0,100).map(x=>'<tr><td>'+escape(x.key)+'</td><td>'+escape(x.value)+'</td></tr>').join('')+
- '</tbody></table></div><p class="micro">일부 값은 임무·이벤트 상자의 임시 상태입니다. 보물상자 획득 건수로 합산하지 않았습니다.</p>'):'')+
- '<p class="micro">일부 맵의 참고 목표 수량은 2022년 중국판 공개 자료 기준입니다. 한국 서버의 실제 그루터기 총수와 반드시 일치하지는 않습니다. 상자·그루터기의 전역 완성 판정에는 게임 원본 맵 오브젝트 설정 대조가 필요합니다.</p>')+'</section>';
+  ['그루터기 획득 확인',stumpMarks.length+'개','shudun_ 개별 획득 키'],
+  ['그루터기 획득 지역',stumps.length+'곳','실제 획득 기록'],
+  ['보물상자 외형 후보',confirmedChestStates.length+'건','열린/빈 상자 외형 · 획득 미검증']
+ ].map(([n,v,note])=>'<div class="account-kpi"><small>'+escape(n)+'</small><strong>'+escape(v)+'</strong><small>'+escape(note)+'</small></div>').join('')+'</div>'+
+ '<label class="wiki-search-label">지도 검색 <input id="accountMapSearch" type="search" placeholder="지도 이름 또는 코드" value="'+escape(accountMapSearch||'')+'"></label>'+
+ yyRoleSection('그루터기',
+  '<p class="micro">세이브에 저장된 실제 그루터기 획득 ID만 표시합니다. 총 개수는 지도 원본과 대조되지 않아 물음표로 표시합니다.</p>'+
+  (stumpCards?'<div class="account-resource-list">'+stumpCards+'</div>':'<p class="micro">그루터기 획득 기록이 없습니다.</p>'))+
+ yyRoleSection('보물상자',
+  '<p class="micro">일반 채광·식물·월드 오브젝트 자료는 표시하지 않습니다. 열린/빈 상자 외형을 가진 기록만 후보로 표시하며 전체 획득률은 확정하지 않습니다.</p>'+
+  (chestCards?'<div class="account-resource-list">'+chestCards+'</div>':'<p class="micro">식별 가능한 보물상자 외형 기록이 없습니다. 미획득이라는 의미는 아닙니다.</p>'))+
+ '</section>';
 
 }
 
