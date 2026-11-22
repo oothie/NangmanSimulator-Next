@@ -556,6 +556,66 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
   guard:YYWashNativeSearchGuard
  });
+ // Reproduce the user-supplied screenshot as native actions, NOT a
+ // hard-coded search answer: every wash and exchange runs original WASM.
+ assert(wasmSetState({...moonState,zizhi:153,
+  str_gift:moonState.str_gift+300,con_gift:moonState.con_gift+300}));
+ const moonSnapshot=()=>wasmGetState();
+ const moonCost=()=>Number(moonSnapshot().total_pills||0);
+ const moonWash=(count,label)=>{
+  for(let i=0;i<count;i++){
+   const before=Number(moonSnapshot().total_wash);
+   const result=wasmDoWash();
+   if(!result||result.error||Number(moonSnapshot().total_wash)!==before+1)
+    throw Error('Moon screenshot wash mismatch at '+label+' '+(i+1));
+  }
+ };
+ const moonLock=(id,locked)=>{
+  const x=moonSnapshot(),index=x.talents.findIndex(t=>Number(t.id)===id);
+  if(index<0)throw Error('Moon screenshot missing talent '+id+
+   ' at '+x.total_wash+' pills '+moonCost()+
+   ' present '+x.talents.map(t=>t.id));
+  assert(wasmSetState({...x,talents:x.talents.map((t,j)=>
+   j===index?{...t,locked}:t)}));
+ };
+ const moonExchange=(from,to)=>{
+  const x=moonSnapshot(),index=x.talents.findIndex(t=>Number(t.id)===from);
+  if(index<0)throw Error('Moon screenshot missing exchange source '+from);
+  const result=wasmExchangeTalent(index);
+  if(!result||result.error||
+    !moonSnapshot().talents.some(t=>Number(t.id)===to))
+   throw Error('Moon screenshot exchange '+from+'->'+to+
+    ' failed at wash '+x.total_wash+' state '+moonSnapshot().talents.map(t=>t.id));
+ };
+ const photoLogs=[];
+ const photoStep=(label)=>photoLogs.push({label,
+  wash:moonSnapshot().total_wash,pills:moonCost(),
+  slots:moonSnapshot().talents.map(t=>({id:t.id,locked:t.locked}))});
+ try{
+  moonWash(104,'104 free');photoStep('104');
+  moonLock(274,true);moonWash(3,'274 locked');photoStep('107');
+  moonLock(276,true);moonWash(5,'276 locked');photoStep('112');
+  moonExchange(276,268);
+  const old=moonSnapshot();
+  assert(wasmSetState({...old,zizhi:154,
+   str_gift:Number(old.str_gift)+100,con_gift:Number(old.con_gift)+100}));
+  moonLock(274,false);moonLock(268,true);
+  moonWash(4,'268 locked');photoStep('116');
+  moonLock(177,true);moonWash(7,'177 locked');photoStep('123');
+  moonLock(271,true);moonWash(5,'271 locked');photoStep('128');
+  moonExchange(271,276);moonExchange(276,262);
+  moonLock(177,false);moonWash(19,'two purple locked');photoStep('147');
+  moonLock(237,true);moonWash(28,'plus green locked');photoStep('175');
+  moonLock(204,true);photoStep('final');
+  assert([268,262,237,204].every(id=>moonSnapshot().talents.some(t=>
+   Number(t.id)===id&&t.locked)));
+  assert.equal(moonCost(),916);
+ }catch(error){
+  console.log('YY_MOON_PHOTO_REPLAY_DIAGNOSTICS '+JSON.stringify(photoLogs));
+  throw error;
+ }
+ console.log('YY_MOON_PHOTO_REPLAY '+JSON.stringify(photoLogs));
+ assert(wasmSetState(moonState));
  console.log('YY_MOON_1121_MIXED '+JSON.stringify({
   cost:moonMixed.routes[0]?.pills??null,
   washes:moonMixed.routes[0]?.washes??null,
