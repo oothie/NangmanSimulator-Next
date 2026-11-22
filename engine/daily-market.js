@@ -241,6 +241,85 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    }
    return events;
   },
+  // Find feasible purchase routes before attempting shortest-time proof.
+  // These are deterministic policy replays of the SAME guishishop stream.
+  // A candidate is never labelled as globally optimal.
+  findFeasibleStrategy(shopIds,options={}){
+   if(!forecastOk)return {mode:'candidate',found:false,proven:false,
+    error:'암시장 시드를 복원할 수 없습니다.'};
+   const ids=new Set((shopIds||[]).map(Number));
+   const chosen=available.find(x=>ids.has(x.id));
+   if(!chosen)return {mode:'candidate',found:false,proven:false,
+    error:'구매 가능한 목표 상품이 없습니다.'};
+   const goal=Math.max(1,Math.min(1000,Math.trunc(n(options.quantity,1))));
+   const allowance=this.paidAllowance(options.vip);
+   const horizon=Math.max(1,Math.min(720,Math.trunc(n(options.periods,120))));
+   const nextDaily=t=>(resetDay(t)+1)*86400-10800;
+   const deadline=nextHalfDay(now)+(horizon-1)*43200;
+   const current=(today||[]).find(x=>ids.has(x.id)&&n(x.buyed)!==1);
+   const candidates=[],policies=[];
+   for(const first of [0,.25,.5,1])
+    for(const after of [0,.25,.5,1])
+     for(const gap of [1,2,3,4,6,8])
+      policies.push({first,after,gap});
+   let completed=0,best=null,checked=0;
+   const progress=typeof options.onProgress==='function'?options.onProgress:null;
+   for(const policy of policies){
+    const r=rng.clone(),steps=[],purchases=[];
+    let luck=lucky,used=allowance.used,paid=0,got=current?1:0,
+      time=now,auto=nextHalfDay(now),daily=nextDaily(now),tick=0;
+    if(current){const e={kind:'current',time,acquired:1,totalAcquired:1};
+      steps.push(e);purchases.push(e)}
+    const paidOnce=()=>{
+     const chance=16.666666666666668+luck,rare=r.chance('guishishop',chance);
+     luck=rare?chance-100:chance;
+     const items=draw(r,available,true,rare,slots);
+     const acquired=items.some(x=>ids.has(x.id))?1:0;
+     got+=acquired;used++;paid++;
+     const e={kind:'paid',time,index:used,rareHit:rare,acquired,totalAcquired:got};
+     steps.push(e);if(acquired)purchases.push(e);
+    };
+    const spend=fraction=>{
+     const left=Math.max(0,allowance.max-used);
+     const count=Math.min(left,Math.max(0,Math.ceil(left*fraction)));
+     for(let i=0;i<count&&got<goal;i++)paidOnce();
+    };
+    spend(policy.first);
+    while(got<goal&&auto<=deadline){
+     if(daily<auto){
+      time=daily;used=0;daily=nextDaily(time);
+      steps.push({kind:'reset',time,acquired:0,totalAcquired:got});
+      if(tick%policy.gap===0)spend(policy.first);
+      if(got>=goal)break;
+     }
+     time=auto;tick++;
+     const items=draw(r,available,false,false,slots);
+     const acquired=items.some(x=>ids.has(x.id))?1:0;
+     got+=acquired;
+     const e={kind:'auto',time,acquired,totalAcquired:got};
+     steps.push(e);if(acquired)purchases.push(e);
+     auto+=43200;
+     if(got>=goal)break;
+     if(tick%policy.gap===0)spend(policy.after);
+    }
+    checked++;
+    if(got>=goal){
+     completed++;
+     if(!best||time<best.when||(time===best.when&&paid<best.paid)){
+      best={mode:'candidate',found:true,proven:false,when:time,
+       cost:paid*20,paid,required:goal,acquired:goal,remaining:0,
+       steps,purchases,policiesChecked:checked,vip:allowance.vip,
+       periods:horizon,purchaseCost:goal*n(chosen.price),
+       purchaseMoney:chosen.money};
+      if(progress)progress({checked,total:policies.length,found:true,
+       when:time,paid,stage:'구매 가능 경로 발견'});
+     }
+    }
+   }
+   return best||{mode:'candidate',found:false,proven:false,
+     required:goal,acquired:0,policiesChecked:checked,
+     error:'검사한 갱신 방식에서는 예측 기간 내 목표 수량 전체를 구매하는 경로가 발견되지 않았습니다.'};
+  },
   // Explore actual RNG state after each paid/automatic replacement, not item
   // probabilities. The result is the first optimal solution in the bounded
   // explored horizon for the selected objective. State-cap failures are
