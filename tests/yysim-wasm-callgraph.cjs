@@ -526,7 +526,7 @@ for(let index=importCount;index<importCount+functions.length;index++){
   const at=decoded.instructions.findIndex(x=>x.offset===constant.offset);
   nativeRestrictionXrefs.push({functionIndex:index,offset:constant.offset,
    pointer:constant.value,
-   nearby:decoded.instructions.slice(Math.max(0,at-8),at+12)
+   nearby:decoded.instructions.slice(Math.max(0,at-110),at+25)
     .map(x=>({offset:x.offset,opcode:x.opcode,
      value:x.value??null,immediate:x.immediate??null,memOffset:x.memOffset??null}))});
  }
