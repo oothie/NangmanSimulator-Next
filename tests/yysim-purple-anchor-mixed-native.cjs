@@ -32,6 +32,25 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  assert(out.routes.every(r=>[271,268,272,184].every(id=>
   r.final_slots.some(t=>Number(t.id)===id))),'Unverified goal in results');
  assert(out.routes.every(r=>r.optimal===false),'Do not claim global optimality');
+ // The second requested shape uses two purple anchors and TWO green/blue
+ // final targets. It may be absent from a short bounded window, but never
+ // accept merely having seen either target in an intermediate wash.
+ const two=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[271,268,184,202],maxPad:0,horizon:40,topN:1,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:YYWashNativeSearchGuard
+ });
+ assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base,
+  'Two-purple anchor search must restore exact original state');
+ assert(two.routes.every(r=>[271,268,184,202].every(id=>
+  r.final_slots.some(t=>Number(t.id)===id))),'Two-color result has missing final slot');
+ assert(two.routes.every(r=>r.optimal===false),'A bounded search is not globally optimal');
+ console.log('YY_PURPLE_ANCHOR_TWO_TWO_REAL_WASM '+JSON.stringify({
+  shape:[271,268,184,202],
+  routes:two.routes.map(r=>({pills:r.pills,washes:r.washes,final:r.final_slots,
+   actionCount:r.actions.length})),diagnostics:two.diagnostics,preserved:true
+ }));
  console.log('YY_PURPLE_ANCHOR_MIXED_REAL_WASM '+JSON.stringify({
   shape:[271,268,272,184],
   routes:out.routes.map(r=>({pills:r.pills,washes:r.washes,final:r.final_slots,
