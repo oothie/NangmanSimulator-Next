@@ -55,7 +55,7 @@ try{
   // desired_ids, max_pad, horizon, top_n, with native routes/steps/actions.
   const ids=payload?.desiredIds;
   const maxPad=Number(payload?.maxPad??0);
-  const horizon=Number(payload?.horizon??900);
+  const horizon=Number(payload?.horizon??2500);
   const topN=Number(payload?.topN??8);
   // Dispatch green/blue/purple goals to ORIGINAL native search. This is an
   // experimental characterization of the existing WASM, NOT proof that its
