@@ -20,6 +20,28 @@ assert.equal(result.routes[0].pills,7);
 assert.equal(JSON.stringify(good.state),good.before);
 assert.equal(good.restores(),0,'read-only path must not reset live WASM');
 
+// Rust serde may reorder HashMap fields without changing the state.
+ // Key reordering inside global_vars, nested objects and slot metadata is
+ // NOT a real mutation and must not trigger wasmSetState (which can fail).
+const reordered=fixture(s=>{
+ s.global_vars={foo:s.global_vars.foo};
+ s.talents=s.talents.map(t=>({id:t.id}));
+ return {routes:[{pills:1}]};
+});
+assert.equal(guard.run(reordered.api,{}).routes.length,1);
+assert.equal(reordered.restores(),0,'equal state must not be restored');
+const canonicalA={seed:99,global_vars:{a:1,b:{first:2,second:3}},
+ talents:[{id:184,locked:false},{id:271,locked:true}]};
+const canonicalB={talents:[{locked:false,id:184},{locked:true,id:271}],
+ global_vars:{b:{second:3,first:2},a:1},seed:99};
+assert.equal(guard.canonicalJson(canonicalA),guard.canonicalJson(canonicalB));
+assert(guard.statesEqual(canonicalA,canonicalB));
+assert(!guard.statesEqual(canonicalA,{...canonicalB,seed:100}),
+ 'actual seed changes must never be ignored');
+assert(!guard.statesEqual(canonicalA,{...canonicalB,
+ talents:[...canonicalB.talents].reverse()}),
+ 'slot array order is semantically important and must not be normalized');
+
 const changed=fixture(s=>{s.global_vars.foo=11;return {routes:[]}});
 assert.throws(()=>guard.run(changed.api,{}),/상태 변경 감지 · 복구 완료/);
 assert.equal(JSON.stringify(changed.state),changed.before);
