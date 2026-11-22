@@ -3593,6 +3593,28 @@ function yyRoleGrowthOverview(role,kind){
 }
 
 
+const YY_ACCOUNT_KO_MAPS={
+  wyc:'망우촌',swz:'쌍왕진',sfj:'십방집',hua:'화산',taiyi:'태을산',hz:'항주',
+  hsn:'항산',hss:'형산',qc:'청성산',qls:'기련산',nl:'남령',lxz:'낙하진',
+  shaolin:'숭산',lqz:'용천진',cbs:'백산',dxs:'대설산',yz:'유주',
+  kunlun:'곤륜산',cd:'성도',ly:'낙양',gs:'고소',sb:'새북',
+  nyz:'남양도',emei:'아미산',taz:'태안진',ts:'천산',
+  dh:'돈황',qz:'천주',fmz:'봉명집',jilegu:'양천령',
+  jianwang:'오산',lingyue:'명월산',xueyuan07:'캉단산',xueyuan05:'다고산',
+  ylg_1:'반딧불숲',ylg_2:'야낭곡',lxz_qf:'진부',taiyi_zl:'죽림',
+  qc_qlg:'천룡곡',qz_xsc:'어촌',qz_sz:'악귀섬',sfj_gc_migong:'고창 미궁',
+  ywg:'약왕곡',yz_gudao:'서풍고도',yz_sb:'낙일목장',
+  jlg_hole6:'은밀한 골짜기',jlg_hole7:'매령',qz_yinhuandao:'은환도',
+  hz_djc:'동강촌',sfj_wg:'내제 초원',qc_lyx1:'용은협',
+  qz_island_3:'내풍섬',sfj_dys:'대월지 거점',gs_sdm:'철인문',
+  sfj_qsm2:'칠살 주둔지',xueyuan01:'아도 설원',gs_lf:'이부',
+  qz_island_1:'섬용도',nz_dl:'대리',nz_km:'전지',wxj01:'문향교',wsc:'무쌍성',
+  hss_bz_hole2:'장군총',hsn_zj_1:'천정봉',hj_cz:'창주',hj_sfk:'석불구',
+  xueyuan03:'나무초',dxs_maze_2:'기관 유적',migong_nl:'미림 대산',nz_xgll:'샹그릴라',
+  mmyj:'묵문 유적'
+ };
+function yyAccountMapName(id){return YY_ACCOUNT_KO_MAPS[String(id)]||String(id)}
+
 function yyAccountMappedLootView(root,mapName){
  const original=window.NangmanMapLoot60014;
  if(!Array.isArray(original))return yyRoleSection('지도자원 · 그루터기 / 보물상자',
@@ -3665,6 +3687,7 @@ function yyAccountMappedLootView(root,mapName){
 function yyAccountRecordAndResourceView(section='jianghu'){
  const root=Array.isArray(save)?save[0]:save||{};
  const dict=x=>x&&typeof x==='object'&&!Array.isArray(x)?x:{};
+ if(section==='map')return yyAccountMappedLootView(root,yyAccountMapName);
  const branch=dict(root.Branch),quests=window.NangmanQuest?.verified||{};
  const records=Object.entries(branch).filter(([,r])=>r&&typeof r==='object'&&Number.isInteger(Number(r.step)));
  const completed=records.filter(([,r])=>Number(r.step)===-1);
@@ -3705,72 +3728,6 @@ function yyAccountRecordAndResourceView(section='jianghu'){
    '<td>'+(row?escape(row.Reward??'—'):'—')+(max?' / '+max:'')+
    (row&&max?accountProgressBar(Math.max(0,Number(row.Reward)||0),max,'teal'):'')+'</td></tr>';
  }).join('');
- const knownMaps={
-  wyc:'망우촌',swz:'쌍왕진',sfj:'십방집',hua:'화산',taiyi:'태을산',hz:'항주',
-  hsn:'항산',hss:'형산',qc:'청성산',qls:'기련산',nl:'남령',lxz:'낙하진',
-  shaolin:'숭산',lqz:'용천진',cbs:'백산',dxs:'대설산',yz:'유주',
-  kunlun:'곤륜산',cd:'성도',ly:'낙양',gs:'고소',sb:'새북',
-  nyz:'남양도',emei:'아미산',taz:'태안진',ts:'천산',
-  dh:'돈황',qz:'천주',fmz:'봉명집',jilegu:'양천령',
-  jianwang:'오산',lingyue:'명월산',xueyuan07:'캉단산',xueyuan05:'다고산',
-  ylg_1:'반딧불숲',ylg_2:'야낭곡',lxz_qf:'진부',taiyi_zl:'죽림',
-  qc_qlg:'천룡곡',qz_xsc:'어촌',qz_sz:'악귀섬',sfj_gc_migong:'고창 미궁',
-  ywg:'약왕곡',yz_gudao:'서풍고도',yz_sb:'낙일목장',
-  jlg_hole6:'은밀한 골짜기',jlg_hole7:'매령',qz_yinhuandao:'은환도',
-  hz_djc:'동강촌',sfj_wg:'내제 초원',qc_lyx1:'용은협',
-  qz_island_3:'내풍섬',sfj_dys:'대월지 거점',gs_sdm:'철인문',
-  sfj_qsm2:'칠살 주둔지',xueyuan01:'아도 설원',gs_lf:'이부',
-  qz_island_1:'섬용도'
- };
- const mapName=id=>knownMaps[String(id)]||String(id);
- // The Korean 60014 client stores one-time stump retrieval as shudun_<map><objectId>.
- // This is a verified acquisition marker: do not infer unopened stumps from absent keys.
- const gv=dict(root.globalVariable||root.GlobalVariable||root.P);
- const stumpMarks=Object.entries(gv).filter(([key,val])=>/^shudun_[\w]+$/i.test(key)&&Number(val)>0)
-   .map(([key,val])=>{
-    const raw=key.slice(7),parts=/^(.+?)(\d{4})$/.exec(raw);
-    const mid=parts?parts[1]:raw;
-    return {key,id:parts?parts[2]:'?',mid,name:mapName(mid),value:Number(val)};
-   });
- const officialStumpCount=Number.isFinite(Number(gv.find_TotalShuDun))?
-  Number(gv.find_TotalShuDun):null;
- // Historical public resource counts for comparison only (2022 Chinese edition).
- // These are not Korean-server 60014 verified totals and must never be shown as official completion.
- const historicalStumpTotals={
-  wyc:5,nyz:5,ly:5,lxz:5,taz:5,fmz:5,swz:5,gs:6,nl:5,hz:4,
-  lqz:4,ywg:2,cd:4,dh:5,yz:4,sfj:4,sb:5,shaolin:4,qc:5,
-  hss:5,taiyi:5,lingyue:4,hua:5,hsn:4
- };
- const stumpMap=new Map();
- for(const mark of stumpMarks){
-  if(!stumpMap.has(mark.mid))stumpMap.set(mark.mid,[]);
-  stumpMap.get(mark.mid).push(mark);
- }
- // Generic box-named counters are NOT authoritative chest opening evidence:
- // include them as unverified candidate records only.
- const boxCandidates=Object.entries(gv).filter(([key,val])=>
-   /(?:box|chest|宝箱|宝盒)/i.test(key)&&/^(?:open|opened|get_|box_)/i.test(key)&&Number(val)>0)
-   .map(([key,val])=>({key,value:Number(val)}));
-
-
- // One-off objects (tree stumps / treasure chests) are stored in MapData.tmxObj;
- // repeatable mine/plant nodes are intentionally excluded.
- const maps=dict(root.MapData);
- const mapKeys=Object.entries(maps).filter(([,v])=>v&&typeof v==='object');
- const markers=mapKeys.flatMap(([mid,entry])=>Object.entries(dict(entry.tmxObj)).map(([id,raw])=>{
-  const v=dict(raw),pic=String(v.pic||''),nick=String(v.nick||'');
-  const label=[pic,nick,v.json].join(' ');
-  const type=/(?:stump|tree[_ -]?stub|그루터기|树桩|樹樁)/i.test(label)?'그루터기':
-   /(?:box|chest|보물상자|나무상자|철상자|木箱|宝箱)/i.test(label)&&!/letterbox/i.test(label)?'보물상자':'종류 미확인';
-  return {mid,name:mapName(mid),id,pic,type,flag:/empty|open/i.test(pic)?'빈/열린 외형 저장':'오브젝트 변경 기록'};
- }));
- const identified=markers.filter(x=>x.type!=='종류 미확인');
- const perMap=[...new Set([...mapKeys.map(([id])=>id),...stumpMap.keys()])].map(id=>({
-  id,name:mapName(id),
-  entries:markers.filter(x=>x.mid===id),
-  stumps:stumpMap.get(id)||[]
- })).sort((a,b)=>a.name.localeCompare(b.name,'ko'));
- const rows=items=>items.map(x=>'<tr><td>'+escape(x.name)+' <small>('+escape(x.mid)+')</small></td><td>'+escape(x.type)+'</td><td>#'+escape(x.id)+'</td><td>'+escape(x.flag)+'</td><td>'+escape(x.pic||'—')+'</td></tr>').join('');
  const jianghuHtml=yyRoleSection('강호 기록 · 계정 공통',
  '<div class="role-grid stat-grid">'+[
   ['분기·이벤트 기록',records.length+'건','완료 '+completed.length+' · 진행 '+ongoing.length],
@@ -3791,48 +3748,7 @@ function yyAccountRecordAndResourceView(section='jianghu'){
   '<div class="stat-cell"><span class="label">'+escape(row.name)+'</span>'+
   '<span class="value">'+(row.value==null?'—':row.value.toLocaleString('ko-KR'))+'</span>'+
   '<span class="sub">'+escape(row.key)+'</span></div>').join('')+'</div>');
- if(section==='jianghu')return jianghuHtml;
- if(section==='map')return yyAccountMappedLootView(root,mapName);
- // Show ONLY the requested collectible kinds. Global quest boxes / mailboxes / mining
- // markers are not counted as map treasure chests.
- const confirmedChestStates=markers.filter(x=>x.type==='보물상자'&&
-  /(?:box|chest).*?(?:open|empty)|(?:open|empty).*?(?:box|chest)/i.test(x.pic));
- const stumps=[...stumpMap.entries()].map(([mid,items])=>({id:mid,name:mapName(mid),items}))
-  .sort((a,b)=>a.name.localeCompare(b.name,'ko'));
- const chests=[...new Set(confirmedChestStates.map(x=>x.mid))].map(mid=>({
-  id:mid,name:mapName(mid),items:confirmedChestStates.filter(x=>x.mid===mid)
- })).sort((a,b)=>a.name.localeCompare(b.name,'ko'));
- const search=String(accountMapSearch||'').trim().toLowerCase();
- const stumpList=stumps.filter(x=>!search||(x.name+' '+x.id+' 그루터기').toLowerCase().includes(search));
- const chestList=chests.filter(x=>!search||(x.name+' '+x.id+' 보물상자').toLowerCase().includes(search));
- const line=(name,count,total,tag)=>'<div class="account-track-top"><span>'+escape(name)+'</span><strong>'+
-   escape(count)+' / '+(total==null?'?':escape(total))+'</strong></div>'+
-   (total!=null?accountProgressBar(count,total,tag):'<small>전체 개수 미확정 · 획득 기록만 표시</small>');
- const stumpCards=stumpList.map(m=>
-   '<details class="account-resource-card"><summary>'+escape(m.name)+' <small>그루터기 '+m.items.length+'개 획득</small></summary>'+
-   line('획득 확인',m.items.length,null,'teal')+
-   '<div class="account-resource-tags">'+m.items.map(v=>
-    '<span title="'+escape(v.key)+'">#'+escape(v.id)+'</span>').join('')+'</div></details>').join('');
- const chestCards=chestList.map(m=>
-  '<details class="account-resource-card"><summary>'+escape(m.name)+' <small>보물상자 후보 '+m.items.length+'개</small></summary>'+
-  '<p class="micro">저장된 열린/빈 상자 외형입니다. 실제 획득 여부는 지도 오브젝트표 대조 전 미확정입니다.</p>'+
-  '<div class="account-resource-tags">'+m.items.map(v=>
-   '<span title="'+escape(v.pic)+'">#'+escape(v.id)+'</span>').join('')+'</div></details>').join('');
- return '<section class="yy-account-overview account-map-page">'+
- '<div class="account-kpis">'+[
-  ['그루터기 획득 확인',stumpMarks.length+'개','shudun_ 개별 획득 키'],
-  ['그루터기 획득 지역',stumps.length+'곳','실제 획득 기록'],
-  ['보물상자 외형 후보',confirmedChestStates.length+'건','열린/빈 상자 외형 · 획득 미검증']
- ].map(([n,v,note])=>'<div class="account-kpi"><small>'+escape(n)+'</small><strong>'+escape(v)+'</strong><small>'+escape(note)+'</small></div>').join('')+'</div>'+
- '<label class="wiki-search-label">지도 검색 <input id="accountMapSearch" type="search" placeholder="지도 이름 또는 코드" value="'+escape(accountMapSearch||'')+'"></label>'+
- yyRoleSection('그루터기',
-  '<p class="micro">세이브에 저장된 실제 그루터기 획득 ID만 표시합니다. 총 개수는 지도 원본과 대조되지 않아 물음표로 표시합니다.</p>'+
-  (stumpCards?'<div class="account-resource-list">'+stumpCards+'</div>':'<p class="micro">그루터기 획득 기록이 없습니다.</p>'))+
- yyRoleSection('보물상자',
-  '<p class="micro">일반 채광·식물·월드 오브젝트 자료는 표시하지 않습니다. 열린/빈 상자 외형을 가진 기록만 후보로 표시하며 전체 획득률은 확정하지 않습니다.</p>'+
-  (chestCards?'<div class="account-resource-list">'+chestCards+'</div>':'<p class="micro">식별 가능한 보물상자 외형 기록이 없습니다. 미획득이라는 의미는 아닙니다.</p>'))+
- '</section>';
-
+ return jianghuHtml;
 }
 
 
