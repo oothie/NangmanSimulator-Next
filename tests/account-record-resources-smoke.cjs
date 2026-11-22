@@ -1,12 +1,12 @@
-// Actual save schema regression: Branch/Achieves and EncryptMap.Plants/Kuangs.
+// Actual save schema regression: Branch/Achieves and globalVariable.shudun pickup flags.
 // Run: node tests/account-record-resources-smoke.cjs
 'use strict';
 const fs=require('node:fs');
 const path=require('node:path');
 const assert=require('node:assert/strict');
 const source=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
-const begin=source.indexOf('function yyAccountRecordAndResourceView(){');
-const end=source.indexOf('\nfunction characterView(){',begin);
+const begin=source.indexOf('function yyAccountRecordAndResourceView(');
+const end=source.indexOf('\nfunction accountView(){',begin);
 assert(begin>0&&end>begin,'account record/resource function exists');
 const fn=source.slice(begin,end);
 const section=(title,body)=>'<section><h3>'+title+'</h3>'+body+'</section>';
