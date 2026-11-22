@@ -128,6 +128,29 @@ function gradeReviewSitesFor(decoded){
  }
  return candidates;
 }
+// Distinguish generic four-slot/count operations from credible talent-grade
+// checks. These are diagnostics ONLY; absence of a match is not proof.
+function classifyFourUses(decoded){
+ const output=[];
+ const inst=decoded.instructions;
+ for(let i=0;i<inst.length;i++){
+  if(inst[i].opcode!==65||inst[i].value!==4)continue;
+  const after=inst.slice(i+1,i+7).map(x=>x.opcode);
+  const before=inst.slice(Math.max(0,i-4),i).map(x=>x.opcode);
+  let category='unclassified';
+  if(after[0]===54||after[0]===55)category='memory-store';
+  else if(after[0]===106||after[0]===107)category='pointer-stride-or-arithmetic';
+  else if(after.includes(27)&&after.some(x=>[73,75,77,79].includes(x)))
+   category='min-max-clamp';
+  else if(after[0]>=70&&after[0]<=79&&after.includes(13))
+   category='bound-or-branch';
+  else if(after.includes(116))category='bit-mask-or-slot-count';
+  output.push({offset:inst[i].offset,category,
+   nearOpcodes:[...before,...after].map(x=>x.toString(16))});
+ }
+ return output;
+}
+const fourUseCandidates=classifyFourUses(solver);
 const gradeReviewSites=gradeReviewSitesFor(solver);
 const dependencies=[...tally.values()].sort((a,b)=>b.calls-a.calls||a.index-b.index);
 const byBody=[...tally.values()].sort((a,b)=>b.bodyBytes-a.bodyBytes).slice(0,12);
@@ -183,6 +206,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  mostFrequent:dependencies.slice(0,15),largestDependencies:byBody,
  solverConstants:[...constantCounts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,20),
  gradeFourCandidates:solver.constants.filter(x=>x.value===4).map(x=>x.offset),
+ fourUseCandidates,
  gradeComparisonReviewSites:gradeReviewSites,
  candidateCallees:candidateCallees.slice(0,25),
  reachableFunctions:reachable.length,
