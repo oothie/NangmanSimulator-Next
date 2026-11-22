@@ -333,6 +333,26 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   replayErrors:prodDefaults.diagnostics.purpleReplayErrors||[],
   scanned:prodDefaults.diagnostics.scannedWashes
  }));
+ // Simulate inaccurate native pill metadata only: the actual four-slot
+ // route must be costed from the real replayed WASM state, not rejected.
+ const costMetadataGuard={...YYWashNativeSearchGuard,
+  run:function(ops,req){
+   const native=YYWashNativeSearchGuard.run(ops,req);
+   return {...native,routes:native.routes.map(route=>({
+    ...route,pills:Number(route.pills)+1
+   }))};
+  }};
+ const measured=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[271,268,272,184],maxPad:0,horizon:40,topN:1,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:costMetadataGuard
+ });
+ assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base);
+ assert.equal(measured.routes[0]?.pills,out.routes[0]?.pills,
+  'Measured native WASM cost must override inaccurate route metadata');
+ assert(measured.diagnostics.purpleCostAdjusted>0,
+  'Native replay cost adjustment should be reported');
  console.log('YY_PURPLE_ANCHOR_MIXED_REAL_WASM '+JSON.stringify({
   shape:[271,268,272,184],
   routes:out.routes.map(r=>({pills:r.pills,washes:r.washes,final:r.final_slots,
