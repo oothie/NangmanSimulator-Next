@@ -44,7 +44,26 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),
      method:response.nativeDiagnostics?.method,
      statePreserved:JSON.stringify(before)===JSON.stringify(after)});
    }
-   return {ready:ready.ready,results};
+   // Real production iframe: no native purple search is needed when the
+   // selected character already holds all three purple anchors and green.
+   await washSearchEngine.call('set-state',{...target,bag_pills:0,
+    talents:[{id:271,locked:true},{id:268,locked:true},
+     {id:272,locked:true},{id:184,locked:false}]});
+   const heldBefore=await washSearchEngine.call('state');
+   const held=await washSearchEngine.call('auto-search',{
+    desiredIds:[271,268,272,184],maxPad:0,horizon:900,topN:1
+   });
+   const heldAfter=await washSearchEngine.call('state');
+   const zero=held.result?.routes?.[0];
+   const alreadyHeld={
+    nativeFunction:held.nativeFunction,
+    found:held.result?.routes?.length||0,
+    pills:zero?.pills??null,
+    allLocked:zero?.final_slots?.every(t=>t.locked===true)??false,
+    preserved:JSON.stringify(heldBefore)===JSON.stringify(heldAfter),
+    hadAllPurples:held.nativeDiagnostics?.preexistingPurple===true
+   };
+   return {ready:ready.ready,results,alreadyHeld};
   });
   assert(report.ready,'production WASM iframe initialization failed');
   for(const row of report.results){
@@ -56,6 +75,12 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),
   }
   assert(report.results[0].pills>0&&report.results[0].pills<=7357,'3 purple + green is no worse than verified last-anchor route');
   assert(report.results[1].pills>0&&report.results[1].pills<=5032,'2 purple + green + blue is no worse than verified last-anchor route');
+  assert.equal(report.alreadyHeld.nativeFunction,'wasmSearchWashRoutes');
+  assert.equal(report.alreadyHeld.found,1,'Already-held goals must yield a verified native route');
+  assert.equal(report.alreadyHeld.pills,0,'Already-held goals must consume zero additional pills');
+  assert(report.alreadyHeld.allLocked,'Already-held four goals must end locked');
+  assert(report.alreadyHeld.hadAllPurples,'Already-held goals must bypass native purple search');
+  assert(report.alreadyHeld.preserved,'Already-held search must not mutate browser save');
   assert.deepEqual(errors,[],'unexpected browser errors');
   console.log('YY_ANCHOR_PRODUCTION_BROWSER '+JSON.stringify(report));
  }finally{await browser?.close();server.kill('SIGTERM')}
