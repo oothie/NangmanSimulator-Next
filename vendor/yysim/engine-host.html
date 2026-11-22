@@ -66,6 +66,12 @@ try{
      ids.some(id=>!Number.isInteger(id)||![2,3,4].includes(TALENT_DATA[String(id)]?.pinzhi)||
        !washSelectableIds().has(id)))
    throw Error('자동탐색은 등록된 녹맥·파맥·자맥 재능을 1~4개 선택해야 합니다');
+  // Talents in the same native type family cannot coexist in final slots.
+  // Reject impossible mixed-grade requests before starting expensive WASM work.
+  const families=ids.map(id=>TALENT_DATA[String(id)]?.type);
+  const knownFamilies=families.filter(v=>v!==null&&v!==undefined);
+  if(new Set(knownFamilies).size!==knownFamilies.length)
+   throw Error('동일 계열의 재능은 최종 슬롯에 함께 남길 수 없습니다. 충돌하는 목표 재능을 변경하세요');
   if(!Number.isInteger(maxPad)||maxPad<0||maxPad>200||
      !Number.isInteger(horizon)||horizon<20||horizon>5000||
      !Number.isInteger(topN)||topN<1||topN>20)
