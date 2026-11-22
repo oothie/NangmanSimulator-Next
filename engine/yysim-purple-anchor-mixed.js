@@ -145,7 +145,8 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
      const id=names.get(String(action.talent));
      if(!id)throw Error('원본 자맥 단계 재능 ID를 찾지 못했습니다');
      lockId(id,action.kind!=='unlock');
-     if(action.kind==='keep'&&shape.purple.includes(id))
+     // Purple milestones can be recorded as either keep or lock.
+     if(action.kind!=='unlock'&&shape.purple.includes(id))
       anchorProgress?.({id,actionIndex:i,wash,state:clone(getState())});
      break;
     }
@@ -671,6 +672,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    const marks=[];
    try{replayed=replay(native,m=>marks.push(m));diagnostics.replayed++}
    catch(e){diagnostics.failures.push(String(e?.message||e));continue}
+   diagnostics.purpleAnchorMarks=(diagnostics.purpleAnchorMarks||0)+marks.length;
    const start=replayed.state;
    restore(start);
    // Freeze all purple anchors. Free only nonselected, replaceable slots.
