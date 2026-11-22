@@ -1,0 +1,40 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const root=path.join(__dirname,'..'),w={};
+const ctx={window:w};vm.createContext(ctx);
+for(const file of ['vendor/yysim/daily_data.js','vendor/sanbujin/drops/dungeon-data.js',
+ 'vendor/sanbujin/drops/dungeon-rates.js']){
+ vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file});
+}
+const {rate}=w.SBJDungeonRates,all=w.SBJDungeonCatalog;
+const known=all.filter(e=>e.outer);
+assert(known.length>40);
+const mapped=known.filter(e=>rate(e)?.source==='yy-sim');
+assert(mapped.length>=45);
+const rateBy=id=>rate(all.find(x=>x.id===id));
+const yan=rateBy('drop_33650_equip');
+assert.equal(yan.equip,0.5);
+assert.equal(yan.items.length,9);
+assert(Math.abs(yan.colors.find(x=>x.color===4).prob-5/110)<1e-12);
+assert(yan.uniqueOps.some(x=>x.item===2364));
+const eunuch=rateBy('drop_33652_equip');
+assert.equal(eunuch.equip,0.5);
+assert.equal(eunuch.none,0.5);
+assert.equal(eunuch.items.length,5);
+const byj=rateBy('drop_35219_equip');
+assert.equal(byj.items.length,4);
+assert.equal(byj.uniqueOps.length,2);
+const missing=rateBy('drop_35160_equip');
+assert.equal(missing.source,'산부진');
+assert.equal(missing.equip,0.6);
+const noPool=rateBy('drop_50100_equip');
+assert(noPool.inferredPool&&noPool.items.length);
+const html=fs.readFileSync(path.join(root,'vendor/sanbujin/drops/index.html'),'utf8');
+const code=fs.readFileSync(path.join(root,'vendor/sanbujin/drops/dungeon.js'),'utf8');
+assert(html.includes('dungeonRates'));
+assert(html.includes('dungeon-rates.js'));
+assert(html.includes('dungeonActualRows'));
+assert(code.includes('SBJDungeonRates?.render'));
+assert(code.includes('dungeonActualRun'));
+new vm.Script(code);
+console.log('PASS: yy-sim dungeon boss weights, 90 equipment pools, unique thresholds, and manual actual comparison');
