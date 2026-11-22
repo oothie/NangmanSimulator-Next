@@ -28,7 +28,10 @@ function actionsToRoute(actions,final,base,original,desiredIds,window='last-purp
  return {
   order_ids:[...desiredIds],final_slots:clone(final.talents),
   actions,pills,washes,exchanges:actions.filter(a=>a.kind==='exchange').length,
-  pad:number(original.pad)||0,optimal:false,
+  // All remaining operations cost nonnegative pills, so a verified
+  // zero-pill complete final state is an actual global minimum.
+  // Positive-cost bounded mixed searches remain unproven.
+  pad:number(original.pad)||0,optimal:pills===0,
   strategy:'자맥 원본 경로 확정 → 녹·파맥 실측 가까운 맥 탐색',
   anchor_window:window,native_verified:true
  };
