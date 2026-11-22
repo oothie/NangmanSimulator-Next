@@ -63,7 +63,7 @@ function inspect(index){
  while(cur.pos<end){
   const at=cur.pos-start,opcode=bytes[cur.pos++];
   if(opcode===2||opcode===3||opcode===4)signedLeb(cur);
-  else if([12,13,16,18,20,21,22,23,24,25,26,210].includes(opcode)){
+  else if([12,13,16,18,32,33,34,35,36,37,38,210].includes(opcode)){
    const value=uleb(cur);
    if(opcode===16)calls.push({offset:at,index:value,bodyBytes: functions[value-importCount]?.size??null,name:named.get(value)||null});
   }
