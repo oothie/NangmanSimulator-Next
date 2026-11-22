@@ -165,7 +165,13 @@
       if(!previous||previous.variant==='挑战'&&event.variant!=='挑战')
         byBoss.set(event.boss,event);
     }
-    const toAppend=[...byBoss.values()];
+    const toAppend=[...byBoss.values()].sort((a,b)=>{
+      const sourceA=window.SBJDungeonYYAdapter?.findSource(a),
+        sourceB=window.SBJDungeonYYAdapter?.findSource(b);
+      if(!sourceA||!sourceB||sourceA.d!==sourceB.d)return 0;
+      return sourceA.d.npcs.findIndex(n=>n.id===sourceA.n.id)-
+        sourceB.d.npcs.findIndex(n=>n.id===sourceB.n.id);
+    });
     if(!toAppend.length)return seqStatus.textContent='현재 관문의 일반 장비 보상 함수가 없습니다.';
     if(present.length+toAppend.length>500)
       return seqStatus.textContent='보스 보상 호출은 총 500회 이내로 입력하세요.';
