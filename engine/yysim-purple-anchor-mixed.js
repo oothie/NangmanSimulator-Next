@@ -208,11 +208,9 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
     await new Promise(resolve=>setTimeout(resolve,0));
    }
   }
-  const candidateCap=8;
-  const head=candidatesInWindow.slice(0,4);
-  const tail=candidatesInWindow.slice(-4);
-  const chosen=[...new Map([...head,...tail].map(x=>[x.time,x])).values()]
-   .sort((a,b)=>a.time-b.time).slice(0,candidateCap);
+  // Fixed native replay budget, but include the interior of the interval.
+  // An edge-only sample can miss a cheaper completed final four-slot route.
+  const chosen=sampleIntervalCandidates(candidatesInWindow,8);
   diagnostics.betweenCandidates=(diagnostics.betweenCandidates||0)+
    candidatesInWindow.length;
   diagnostics.betweenExamined=(diagnostics.betweenExamined||0)+chosen.length;
@@ -628,5 +626,5 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
   diagnostics,error:routes.length?null:'자맥 확정 후 녹·파맥 최종 보유 경로 미발견 (검색 범위 내)',
   nativePurpleScanned:baseline?.scanned??0};
 }
-root.YYWashPurpleAnchorMixed={requestShape,run};
+root.YYWashPurpleAnchorMixed={requestShape,run,sampleIntervalCandidates};
 })(window);
