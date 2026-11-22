@@ -16,7 +16,11 @@ assert(shell.includes('id="washV350Frame"'));
 assert(shell.includes('./vendor/nangman-v350/wash.html'));
 assert(shell.includes("['auto','자동 탐색']"));
 assert(shell.includes("washEngine.call('auto-search',options)"));
-assert(shell.includes('auto-intermediate-search'));
+assert(!shell.includes("'auto-intermediate-search'"),
+ 'Removed sequential mixed-grade search must not return');
+const host=fs.readFileSync(path.join(base,'vendor/yysim/engine-host.html'),'utf8');
+assert(host.includes('YYWashPurpleAnchorMixed.run'),
+ 'Native purple-anchor four-slot search must remain wired to live WASM');
 const scripts=[...original.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(x=>x[1]);
 for(const src of scripts)assert.doesNotThrow(()=>new Function(src));
 console.log('PASS: authentic v3.50 wash engine, auto-search retained, Korean save bridge, executable inline JS');
