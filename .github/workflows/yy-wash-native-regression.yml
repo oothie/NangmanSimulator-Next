@@ -5,6 +5,9 @@ on:
     paths:
       - 'engine/yysim-auto-search.js'
       - 'engine/yysim-auto-progressive.js'
+      - 'engine/yysim-native-search-guard.js'
+      - 'vendor/yysim/engine-host.html'
+      - 'tests/yysim-native-search-guard-smoke.cjs'
       - 'vendor/yysim/wasm_data.js'
       - 'tests/yysim-auto-search-smoke.cjs'
       - 'tests/yysim-auto-progressive-smoke.cjs'
@@ -15,6 +18,9 @@ on:
     paths:
       - 'engine/yysim-auto-search.js'
       - 'engine/yysim-auto-progressive.js'
+      - 'engine/yysim-native-search-guard.js'
+      - 'vendor/yysim/engine-host.html'
+      - 'tests/yysim-native-search-guard-smoke.cjs'
       - 'vendor/yysim/wasm_data.js'
       - 'tests/yysim-auto-search-smoke.cjs'
       - 'tests/yysim-auto-progressive-smoke.cjs'
@@ -40,9 +46,13 @@ jobs:
         run: |
           node --check engine/yysim-auto-search.js
           node --check engine/yysim-auto-progressive.js
+          node --check engine/yysim-native-search-guard.js
+          node --check tests/yysim-native-search-guard-smoke.cjs
           node --check tests/yysim-auto-progressive-smoke.cjs
           node --check tests/yysim-wasm-callgraph.cjs
           node --check tests/yysim-native-grade-contract.cjs
+      - name: Verify original WASM state restore on native errors
+        run: node tests/yysim-native-search-guard-smoke.cjs
       - name: Verify native single-call final-route minimum and UI
         run: node tests/yysim-auto-progressive-smoke.cjs
       - name: Verify original results adapter and final-slot goals
