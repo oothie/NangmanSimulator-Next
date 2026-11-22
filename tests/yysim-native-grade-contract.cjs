@@ -92,7 +92,8 @@ const path=require('node:path');
     // Include the two four-slot user regression shapes, choosing native type
     // compatible targets instead of assuming identical grade means compatible.
     const picks=(grade,used,count)=>{
-     const choices=Object.values(TALENT_DATA).filter(t=>t?.pinzhi===grade&&
+     const selectable=new Set((window.YYWashTargetCatalog||[]).flatMap(g=>g.items||[]).map(t=>Number(t.id)));
+     const choices=Object.values(TALENT_DATA).filter(t=>t?.pinzhi===grade&&selectable.has(Number(t.id))&&
       Number.isInteger(Number(t.id))&&Number.isInteger(Number(t.type))&&
       Number(t.type)>0&&!used.has(Number(t.type)));
      const found=[];
