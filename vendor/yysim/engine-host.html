@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>yy-sim 세수 엔진</title></head><body><script src="./wasm_data.js?rev=0.10.21"></script><script src="./core_glue.js?rev=0.10.21"></script><script src="./data.js?rev=0.10.21"></script><script src="../../engine/yysim-target-catalog.js?rev=0.10.20"></script><script src="../../engine/yysim-native-search-guard.js?rev=0.10.26"></script><script>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>yy-sim 세수 엔진</title></head><body><script src="./wasm_data.js?rev=0.10.21"></script><script src="./core_glue.js?rev=0.10.21"></script><script src="./data.js?rev=0.10.21"></script><script src="../../engine/yysim-target-catalog.js?rev=0.10.20"></script><script src="../../engine/yysim-native-search-guard.js?rev=0.10.26"></script><script src="../../engine/yysim-purple-anchor-mixed.js?rev=20261122-anchor-v1"></script><script>
 let ready=false;
 const washSelectableIds=()=>new Set((window.YYWashTargetCatalog||[])
  .flatMap(group=>group.items||[]).map(item=>Number(item.id)));
@@ -77,6 +77,30 @@ try{
      !Number.isInteger(topN)||topN<1||topN>20)
    throw Error('자동 탐색: 선행 세수 0~200, 자맥 탐색 20~5000, 결과 1~20개로 설정하세요');
   await new Promise(resolve=>setTimeout(resolve,0));
+  // Requested 4-slot combinations: let ORIGINAL yy-sim first solve only
+  // the 2/3 purple anchor goals, then replay that path with ORIGINAL WASM
+  // and scan nearby green/blue talents in the free slots. The result is
+  // accepted ONLY when all four actually remain in final WASM slots.
+  const anchor=window.YYWashPurpleAnchorMixed?.requestShape(ids,TALENT_DATA);
+  if(anchor){
+   const mixed=await window.YYWashPurpleAnchorMixed.run({
+    desiredIds:ids,maxPad,horizon,topN,talents:TALENT_DATA,
+    getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes,
+    doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+    guard:window.YYWashNativeSearchGuard,
+    progress:data=>progress(requestId,data)
+   });
+   const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
+    .filter(([,item])=>item?.name).map(([id,item])=>[item.name,Number(id)]));
+   send(requestId,true,{
+    result:mixed,desiredIds:ids,maxPad,horizon,topN,nameIds,
+    nativeFunction:'wasmSearchWashRoutes',
+    nativeDiagnostics:{isMixed:true,returned:mixed.routes.length,
+     complete:mixed.routes.length,incomplete:0,
+     method:'purple-anchor-original-wasm',...mixed.diagnostics}
+   });
+   return
+  }
   const search={desired_ids:ids,max_pad:maxPad,horizon,top_n:topN};
   const guard=window.YYWashNativeSearchGuard;
   if(!guard?.run)throw Error('원본 WASM 검색 상태 보호 모듈이 준비되지 않았습니다');
