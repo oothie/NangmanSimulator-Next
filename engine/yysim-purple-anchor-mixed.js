@@ -205,7 +205,9 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
      diagnostics.replanAttempts=(diagnostics.replanAttempts||0)+1;
      try{
       const replanned=guard.run({getState,setState,search},{
-       desired_ids:remaining,max_pad:Math.min(maxPad,20),
+       // Include previously fixed purples as native goals, or the purple-only
+       // solver may immediately unlock them as supposedly irrelevant.
+       desired_ids:shape.purple,max_pad:Math.min(maxPad,20),
        horizon:Math.min(horizon,300),top_n:2});
       diagnostics.replanNativeRoutes=(diagnostics.replanNativeRoutes||0)+
        (replanned?.routes?.length||0);
@@ -215,7 +217,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
       ]);
       diagnostics.replanExamples=diagnostics.replanExamples||[];
       if(diagnostics.replanExamples.length<4)diagnostics.replanExamples.push({
-       atWash:time,targets:remaining,received:replanned?.routes?.length||0,
+       atWash:time,targets:shape.purple,remaining,received:replanned?.routes?.length||0,
        error:replanned?.error||null,
        firstAction:replanned?.routes?.[0]?.actions?.[0]||null,
        currentWash:count(branchState,'total_wash'),
