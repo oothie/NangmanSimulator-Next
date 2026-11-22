@@ -17,6 +17,7 @@ on:
       - 'engine/yysim-save-state.js'
       - 'tests/yysim-native-save-probe.js'
       - 'tests/yysim-native-save-state-smoke.cjs'
+      - 'tests/yysim-native-mixed-dispatch-smoke.cjs'
       - 'engine/yysim-target-catalog.js'
       - 'vendor/yysim/data.js'
       - 'tests/yysim-auto-progressive-smoke.cjs'
@@ -39,6 +40,7 @@ on:
       - 'engine/yysim-save-state.js'
       - 'tests/yysim-native-save-probe.js'
       - 'tests/yysim-native-save-state-smoke.cjs'
+      - 'tests/yysim-native-mixed-dispatch-smoke.cjs'
       - 'engine/yysim-target-catalog.js'
       - 'vendor/yysim/data.js'
       - 'tests/yysim-auto-progressive-smoke.cjs'
@@ -75,10 +77,13 @@ jobs:
           node --check engine/yysim-save-state.js
           node --check tests/yysim-native-save-probe.js
           node --check tests/yysim-native-save-state-smoke.cjs
+          node --check tests/yysim-native-mixed-dispatch-smoke.cjs
       - name: Verify original WASM state restore on native errors
         run: node tests/yysim-native-search-guard-smoke.cjs
       - name: Validate native talent IDs and grades before mixed search
         run: node tests/yysim-grade-catalog-contract.cjs
+      - name: Verify original WASM host accepts mixed grades and rejects incomplete final slots
+        run: node tests/yysim-native-mixed-dispatch-smoke.cjs
       - name: Verify real-save character mapping and independent seeds
         run: node tests/yysim-native-save-state-smoke.cjs
       - name: Verify browser-native live probe remains original-WASM only
