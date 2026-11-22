@@ -36,7 +36,7 @@ assert(render(fixture,{event_known:['한국판 검증 이벤트','']},'jianghu')
 assert(render(fixture,{},'jianghu').includes('업적 저장 항목'),'achievements shown');
 assert(render(fixture,{event_known:['한국판 검증 이벤트','']},'jianghu').includes('110,711'),'account activity count');
 assert(out.includes('그루터기 / 보물상자'),'correct collectible category');
-assert(out.includes('상자·그루터기 외형 식별'),'both visually confirmed marker types summarized');
+assert(out.includes('상자·기타 오브젝트 유형 식별'),'both visually confirmed marker types summarized');
 assert(out.includes('획득한 그루터기')&&out.includes('2개'),'confirmed stump pickup counters');
 assert(out.includes('shudun_sfj2012'),'confirmed stump record row');
 assert(out.includes('개별 획득 목록과 일치'),'cumulative count equals individual records');
