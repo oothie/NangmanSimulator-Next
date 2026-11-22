@@ -3462,43 +3462,105 @@ function yyRoleGrowthOverview(role,kind){
   '<span>'+escape(x.label)+' '+(x.current??'—')+'/'+x.max+'</span>').join('')+'</div></div>'
  ).join('')+'</div>');
 }
-/* 계정 전체 강호 이력과 지도자원은 실제 세이브 키를 보수적으로 조회한다. */
+/* 한국판 실제 세이브: Branch/Achieves, EncryptMap.Plants/Kuangs, MapData, Fogs.
+ * 비어 있는 슬롯을 0회 획득으로 해석하거나 카운터를 임의로 합산하지 않는다.
+ * Read-only: 세이브의 맵/광맥 RNG, 타임스탬프, 수량을 절대 변경하지 않는다. */
 function yyAccountRecordAndResourceView(){
  const root=Array.isArray(save)?save[0]:save||{};
- const branch=root.Branch&&typeof root.Branch==='object'?root.Branch:{};
+ const dict=x=>x&&typeof x==='object'&&!Array.isArray(x)?x:{};
+ const branch=dict(root.Branch),quests=window.NangmanQuest?.verified||{};
  const records=Object.entries(branch).filter(([,r])=>r&&typeof r==='object'&&Number.isInteger(Number(r.step)));
- const completed=records.filter(([,r])=>Number(r.step)===-1).length;
- const ongoing=records.filter(([,r])=>Number(r.step)>=0).length;
- const mapData=Object.entries(root).filter(([key,value])=>
- /map|collect|resource|gather|mine|采集|资源|地图/i.test(key)&&value&&typeof value==='object');
- const gv=root.globalVariable||root.GlobalVariable||root.P||{};
- const resourceData=Object.entries(gv).filter(([key])=>
- /^(?:collect|gather|mine|resource|map_resource|map_collect)[_:.]/i.test(key));
- const shortened=value=>{try{const t=JSON.stringify(value);return t.length>160?t.slice(0,160)+'…':t}catch(e){return '확인 불가'}};
+ const completed=records.filter(([,r])=>Number(r.step)===-1);
+ const ongoing=records.filter(([,r])=>Number(r.step)>=0);
+ const traced=records.filter(([,r])=>r.trace===true);
+ const achievements=characterEntries(root.Achieves).filter(x=>x&&Number.isFinite(Number(x.ID)));
+ const achievePoint=Number.isFinite(Number(root.AchievePoint))?Number(root.AchievePoint):null;
+ const translatedBranch=id=>{
+  const hit=quests[id]||quests[String(id)];
+  return Array.isArray(hit)?String(hit[0]||id):typeof hit==='string'?hit:String(id);
+ };
+ const branchRows=records.slice().sort((a,b)=>Number(b[1].recv||0)-Number(a[1].recv||0)).map(([id,r])=>
+  '<tr><td>'+escape(translatedBranch(id))+(translatedBranch(id)!==id?'<small> · '+escape(id)+'</small>':'')+'</td>'+
+  '<td>'+(Number(r.step)===-1?'완료 기록':'진행 · '+escape(r.step))+(r.trace===true?' · 추적':'')+'</td>'+
+  '<td>'+escape(r.recv?new Date(Number(r.recv)*1000).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}):'—')+'</td></tr>').join('');
+ const achievementRows=achievements.slice().sort((a,b)=>Number(a.ID)-Number(b.ID)).map(row=>
+  '<tr><td>#'+escape(row.ID)+'</td><td>'+escape(row.Reward??'—')+'</td></tr>').join('');
+ const knownMaps={
+  wyc:'망우촌',swz:'십방집',hua:'화산',taiyi:'태을산',hz:'항주',
+  hsn:'형산',qc:'청성산',qls:'기련산',nl:'남령',lxz:'낙하진',
+  shaolin:'소림사',lqz:'용천진',cbs:'장백산',dxs:'대설산',yz:'유주',
+  kunlun:'곤륜산',cd:'청두',ly:'낙양',gs:'고소',sb:'새북',
+  nyz:'남양도',emei:'아미산',taz:'태안진',ts:'태산',
+  dh:'돈황',qz:'천도',fmz:'봉명집',jilegu:'극락곡'
+ };
+ const mapName=id=>knownMaps[String(id)]||String(id);
+ const encrypted=dict(root.EncryptMap),mapData=dict(root.MapData),fogs=dict(root.Fogs);
+ const gv=dict(root.globalVariable||root.GlobalVariable||root.P);
+ const mapReward=Object.entries(gv).filter(([k,v])=>/(?:^|_)map_reward$/.test(k)&&Number.isFinite(Number(v)));
+ const mapRows=Object.entries(encrypted).map(([mid,entry])=>{
+  const plants=Object.entries(dict(entry?.Plants));
+  const mines=Object.entries(dict(entry?.Kuangs));
+  return {id:mid,name:mapName(mid),plants,mines,count:plants.length+mines.length,
+   mapState:dict(mapData[mid]),fog:fogs[mid]};
+ }).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ko'));
+ const activeMaps=mapRows.filter(x=>x.count>0);
+ const nodeRows=activeMaps.flatMap(m=>
+  [['식물',m.plants],['광맥',m.mines]].flatMap(([kind,items])=>items.map(([slot,entry])=>({
+   mid:m.id,map:m.name,kind,slot,data:dict(entry)
+  }))));
+ const timeText=n=>{
+  const num=Number(n);
+  return Number.isFinite(num)&&num>1000000000&&num<4102444800?
+   new Date(num*1000).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false}):'—';
+ };
+ const nodeTable=nodeRows.map(row=>{
+  const d=row.data;
+  return '<tr><td>'+escape(row.map)+' <small>('+escape(row.mid)+')</small></td>'+
+   '<td>'+row.kind+'</td><td>'+escape(d.ID??row.slot)+'</td>'+
+   '<td>'+escape(d.Count??'—')+'</td><td>'+escape(d.R??'—')+'</td>'+
+   '<td>'+escape(timeText(d.Time))+'</td><td>'+escape(d.RCD??'—')+'</td></tr>';
+ }).join('');
+ const indexRows=mapRows.map(row=>
+  '<tr><td>'+escape(row.name)+' <small>('+escape(row.id)+')</small></td>'+
+  '<td>'+row.plants.length+'</td><td>'+row.mines.length+'</td>'+
+  '<td>'+Object.keys(row.mapState).length+'</td>'+
+  '<td>'+(row.fog?'탐색 비트 저장':'없음 / 확인 불가')+'</td></tr>').join('');
+ const fogRecords=Object.entries(fogs).filter(([,v])=>v&&typeof v==='object'&&v.bits64);
+ const totalNodes=nodeRows.length;
+ const activeSummary=activeMaps.length?'기록이 있는 지역 '+activeMaps.length+'곳 · 개별 자원 슬롯 '+totalNodes+'개':'저장된 개별 자원 슬롯 없음';
  return yyRoleSection('강호 기록 · 계정 공통',
  '<div class="role-grid stat-grid">'+[
- ['저장 분기 기록',records.length+'건','진행·완료·미확인 전체'],
- ['완료 기록',completed+'건','저장 단계 -1'],
- ['진행 기록',ongoing+'건','저장 단계 0 이상'],
- ['현재 임무',root.Task?.id??'—','세이브 Task.id']
+  ['분기·이벤트 기록',records.length+'건','완료 '+completed.length+' · 진행 '+ongoing.length],
+  ['추적 중',traced.length+'건','Branch.trace 저장값'],
+  ['업적 저장 항목',achievements.length+'건','업적 ID 기준'],
+  ['업적 포인트',achievePoint??'—','세이브 AchievePoint']
  ].map(([name,value,note])=>'<div class="stat-cell"><span class="label">'+escape(name)+'</span><span class="value">'+escape(value)+'</span><span class="sub">'+escape(note)+'</span></div>').join('')+'</div>'+
- '<p class="micro">게임 내 강호 기록과 동일한 완료율을 뜻하지 않습니다. 분기 이벤트 중 미확인 기록은 원본 ID로 유지합니다.</p>'+
- '<details class="yy-account-history"><summary>저장된 강호·분기 기록 '+records.length+'건 보기</summary>'+
- '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>ID</th><th>기록 상태</th><th>단계</th></tr></thead><tbody>'+
- records.map(([id,r])=>'<tr><td>'+escape(id)+'</td><td>'+(Number(r.step)===-1?'완료':Number(r.step)>=0?'진행':'확인 필요')+'</td><td>'+escape(r.step)+'</td></tr>').join('')+'</tbody></table></div></details>')+
- yyRoleSection('지도자원 · 계정 저장 현황',
- '<p class="micro">지도자원은 원본 세이브에서 자원/수집/채광/지도 관련으로 식별 가능한 필드만 표시합니다. 아직 지역별 자원 소모 여부와 정확히 연결되지 않은 값은 원본 저장값으로 구분합니다.</p>'+
+ '<p class="micro">한국판 세이브의 Branch와 Achieves를 별도 집계합니다. Branch.step=-1은 완료 기록이지만 이벤트 내부 분기도 포함하므로 실제 게임의 강호 기록 완료율과 동일하지 않습니다. 업적 Reward 필드는 원본 값이며 보상 수령 여부로 단정하지 않습니다.</p>'+
+ '<details class="yy-account-history"><summary>분기·이벤트 '+records.length+'건 펼치기</summary>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>기록명 / ID</th><th>상태</th><th>시작 저장일</th></tr></thead><tbody>'+
+ branchRows+'</tbody></table></div></details>'+
+ '<details class="yy-account-history"><summary>업적 '+achievements.length+'건 펼치기</summary>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>업적 ID</th><th>Reward 원본값</th></tr></thead><tbody>'+
+ achievementRows+'</tbody></table></div></details>')+
+ yyRoleSection('지도자원 · 식물과 광맥',
  '<div class="role-grid stat-grid">'+[
- ['지도·자원 데이터 묶음',mapData.length+'개','최상위 세이브 필드'],
- ['자원 변수',resourceData.length+'개','식별 가능한 저장 키']
+  ['지도 저장 항목',mapRows.length+'곳','EncryptMap'],
+  ['채집·채광 기록',totalNodes+'개','Plants '+nodeRows.filter(x=>x.kind==='식물').length+' · Kuangs '+nodeRows.filter(x=>x.kind==='광맥').length],
+  ['탐색 비트 지도',fogRecords.length+'곳','Fogs · 발견률로 환산하지 않음'],
+  ['지도 보상 변수',mapReward.length+'개','globalVariable map_reward']
  ].map(([name,value,note])=>'<div class="stat-cell"><span class="label">'+escape(name)+'</span><span class="value">'+escape(value)+'</span><span class="sub">'+escape(note)+'</span></div>').join('')+'</div>'+
- (mapData.length||resourceData.length?
-  '<details class="yy-account-history"><summary>지도자원 원본 기록 펼치기</summary>'+
-  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>구분</th><th>저장 키</th><th>값 일부</th></tr></thead><tbody>'+
-  mapData.map(([k,v])=>'<tr><td>지도·수집</td><td>'+escape(k)+'</td><td>'+escape(shortened(v))+'</td></tr>').join('')+
-  resourceData.map(([k,v])=>'<tr><td>자원 변수</td><td>'+escape(k)+'</td><td>'+escape(shortened(v))+'</td></tr>').join('')+
-  '</tbody></table></div></details>':
-  '<p class="role-status-note">현 세이브에서 지도자원으로 식별된 기록이 없습니다. 수집 기록 0회로 판정한 것은 아닙니다.</p>'));
+ '<p class="role-status-note">'+escape(activeSummary)+'. 정확한 채집 종류와 좌표는 게임 자원 설정표 연결 전이므로 원본 노드 ID로 표시합니다. Count는 저장된 필드값이며 남은 채집 횟수나 다음 갱신량으로 확정하지 않습니다. Time은 원본 시각입니다.</p>'+
+ (totalNodes?'<details class="yy-account-history" open><summary>식물·광맥 슬롯 '+totalNodes+'개 확인</summary>'+
+  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>지역</th><th>종류</th><th>노드 ID</th><th>Count 원본값</th><th>R 원본값</th><th>Time</th><th>RCD 원본값</th></tr></thead><tbody>'+
+  nodeTable+'</tbody></table></div></details>':'')+
+ '<details class="yy-account-history"><summary>지도별 저장 상태 '+mapRows.length+'곳 보기 · 0개 포함</summary>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>지역</th><th>식물</th><th>광맥</th><th>지도 상태 필드</th><th>탐색 기록</th></tr></thead><tbody>'+
+ indexRows+'</tbody></table></div></details>'+
+ (mapReward.length?'<details class="yy-account-history"><summary>지도 보상 기록 '+mapReward.length+'개 보기</summary>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>키</th><th>저장값</th></tr></thead><tbody>'+
+ mapReward.sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>'<tr><td>'+escape(k)+'</td><td>'+escape(v)+'</td></tr>').join('')+
+ '</tbody></table></div></details>':'')+
+ '<p class="micro">MapData는 지도의 월드 오브젝트·활동 저장값, Fogs는 탐색 비트 문자열입니다. 비트 데이터만으로 게임 내 탐색 완료율을 확정하지 않습니다. 세이브를 변경하지 않습니다.</p>');
 }
 
 function characterView(){
