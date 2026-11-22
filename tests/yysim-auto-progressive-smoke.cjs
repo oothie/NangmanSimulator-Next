@@ -37,6 +37,21 @@ const cheaper={pad:0,pills:7,washes:3,exchanges:1,optimal:false,
  assert.equal(result.bestPills,7);
  assert.equal(result.result.routes.length,2);
  assert.equal(result.result.routes[0].pills,7,'prefer cheaper actual final path');
+// A native route with all final goals and valid costs must be retained even
+// when replay actions are absent; otherwise the UI falsely claims a higher
+// minimum cost. A route without actions is NOT executable.
+ const noReplayRoute={pad:0,pills:5,washes:2,exchanges:1,optimal:false,
+  actions:[],final_slots:[{id:268,locked:true}]};
+ const mixed=await p.run({call:async()=>({nativeFunction:'wasmSearchWashRoutes',
+  result:{scanned:2,routes:[expensive,noReplayRoute]}}),api,
+  desiredIds:[268],maxPad:20,horizon:1500,topN:8});
+ assert.equal(mixed.bestPills,5);
+ assert.equal(mixed.result.routes.length,2);
+ const mixedParsed=api.routeOutcome(mixed.result,[268]);
+ assert.equal(mixedParsed.routes[0].executable,false,
+  'missing replay actions cannot be applied to native WASM state');
+ assert.equal(mixed.history[0].replayReady,1);
+
  assert.equal(result.globallyOptimal,false,'native optimal false stays false');
  assert.equal(result.history.length,1);
  assert.equal(result.history[0].horizon,1500);
