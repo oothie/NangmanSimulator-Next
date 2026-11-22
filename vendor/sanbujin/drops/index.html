@@ -70,7 +70,25 @@ body .dungeon-coverage strong{font-size:14px}
 .dungeon-rate-table{width:100%;border-collapse:collapse;font-size:13px}
 .dungeon-rate-table th,.dungeon-rate-table td{border-bottom:1px solid var(--border,#b5a995);padding:7px 9px;text-align:left}
 .dungeon-rate-table th:nth-child(n+2),.dungeon-rate-table td:nth-child(n+2){text-align:right}
-</style><style></style></head><body class="sbj-web"><main class="hub-main progress-main">
+</style><style></style><style>
+.dungeon-dual-controls{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin:14px 0}
+.dungeon-dual-controls label{flex:1 1 260px;min-width:0}
+.dungeon-dual-controls select{width:100%;min-height:40px}
+.dungeon-dual-controls button{padding:9px 13px;min-height:40px;border:1px solid var(--border,#bba98e);border-radius:7px;background:var(--panel,#fffdf8);color:inherit}
+.dungeon-dual-scroll{width:100%;overflow-x:auto;border:1px solid var(--border,#bba98e);border-radius:9px;margin:10px 0}
+.dungeon-dual-table{border-collapse:collapse;width:100%;min-width:650px;font-size:14px}
+.dungeon-dual-table th{background:var(--panel,#f4eee4);font-weight:700;text-align:left}
+.dungeon-dual-table th,.dungeon-dual-table td{padding:12px 13px;border-bottom:1px solid var(--border,#bba98e);vertical-align:top}
+.dungeon-dual-table td+td,.dungeon-dual-table th+th{border-left:1px solid var(--border,#bba98e)}
+.dungeon-dual-table tr:last-child td{border-bottom:0}
+.dungeon-dual-boss{font-weight:700;min-width:115px}
+.dungeon-dual-result{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.dungeon-dual-item{font-weight:700;color:inherit}
+.dungeon-dual-special{font-weight:600;color:var(--gold,#966f36)}
+.dungeon-dual-meta{font-size:13px;color:var(--sub,#777)}
+.dungeon-dual-muted,.dungeon-dual-footnote{font-size:12px;color:var(--sub,#777)}
+@media(max-width:650px){.dungeon-dual-table{min-width:580px}.dungeon-dual-table th,.dungeon-dual-table td{padding:9px 10px}}
+</style></head><body class="sbj-web"><main class="hub-main progress-main">
 <header class="progress-heading"><span class="hub-mark" aria-hidden="true">낭</span><div><h1>드랍 시뮬레이션</h1><p>세이브의 난수 순서로 장비와 보물 드랍을 예측합니다.</p></div></header>
 <nav class="drop-modes" aria-label="드랍 종류">
   <button type="button" id="dropWildLink" aria-controls="wildDrop">필드 드랍</button>
@@ -148,6 +166,19 @@ body .dungeon-coverage strong{font-size:14px}
     <p>일부 관문 결과는 예측 모델이며 최종 정련·망정은 포함되지 않습니다.</p>
     <p id="dungeonCoverageStatus" class="progress-note"></p>
   </div>
+  <div class="dungeon-dual-controls">
+    <label>관문 선택<select id="dungeonDualArea" aria-label="관문 선택"></select></label>
+    <button type="button" id="dungeonDualRefresh">현재 세이브로 다시 예측</button>
+  </div>
+  <p class="progress-note">선택한 관문의 모든 보스에 대해 <strong>다음 1회 드랍</strong>을 예측합니다. yy-sim과 산부진을 독립 계산하므로 결과가 다를 수 있습니다. 전용·특수 보상은 원본 함수로 복원된 산부진 결과에만 확정 후보를 표시합니다.</p>
+  <p id="dungeonDualStatus" role="status" aria-live="polite"></p>
+  <div class="dungeon-dual-scroll">
+   <table class="dungeon-dual-table">
+    <thead><tr><th>보스</th><th>yy-sim 방식</th><th>산부진 방식</th></tr></thead>
+    <tbody id="dungeonDualBody"></tbody>
+   </table>
+  </div>
+  <div id="dungeonLegacy" hidden>
   <form id="dungeonForm" class="wild-form">
     <div class="wild-fields">
       <label>관문<select id="dungeonArea"></select></label>
@@ -182,6 +213,7 @@ body .dungeon-coverage strong{font-size:14px}
   <p id="dungeonSequenceStatus" role="status"></p>
   <ol id="dungeonSequenceResults" class="wild-results"></ol>
  </details>
+  </div>
 </section>
 <section id="sharedGear" class="wild-panel" aria-label="90레벨 필드 관문 공용 장비 획득 순서 계획" hidden>
  <h2>90레벨 장비 공용 획득 순서</h2>
@@ -263,7 +295,9 @@ body .dungeon-coverage strong{font-size:14px}
 <script defer src="./dungeon-names-ko.js?rev=1.0.1-r2"></script>
 <script defer src="./dungeon-yysim-adapter.js?rev=1.0.1-r2"></script>
 <script defer src="./dungeon-rates.js?rev=1.0.1-r2"></script>
+<script defer src="./dungeon-dual-core.js?rev=1.0.2"></script>
 <script defer src="./dungeon.js?rev=1.0.1-r2"></script>
+<script defer src="./dungeon-dual.js?rev=1.0.2"></script>
 <script defer src="./shared-gear-core.js"></script><script defer src="./shared-gear.js"></script>
 <script defer src="./treasure-core.js"></script><script defer src="./treasure.js"></script>
 <script>
