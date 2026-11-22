@@ -57,6 +57,9 @@ These numbers are **only for the synthetic diagnostic fixture**, not a predictio
 
 Tests: `tests/yysim-purple-anchor-mixed-native.cjs` runs both shapes against unmodified WASM; `tests/yysim-anchor-browser.cjs` exercises the production iframe via Playwright and verifies native final four-slot results and state preservation. Native + browser checks passed for earlier commits before v0.10.32 cache/version bump. `YYWashProgressive` and index forward true in-progress WASM wash scan counts, not fabricated percentages. Purple-only execution path unchanged.
  
+### Additional low-inventory safety for v0.10.32
+The original yy-sim route search predicts hypothetical cost independent of the pills currently in the save. The new native replay needs pill stock for `wasmDoWash`, so `YYWashPurpleAnchorMixed.run` temporarily funds **only its isolated search state** with up to 100,000 virtual pills and restores the real source state unmodified in `finally`. A native 12-wash parity probe confirms that original RNG seeds, talent IDs and pill cost are identical when virtual stocks are 20,000 or 100,000. `tests/yysim-purple-anchor-mixed-native.cjs` additionally checks that a synthetic character with a zero-pill inventory retains the same predicted cost and original state. Never treat the simulated funds as an in-game item grant.
+
 ## Pending next steps
 1. Follow the branch/dataflow preceding core4's native error builder; identify the grade predicate for the preselection and distinguish it from RNG's native quality distribution.
 2. Inspect function13 `next_purple` candidate-event loop beyond the 3 unsuccessful tested offsets.
