@@ -121,12 +121,16 @@ const path=require('node:path');
       const last=new Set((route.final_slots||[]).map(t=>Number(t.id)));
       return target.ids.every(id=>last.has(id));
      });
+     const nativeError=error||response?.error||null;
+     const classification=nativeError?'native-rejected':
+      complete.length?'final-goals-confirmed':
+      paths.length?'returned-incomplete-routes':'no-routes-in-checked-window';
      mixedGoalResults.push({name:target.name,ids:target.ids,
-      routes:paths.length,complete:complete.length,elapsedMs,
+      classification,routes:paths.length,complete:complete.length,elapsedMs,
       cheapestComplete:complete.reduce((best,r)=>
        Number.isSafeInteger(Number(r.pills))&&Number(r.pills)>=0?
         Math.min(best,Number(r.pills)):best,Infinity),
-      error:error||response?.error||null});
+      error:nativeError});
      if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
       throw Error('mixed-grade native route probe modified original WASM state');
     }
@@ -184,6 +188,10 @@ const path=require('node:path');
   assert(audit.outcome.mixedGoalResults.every(r=>Number.isFinite(r.elapsedMs)&&r.elapsedMs>=0));
   assert(audit.outcome.mixedGoalResults.every(row=>
    row.complete<=row.routes),'never accept transient mixed goals as final routes');
+  assert(audit.outcome.mixedGoalResults.every(row=>
+   ['native-rejected','final-goals-confirmed','returned-incomplete-routes',
+    'no-routes-in-checked-window'].includes(row.classification)),
+   'WASM mixed search result must be classified, not reported as unsupported without evidence');
   console.log('ORIGINAL_YY_SIM_GRADE_CONTRACT',JSON.stringify(audit.outcome));
  }finally{await browser?.close();server.kill('SIGTERM')}
 })().catch(err=>{console.error(err);process.exitCode=1});
