@@ -51,7 +51,7 @@
   function renderBoss() {
     reset();
     const event = selected();
-    window.SBJDungeonRates?.render($('dungeonRates'),event);
+    window.SBJDungeonRates?.render($('dungeonRates'),event,input);
     const ready = event.outer && !engine.missing(input, event).length;
     $('dungeonRun').disabled = !ready;
     $('dungeonCount').disabled = $('dungeonOnlyHits').disabled = !event.outer;
