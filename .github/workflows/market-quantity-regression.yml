@@ -8,6 +8,7 @@ on:
       - 'vendor/nangman-v350/equipment.html'
       - 'vendor/nangman-v350/embedded-bridge.js'
       - 'tests/market-quantity-strategy-smoke.cjs'
+      - 'tests/unique-dark-browser.cjs'
       - '.github/workflows/market-quantity-regression.yml'
   workflow_dispatch:
 jobs:
@@ -30,3 +31,17 @@ jobs:
         run: |
           node tests/nangman-v350-equipment-smoke.cjs
           node -e "const fs=require('fs');const vm=require('vm');const src=fs.readFileSync('vendor/nangman-v350/embedded-bridge.js','utf8');new vm.Script(src);if(!src.includes('res.unique218')||!src.includes('unique-seq-table227'))throw Error('unique dark selectors missing');"
+  browser-unique-theme:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright runtime
+        run: npm install --no-save --ignore-scripts playwright@1.57.0
+      - name: Inspect actual unique item dark and light colors
+        run: node tests/unique-dark-browser.cjs
