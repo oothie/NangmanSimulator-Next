@@ -66,9 +66,10 @@ function inspect(index){
  const {start,size}=functionBody,cur={pos:start},end=start+size;
  const groups=uleb(cur);
  for(let i=0;i<groups;i++){uleb(cur);cur.pos++}
- const calls=[],constants=[];
+ const calls=[],constants=[],instructions=[];
  while(cur.pos<end){
   const at=cur.pos-start,opcode=bytes[cur.pos++];
+  const instr={offset:at,opcode};instructions.push(instr);
   if(opcode===2||opcode===3||opcode===4)signedLeb(cur);
   else if([12,13,16,18,32,33,34,35,36,37,38,210].includes(opcode)){
    const value=uleb(cur);
@@ -81,7 +82,7 @@ function inspect(index){
   else if(opcode===63||opcode===64)cur.pos++;
   else if(opcode===65||opcode===66){
    const value=signedLeb(cur);
-   if(opcode===65)constants.push({offset:at,value});
+   if(opcode===65){instr.value=value;constants.push({offset:at,value})}
   }
   else if(opcode===67)cur.pos+=4;
   else if(opcode===68)cur.pos+=8;
@@ -98,7 +99,7 @@ function inspect(index){
   assert(cur.pos<=end,'Decoded past end of function '+index);
  }
  assert.equal(cur.pos,end);
- return {index,bodyBytes:size,callCount:calls.length,calls,constants};
+ return {index,bodyBytes:size,callCount:calls.length,calls,constants,instructions};
 }
 const search=exports.find(x=>x.name==='search_wash_routes'&&x.kind===0);
 assert(search,'Original WASM search export absent');
@@ -113,6 +114,18 @@ for(const c of solver.calls){
 const constantCounts=new Map();
 for(const value of solver.constants.map(x=>x.value))
  constantCounts.set(value,(constantCounts.get(value)||0)+1);
+// Literal four is also used for slot counts and data offsets. Mark only
+// nearby integer comparisons as REVIEW CANDIDATES, not proven grade checks.
+const compareOpcodes=new Set([70,71,72,73,74,75,76,77,78,79]);
+const gradeReviewSites=[];
+for(let i=0;i<solver.instructions.length;i++){
+ const inst=solver.instructions[i];
+ if(inst.opcode!==65||inst.value!==4)continue;
+ const lookahead=solver.instructions.slice(i+1,i+5);
+ const match=lookahead.find(next=>compareOpcodes.has(next.opcode));
+ if(match)gradeReviewSites.push({literalOffset:inst.offset,
+  compareOffset:match.offset,compareOpcode:match.opcode});
+}
 const dependencies=[...tally.values()].sort((a,b)=>b.calls-a.calls||a.index-b.index);
 const byBody=[...tally.values()].sort((a,b)=>b.bodyBytes-a.bodyBytes).slice(0,12);
 assert.equal(solver.bodyBytes,4055,'Native solver changed; re-characterize original yy-sim binary');
@@ -123,5 +136,6 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  solver:{index:solver.index,bodyBytes:solver.bodyBytes,callInstructions:solver.callCount,uniqueDependencies:tally.size},
  mostFrequent:dependencies.slice(0,15),largestDependencies:byBody,
  solverConstants:[...constantCounts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,20),
- gradeFourCandidates:solver.constants.filter(x=>x.value===4).map(x=>x.offset)
+ gradeFourCandidates:solver.constants.filter(x=>x.value===4).map(x=>x.offset),
+ gradeComparisonReviewSites:gradeReviewSites
 }));
