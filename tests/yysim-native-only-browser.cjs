@@ -48,8 +48,15 @@ const path=require('node:path');
    const green=controls.find(x=>x.quality===2),blue=controls.find(x=>x.quality===3);
    const blocked=[];
    for(const target of [green,blue].filter(Boolean)){
-    try{await washEngine.call('auto-search',{desiredIds:[271,target.id],horizon:100,maxPad:5,topN:3})}
-    catch(e){blocked.push(target.quality)}
+    try{
+     const response=await washEngine.call('auto-search',{
+      desiredIds:[271,target.id],horizon:100,maxPad:5,topN:3});
+     const complete=(response.result?.routes||[]).some(route=>{
+      const ids=new Set((route.final_slots||[]).map(t=>Number(t.id)));
+      return ids.has(271)&&ids.has(target.id);
+     });
+     if(!complete)blocked.push(target.quality);
+    }catch(e){blocked.push(target.quality)}
    }
    return {ready:init.ready,native:native.nativeFunction,
     routes:native.result?.routes?.length||0,
