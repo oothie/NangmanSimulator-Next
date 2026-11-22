@@ -764,7 +764,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 <script>window.NANGMAN_YY_EQUIP_DATA=window.EQUIP_DATA;window.EQUIP_DATA=window.NANGMAN_PREVIOUS_EQUIP_DATA;</script>
 <script src="./engine/yysim-combat-original.js?rev=v0102"></script>
 <script>
-(()=>{'use strict';const tabs=[['wash','세수'],['equip','장비'],['character','캐릭터'],['wiki','백과'],['daily','일일'],['drop','드랍'],['quest','임무']];let v=(['wash','character','wiki','daily','drop','quest','save'].includes(location.hash.slice(1))?location.hash.slice(1):'wash'),sub='sim',save=null,filename='',roles=[],selected=0,filter='';
+(()=>{'use strict';const tabs=[['wash','세수'],['equip','장비'],['character','인물'],['wiki','백과'],['daily','일일'],['drop','드랍'],['quest','임무']];let v=(['wash','character','wiki','daily','drop','quest','save'].includes(location.hash.slice(1))?location.hash.slice(1):'wash'),sub='sim',save=null,filename='',roles=[],selected=0,filter='';
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));const card=(t,x)=>'<section class="card"><h3>'+t+'</h3>'+x+'</section>';
 function getRoles(o){let a=[],ids=new Set;function add(r,type){if(!r||typeof r!=='object')return;const id=r.ID??r.Id??r.id;if(id==null||ids.has(String(id)))return;ids.add(String(id));a.push({id,type,name:String(r.Name||r.NickName||r.name||'캐릭터 '+id).trim(),level:r.Lv??r.Level??'',raw:r})}add(o.MainRole,'주인공');for(let [key,type] of [['Roles','동료'],['Leavers','이탈']]){let x=o[key]||[],items=Array.isArray(x)?x:Object.values(typeof x==='object'?x:{});items.forEach(r=>add(r,type))}return a}
 function roleList(){const cats=['주인공','동료','이탈'];let out='';for(const cat of cats){const items=roles.filter(x=>x.type===cat);if(!items.length)continue;out+='<div class="role-g"><div class="role-title">'+cat+'<span>'+items.length+'</span></div>'+items.filter(r=>(r.name+' '+r.id).toLowerCase().includes(filter.toLowerCase())).map(r=>{const i=roles.indexOf(r);return '<button class="role '+(selected===i?'active':'')+'" data-role="'+i+'"><span class="avatar">'+escape(r.name.slice(0,1))+'</span><span><b>'+escape(r.name)+'</b><small>ID '+escape(r.id)+(r.level?' · Lv'+escape(r.level):'')+'</small></span></button>'}).join('')+'</div>'}return out||'<p class="blank">JSON 세이브를 불러오면 캐릭터 목록이 표시됩니다.</p>'}
@@ -903,7 +903,7 @@ function wash(){
 if(sub!=='sim'&&sub!=='auto')sub='sim';
 const r=roles[selected];
 const groups=['주인공','동료','이탈'];
-const aside='<aside class="aside"><div class="aside-title"><strong>캐릭터 선택 (총 '+roles.length+'명)</strong></div><input type="search" id="search" placeholder="이름 / 태그 / 소속 / ID 검색" value="'+escape(filter)+'"><div class="roles">'+roleList()+'</div></aside>';
+const aside='<aside class="aside"><div class="aside-title"><strong>인물 선택 (총 '+roles.length+'명)</strong></div><input type="search" id="search" placeholder="이름 / 태그 / 소속 / ID 검색" value="'+escape(filter)+'"><div class="roles">'+roleList()+'</div></aside>';
 const meta=r?(escape(r.type)+' · Lv'+escape(r.level||'—')+' · 자질 '+escape(r.raw?.ZiZhi??'—')):'세이브를 불러오세요';
 const fig='<div class="figures">'+[
  ['전체 세수 저장값 (XiSui)',save?.XiSui??'—'],
@@ -3416,12 +3416,14 @@ function yyAccountCultivationView(){
  '<p class="micro">표시된 수련 수치는 현재 전투 능력치와 다를 수 있습니다.</p></section>';
 }
 function characterView(){
- const opts=[['panel','능력치'],['equip','장비'],['talent','재능'],['detail','상세'],['training','수련'],['consumable','단약'],['hengshan','직무'],['other','기타'],['account','계정 전체']];
+ const opts=[['panel','능력치'],['equip','장비'],['talent','재능'],['detail','상세'],['training','수련'],['consumable','단약'],['hengshan','직무'],['other','기타']];
  const role=roles[selected]||roles[0]||null,raw=role?.raw||{};
  const groups=[['주인공','주인공'],['동료','동료'],['이탈','이탈']];
  const picker='<aside class="role-page-aside"><div class="role-selector-toolbar"><strong>캐릭터 선택 (총 '+roles.length+'명)</strong>'+
  '<input id="characterSearch" type="search" placeholder="이름 / 소속 / ID 검색" value="'+escape(characterFilter)+'" aria-label="캐릭터 검색"></div>'+
- '<div class="role-btn-list">'+groups.map(([type,label])=>{
+ '<div class="role-btn-list">'+
+ '<button type="button" class="role-btn '+(characterTab==='account'?'active':'')+'" data-account-all="true" aria-pressed="'+(characterTab==='account')+'"><span class="role-btn-avatar">全</span><span class="role-btn-body"><strong class="role-btn-name">계정 전체</strong><small class="role-btn-meta">전체 단약 · 수련 · 강호 기록</small></span></button>'+
+ groups.map(([type,label])=>{
   const all=roles.map((r,i)=>({r,i})).filter(x=>x.r.type===type);
   const visible=all.filter(({r})=>(r.name+' '+r.id+' '+(r.raw?.ShiLi||'')+' '+(r.raw?.MenPai??'')).toLowerCase().includes(characterFilter.toLowerCase()));
   if(!all.length)return '';
@@ -3430,21 +3432,21 @@ function characterView(){
     '<span class="role-btn-avatar">'+escape(r.name.slice(0,1)||'?')+'</span><span class="role-btn-body"><strong class="role-btn-name">'+escape(r.name)+'</strong>'+
     '<small class="role-btn-meta">Lv'+escape(r.level??'—')+' · '+escape(r.raw?.ShiLi||'ID '+r.id)+'</small></span></button>').join('')+'</div>';
  }).join('')+'</div></aside>';
- const identity=role?'<header class="wr-hero"><h2 class="wr-name">'+escape(role.name)+'</h2>'+
+ const identity=characterTab==='account'?'<header class="wr-hero"><h2 class="wr-name">계정 전체 기록</h2><p class="wr-hero-meta">모든 인물의 영구 성장 및 강호 진행 정보</p></header>':role?'<header class="wr-hero"><h2 class="wr-name">'+escape(role.name)+'</h2>'+
  '<p class="wr-hero-meta">'+escape(role.type)+' · Lv'+escape(raw.Level??role.level??'—')+
  (raw.MaxLevel?' / '+escape(raw.MaxLevel):'')+' · '+escape(raw.ShiLi||('문파 #'+(raw.MenPai??'—')))+
  ' · 자질 '+escape(raw.ZiZhi??'—')+'</p></header>':
  '<header class="wr-hero"><h2 class="wr-name is-empty">캐릭터 미선택</h2><p class="wr-hero-meta">한국판 JSON 세이브를 불러오세요.</p></header>';
  let body='<p class="muted">세이브에 선택 가능한 캐릭터가 없습니다.</p>';
- if(characterTab==='account')body=yyAccountCultivationView();
+ if(characterTab==='account')body=yyAccountCultivationView()+yyAccountRecordAndResourceView();
  else if(role){
   switch(characterTab){
    case 'panel': body=yyRolePanel(role);break;
    case 'equip':body=characterEquipView(raw)+characterEquipSourceView(raw)+characterEquipCombatSplitView(raw);break;
    case 'talent':body=yyRoleTalent(role)+characterWashView(role,save);break;
    case 'detail':body=characterDataAudit(role)+characterCombatFinal(role)+yyRoleDetail(role);break;
-   case 'training':body=yyCultivationView(role)+yyOriginalCultivationEffectsView(role)+yyCultivationCrossCheckView(role)+yyProgressView(save,role,'training')+characterTrainingView(raw)+characterMeridianView(raw);break;
-   case 'consumable':body=yyProgressView(save,role,'consumable');break;
+   case 'training':body=yyRoleGrowthOverview(role,'training')+yyCultivationView(role)+yyOriginalCultivationEffectsView(role)+yyCultivationCrossCheckView(role)+yyProgressView(save,role,'training')+characterTrainingView(raw)+characterMeridianView(raw);break;
+   case 'consumable':body=yyRoleGrowthOverview(role,'consumable')+yyProgressView(save,role,'consumable');break;
    case 'hengshan':body='<section class="role-section"><p class="wr-kicker">직무</p><p class="micro">항산파는 한국 서버 미출시 항목입니다. 원본 메뉴만 유지합니다.</p></section>';break;
    case 'other':body=yyProgressView(save,role,'other')+characterLifeView(raw);break;
    default:body=yyRolePanel(role);
@@ -3452,8 +3454,8 @@ function characterView(){
  }
  return '<section class="role-page yy-role-workspace">'+
  (roles.length?'<div class="role-page-body">'+picker+'<div class="role-page-main">'+identity+
- '<nav class="role-subtabs" aria-label="캐릭터 분류">'+opts.map(([id,label])=>
- '<button type="button" data-module-tab="character:'+id+'" class="'+(characterTab===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+
+ (characterTab==='account'?'':('<nav class="role-subtabs" aria-label="인물 세부 메뉴">'+opts.map(([id,label])=>
+ '<button type="button" data-module-tab="character:'+id+'" class="'+(characterTab===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'))+
  body+'</div></div>':identity)+'</section>';
 }
 
@@ -3728,7 +3730,7 @@ function others(){
  const [name,desc]=info[v];
  return '<div class="module-wrap">'+moduleHero(name,desc)+'<div class="module-panel"><h3>기능 준비 중</h3><p class="micro">'+desc+'</p></div></div>';
 }
-function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('topSaveStatus').textContent=save?'세이브 연결 · '+roles.length+'명':'세이브 미연결';$('clearTopSave').hidden=!save;$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();updateDropVisibility();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);invalidateWashLink(roles[selected]?.id);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);invalidateWashLink(roles[selected]?.id);render()});if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);invalidateWashLink(roles[selected]?.id);characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};if($('marketQuery'))$('marketQuery').oninput=e=>{marketPanel='search';marketQuery=e.target.value;const caret=e.target.selectionStart;render();const field=$('marketQuery');if(field){field.focus();field.setSelectionRange(caret,caret)}};
+function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('topSaveStatus').textContent=save?'세이브 연결 · '+roles.length+'명':'세이브 미연결';$('clearTopSave').hidden=!save;$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();updateDropVisibility();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);invalidateWashLink(roles[selected]?.id);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);characterTab='panel';invalidateWashLink(roles[selected]?.id);render()});const accountAll=document.querySelector('[data-account-all]');if(accountAll)accountAll.onclick=()=>{characterTab='account';render()};if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);invalidateWashLink(roles[selected]?.id);characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};if($('marketQuery'))$('marketQuery').oninput=e=>{marketPanel='search';marketQuery=e.target.value;const caret=e.target.selectionStart;render();const field=$('marketQuery');if(field){field.focus();field.setSelectionRange(caret,caret)}};
 if($('marketPeriods'))$('marketPeriods').onchange=e=>{marketPeriods=Number(e.target.value);render()};
 if($('marketVipSelect'))$('marketVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;render()};
 if($('marketSlotsSelect'))$('marketSlotsSelect').onchange=e=>{marketSlotsOverride=Number(e.target.value);marketSimStep=0;marketStrategyResults=null;render()};
