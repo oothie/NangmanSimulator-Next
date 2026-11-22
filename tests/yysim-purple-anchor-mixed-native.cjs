@@ -290,6 +290,25 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  assert.equal(low.routes[0]?.pills,out.routes[0]?.pills,
   'Zero-stock character predicted cost differs from funded reference');
  assert(wasmSetState(source));
+ // Reproduce the production default maxPad=20 on the original saved
+ // character state rather than only the earlier maxPad=0 fixture.
+ const prodDefaults=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[271,268,272,184],maxPad:20,horizon:900,topN:2,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:YYWashNativeSearchGuard
+ });
+ assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base,
+  'Production bound replay must not mutate character state');
+ console.log('YY_PRODUCTION_20PAD_900_NATIVE '+JSON.stringify({
+  routes:prodDefaults.routes.length,
+  bestPills:prodDefaults.routes[0]?.pills??null,
+  attempts:prodDefaults.diagnostics.purpleAttempts||0,
+  nativeReturned:prodDefaults.diagnostics.purpleNativeReturned||0,
+  replayRejected:prodDefaults.diagnostics.purpleReplayRejected||0,
+  replayErrors:prodDefaults.diagnostics.purpleReplayErrors||[],
+  scanned:prodDefaults.diagnostics.scannedWashes
+ }));
  console.log('YY_PURPLE_ANCHOR_MIXED_REAL_WASM '+JSON.stringify({
   shape:[271,268,272,184],
   routes:out.routes.map(r=>({pills:r.pills,washes:r.washes,final:r.final_slots,
