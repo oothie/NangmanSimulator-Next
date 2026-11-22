@@ -434,10 +434,12 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    // Prioritize by admissible completion date, retaining exact RNG-state branches.
    const heap=[],seen=new Map();
    const progress=typeof options.onProgress==='function'?options.onProgress:null;
+   const candidate=mode==='fastest'&&options.bestCandidate?.found?options.bestCandidate:null;
+   const candidateWhen=candidate?Number(candidate.when):Infinity;
    const push=node=>{
      if(mode==='fastest'){
        node.bound=optimisticTime(node);
-       if(!Number.isFinite(node.bound))return;
+       if(!Number.isFinite(node.bound)||node.bound>=candidateWhen)return;
      }
      let i=heap.length;heap.push(node);
      while(i>0){const p=(i-1)>>1;if(cmp(heap[p],node)<=0)break;heap[i]=heap[p];i=p}
@@ -491,6 +493,8 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      }
    }
    if(best)return finish(best);
+   if(!heap.length&&candidate)return {...candidate,mode:'fastest',proven:true,expanded,
+     verifiedShorterRoutes:true};
    return {mode,found:false,required:goal,expanded,periods:periodLimit,
      vip:vipAllowance.vip,limited:heap.length>0,
      error:heap.length>0?'갱신·자동 교체 조합이 탐색 상한을 초과했습니다. 시드 읽기 오류가 아니라 동일 기간의 분기 수가 과도하게 증가한 상태이며, 정확한 최단 기간은 아직 미확정입니다.':
