@@ -41,8 +41,15 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
  if([getState,setState,search,doWash,exchangeTalent].some(x=>typeof x!=='function')||
     !guard?.run||!guard?.statesEqual)
   throw Error('원본 WASM 세수·잠금·치환 함수가 준비되지 않았습니다');
- const initial=getState();
- if(!initial)throw Error('세이브 기반 원본 세수 상태가 없습니다');
+ const originalState=getState();
+ if(!originalState)throw Error('세이브 기반 원본 세수 상태가 없습니다');
+ // Hypothetical route cost must not be limited by how many pills the
+ // character currently carries. This branch is an isolated WASM simulator,
+ // not a save mutation; restoring originalState below is mandatory.
+ // Original native RNG/pills parity across virtual stocks is regression-tested.
+ const initial=clone(originalState);
+ initial.has_bag_pills=true;
+ initial.bag_pills=Math.max(100000,count(initial,'bag_pills'));
  const names=new Map(Object.entries(talents).filter(([,x])=>x?.name)
   .map(([id,t])=>[String(t.name),Number(id)]));
  const restore=state=>{
@@ -321,7 +328,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    catch(error){diagnostics.failures.push('자맥 사이 구간: '+String(error?.message||error))}
    restore(initial);
   }
- }finally{restore(initial)}
+ }finally{restore(originalState)}
  routes.sort((a,b)=>a.pills-b.pills||a.washes-b.washes);
  return {routes:routes.slice(0,topN),scanned:diagnostics.scannedWashes,
   diagnostics,error:routes.length?null:'자맥 확정 후 녹·파맥 최종 보유 경로 미발견 (검색 범위 내)',
