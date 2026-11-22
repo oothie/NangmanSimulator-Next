@@ -151,6 +151,27 @@ function classifyFourUses(decoded){
  return output;
 }
 const fourUseCandidates=classifyFourUses(solver);
+// Search the actual native selection function for gates written as <=3,
+// >=4, ==3, etc. A restriction to purple can be an inverted comparison
+// against 3, so only searching for literal 4 would miss it.
+function comparisonWindows(decoded){
+ const inst=decoded.instructions,rows=[];
+ for(let i=0;i<inst.length;i++){
+  const item=inst[i];
+  if(item.opcode!==65||![2,3,4].includes(item.value))continue;
+  const next=inst.slice(i+1,i+6);
+  const comparison=next.find(x=>x.opcode>=70&&x.opcode<=79);
+  if(comparison)rows.push({
+   literal:item.value,offset:item.offset,
+   comparisonOffset:comparison.offset,
+   comparisonOpcode:comparison.opcode,
+   nearbyOpcodes:inst.slice(Math.max(0,i-3),Math.min(inst.length,i+7))
+    .map(x=>x.opcode)
+  });
+ }
+ return rows;
+}
+const searchQualityBoundaryCandidates=comparisonWindows(solver);
 const gradeReviewSites=gradeReviewSitesFor(solver);
 const dependencies=[...tally.values()].sort((a,b)=>b.calls-a.calls||a.index-b.index);
 const byBody=[...tally.values()].sort((a,b)=>b.bodyBytes-a.bodyBytes).slice(0,12);
@@ -208,6 +229,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  gradeFourCandidates:solver.constants.filter(x=>x.value===4).map(x=>x.offset),
  fourUseCandidates,
  gradeComparisonReviewSites:gradeReviewSites,
+ searchQualityBoundaryCandidates,
  candidateCallees:candidateCallees.slice(0,25),
  reachableFunctions:reachable.length,
  nestedReviewSites:nestedGradeSites.sort((a,b)=>a.depth-b.depth||b.total-a.total).slice(0,35)
