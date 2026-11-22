@@ -117,17 +117,34 @@ for(const value of solver.constants.map(x=>x.value))
 // Literal four is also used for slot counts and data offsets. Mark only
 // nearby integer comparisons as REVIEW CANDIDATES, not proven grade checks.
 const compareOpcodes=new Set([70,71,72,73,74,75,76,77,78,79]);
-const gradeReviewSites=[];
-for(let i=0;i<solver.instructions.length;i++){
- const inst=solver.instructions[i];
- if(inst.opcode!==65||inst.value!==4)continue;
- const lookahead=solver.instructions.slice(i+1,i+5);
- const match=lookahead.find(next=>compareOpcodes.has(next.opcode));
- if(match)gradeReviewSites.push({literalOffset:inst.offset,
-  compareOffset:match.offset,compareOpcode:match.opcode});
+function gradeReviewSitesFor(decoded){
+ const candidates=[];
+ for(let i=0;i<decoded.instructions.length;i++){
+  const inst=decoded.instructions[i];
+  if(inst.opcode!==65||inst.value!==4)continue;
+  const match=decoded.instructions.slice(i+1,i+5).find(next=>compareOpcodes.has(next.opcode));
+  if(match)candidates.push({literalOffset:inst.offset,
+   compareOffset:match.offset,compareOpcode:match.opcode});
+ }
+ return candidates;
 }
+const gradeReviewSites=gradeReviewSitesFor(solver);
 const dependencies=[...tally.values()].sort((a,b)=>b.calls-a.calls||a.index-b.index);
 const byBody=[...tally.values()].sort((a,b)=>b.bodyBytes-a.bodyBytes).slice(0,12);
+const candidateCallees=[];
+for(const item of tally.values()){
+ if(item.bodyBytes===null||item.bodyBytes>22000)continue;
+ try{
+  const decoded=inspect(item.index);
+  const sites=gradeReviewSitesFor(decoded);
+  if(sites.length)candidateCallees.push({index:item.index,bodyBytes:item.bodyBytes,
+   sites:sites.slice(0,12)});
+ }catch(error){
+  // Internal code uses some instruction extensions not needed to follow the
+  // original exported route. Do not turn a diagnostic into a failing patch.
+  candidateCallees.push({index:item.index,unparsed:String(error?.message||error)});
+ }
+}
 assert.equal(solver.bodyBytes,4055,'Native solver changed; re-characterize original yy-sim binary');
 assert(solver.calls.some(x=>x.index===30)&&solver.calls.some(x=>x.index===4),
  'Missing important downstream WASM calls');
@@ -137,5 +154,6 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  mostFrequent:dependencies.slice(0,15),largestDependencies:byBody,
  solverConstants:[...constantCounts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,20),
  gradeFourCandidates:solver.constants.filter(x=>x.value===4).map(x=>x.offset),
- gradeComparisonReviewSites:gradeReviewSites
+ gradeComparisonReviewSites:gradeReviewSites,
+ candidateCallees:candidateCallees.slice(0,25)
 }));
