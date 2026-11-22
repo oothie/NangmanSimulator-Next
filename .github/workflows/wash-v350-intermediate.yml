@@ -1,4 +1,4 @@
-name: Wash v3.50 + Intermediate meridian checks
+name: Wash v3.50 + original yy-sim native checks
 on:
   push:
     branches: [main]
@@ -8,6 +8,7 @@ on:
       - 'vendor/yysim/engine-host.html'
       - 'vendor/nangman-v350/wash.html'
       - 'tests/yysim-*-smoke.cjs'
+      - 'tests/yysim-purple-anchor-mixed-native.cjs'
       - 'tests/v350-wash-source-bridge-smoke.cjs'
       - 'tests/wash-ui-theme-regression.cjs'
       - 'tests/yysim-real-wasm-boot-smoke.cjs'
@@ -26,10 +27,8 @@ jobs:
         run: node tests/yysim-real-wasm-boot-smoke.cjs
       - name: Native WASM restoration probe
         run: node tests/yysim-wasm-restoration-probe.cjs
-      - name: Intermediate goal and rollback
-        run: node tests/yysim-intermediate-search-smoke.cjs
-      - name: Native exchange beam 3-purple and green final result
-        run: node tests/yysim-exchange-beam-smoke.cjs
+      - name: Original WASM purple-anchor mixed final slots and rollback
+        run: node tests/yysim-purple-anchor-mixed-native.cjs
       - name: Original yy-sim automatic route adapter
         run: node tests/yysim-auto-search-smoke.cjs
       - name: Native v3.50 wash source and bridge
