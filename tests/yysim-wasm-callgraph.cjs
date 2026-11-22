@@ -273,6 +273,86 @@ while(queue.length){
    skipped:String(error?.message||error).slice(0,100)});
  }
 }
+// Link original Rust source-location metadata back to native function
+// indices. Source names are preserved by Rust panic/location descriptors.
+// This is stronger evidence than guessing from numeric quality constants.
+const sourceLocations=[];
+const sourceNames=['next_purple','exchange','memo','pity','slots','replay','start',
+ 'vehicle_wait','ticket','luck_walk','pad'];
+let dataPosition=8;
+while(dataPosition<bytes.length){
+ const sectionId=bytes[dataPosition++],cursor={pos:dataPosition};
+ const sectionLength=readInt(cursor),sectionEnd=cursor.pos+sectionLength;
+ if(sectionId===11){
+  const segmentCount=readInt(cursor);
+  for(let segment=0;segment<segmentCount;segment++){
+   const flags=readInt(cursor);
+   if(flags===2)readInt(cursor); // memory index
+   let memoryOffset=null;
+   if(flags===0||flags===2){
+    assert.equal(bytes[cursor.pos++],65,'Expected i32.const data offset');
+    memoryOffset=readInt(cursor);
+    assert.equal(bytes[cursor.pos++],11,'Expected data offset end');
+   }
+   const length=readInt(cursor),start=cursor.pos;
+   if(memoryOffset!==null){
+    const data=bytes.subarray(start,start+length);
+    for(const name of sourceNames){
+     const needle=Buffer.from('src\\\\wash_search\\\\'+name+'.rs');
+     let at=-1;
+     while((at=data.indexOf(needle,at+1))>=0){
+      const address=memoryOffset+at,pointer=Buffer.alloc(4);
+      pointer.writeUInt32LE(address,0);
+      let location=-1;
+      while((location=data.indexOf(pointer,location+1))>=0){
+       // Rust Location metadata stores file string pointer, filename length,
+       // line and column. A match here is a source-location candidate.
+       if(location+16>data.length)continue;
+       const filenameLength=data.readUInt32LE(location+4);
+       if(filenameLength!==needle.length)continue;
+       const line=data.readUInt32LE(location+8);
+       const column=data.readUInt32LE(location+12);
+       if(line>100000||column>10000)continue;
+       sourceLocations.push({name,address:memoryOffset+location,line,column});
+      }
+     }
+    }
+   }
+   cursor.pos+=length;
+  }
+ }
+ dataPosition=sectionEnd;
+}
+const bySourceAddress=new Map();
+for(const item of sourceLocations){
+ const list=bySourceAddress.get(item.address)||[];
+ list.push(item);
+ bySourceAddress.set(item.address,list);
+}
+const moduleFunctionMap=new Map();
+for(let index=importCount;index<importCount+functions.length;index++){
+ let decoded;
+ try{decoded=inspect(index)}catch(_){continue}
+ for(const literal of decoded.constants){
+  const owners=bySourceAddress.get(literal.value);
+  if(!owners)continue;
+  for(const owner of owners){
+   const key=owner.name,items=moduleFunctionMap.get(key)||[];
+   items.push({functionIndex:index,sourceLine:owner.line,
+    sourceColumn:owner.column,wasmOffset:literal.offset});
+   moduleFunctionMap.set(key,items);
+  }
+ }
+}
+const originalRustModules=[...moduleFunctionMap.entries()].map(([name,refs])=>({
+ name,functions:[...new Set(refs.map(x=>x.functionIndex))].sort((a,b)=>a-b),
+ sourceLocationReferences:refs.length,examples:refs.slice(0,6)
+})).sort((a,b)=>a.name.localeCompare(b.name));
+assert(originalRustModules.some(x=>x.name==='next_purple'&&
+ x.functions.includes(75)),'Original next_purple native code location changed');
+assert(originalRustModules.some(x=>x.name==='exchange'&&
+ x.functions.includes(16)),'Original exchange native code location changed');
+
 assert.equal(solver.bodyBytes,4055,'Native solver changed; re-characterize original yy-sim binary');
 assert.equal(coreSearch.bodyBytes,20164,'Original yy-sim core search function changed');
 assert.equal(coreGradeReview.length,13,'Core search immediate-four comparison sites changed');
@@ -302,5 +382,6 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  structuralBoundarySites,
  candidateCallees:candidateCallees.slice(0,25),
  reachableFunctions:reachable.length,
- nestedReviewSites:nestedGradeSites.sort((a,b)=>a.depth-b.depth||b.total-a.total).slice(0,35)
+ nestedReviewSites:nestedGradeSites.sort((a,b)=>a.depth-b.depth||b.total-a.total).slice(0,35),
+ originalRustModules
 }));
