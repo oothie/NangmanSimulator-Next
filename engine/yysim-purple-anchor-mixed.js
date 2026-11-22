@@ -301,7 +301,11 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
            throw Error('재탐색 WASM 치환 결과 불일치');
          }else if(!['wash_to','skip'].includes(step.kind))
           throw Error('원본 재탐색 미지원 단계: '+step.kind);
-         combined.push({...step,
+         // Once locked targets change native draw consumption, the old
+         // roll_idx refers to a different RNG stream and must not be shown
+         // as an actual replay offset. Verified wash/pill counters replace it.
+         const {roll_idx:_obsoleteRoll,...verifiedStep}=step;
+         combined.push({...verifiedStep,
           wash_no:count(getState(),'total_wash'),
           pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
         }
@@ -379,7 +383,8 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
      apply(originalActions[i]);
      // Actual next native wash steps; the original route may have diverged
      // and will then fail with an explicit ID/state check.
-     actions.push({...originalActions[i],
+     const {roll_idx:_obsoleteRoll,...verifiedOriginalStep}=originalActions[i];
+     actions.push({...verifiedOriginalStep,
       pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
     }
     if(!hasAll(getState(),shape.purple))
