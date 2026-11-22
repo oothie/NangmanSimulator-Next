@@ -43,26 +43,6 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  assert(out.routes.every(r=>[271,268,272,184].every(id=>
   r.final_slots.some(t=>Number(t.id)===id))),'Unverified goal in results');
  assert(out.routes.every(r=>r.optimal===false),'Do not claim global optimality');
- // Also exercise the other requested 3-purple/1-blue shape with the
- // ORIGINAL native talent quality (blue 202), never promoted to purple.
- const blue=await YYWashPurpleAnchorMixed.run({
-  desiredIds:[271,268,272,202],maxPad:0,horizon:900,topN:1,
-  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
-  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
-  guard:YYWashNativeSearchGuard
- });
- assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base,
-  'Original native blue goal search must restore user WASM state');
- assert(blue.routes.every(r=>[271,268,272,202].every(id=>
-  r.final_slots.some(t=>Number(t.id)===id&&t.locked))),
-  'A returned 3-purple/blue route lacks a locked final target');
- assert(blue.routes.every(r=>r.optimal===false),
-  'Bounded blue goal must not claim exact optimality');
- console.log('YY_PURPLE_ANCHOR_THREE_PURPLE_BLUE_NATIVE '+JSON.stringify({
-  goals:[271,268,272,202],
-  routes:blue.routes.map(r=>({pills:r.pills,finalIds:r.final_slots.map(t=>t.id)})),
-  diagnostics:blue.diagnostics,preserved:true
- }));
  // The second requested shape uses two purple anchors and TWO green/blue
  // final targets. It may be absent from a short bounded window, but never
  // accept merely having seen either target in an intermediate wash.
@@ -99,6 +79,26 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   shape:[271,268,184,202],
   routes:two.routes.map(r=>({pills:r.pills,washes:r.washes,final:r.final_slots,
    actionCount:r.actions.length})),diagnostics:two.diagnostics,preserved:true
+ }));
+ // Also exercise the other requested 3-purple/1-blue shape with the
+ // ORIGINAL native talent quality (blue 202), never promoted to purple.
+ const blue=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[271,268,272,202],maxPad:0,horizon:900,topN:1,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:YYWashNativeSearchGuard
+ });
+ assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base,
+  'Original native blue goal search must restore user WASM state');
+ assert(blue.routes.every(r=>[271,268,272,202].every(id=>
+  r.final_slots.some(t=>Number(t.id)===id&&t.locked))),
+  'A returned 3-purple/blue route lacks a locked final target');
+ assert(blue.routes.every(r=>r.optimal===false),
+  'Bounded blue goal must not claim exact optimality');
+ console.log('YY_PURPLE_ANCHOR_THREE_PURPLE_BLUE_NATIVE '+JSON.stringify({
+  goals:[271,268,272,202],
+  routes:blue.routes.map(r=>({pills:r.pills,finalIds:r.final_slots.map(t=>t.id)})),
+  diagnostics:blue.diagnostics,preserved:true
  }));
  // The user can have zero pills in their save: a hypothetical native
  // route still must predict exact cost without modifying source inventory.
