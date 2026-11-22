@@ -6,7 +6,9 @@ const source=window.YYWashSaveState,guard=window.YYWashNativeSearchGuard;
 const catalog=window.YYWashTargetCatalog||[];
 const targetItems=catalog.flatMap(g=>g.items.map(t=>({...t,quality:g.quality})));
 const byId=new Map(targetItems.map(t=>[Number(t.id),t]));
+const byOriginalName=new Map(targetItems.map(t=>[String(t.name),t.ko]));
 const ko=id=>byId.get(Number(id))?.ko||TALENT_DATA[String(id)]?.name||'#'+id;
+const conflictKo=name=>byOriginalName.get(String(name))||String(name||'-');
 let save=null,roles=[],role=null,current=null,preview=null,ready=false,busy=false,report=null;
 let chosen=new Set();
 const setStatus=(message,error=false)=>{$('status').textContent=message;$('status').className=error?'error':''};
@@ -70,7 +72,7 @@ function showPreview(){
   const tr=document.createElement('tr');
   for(const v of [p.wash_no??'-',p.talent_id?ko(p.talent_id):String(p.talent_name||'-'),
    p.can_exchange===true?'가능':p.can_exchange===false?'불가':'미확인',
-   p.earlier_conflict_name||'-',p.earlier_conflict_wash_times??'-'])cell(tr,v);
+   conflictKo(p.earlier_conflict_name),p.earlier_conflict_wash_times??'-'])cell(tr,v);
   const action=document.createElement('td');
   if(byId.has(Number(p.talent_id))){
    const button=document.createElement('button');
@@ -83,7 +85,7 @@ function showPreview(){
  for(const p of exchange.slice(0,350)){
   const tr=document.createElement('tr');
   for(const v of [p.wash_no??'-',p.talent_id?ko(p.talent_id):String(p.talent_name||'-'),
-   p.earlier_conflict_name||'없음',p.earlier_conflict_wash_times??'-',
+   p.earlier_conflict_name?conflictKo(p.earlier_conflict_name):'없음',p.earlier_conflict_wash_times??'-',
    p.can_exchange===true?'가능':'미확인'])cell(tr,v);
   $('conflicts').append(tr);
  }
