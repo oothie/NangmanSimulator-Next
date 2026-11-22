@@ -19,6 +19,7 @@ function uleb(cur){
  }while(byte&128);
  return value;
 }
+const readInt=uleb;
 function signedLeb(cur){
  let byte,value=0,shift=0;
  do{
