@@ -39,7 +39,7 @@ assert(drop.includes("event.data?.kind!=='nangman-drop-mode'"),
  'Sanbujin iframe validates mode message origin');
 assert(drop.includes("version=event.data.version"),'child echoes message version');
 assert(drop.includes("status:'save-loaded',version"),'child acknowledge version');
-const wash=section("import {washEngine} from './engine/local-engine-bridge.js';",
+const wash=section("import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=0.10.47'",
  'window.addEventListener(\'nangman-embedded-status\'');
 assert(wash.includes("if(!result?.state)throw Error"),'WASM response checked before undo snapshot');
 assert(wash.indexOf("state.undoStates.pop()")>wash.indexOf("const restored=await washEngine.call('set-state',snapshot)"),
