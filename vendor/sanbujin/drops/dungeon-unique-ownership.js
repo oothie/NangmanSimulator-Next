@@ -8,14 +8,14 @@ const list=()=>root.DAILY_DATA?.dungeons||[];
 const equipment=()=>root.EQUIP_DATA?.equipment||{};
 const isUniqueEquipment=op=>Number(op?.cap)===1&&!!equipment()[Number(op.item)];
 const oneTimeOps=()=>list().flatMap(d=>(d.ops||[]).filter(op=>op.t==='uniq'&&
-  isUniqueEquipment(op)).map(op=>({...op,dungeonId:d.id})));
+  Number(op.cap)===1).map(op=>({...op,dungeonId:d.id})));
 const completedIds=()=>new Set(oneTimeOps().filter(op=>
-  throughLiu.includes(op.dungeonId)).map(op=>Number(op.item)));
+  throughLiu.includes(op.dungeonId)&&isUniqueEquipment(op)).map(op=>Number(op.item)));
 const flagNum=(flags,key)=>Number(flags?.get(key)||0);
 function reason(input,op,options={}){
- if(!isUniqueEquipment(op))return '';
+ if(Number(op?.cap)!==1)return '';
  const id=Number(op.item),flags=input?.flags;
- if(options.throughLiuCompleted&&completedIds().has(id))
+ if(isUniqueEquipment(op)&&options.throughLiuCompleted&&completedIds().has(id))
    return '유씨별원까지 전용 주황 장비 획득 완료';
  if(input?.owned?.has(id))return '보유 중';
  if(flagNum(flags,op.gotKey)>0||flagNum(flags,'get_'+id)>0)
