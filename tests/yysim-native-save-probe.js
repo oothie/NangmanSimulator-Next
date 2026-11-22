@@ -175,7 +175,12 @@ function summarize(target,raw,error,elapsed){
   examples:paths.slice(0,5).map(p=>({pills:p.pills??null,
    finalSlots:(p.final_slots||[]).map(t=>({id:Number(t.id),name:ko(t.id),locked:!!t.locked})),
    missing:target.ids.filter(id=>!(p.final_slots||[]).some(t=>Number(t.id)===id)).map(ko),
-   washes:p.washes??null,exchanges:p.exchanges??null,pad:p.pad??null}))};
+   washes:p.washes??null,exchanges:p.exchanges??null,pad:p.pad??null,
+   // Retain the original native replay instructions: a pill total alone
+   // is not an executable route, and no instructions may be fabricated.
+   actions:Array.isArray(p.actions)?p.actions:null,
+   steps:Array.isArray(p.steps)?p.steps:null,
+   nativeRouteHasInstructions:Array.isArray(p.actions)&&p.actions.length>0}))};
 }
 async function run(){
  if(!current)throw Error('세이브 캐릭터를 먼저 선택하세요');
