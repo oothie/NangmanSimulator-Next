@@ -14,6 +14,9 @@ on:
       - 'tests/yysim-native-headless-grade.cjs'
       - 'tests/yysim-native-live-probe.html'
       - 'tests/yysim-native-live-probe-smoke.cjs'
+      - 'engine/yysim-save-state.js'
+      - 'tests/yysim-native-save-probe.js'
+      - 'tests/yysim-native-save-state-smoke.cjs'
       - 'engine/yysim-target-catalog.js'
       - 'vendor/yysim/data.js'
       - 'tests/yysim-auto-progressive-smoke.cjs'
@@ -33,6 +36,9 @@ on:
       - 'tests/yysim-native-headless-grade.cjs'
       - 'tests/yysim-native-live-probe.html'
       - 'tests/yysim-native-live-probe-smoke.cjs'
+      - 'engine/yysim-save-state.js'
+      - 'tests/yysim-native-save-probe.js'
+      - 'tests/yysim-native-save-state-smoke.cjs'
       - 'engine/yysim-target-catalog.js'
       - 'vendor/yysim/data.js'
       - 'tests/yysim-auto-progressive-smoke.cjs'
@@ -66,10 +72,15 @@ jobs:
           node --check tests/yysim-grade-catalog-contract.cjs
           node --check tests/yysim-native-headless-grade.cjs
           node --check tests/yysim-native-live-probe-smoke.cjs
+          node --check engine/yysim-save-state.js
+          node --check tests/yysim-native-save-probe.js
+          node --check tests/yysim-native-save-state-smoke.cjs
       - name: Verify original WASM state restore on native errors
         run: node tests/yysim-native-search-guard-smoke.cjs
       - name: Validate native talent IDs and grades before mixed search
         run: node tests/yysim-grade-catalog-contract.cjs
+      - name: Verify real-save character mapping and independent seeds
+        run: node tests/yysim-native-save-state-smoke.cjs
       - name: Verify browser-native live probe remains original-WASM only
         run: node tests/yysim-native-live-probe-smoke.cjs
       - name: Execute original WASM in Node and classify mixed-grade outcomes
