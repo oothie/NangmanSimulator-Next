@@ -559,8 +559,10 @@ assert.equal(solver.instructions.length,1824,'Unexpected native instruction coun
 assert.equal(solver.callCount,83,'Unexpected native search call instruction count');
 assert.equal(tally.size,29,'Unexpected native search dependency count');
 assert.equal(gradeReviewSites.length,0,'Unexpected new direct comparison candidate');
-assert(candidateCallees.some(x=>x.index===4&&x.sites?.length===13),
- 'Native downstream comparison candidates changed; inspect source before edits');
+// The native core's 13 comparison sites are asserted directly above.
+// candidateCallees is an optional heuristic and may omit the deep core.
+assert.equal(coreGradeReview.length,13,
+ 'Native downstream core comparison sites changed; inspect source before edits');
 
 assert(solver.calls.some(x=>x.index===30)&&solver.calls.some(x=>x.index===4),
  'Missing important downstream WASM calls');
