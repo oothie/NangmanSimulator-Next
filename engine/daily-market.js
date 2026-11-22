@@ -281,18 +281,24 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      nextAuto,nextDaily:nextDaily(now),period:0,used:vipAllowance.used,
      cost:0,paid:0,purchased:initialQty,lastItem:currentAvailable,
      steps:currentAvailable?[{kind:'current',time:now,items:today,
-       acquired:1,totalAcquired:1}]:[]};
+       acquired:1,totalAcquired:1}]:[],
+     trail:currentAvailable?{prev:null,event:{kind:'current',time:now,acquired:1,totalAcquired:1}}:null};
    let expanded=0;
-   const finish=node=>({mode,found:true,when:node.time,cost:node.cost,
+   // Paths share immutable predecessors instead of copying their full history.
+   const history=node=>{const events=[];for(let t=node.trail;t;t=t.prev)events.push(t.event);return events.reverse()};
+   const finish=node=>{
+     const steps=mode==='free'?node.steps:history(node);
+     return {mode,found:true,when:node.time,cost:node.cost,
      paid:node.paid,item:node.lastItem,required:goal,acquired:node.purchased,
      remaining:goal-node.purchased,
-     purchases:node.steps.filter(x=>x.acquired>0).map(x=>({
+     purchases:steps.filter(x=>x.acquired>0).map(x=>({
        kind:x.kind,time:x.time,acquired:x.acquired,totalAcquired:x.totalAcquired,
        index:x.index??null
-     })),steps:node.steps,expanded,periods:periodLimit,
+     })),steps,expanded,periods:periodLimit,
      vip:vipAllowance.vip,proven:true,
      purchaseCost:node.purchased*n(chosen.price),
-     purchaseMoney:chosen.money});
+     purchaseMoney:chosen.money};
+   };
    if(initial.purchased>=goal)return finish(initial);
    const withShelf=(node,items,step,changes={})=>{
      const match=target(items);
@@ -300,7 +306,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      const totalAcquired=node.purchased+acquired;
      return {...node,...changes,purchased:totalAcquired,
        lastItem:acquired?match:node.lastItem,
-       steps:node.steps.concat([{...step,items,acquired,totalAcquired}])};
+       trail:{prev:node.trail,event:{...step,items,acquired,totalAcquired}}};
    };
    if(mode==='free'){
      // The deterministic free-only route consumes exactly one scheduled
@@ -326,16 +332,34 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
        })),steps,limited:true,
        error:'선택한 무료 자동 교체 기간 안에서는 남은 목표 수량을 모두 획득하지 못했습니다.'};
    }
+   // Admissible A*: every future refresh can buy at most one target.
+   // This is an optimistic LOWER bound on the completion timestamp.
+   const optimisticTime=node=>{
+     let missing=goal-node.purchased;
+     if(missing<=0)return node.time;
+     const left=Math.max(0,vipAllowance.max-node.used);
+     if(left>=missing)return node.time;
+     missing-=left;
+     let auto=node.nextAuto,daily=node.nextDaily,t=node.time;
+     while(missing>0){
+       t=Math.min(auto,daily);
+       if(t>deadline)return Infinity;
+       if(auto<=daily){missing--;auto+=43200}
+       else{missing-=vipAllowance.max;daily=nextDaily(t)}
+     }
+     return t;
+   };
    const cmp=(a,b)=>mode==='fastest'?
-     a.time-b.time||b.purchased-a.purchased||a.cost-b.cost||a.period-b.period:
+     a.bound-b.bound||a.time-b.time||b.purchased-a.purchased||a.cost-b.cost:
      a.cost-b.cost||a.time-b.time||a.period-b.period;
-   // Prioritize progress within the same timestamp. Paid refreshes mutate the actual
-   // guishishop RNG, but a time+cost-only queue otherwise explores enormous
-   // numbers of low-cost, low-progress combinations before reaching a full purchase.
-   // This tie-break does not alter chronological shortest-time ordering.
-   // Keep daily reset and seed/lucky in the state key.
+   // Prioritize by admissible completion date, retaining exact RNG-state branches.
    const heap=[],seen=new Map();
-   const push=node=>{let i=heap.length;heap.push(node);
+   const push=node=>{
+     if(mode==='fastest'){
+       node.bound=optimisticTime(node);
+       if(!Number.isFinite(node.bound))return;
+     }
+     let i=heap.length;heap.push(node);
      while(i>0){const p=(i-1)>>1;if(cmp(heap[p],node)<=0)break;heap[i]=heap[p];i=p}
      heap[i]=node};
    const pop=()=>{const head=heap[0],tail=heap.pop();
@@ -374,8 +398,8 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
            nextDaily:node.nextDaily,period:node.period+1}));
        }else{
          push({...node,time:t,nextDaily:nextDaily(t),used:0,
-           steps:node.steps.concat([{kind:'reset',time:t,acquired:0,
-             totalAcquired:node.purchased}])});
+           trail:{prev:node.trail,event:{kind:'reset',time:t,acquired:0,
+             totalAcquired:node.purchased}}});
        }
      }
    }
