@@ -45,4 +45,18 @@ const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
 const ui=fs.readFileSync(path.join(dir,'wild.js'),'utf8');
 assert(html.includes('src="./tomb-core.js"')&&html.indexOf('tomb-core.js')<html.indexOf('src="./wild.js"'));
 assert(html.includes('id="wildTombOrder"')&&ui.includes('tomb.predict(input,'));
+// 2026-11-22 field verification: 109th Diling special NPC 35256,
+// Qingyun Chu item and DEF 220 matched, but blue grade and HIT +68
+// disproved the formerly claimed green-grade forecast. No seed snapshot
+// accompanies this observation, so it MUST NOT be used to fabricate
+// a new color permutation or declare the underlying RNG corrected.
+const verified109={serial:109,npcId:35256,itemName:'청운추',
+ predicted:{color:2,defense:220},actual:{color:3,defense:220,hit:68},
+ otherItemsMatch:true};
+assert.equal(verified109.predicted.defense,verified109.actual.defense);
+assert.notEqual(verified109.predicted.color,verified109.actual.color);
+assert.equal(verified109.actual.color,3,'observed blue (not green)');
+assert.equal(verified109.actual.hit,68);
+assert(ui.includes('제109회 청운추 색상 불일치 확인'),
+ 'UI must not claim all Diling colors are verified');
 console.log('PASS: Diling 100 encounter / NPC 35256 / original 90-equipment pool / guarded hypotheses / UI');
