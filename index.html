@@ -715,7 +715,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 <script src="./engine/wash-chain-core.js"></script>
 <script src="./engine/wash-goal-audit.js"></script>
 <script src="./engine/yysim-auto-search.js?rev=0.10.31"></script>
-<script src="./engine/yysim-auto-progressive.js?rev=20261122-purple-anchor-v2"></script>
+<script src="./engine/yysim-auto-progressive.js?rev=20261122-purple-anchor-v12"></script>
 <script src="./engine/yysim-target-catalog.js?rev=0.10.31"></script>
 <script src="./engine/yysim-route-replay.js"></script>
 <script src="./engine/yysim-wash-dashboard.js"></script>
@@ -4274,7 +4274,7 @@ js.onerror=()=>window.dispatchEvent(new Event('nangman-wiki-source-error'));
 document.head.append(js);
 </script>
 <script type="module">
-import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=0.10.31';
+import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=0.10.41';
 const state=window.__washRuntime={ready:false,active:false,error:'',output:'',loading:false,log:[],undoStates:[],generation:0};
 function syncWasmBag(obj){state.bagPills=obj?.has_bag_pills===true&&Number.isFinite(Number(obj.bag_pills))?Number(obj.bag_pills):null;}
 function announce(){window.dispatchEvent(new Event('nangman-wash-updated'))}
