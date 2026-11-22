@@ -67,11 +67,58 @@
     }
     return {tracked,missing,eds};
   }
+  // Native boss scripts include special rewards and extra RNG draws before gear.
+  function nativeRoutes(){
+    const seen=new Set(),result=[];
+    for(const model of Object.values(root.SBJDungeonOrange||{})){
+      if(typeof model?.run!=='function'||seen.has(model.run))continue;
+      seen.add(model.run);
+      const text=Function.prototype.toString.call(model.run);
+      if(text.includes('s.branch('))continue;
+      const ids=[...new Set([...text.matchAll(/drop_(\d+)_equip/g)].map(m=>Number(m[1])))];
+      if(ids.length)result.push({ids,run:model.run});
+    }
+    return result;
+  }
+  function replay(input,events){
+    const step=stream(input),vars=new Map(input.flags),temp=new Map();
+    const scope=where=>where==='temp'?temp:vars;
+    const state={level:input.level,
+      get:(key,where)=>scope(where).get(key)||0,
+      set:(key,val,where)=>{scope(where).set(key,Number(val)||0)},
+      add:(key,val,where)=>{const m=scope(where);m.set(key,(m.get(key)||0)+Number(val||0))},
+      draw:(key,bound)=>step(key,null,bound),
+      pick:(key,weights)=>step(key,weights)};
+    const routes=nativeRoutes(),rows=[];
+    const idOf=e=>Number(e?.sourceNpc||String(e?.id||'').match(/drop_(\d+)/)?.[1]||0);
+    for(let i=0;i<events.length;){
+      const event=events[i],id=idOf(event);
+      const native=routes.filter(r=>r.ids[0]===id&&r.ids.every((v,j)=>
+        idOf(events[i+j])===v)).sort((a,b)=>b.ids.length-a.ids.length)[0];
+      if(!native){
+        rows.push({...resolveEvent(step,event),nativeReplay:false});i++;continue;
+      }
+      native.run(state);
+      for(let j=0;j<native.ids.length;j++){
+        const e=events[i+j],npc=idOf(e),count=Number(vars.get(e.id)||0),
+          weapon=Number(vars.get('drop_'+npc+'_weapon')||0);
+        const isEquip=count>=1&&count<=(e.equip?.ids?.length||0);
+        const isWeapon=!isEquip&&weapon>=1&&weapon<=(e.weapon?.ids?.length||0);
+        const item=isEquip?e.equip.ids[count-1]:
+          isWeapon?e.weapon.ids[weapon-1]:0;
+        const color=Number(vars.get('drop_'+npc+'_color')||0);
+        rows.push({kind:isEquip?'equip':isWeapon?'weapon':'none',
+          item,color:item?color:0,nativeReplay:true});
+      }
+      i+=native.ids.length;
+    }
+    return rows;
+  }
   function predict(input,event,count){
     if(!Number.isInteger(count)||count<1||count>500)
       throw Error('관문 보상 예측은 1~500회까지 가능합니다');
-    const step=stream(input);
-    const rows=Array.from({length:count},(_,i)=>({index:i+1,...resolveEvent(step,event)}));
+    const rows=replay(input,Array.from({length:count},()=>event))
+      .map((x,i)=>({index:i+1,...x}));
     rows.equipmentStream=trackEquipment(input,rows);
     return rows;
   }
@@ -82,12 +129,9 @@
       if(!event?.outer||!event?.color||missing(input,event).length)
        throw Error('연속 보상에 필요한 우두머리 난수 시드가 없습니다: '+String(event?.id||'미확인'));
     }
-    // One shared map for all events: seed_byj and other repeated keys must
-    // advance between different bosses, not restart from the save on each call.
-    const step=stream(input);
-    const rows=events.map((event,i)=>({
-      index:i+1,eventId:event.id,dungeon:event.dungeon,boss:event.boss,
-      ...resolveEvent(step,event)
+    const rows=replay(input,events).map((x,i)=>({
+      index:i+1,eventId:events[i].id,dungeon:events[i].dungeon,
+      boss:events[i].boss,...x
     }));
     rows.equipmentStream=trackEquipment(input,rows);
     return rows;
