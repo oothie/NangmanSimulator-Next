@@ -32,9 +32,16 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
     !Array.isArray(native.result?.routes))
   throw Error('yy-sim 원본 WASM 자동 탐색 응답을 확인하지 못했습니다');
  const parsed=api.routeOutcome(native.result,config.desiredIds);
- const verified=parsed.routes.filter(route=>route.complete&&route.executable);
+ // A final-state-complete, costed native route remains a valid search
+ // candidate even if its optional replay-action array is missing. Dropping
+ // it would falsely inflate the best observed pill count. Replay eligibility
+ // is a separate property checked by the UI before applying any actions.
+ const verified=parsed.routes.filter(route=>route.complete&&
+  route.estimatedPills!==null&&route.estimatedWashes!==null&&
+  route.exchanges!==null&&route.pad!==null&&!route.source?.error);
  const history=[{index:1,maxPad:config.maxPad,horizon:config.horizon,topN:config.topN,
-  scanned:parsed.stats.scanned||0,routes:parsed.stats.total,complete:verified.length}];
+  scanned:parsed.stats.scanned||0,routes:parsed.stats.total,complete:verified.length,
+  replayReady:verified.filter(route=>route.executable).length}];
  const best=verified[0]||null;
  onProgress({phase:'verified',total:1,indeterminate:false,elapsedSeconds:Math.floor((Date.now()-started)/1000),history,bestPills:best?.estimatedPills??null,
   stage:'원본 yy-sim WASM 탐색 결과 검증 완료'});
