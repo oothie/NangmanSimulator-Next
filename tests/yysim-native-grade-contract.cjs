@@ -33,7 +33,6 @@ const path=require('node:path');
     total_wash:0,total_pills:0,bag_pills:20000,has_bag_pills:true};
    await washSearchEngine.call('set-state',current);
    const exactInitialState=await washSearchEngine.call('state');
-   const initialSerialized=JSON.stringify(exactInitialState);
    const frame=washSearchEngine.frame;
    const target=Array.from(document.querySelectorAll('iframe')).find(x=>x===frame);
    if(!target)throw Error('native iframe unavailable');
@@ -68,7 +67,7 @@ const path=require('node:path');
       conflicts&&typeof conflicts==='object'?
        Object.entries(conflicts).slice(0,3):null
     };
-    if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
+    if(!native.statesEqual(wasmGetState(),original))
      throw Error('Original native conflict read changed WASM state');
     const candidates=[
      {grade:4,id:271},{grade:2,id:184},{grade:3,id:191}
@@ -83,7 +82,7 @@ const path=require('node:path');
       route?.final_slots?.some(t=>Number(t.id)===item.id));
      rows.push({grade:item.grade,returned:response?.routes?.length??null,
       valid:valid.length,error:error||response?.error||null});
-     if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
+     if(!native.statesEqual(wasmGetState(),original))
       throw Error('read-only grade probe modified native state');
     }
     // Explicitly test combinations against FINAL native slots, not transient
@@ -131,7 +130,7 @@ const path=require('node:path');
        Number.isSafeInteger(Number(r.pills))&&Number(r.pills)>=0?
         Math.min(best,Number(r.pills)):best,Infinity),
       error:nativeError});
-     if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
+     if(!native.statesEqual(wasmGetState(),original))
       throw Error('mixed-grade native route probe modified original WASM state');
     }
     // Purple-only reference: same state + same request should produce the
@@ -144,7 +143,7 @@ const path=require('node:path');
      const result=safeSearch(baselineRequest);
      baselineTrials.push({elapsedMs:Math.round((performance.now()-started)*100)/100,
       result:JSON.stringify(result)});
-     if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
+     if(!native.statesEqual(wasmGetState(),original))
       throw Error('native purple repeat search mutated the WASM state');
     }
     if(baselineTrials[0].result!==baselineTrials[1].result)
@@ -171,14 +170,14 @@ const path=require('node:path');
       returned:response?.routes?.length??null,
       error:error||response?.error||null,
       firstPills:response?.routes?.[0]?.pills??null});
-     if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
+     if(!native.statesEqual(wasmGetState(),original))
       throw Error('original native request field probe mutated state');
     }
     return {rows,mixedGoalResults,nativePurpleBaseline,requestVariants,
-     conflictSummary,availableSummary,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
+     conflictSummary,availableSummary,unchanged:native.statesEqual(wasmGetState(),original)};
    })()`);
    const finalState=await washSearchEngine.call('state');
-   return {outcome,preserved:JSON.stringify(finalState)===initialSerialized};
+   return {outcome,preserved:engine.YYWashNativeSearchGuard.statesEqual(finalState,exactInitialState)};
   });
   assert(audit.outcome.unchanged&&audit.preserved,'native grade audit mutated live state');
   assert.equal(audit.outcome.rows.length,3);
