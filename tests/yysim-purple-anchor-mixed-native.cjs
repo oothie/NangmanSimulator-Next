@@ -431,6 +431,31 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   guard:YYWashNativeSearchGuard
  });
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),mappedBefore);
+ assert.equal(mappedResult.routes[0]?.pills,4299,
+  '1121 Yi Il-jin mapped save state must reproduce site pill cost 4299');
+ assert.equal(mappedResult.routes[0]?.washes,856,
+  '1121 Yi Il-jin mapped save state must reproduce site wash count 856');
+ // Isolate the previously missing save fields so a later mismatch has a
+ // precise cause; no user's private full save is persisted in the repo.
+ for(const variant of [
+  {label:'salt-only',change:{salt:262731}},
+  {label:'stats-only',change:{role_stats:{str_val:11,con:200,dex:210,int_val:13}}}
+ ]){
+  const probe={...role1121,...variant.change};
+  assert(wasmSetState(probe));
+  const probeResult=await YYWashPurpleAnchorMixed.run({
+   desiredIds:[272,249,266,234],maxPad:20,horizon:900,topN:2,
+   talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+   guard:YYWashNativeSearchGuard
+  });
+  console.log('YY_1121_VARIANT '+JSON.stringify({
+   variant:variant.label,pills:probeResult.routes[0]?.pills??null,
+   washes:probeResult.routes[0]?.washes??null,
+   replayRejected:probeResult.diagnostics.purpleReplayRejected||0
+  }));
+  assert(wasmSetState(mapped1121));
+ }
  console.log('YY_1121_SCALARS_ONLY '+JSON.stringify({
   routes:mappedResult.routes.length,pills:mappedResult.routes[0]?.pills??null,
   washes:mappedResult.routes[0]?.washes??null,
