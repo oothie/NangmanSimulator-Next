@@ -84,6 +84,9 @@ for(let i=0;i<routeBodyOffset.size;i++){
 const searchCallees=directCalls.filter(x=>x.functionIndex!==routes.index&&x.bodyBytes>1000)
  .sort((a,b)=>b.bodyBytes-a.bodyBytes);
 if(!searchCallees.length)throw Error('WASM search solver target could not be located');
+if(searchCallees[0].functionIndex!==78||searchCallees[0].bodyBytes!==4055)
+ throw Error('Original yy-sim WASM search implementation changed; re-audit before extending');
+
 const record={moduleBytes:bytes.length,importedFunctions:imports,definedFunctions:bodySizes.length,
  nativeRouteFunctionIndex:routes.index,nativeRouteBodyBytes:bodySizes[bodyIndex],
  searchWrapperCalls:directCalls,solverCandidate:searchCallees[0],
