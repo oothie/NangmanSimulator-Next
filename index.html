@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.10.69</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.10.70</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -800,10 +800,10 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .wash-guide-slot{padding:10px 13px;border:1px solid var(--border);background:var(--paper);border-radius:8px;font-weight:700;font-size:15px}
 .wash-guide-alternative>summary{font-size:16px;padding:12px 0;cursor:pointer;font-weight:700}
 @media(max-width:640px){.wash-guide-route{padding:14px}.wash-guide-heading h4{font-size:29px}.wash-guide-step{padding:12px;grid-template-columns:36px minmax(0,1fr);gap:8px}.wash-guide-number{width:30px;height:30px}.wash-guide-step-body strong{font-size:16px}.wash-guide-step-detail{font-size:15px}}
-/* v0.10.69: embed regular wash using active site theme, never a fixed light iframe. */
+/* v0.10.70: embed regular wash using active site theme, never a fixed light iframe. */
 [data-theme=ink] #washV350Frame{background:#252830!important;color-scheme:dark!important}
 [data-theme=paper] #washV350Frame{background:#fffdf7!important;color-scheme:light!important}
-/* v0.10.69: hide all experimental appearance previews until original sprite mapping is verified. */
+/* v0.10.70: hide all experimental appearance previews until original sprite mapping is verified. */
 .appearance-section,[data-appearance-role],.appearance-stage{display:none!important}
 
 /* Account: paginated person-left / records-right tables. No nested scrolling. */
@@ -868,7 +868,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .appearance-status{text-align:center;max-width:230px;font-size:13px;line-height:1.65;padding:16px;color:var(--text-secondary,#77808e)}
 .appearance-caption{text-align:center}
 </style></head>
-<body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터 · v0.10.69</small></div><nav class="nav" id="nav"></nav><div class="tools"><span id="topSaveStatus" class="micro">세이브 미연결</span><button id="saveLink" class="save-link">세이브 불러오기</button><button type="button" id="clearTopSave" class="save-link" title="이 브라우저의 세이브 삭제">해제</button><input id="file" type="file" accept=".json,application/json" hidden><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
+<body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터 · v0.10.70</small></div><nav class="nav" id="nav"></nav><div class="tools"><span id="topSaveStatus" class="micro">세이브 미연결</span><button id="saveLink" class="save-link">세이브 불러오기</button><button type="button" id="clearTopSave" class="save-link" title="이 브라우저의 세이브 삭제">해제</button><input id="file" type="file" accept=".json,application/json" hidden><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
 <main class="page"><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="장비 계산 영역"></section><section id="dropWorkspace" class="drop-workspace" hidden aria-label="드랍 계산 영역"></section></main></div>
 <script src="./shared/private-save-cache.js?rev=v083"></script><script src="./vendor/sanbujin/shared/equip_data.js"></script>
 <script src="./vendor/yysim/char_data.js"></script>
@@ -1508,7 +1508,7 @@ function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.10.69</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
+return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.10.70</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
 }
 
 function embeddedEngine(url,label,caption){
@@ -4534,7 +4534,7 @@ if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  link.download='Nangman_Quest_Branches_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questRegion='all';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.10.69',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questRegion='all';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.10.70',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 
 if($('equipSearch'))$('equipSearch').oninput=e=>{equipSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipSearch');x.focus();x.setSelectionRange(p,p)};
 if($('equipOwnSearch'))$('equipOwnSearch').oninput=e=>{equipOwnSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipOwnSearch');x.focus();x.setSelectionRange(p,p)};
@@ -4849,7 +4849,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.10.69',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.10.70',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;equipmentLastOriginalTab=null;render()}});
@@ -4966,7 +4966,7 @@ function updateDropVisibility(){
   dropFrame=document.createElement('iframe');
   dropFrame.id='dropEngineFrame';dropFrame.title='낭만강호 드랍 계산 엔진';
   dropFrame.loading='eager';dropFrame.referrerPolicy='same-origin';
-  dropFrame.src='./vendor/sanbujin/drops/index.html?rev=0.10.69';
+  dropFrame.src='./vendor/sanbujin/drops/index.html?rev=0.10.70';
   dropFrame.addEventListener('load',()=>{dropSentVersion=-1;sendThemeToDrop();dropStatus='드랍 엔진 초기화 확인 중';updateDropRuntimeStatus()});
   host.appendChild(dropFrame);
  }
