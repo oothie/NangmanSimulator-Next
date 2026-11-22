@@ -17,6 +17,7 @@ on:
       - 'tests/wiki-icon-mapping-smoke.cjs'
       - 'tests/drop-boss-removal-smoke.cjs'
       - 'tests/dungeon-boss-probability-smoke.cjs'
+      - 'tests/dungeon-yysim-rng-parity.cjs'
       - 'vendor/yysim/daily_data.js'
       - 'tests/quest-branch-smoke.cjs'
       - 'tests/character-source-smoke.cjs'
@@ -46,8 +47,10 @@ jobs:
         run: node tests/wiki-icon-mapping-smoke.cjs
       - name: Verify removed whole-boss comparison does not break dungeon UI
         run: node tests/drop-boss-removal-smoke.cjs
-      - name: Verify yy-sim dungeon probabilities and 1122 comparison panel
-        run: node tests/dungeon-boss-probability-smoke.cjs
+      - name: Verify yy-sim dungeon probabilities and Korean names
+        run: |
+          node tests/dungeon-boss-probability-smoke.cjs
+          node tests/dungeon-yysim-rng-parity.cjs
       - name: Character stat source
         run: node tests/character-source-smoke.cjs
       - name: Character page layout
