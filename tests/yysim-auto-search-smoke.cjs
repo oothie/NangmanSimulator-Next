@@ -10,6 +10,17 @@ assert.throws(()=>api.selectedIds([271,999],allowed),/녹맥·파맥·자맥/);
 assert.throws(()=>api.selectedIds([271,250,268,272,249],allowed),/1~4개/);
 assert.equal(api.options({desiredIds:[271,268],maxPad:0,horizon:300,topN:8},allowed).horizon,300);
 assert.equal(api.options({desiredIds:[271,268]},allowed).maxPad,0,'Automatic wash defaults must use original unpadded search');
+const catalog=[{quality:4,items:[271,272,250,268].map(id=>({id}))},
+ {quality:3,items:[204].map(id=>({id}))}];
+const fourPurples=[271,272,250,268];
+assert.equal(api.recommendedHorizon(fourPurples,catalog),2500,
+ '1121 four-purple route ending at wash 1770 must not be rejected by horizon 900');
+assert.equal(api.recommendedHorizon([271,272,250,204],catalog),900,
+ 'mixed-grade native probing retains its existing independent horizon');
+assert.equal(api.recommendedHorizon([271,272,250],catalog),900,
+ 'three-purple searches retain original bounded behavior');
+assert.equal(api.options({desiredIds:fourPurples,horizon:api.recommendedHorizon(fourPurples,catalog)},[...allowed,272,250]).horizon,2500);
+
 assert.throws(()=>api.options({desiredIds:[271],maxPad:201,horizon:300,topN:5},allowed),/제한/);
 assert.throws(()=>api.options({desiredIds:[271],maxPad:5,horizon:5001,topN:5},allowed),/제한/);
 const sample={routes:[{
