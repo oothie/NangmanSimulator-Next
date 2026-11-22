@@ -46,7 +46,7 @@ assert(!out.includes('채집·채광 기록'),'repeatable resource collection re
 assert(!out.includes('Count 원본값'),'mine counts removed from UI');
 const empty=render({});
 assert(empty.includes('그루터기 / 보물상자'),'empty map is safe');
-assert(empty.includes('종류 미확인'),'empty counts safe');
+assert(empty.includes('획득한 그루터기'),'empty counts safe');
 const malformed=render({MapData:{swz:null,hua:{tmxObj:{'2':null}}}});
 assert(malformed.includes('종류 확인 필요'),'unknown object does not crash');
 
