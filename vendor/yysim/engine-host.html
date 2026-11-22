@@ -57,11 +57,15 @@ try{
   const maxPad=Number(payload?.maxPad??20);
   const horizon=Number(payload?.horizon??900);
   const topN=Number(payload?.topN??8);
+  // Dispatch green/blue/purple goals to ORIGINAL native search. This is an
+  // experimental characterization of the existing WASM, NOT proof that its
+  // purple-oriented generator can fulfill a mixed final state. Only fully
+  // complete final-slot routes may be surfaced as successful candidates.
   if(!Array.isArray(ids)||ids.length<1||ids.length>4||
      new Set(ids).size!==ids.length||
-     ids.some(id=>!Number.isInteger(id)||TALENT_DATA[String(id)]?.pinzhi!==4||
+     ids.some(id=>!Number.isInteger(id)||![2,3,4].includes(TALENT_DATA[String(id)]?.pinzhi)||
        !washSelectableIds().has(id)))
-   throw Error('원본 yy-sim 자동탐색은 현재 자맥만 지원합니다. 녹맥·파맥 확장 엔진 구현 전까지 임의 결과를 표시하지 않습니다');
+   throw Error('자동탐색은 등록된 녹맥·파맥·자맥 재능을 1~4개 선택해야 합니다');
   if(!Number.isInteger(maxPad)||maxPad<0||maxPad>200||
      !Number.isInteger(horizon)||horizon<20||horizon>5000||
      !Number.isInteger(topN)||topN<1||topN>20)
@@ -72,10 +76,22 @@ try{
   if(!guard?.run)throw Error('원본 WASM 검색 상태 보호 모듈이 준비되지 않았습니다');
   const result=guard.run({getState:wasmGetState,setState:wasmSetState,
    search:wasmSearchWashRoutes},search);
+  // A non-empty native route does NOT imply mixed-grade success: inspect
+  // final_slots for each requested ID before returning to the UI.
+  const isMixed=ids.some(id=>TALENT_DATA[String(id)]?.pinzhi!==4);
+  const completeRoutes=result.routes.filter(route=>{
+   const final=new Set((route?.final_slots||[]).map(item=>Number(item?.id)));
+   return ids.every(id=>final.has(id));
+  });
+  const nativeDiagnostics={
+   isMixed,returned:result.routes.length,complete:completeRoutes.length,
+   incomplete:result.routes.length-completeRoutes.length,
+   unsupportedNotProven:isMixed&&completeRoutes.length===0
+  };
   const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
    .filter(([,x])=>x?.name).map(([id,x])=>[x.name,Number(id)]));
   send(requestId,true,{result,desiredIds:ids,maxPad,horizon,topN,nameIds,
-    nativeFunction:'wasmSearchWashRoutes'});
+    nativeDiagnostics,nativeFunction:'wasmSearchWashRoutes'});
   return
  }
  if(op==='sequence-pads'){
