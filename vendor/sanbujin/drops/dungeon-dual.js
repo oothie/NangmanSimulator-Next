@@ -68,7 +68,8 @@ function render(){
  }
  try{
   const input=root.SBJDungeonDrop.open(save);
-  const result=root.SBJDungeonDual.compare(input,current,combined,original);
+  const options={throughLiuCompleted:!!$('dungeonThroughLiuCompleted')?.checked};
+  const result=root.SBJDungeonDual.compare(input,current,combined,original,options);
   const yy=new Map(result.yy.rows.map(r=>[r.npcId,r]));
   const san=new Map(result.san.rows.map(r=>[r.npcId,r]));
   for(const npc of result.bosses){
@@ -92,6 +93,7 @@ function render(){
   status.textContent=label(current)+' · 보스 '+result.bosses.length+'명 · 양쪽 예측 가능 '+
    rowsBoth.length+'명 · 동일 결과 '+match.length+'명'+
    (missYY||missSAN?' · 시드 누락: yy-sim '+missYY+' / 산부진 '+missSAN:'')+
+   (options.throughLiuCompleted?' · 유씨별원까지 주황 장비 획득 완료 조건 반영':'')+
    ' · 다음 1회 보상 · 실측 검증 전';
  }catch(error){status.textContent='관문 드랍 계산 오류: '+String(error?.message||error)}
 }
@@ -99,6 +101,7 @@ source.forEach(d=>area.add(new Option(label(d),d.id)));
 const first=source.find(d=>d.id==='ywf')||source[0];
 if(first)area.value=first.id;
 area.addEventListener('change',render);
+$('dungeonThroughLiuCompleted')?.addEventListener('change',render);
 $('dungeonDualRefresh')?.addEventListener('click',render);
 document.addEventListener('yyjh-save',render);
 render();
