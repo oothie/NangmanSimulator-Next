@@ -39,8 +39,10 @@ const {chromium}=require('playwright');
      const req=reqs[i];
      let expected=null,directError=null;
      const started=performance.now();
-     try{expected=frame.eval('wasmSearchWashRoutes('+JSON.stringify(req)+')')}
-     catch(err){directError=String(err?.message||err)}
+     try{
+      const serialized=JSON.stringify(req);
+      expected=frame.eval('window.YYWashNativeSearchGuard.run({getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes},'+serialized+')');
+     }catch(err){directError=String(err?.message||err)}
      const directMs=Math.round((performance.now()-started)*100)/100;
      if(JSON.stringify(await washSearchEngine.call('state'))!==before)
       throw Error('Native iframe comparison mutated original WASM state');
