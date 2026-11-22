@@ -456,6 +456,22 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   }))});
  }
  console.log('YY_1121_PURPLE_NATIVE_PADDING '+JSON.stringify(nativePadVariants));
+ assert(wasmSetState(mapped1121));
+ const noPadMixed=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[272,249,266,234],maxPad:0,horizon:900,topN:8,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:YYWashNativeSearchGuard
+ });
+ console.log('YY_1121_NO_PAD_MIXED '+JSON.stringify({
+  routes:noPadMixed.routes.length,
+  pills:noPadMixed.routes[0]?.pills??null,
+  washes:noPadMixed.routes[0]?.washes??null,
+  steps:noPadMixed.routes[0]?.actions?.length??null,
+  errors:noPadMixed.diagnostics.failures
+ }));
+ assert(wasmSetState(mapped1121));
+
 
  assert(wasmSetState(mapped1121));
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),mappedBefore);
