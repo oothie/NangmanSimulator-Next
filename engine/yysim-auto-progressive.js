@@ -1,71 +1,41 @@
-/* Bounded multi-pass yy-sim native automatic route search.
- * All candidate routes originate from the real WASM 'search_wash_routes' export.
- * No guessed rolls, no server-save mutation, no false global-optimal claim.
+/* Original yy-sim WASM-only route search.
+ * Execute EXACTLY ONE native search_wash_routes call with the selected bounds.
+ * Previous three preliminary passes plus two silent 4000/5000 extensions
+ * repeated expensive native work and could search beyond the user's limit.
+ * Mixed colors stay disabled until the native algorithm itself is extended.
  */
 (function(root){
 'use strict';
-function levels({maxPad=20,horizon=900,topN=10}={}){
- const configs=[
-  {maxPad:Math.min(maxPad,3),horizon:Math.min(horizon,300),topN},
-  {maxPad:Math.min(maxPad,8),horizon:Math.min(horizon,900),topN},
-  {maxPad,horizon,topN}
- ];
- return configs.filter((x,i)=>configs.findIndex(y=>y.maxPad===x.maxPad&&
-  y.horizon===x.horizon&&y.topN===x.topN)===i);
-}
 async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=900,topN=10,
  onProgress=()=>{}}={}){
  if(typeof call!=='function'||!api?.options||!api?.routeOutcome)
   throw Error('yy-sim 원본 자동 탐색 엔진이 준비되지 않았습니다');
  const config=api.options({desiredIds,maxPad,horizon,topN});
- const stages=levels(config),entries=[],history=[],seen=new Set();
- const extended=[{maxPad:100,horizon:4000,topN:config.topN},
-  {maxPad:200,horizon:5000,topN:config.topN}];
- let extendedQueued=false;
- let nameIds={},best=null,totalScanned=0;
- for(let i=0;i<stages.length;i++){
-  ensureSession();
-  const options={desiredIds:config.desiredIds,...stages[i]};
-  const native=await call('auto-search',options);
-  ensureSession();
-  if(!native||native.nativeFunction!=='wasmSearchWashRoutes'||
+ ensureSession();
+ onProgress({phase:0,total:1,history:[],bestPills:null,
+  stage:'원본 yy-sim WASM 자동 경로 탐색'});
+ // Preserve a UI paint opportunity before the synchronous native WASM call.
+ await new Promise(resolve=>setTimeout(resolve,0));
+ ensureSession();
+ const native=await call('auto-search',config);
+ ensureSession();
+ if(!native||native.nativeFunction!=='wasmSearchWashRoutes'||
     !Array.isArray(native.result?.routes))
-   throw Error('원본 WASM 자동 탐색의 단계 '+(i+1)+' 응답을 확인할 수 없습니다');
-  const report=api.routeOutcome(native.result,config.desiredIds);
-  const scanned=report.stats.scanned||0;
-  totalScanned+=scanned;
-  nameIds=native.nameIds||nameIds;
-  history.push({index:i+1,...stages[i],scanned,
-   routes:report.stats.total,complete:report.stats.complete});
-  for(const entry of report.routes){
-   const key=JSON.stringify({actions:entry.actions,steps:entry.steps,stream:entry.stream,
-    orderIds:entry.orderIds,finalSlots:entry.finalSlots,
-    luckInit:entry.source?.luck_init,slotPlan:entry.source?.slot_plan,
-    pad:entry.pad,pills:entry.estimatedPills,washes:entry.estimatedWashes,
-    exchanges:entry.exchanges});
-   if(seen.has(key))continue;
-   seen.add(key);
-   entries.push(entry.source);
-  }
-  const merged=api.routeOutcome({routes:entries,scanned:totalScanned},config.desiredIds);
-  if(merged.routes.some(x=>x.complete))best=merged.routes.find(x=>x.complete);
-  if(i===stages.length-1&&!extendedQueued&&!best){
-   extendedQueued=true;
-   const full=stages.at(-1);
-   for(const next of extended){
-    if(next.maxPad<=full.maxPad&&next.horizon<=full.horizon)continue;
-    if(!stages.some(x=>x.maxPad===next.maxPad&&x.horizon===next.horizon))stages.push(next);
-   }
-  }
-  onProgress({phase:i+1,total:stages.length,history:[...history],bestPills:best?.estimatedPills??null});
- }
+  throw Error('yy-sim 원본 WASM 자동 탐색 응답을 확인하지 못했습니다');
+ const parsed=api.routeOutcome(native.result,config.desiredIds);
+ const verified=parsed.routes.filter(route=>route.complete&&route.executable);
+ const history=[{index:1,maxPad:config.maxPad,horizon:config.horizon,topN:config.topN,
+  scanned:parsed.stats.scanned||0,routes:parsed.stats.total,complete:verified.length}];
+ const best=verified[0]||null;
+ onProgress({phase:1,total:1,history,bestPills:best?.estimatedPills??null,
+  stage:'원본 yy-sim WASM 탐색 결과 검증'});
  return {nativeFunction:'wasmSearchWashRoutes',desiredIds:config.desiredIds,
   maxPad:config.maxPad,horizon:config.horizon,topN:config.topN,
-  nameIds,history,progressive:true,result:{
-   routes:entries,scanned:totalScanned,missing:[],
-   error:best?null:'설정 범위 내 목표 자맥 경로 없음'},
+  nameIds:native.nameIds||{},history,progressive:true,
+  result:{...native.result,routes:verified.map(x=>x.source),
+   error:best?null:native.result.error||'설정한 원본 탐색 범위 내 최종 경로 없음'},
   bestPills:best?.estimatedPills??null,
   globallyOptimal:best?.globallyOptimal===true};
 }
-root.YYWashProgressive={levels,run};
+root.YYWashProgressive={run};
 })(window);
