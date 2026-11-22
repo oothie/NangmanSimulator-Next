@@ -174,17 +174,36 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    }));
   const boundary=Math.min(nextScheduled-1,mark.wash+horizon);
   if(boundary<=mark.wash)return;
-  let branches=0;
-  for(let time=mark.wash+1;time<=boundary;time++){
+  // First enumerate the ORIGINAL WASM events only once, leaving the
+  // earlier purple locks unchanged. Compare near events at BOTH ends
+  // of the purple interval rather than only the first four events.
+  const candidatesInWindow=[];
+  for(let wash=mark.wash+1;wash<=boundary;wash++){
+   const before=count(getState(),'total_wash');
    const washed=doWash();
-   if(!washed||washed.error)break;
+   if(!washed||washed.error||count(getState(),'total_wash')!==before+1)break;
    diagnostics.scannedWashes++;
-   const originalScan=clone(getState());
-   const appearing=shape.colors.filter(id=>
-    originalScan.talents.some(t=>number(t.id)===id));
-   if(appearing.length===0)continue;
-   branches++;
-   if(branches>4)break;
+   const state=clone(getState());
+   const found=shape.colors.filter(id=>idsOf(state).includes(id));
+   if(found.length)candidatesInWindow.push({time:wash,state,appearing:found});
+   if((wash-mark.wash)%75===0){
+    progress({phase:'anchor-between',scannedWashes:diagnostics.scannedWashes,
+     candidateRoutes:routes.length});
+    await new Promise(resolve=>setTimeout(resolve,0));
+   }
+  }
+  const candidateCap=8;
+  const head=candidatesInWindow.slice(0,4);
+  const tail=candidatesInWindow.slice(-4);
+  const chosen=[...new Map([...head,...tail].map(x=>[x.time,x])).values()]
+   .sort((a,b)=>a.time-b.time).slice(0,candidateCap);
+  diagnostics.betweenCandidates=(diagnostics.betweenCandidates||0)+
+   candidatesInWindow.length;
+  diagnostics.betweenExamined=(diagnostics.betweenExamined||0)+chosen.length;
+  for(const candidate of chosen){
+   const {time,appearing}=candidate;
+   const originalScan=candidate.state;
+   restore(originalScan);
    try{
     const actions=[
      ...clone(originalActions.slice(0,next)),...clone(unlockSteps),
