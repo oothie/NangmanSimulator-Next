@@ -327,9 +327,13 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
        error:'선택한 무료 자동 교체 기간 안에서는 남은 목표 수량을 모두 획득하지 못했습니다.'};
    }
    const cmp=(a,b)=>mode==='fastest'?
-     a.time-b.time||a.cost-b.cost||a.period-b.period:
+     a.time-b.time||b.purchased-a.purchased||a.cost-b.cost||a.period-b.period:
      a.cost-b.cost||a.time-b.time||a.period-b.period;
-   // Keep the original best-first shortest-path exploration and daily reset.
+   // Prioritize progress within the same timestamp. Paid refreshes mutate the actual
+   // guishishop RNG, but a time+cost-only queue otherwise explores enormous
+   // numbers of low-cost, low-progress combinations before reaching a full purchase.
+   // This tie-break does not alter chronological shortest-time ordering.
+   // Keep daily reset and seed/lucky in the state key.
    const heap=[],seen=new Map();
    const push=node=>{let i=heap.length;heap.push(node);
      while(i>0){const p=(i-1)>>1;if(cmp(heap[p],node)<=0)break;heap[i]=heap[p];i=p}
@@ -378,7 +382,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    if(best)return finish(best);
    return {mode,found:false,required:goal,expanded,periods:periodLimit,
      vip:vipAllowance.vip,limited:heap.length>0,
-     error:heap.length>0?'탐색 상태 상한에 도달했습니다. 전체 수량 획득 경로를 아직 확정하지 못했습니다.':
+     error:heap.length>0?'갱신·자동 교체 조합이 탐색 상한을 초과했습니다. 시드 읽기 오류가 아니라 동일 기간의 분기 수가 과도하게 증가한 상태이며, 정확한 최단 기간은 아직 미확정입니다.':
        '선택한 기간과 VIP 허용량에서 목표 수량을 전부 획득하는 경로를 찾지 못했습니다.'};
 
   }
