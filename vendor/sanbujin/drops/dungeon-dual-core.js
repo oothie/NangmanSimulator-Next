@@ -75,7 +75,7 @@ function yyPredict(input,dungeon,entries){
  return {source:'yy-sim',dungeon:dungeon.name,rows,
   missingSeeds:[...missingKeys],details:'원본 yy-sim 보상 가중치/실행 목록을 순서대로 계산. 전용 보상의 조건식은 별도 판정.'};
 }
-function sanPredict(input,entries,originalCatalog,dungeon){
+function sanPredict(input,entries,originalCatalog,dungeon,options={}){
  const lookup=new Map((originalCatalog||[]).filter(e=>e.outer).map(e=>[npcId(e),e]));
  const duplicateIds=new Set();
  for(const d of all()){
@@ -97,7 +97,7 @@ function sanPredict(input,entries,originalCatalog,dungeon){
  const missing=supported.filter(x=>root.SBJDungeonDrop.missing(input,x.event).length);
  let prediction=null,error=null;
  if(supported.length&&!missing.length){
-  try{prediction=root.SBJDungeonDrop.predictSequence(input,supported.map(x=>x.event))}
+  try{prediction=root.SBJDungeonDrop.predictSequence(input,supported.map(x=>x.event),options)}
   catch(e){error=String(e?.message||e)}
  }
  const map=new Map();
@@ -118,13 +118,13 @@ function sanPredict(input,entries,originalCatalog,dungeon){
     root.SBJDungeonDrop.missing(input,x.event)))],error,
     details:'산부진 복원 보상 함수 또는 독립 난수 테이블 사용. 지원 구간만 보스 전체 순서 반영.'};
 }
-function compare(input,dungeon,catalog,originalCatalog){
+function compare(input,dungeon,catalog,originalCatalog,options={}){
  if(!dungeon||!input)throw Error('관문 및 세이브 정보를 확인하세요');
  const entries=orderedEvents(catalog,dungeon);
  return {dungeon:dungeon.name,dungeonId:dungeon.id,
   bosses:entries.map(x=>({id:x.npc.id,name:x.npc.name})),
   yy:yyPredict(input,dungeon,entries),
-  san:sanPredict(input,entries,originalCatalog,dungeon)};
+  san:sanPredict(input,entries,originalCatalog,dungeon,options)};
 }
 root.SBJDungeonDual={compare,sourceDungeon,orderedEvents,yyPredict,sanPredict};
 })(window);
