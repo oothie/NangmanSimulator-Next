@@ -11,7 +11,8 @@ const variants={
  gradeGate3332:[3332],
  gradeGate6303:[6303],
  gradeGatesPair:[2665,3332],
- gradeGatesTriple:[2665,3332,6303]
+ gradeGatesTriple:[2665,3332,6303],
+ bypassRequestGuard:[-5532]
 };
 function readUleb(bytes,c){
  let n=0,s=0,v;
@@ -79,6 +80,17 @@ if(!process.argv.includes('--child')){
   const body=functionBodyStart(bytes,13);
   assert(body.size>10000&&body.size<20000,'native next_purple body contract changed');
   for(const offset of offsets){
+   if(offset===-5532){
+    // Research-only: native core4 builds the purple-only error after
+    // i32.load8_u from a request-validation flag at state+300.
+    // Replace only that four-byte LOAD with drop + const(0) + nop;
+    // leave all original game talent metadata and wash RNG unchanged.
+    const core=functionBodyStart(bytes,4),at=core.start+5532;
+    assert.deepEqual([...bytes.subarray(at,at+4)],[45,0,172,2],
+     'native purple request rejection flag bytecode moved');
+    bytes.set([26,65,0,1],at);
+    continue;
+   }
    const at=body.start+offset;
    assert.equal(bytes[at],65,'expected i32.const in native function13 at '+offset);
    assert.equal(bytes[at+1],4,'expected native threshold four at '+offset);
