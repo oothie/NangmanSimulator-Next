@@ -159,6 +159,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   const actions=Array.isArray(route.actions)?route.actions:[];
   if(!actions.length)throw Error('원본 자맥 경로의 실행 단계가 없습니다');
   let last=0;
+  const verifiedActions=[];
   for(let i=0;i<actions.length;i++){
    const action=actions[i],wash=Number(action.wash_no);
    if(!Number.isInteger(wash)||wash<last)
@@ -188,6 +189,10 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     case 'wash_to':case 'skip':break;
     default:throw Error('미지원 원본 자맥 실행 단계: '+action.kind);
    }
+   const {roll_idx:_roll,...measuredStep}=action;
+   verifiedActions.push({...measuredStep,
+    wash_no:count(getState(),'total_wash'),
+    pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
   }
   const state=getState();
   if(!hasAll(state,shape.purple))
@@ -207,7 +212,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     });
    }
   }
-  return {state:clone(state),actions:clone(actions)};
+  return {state:clone(state),actions:verifiedActions};
  }
  // Reuse the ORIGINAL purple route timeline around the second (or first)
  // confirmed purple. Insert a nearby color talent before the next native
