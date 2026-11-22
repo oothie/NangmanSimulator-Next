@@ -3554,8 +3554,18 @@ function yyAccountRecordAndResourceView(section='jianghu'){
   '<tr><td>'+escape(translatedBranch(id))+(translatedBranch(id)!==id?'<small> · '+escape(id)+'</small>':'')+'</td>'+
   '<td>'+(Number(r.step)===-1?'완료 기록':'진행 · '+escape(r.step))+(r.trace===true?' · 추적':'')+'</td>'+
   '<td>'+escape(branchDate(r.recv))+'</td></tr>').join('');
- const achievementRows=achievements.slice().sort((a,b)=>Number(a.ID)-Number(b.ID)).map(row=>
-  '<tr><td>#'+escape(row.ID)+'</td><td>'+escape(row.Reward??'—')+'</td></tr>').join('');
+ // Korean 60014 task_achieve: all known original achievement names, including unreached ones.
+ const parseCatalog=text=>Object.fromEntries(text.split('|').map(s=>{const i=s.indexOf(':');return [s.slice(0,i),s.slice(i+1)];}));
+ const achieveNames=parseCatalog("0:강호종횡|1:강호종횡|2:순수일도|3:선천의 몸|4:일대종사|5:행자무강|6:무예 연마|7:천추백타|8:3척 발굴|9:친구 교제|10:사해명성|11:염왕 거부|12:정의구현|13:교전|14:먼지투성|15:사냥 달인|16:비바람|17:노동과 휴식|18:낚싯대 파괴자|19:황룡공격|20:보물찾기|21:호송천하|22:최고재벌|23:살인자|24:취선채 빠른 통과|25:묵문 유적지 빠른 통과|26:혈의루 빠른 통과|27:천일교 빠른 통과|28:추가성 속히 통과|29:구유에 깊이 진입|30:끈기·구유|31:천리단기·구유|32:50급 관문 소탕|33:철인문 빠른 통과|34:고골문 빠른 통과|35:매화장 도전|36:연왕부 빠른 통과|37:얼굴 정의|38:조리 달인|39:술나라 영웅|40:낚시 대사|41:연약 대사|42:연주 대가|43:권각 종사|44:검술 종사|45:도술 종사|46:창곤 종사|47:중원 마차|48:꿈처럼|49:다재다능|50:원대한 포부|51:임무 완료|52:중류지주|53:문파 사랑|54:티끌 모아 태산|55:료적제승·패자투연|56:공무불극·패자투연|57:영웅본색·패자투연|58:도화원기|59:강호 여행|60:건물 대사|61:수기 달인|62:꿈처럼|63:벽유교 빠른 통과|64:동창옥 빠른 통과|65:일격에 무너짐·창옥|66:자승자박·창옥|67:욕금고종·창옥|68:천기초현|69:묵자의 길|70:경지를 돌파한 몸|71:제릉 내전 빠른 통과|72:신병예기|73:유씨 별원 빠른 통과|74:무소불멸·묵문 유적|75:미립의 반딧불·혈의루|76:불장난의 대가·혈의루|77:배수거신·철인문|78:철인 불타·철인문|79:불과진미·천일교|80:노독시·천일교|81:탐낭취물·천일교|82:전복후계·고골문|83:금강불괴·고골문|84:의원 찾기·고골문|85:도절시진·연왕부|86:고립무원·연왕부|87:평온·연왕부|88:안개가 걷히다·벽유교|89:피우분명·벽유교|90:공휴일궤·벽유교|91:수종정침·벽유교|92:패자투연|93:해저로월·여산선자|94:허세 가득·류영|95:여념 없음·진법 훈련|96:농교성졸·유씨 별원|97:흐지부지·유씨 별원|98:주목을 한몸에·유씨 별원|99:헛수고|100:구랑탄호|101:생사를 같이하다·문향교|102:절대 영도|103:추골흡수·문향교|104:업보는 돌아오는 법입니다|105:고집불통|106:보련고좌·문향교|107:신공이 없다|108:문향교 속성 돌파|109:무신전 빠른 통과|110:기약 없는 재회·무신전|111:사심합일·무신전|112:허와 실·무신전|113:발운견일·무신전|114:세상 물정에 밝다|115:가치 있는 죽음·혈마노조|116:천하의 영웅|117:벽유 본부 빠른 통과|118:누군들 한이 없으랴·벽유 본부|119:수화불용·벽유 본부|120:광속 탈락·벽유교 본부|121:무쇄중루·본부추혼|122:당년의 약속·본부추혼|123:이합공합·본부추혼|124:멱라 결전·본부 추혼|130:창언풍정·구유|131:혈진형휴·구유|132:우리 문파의 위세를 떨치다|133:전술 대사|134:성도개도");
+ const achieveSteps=Object.fromEntries("0:1|1:10|2:5|3:3|4:3|5:3|6:4|7:4|8:6|9:4|10:3|11:3|12:5|13:3|14:3|15:3|16:3|17:3|18:3|19:1|20:3|21:3|23:3|24:3|25:3|26:3|27:3|28:3|29:5|30:4|31:3|33:3|34:3|35:5|36:3|51:6|52:4|53:3|54:6|55:2|56:1|57:3|58:5|59:5|60:5|61:5|62:1|63:3|64:3|65:3|66:3|67:3|68:3|69:2|70:3|71:3|72:3|73:3|74:1|75:1|76:1|77:3|78:3|79:1|80:3|81:1|82:3|83:1|84:1|85:1|86:1|87:1|88:1|89:1|90:1|91:1|92:1|93:1|94:1|95:1|96:1|97:1|98:1|99:3|100:3|101:1|102:3|103:3|104:1|105:1|106:1|107:3|108:3|109:3|110:1|111:1|112:1|113:1|114:4|115:3|116:4|117:3|118:1|119:1|120:1|121:1|122:1|123:1|124:1|130:1|131:1|132:3|133:1|134:3".split('|').map(s=>s.split(':').map(Number)));
+ const achievedById=new Map(achievements.map(row=>[Number(row.ID),row]));
+ const achievementRows=Object.entries(achieveNames).sort((a,b)=>Number(a[0])-Number(b[0])).map(([id,name])=>{
+  const row=achievedById.get(Number(id)),max=achieveSteps[id];
+  return '<tr><td>'+escape(name)+' <small>#'+id+'</small></td>'+
+   '<td>'+(row?'저장 기록 있음':'세이브 기록 없음 · 출시 미확인')+'</td>'+
+   '<td>'+(row?escape(row.Reward??'—'):'—')+(max?' / '+max:'')+
+   (row&&max?accountProgressBar(Math.max(0,Number(row.Reward)||0),max,'teal'):'')+'</td></tr>';
+ }).join('');
  const knownMaps={
   wyc:'망우촌',swz:'쌍왕진',sfj:'십방집',hua:'화산',taiyi:'태을산',hz:'항주',
   hsn:'항산',hss:'형산',qc:'청성산',qls:'기련산',nl:'남령',lxz:'낙하진',
@@ -3626,8 +3636,8 @@ function yyAccountRecordAndResourceView(section='jianghu'){
  '<details class="yy-account-history"><summary>분기·이벤트 '+records.length+'건 펼치기</summary>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>기록명 / ID</th><th>상태</th><th>시작 저장일</th></tr></thead><tbody>'+
  branchRows+'</tbody></table></div></details>'+
- '<details class="yy-account-history"><summary>업적 '+achievements.length+'건 펼치기</summary>'+
- '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>업적 ID</th><th>Reward 원본값</th></tr></thead><tbody>'+
+ '<details class="yy-account-history"><summary>한국판 원본 업적 '+Object.keys(achieveNames).length+'종 · 세이브 기록 '+achievements.length+'건 보기</summary>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>업적명 / ID</th><th>세이브 상태</th><th>Reward 원본 단계 / 목표 단계</th></tr></thead><tbody>'+
  achievementRows+'</tbody></table></div></details>')+
  yyRoleSection('강호 활동 · 세이브 누적 기록',
  '<p class="micro">산부진에서 참고하는 계정 통계와 한국판 세이브의 동일 저장 키를 연결했습니다. 리셋·집계 범위가 따로 있는 기록은 원본 저장값만 표시합니다.</p>'+
