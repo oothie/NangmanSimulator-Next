@@ -12,7 +12,9 @@ const variants={
  gradeGate6303:[6303],
  gradeGatesPair:[2665,3332],
  gradeGatesTriple:[2665,3332,6303],
- bypassRequestGuard:[-5532]
+ bypassRequestGuard:[-5532],
+ nextPurpleAllCandidateFours:[2665,3332,4138,6303,6361,6370,6905,6914,7445,7454],
+ nextPurpleLateCandidateFours:[4138,6361,6370,6905,6914,7445,7454]
 };
 function readUleb(bytes,c){
  let n=0,s=0,v;
@@ -94,7 +96,8 @@ if(!process.argv.includes('--child')){
    const at=body.start+offset;
    assert.equal(bytes[at],65,'expected i32.const in native function13 at '+offset);
    assert.equal(bytes[at+1],4,'expected native threshold four at '+offset);
-   assert.equal(bytes[at+2],73,'expected i32.lt_u native grade candidate at '+offset);
+   assert([70,71,73,75,79].includes(bytes[at+2]),
+    'expected native integer comparison opcode at '+offset+', observed '+bytes[at+2]);
    bytes[at+1]=2;
   }
   const valid=WebAssembly.validate(bytes);
