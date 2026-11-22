@@ -1025,7 +1025,6 @@ if(sub==='sim'){
 }
 if(sub==='auto'){
  const state=window.__washRuntime||{},api=window.YYWashAutoSearch;
- const valid=state.active&&state.origin==='save'&&state.linkedRoleId===r?.id&&!state.loading;
  const catalog=window.YYWashTargetCatalog||[];
  const supported=catalog.flatMap(g=>g.items.map(t=>t.id));
  const usesColors=state.autoResult?.colorSearch===true;
@@ -1038,8 +1037,6 @@ if(sub==='auto'){
  const mapNames=result?.nameIds||{};
  const talentName=id=>characterTalentName(id);
  const talent=id=>talentName(id)+' (#'+id+')';
- const searchOptions=state.autoOptions||{};
- const optionsHtml='';
  const choices=catalog.map(group=>'<details class="wash-auto-group" data-wash-grade="'+group.quality+'" '+(group.quality===4||group.items.some(t=>selectedTargets.includes(t.id))?'open':'')+'><summary>'+
   (group.quality===4?'자맥 (자색)':group.quality===3?'파맥 (파란색)':'녹맥 (녹색)')+
   ' · '+group.items.length+'개</summary><div class="wash-auto-items">'+
@@ -3862,8 +3859,6 @@ if($('yyAutoClear'))$('yyAutoClear').onclick=()=>{
  const runtime=window.__washRuntime||{};runtime.autoDesiredIds=[];
  runtime.autoResult=null;render();
 };
-if($('yyAutoConnect'))$('yyAutoConnect').onclick=()=>window.dispatchEvent(
- new CustomEvent('nangman-wash-command',{detail:{op:'washEngineImport'}}));
 document.querySelectorAll('[data-yy-replay-route]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineReplayRoute',index:Number(el.dataset.yyReplayRoute)}})));
  document.querySelectorAll('[data-yy-copy-route]').forEach(el=>el.onclick=async()=>{
  try{
@@ -3908,11 +3903,6 @@ if($('yyAutoRun'))$('yyAutoRun').onclick=()=>{
   window.dispatchEvent(new CustomEvent('nangman-wash-command',{
    detail:{op:'washEngineAutoProgressive',...input}}));
  }catch(error){alert(String(error.message||error))}
-};
-if($('yyAutoPreview'))$('yyAutoPreview').onclick=()=>{
- sub='exchange';render();
- window.dispatchEvent(new CustomEvent('nangman-wash-command',{
-  detail:{op:'washEnginePreview',count:3000}}));
 };
 document.querySelectorAll('[data-yy-preview-washno]').forEach(el=>el.onclick=()=>{
  const runtime=window.__washRuntime||{},no=Number(el.dataset.yyPreviewWashno);
