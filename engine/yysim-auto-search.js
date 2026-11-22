@@ -17,11 +17,11 @@ function selectedIds(raw,allowed){
 }
 function options(raw,allowed){
  const ids=selectedIds(raw.desiredIds||[],allowed);
- const maxPad=int(raw.maxPad??20),horizon=int(raw.horizon??900),topN=int(raw.topN??8);
+ const maxPad=int(raw.maxPad??0),horizon=int(raw.horizon??900),topN=int(raw.topN??8);
  if(maxPad==null||maxPad<0||maxPad>200||
     horizon==null||horizon<20||horizon>5000||
     topN==null||topN<1||topN>20)
-  throw Error('원본 탐색의 선행 세수/탐색 범위/결과 개수 제한을 확인하세요');
+  throw Error('자동탐색 범위와 결과 개수를 확인하세요');
  return {desiredIds:ids,maxPad,horizon,topN};
 }
 function routeOutcome(raw,selected){
