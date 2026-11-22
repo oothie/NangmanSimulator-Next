@@ -65,9 +65,19 @@ const path=require('node:path');
      {name:'green-only',ids:[184]},
      {name:'blue-only',ids:[191]},
      {name:'green-purple',ids:[184,271]},
-     {name:'blue-purple',ids:[191,271]},
-     {name:'green-blue-purple',ids:[184,191,271]}
+     {name:'blue-purple',ids:[202,271]},
+     {name:'green-blue-purple',ids:[184,202,271]}
     ];
+    // Native type IDs identify overlapping upgrade families. In particular
+    // blue 191 and purple 271 are BOTH type 177 and are unsuitable as
+    // simultaneous final-goal benchmarks. Keep every mixed test family
+    // distinct to avoid falsely blaming a native grade restriction.
+    for(const target of sets){
+     if(target.ids.length<2)continue;
+     const types=target.ids.map(id=>TALENT_DATA[String(id)]?.type);
+     if(types.some(v=>v==null)||new Set(types).size!==types.length)
+      throw Error('원본 혼합 재능 검사 목표의 type 계열 중복: '+target.name);
+    }
     const mixedGoalResults=[];
     for(const target of sets){
      let response=null,error=null;
