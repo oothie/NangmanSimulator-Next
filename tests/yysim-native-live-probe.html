@@ -24,6 +24,7 @@ small{opacity:.78} .error{color:#c13636} .ok{color:#13805a}
 <select id="windowSize"><option value="60">60회 (빠른 확인)</option><option value="300">300회</option><option value="900" selected>900회 (원본 기본)</option></select>
 <label for="maxPad">선행 세수</label>
 <select id="maxPad"><option value="0">0</option><option value="20" selected>20 (원본 기본)</option></select>
+<label><input id="useWorker" type="checkbox" checked> 원본 WASM Worker 실행 (화면 응답 유지)</label>
 <button id="run" type="button">원본 WASM 비교 실행</button>
 <button id="copy" type="button" disabled>검사 결과 복사</button>
 <p id="status" aria-live="polite">실행 전</p>
@@ -72,16 +73,55 @@ async function run(){
   if(!wasmSetState(fixture))throw Error('동일 비교 상태 설정 실패');
   const stable=wasmGetState(),guard=YYWashNativeSearchGuard;
   if(!stable||!guard?.run)throw Error('원본 상태 보호 함수 준비 실패');
+  const isolated=document.querySelector('#useWorker').checked;
+  const worker=isolated?new Worker('../vendor/yysim/native-search-worker.js'):null;
   report={version:'v0.10.28',nativeFunction:'wasmSearchWashRoutes',seed:fixture.seed,
+   execution:isolated?'original-wasm-worker':'original-wasm-direct',
    horizon,maxPad,gradeTargets:targets,results:[]};
+  try{
   for(const target of targets){
    status.textContent='원본 WASM 계산 중: '+target.name;
    await new Promise(resolve=>setTimeout(resolve,20));
    const start=performance.now();let raw=null,error=null;
-   try{raw=guard.run({getState:wasmGetState,setState:wasmSetState,
-    search:wasmSearchWashRoutes},
-    {desired_ids:target.ids,max_pad:maxPad,horizon,top_n:8})}
-   catch(e){error=String(e?.message||e)}
+   const request={desired_ids:target.ids,max_pad:maxPad,horizon,top_n:8};
+   const ticker=setInterval(()=>{
+    status.textContent='원본 WASM 계산 중: '+target.name+' · '+Math.floor((performance.now()-start)/1000)+'초 경과';
+   },500);
+   try{
+    if(!worker){
+     raw=guard.run({getState:wasmGetState,setState:wasmSetState,
+      search:wasmSearchWashRoutes},request);
+    }else{
+     // Worker uses precisely the SAME embedded WASM binary, core glue,
+     // talent table and guard. Only the execution thread differs.
+     const requestId=report.results.length+1;
+     const reply=await new Promise((resolve,reject)=>{
+      let timeout;
+      const cleanup=()=>{
+       clearTimeout(timeout);
+       worker.removeEventListener('message',onMessage);
+       worker.removeEventListener('error',onError);
+      };
+      function onMessage(event){
+       const data=event.data||{};
+       if(data.kind!=='yy-native-search-probe-result'||data.requestId!==requestId)return;
+       cleanup();resolve(data);
+      }
+      function onError(event){
+       cleanup();reject(Error(event?.message||'원본 WASM Worker 오류'));
+      }
+      worker.addEventListener('message',onMessage);
+      worker.addEventListener('error',onError);
+      timeout=setTimeout(()=>{cleanup();reject(Error('원본 WASM Worker 180초 응답 시간 초과'))},180000);
+      worker.postMessage({kind:'yy-native-search-probe',requestId,state:stable,request});
+     });
+     if(!reply.ok)throw Error(reply.error||'원본 WASM Worker 호출 실패');
+     if(reply.stateUnchanged!==true)
+      throw Error('원본 WASM Worker 세수 상태 변경 감지');
+     raw=reply.result;
+    }
+   }catch(e){error=String(e?.message||e)}
+   finally{clearInterval(ticker)}
    const elapsedMs=Math.round((performance.now()-start)*100)/100;
    if(!guard.statesEqual(stable,wasmGetState()))
     throw Error('원본 WASM 상태가 변경됨: '+target.name);
@@ -96,6 +136,7 @@ async function run(){
    }
    tbody.append(tr);
   }
+  }finally{worker?.terminate()}
   status.textContent='원본 WASM 3개 목표 비교 완료 · 탐색 범위 내 결과만 표시';
   document.querySelector('#output').textContent=JSON.stringify(report,null,2);
   copy.disabled=false;
