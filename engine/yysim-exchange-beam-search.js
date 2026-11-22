@@ -45,9 +45,43 @@ function rank(state,ids,base){
    -(state.exchange_count||0)*6-(locked(state)-matched.length)*100;
 }
 function signature(s){
- return [s.seed,s.luck_seed,s.luck_seed_inited,s.tal_lucky,s.pity_count,s.exchange_count,
-  s.talents.map(t=>t.id+(t.locked?'L':'')).join(':'),
-  JSON.stringify(canonical(s.global_vars||{}))].join('|');
+ // Exact canonical native state: RNG metadata outside the old hand-picked
+ // fields must not be accidentally merged with another live search branch.
+ return JSON.stringify(canonical(s));
+}
+function selectBeam(pool,ids,base,beamWidth){
+ const buckets=new Map(),used=new Set();
+ for(const node of pool){
+  const key=idsIn(node.state,ids).sort((a,b)=>a-b).join(',');
+  if(!buckets.has(key))buckets.set(key,[]);
+  buckets.get(key).push(node);
+ }
+ const diverse=[],representatives=[];
+ // De-duplicate BEFORE applying the per-goal-mask quota, and preserve one
+ // representative for every attained-goal mask before filling the beam.
+ for(const rows of buckets.values()){
+  rows.sort((a,b)=>rank(b.state,ids,base)-rank(a.state,ids,base));
+  const unique=[];
+  for(const n of rows){
+   const key=signature(n.state);
+   if(used.has(key))continue;
+   used.add(key);unique.push(n);
+  }
+  if(unique.length){
+   representatives.push(unique[0]);
+   diverse.push(...unique.slice(1,Math.max(2,Math.floor(beamWidth/6))));
+  }
+ }
+ const score=(a,b)=>rank(b.state,ids,base)-rank(a.state,ids,base);
+ representatives.sort(score);diverse.sort(score);
+ const selected=representatives.slice(0,beamWidth);
+ const chosen=new Set(selected.map(n=>signature(n.state)));
+ for(const n of diverse){
+  if(selected.length>=beamWidth)break;
+  const key=signature(n.state);
+  if(!chosen.has(key)){chosen.add(key);selected.push(n)}
+ }
+ return selected.sort(score);
 }
 async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
  doExchange,freshBranch,qualityFor,yieldControl=async()=>{},onProgress=()=>{},
@@ -212,39 +246,7 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
   if(!pool.length)break;
   // Maintain several RNG trajectories per held-goal mask. Otherwise an
   // early single-purple goal would evict all luck-pool exchange alternatives.
-  const buckets=new Map();
-  const used=new Set();
-  for(const node of pool){
-   const key=idsIn(node.state,ids).sort((a,b)=>a-b).join(',');
-   if(!buckets.has(key))buckets.set(key,[]);
-   buckets.get(key).push(node);
-  }
-  const diverse=[],representatives=[];
-  // De-duplicate BEFORE applying the per-goal-mask quota, and preserve one
-  // representative for every attained-goal mask before filling the beam.
-  for(const rows of buckets.values()){
-   rows.sort((a,b)=>rank(b.state,ids,original)-rank(a.state,ids,original));
-   const unique=[];
-   for(const n of rows){
-    const key=signature(n.state);
-    if(used.has(key))continue;
-    used.add(key);unique.push(n);
-   }
-   if(unique.length){
-    representatives.push(unique[0]);
-    diverse.push(...unique.slice(1,Math.max(2,Math.floor(beamWidth/6))));
-   }
-  }
-  const score=(a,b)=>rank(b.state,ids,original)-rank(a.state,ids,original);
-  representatives.sort(score);diverse.sort(score);
-  current=representatives.slice(0,beamWidth);
-  const chosen=new Set(current.map(n=>signature(n.state)));
-  for(const n of diverse){
-   if(current.length>=beamWidth)break;
-   const key=signature(n.state);
-   if(!chosen.has(key)){chosen.add(key);current.push(n)}
-  }
-  current.sort(score);
+  current=selectBeam(pool,ids,original,beamWidth);
   maxActive=Math.max(maxActive,current.length);
   if(washNo%25===0||completed.length){
    onProgress({stage:'WASM 치환·임시 잠금 확장 탐색',phase:'exchange',
@@ -262,5 +264,5 @@ async function run({ids,horizon,topN,getState,setState,doWash,getConflicts,
   warnings:stopReason?[stopReason,...warnings]:warnings,
   error:completed.length?null:'WASM 치환 분기를 포함한 제한 탐색에서 목표 4맥을 최종 슬롯에 모두 보유한 경로가 발견되지 않았습니다'};
 }
-root.YYWashExchangeBeamSearch={run};
+root.YYWashExchangeBeamSearch={run,selectBeam};
 })(window);
