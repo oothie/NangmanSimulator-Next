@@ -9,6 +9,7 @@ assert.throws(()=>api.selectedIds([271,271],allowed),/서로 다른/);
 assert.throws(()=>api.selectedIds([271,999],allowed),/녹맥·파맥·자맥/);
 assert.throws(()=>api.selectedIds([271,250,268,272,249],allowed),/1~4개/);
 assert.equal(api.options({desiredIds:[271,268],maxPad:0,horizon:300,topN:8},allowed).horizon,300);
+assert.equal(api.options({desiredIds:[271,268]},allowed).maxPad,0,'Automatic wash defaults must use original unpadded search');
 assert.throws(()=>api.options({desiredIds:[271],maxPad:201,horizon:300,topN:5},allowed),/제한/);
 assert.throws(()=>api.options({desiredIds:[271],maxPad:5,horizon:5001,topN:5},allowed),/제한/);
 const sample={routes:[{
