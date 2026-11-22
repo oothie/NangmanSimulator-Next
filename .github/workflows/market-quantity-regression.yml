@@ -1,0 +1,32 @@
+name: Ghost market quantity strategies and unique dark theme
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'engine/daily-market.js'
+      - 'vendor/nangman-v350/equipment.html'
+      - 'vendor/nangman-v350/embedded-bridge.js'
+      - 'tests/market-quantity-strategy-smoke.cjs'
+      - '.github/workflows/market-quantity-regression.yml'
+  workflow_dispatch:
+jobs:
+  quantity-and-theme:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify full quantity and free ghost market routes
+        run: node tests/market-quantity-strategy-smoke.cjs
+      - name: Preserve original first-appearance and VIP market searches
+        run: |
+          node tests/market-second-server-vip-strategy-regression.cjs
+          node tests/daily-market-scenarios-smoke.cjs
+          node tests/daily-market-smoke.cjs
+      - name: Verify unique-item dark-theme override and module syntax
+        run: |
+          node tests/nangman-v350-equipment-smoke.cjs
+          node -e "const fs=require('fs');const vm=require('vm');const src=fs.readFileSync('vendor/nangman-v350/embedded-bridge.js','utf8');new vm.Script(src);if(!src.includes('res.unique218')||!src.includes('unique-seq-table227'))throw Error('unique dark selectors missing');"
