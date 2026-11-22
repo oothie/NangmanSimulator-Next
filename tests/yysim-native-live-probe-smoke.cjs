@@ -20,5 +20,14 @@ assert(html.includes('guard.statesEqual(stable,wasmGetState())'),
 assert(html.includes('ids:[271,268,272]'));
 assert(html.includes('ids:[271,268,272,184]'));
 assert(html.includes('final_slots'));
+assert(html.includes("new Worker('../vendor/yysim/native-search-worker.js')"),
+ 'Browser diagnosis should provide nonblocking original WASM Worker mode');
+assert(html.includes('reply.stateUnchanged!==true'),
+ 'Worker must confirm state unchanged after native route query');
+assert(html.includes("clearInterval(ticker)"),
+ 'Native diagnostic must clean up real elapsed-time ticker');
+assert(html.includes('원본 WASM Worker 180초 응답 시간 초과'),
+ 'Worker deadline must be a reported execution error, not a missing route');
+
 assert(!html.includes('globallyOptimal:true'),'Never claim original native proof of global optimality');
 console.log('PASS: original WASM browser diagnostic source, syntax and final goals');
