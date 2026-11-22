@@ -78,6 +78,29 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   'Native mixed-grade sampling skipped middle of purple interval');
  assert.deepEqual(YYWashPurpleAnchorMixed.sampleIntervalCandidates(sampleEvents.slice(0,5)),
   sampleEvents.slice(0,5),'Short interval candidates must not be discarded');
+ // Candidate cap must retain native events for BOTH possible first
+ // green/blue appearances, not just whichever goal has frequent hits.
+ const colorEvents=Array.from({length:24},(_,i)=>({
+  time:100+i,appearing:i===10||i===17?[202]:[184],
+  state:{total_pills:100+i*7}
+ }));
+ const mixedSample=YYWashPurpleAnchorMixed.sampleMixedColorCandidates(
+  colorEvents,[184,202],8);
+ assert.equal(mixedSample.length,8);
+ assert(mixedSample.some(x=>x.appearing.includes(184)),
+  'Missing green-first native candidate');
+ assert(mixedSample.some(x=>x.appearing.includes(202)),
+  'Missing blue-first native candidate');
+ assert(mixedSample.some(x=>x.time===110)&&mixedSample.some(x=>x.time===117),
+  'Both blue native intervals should remain eligible');
+ assert(mixedSample.every((x,i,a)=>i===0||
+  Number(a[i-1].state.total_pills)<=Number(x.state.total_pills)),
+  'Native candidate exploration should prioritize lower observed pill cost');
+ const reversedSample=YYWashPurpleAnchorMixed.sampleMixedColorCandidates(
+  colorEvents,[202,184],8);
+ assert(reversedSample.some(x=>x.appearing.includes(202))&&
+  reversedSample.some(x=>x.appearing.includes(184)),
+  'Reversing user selection must not hide one grade objective');
  assert(YYWashPurpleAnchorMixed.requestShape([271,268,272,184],TALENT_DATA));
  assert(YYWashPurpleAnchorMixed.requestShape([271,268,272,202],TALENT_DATA),
   'Three-purple plus blue must enter purple-anchored extension');
