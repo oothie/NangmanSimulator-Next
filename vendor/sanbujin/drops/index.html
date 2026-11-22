@@ -78,7 +78,7 @@ body .dungeon-coverage strong{font-size:14px}
   <div class="tomb-forecast-actions">
    <label>앞으로의 이벤트 호출<input id="tombForecastCount" type="number" min="1" max="500" value="30"></label>
    <label>앞선 이벤트 호출 건너뛰기<input id="tombForecastPad" type="number" min="0" max="500" value="0"></label>
-   <button type="button" id="tombForecastRun">조건부 조우 호출 가설 계산</button>
+   <button type="button" id="tombForecastRun">조건부 조우 계산</button>
    <button type="button" id="tombForecastCsv" disabled>결과 CSV</button>
   </div>
   <div class="tomb-evidence-control">
@@ -128,7 +128,7 @@ body .dungeon-coverage strong{font-size:14px}
   <label>사냥 후 세이브 JSON<input type="file" id="tombAfter" accept=".json,application/json"></label>
  </div>
  <label>두 세이브 사이 제릉 사냥 횟수<input type="number" id="tombCompareCount" min="1" max="500" value="1"></label>
- <button type="button" id="tombCompareRun">변화·두 가설 비교</button>
+ <button type="button" id="tombCompareRun">변화·계산 방식 비교</button>
  <p id="tombCompareStatus" role="status"></p>
  <div id="tombCompareResults"></div>
  </details>
