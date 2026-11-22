@@ -18,6 +18,7 @@ self.onmessage=event=>{
   self.postMessage({type:'candidate',requestId:m.requestId,
    plans:{free,candidate}});
   const fastest=state.searchStrategy([m.target],{...options,mode:'fastest',
+   bestCandidate:candidate.found?candidate:null,
    onProgress:p=>self.postMessage({type:'progress',requestId:m.requestId,...p,
     stage:'최단 기간 증명 탐색 중'})});
   self.postMessage({type:'result',requestId:m.requestId,plans:{free,candidate,fastest}});
