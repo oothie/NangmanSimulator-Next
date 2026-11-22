@@ -1069,7 +1069,7 @@ if(sub==='auto'){
   (Array.isArray(result?.history)?'<p class="micro">실행 조건: '+result.history.map(h=>'선행 '+h.maxPad+' · 자맥 범위 '+h.horizon+
   ' · 후보 '+h.routes+'개').join(' / ')+'</p>':''):'<p class="micro">자맥만 선택하면 원본 자동 경로를 계산합니다. 녹맥·파맥도 최종 슬롯에 목표가 모두 남는 경로만 인정하고 확인한 경로를 세수단 최솟값 순서로 표시합니다.</p>';
  body='<section class="wash-section"><div class="section-header"><h3>자동 탐색</h3></div>'+
-  '<p class="micro">자동 탐색은 yy-sim 원본 WASM 경로만 사용합니다. 자맥은 기존 방식으로 계산하며, 녹맥·파맥은 원본에 직접 목표를 보내는 실험 탐색입니다. 최종 슬롯에 모든 목표 재능이 남지 않으면 실패로 처리합니다. 미발견은 불가능이나 최솟값의 증명이 아닙니다. 순차 세수·잠금·빔 검색은 사용하지 않습니다.</p>'+
+  '<p class="micro">자동 탐색은 yy-sim 원본 WASM을 사용합니다. 자맥 3개+녹·파맥 1개 또는 자맥 2개+녹·파맥 2개 조합은 원본 자맥 경로를 먼저 찾고 실제 WASM 세수·잠금·치환으로 최종 네 목표를 검증합니다. 자맥 경로가 없거나 실제 재현되지 않으면 그 원인을 구분해 표시합니다. 검색 범위 내 미발견은 불가능 또는 전역 최솟값의 증명이 아닙니다.</p>'+
   '<p class="micro">'+(r?'선택 인물 '+escape(r.name)+' · 계산 시 세이브 자동 연결':'먼저 세이브를 불러오세요')+'</p>'+ 
   '<p class="micro">녹맥·파맥의 일부 재능명은 원문을 직접 번역한 임시 한국어 표기입니다. 확인된 한국판 이름을 우선 사용합니다.</p>'+
   '<p class="micro"><a href="./tests/yysim-native-live-probe.html" target="_blank" rel="noopener noreferrer">원본 WASM 세이브·캐릭터별 원시맥/치환맥 검사 페이지 열기</a> · 실제 세이브에서 자맥·파맥·녹맥 목표를 직접 선택하여 원본 결과를 비교할 수 있습니다.</p>'+
