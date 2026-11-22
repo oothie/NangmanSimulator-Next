@@ -23,6 +23,7 @@ function showState(){
  }
 }
 function goals(){
+ $('file').disabled=busy;$('role').disabled=busy;$('clear').disabled=busy;
  const filter=$('filter').value.trim().toLocaleLowerCase();
  $('goals').replaceChildren();
  for(const grade of [4,3,2]){
@@ -36,7 +37,9 @@ function goals(){
    if(filter&&!((talent.ko+' '+talent.name+' '+talent.id).toLowerCase().includes(filter)))continue;
    const label=document.createElement('label');label.className='choice'+(chosen.has(talent.id)?' chosen':'');
    const check=document.createElement('input');check.type='checkbox';check.checked=chosen.has(talent.id);
+   check.disabled=busy;
    check.addEventListener('change',()=>{
+    if(busy){check.checked=!check.checked;return}
     if(check.checked&&chosen.size===4){setStatus('재능은 최대 4개까지 선택 가능합니다',true);check.checked=false;return}
     if(check.checked)chosen.add(talent.id);else chosen.delete(talent.id);
     resetResult();goals();
@@ -49,6 +52,7 @@ function goals(){
  $('run').disabled=busy||!current||chosen.size===0;
 }
 function selectFromPreview(id){
+ if(busy){setStatus('현재 원본 WASM 작업이 끝난 다음 목표를 선택해 주세요',true);return}
  const item=byId.get(Number(id));
  if(!item){setStatus('해당 원시맥은 목표 선택 목록에서 제외된 재능입니다',true);return}
  if(chosen.has(item.id))return;
@@ -93,6 +97,8 @@ async function init(){
 }
 async function attach(){
  const selectedRole=roles[Number($('role').value)];
+ role=null;current=null;preview=null;chosen.clear();
+ resetResult();showState();showPreview();goals();
  if(!selectedRole)throw Error('캐릭터를 선택하세요');
  await init();
  const mapped=source.build(save,selectedRole,wasmGetState());
@@ -207,7 +213,10 @@ async function run(){
    '선택 재능을 모두 보유한 최종 경로를 확인하지 못했습니다. 아래 결과 JSON의 누락 재능과 원본 경로를 확인하세요.');
  }finally{worker?.terminate();busy=false;goals();$('scan').disabled=false}
 }
-function wrap(fn){return async()=>{try{await fn()}catch(e){busy=false;goals();setStatus(String(e?.message||e),true)}}}
+function wrap(fn){return async()=>{
+ if(busy){setStatus('원본 WASM 작업이 끝난 뒤 다시 실행해 주세요',true);return}
+ try{await fn()}catch(e){busy=false;goals();setStatus(String(e?.message||e),true)}
+}}
 $('file').addEventListener('change',wrap(async()=>{
  const file=$('file').files?.[0];if(!file)return;
  save=null;roles=[];role=null;current=null;preview=null;chosen.clear();
