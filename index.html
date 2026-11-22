@@ -3011,7 +3011,7 @@ function yyProgressEntries(save,role,tab){
   const n=Number(raw);
   return raw==null||!Number.isFinite(n)?null:n;
  };
- const row=(label,key,max)=>{const n=find(key);return {label,current:n===null?null:Math.min(max,Math.max(0,n)),max}};
+ const row=(label,key,max)=>{const n=find(key);return {label,current:n===null?null:Math.max(0,max==null?n:Math.min(max,n)),max}};
  const group=(title,items,detail='')=>({title,values:items,detail});
  const mainTraining=[
   group('육선문 용두 정련',[['공격','3255_atk',50],['기혈','3255_hp',200],['방어','3255_def',100],['회피','3255_dodge',80],['명중','3255_hit',80],['속도','3255_speed',80],['초식방어','3255_parry',80],['인내','3255_renxing',80]].map(x=>row(...x))),
@@ -3026,6 +3026,13 @@ function yyProgressEntries(save,role,tab){
   ['창산 나비샘 수련','dlhp_',100,'기혈','training'],
   ['육선문 폐관실','getMZ_BiGuanShi_',100,'명중','training'],
   ['만사굴 석실 수련','wscdef',100,'방어','training'],
+   ['자양서원 검술 지도','zysy_',151,'검법','training'],
+   ['자양서원 내공 지도','zysy1_',151,'내공','training'],
+   ['검왕각 검술 지도','jwgjz_',120,'검법','training'],
+   ['극락곡 권각 지도','jlgcc_',120,'권법','training'],
+   ['저택 방석 내공 수련','home_putuan_ngmax_',30,'내공','training'],
+   ['저택 유력 수련','home_youli_max_xiuwei_',null,'수련','training'],
+   ['제갈 비전','eat_8926_',null,'습득','training'],
   ['무상단','2630_',100,'복용','consumable'],
   ['진무단','2640_',100,'복용','consumable'],
   ['용호단','2633_',5,'복용','consumable'],
@@ -3064,10 +3071,26 @@ function yyProgressEntries(save,role,tab){
  }
  for(const [name,prefix,max,label,kind] of singles)if(kind===tab&&id!=null)
   items.push(group(name,[row(label,prefix+id,max)]));
+ if(tab==='training'&&main){
+  const extraTraining=[['유주 매화장 경공','mh_mr_qgxw',200],['저택 매화장 경공','home_meihua_max',30],
+   ['창랑 교관 창곤','adwxwcl',100],['동자공 팔힘','334_str',30],
+   ['동자공 근골','334_con',30],['동자공 내식','334_int',30]];
+  for(const [name,key,max] of extraTraining)items.push(group(name,[row('수련',key,max)]));
+ }
  if(tab==='consumable'&&id!=null){
   const types=[['팔힘 초과 상한','str'],['신법 초과 상한','dex'],['근골 초과 상한','con'],['내식 초과 상한','int']];
   items.push(group('파장단',types.map(([label,k])=>row(label,'eat_2662_'+k+'_'+id,30))));
   for(const [name,prefix] of oneTime)items.push(group(name,[row('복용',prefix+id,1)]));
+ }
+ if(tab==='consumable'&&role?.raw){
+  // Qualification-pill usage is stored per character in EatDrugs, not globalVariable.
+  const gifts=[['원양단',2605,null],['쇄허단',2604,null],['감리단',2606,null],['자화단',2603,null],
+   ['대력환',2617,300],['영허단',2618,300],['진용단',2619,300],['명혜단',2620,300]];
+  const drug=role.raw.EatDrugs||{};
+  for(const [name,drugId,max] of gifts){
+   const value=drug[String(drugId)],n=value==null?0:Number(value);
+   items.push(group(name,[{label:'복용',current:Number.isFinite(n)?Math.max(0,n):null,max}]));
+  }
  }
  for(const [name,key,max,kind,label] of extras)
   if(kind===tab&&(main||key==='home_ssrx_max'))
@@ -3184,10 +3207,10 @@ function yyProgressStat(model){
  for(const item of model?.items||[]){
   if(item.values.some(v=>v.current===null)){unknown++;continue}
   const exists=item.values.some(v=>v.current>0);
-  const done=item.values.length>0&&item.values.every(v=>v.current>=v.max);
+  const done=item.values.length>0&&item.values.every(v=>v.max!=null&&v.current>=v.max);
   if(exists)started++;
   if(done)complete++;
-  for(const v of item.values){filled+=v.current;total+=v.max}
+  for(const v of item.values){filled+=Number(v.current)||0;if(v.max!=null)total+=v.max}
  }
  return {filled,total,started,complete,unknown};
 }
@@ -3527,34 +3550,34 @@ function yyAccountCultivationView(){
 
 /* 인물별 영구 수련·단약: 진행하지 않은 원본 항목도 빠짐없이 표시 */
 function yyRoleGrowthOverview(role,kind){
- const model=yyProgressEntries(save,role,kind);
- if(!model.available)return yyRoleSection('영구 성장 전체 보기','<p class="micro">계정 저장 변수(globalVariable)가 없습니다.</p>');
+ const model=yyProgressEntries(save,role,kind),title=kind==='training'?'수련':'단약';
+ if(!model.available)return yyRoleSection(title,'<p class="micro">세이브의 진행 기록이 없습니다.</p>');
  const groups=model.items,values=groups.flatMap(g=>g.values);
- const completed=values.filter(x=>x.current!=null&&x.current>=x.max).length;
- const active=values.filter(x=>x.current!=null&&x.current>0&&x.current<x.max).length;
- const title=kind==='training'?'수련':'단약';
- return yyRoleSection(title+' · 전체 진행 요약',
+ const completed=values.filter(v=>v.max!=null&&v.current!=null&&v.current>=v.max).length;
+ const counter=v=>(v.current??'—')+' / '+(v.max??'?');
+ const card=g=>{
+  if(g.values.length===1){
+   const v=g.values[0];
+   return '<div class="account-track"><div class="account-track-top"><span>'+escape(g.title)+'</span>'+
+    '<b class="account-count '+(v.max!=null&&v.current>=v.max?'is-complete':'')+'">'+escape(counter(v))+'</b></div>'+
+    accountProgressBar(v.current,v.max,kind==='training'?'teal':'violet')+
+    '<small>'+escape(v.label)+(v.max==null?' · 상한 미확인':'')+'</small></div>';
+  }
+  return '<details class="account-track"><summary><strong>'+escape(g.title)+'</strong><small> · '+g.values.length+'개 세부 수치</small></summary>'+
+   '<div class="yy-progress-list">'+g.values.map(v=>'<div class="yy-progress-row"><span>'+escape(v.label)+'</span>'+
+    accountProgressBar(v.current,v.max,kind==='training'?'teal':'violet')+'<b>'+escape(counter(v))+'</b></div>').join('')+
+   '</div></details>';
+ };
+ return yyRoleSection(title+' · 진행 기록',
  '<div class="account-kpis">'+[
- ['기록 항목',values.length+'개',groups.length+'분류'],
- ['완료',completed+'개','저장 상한 기준'],
- ['진행 중',active+'개','상한 미도달'],
- ['미시작',values.filter(x=>x.current===0).length+'개','0회 포함']
- ].map(([t,v,n])=>'<div class="account-kpi"><small>'+escape(t)+'</small><strong>'+escape(v)+'</strong><small>'+escape(n)+'</small></div>').join('')+'</div>'+
- '<div class="account-track"><div class="account-track-top"><span>전체 '+escape(title)+' 완료율</span><b>'+completed+' / '+values.length+'</b></div>'+
- accountProgressBar(completed,values.length,kind==='training'?'teal':'violet')+
- '<small>항목 완료율입니다. 복용량·수련치 총합을 의미하지 않습니다.</small></div>'+
- '<div class="account-track-grid">'+groups.map(g=>{
-  const done=g.values.filter(x=>x.current!=null&&x.current>=x.max).length;
-  const ongoing=g.values.filter(x=>x.current!=null&&x.current>0).length;
-  return '<details class="account-track"><summary><strong>'+escape(g.title)+'</strong><small> · '+done+'/'+g.values.length+'완료 · '+ongoing+'진행</small>'+
-  accountProgressBar(done,g.values.length,kind==='training'?'teal':'violet')+'</summary>'+
-  '<div class="yy-progress-list">'+g.values.map(x=>
-   '<div class="yy-progress-row"><span>'+escape(x.label)+'</span>'+
-   '<div>'+accountProgressBar(x.current,x.max,kind==='training'?'teal':'violet')+'</div>'+
-   '<b>'+(x.current??'—')+' / '+x.max+'</b></div>').join('')+'</div></details>';
- }).join('')+'</div>'+
- '<p class="micro">각 행의 숫자는 실제 복용·수련 기록 / 상한입니다. 한국판 출시 여부는 별도 확인이 필요합니다.</p>');
+  ['전체 항목',values.length+'개','0회도 포함'],
+  ['상한 도달',completed+'개','개별 수치 기준'],
+  ['기록 있음',values.filter(v=>v.current!=null&&v.current>0).length+'개','현재 / 상한 직접 확인']
+ ].map(([n,v,note])=>'<div class="account-kpi"><small>'+escape(n)+'</small><strong>'+escape(v)+'</strong><small>'+escape(note)+'</small></div>').join('')+'</div>'+
+ '<div class="account-track-grid">'+groups.map(card).join('')+'</div>'+
+ '<p class="micro">복용·수련 기록은 항목마다 실제 수치로 표시합니다. 상한을 확인하지 못한 항목은 ?로 표시하며 0회는 미출시를 의미하지 않습니다.</p>');
 }
+
 function yyAccountRecordAndResourceView(section='jianghu'){
  const root=Array.isArray(save)?save[0]:save||{};
  const dict=x=>x&&typeof x==='object'&&!Array.isArray(x)?x:{};
