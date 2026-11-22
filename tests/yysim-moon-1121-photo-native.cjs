@@ -5,7 +5,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
 globalThis.window=globalThis;globalThis.location={protocol:'file:'};
-for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vendor/yysim/data.js','engine/yysim-native-search-guard.js'])
+for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vendor/yysim/data.js','engine/yysim-native-search-guard.js','engine/yysim-purple-anchor-mixed.js'])
  vm.runInThisContext(fs.readFileSync(path.join(root,file),'utf8'),{filename:file,timeout:30000});
 (async()=>{
  assert(await initWasm());assert(wasmInitEngine(TALENT_DATA,ZZ_DATA));
@@ -77,4 +77,26 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vend
   Number(t.id)===id&&t.locked)));
  assert.equal(pills(),916);assert.equal(Number(snapshot().total_wash),175);
  console.log('PASS MOON_1121_ORIGINAL_WASM_916');
+ assert(wasmSetState(nativeSource));
+ const mixed=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[268,262,237,204],maxPad:0,horizon:900,topN:8,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,
+  exchangeTalent:wasmExchangeTalent,guard:YYWashNativeSearchGuard
+ });
+ console.log('MOON_NATIVE_OPTIMIZED '+JSON.stringify({
+  pills:mixed.routes[0]?.pills??null,
+  washes:mixed.routes[0]?.washes??null,
+  alternatives:mixed.diagnostics.earlySlotRelayCandidates||0,
+  purpleCosts:mixed.diagnostics.purpleBackboneCosts,
+  failures:mixed.diagnostics.failures.slice(0,3),
+  replayErrors:mixed.diagnostics.purpleReplayErrors||[]
+ }));
+ assert.equal(mixed.routes[0]?.pills,916,
+  'Mixed-grade native optimization must recover photo-verified 916 pill path');
+ assert.equal(mixed.routes[0]?.washes,175);
+ assert([268,262,237,204].every(id=>mixed.routes[0].final_slots.some(t=>
+  Number(t.id)===id&&t.locked)));
+ assert(wasmSetState(initial));
+ console.log('PASS MOON_1121_AUTO_OPTIMIZED_916');
 })().catch(e=>{console.error(e);process.exitCode=1});
