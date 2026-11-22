@@ -4,6 +4,8 @@ on:
     paths:
       - 'vendor/sanbujin/drops/dungeon-v3-reverse-exact.js'
       - 'tests/dungeon-v3-reverse-exact-smoke.cjs'
+      - 'vendor/sanbujin/drops/dungeon-v3-cross-audit.js'
+      - 'tests/dungeon-v3-cross-audit-smoke.cjs'
       - '.github/workflows/dungeon-v3-reverse-regression.yml'
   workflow_dispatch:
 jobs:
@@ -16,3 +18,5 @@ jobs:
           node-version: '22'
       - name: Verify exact inverse RNG formula
         run: node tests/dungeon-v3-reverse-exact-smoke.cjs
+      - name: Verify independent model trace comparisons
+        run: node tests/dungeon-v3-cross-audit-smoke.cjs
