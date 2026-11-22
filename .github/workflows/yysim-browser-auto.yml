@@ -5,14 +5,9 @@ on:
     paths:
       - 'index.html'
       - 'engine/local-engine-bridge.js'
-      - 'engine/yysim-intermediate-search.js'
-      - 'engine/yysim-exchange-beam-search.js'
       - 'vendor/yysim/engine-host.html'
       - 'vendor/yysim/core_glue.js'
-      - 'tests/yysim-browser-boot.cjs'
-      - 'tests/yysim-beam-diversity.cjs'
-      - 'tests/yysim-incumbent-pruning.cjs'
-      - 'tests/yysim-exchange-beam-smoke.cjs'
+      - 'tests/yysim-native-only-browser.cjs'
       - '.github/workflows/yysim-browser-auto.yml'
   workflow_dispatch:
 jobs:
@@ -29,11 +24,5 @@ jobs:
       - name: Install browser test runtime
         run: |
           npm install --no-save --ignore-scripts playwright@1.57.0
-      - name: WASM beam selection and exchange route regressions
-        run: |
-          node --check engine/yysim-exchange-beam-search.js
-          node tests/yysim-beam-diversity.cjs
-          node tests/yysim-incumbent-pruning.cjs
-          node tests/yysim-exchange-beam-smoke.cjs
-      - name: Chromium WASM iframe green and blue smoke
-        run: node tests/yysim-browser-boot.cjs
+      - name: Chromium original yy-sim WASM auto-search regression
+        run: node tests/yysim-native-only-browser.cjs
