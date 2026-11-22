@@ -26,7 +26,9 @@ const {chromium}=require('playwright'),cp=require('node:child_process'),path=req
    // and original TALENT_DATA are not modified.
    return frame.eval(`(function(){
     const initial=wasmGetState();
-    const scenarios=[{id:184,gradeBefore:2,gradeProbe:4},
+    const scenarios=[{id:184,gradeBefore:2,gradeProbe:3},
+                     {id:184,gradeBefore:2,gradeProbe:4},
+                     {id:271,gradeBefore:4,gradeProbe:3},
                      {id:271,gradeBefore:4,gradeProbe:2}];
     if(scenarios.some(s=>initial.talents.some(slot=>Number(slot.id)===s.id)))
      throw Error('Probe fixture already contains a target; grade gate would be masked');
@@ -71,10 +73,11 @@ const {chromium}=require('playwright'),cp=require('node:child_process'),path=req
      note:'Diagnostic grade mutations are never gameplay-valid predictions'};
    })()`);
   });
-  assert.equal(result.probes.length,2);
+  assert.equal(result.probes.length,4);
   assert(result.allRestored,'native route outputs changed after isolated grade tests');
   assert(result.stateRestored,'original WASM state not restored');
-  assert.deepEqual(result.probes.map(x=>x.id),[184,271]);
+  assert.deepEqual(result.probes.map(x=>[x.id,x.probeGrade]),
+   [[184,3],[184,4],[271,3],[271,2]]);
   console.log('NATIVE_GRADE_GATE_PROBE',JSON.stringify(result));
  }finally{await browser?.close();server.kill('SIGTERM')}
 })().catch(error=>{console.error(error);process.exitCode=1});
