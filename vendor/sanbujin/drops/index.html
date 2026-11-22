@@ -193,6 +193,7 @@ body .dungeon-coverage strong{font-size:14px}
    <div class="dungeon-dual-scroll">
     <table class="dungeon-dual-table"><thead><tr><th>보스</th><th>실측 장비·등급</th><th>yy-sim형 예측 / 판정</th><th>산부진형 예측 / 판정</th></tr></thead><tbody id="dungeonV3Body"></tbody></table>
    </div>
+   <details open><summary>yy-sim ↔ 산부진 호출 차이 및 시드 대조</summary><pre id="dungeonV3CrossAudit" style="white-space:pre-wrap;overflow-wrap:anywhere;max-height:360px;overflow:auto"></pre></details>
    <details><summary>시드 변화 역추적 결과</summary><pre id="dungeonV3Trace" style="white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto"></pre></details>
   </details>
   <div id="dungeonLegacy" hidden>
@@ -317,6 +318,7 @@ body .dungeon-coverage strong{font-size:14px}
 <script defer src="./dungeon.js?rev=1.0.2-final"></script>
 <script defer src="./dungeon-v2-audit.js?rev=1.0.5"></script>
 <script defer src="./dungeon-v3-inverse.js?rev=1.0.6"></script>
+<script defer src="./dungeon-v3-cross-audit.js?rev=1.0.7"></script>
 <script defer src="./dungeon-dual.js?rev=1.0.6"></script>
 <script defer src="./shared-gear-core.js"></script><script defer src="./shared-gear.js"></script>
 <script defer src="./treasure-core.js"></script><script defer src="./treasure.js"></script>
