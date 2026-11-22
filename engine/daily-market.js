@@ -267,7 +267,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    const vipAllowance=this.paidAllowance(options.vip);
    const mode=options.mode==='free'?'free':options.mode==='fastest'?'fastest':'cheapest';
    const periodLimit=Math.max(1,Math.min(720,Math.trunc(n(options.periods,12))));
-   const cap=Math.max(500,Math.min(100000,Math.trunc(n(options.maxStates,9000))));
+   const cap=Math.max(500,Math.min(500000,Math.trunc(n(options.maxStates,300000))));
    const costPerRefresh=20;
    const target=items=>(items||[]).find(x=>ids.has(x.id))||null;
    const current=target(today);
