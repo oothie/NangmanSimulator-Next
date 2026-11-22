@@ -29,16 +29,16 @@ const section=(name,body)=>'<section>'+name+body+'</section>';
 const bar=(current,max)=>'<progress>'+current+'/'+(max??'?')+'</progress>';
 const fold=(name,body)=>'<details>'+name+body+'</details>';
 const accountSource=extract('function yyAccountGrowthDashboard(','function characterView(){');
-const account=new Function('yyRoleSection','accountFold','accountProgressBar','yyProgressEntries','escape','save',accountSource+';return yyAccountGrowthDashboard')(
- section,fold,bar,progress,escaped,fixture);
+const account=new Function('yyRoleSection','accountFold','accountProgressBar','yyProgressEntries','escape','save','yyPillEffect',accountSource+';return yyAccountGrowthDashboard')(
+ section,fold,bar,progress,escaped,fixture,()=> '');
 const view=account([{r:main},{r:companion}]);
 assert(view.includes('용호단'),'shows a row per pill');
 assert(view.includes('5 / 5')&&view.includes('4 / 5'),'shows actual counts side by side');
 assert(view.includes('66')&&!view.includes('66 / ?'),'uncapped qualification pill shows only ingested count');
 assert(!view.includes('완료1 진행1'),'no abstract group counts substituted for pills');
 const roleSource=extract('function yyRoleGrowthOverview(','function yyAccountRecordAndResourceView(');
-const roleView=new Function('yyProgressEntries','yyRoleSection','accountProgressBar','escape','save',roleSource+';return yyRoleGrowthOverview')(
- progress,section,bar,escaped,fixture);
+const roleView=new Function('yyProgressEntries','yyRoleSection','accountProgressBar','escape','save','yyPillEffect',roleSource+';return yyRoleGrowthOverview')(
+ progress,section,bar,escaped,fixture,()=> '');
 const pillPage=roleView(main,'consumable');
 assert(pillPage.includes('용호단')&&pillPage.includes('5 / 5'),'person page shows direct 5/5');
 assert(pillPage.includes('대력환')&&pillPage.includes('300 / 300'),'person page shows pills from EatDrugs');
