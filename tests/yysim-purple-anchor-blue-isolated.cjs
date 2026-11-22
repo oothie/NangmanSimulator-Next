@@ -35,6 +35,10 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  assert(out.routes.every(r=>goals.every(id=>
   r.final_slots.some(t=>Number(t.id)===id&&t.locked))),
   'Isolated blue route lacks all four final locked talents');
+ assert(out.routes.length>0,
+  'Fresh original WASM did not reproduce three-purple/blue final four-slot route');
+ assert(out.routes[0].pills>0&&out.routes[0].pills<=4148,
+  'Fresh WASM native blue-route cost exceeds previously verified 4148 pills');
  assert(out.routes.every(r=>r.optimal===false),
   'Native bounded wash candidates must not assert exact global minimum');
  console.log('YY_ISOLATED_THREE_PURPLE_BLUE_WASM '+JSON.stringify({
