@@ -54,7 +54,7 @@ try{
   // Real yy-sim search_wash_routes SearchReq. Keep the original WASM contract:
   // desired_ids, max_pad, horizon, top_n, with native routes/steps/actions.
   const ids=payload?.desiredIds;
-  const maxPad=Number(payload?.maxPad??20);
+  const maxPad=Number(payload?.maxPad??0);
   const horizon=Number(payload?.horizon??900);
   const topN=Number(payload?.topN??8);
   // Dispatch green/blue/purple goals to ORIGINAL native search. This is an
@@ -75,7 +75,7 @@ try{
   if(!Number.isInteger(maxPad)||maxPad<0||maxPad>200||
      !Number.isInteger(horizon)||horizon<20||horizon>5000||
      !Number.isInteger(topN)||topN<1||topN>20)
-   throw Error('자동 탐색: 선행 세수 0~200, 자맥 탐색 20~5000, 결과 1~20개로 설정하세요');
+   throw Error('자동탐색 범위 및 결과 개수를 확인하세요');
   await new Promise(resolve=>setTimeout(resolve,0));
   // Requested 4-slot combinations: let ORIGINAL yy-sim first solve only
   // the 2/3 purple anchor goals, then replay that path with ORIGINAL WASM
