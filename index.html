@@ -3507,40 +3507,24 @@ function yyAccountRecordAndResourceView(){
   dh:'돈황',qz:'천도',fmz:'봉명집',jilegu:'극락곡'
  };
  const mapName=id=>knownMaps[String(id)]||String(id);
- const encrypted=dict(root.EncryptMap),mapData=dict(root.MapData),fogs=dict(root.Fogs);
- const gv=dict(root.globalVariable||root.GlobalVariable||root.P);
- const mapReward=Object.entries(gv).filter(([k,v])=>/(?:^|_)map_reward$/.test(k)&&Number.isFinite(Number(v)));
- const mapRows=Object.entries(encrypted).map(([mid,entry])=>{
-  const plants=Object.entries(dict(entry?.Plants));
-  const mines=Object.entries(dict(entry?.Kuangs));
-  return {id:mid,name:mapName(mid),plants,mines,count:plants.length+mines.length,
-   mapState:dict(mapData[mid]),fog:fogs[mid]};
- }).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'ko'));
- const activeMaps=mapRows.filter(x=>x.count>0);
- const nodeRows=activeMaps.flatMap(m=>
-  [['식물',m.plants],['광맥',m.mines]].flatMap(([kind,items])=>items.map(([slot,entry])=>({
-   mid:m.id,map:m.name,kind,slot,data:dict(entry)
-  }))));
- const timeText=n=>{
-  const num=Number(n);
-  return Number.isFinite(num)&&num>1000000000&&num<4102444800?
-   new Date(num*1000).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false}):'—';
- };
- const nodeTable=nodeRows.map(row=>{
-  const d=row.data;
-  return '<tr><td>'+escape(row.map)+' <small>('+escape(row.mid)+')</small></td>'+
-   '<td>'+row.kind+'</td><td>'+escape(d.ID??row.slot)+'</td>'+
-   '<td>'+escape(d.Count??'—')+'</td><td>'+escape(d.R??'—')+'</td>'+
-   '<td>'+escape(timeText(d.Time))+'</td><td>'+escape(d.RCD??'—')+'</td></tr>';
- }).join('');
- const indexRows=mapRows.map(row=>
-  '<tr><td>'+escape(row.name)+' <small>('+escape(row.id)+')</small></td>'+
-  '<td>'+row.plants.length+'</td><td>'+row.mines.length+'</td>'+
-  '<td>'+Object.keys(row.mapState).length+'</td>'+
-  '<td>'+(row.fog?'탐색 비트 저장':'없음 / 확인 불가')+'</td></tr>').join('');
- const fogRecords=Object.entries(fogs).filter(([,v])=>v&&typeof v==='object'&&v.bits64);
- const totalNodes=nodeRows.length;
- const activeSummary=activeMaps.length?'기록이 있는 지역 '+activeMaps.length+'곳 · 개별 자원 슬롯 '+totalNodes+'개':'저장된 개별 자원 슬롯 없음';
+
+ // One-off objects (tree stumps / treasure chests) are stored in MapData.tmxObj;
+ // repeatable mine/plant nodes are intentionally excluded.
+ const maps=dict(root.MapData);
+ const mapKeys=Object.entries(maps).filter(([,v])=>v&&typeof v==='object');
+ const markers=mapKeys.flatMap(([mid,entry])=>Object.entries(dict(entry.tmxObj)).map(([id,raw])=>{
+  const v=dict(raw),pic=String(v.pic||''),nick=String(v.nick||'');
+  const label=[pic,nick,v.json].join(' ');
+  const type=/(?:stump|tree[_ -]?stub|그루터기|树桩|樹樁)/i.test(label)?'그루터기':
+   /(?:box|chest|보물상자|나무상자|철상자|木箱|宝箱)/i.test(label)?'보물상자':'종류 미확인';
+  return {mid,name:mapName(mid),id,pic,type,flag:/empty|open/i.test(pic)?'빈/열린 외형 저장':'오브젝트 변경 기록'};
+ }));
+ const identified=markers.filter(x=>x.type!=='종류 미확인');
+ const perMap=mapKeys.map(([id])=>({
+  id,name:mapName(id),
+  entries:markers.filter(x=>x.mid===id)
+ })).sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+ const rows=items=>items.map(x=>'<tr><td>'+escape(x.name)+' <small>('+escape(x.mid)+')</small></td><td>'+escape(x.type)+'</td><td>#'+escape(x.id)+'</td><td>'+escape(x.flag)+'</td><td>'+escape(x.pic||'—')+'</td></tr>').join('');
  return yyRoleSection('강호 기록 · 계정 공통',
  '<div class="role-grid stat-grid">'+[
   ['분기·이벤트 기록',records.length+'건','완료 '+completed.length+' · 진행 '+ongoing.length],
@@ -3561,25 +3545,24 @@ function yyAccountRecordAndResourceView(){
   '<div class="stat-cell"><span class="label">'+escape(row.name)+'</span>'+
   '<span class="value">'+(row.value==null?'—':row.value.toLocaleString('ko-KR'))+'</span>'+
   '<span class="sub">'+escape(row.key)+'</span></div>').join('')+'</div>')+
- yyRoleSection('지도자원 · 식물과 광맥',
+ yyRoleSection('지도자원 · 그루터기 / 보물상자',
  '<div class="role-grid stat-grid">'+[
-  ['지도 저장 항목',mapRows.length+'곳','EncryptMap'],
-  ['채집·채광 기록',totalNodes+'개','Plants '+nodeRows.filter(x=>x.kind==='식물').length+' · Kuangs '+nodeRows.filter(x=>x.kind==='광맥').length],
-  ['탐색 비트 지도',fogRecords.length+'곳','Fogs · 발견률로 환산하지 않음'],
-  ['지도 보상 변수',mapReward.length+'개','globalVariable map_reward']
- ].map(([name,value,note])=>'<div class="stat-cell"><span class="label">'+escape(name)+'</span><span class="value">'+escape(value)+'</span><span class="sub">'+escape(note)+'</span></div>').join('')+'</div>'+
- '<p class="role-status-note">'+escape(activeSummary)+'. 정확한 채집 종류와 좌표는 게임 자원 설정표 연결 전이므로 원본 노드 ID로 표시합니다. Count는 저장된 필드값이며 남은 채집 횟수나 다음 갱신량으로 확정하지 않습니다. Time은 원본 시각입니다.</p>'+
- (totalNodes?'<details class="yy-account-history" open><summary>식물·광맥 슬롯 '+totalNodes+'개 확인</summary>'+
-  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>지역</th><th>종류</th><th>노드 ID</th><th>Count 원본값</th><th>R 원본값</th><th>Time</th><th>RCD 원본값</th></tr></thead><tbody>'+
-  nodeTable+'</tbody></table></div></details>':'')+
- '<details class="yy-account-history"><summary>지도별 저장 상태 '+mapRows.length+'곳 보기 · 0개 포함</summary>'+
- '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>지역</th><th>식물</th><th>광맥</th><th>지도 상태 필드</th><th>탐색 기록</th></tr></thead><tbody>'+
- indexRows+'</tbody></table></div></details>'+
- (mapReward.length?'<details class="yy-account-history"><summary>지도 보상 기록 '+mapReward.length+'개 보기</summary>'+
- '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>키</th><th>저장값</th></tr></thead><tbody>'+
- mapReward.sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>'<tr><td>'+escape(k)+'</td><td>'+escape(v)+'</td></tr>').join('')+
- '</tbody></table></div></details>':'')+
- '<p class="micro">MapData는 지도의 월드 오브젝트·활동 저장값, Fogs는 탐색 비트 문자열입니다. 비트 데이터만으로 게임 내 탐색 완료율을 확정하지 않습니다. 세이브를 변경하지 않습니다.</p>');
+ ['지도 기록',perMap.length+'곳','MapData'],
+ ['변경된 월드 오브젝트',markers.length+'개','tmxObj'],
+ ['상자·그루터기 외형 식별',identified.length+'개','이미지·명칭 저장값'],
+ ['종류 미확인',markers.length-identified.length+'개','원본 맵 설정 필요']
+ ].map(([t,v,n])=>'<div class="stat-cell"><span class="label">'+escape(t)+'</span><span class="value">'+escape(v)+'</span><span class="sub">'+escape(n)+'</span></div>').join('')+'</div>'+
+ '<p class="role-status-note">그루터기와 보물상자 같은 일회성 월드 오브젝트의 저장 변경 기록을 표시합니다. 원본 지도의 전체 오브젝트 ID·좌표·분류가 세이브에 포함되어 있지 않으므로, 종류가 외형으로 확인되는 경우만 분류합니다. 기록이 없다는 이유로 미획득으로 판정하지 않습니다.</p>'+
+ '<details class="yy-account-history" open><summary>맵별 획득 기록 점검</summary>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>지역</th><th>상자·그루터기 식별</th><th>전체 오브젝트 변경</th></tr></thead><tbody>'+
+ perMap.map(m=>'<tr><td>'+escape(m.name)+' <small>('+escape(m.id)+')</small></td><td>'+m.entries.filter(x=>x.type!=='종류 미확인').length+'</td><td>'+m.entries.length+'</td></tr>').join('')+
+ '</tbody></table></div></details>'+
+ (identified.length?'<details class="yy-account-history" open><summary>상자·그루터기 외형 식별 '+identified.length+'개</summary>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>지역</th><th>종류</th><th>오브젝트 ID</th><th>상태</th><th>외형</th></tr></thead><tbody>'+rows(identified)+'</tbody></table></div></details>':'')+
+ '<details class="yy-account-history"><summary>종류 미확인 오브젝트 '+(markers.length-identified.length)+'개</summary>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>지역</th><th>종류</th><th>오브젝트 ID</th><th>상태</th><th>외형</th></tr></thead><tbody>'+
+ rows(markers.filter(x=>x.type==='종류 미확인'))+'</tbody></table></div></details>'+
+ '<p class="micro">정확한 획득/미획득 체크리스트는 지도별 원본 Tiled 오브젝트 목록과 저장 ID 대조 이후 제공할 수 있습니다. 반복 채집·광맥 상태와 혼동하지 않습니다.</p>');
 }
 
 function characterView(){
