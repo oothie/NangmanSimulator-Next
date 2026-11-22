@@ -55,6 +55,30 @@ function fallback(event){
   uniques:[],uniqueOps:[],source:'산부진',sum:total};
 }
 function rate(event){return lookup(event)||fallback(event)}
+// Gates reconstructed from native Sanbujin boss code. The yy-sim
+// op list records weighted tests but does not encode all prerequisite gates.
+const GATES={
+ 'drop_2364_33653':['win_ywf',7],
+ 'drop_4422_33653':['win_ywf',4],
+ 'drop_2364_33652':['win_ywf',12],
+ 'drop_5618_33652':['win_ywf',10],
+ 'drop_2364_33650':['win_ywf',16],
+ 'drop_7081_33650':['win_ywf',20],
+ 'drop_5422_33650':['win_ywf',12],
+ 'drop_5427_50883':['win_byjzt',6],
+ 'drop_5223_50910':['win_byjzt',10],
+ 'drop_9430_44122':['win_byjzt',14]
+};
+function probability(op,input){
+ const base=baseChance(op),flags=input?.flags;
+ if(!flags||!(flags instanceof Map))return {base,real:null,gate:null};
+ const gate=GATES[op.flag],required=gate?Number(flags.get(gate[0])||0)>=gate[1]:true;
+ const current=Number(flags.get(op.win)||0);
+ const adjusted={...op,th:Number(op.th)+current*Number(op.mul||1)};
+ return {base,real:required?baseChance(adjusted):0,
+  gate:gate?{name:gate[0],min:gate[1],met:required}:null,
+  state:current};
+}
 function baseChance(op){
  const lo=Number(op.lo),hi=Number(op.hi),th=Number(op.th);
  if(!Number.isFinite(lo)||!Number.isFinite(hi)||!Number.isFinite(th)||hi<lo)return NaN;
@@ -83,7 +107,7 @@ function tableOf(headers){
  table.append(header);
  return table;
 }
-function render(target,event){
+function render(target,event,input){
  if(!target)return;
  target.replaceChildren();
  const d=rate(event);
@@ -97,18 +121,19 @@ function render(target,event){
   section.append(node('h4','전용·특수 보상'));
   const table=tableOf(['드랍 아이템','기본 판정 기준','추가 조건']);
   for(const op of special){
-   const chance=baseChance(op),isVariable=!!op.win||Number(op.mul)!==1;
-   const score=Number.isFinite(chance)?percent(chance):'비율 확인 필요';
+   const chance=probability(op,input);
+   const score=Number.isFinite(chance.base)?percent(chance.base):'미확인';
    const conditions=[];
-   if(op.win)conditions.push('변동값 '+op.win);
-   if(Number(op.mul)!==1)conditions.push('계수 ×'+op.mul);
+   if(chance.gate)conditions.push('선행 조건 '+chance.gate.name+' ≥ '+chance.gate.min);
+   if(op.win)conditions.push('누적값 '+op.win);
+   if(Number(op.mul)!==1)conditions.push('보정 계수 ×'+op.mul);
    if(op.cap!=null)conditions.push('획득 상한 '+op.cap);
-   if(op.flag)conditions.push('기록 반영');
-   const label=isVariable?score+' (기초 기준) · 실제 변동':score;
+   const label=chance.real==null?'기본 '+score:
+     '현재 세이브 '+percent(chance.real)+' (기본 '+score+')';
    addRow(table,[localeName(op.item),label,conditions.join(' · ')||'기본 판정']);
   }
   section.append(table);
-  section.append(node('p','이 수치는 yy-sim 원본 난수 범위의 기초 판정 비율입니다. 보스 처치 횟수·획득 이력·보정 계수가 개입하는 전용 보상은 현재 세이브에 따라 실제 확률이 변동할 수 있으므로 고정 확률로 간주하지 않습니다.','progress-note'));
+  section.append(node('p','이 수치는 yy-sim 원본 난수 범위의 기초 판정 비율입니다. 현재 세이브의 누적값과 확인된 선행 조건을 반영합니다. 자료에 없는 전투 조건이나 획득 상한 충족 여부는 추가 검증이 필요하므로 확정 드랍률로 간주하지 않습니다.','progress-note'));
   target.append(section);
  }else{
   target.append(node('p','연결된 yy-sim 전용 보상 확률 항목이 없습니다.','progress-note'));
@@ -132,5 +157,5 @@ function render(target,event){
  target.append(ordinary);
  if(d.inferredPool)target.append(node('p','일부 장비 후보는 yy-sim의 빈 항목을 산부진 후보 데이터로 보완했습니다.','progress-note'));
 }
-root.SBJDungeonRates={rate,render,percent};
+root.SBJDungeonRates={rate,render,percent,baseChance,probability};
 })(window);
