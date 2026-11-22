@@ -29,13 +29,29 @@ const section=(name,body)=>'<section>'+name+body+'</section>';
 const bar=(current,max)=>'<progress>'+current+'/'+(max??'?')+'</progress>';
 const fold=(name,body)=>'<details>'+name+body+'</details>';
 const accountSource=extract('function yyAccountGrowthDashboard(','function characterView(){');
-const account=new Function('yyRoleSection','accountFold','accountProgressBar','yyProgressEntries','escape','save','yyPillEffect',accountSource+';return yyAccountGrowthDashboard')(
- section,fold,bar,progress,escaped,fixture,()=> '');
-const view=account([{r:main},{r:companion}]);
-assert(view.includes('용호단'),'shows a row per pill');
-assert(view.includes('5 / 5')&&view.includes('4 / 5'),'shows actual counts side by side');
-assert(view.includes('66')&&!view.includes('66 / ?'),'uncapped qualification pill shows only ingested count');
-assert(!view.includes('완료1 진행1'),'no abstract group counts substituted for pills');
+const account=new Function('yyProgressEntries','escape','save','yyPillEffect','yyRoleCultivationModel',
+ 'let accountGrowthPage=0;'+accountSource+';return {render:yyAccountGrowthDashboard,setPage:n=>accountGrowthPage=n}')(
+ progress,escaped,fixture,()=> '',role=>({records:['권법','도법','검법','창·곤','내공','경공'].map(
+  (name,i)=>({name,current:100+i}))}));
+const roster=[{r:main},{r:companion}];
+let allViews='';
+for(let i=0;i<100;i++){
+ account.setPage(i);const view=account.render(roster);
+ if(i>0&&view.includes('표 1 /'))break;
+ allViews+=view;
+ if(view.includes('표 '+(i+1)+' / '+(i+1)))break;
+}
+assert(allViews.includes('용호단'),'paged list includes individual pills');
+assert(allViews.includes('5 / 5')&&allViews.includes('4 / 5'),'real pill counts side by side on a single role row');
+assert(allViews.includes('66')&&!allViews.includes('66 / ?'),'uncapped pills display current only');
+assert(!allViews.includes('완료1 진행1'),'no abstract group counts');
+assert(allViews.includes('data-account-page'),'next-table controls exist');
+const trainingView=account.render(roster,'training');
+assert(trainingView.includes('수련 기록')&&trainingView.includes('인물'),'training table has names at left');
+const sixView=account.render(roster,'cultivation');
+assert(sixView.includes('6종 수련')&&sixView.includes('권법')&&sixView.includes('경공'),
+ 'all six martial cultivation values appear in the paged comparison');
+assert(sixView.includes('100 / 1,500'),'six-group values use real cultivation model and 1500 cap');
 const roleSource=extract('function yyRoleGrowthOverview(','function yyAccountRecordAndResourceView(');
 const roleView=new Function('yyProgressEntries','yyRoleSection','accountProgressBar','escape','save','yyPillEffect',roleSource+';return yyRoleGrowthOverview')(
  progress,section,bar,escaped,fixture,()=> '');
