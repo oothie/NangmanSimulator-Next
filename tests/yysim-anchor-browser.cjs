@@ -49,7 +49,7 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),
   assert(report.ready,'production WASM iframe initialization failed');
   for(const row of report.results){
    assert.equal(row.nativeFunction,'wasmSearchWashRoutes');
-   assert.equal(row.method,'purple-anchor-original-wasm');
+   assert.equal(row.method,'purple-anchor-nearest-native-wash');
    assert(row.statePreserved,'mixed-grade branch changed original save state');
    assert.equal(row.complete,1,'native final four-goal route missing');
    assert(row.allLocked,'all four final talents must remain locked');
