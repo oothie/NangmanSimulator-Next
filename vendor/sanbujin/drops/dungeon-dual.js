@@ -39,7 +39,7 @@ function resultNode(r,engine){
  if(r?.missing){wrap.append(make('strong',r.reason||
    '필요한 시드 또는 보상 후보 없음','dungeon-dual-muted'));return wrap}
  if(!r?.supported){
-  wrap.append(make('strong','일반 장비 예측 자료 없음','dungeon-dual-muted'));return wrap;
+  wrap.append(make('strong',r?.reason||'일반 장비 예측 자료 없음','dungeon-dual-muted'));return wrap;
  }
  if(r.item){
   wrap.append(make('strong',nameOf(r.item),'dungeon-dual-item'));
