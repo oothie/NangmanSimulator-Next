@@ -360,9 +360,20 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
           resyncTo(sourceId);
           const slot=getState().talents.findIndex(t=>number(t.id)===sourceId);
           if(slot<0)throw Error('재탐색 치환 원맥이 달라졌습니다');
+          const beforeExchange=clone(getState());
           const done=exchangeTalent(slot);
-          if(!done||done.error||!idsOf(getState()).includes(targetId))
+          if(!done||done.error||!idsOf(getState()).includes(targetId)){
+           diagnostics.exchangeDivergences=diagnostics.exchangeDivergences||[];
+           if(diagnostics.exchangeDivergences.length<8)
+            diagnostics.exchangeDivergences.push({
+             wash:count(beforeExchange,'total_wash'),
+             from:sourceId,to:targetId,
+             beforeIds:idsOf(beforeExchange),afterIds:idsOf(getState()),
+             result:done,
+             protectedHeld:[...protectedIds].every(id=>idsOf(getState()).includes(id))
+            });
            throw Error('재탐색 WASM 치환 결과 불일치');
+          }
          }else if(!['wash_to','skip'].includes(step.kind))
           throw Error('원본 재탐색 미지원 단계: '+step.kind);
          // Once locked targets change native draw consumption, the old
