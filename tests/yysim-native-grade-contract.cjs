@@ -71,16 +71,18 @@ const path=require('node:path');
     const mixedGoalResults=[];
     for(const target of sets){
      let response=null,error=null;
+     const started=performance.now();
      try{response=wasmSearchWashRoutes({
       desired_ids:target.ids,max_pad:0,horizon:30,top_n:2
      })}catch(err){error=String(err?.message||err)}
+     const elapsedMs=Math.round((performance.now()-started)*100)/100;
      const paths=Array.isArray(response?.routes)?response.routes:[];
      const complete=paths.filter(route=>{
       const last=new Set((route.final_slots||[]).map(t=>Number(t.id)));
       return target.ids.every(id=>last.has(id));
      });
      mixedGoalResults.push({name:target.name,ids:target.ids,
-      routes:paths.length,complete:complete.length,
+      routes:paths.length,complete:complete.length,elapsedMs,
       cheapestComplete:complete.reduce((best,r)=>
        Number.isSafeInteger(Number(r.pills))&&Number(r.pills)>=0?
         Math.min(best,Number(r.pills)):best,Infinity),
@@ -88,6 +90,23 @@ const path=require('node:path');
      if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
       throw Error('mixed-grade native route probe modified original WASM state');
     }
+    // Purple-only reference: same state + same request should produce the
+    // same native result in two calls. This is an algorithm baseline, not a
+    // fabricated target-minimum or a speed guarantee on other machines.
+    const baselineRequest={desired_ids:[271],max_pad:0,horizon:30,top_n:2};
+    const baselineTrials=[];
+    for(let i=0;i<2;i++){
+     const started=performance.now();
+     const result=wasmSearchWashRoutes(baselineRequest);
+     baselineTrials.push({elapsedMs:Math.round((performance.now()-started)*100)/100,
+      result:JSON.stringify(result)});
+     if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
+      throw Error('native purple repeat search mutated the WASM state');
+    }
+    if(baselineTrials[0].result!==baselineTrials[1].result)
+     throw Error('원본 자맥 검색이 같은 상태·같은 목표에 서로 다른 결과를 반환');
+    const nativePurpleBaseline={timesMs:baselineTrials.map(x=>x.elapsedMs),
+     deterministic:true,resultLength:baselineTrials[0].result.length};
     mixedGoalResults.forEach(x=>{
      if(x.cheapestComplete===Infinity)x.cheapestComplete=null;
     });
@@ -111,7 +130,7 @@ const path=require('node:path');
      if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
       throw Error('original native request field probe mutated state');
     }
-    return {rows,mixedGoalResults,requestVariants,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
+    return {rows,mixedGoalResults,nativePurpleBaseline,requestVariants,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
    })()`);
    const state=await washSearchEngine.call('state');
    return {outcome,preserved:JSON.stringify(state)===JSON.stringify(await washSearchEngine.call('state'))};
@@ -119,6 +138,9 @@ const path=require('node:path');
   assert(audit.outcome.unchanged&&audit.preserved,'native grade audit mutated live state');
   assert.equal(audit.outcome.rows.length,3);
   assert.equal(audit.outcome.mixedGoalResults.length,6);
+  assert(audit.outcome.nativePurpleBaseline.deterministic);
+  assert.equal(audit.outcome.nativePurpleBaseline.timesMs.length,2);
+  assert(audit.outcome.mixedGoalResults.every(r=>Number.isFinite(r.elapsedMs)&&r.elapsedMs>=0));
   assert(audit.outcome.mixedGoalResults.every(row=>
    row.complete<=row.routes),'never accept transient mixed goals as final routes');
   console.log('ORIGINAL_YY_SIM_GRADE_CONTRACT',JSON.stringify(audit.outcome));
