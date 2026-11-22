@@ -26,13 +26,16 @@
 
   function stream(input) {
     const advanced = new Map();
-    return (key, weights, bound) => {
+    const next=(key, weights, bound) => {
       const seed = advanced.get(key) ?? value(input.seeds[key]);
       if (!usable(seed)) throw Error('현재 세이브에 해당 난수 순서가 없습니다');
       const output = weights ? choose(seed, weights) : draw(seed, bound);
       advanced.set(key, output.seed);
       return weights ? output.index : output.value;
     };
+    next.snapshot=()=>new Map(advanced);
+    next.restore=saved=>{advanced.clear();for(const [key,val] of saved)advanced.set(key,val)};
+    return next;
   }
 
   function resolveEvent(step, event) {
@@ -74,7 +77,6 @@
       if(typeof model?.run!=='function'||seen.has(model.run))continue;
       seen.add(model.run);
       const text=Function.prototype.toString.call(model.run);
-      if(text.includes('s.branch('))continue;
       const ids=[...new Set([...text.matchAll(/drop_(\d+)_equip/g)].map(m=>Number(m[1])))];
       if(ids.length)result.push({ids,run:model.run});
     }
@@ -84,6 +86,7 @@
     const step=stream(input),vars=new Map(input.flags),temp=new Map();
     const scope=where=>where==='temp'?temp:vars;
     const state={level:input.level,
+      branch:key=>{if(!vars.has(key))throw Error('미복원 임무 분기: '+key);return Number(vars.get(key))},
       get:(key,where)=>scope(where).get(key)||0,
       set:(key,val,where)=>{scope(where).set(key,Number(val)||0)},
       add:(key,val,where)=>{const m=scope(where);m.set(key,(m.get(key)||0)+Number(val||0))},
@@ -99,7 +102,16 @@
         rows.push({...resolveEvent(step,event),nativeReplay:false});i++;continue;
       }
       const previous=new Map(vars);
-      native.run(state);
+      const seedCheckpoint=step.snapshot(),flagCheckpoint=new Map(vars),tempCheckpoint=new Map(temp);
+      try{native.run(state)}catch(error){
+        // Missing game-story branches cannot be guessed. Restore every RNG
+        // advancement before using the bounded ordinary-drop fallback.
+        step.restore(seedCheckpoint);vars.clear();temp.clear();
+        for(const [key,val] of flagCheckpoint)vars.set(key,val);
+        for(const [key,val] of tempCheckpoint)temp.set(key,val);
+        rows.push({...resolveEvent(step,event),nativeReplay:false,
+          nativeReason:String(error.message||error)});i++;continue;
+      }
       for(let j=0;j<native.ids.length;j++){
         const e=events[i+j],npc=idOf(e),count=Number(vars.get(e.id)||0),
           weapon=Number(vars.get('drop_'+npc+'_weapon')||0);
