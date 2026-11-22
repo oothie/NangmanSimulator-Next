@@ -16,8 +16,9 @@ function seedMap(input){
 }
 function checkStep(start,step){
  const next=advance(start,Number(step.bound));
- return next!==null&&(!isSeed(step.before)||Number(step.before)===start)&&
- (!isSeed(step.after)||Number(step.after)===next);
+ // The current v2 before/after values are hypotheses, NOT constraints.
+ // Only the recovered draw bound is trusted during inverse alignment.
+ return next!==null;
 }
 function candidateBounds(trace,extra=[]){
  const values=[...new Set([...(trace||[]).map(t=>Number(t.bound)),
