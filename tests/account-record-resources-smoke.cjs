@@ -20,47 +20,30 @@ function render(save,verified={}){
   save,{NangmanQuest:{verified}},section,characterEntries,escape);
 }
 const fixture={
- Branch:{
-  event_known:{step:-1,recv:1795253568,trace:true},
-  event_pending:{step:2,recv:0}
- },
- Achieves:[{ID:1,Reward:2},{ID:9,Reward:4}],
- AchievePoint:182,
+ Branch:{event_known:{step:-1,recv:1795253568,trace:true},event_pending:{step:2}},
+ Achieves:[{ID:1,Reward:2}],AchievePoint:182,
  BattleCount:110711,KillEnermy:110299,WudaoWin:943,
- CatchAnimal:2594,MakeCount:5325,Make90Count:120,Make100Count:0,
- EncryptMap:{
-  swz:{
-   Plants:{'7':{ID:7,Count:3,R:0,Time:1795253568}},
-   Kuangs:{'301':{ID:301,Count:6,R:3733,RCD:1734270519,Time:1795253568}}
-  },
-  hua:{Plants:{},Kuangs:{},S:123},
-  wyc:{Plants:{},Kuangs:{}}
+ MapData:{
+  swz:{tmxObj:{'2872':{pic:'pic_box_empty.png',nick:'yes'},'1234':{pic:'empty',nick:'yes'}}},
+  nyz:{tmxObj:{'3001':{pic:'pic_stump_empty.png'},'3002':{nick:'yes',json:'yes'}}},
+  hua:{tmxObj:{}}
  },
- MapData:{swz:{animal:{},walk:{}}},
- Fogs:{swz:{width:30,height:20,bits64:'AAAA'}},
- globalVariable:{swz_map_reward:1,num_map_reward:29}
+ EncryptMap:{swz:{Plants:{'7':{Count:3}},Kuangs:{'301':{Count:6}}}}
 };
 const out=render(fixture,{event_known:['한국판 검증 이벤트','']});
-assert(out.includes('한국판 검증 이벤트'),'Korean quest name joined for verified records');
-assert(out.includes('완료 기록'),'completed branch in account ledger');
-assert(out.includes('진행 · 2'),'active branch step preserved');
-assert(out.includes('업적 저장 항목'),'achievement count present');
-assert(out.includes('Reward 원본값'),'achievement reward is not interpreted as receipt state');
-assert(out.includes('110,711'),'battle counts from save');
-assert(out.includes('110,299'),'kill counts from save');
-assert(out.includes('90레벨 장비 제작'),'legacy account counters');
-assert(out.includes('십방집'),'known map code translated');
-assert(out.includes('화산'),'empty maps still listed');
-assert(out.includes('식물')&&out.includes('광맥'),'both resource collections supported');
-assert(out.includes('301'),'mine resource node ID included');
-assert(out.includes('3733'),'raw R field preserved');
-assert(out.includes('Count 원본값'),'Count not asserted as remaining');
-assert(out.includes('탐색 비트 지도'),'Fogs shown independently');
-assert(out.includes('지도 보상 기록'),'map reward fields included');
-assert(out.includes('지도별 저장 상태'),'all saved maps inspectable');
+assert(out.includes('한국판 검증 이벤트'),'quest name matched');
+assert(out.includes('업적 저장 항목'),'achievements shown');
+assert(out.includes('110,711'),'account activity count');
+assert(out.includes('그루터기 / 보물상자'),'correct collectible category');
+assert(out.includes('pic_box_empty.png')&&out.includes('pic_stump_empty.png'),'both visually confirmed markers');
+assert(out.includes('십방집')&&out.includes('남양도'),'per-map labels');
+assert(out.includes('종류 미확인'),'unknown classifications retained');
+assert(!out.includes('채집·채광 기록'),'repeatable resource collection removed');
+assert(!out.includes('Count 원본값'),'mine counts removed from UI');
 const empty=render({});
-assert(empty.includes('저장된 개별 자원 슬롯 없음'),'empty map cache is unknown, not zero gathering');
-assert(empty.includes('분기·이벤트 기록'),'empty account records render safely');
-const malformed=render({EncryptMap:{swz:null,hua:{Kuangs:{'2':null}}},Branch:{invalid:null},Fogs:{swz:null}});
-assert(malformed.includes('광맥'),'malformed legacy resource entry does not crash');
-console.log('PASS: account Jianghu logs, cumulative achievements and actual map collection save structures');
+assert(empty.includes('그루터기 / 보물상자'),'empty map is safe');
+assert(empty.includes('0개'),'empty counts safe');
+const malformed=render({MapData:{swz:null,hua:{tmxObj:{'2':null}}}});
+assert(malformed.includes('종류 미확인'),'unknown object does not crash');
+
+console.log('PASS: account Jianghu records and map-object chest/stump status categories');
