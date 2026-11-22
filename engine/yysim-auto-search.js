@@ -15,6 +15,15 @@ function selectedIds(raw,allowed){
   throw Error('자동 탐색은 서로 다른 녹맥·파맥·자맥 재능을 1~4개 선택해야 합니다');
  return ids;
 }
+// Four purple goals can require well over 900 native wash iterations.
+// Keep the original single-call WASM path; mixed-grade searches retain their
+// existing bounded horizon until their separate search extension is validated.
+function recommendedHorizon(ids,catalog){
+ const list=Array.isArray(ids)?ids.map(Number):[];
+ const purple=new Set((catalog||[]).filter(group=>Number(group.quality)===4)
+  .flatMap(group=>group.items||[]).map(item=>Number(item.id)));
+ return list.length===4&&list.every(id=>purple.has(id))?2500:900;
+}
 function options(raw,allowed){
  const ids=selectedIds(raw.desiredIds||[],allowed);
  const maxPad=int(raw.maxPad??0),horizon=int(raw.horizon??900),topN=int(raw.topN??8);
@@ -156,6 +165,6 @@ function previewPadLimit(washNos){
  if(ids.length<2)return 30;
  return Math.max(0,Math.min(200,ids[1]-ids[0]-1));
 }
-root.YYWashAutoSearch={selectedIds,options,routeOutcome,statusText,readableStep,
+root.YYWashAutoSearch={selectedIds,options,recommendedHorizon,routeOutcome,statusText,readableStep,
  describeAction,previewTarget,previewPadLimit};
 })(window);
