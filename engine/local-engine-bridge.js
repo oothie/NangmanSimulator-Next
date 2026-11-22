@@ -42,7 +42,7 @@ export class LocalEngine {
  async call(op,payload,onProgress){
   const isBoot=op==='init';
   // Searches can take longer when the actual WASM enumerates locked branches.
-  const timeLimit=op==='auto-search'?180000:60000;
+  const timeLimit=op==='auto-search'?600000:60000;
   const callOnce=async()=>{
    await this.mount();
    const requestId=++this.seq;
