@@ -48,6 +48,14 @@ function goals(){
  $('goalInfo').textContent='목표 '+chosen.size+'/4 · '+[...chosen].map(ko).join(' / ');
  $('run').disabled=busy||!current||chosen.size===0;
 }
+function selectFromPreview(id){
+ const item=byId.get(Number(id));
+ if(!item){setStatus('해당 원시맥은 목표 선택 목록에서 제외된 재능입니다',true);return}
+ if(chosen.has(item.id))return;
+ if(chosen.size>=4){setStatus('목표는 최대 4개까지 선택할 수 있습니다',true);return}
+ chosen.add(item.id);resetResult();goals();
+ setStatus('원시맥 '+item.ko+' (#'+item.id+')을 목표 재능에 추가했습니다');
+}
 function showPreview(){
  $('preview').replaceChildren();$('conflicts').replaceChildren();
  const purples=Array.isArray(preview?.purples)?preview.purples:[];
@@ -59,7 +67,14 @@ function showPreview(){
   for(const v of [p.wash_no??'-',p.talent_id?ko(p.talent_id):String(p.talent_name||'-'),
    p.can_exchange===true?'가능':p.can_exchange===false?'불가':'미확인',
    p.earlier_conflict_name||'-',p.earlier_conflict_wash_times??'-'])cell(tr,v);
-  $('preview').append(tr);
+  const action=document.createElement('td');
+  if(byId.has(Number(p.talent_id))){
+   const button=document.createElement('button');
+   button.type='button';button.textContent='목표 추가';
+   button.addEventListener('click',()=>selectFromPreview(p.talent_id));
+   action.append(button);
+  }else action.textContent='—';
+  tr.append(action);$('preview').append(tr);
  }
  for(const p of exchange.slice(0,350)){
   const tr=document.createElement('tr');
