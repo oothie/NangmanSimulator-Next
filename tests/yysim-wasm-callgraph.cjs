@@ -100,6 +100,9 @@ function inspect(index){
   if(opcode===2||opcode===3||opcode===4)signedLeb(cur);
   else if([12,13,16,18,32,33,34,35,36,37,38,210].includes(opcode)){
    const value=uleb(cur);
+   // Keep immediate local/branch/table operands as actual bytecode values,
+   // rather than deriving WASM arguments from unparsed neighboring bytes.
+   instr.immediate=value;
    if(opcode===16)calls.push({offset:at,index:value,bodyBytes: functions[value-importCount]?.size??null,name:named.get(value)||null});
   }
   else if(opcode===14){const n=uleb(cur);for(let i=0;i<=n;i++)uleb(cur)}
@@ -282,6 +285,20 @@ assert(nativeEventCalls.some(x=>x.destination===13),
  'Expected direct original purple candidate generation call');
 assert(nativeEventCalls.some(x=>x.destination===13&&x.offset===14886),
  'Original native next_purple event call site moved; audit call argument bound');
+// Collect the actual local/constant operands immediately preceding the
+// original native next_purple call for future grade-gate reconstruction.
+// This is an instruction window, NOT a proven four-argument semantic map.
+const purpleCallSite=coreSearch.instructions.findIndex(x=>
+ x.offset===14886&&x.opcode===16);
+assert(purpleCallSite>0,'Original purple generator call no longer decoded');
+const purpleCallOperands=coreSearch.instructions.slice(purpleCallSite-28,purpleCallSite)
+ .map(x=>({offset:x.offset,opcode:x.opcode,
+  immediate:x.immediate??null,value:x.value??null,memOffset:x.memOffset??null}));
+assert(purpleCallOperands.some(x=>x.opcode===32),
+ 'Expected real local.get bytecode near native purple generator');
+const nativePurpleGenerator=inspect(13);
+const purpleGeneratorCompareWindows=comparisonWindows(nativePurpleGenerator);
+
 
 const coreComparisons=comparisonWindows(coreSearch);
 const coreGradeReview=gradeReviewSitesFor(coreSearch);
@@ -453,6 +470,10 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
   comparisonsNear2or3or4:coreComparisons.length,gradeFourReviewSites:coreGradeReview.length},
  exploredCoreFunctions:exploredFromCore.size,
  nativeEventCalls,
+ purpleCallOperands,
+ purpleGenerator:{index:13,signature:wasmFunctionSignature(13),
+  instructionCount:nativePurpleGenerator.instructions.length,
+  comparisonsNearGrades:purpleGeneratorCompareWindows.slice(0,30)},
  qualityDataflowCandidates:qualityDataflowCandidates.slice(0,70),
  solver:{index:solver.index,bodyBytes:solver.bodyBytes,callInstructions:solver.callCount,uniqueDependencies:tally.size},
  mostFrequent:dependencies.slice(0,15),largestDependencies:byBody,
