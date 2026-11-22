@@ -17,7 +17,7 @@ const {chromium}=require('playwright'),cp=require('node:child_process'),path=req
    await washSearchEngine.call('init');
    const baseline=await washSearchEngine.call('state');
    const copied={...baseline,role_id:10044,zizhi:154,seed:447882174,
-    talents:[{id:184,locked:false},{id:171,locked:false},
+    talents:[{id:170,locked:false},{id:171,locked:false},
      {id:172,locked:false},{id:173,locked:false}],
     total_pills:0,total_wash:0,bag_pills:10000,has_bag_pills:true};
    await washSearchEngine.call('set-state',copied);
@@ -28,6 +28,8 @@ const {chromium}=require('playwright'),cp=require('node:child_process'),path=req
     const initial=wasmGetState();
     const scenarios=[{id:184,gradeBefore:2,gradeProbe:4},
                      {id:271,gradeBefore:4,gradeProbe:2}];
+    if(scenarios.some(s=>initial.talents.some(slot=>Number(slot.id)===s.id)))
+     throw Error('Probe fixture already contains a target; grade gate would be masked');
     const probes=[];
     const query=(id)=>{
      let response=null,exception=null;
