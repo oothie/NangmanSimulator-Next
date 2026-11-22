@@ -5,7 +5,7 @@
 (function(root){
 'use strict';
 const isSeed=x=>Number.isSafeInteger(Number(x))&&Number(x)>0;
-const number=x=>Number(x);
+const number=x=>Number(x?.Value??x?.value??x?.V??x?.v??x);
 const DEFAULT_LIMITS=Object.freeze({maxHidden:4,maxStates:20000,maxResults:12});
 function advance(seed,bound){
  if(!isSeed(seed)||!Number.isSafeInteger(bound)||bound<1)return null;
@@ -81,6 +81,24 @@ function inspect(before,after,prediction,options={}){
   keys:results,unresolved:keys.filter(k=>results[k].status!=='candidates'),
   disclaimer:'누락 호출의 횟수/범위 후보만 제시합니다. 후보가 맞더라도 실제 원본 실행 분기 검증 전에는 확정 예측이 아닙니다.'};
 }
+function rebuild(before,after,plan,catalog,measured,options={}){
+ const v2=root.SBJDungeonV2;
+ if(!v2)throw Error('기존 두 엔진의 비교 추적이 필요합니다');
+ const report={};
+ for(const model of ['source','native']){
+  const output=model==='source'?v2.source(before,plan,options):
+   v2.native(before,plan,catalog,options);
+  const observed=measurement(output.rows,measured);
+  const reconciled=after?inspect(before,after,output,options):
+   {status:'post-save-required',unresolved:[],
+    disclaimer:'실측 이후 세이브의 Sds 시드가 없어 RNG 호출 횟수를 확정할 수 없습니다'};
+  report[model]={observed,reconciled,trace:output.trace,
+   rows:output.rows,finalSeeds:output.finalSeeds};
+ }
+ return {models:report,measuredCount:(measured||[]).length,
+  calibrated:false,verified:false,
+  next:'실측 이후 세이브의 Sds 변화와 원본 분기 호출 검증 전에는 두 모델을 확정 예측으로 사용하지 않습니다'};
+}
 function measurement(rows,fixture){
  const byId=new Map((fixture||[]).map(x=>[Number(x.npc),x]));
  const checks=(rows||[]).filter(x=>byId.has(Number(x.npcId))).map(row=>{
@@ -93,5 +111,5 @@ function measurement(rows,fixture){
  return {checked:checks.length,matched:checks.filter(x=>x.pass).length,
   mismatches:checks.filter(x=>!x.pass),checks};
 }
-root.SBJDungeonInverse={advance,candidateBounds,reverseKey,inspect,measurement};
+root.SBJDungeonInverse={advance,candidateBounds,reverseKey,inspect,measurement,rebuild};
 })(window);
