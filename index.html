@@ -315,6 +315,13 @@ body{background:var(--bg)!important}
 .account-map-page .account-resource-card summary{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .account-map-page .account-resource-card summary small{font-weight:600}
 
+
+.account-quick-pills{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:10px}
+.account-pill-rows{display:grid;gap:8px;margin-top:11px}
+.account-pill-line{display:grid;grid-template-columns:minmax(75px,1fr) auto;column-gap:8px;align-items:center;font-size:13px}
+.account-pill-line strong{font-variant-numeric:tabular-nums;color:var(--text)}
+.account-pill-line .account-meter{grid-column:1/-1;margin:3px 0 0;height:7px}
+
 .account-resource-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:9px}
 .account-resource-card{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:11px}
 .account-resource-card summary{cursor:pointer;font-weight:650}
@@ -3491,15 +3498,18 @@ function yyAccountCultivationView(){
  '<div class="role-grid stat-grid">'+extraTotals.map(x=>'<div class="stat-cell"><span class="label">'+escape(x.name)+'</span>'+
  '<span class="value">'+x.total.toLocaleString('ko-KR')+'</span>'+
  '<span class="sub">'+(x.missing?x.missing+'명 미확인 제외':'전체 인물 기록')+'</span></div>').join('')+'</div>'))+
- yyRoleSection('전원 진행률 한눈에 보기',
- '<div class="account-track-grid">'+entries.map(e=>{
-  const training=yyProgressEntries(save,e.r,'training'),pills=yyProgressEntries(save,e.r,'consumable');
-  const s=yyProgressStat(training),p=yyProgressStat(pills);
-  return '<div class="account-track"><strong>'+escape(e.r.name)+'</strong><small> · '+escape(e.r.type)+'</small>'+
-   '<div class="account-track-top"><span>수련</span><span>'+s.complete+' / '+training.items.length+' 그룹</span></div>'+
-   accountProgressBar(s.complete,training.items.length,'teal')+
-   '<div class="account-track-top"><span>단약</span><span>'+p.complete+' / '+pills.items.length+' 그룹</span></div>'+
-   accountProgressBar(p.complete,pills.items.length,'violet')+'</div>';
+ yyRoleSection('주요 단약 · 인물별 실제 복용 횟수',
+ '<p class="micro">대표 단약의 복용 횟수를 <b>현재 / 최대</b>로 표시합니다. 전체 항목은 계정 → 단약·수련 전체에서 비교하세요.</p>'+
+ '<div class="account-quick-pills">'+entries.map(e=>{
+  const names=['용호단','풍령단','웅백환','익신단','보리자','칠보현단'];
+  const groups=yyProgressEntries(save,e.r,'consumable').items;
+  return '<div class="account-track"><div class="account-track-top"><strong>'+escape(e.r.name)+'</strong><small>'+escape(e.r.type)+'</small></div>'+
+   '<div class="account-pill-rows">'+names.map(name=>{
+    const g=groups.find(x=>x.title===name),v=g?.values?.[0];
+    if(!v)return '';
+    return '<div class="account-pill-line"><span>'+escape(name)+'</span><strong>'+escape(v.current??'—')+' / '+escape(v.max)+'</strong>'+
+      accountProgressBar(v.current,v.max,'violet')+'</div>';
+   }).join('')+'</div></div>';
  }).join('')+'</div>')+
  accountFold('전체 인물 6계열 비교표',yyRoleSection('전체 캐릭터 6계열 수련 비교',
  '<p class="micro">인물 이름을 누르면 해당 인물의 수련 메뉴로 이동합니다. 수련·단약 칸은 각각 시작한 그룹 / 완료한 그룹 개수입니다. 완료 그룹은 시작 그룹에도 포함됩니다.</p>'+
