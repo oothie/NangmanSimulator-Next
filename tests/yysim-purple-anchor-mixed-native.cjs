@@ -51,6 +51,22 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   routes:two.routes.map(r=>({pills:r.pills,washes:r.washes,final:r.final_slots,
    actionCount:r.actions.length})),diagnostics:two.diagnostics,preserved:true
  }));
+ // The user can have zero pills in their save: a hypothetical native
+ // route still must predict exact cost without modifying source inventory.
+ const empty={...source,bag_pills:0,has_bag_pills:true};
+ assert(wasmSetState(empty));
+ const lowBefore=YYWashNativeSearchGuard.canonicalJson(wasmGetState());
+ const low=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[271,268,272,184],maxPad:0,horizon:40,topN:1,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:YYWashNativeSearchGuard
+ });
+ assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),lowBefore,
+  'Hypothetical pill funding must not change zero-stock save state');
+ assert.equal(low.routes[0]?.pills,out.routes[0]?.pills,
+  'Zero-stock character predicted cost differs from funded reference');
+ assert(wasmSetState(source));
  console.log('YY_PURPLE_ANCHOR_MIXED_REAL_WASM '+JSON.stringify({
   shape:[271,268,272,184],
   routes:out.routes.map(r=>({pills:r.pills,washes:r.washes,final:r.final_slots,
