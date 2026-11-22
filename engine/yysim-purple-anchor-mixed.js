@@ -720,22 +720,26 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
       (attempt?.routes?.length||0);
      if(!baseline)baseline={...attempt,routes:[]};
      for(const candidate of attempt?.routes||[]){
-      try{
-       const verified=replay(candidate);
-       const measured=count(verified.state,'total_pills')-
-        count(initial,'total_pills');
-       const signature=JSON.stringify(candidate.actions||[]);
-       if(!seenBackbones.has(signature)){
+      for(const alternative of [candidate,...alternateNativeTimelines(candidate)]){
+       const signature=JSON.stringify(alternative.actions||[]);
+       if(seenBackbones.has(signature))continue;
+       try{
+        const verified=replay(alternative);
+        const measured=count(verified.state,'total_pills')-
+         count(initial,'total_pills');
         seenBackbones.add(signature);
-        matching.push({...candidate,purplePad:pad,purpleMeasuredPills:measured});
-       }
-      }catch(error){
-       diagnostics.purpleReplayRejected=(diagnostics.purpleReplayRejected||0)+1;
-       if((diagnostics.purpleReplayErrors||[]).length<6){
-        diagnostics.purpleReplayErrors=diagnostics.purpleReplayErrors||[];
-        diagnostics.purpleReplayErrors.push({
-         order,maxPad:pad,reason:String(error?.message||error)
-        });
+        matching.push({...alternative,purplePad:pad,purpleMeasuredPills:measured});
+        if(alternative.anchorVariant)
+         diagnostics.earlySlotRelayCandidates=(diagnostics.earlySlotRelayCandidates||0)+1;
+       }catch(error){
+        diagnostics.purpleReplayRejected=(diagnostics.purpleReplayRejected||0)+1;
+        if((diagnostics.purpleReplayErrors||[]).length<6){
+         diagnostics.purpleReplayErrors=diagnostics.purpleReplayErrors||[];
+         diagnostics.purpleReplayErrors.push({
+          order,maxPad:pad,variant:alternative.anchorVariant||'original',
+          reason:String(error?.message||error)
+         });
+        }
        }
       }
      }
