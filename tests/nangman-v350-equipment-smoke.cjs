@@ -31,7 +31,7 @@ assert(meta.source.endsWith('v3_50.html'),'source manifest names correct upstrea
 assert(native.length>600000,'native engine vendored, not a mock');
 assert(native.includes('id="dmjall"'),'full mangjing sequence checkbox included');
 assert(native.includes('RK237.mjShowAll?rkMjSequence273('),'full mangjing shows every original native roll');
-assert(native.includes('max="5000" value="'),'mangjing count supports 5000 rolls');
+assert(native.includes('id="dmjn" type="number" min="1" max="200"'),'native mangjing detail display is bounded to its actual 200-roll UI');
 assert(native.includes("n:'전체 시퀀스'"),'quenching retains full sequence mode');
 let parsed=0;
 for(const [index,match] of [...native.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)].entries()){
