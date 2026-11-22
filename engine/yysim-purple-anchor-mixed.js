@@ -319,8 +319,15 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
         for(let extra=0;extra<=horizon;extra++){
          if(held.size===shape.colors.length&&hasAll(getState(),desiredIds)){
           const final=getState();
-          routes.push(actionsToRoute(combined,final,initial,native,
-           desiredIds,'purple-between-replanned'));
+          const verifiedRoute=actionsToRoute(combined,final,initial,native,
+           desiredIds,'purple-between-replanned');
+          routes.push(verifiedRoute);
+          diagnostics.replannedCosts=diagnostics.replannedCosts||[];
+          if(diagnostics.replannedCosts.length<8)
+           diagnostics.replannedCosts.push({
+            anchorWash:time,pills:verifiedRoute.pills,
+            washes:verifiedRoute.washes,finalIds:final.talents.map(t=>t.id)
+           });
           reportBest('anchor-between');
           diagnostics.replanComplete=(diagnostics.replanComplete||0)+1;
           break;
