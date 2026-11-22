@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.10.33</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.10.34</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -201,7 +201,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.10.33: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.10.34: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -381,7 +381,7 @@ body{background:var(--bg)!important}
 .quest-branch-item small{font-size:11px;color:var(--sub);overflow-wrap:anywhere}
 .quest-branch-item>span{font-size:12px;white-space:nowrap;color:var(--sub)}
 
-/* v0.10.33: yy-sim spacing in native calculator containers. */
+/* v0.10.34: yy-sim spacing in native calculator containers. */
 .equip-primary-tabs{gap:5px;flex-wrap:wrap}
 .equip-primary-tabs button{min-height:36px;padding:8px 12px;border-radius:6px}
 .equipment-runtime-status{border-radius:7px;border:1px solid var(--border);border-left:3px solid var(--gold);background:var(--paper);color:var(--text)}
@@ -390,12 +390,12 @@ body{background:var(--bg)!important}
 .equipment-host iframe{border-radius:8px;background:var(--panel)}
 @media(max-width:700px){.equip-primary-tabs button{font-size:12px;padding:7px 10px}.drop-workspace{min-height:640px}.equipment-runtime-status{padding:9px 11px}}
 
-/* v0.10.33: CSV downloads are intentionally removed from the visible site. */
+/* v0.10.34: CSV downloads are intentionally removed from the visible site. */
 #washHistoryExport,#washPreviewExport,#washPathExport,
 #downloadAccountCultivation,#questBranchExport,#questExportCsv,
 button[data-export-csv],a[download$=".csv"]{display:none!important}
 
-/* v0.10.33: readable wash and equipment navigation */
+/* v0.10.34: readable wash and equipment navigation */
 .equip-directory,.equip-detail-full{padding:18px 0}
 .equip-directory>input{width:min(100%,700px);padding:13px;font-size:16px}
 .equip-directory-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin:18px 0}
@@ -412,7 +412,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .talent{min-height:86px}.talent-text b{font-size:15px}.talent-text small,.config-item,.wash-grade{font-size:13px}
 @media(max-width:700px){.equip-directory-list,.equip-detail-rows{grid-template-columns:1fr}}
 
-/* v0.10.33: wash automatic search readable selection panels */
+/* v0.10.34: wash automatic search readable selection panels */
 .wash-auto-groups{display:grid;gap:14px;margin:15px 0 18px}
 .wash-auto-group{border:1px solid var(--border);background:var(--panel);border-radius:9px;padding:3px 14px}
 .wash-auto-group{--wash-grade-color:var(--gold);--wash-grade-bg:color-mix(in srgb,var(--wash-grade-color) 10%,var(--panel))}
@@ -527,7 +527,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 [data-theme=ink] .equip-detail-full,[data-theme=ink] .equip-detail-full *{border-color:var(--border)}
 .wiki-equipment-details{width:100%;max-width:390px;margin:14px 0;padding:11px 14px!important;display:block;background:transparent!important;border:1px solid var(--gold)!important;color:var(--text)!important;font-weight:700}.wiki-equipment-details:hover{background:#ad8b4c22!important}
 
-/* v0.10.33: distinct equipment detail controls; colors signal functions, while
+/* v0.10.34: distinct equipment detail controls; colors signal functions, while
    their surfaces and active states use the integrated paper/ink palette. */
 .equip-detail-full .equip-detail-buttons{
  display:grid!important;
@@ -610,7 +610,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 @media(max-width:930px){.equip-detail-full .equip-detail-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:520px){.equip-detail-full .equip-detail-buttons{gap:9px!important}.equip-detail-full .equip-detail-choice{min-height:90px!important;padding:12px!important}.equip-detail-full .equip-detail-choice strong{font-size:17px!important}.equip-detail-full .equip-detail-choice span{font-size:11px!important}}
 
-/* v0.10.33: unified site controls and accessible low-contrast equipment tabs. */
+/* v0.10.34: unified site controls and accessible low-contrast equipment tabs. */
 :root{color-scheme:light}
 [data-theme=ink]{color-scheme:dark}
 .btn.primary{background:var(--gold)!important;border-color:var(--gold)!important;color:#fff!important;font-weight:700}
@@ -623,7 +623,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 [data-theme=ink] .equip-detail-full select{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
 @media(max-width:700px){.equip-primary-tabs button{font-size:14px!important;min-height:44px!important}}
 
-/* v0.10.33: compact four-function equipment navigation, warm site-native accents. */
+/* v0.10.34: compact four-function equipment navigation, warm site-native accents. */
 .equip-detail-full .equip-detail-buttons{gap:8px!important;margin:14px 0 12px!important}
 .equip-detail-full .equip-detail-choice{
  min-height:64px!important;padding:10px 13px!important;gap:3px!important;
@@ -671,7 +671,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .quest-region-picker select{font:inherit;min-height:40px;max-width:280px;padding:7px 10px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:6px}
 .quest-catalog-item summary{cursor:pointer;overflow-wrap:anywhere}.quest-catalog-description{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;max-width:100%;font-size:14px}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
-/* v0.10.33: compact wash view. Calculation controls are not changed. */
+/* v0.10.34: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
 .layout .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 16px;margin-bottom:9px}
 .layout .hero h2{font-size:18px;margin:0}
@@ -1304,7 +1304,7 @@ function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.10.33</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
+return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.10.34</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
 }
 
 function embeddedEngine(url,label,caption){
@@ -3713,7 +3713,7 @@ if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  link.download='Nangman_Quest_Branches_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questRegion='all';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.10.33',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questRegion='all';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.10.34',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 
 if($('equipSearch'))$('equipSearch').oninput=e=>{equipSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipSearch');x.focus();x.setSelectionRange(p,p)};
 if($('equipOwnSearch'))$('equipOwnSearch').oninput=e=>{equipOwnSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipOwnSearch');x.focus();x.setSelectionRange(p,p)};
@@ -4036,7 +4036,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.10.33',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.10.34',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;equipmentLastOriginalTab=null;render()}});
@@ -4795,7 +4795,7 @@ window.addEventListener('message',e=>{
  }
 });
 </script>
-<!-- v0.10.33: read-only localization audit with hidden dialogs, select choices and element paths. -->
+<!-- v0.10.34: read-only localization audit with hidden dialogs, select choices and element paths. -->
 <script>
 (function(){
   const hanja=/[\u3400-\u9fff]/;
