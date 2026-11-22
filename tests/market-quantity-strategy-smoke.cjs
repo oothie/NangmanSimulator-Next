@@ -70,4 +70,23 @@ assert(html.includes("marketStrategyGoal(target,save)"),'UI calculates saved rem
 assert(html.includes("plan('free'"),'zero-ingot route is visible');
 assert(html.includes('marketStrategyQuantity'),'non-limited products allow entered target quantity');
 assert(html.includes('목표 전체 수량'),'all-route UI must show completion goal');
+// Four featured limited goods always use the remaining stock. Other goods,
+// including catalog items with large stock caps, accept the manual quantity.
+const start=html.indexOf('function marketStrategyGoal(');
+const end=html.indexOf('function marketStrategyMarkup(',start);
+assert(start>0&&end>start);
+const getGoal=new Function('window','marketStrategyQuantity',
+ html.slice(start,end)+';return marketStrategyGoal')(
+ {NangmanMarket:{countsMap:market=>market||{}}},4);
+assert.equal(getGoal({id:223,stock:15},{RandShop:{Counts:{223:6}}}).quantity,9);
+assert.equal(getGoal({id:224,stock:15},{RandShop:{Counts:{224:2}}}).quantity,13);
+assert.equal(getGoal({id:222,stock:5},{RandShop:{Counts:{222:1}}}).quantity,4);
+assert.equal(getGoal({id:225,stock:1},{RandShop:{Counts:{225:0}}}).quantity,1);
+assert.equal(getGoal({id:229,stock:50},{RandShop:{Counts:{229:2}}}).quantity,4,
+ 'other stock-capped goods use entered count, not entire stock');
+assert.equal(getGoal({id:105},{RandShop:{Counts:{}}}).quantity,4);
+const long=st.searchStrategy([223],{mode:'free',quantity:9,periods:720});
+assert.equal(long.found,true);
+assert.equal(long.periods,720,'720 free forecast rotations must not be silently truncated');
+
 console.log('PASS: 9 remaining pages, deterministic free route, bought shelf isolation, whole-target cheapest/fastest and custom quantity UI');
