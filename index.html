@@ -3499,25 +3499,30 @@ function yyRoleGrowthOverview(role,kind){
  if(!model.available)return yyRoleSection('영구 성장 전체 보기','<p class="micro">계정 저장 변수(globalVariable)가 없습니다.</p>');
  const groups=model.items,values=groups.flatMap(g=>g.values);
  const completed=values.filter(x=>x.current!=null&&x.current>=x.max).length;
- const inProgress=values.filter(x=>x.current!=null&&x.current>0&&x.current<x.max).length;
- return yyRoleSection(kind==='training'?'수련 한눈에 보기':'단약 한눈에 보기',
- '<div class="role-grid stat-grid">'+[
-  ['전체 기록 항목',values.length+'개',groups.length+'종'],
-  ['완료',completed+'개','저장값 기준'],
-  ['진행 중',inProgress+'개','0회 제외'],
-  ['미시작',values.filter(x=>x.current===0).length+'개','0회 항목도 포함']
- ].map(([name,value,note])=>'<div class="stat-cell"><span class="label">'+escape(name)+'</span><span class="value">'+escape(value)+'</span><span class="sub">'+escape(note)+'</span></div>').join('')+'</div>'+
- '<p class="micro">0회 항목도 표시하며, 원본에는 있지만 한국 서버 출시 여부를 확인하지 못한 항목도 제외하지 않습니다. 세이브에 기록이 없다는 사실은 미출시의 증거가 아닙니다.</p>'+
- '<div class="yy-account-cards">'+groups.map(g=>
-  '<div class="yy-account-card"><strong>'+escape(g.title)+'</strong><small>'+
-   g.values.filter(x=>x.current!=null&&x.current>0).length+'/'+g.values.length+'개 진행</small>'+
-  '<div class="yy-account-values">'+g.values.map(x=>
-  '<span>'+escape(x.label)+' '+(x.current??'—')+'/'+x.max+'</span>').join('')+'</div></div>'
- ).join('')+'</div>');
+ const active=values.filter(x=>x.current!=null&&x.current>0&&x.current<x.max).length;
+ const title=kind==='training'?'수련':'단약';
+ return yyRoleSection(title+' · 전체 진행 요약',
+ '<div class="account-kpis">'+[
+ ['기록 항목',values.length+'개',groups.length+'분류'],
+ ['완료',completed+'개','저장 상한 기준'],
+ ['진행 중',active+'개','상한 미도달'],
+ ['미시작',values.filter(x=>x.current===0).length+'개','0회 포함']
+ ].map(([t,v,n])=>'<div class="account-kpi"><small>'+escape(t)+'</small><strong>'+escape(v)+'</strong><small>'+escape(n)+'</small></div>').join('')+'</div>'+
+ '<div class="account-track"><div class="account-track-top"><span>전체 '+escape(title)+' 완료율</span><b>'+completed+' / '+values.length+'</b></div>'+
+ accountProgressBar(completed,values.length,kind==='training'?'teal':'violet')+
+ '<small>항목 완료율입니다. 복용량·수련치 총합을 의미하지 않습니다.</small></div>'+
+ '<div class="account-track-grid">'+groups.map(g=>{
+  const done=g.values.filter(x=>x.current!=null&&x.current>=x.max).length;
+  const ongoing=g.values.filter(x=>x.current!=null&&x.current>0).length;
+  return '<details class="account-track"><summary><strong>'+escape(g.title)+'</strong><small> · '+done+'/'+g.values.length+'완료 · '+ongoing+'진행</small>'+
+  accountProgressBar(done,g.values.length,kind==='training'?'teal':'violet')+'</summary>'+
+  '<div class="yy-progress-list">'+g.values.map(x=>
+   '<div class="yy-progress-row"><span>'+escape(x.label)+'</span>'+
+   '<div>'+accountProgressBar(x.current,x.max,kind==='training'?'teal':'violet')+'</div>'+
+   '<b>'+(x.current??'—')+' / '+x.max+'</b></div>').join('')+'</div></details>';
+ }).join('')+'</div>'+
+ '<p class="micro">세이브에 기록이 없는 원본 항목도 0으로 표시됩니다. 한국판 미출시 여부는 별도의 출시 정보와 비교해야 합니다.</p>');
 }
-/* 한국판 실제 세이브: Branch/Achieves, EncryptMap.Plants/Kuangs, MapData, Fogs.
- * 비어 있는 슬롯을 0회 획득으로 해석하거나 카운터를 임의로 합산하지 않는다.
- * Read-only: 세이브의 맵/광맥 RNG, 타임스탬프, 수량을 절대 변경하지 않는다. */
 function yyAccountRecordAndResourceView(section='jianghu'){
  const root=Array.isArray(save)?save[0]:save||{};
  const dict=x=>x&&typeof x==='object'&&!Array.isArray(x)?x:{};
@@ -3672,8 +3677,9 @@ function characterView(){
    case 'equip':body=characterEquipView(raw)+characterEquipSourceView(raw)+characterEquipCombatSplitView(raw);break;
    case 'talent':body=yyRoleTalent(role)+characterWashView(role,save);break;
    case 'detail':body=characterDataAudit(role)+characterCombatFinal(role)+yyRoleDetail(role);break;
-   case 'training':body=yyRoleGrowthOverview(role,'training')+yyCultivationView(role)+yyOriginalCultivationEffectsView(role)+yyCultivationCrossCheckView(role)+yyProgressView(save,role,'training')+characterTrainingView(raw)+characterMeridianView(raw);break;
-   case 'consumable':body=yyRoleGrowthOverview(role,'consumable')+yyProgressView(save,role,'consumable');break;
+   case 'training':body=yyRoleGrowthOverview(role,'training')+yyCultivationView(role)+
+ accountFold('수련치 계산 · 원본 검사 및 경맥 상세',yyOriginalCultivationEffectsView(role)+yyCultivationCrossCheckView(role)+characterTrainingView(raw)+characterMeridianView(raw));break;
+   case 'consumable':body=yyRoleGrowthOverview(role,'consumable');break;
    case 'hengshan':body='<section class="role-section"><p class="wr-kicker">직무</p><p class="micro">항산파는 한국 서버 미출시 항목입니다. 원본 메뉴만 유지합니다.</p></section>';break;
    case 'other':body=yyProgressView(save,role,'other')+characterLifeView(raw);break;
    default:body=yyRolePanel(role);
