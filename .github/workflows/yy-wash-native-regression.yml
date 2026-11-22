@@ -25,6 +25,8 @@ on:
       - 'tests/yysim-native-grade-input-probe.cjs'
       - 'tests/yysim-native-quality-opcode-probe.cjs'
       - 'tests/yysim-anchor-native-probe.cjs'
+      - 'engine/yysim-purple-anchor-mixed.js'
+      - 'tests/yysim-purple-anchor-mixed-native.cjs'
       - 'index.html'
       - '.github/workflows/yy-wash-native-regression.yml'
   pull_request:
@@ -51,6 +53,8 @@ on:
       - 'tests/yysim-native-grade-input-probe.cjs'
       - 'tests/yysim-native-quality-opcode-probe.cjs'
       - 'tests/yysim-anchor-native-probe.cjs'
+      - 'engine/yysim-purple-anchor-mixed.js'
+      - 'tests/yysim-purple-anchor-mixed-native.cjs'
       - 'index.html'
       - '.github/workflows/yy-wash-native-regression.yml'
   workflow_dispatch:
@@ -116,5 +120,7 @@ jobs:
         run: node tests/yysim-native-quality-opcode-probe.cjs
       - name: Characterize purple anchor windows and green-blue wash native event semantics
         run: node tests/yysim-anchor-native-probe.cjs
+      - name: Verify user-requested purple-anchor nearest green-blue search against original WASM
+        run: node tests/yysim-purple-anchor-mixed-native.cjs
       - name: Verify original WASM native call graph
         run: node tests/yysim-wasm-callgraph.cjs
