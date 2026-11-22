@@ -300,6 +300,30 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  });
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base,
   'Production bound replay must not mutate character state');
+ // Compare real WASM replay when the character has only two starting
+ // talents or one pre-existing locked talent (common game-save states).
+ for(const fixture of [
+  {label:'two-slots',talents:source.talents.slice(0,2)},
+  {label:'one-locked',talents:source.talents.map((t,i)=>({...t,locked:i===0}))}
+ ]){
+  assert(wasmSetState({...source,talents:fixture.talents}));
+  const fingerprint=YYWashNativeSearchGuard.canonicalJson(wasmGetState());
+  const check=await YYWashPurpleAnchorMixed.run({
+   desiredIds:[271,268,272,184],maxPad:20,horizon:900,topN:2,
+   talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+   guard:YYWashNativeSearchGuard
+  });
+  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),fingerprint);
+  console.log('YY_PRODUCTION_SAVE_SHAPE '+JSON.stringify({
+   shape:fixture.label,routes:check.routes.length,
+   nativeReturned:check.diagnostics.purpleNativeReturned||0,
+   replayRejected:check.diagnostics.purpleReplayRejected||0,
+   errors:check.diagnostics.purpleReplayErrors||[],
+   attempts:check.diagnostics.purpleAttempts||0
+  }));
+  assert(wasmSetState(source));
+ }
  console.log('YY_PRODUCTION_20PAD_900_NATIVE '+JSON.stringify({
   routes:prodDefaults.routes.length,
   bestPills:prodDefaults.routes[0]?.pills??null,
