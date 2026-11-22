@@ -3859,9 +3859,10 @@ if($('yyAutoRun'))$('yyAutoRun').onclick=()=>{
   },(window.YYWashTargetCatalog||[]).flatMap(g=>g.items.map(t=>t.id)));
   const catalog=window.YYWashTargetCatalog||[];
   const colorSelected=input.desiredIds.some(id=>catalog.some(g=>g.quality!==4&&g.items.some(t=>t.id===id)));
+  if(colorSelected)throw Error('녹맥·파맥 확장은 원본 yy-sim WASM 알고리즘 재구현 중입니다. 기존 자체 순차·잠금 탐색은 제거했으며, 미검증 결과는 계산하지 않습니다.');
   runtime.autoOptions=input;runtime.autoProgress=null;runtime.autoResult=null;
   window.dispatchEvent(new CustomEvent('nangman-wash-command',{
-   detail:{op:colorSelected?'washEngineAutoIntermediate':'washEngineAutoProgressive',...input}}));
+   detail:{op:'washEngineAutoProgressive',...input}}));
  }catch(error){alert(String(error.message||error))}
 };
 if($('yyAutoPreview'))$('yyAutoPreview').onclick=()=>{
@@ -4498,9 +4499,8 @@ window.addEventListener('nangman-wash-command',async e=>{
   }
   const api=window.YYWashAutoSearch;
   if(!api?.options)throw Error('원본 자동 탐색 표시 모듈이 로드되지 않았습니다');
-  const isColor=op==='washEngineAutoColor'||op==='washEngineAutoIntermediate';
-  const allowed=(window.YYWashTargetCatalog||[]).flatMap(g=>g.items.map(t=>t.id));
-  const options=api.options(e.detail,isColor?allowed:
+  const isColor=false;
+  const options=api.options(e.detail,
    [248,249,250,251,261,262,263,264,266,267,268,269,270,271,272,276,277]);
   let lastProgressPaint=0,lastProgressPhase='';
   const updateProgress=progress=>{
@@ -4515,32 +4515,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   updateProgress({phase:'init',stage:'선택한 목표와 세이브 검증',percentage:0,
    completed:0,total:0,checked:0,found:0,bestPills:null});
   let result;
-  if(op==='washEngineAutoIntermediate'){
-   // A dedicated WASM iframe keeps the current simulated wash/locks/seeds immutable.
-   // For a linked session, search its current native state. Otherwise import the
-   // selected Korean save into the scratch copy without touching the live engine.
-   updateProgress({phase:'init',stage:'전용 WASM 계산 엔진 초기화',percentage:0,
-    completed:0,total:0,checked:0,found:0,bestPills:null});
-   await washSearchEngine.call('init');
-   ensureSession();
-   const reference=state.ready&&state.active&&state.origin==='save'&&state.linkedRoleId===source.role.id?
-    await washEngine.call('state'):null;
-   const native=reference||window.__nangmanBuildWashState(
-    source.save,source.role,await washSearchEngine.call('state'));
-   if(!native||!Array.isArray(native.talents))throw Error('중간 맥 탐색용 세이브 상태를 확인할 수 없습니다');
-   const copied=await washSearchEngine.call('set-state',native);
-   ensureSession();
-   if(!copied||Number(copied.seed)!==Number(native.seed)||
-      Number(copied.role_id)!==Number(source.role.id)||
-      copied.talents.length!==native.talents.length||
-      native.talents.some((slot,i)=>Number(slot.id)!==Number(copied.talents[i]?.id)||
-       !!slot.locked!==!!copied.talents[i]?.locked))
-    throw Error('중간 맥 탐색 전 별도 WASM 복사본 상태 검증 실패');
-   updateProgress({phase:'init',stage:'세이브 복사본 검증 완료 · 실제 분기 탐색 시작',
-    percentage:0,completed:0,total:0,checked:0,found:0,bestPills:null});
-   result=await washSearchEngine.call('auto-intermediate-search',options,updateProgress);
-  }else result=isColor?await washEngine.call('auto-color-search',options):
-   op==='washEngineAutoProgressive'?
+  result=op==='washEngineAutoProgressive'?
    await window.YYWashProgressive.run({
     call:(name,payload)=>washEngine.call(name,payload),
     ensureSession,api,...options,
@@ -4550,14 +4525,14 @@ window.addEventListener('nangman-wash-command',async e=>{
    await washEngine.call('auto-search',options);
   ensureSession();
   if(!result||!Array.isArray(result.result?.routes)||
-     !['wasmSearchWashRoutes','wasmColorSequentialSearch','wasmIntermediateTalentSearch'].includes(result.nativeFunction))
+     result.nativeFunction!=='wasmSearchWashRoutes')
    throw Error('세수 자동 탐색 결과를 읽지 못했습니다');
   state.autoProgress=null;
   state.autoResult={...result,colorSearch:isColor};
   state.autoDesiredIds=options.desiredIds;
   state.autoOptions=options;
   const analysis=api.routeOutcome(result.result,result.desiredIds);
-  state.output=(isColor?'녹·파·자맥 WASM 최종 조합 최소비용 탐색':'세수 자맥 자동 탐색')+' · 목표 '+options.desiredIds.map(id=>(window.__nangmanTalentKoName?.(id)||'재능 #'+id)).join(' / ')+
+  state.output='세수 자맥 자동 탐색'+' · 목표 '+options.desiredIds.map(id=>(window.__nangmanTalentKoName?.(id)||'재능 #'+id)).join(' / ')+
    ' · 탐색 분기 '+analysis.stats.scanned+'개 · 후보 '+analysis.stats.total+
    '개 · 목표 획득 경로 '+analysis.stats.complete+
    '개 · 실제 세이브 변경 없음';
