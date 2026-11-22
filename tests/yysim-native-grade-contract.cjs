@@ -46,7 +46,27 @@ const path=require('node:path');
      if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
       throw Error('read-only grade probe modified native state');
     }
-    return {rows,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
+    // Characterize optional fields described by original Rust serde metadata.
+    // This is diagnostic only: do not enable flags in user-facing auto-search.
+    const optionalRequests=[
+     {name:'defaults',req:{desired_ids:[271],max_pad:0,horizon:30,top_n:1}},
+     {name:'explicit-slot-policy',req:{desired_ids:[271],max_pad:0,horizon:30,top_n:1,
+      allow_open_slot:false,max_slots:4,allow_pity:false,max_preview:30,pill_budget:100}},
+     {name:'allow-open-slot',req:{desired_ids:[271],max_pad:0,horizon:30,top_n:1,
+      allow_open_slot:true,max_slots:4,allow_pity:true,max_preview:30,pill_budget:100}}
+    ];
+    const requestVariants=[];
+    for(const item of optionalRequests){
+     let response=null,error=null;
+     try{response=wasmSearchWashRoutes(item.req)}catch(e){error=String(e?.message||e)}
+     requestVariants.push({name:item.name,
+      returned:response?.routes?.length??null,
+      error:error||response?.error||null,
+      firstPills:response?.routes?.[0]?.pills??null});
+     if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
+      throw Error('original native request field probe mutated state');
+    }
+    return {rows,requestVariants,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
    })()`);
    const state=await washSearchEngine.call('state');
    return {outcome,preserved:JSON.stringify(state)===JSON.stringify(await washSearchEngine.call('state'))};
