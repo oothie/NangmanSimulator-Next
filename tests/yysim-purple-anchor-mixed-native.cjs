@@ -20,10 +20,11 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  const base=YYWashNativeSearchGuard.canonicalJson(source);
  const talentIds=new Map(Object.entries(TALENT_DATA).map(([id,t])=>
   [String(t.name),Number(id)]));
- function replayReturnedRoute(route){
-  assert(wasmSetState(source),'Native replay could not restore fixture');
+ function replayReturnedRoute(route,origin=source){
+  const expectedSource=YYWashNativeSearchGuard.canonicalJson(origin);
+  assert(wasmSetState(origin),'Native replay could not restore fixture');
   try{
-   let last=Number(source.total_wash);
+   let last=Number(origin.total_wash);
    for(const action of route.actions||[]){
     const wash=Number(action.wash_no);
     assert(Number.isInteger(wash)&&wash>=last,
@@ -57,12 +58,12 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
    const got=final.talents.map(t=>({id:Number(t.id),locked:!!t.locked}));
    const expected=route.final_slots.map(t=>({id:Number(t.id),locked:!!t.locked}));
    assert.deepEqual(got,expected,'Returned route actions do not replay to final four slots');
-   assert.equal(Number(final.total_pills)-Number(source.total_pills),
+   assert.equal(Number(final.total_pills)-Number(origin.total_pills),
     Number(route.pills),'Returned route native pill cost does not replay');
    return {pills:Number(route.pills),steps:route.actions.length,finalIds:got.map(t=>t.id)};
   }finally{
-   assert(wasmSetState(source));
-   assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base);
+   assert(wasmSetState(origin));
+   assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),expectedSource);
   }
  }
 
@@ -159,6 +160,62 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   routes:blue.routes.map(r=>({pills:r.pills,finalIds:r.final_slots.map(t=>t.id)})),
   diagnostics:blue.diagnostics,preserved:true
  }));
+ // Real loaded saves may ALREADY contain all purple anchors.
+ // Preserve existing selected colors as well; all four held should need
+ // ZERO additional washes, and the route must replay from the save.
+ const completeSave={...source,bag_pills:0,has_bag_pills:true,
+  talents:[{id:271,locked:true},{id:268,locked:true},
+   {id:272,locked:true},{id:184,locked:false}]};
+ assert(wasmSetState(completeSave));
+ const completeStart=wasmGetState();
+ const completeFingerprint=YYWashNativeSearchGuard.canonicalJson(completeStart);
+ const alreadyComplete=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[271,268,272,184],maxPad:0,horizon:900,topN:1,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:YYWashNativeSearchGuard
+ });
+ assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),
+  completeFingerprint,'Original WASM complete save modified after searching');
+ assert.equal(alreadyComplete.diagnostics.preexistingPurple,true);
+ assert.equal(alreadyComplete.routes.length,1,
+  'An already complete save must yield its exact zero-pill final route');
+ assert.equal(alreadyComplete.routes[0].pills,0);
+ assert(alreadyComplete.routes[0].final_slots.every(t=>t.locked),
+  'Already held green talent must be locked in resulting path');
+ console.log('YY_ALREADY_COMPLETE_WASM '+JSON.stringify(
+  replayReturnedRoute(alreadyComplete.routes[0],completeStart)));
+ assert(wasmSetState(source));
+ // Purple goals are already held but the green goal is not. The original
+ // WASM should search only the missing color, not force another purple route.
+ const heldPurples={...source,bag_pills:0,has_bag_pills:true,
+  talents:[{id:271,locked:true},{id:268,locked:true},
+   {id:272,locked:true},{id:171,locked:false}]};
+ assert(wasmSetState(heldPurples));
+ const heldStart=wasmGetState();
+ const heldFingerprint=YYWashNativeSearchGuard.canonicalJson(heldStart);
+ const missingGreen=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[271,268,272,184],maxPad:0,horizon:900,topN:1,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:YYWashNativeSearchGuard
+ });
+ assert.equal(missingGreen.diagnostics.preexistingPurple,true);
+ assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),
+  heldFingerprint,'Already held purple save mutated');
+ assert(missingGreen.routes.every(r=>[271,268,272,184].every(id=>
+  r.final_slots.some(t=>Number(t.id)===id&&t.locked))),
+  'Missing-green branch falsely completed final four talents');
+ for(const route of missingGreen.routes)
+  console.log('YY_HELD_PURPLES_MISSING_GREEN_REPLAY '+
+   JSON.stringify(replayReturnedRoute(route,heldStart)));
+ console.log('YY_HELD_PURPLES_NATIVE '+JSON.stringify({
+  searchedOnlyColors:missingGreen.diagnostics.preexistingPurple,
+  routes:missingGreen.routes.length,
+  bestPills:missingGreen.routes[0]?.pills??null,
+  preserved:true
+ }));
+ assert(wasmSetState(source));
  // The user can have zero pills in their save: a hypothetical native
  // route still must predict exact cost without modifying source inventory.
  const empty={...source,bag_pills:0,has_bag_pills:true};
