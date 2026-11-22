@@ -411,7 +411,7 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   assert(native.actions.some(step=>step.kind==='open_slot'),
    'Aptitude 153 user route must include an original open_slot action');
  }
- console.log('YY_USER_1121_ROUTE_ACTIONS '+JSON.stringify(roleMixed.routes[0]?.actions||[]));
+ console.log('YY_1121_INCOMPLETE_FIXTURE_ROUTE '+JSON.stringify({pills:roleMixed.routes[0]?.pills??null,washes:roleMixed.routes[0]?.washes??null}));
  // Separate source-state parity from the originally published minimal
  // 4285 fixture. These are scalar fields from the same Yi Il-jin save,
  // with the 7,592-key private globalVariable map intentionally omitted.
@@ -454,6 +454,12 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
    washes:probeResult.routes[0]?.washes??null,
    replayRejected:probeResult.diagnostics.purpleReplayRejected||0
   }));
+  assert.equal(probeResult.routes[0]?.pills,
+   variant.label==='salt-only'?4299:4285,
+   'The exact original-WASM pill discrepancy must be attributable to save salt');
+  assert.equal(probeResult.routes[0]?.washes,
+   variant.label==='salt-only'?856:700,
+   'The salt difference changes the whole native wash route, not pill rounding');
   assert(wasmSetState(mapped1121));
  }
  console.log('YY_1121_SCALARS_ONLY '+JSON.stringify({
@@ -463,7 +469,7 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   replayRejected:mappedResult.diagnostics.purpleReplayRejected||0
  }));
  assert(wasmSetState(source));
- console.log('YY_USER_1121_YI_ILJIN_MIXED '+JSON.stringify({
+ console.log('YY_1121_INCOMPLETE_FIXTURE '+JSON.stringify({
   goals:[272,249,266,234],zizhi:153,
   routes:roleMixed.routes.length,
   bestPills:roleMixed.routes[0]?.pills??null,
