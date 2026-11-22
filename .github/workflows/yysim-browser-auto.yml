@@ -16,6 +16,7 @@ on:
       - 'tests/yysim-wasm-callgraph.cjs'
       - 'tests/yysim-wasm-request-schema.cjs'
       - 'tests/yysim-wasm-module-map.cjs'
+      - 'tests/yysim-wasm-module-pointers.cjs'
       - '.github/workflows/yysim-browser-auto.yml'
   workflow_dispatch:
 jobs:
@@ -38,6 +39,8 @@ jobs:
         run: node tests/yysim-wasm-request-schema.cjs
       - name: Rust original wash_search module map
         run: node tests/yysim-wasm-module-map.cjs
+      - name: Original Rust source location pointers
+        run: node tests/yysim-wasm-module-pointers.cjs
       - name: Original route solver opcode callgraph
         run: node tests/yysim-wasm-callgraph.cjs
       - name: Native route single-call contract
