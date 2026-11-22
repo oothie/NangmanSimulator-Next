@@ -89,13 +89,37 @@ const path=require('node:path');
     // acquisitions or the presence of a JSON "routes" array. This isolates
     // whether original behavior rejects IDs at the request boundary or
     // produces paths that drop some goals before reaching the final state.
+    // Include the two four-slot user regression shapes, choosing native type
+    // compatible targets instead of assuming identical grade means compatible.
+    const picks=(grade,used,count)=>{
+     const choices=Object.values(TALENT_DATA).filter(t=>t?.pinzhi===grade&&
+      Number.isInteger(Number(t.id))&&Number.isInteger(Number(t.type))&&
+      Number(t.type)>0&&!used.has(Number(t.type)));
+     const found=[];
+     for(const t of choices){
+      if(found.length===count)break;
+      const family=Number(t.type);
+      if(used.has(family))continue;
+      used.add(family);found.push(Number(t.id));
+     }
+     if(found.length!==count)throw Error('Four-slot regression target catalog lacks type-safe candidates');
+     return found;
+    };
+    const threePurples=[271,268,272];
+    const usedThree=new Set(threePurples.map(id=>Number(TALENT_DATA[String(id)]?.type)));
+    const greenForThree=picks(2,usedThree,1);
+    const usedMixed=new Set([271,268].map(id=>Number(TALENT_DATA[String(id)]?.type)));
+    const blueForMixed=picks(3,usedMixed,1);
+    const greenForMixed=picks(2,usedMixed,1);
     const sets=[
      {name:'purple-only',ids:[271]},
      {name:'green-only',ids:[184]},
      {name:'blue-only',ids:[191]},
      {name:'green-purple',ids:[184,271]},
      {name:'blue-purple',ids:[202,271]},
-     {name:'green-blue-purple',ids:[184,202,271]}
+     {name:'green-blue-purple',ids:[184,202,271]},
+     {name:'three-purple-one-green',ids:[...threePurples,...greenForThree]},
+     {name:'two-purple-blue-green',ids:[271,268,...blueForMixed,...greenForMixed]}
     ];
     // Native type IDs identify overlapping upgrade families. In particular
     // blue 191 and purple 271 are BOTH type 177 and are unsuitable as
@@ -181,7 +205,7 @@ const path=require('node:path');
   });
   assert(audit.outcome.unchanged&&audit.preserved,'native grade audit mutated live state');
   assert.equal(audit.outcome.rows.length,3);
-  assert.equal(audit.outcome.mixedGoalResults.length,6);
+  assert.equal(audit.outcome.mixedGoalResults.length,8);
   // Characterized real WASM contract: original search explicitly forbids
   // green/blue-only goals and never completes these mixed final-slot fixtures.
   // If these assertions change after a native upgrade, investigate it instead
