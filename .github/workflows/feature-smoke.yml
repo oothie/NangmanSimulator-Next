@@ -20,6 +20,7 @@ on:
       - 'tests/dungeon-yysim-rng-parity.cjs'
       - 'tests/dungeon-dual-forecast-smoke.cjs'
       - 'tests/dungeon-one-time-ownership-smoke.cjs'
+      - 'tests/dungeon-v2-audit-smoke.cjs'
       - 'vendor/yysim/daily_data.js'
       - 'tests/quest-branch-smoke.cjs'
       - 'tests/character-source-smoke.cjs'
@@ -55,6 +56,7 @@ jobs:
           node tests/dungeon-yysim-rng-parity.cjs
           node tests/dungeon-dual-forecast-smoke.cjs
           node tests/dungeon-one-time-ownership-smoke.cjs
+          node tests/dungeon-v2-audit-smoke.cjs
       - name: Character stat source
         run: node tests/character-source-smoke.cjs
       - name: Character page layout
