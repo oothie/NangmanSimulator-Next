@@ -70,7 +70,9 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vend
  lock(177,true);wash(7,'lock 177 7');assert.equal(pills(),434);
  lock(271,true);wash(5,'lock 271 5');assert.equal(pills(),484);
  exchange(271,276);exchange(276,262);
- lock(177,false);lock(262,true);wash(19,'lock two purples 19');assert.equal(pills(),636);
+ lock(177,false);lock(262,true);
+ const manual128=JSON.parse(JSON.stringify(snapshot()));
+ wash(19,'lock two purples 19');assert.equal(pills(),636);
  lock(237,true);wash(28,'lock two purples and green 28');assert.equal(pills(),916);
  lock(204,true);step('four final talents');
  assert([268,262,237,204].every(id=>snapshot().talents.some(t=>
@@ -78,12 +80,32 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vend
  assert.equal(pills(),916);assert.equal(Number(snapshot().total_wash),175);
  console.log('PASS MOON_1121_ORIGINAL_WASM_916');
  assert(wasmSetState(nativeSource));
+ const variant128=[];
+ const getTrackedState=()=>{
+  const state=wasmGetState();
+  if(Number(state.total_wash)===128&&Number(state.total_pills)===484&&
+   [268,262].every(id=>state.talents.some(t=>Number(t.id)===id)))
+   variant128.push(JSON.parse(JSON.stringify(state)));
+  return state;
+ };
  const mixed=await YYWashPurpleAnchorMixed.run({
   desiredIds:[268,262,237,204],maxPad:0,horizon:900,topN:8,
-  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  talents:TALENT_DATA,getState:getTrackedState,setState:wasmSetState,
   search:wasmSearchWashRoutes,doWash:wasmDoWash,
   exchangeTalent:wasmExchangeTalent,guard:YYWashNativeSearchGuard
  });
+ const observed=variant128.find(x=>x.talents.some(t=>Number(t.id)===262&&t.locked));
+ if(observed){
+  const keys=new Set([...Object.keys(manual128),...Object.keys(observed)]);
+  const diffs=[...keys].filter(k=>
+   k!=='bag_pills'&&JSON.stringify(manual128[k])!==JSON.stringify(observed[k]));
+  console.log('MOON_128_VARIANT_DIFFERENCES '+JSON.stringify({
+   count:variant128.length,diffs:diffs.map(k=>({
+    key:k,manual:k==='global_vars'?'{private}':manual128[k],
+    automatic:k==='global_vars'?'{private}':observed[k]
+   }))
+  }));
+ }else console.log('MOON_128_VARIANT_DIFFERENCES no native 484 snapshot');
  console.log('MOON_NATIVE_OPTIMIZED '+JSON.stringify({
   pills:mixed.routes[0]?.pills??null,
   washes:mixed.routes[0]?.washes??null,
