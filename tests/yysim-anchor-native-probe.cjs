@@ -67,11 +67,11 @@ function summary(state){
     const targetId=currentId;
     const index=stateNow.talents.findIndex(t=>t.id===targetId);
     if(index<0)throw Error('Talent '+action.talent+' not held at wash '+target);
-    if(action.kind!=='keep'){
+    {
      const talents=stateNow.talents.map((t,i)=>i===index?
-      {...t,locked:action.kind==='lock'}:t);
+      {...t,locked:action.kind!=='unlock'}:t);
      if(!wasmSetState({...stateNow,talents}))
-      throw Error('Native lock state failed at '+target);
+      throw Error('Native lock/keep state failed at '+target);
     }
    }else if(action.kind==='exchange'){
     const index=stateNow.talents.findIndex(t=>t.id===sourceId);
