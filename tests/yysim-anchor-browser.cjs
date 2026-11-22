@@ -58,7 +58,7 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),
    const alreadyHeld={
     nativeFunction:held.nativeFunction,
     found:held.result?.routes?.length||0,
-    pills:zero?.pills??null,
+    pills:zero?.pills??null,globalMinimum:zero?.optimal===true,
     allLocked:zero?.final_slots?.every(t=>t.locked===true)??false,
     preserved:JSON.stringify(heldBefore)===JSON.stringify(heldAfter),
     hadAllPurples:held.nativeDiagnostics?.preexistingPurple===true
@@ -78,6 +78,8 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),
   assert.equal(report.alreadyHeld.nativeFunction,'wasmSearchWashRoutes');
   assert.equal(report.alreadyHeld.found,1,'Already-held goals must yield a verified native route');
   assert.equal(report.alreadyHeld.pills,0,'Already-held goals must consume zero additional pills');
+  assert(report.alreadyHeld.globalMinimum,
+   'Zero-pill completed route has proven global minimum cost');
   assert(report.alreadyHeld.allLocked,'Already-held four goals must end locked');
   assert(report.alreadyHeld.hadAllPurples,'Already-held goals must bypass native purple search');
   assert(report.alreadyHeld.preserved,'Already-held search must not mutate browser save');
