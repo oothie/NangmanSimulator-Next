@@ -28,6 +28,9 @@ Extend the ORIGINAL `search_wash_routes` native yy-sim optimizer to handle green
 - Exact native error `路径搜索只能预选紫脉` lives at linear-memory address 1069901. A reference to its string data occurs inside native core function4 at bytecode offset 5559 (pointer 1069931, length 71).
 - The error-text reference is a string assembly site, **not yet proven to be the conditional grade check**. Inspect preceding comparisons/branches; avoid blindly patching it.
 
+## Native request-flag bypass result
+`tests/yysim-native-quality-opcode-probe.cjs` now includes the isolated function4 bytecode patch at offset 5532: `i32.load8_u state+300` is replaced only in a disposable compiled copy with `drop; i32.const 0; nop` (four bytes). The variant retains the exact same original table and deterministic purple 271 baseline of 936 pills. In direct real native tests, BOTH green-only and blue-only are STILL rejected by `路径搜索只能预选紫脉`; mixed final slots remain incomplete. The comparison at offset 5532 is therefore **not sufficient to bypass the original native grade restriction**. Do not deploy this mutation.
+
 ## Pending next steps
 1. Follow the branch/dataflow preceding core4's native error builder; identify the grade predicate for the preselection and distinguish it from RNG's native quality distribution.
 2. Inspect function13 `next_purple` candidate-event loop beyond the 3 unsuccessful tested offsets.
