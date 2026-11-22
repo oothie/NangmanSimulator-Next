@@ -1,0 +1,20 @@
+name: Moon 1121 original WASM wash reproduction
+on:
+  push:
+    paths:
+      - 'tests/yysim-moon-1121-photo-native.cjs'
+      - 'engine/yysim-purple-anchor-mixed.js'
+      - 'vendor/yysim/core_glue.js'
+      - 'vendor/yysim/wasm_data.js'
+      - '.github/workflows/moon-1121-native.yml'
+  workflow_dispatch:
+jobs:
+  moon-1121-photo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/yysim-moon-1121-photo-native.cjs
