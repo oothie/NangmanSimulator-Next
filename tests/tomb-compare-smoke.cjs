@@ -41,6 +41,7 @@ assert(html.includes('src="./tomb-compare.js"'));
 assert(html.indexOf('tomb-core.js')<html.indexOf('tomb-compare-core.js'));
 assert(html.indexOf('tomb-compare-core.js')<html.indexOf('tomb-compare.js'));
 assert(html.indexOf('<section id="wildDrop"')<html.indexOf('<section id="tombSaveCompare"'));
-assert(!html.slice(html.indexOf('<section id="wildDrop"'),html.indexOf('<section id="tombSaveCompare"')).includes('</section>'),
- 'save comparison remains nested inside the wild tab');
+const between=html.slice(html.indexOf('<section id="wildDrop"'),html.indexOf('<section id="tombSaveCompare"'));
+const nesting=[...between.matchAll(/<\\/?section\\b[^>]*>/g)].reduce((d,m)=>d+(m[0].startsWith('</')?-1:1),0);
+assert(nesting>0,'save comparison remains nested inside wild tab even when earlier nested sections close');
 console.log('PASS: Diling before/after saved RNG delta and dual-source-order hypothesis checks');
