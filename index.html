@@ -1051,7 +1051,7 @@ if(sub==='auto'){
   const af=a.x.complete&&a.x.estimatedPills!=null&&ownedPills!=null&&a.x.estimatedPills<=ownedPills;
   const bf=b.x.complete&&b.x.estimatedPills!=null&&ownedPills!=null&&b.x.estimatedPills<=ownedPills;
   return Number(bf)-Number(af)||a.i-b.i;
- }).map(({x,i})=>{
+ }).map(({x,i},displayIndex)=>{
   const budgetKnown=ownedPills!=null&&x.estimatedPills!=null;
   const affordable=x.complete&&budgetKnown&&x.estimatedPills<=ownedPills;
   const shortage=budgetKnown?Math.max(0,x.estimatedPills-ownedPills):null;
@@ -1082,7 +1082,7 @@ if(sub==='auto'){
   }).join('');
   const slots=x.finalSlots.map(a=>'<span class="wash-guide-slot">'+escape(talentName(a.id))+(a.locked?' · 잠금':'')+'</span>').join('');
   return '<section class="wash-guide-route">'+
-   '<div class="wash-guide-heading"><div><span class="wash-guide-eyebrow">'+(affordable?'보유량 내 실행 가능':i===0?'가장 적은 세수단 후보':'추가 경로 '+(i+1))+'</span>'+
+   '<div class="wash-guide-heading"><div><span class="wash-guide-eyebrow">'+(affordable?'보유량 내 실행 가능':displayIndex===0?'가장 적은 세수단 후보':'추가 경로 '+(displayIndex+1))+'</span>'+
    '<h4>'+escape(Number(x.estimatedPills??0).toLocaleString())+'개 <small>세수단</small></h4></div>'+
    '<div class="wash-guide-summary"><span>총 세수 '+escape(x.estimatedWashes??'—')+'회</span>'+
    '<span>치환 '+escape(x.exchanges??'—')+'회</span>'+
@@ -1091,12 +1091,12 @@ if(sub==='auto'){
    '<div class="wash-guide-actions"><button type="button" class="btn" data-yy-copy-route="'+i+'">전체 경로 복사</button>'+
    (x.complete?'<button type="button" class="btn" data-yy-replay-route="'+i+'" '+(!replayable||state.loading?'disabled':'')+'>모의 실행으로 확인</button>':'')+'</div>'+
    (replayError?'<p class="micro">모의 실행 제한: '+escape(replayError)+'</p>':'')+
-   (i>0?'<details class="wash-guide-alternative"><summary>다른 경로의 세수 단계 펼치기</summary>':'')+
+   (displayIndex>0?'<details class="wash-guide-alternative"><summary>다른 경로의 세수 단계 펼치기</summary>':'')+
    '<h5 class="wash-guide-section-title">따라 하기 · '+x.actions.length+'단계</h5>'+
    (steps?'<ol class="wash-guide-steps">'+steps+'</ol>':'<p>실행할 세수 단계가 없습니다.</p>')+
    '<h5 class="wash-guide-section-title">최종 보유 재능</h5>'+
    '<div class="wash-guide-slots">'+slots+'</div>'+
-   (i>0?'</details>':'')+'</section>';
+   (displayIndex>0?'</details>':'')+'</section>';
  }).join('')+'</div>':'';
  const completeCostRoutes=analyzed?.routes?.filter(x=>x.complete&&x.estimatedPills!=null)||[];
  const affordableCount=ownedPills==null?null:completeCostRoutes.filter(x=>x.estimatedPills<=ownedPills).length;
