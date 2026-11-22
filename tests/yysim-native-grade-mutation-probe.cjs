@@ -52,7 +52,9 @@ const {chromium}=require('playwright'),cp=require('node:child_process'),path=req
      if(!wasmInitEngine(TALENT_DATA,ZZ_DATA)||!wasmSetState(initial))
       throw Error('Unable to restore original WASM grade and state');
     }
+    const replay=query();
     return {id,originalGrade:oldGrade,baseline:before,spoofed,probeError,
+     searchOutputRestored:JSON.stringify(replay)===JSON.stringify(before),
      restoredGrade:TALENT_DATA[String(id)].pinzhi,
      originalSnapshotRestored:JSON.stringify(initial)===JSON.stringify(wasmGetState()),
      warning:'Spoofing a grade changes the game pool, so no result is a valid gameplay route'};
@@ -61,6 +63,7 @@ const {chromium}=require('playwright'),cp=require('node:child_process'),path=req
   assert.equal(result.originalGrade,2);
   assert.equal(result.restoredGrade,2);
   assert(result.originalSnapshotRestored,'isolated WASM probe did not restore snapshot');
+  assert(result.searchOutputRestored,'reinitialized original WASM route response changed after diagnostic');
   console.log('NATIVE_GRADE_GATE_PROBE',JSON.stringify(result));
  }finally{await browser?.close();server.kill('SIGTERM')}
 })().catch(error=>{console.error(error);process.exitCode=1});
