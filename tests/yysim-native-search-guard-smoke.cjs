@@ -35,6 +35,13 @@ const canonicalA={seed:99,global_vars:{a:1,b:{first:2,second:3}},
 const canonicalB={talents:[{locked:false,id:184},{locked:true,id:271}],
  global_vars:{b:{second:3,first:2},a:1},seed:99};
 assert.equal(guard.canonicalJson(canonicalA),guard.canonicalJson(canonicalB));
+// Native JSON may carry arbitrary global variable names. Canonicalization
+// must not silently discard keys such as __proto__.
+const exceptional=JSON.parse('{"global_vars":{"__proto__":19,"constructor":2}}');
+const exceptionalChanged=JSON.parse('{"global_vars":{"constructor":2,"__proto__":20}}');
+assert(!guard.statesEqual(exceptional,exceptionalChanged),
+ 'special native JSON keys must still participate in state comparison');
+
 assert(guard.statesEqual(canonicalA,canonicalB));
 assert(!guard.statesEqual(canonicalA,{...canonicalB,seed:100}),
  'actual seed changes must never be ignored');
