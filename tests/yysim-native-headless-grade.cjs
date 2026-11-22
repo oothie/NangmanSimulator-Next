@@ -45,7 +45,7 @@ async function main(){
    {id:173,locked:false},{id:174,locked:false}],
   total_wash:0,total_pills:0,bag_pills:20000,has_bag_pills:true};
  assert(wasmSetState(seedState),'Native test state rejected');
- const baseline=serialize(wasmGetState());
+ const baseline=YYWashNativeSearchGuard.canonicalJson(wasmGetState());
  const grades=[
   {name:'purple',ids:[271]},
   {name:'green',ids:[184]},
@@ -71,7 +71,7 @@ async function main(){
    },request);
   }catch(e){error=String(e?.message||e)}
   const elapsedMs=+(performance.now()-begin).toFixed(2);
-  assert.equal(serialize(wasmGetState()),baseline,
+  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),baseline,
    'WASM changed source state on '+item.name);
   const summary=error?{classification:'native-exception',error,complete:0,
    candidates:0}:goalResult(raw,item.ids);
@@ -86,7 +86,7 @@ async function main(){
   try{raw=YYWashNativeSearchGuard.run({
    getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes
   },request)}catch(e){error=String(e?.message||e)}
-  assert.equal(serialize(wasmGetState()),baseline,
+  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),baseline,
    'Repeat purple call mutated original state');
   attempts.push({json:serialize(raw),error,ms:+(performance.now()-started).toFixed(2)});
  }
