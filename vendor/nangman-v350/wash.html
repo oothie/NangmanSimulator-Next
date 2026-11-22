@@ -404,8 +404,7 @@ html[data-theme=ink] input,html[data-theme=ink] button,
 html[data-theme=ink] select,html[data-theme=ink] textarea,
 html[data-theme=ink] table,html[data-theme=ink] th,html[data-theme=ink] td{
  background-color:#242730!important;color:#ece6dd!important;border-color:#52545b!important}
-html[data-theme=ink] .active,html[data-theme=ink] button.primary{
- background:#765c37!important;color:#fff!important}
+html[data-theme=ink] button.primary{background:var(--site-accent)!important;color:#17191e!important}
 </style><style id="nangman-v350-theme-contrast-v01057">
 /* The embedded simulator inherits the current site palette immediately.
    Keep grade colors distinct without making text unreadable in ink mode. */
@@ -420,6 +419,13 @@ html:not([data-theme="ink"]){
  --wash-soft-gold:#f3e6cd;color-scheme:light;
 }
 html,body{background:var(--wash-elevated)!important;color:var(--wash-ink)!important}
+/* A global .active rule previously colored the entire raw-result pane brown. */
+html[data-theme="ink"] #washModule :is(.pane.active,#rawPane.active,#simPane.active,#nPane.active,#pityPane.active){
+ background:var(--wash-elevated)!important;color:var(--wash-ink)!important;
+}
+html[data-theme="ink"] #washModule .tabs button.active,
+html[data-theme="ink"] #washModule button.primary{background:var(--wash-accent)!important;color:#17191e!important}
+
 #washModule .card,#washModule details,#washModule .sim-left,
 #washModule .sim-right,#washModule .scroll,#washModule .sim-right>.card{
  background:var(--wash-card)!important;color:var(--wash-ink)!important;
