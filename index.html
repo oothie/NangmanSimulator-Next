@@ -4525,7 +4525,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   let result;
   result=op==='washEngineAutoProgressive'?
    await window.YYWashProgressive.run({
-    call:(name,payload)=>washEngine.call(name,payload),
+    call:(name,payload,onProgress)=>washEngine.call(name,payload,onProgress),
     ensureSession,api,...options,
     onProgress:progress=>updateProgress({...progress,
      percentage:progress.indeterminate?null:progress.phase==='verified'?100:null})
