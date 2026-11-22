@@ -33,7 +33,7 @@ const {chromium}=require('playwright');
    ];
    const worker=new Worker('./vendor/yysim/native-search-worker.js');
    const responses=[];
-   const before=JSON.stringify(state);
+   const equal=frame.YYWashNativeSearchGuard.statesEqual;
    try{
     for(let i=0;i<reqs.length;i++){
      const req=reqs[i];
@@ -44,7 +44,7 @@ const {chromium}=require('playwright');
       expected=frame.eval('window.YYWashNativeSearchGuard.run({getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes},'+serialized+')');
      }catch(err){directError=String(err?.message||err)}
      const directMs=Math.round((performance.now()-started)*100)/100;
-     if(JSON.stringify(await washSearchEngine.call('state'))!==before)
+     if(!equal(await washSearchEngine.call('state'),state))
       throw Error('Native iframe comparison mutated original WASM state');
      const job=new Promise((resolve,reject)=>{
       const id=i+1;
@@ -62,7 +62,7 @@ const {chromium}=require('playwright');
      const startedWorker=performance.now();
      const workerResult=await job;
      const workerMs=Math.round((performance.now()-startedWorker)*100)/100;
-     if(JSON.stringify(await washSearchEngine.call('state'))!==before)
+     if(!equal(await washSearchEngine.call('state'),state))
       throw Error('Worker diagnostic modified the main WASM instance');
      // Error text may be wrapped by the state guard. Preserve raw native
      // diagnostics, but do not mistake an expected mixed-grade rejection for
@@ -80,7 +80,7 @@ const {chromium}=require('playwright');
       matching:nativeParity,comparisonValid:!directError&&workerResult.ok});
     }
    }finally{worker.terminate()}
-   return {responses,mainStatePreserved:JSON.stringify(await washSearchEngine.call('state'))===before};
+   return {responses,mainStatePreserved:equal(await washSearchEngine.call('state'),state)};
   });
   assert(evidence.mainStatePreserved,'live native state changed');
   const purple=evidence.responses.find(r=>r.name==='purple');
