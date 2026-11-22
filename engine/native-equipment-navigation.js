@@ -16,7 +16,7 @@
   ];
   const subtabs=[
     ['빠른 조회',PATHS.quick,'quick'],['자동 탐색',PATHS.auto,'auto'],
-    ['수동 제작·정련',PATHS.manual,'manual'],['유일템','/#equip','orange'],
+    ['수동 제작·정련',PATHS.manual,'manual'],
     ['검왕각 수동',PATHS.jianwang,'jianwang'],['검왕각 자동',PATHS.jianwangAuto,'jianwangAuto']
   ];
   const style=document.createElement('style');
