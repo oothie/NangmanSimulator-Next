@@ -18,8 +18,34 @@ const TALENT_DATA={'184':{id:184,pinzhi:2,type:177,name:'气息浑厚'},
  '268':{id:268,pinzhi:4,type:268,name:'天生神力'},
  '272':{id:272,pinzhi:4,type:272,name:'岿然顶天'}};
 let requestCount=0,returnCompleteMixed=false;
+// Node VM has no browser Worker. Mock only the transport boundary; the
+// separate Chromium regression executes the real Worker + original WASM.
+class FakeWorker {
+ constructor(){this.onmessage=null;this.onerror=null;this.onmessageerror=null;this.stopped=false}
+ postMessage(packet){
+  Promise.resolve().then(()=>{
+   if(this.stopped)return;
+   const raw=ctx.wasmSearchWashRoutes(packet.request);
+   const ids=packet.request.desired_ids;
+   const isMixed=ids.some(id=>TALENT_DATA[String(id)].pinzhi!==4);
+   const complete=raw.routes.filter(route=>{
+    const present=new Set(route.final_slots.map(item=>Number(item.id)));
+    return ids.every(id=>present.has(id));
+   }).length;
+   const diagnostics={isMixed,returned:raw.routes.length,complete,
+    incomplete:raw.routes.length-complete,
+    unsupportedNotProven:isMixed&&complete===0};
+   this.onmessage?.({data:{kind:'nangman-native-auto-result',
+    requestId:packet.requestId,ok:true,data:{
+     result:raw,nativeDiagnostics:diagnostics,nativeFunction:'wasmSearchWashRoutes'
+    }}});
+  });
+ }
+ terminate(){this.stopped=true}
+}
+
 const ctx={window:fakeWindow,parent:fakeParent,location:{origin:'https://local.test'},
- TALENT_DATA,ZZ_DATA:{},EMBEDDED_WASM_B64:'fixture',setTimeout,
+ TALENT_DATA,ZZ_DATA:{},EMBEDDED_WASM_B64:'fixture',setTimeout,clearTimeout,Worker:FakeWorker,
  initWasm:async()=>true,wasmInitEngine:()=>true,
  wasmGetState:()=>JSON.parse(JSON.stringify(state)),
  wasmSetState:newState=>{Object.assign(state,JSON.parse(JSON.stringify(newState)));return true},
