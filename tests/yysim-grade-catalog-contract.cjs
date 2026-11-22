@@ -60,7 +60,7 @@ assert(host.includes('wasmSearchWashRoutes'),
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(page.includes('녹·파맥 원본 WASM 실험 탐색'),
  'Mixed native WASM calls must be labeled experimental, never solved');
-assert(page.includes('최종 슬롯에 모든 목표 재능이 남지 않으면 실패'),
- 'Mixed native UI must not claim incomplete paths as an achievement');
+assert(page.includes('실제 WASM 세수·잠금·치환으로 최종 네 목표를 검증'),
+ 'Mixed native UI must verify all final slots, never claim transient grades');
 console.log('PASS: source-matched grade catalog counts',JSON.stringify(counts),
  'no dummy IDs, experimental original-native mixed IDs, strict final routes');
