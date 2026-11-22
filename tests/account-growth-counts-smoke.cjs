@@ -34,7 +34,7 @@ const account=new Function('yyRoleSection','accountFold','accountProgressBar','y
 const view=account([{r:main},{r:companion}]);
 assert(view.includes('용호단'),'shows a row per pill');
 assert(view.includes('5 / 5')&&view.includes('4 / 5'),'shows actual counts side by side');
-assert(view.includes('66 / ?'),'unknown pill max correctly displayed');
+assert(view.includes('66')&&!view.includes('66 / ?'),'uncapped qualification pill shows only ingested count');
 assert(!view.includes('완료1 진행1'),'no abstract group counts substituted for pills');
 const roleSource=extract('function yyRoleGrowthOverview(','function yyAccountRecordAndResourceView(');
 const roleView=new Function('yyProgressEntries','yyRoleSection','accountProgressBar','escape','save',roleSource+';return yyRoleGrowthOverview')(
