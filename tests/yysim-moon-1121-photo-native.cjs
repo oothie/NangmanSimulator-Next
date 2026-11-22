@@ -94,7 +94,7 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vend
   search:wasmSearchWashRoutes,doWash:wasmDoWash,
   exchangeTalent:wasmExchangeTalent,guard:YYWashNativeSearchGuard
  });
- const observed=variant128.find(x=>x.talents.some(t=>Number(t.id)===262&&t.locked));
+ const observed=variant128.find(x=>x.talents.some(t=>Number(t.id)===262&&t.locked)&&x.talents.some(t=>Number(t.id)===177&&!t.locked));
  if(observed){
   const keys=new Set([...Object.keys(manual128),...Object.keys(observed)]);
   const diffs=[...keys].filter(k=>
