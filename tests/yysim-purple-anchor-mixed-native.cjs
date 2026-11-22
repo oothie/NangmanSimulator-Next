@@ -29,6 +29,9 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  });
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base,
   'Purple anchor scan must restore exact user WASM state');
+ assert(out.routes.length>0,'3 purple plus green must find an actual native final route');
+ assert(out.routes[0].pills>0&&out.routes[0].pills<=7357,
+  'Purple/green regression exceeded validated native route cost');
  assert(out.routes.every(r=>[271,268,272,184].every(id=>
   r.final_slots.some(t=>Number(t.id)===id))),'Unverified goal in results');
  assert(out.routes.every(r=>r.optimal===false),'Do not claim global optimality');
@@ -43,6 +46,11 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  });
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base,
   'Two-purple anchor search must restore exact original state');
+ assert(two.routes.length>0,'Two purple plus two colors must yield a final native route');
+ assert(two.routes[0].pills>0&&two.routes[0].pills<=5032,
+  'Two-color route exceeds validated native cost');
+ assert(two.diagnostics.replanAttempts>0&&two.diagnostics.replanNativeRoutes>0,
+  'Remaining-purple original WASM native replanning was not exercised');
  assert(two.routes.every(r=>[271,268,184,202].every(id=>
   r.final_slots.some(t=>Number(t.id)===id))),'Two-color result has missing final slot');
  assert(two.routes.every(r=>r.optimal===false),'A bounded search is not globally optimal');
