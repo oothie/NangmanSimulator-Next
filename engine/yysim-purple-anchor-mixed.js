@@ -56,7 +56,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
   if(!setState(clone(state))||!guard.statesEqual(getState(),state))
    throw Error('원본 WASM 분기 상태를 복구할 수 없습니다');
  };
- const washTo=target=>{
+ const washTo=(target,pillCeiling=Infinity)=>{
   const current=count(getState(),'total_wash');
   if(target<current||target-current>6000)
    throw Error('원본 WASM 세수 회차가 역행하거나 탐색 제한을 초과했습니다');
@@ -64,6 +64,8 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    const result=doWash();
    if(!result||result.error||count(getState(),'total_wash')!==wash+1)
     throw Error('원본 WASM 세수 '+(wash+1)+'회 진행 실패');
+   if(count(getState(),'total_pills')-count(initial,'total_pills')>=pillCeiling)
+    throw Error('검증된 최저 세수단보다 비싼 재탐색 분기');
   }
  };
  function lockId(id,locked){
@@ -269,7 +271,10 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
          const washNo=originalWash+washShift;
          if(washNo<count(getState(),'total_wash'))
           throw Error('재탐색의 세수 회차가 이전 회차로 돌아갑니다');
-         washTo(washNo);
+         const incumbent=Math.min(Infinity,...routes.map(r=>r.pills));
+         if(count(getState(),'total_pills')-count(initial,'total_pills')>=incumbent)
+          throw Error('검증된 최소 비용을 이미 초과한 재탐색 분기');
+         washTo(washNo,incumbent);
          const id=names.get(String(step.talent));
          if(['lock','unlock','keep'].includes(step.kind)){
           // The original purple-only native plan would erase a previously
