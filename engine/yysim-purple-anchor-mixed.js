@@ -622,6 +622,12 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
      order,returned:attempt?.routes?.length||0,
      scanned:attempt?.scanned??0,error:attempt?.error||null
     });
+    diagnostics.purpleNativeScanned=(diagnostics.purpleNativeScanned||0)+
+     (Number(attempt?.scanned)||0);
+    progress({phase:'anchor-purple',nativeAttempts:diagnostics.purpleAttempts,
+     purpleRoutes:attempt?.routes?.length||0,
+     scannedWashes:diagnostics.scannedWashes,candidateRoutes:0});
+    await new Promise(resolve=>setTimeout(resolve,0));
     if(!baseline)baseline=attempt;
     if(attempt?.routes?.length){
      baseline=attempt;
@@ -721,8 +727,14 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
  }finally{restore(originalState)}
  routes.sort((a,b)=>a.pills-b.pills||a.washes-b.washes);
  return {routes:routes.slice(0,topN),scanned:diagnostics.scannedWashes,
-  diagnostics,error:routes.length?null:'자맥 확정 후 녹·파맥 최종 보유 경로 미발견 (검색 범위 내)',
-  nativePurpleScanned:baseline?.scanned??0};
+  diagnostics,error:routes.length?null:
+   diagnostics.purpleNoRoute?
+    '선택한 자맥의 원본 WASM 기준 경로가 검색 범위 내 0개입니다. 자맥 순서 '+
+    diagnostics.purpleAttempts+'개를 검사했지만 기준 경로가 없어 녹·파맥 분기는 시작되지 않았습니다.':
+    diagnostics.replayed===0?
+     '원본 자맥 경로가 반환됐지만 실제 세이브 상태에서 재현되지 않았습니다. 재현 실패 진단을 확인하세요.':
+     '자맥 기준 경로는 재현됐지만 최종 녹·파맥을 모두 보유하는 경로를 찾지 못했습니다 (검색 범위 내)',
+  nativePurpleScanned:diagnostics.purpleNativeScanned??baseline?.scanned??0};
 }
 root.YYWashPurpleAnchorMixed={requestShape,run,sampleIntervalCandidates,sampleMixedColorCandidates};
 })(window);
