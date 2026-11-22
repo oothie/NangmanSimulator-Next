@@ -13,6 +13,7 @@ on:
       - 'tests/yysim-native-single-pass.cjs'
       - 'tests/yysim-wasm-route-audit.cjs'
       - 'tests/yysim-wasm-callgraph.cjs'
+      - 'tests/yysim-wasm-request-schema.cjs'
       - '.github/workflows/yysim-browser-auto.yml'
   workflow_dispatch:
 jobs:
@@ -31,6 +32,8 @@ jobs:
           npm install --no-save --ignore-scripts playwright@1.57.0
       - name: Original native WASM route export inspection
         run: node tests/yysim-wasm-route-audit.cjs
+      - name: Original WASM request metadata contract
+        run: node tests/yysim-wasm-request-schema.cjs
       - name: Original route solver opcode callgraph
         run: node tests/yysim-wasm-callgraph.cjs
       - name: Native route single-call contract
