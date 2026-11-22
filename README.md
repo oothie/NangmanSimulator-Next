@@ -5,6 +5,8 @@
 현재 코드 버전: **v0.10.16**
 
 ## v0.10.16 — 원본 yy-sim 경로 탐색 실제 핵심 함수 재지정
+- `tests/yysim-wasm-callgraph.cjs`를 다시 보강하여 실제 코어 후보 4번 함수의 하위 호출을 2단계 추적하고 `TalentData.pinzhi` 검사 후보를 정수 `2/3/4` 주변의 **메모리 로드 + 비교 명령** 형태로 기록합니다. 분석 결과는 후보 목록이며 실제 등급 필드 오프셋 확정 전에는 바이너리를 수정하지 않습니다.
+- `tests/yysim-wasm-route-audit.cjs`에서 기존 `solverCandidate`라는 잘못된 명칭을 `requestAdapterCandidate`로 교정했습니다. 지금까지의 자동탐색 기능은 동일합니다.
 - 원본 바이너리의 Rust 소스 위치 문자열에서 `src/wash_search/next_purple.rs`, `exchange.rs`, `slots.rs`, `pity.rs`, `memo.rs`, `replay.rs`, `start.rs`, `vehicle_wait.rs`, `ticket.rs`, `luck_walk.rs`, `pad.rs`를 발견했습니다. `next_purple` 이름은 원본이 자맥 이벤트를 활용할 가능성을 시사하지만, 실제 호출 관계 및 등급 제한 코드는 아직 미확정입니다.
 - WASM 데이터 섹션의 파일 위치를 선형 메모리 주소로 변환하고 Rust 소스 위치 메타데이터가 실제로 남아 있는지 확인하는 읽기 전용 검사기를 추가했습니다. `tests/yysim-wasm-module-map.cjs`, `tests/yysim-wasm-module-pointers.cjs`를 GitHub Actions에 연결했습니다.
 - WASM 명령어 호출 순서를 통해 외부 `search_wash_routes`(960번, 143바이트) → 요청/응답 처리 78번(4,055바이트) → **핵심 계산 후보 4번(20,164바이트)** 연결을 확인했습니다. 78번 함수에서 30번 함수를 호출하고 4번을 호출한 다음 30번을 다시 호출하는 순서입니다. 30번 함수의 역할은 아직 확정하지 않았습니다.
