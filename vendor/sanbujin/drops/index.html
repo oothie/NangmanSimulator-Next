@@ -181,13 +181,19 @@ body .dungeon-coverage strong{font-size:14px}
     <tbody id="dungeonDualBody"></tbody>
    </table>
   </div>
-  <details class="dungeon-v2-panel" id="dungeonV2Panel">
-   <summary>신규 RNG 엔진 v2 · 별도 계산 결과 확인 (검증 중)</summary>
-   <p class="progress-note">원본 yy-sim 테이블의 추가 난수 호출과 산부진 원본 스크립트의 호출 순서를 각각 독립 추적합니다. 1122 실측 불일치가 남아 있어 확정 드랍 예측으로 사용하지 마세요. 실제 세이브는 변경하지 않습니다.</p>
-   <p id="dungeonV2Status" role="status"></p>
-   <div class="dungeon-dual-scroll">
-     <table class="dungeon-dual-table"><thead><tr><th>보스</th><th>yy-sim 재구성 v2</th><th>산부진 원본 재생 v2</th></tr></thead><tbody id="dungeonV2Body"></tbody></table>
+  <details class="dungeon-v2-panel" id="dungeonV3Panel" open>
+   <summary>RNG 역추적 엔진 v3 · 실측 9보스 비교 (검증 중)</summary>
+   <p class="progress-note">벽유교 → 창옥 → 유씨별원 실측 장비·색상을 검증 기준으로 사용합니다. 아래 두 열은 이전 모델 예측을 그대로 표시하며 실측 결과로 덮어쓰지 않습니다. 실제 RNG 호출 복원 완료 전에는 확정 예측이 아닙니다.</p>
+   <div class="wild-fields">
+    <label>실측 이후 세이브 JSON (선택, 브라우저에서만 분석)<input type="file" id="dungeonV3AfterSave" accept=".json,application/json"></label>
+    <button type="button" id="dungeonV3ClearAfter">비교 세이브 해제</button>
    </div>
+   <p class="progress-note">역추적용 시작 세이브는 현재 불러온 세이브입니다. 종료 세이브는 위 순서로 관문을 1회씩 진행한 직후의 파일이어야 합니다. 다른 전투·보상·갱신이 끼어들었다면 RNG 호출 수가 달라질 수 있습니다.</p>
+   <p id="dungeonV3Status" role="status" aria-live="polite"></p>
+   <div class="dungeon-dual-scroll">
+    <table class="dungeon-dual-table"><thead><tr><th>보스</th><th>실측 장비·등급</th><th>yy-sim형 예측 / 판정</th><th>산부진형 예측 / 판정</th></tr></thead><tbody id="dungeonV3Body"></tbody></table>
+   </div>
+   <details><summary>시드 변화 역추적 결과</summary><pre id="dungeonV3Trace" style="white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto"></pre></details>
   </details>
   <div id="dungeonLegacy" hidden>
   <form id="dungeonForm" class="wild-form">
@@ -311,7 +317,7 @@ body .dungeon-coverage strong{font-size:14px}
 <script defer src="./dungeon.js?rev=1.0.2-final"></script>
 <script defer src="./dungeon-v2-audit.js?rev=1.0.5"></script>
 <script defer src="./dungeon-v3-inverse.js?rev=1.0.6"></script>
-<script defer src="./dungeon-dual.js?rev=1.0.5"></script>
+<script defer src="./dungeon-dual.js?rev=1.0.6"></script>
 <script defer src="./shared-gear-core.js"></script><script defer src="./shared-gear.js"></script>
 <script defer src="./treasure-core.js"></script><script defer src="./treasure.js"></script>
 <script>
