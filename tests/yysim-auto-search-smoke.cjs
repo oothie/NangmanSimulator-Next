@@ -86,7 +86,7 @@ assert(html.includes("['auto','자동 탐색']"));
 for(const id of ['yyAutoPad','yyAutoHorizon','yyAutoTopN','yyAutoConnect','yyAutoProgressive'])assert(!html.includes('id="'+id+'"'),'automatic search must not expose internal controls: '+id);
 assert(html.includes('선택 재능 자동 계산'));
 assert(html.includes("op:'washEngineAutoProgressive'"),'all grades use original WASM route search');
-assert(html.includes('maxPad:20,horizon:900,topN:8'),'bounded internal defaults are not user inputs');
+assert(html.includes('maxPad:0,horizon:900,topN:8'),'native automatic search defaults must match original unpadded behavior');
 assert(html.includes("washEngine.call('auto-search',options)"));
 assert(html.includes('state.autoResult=null;'));
 assert(!html.includes("'auto-intermediate-search'"),'obsolete sequential search must stay removed');
