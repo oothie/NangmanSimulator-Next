@@ -28,15 +28,15 @@ self.addEventListener('message',async event=>{
   // A separate WASM instance gets a copy. Never send game saves, secrets or
   // raw data elsewhere; this is an entirely local Worker.
   if(!wasmSetState(state))throw Error('Worker 원본 세수 상태 설정 실패');
-  const normalized=JSON.stringify(wasmGetState());
-  if(normalized!==JSON.stringify(state))
+  const normalized=self.YYWashNativeSearchGuard.canonicalJson(wasmGetState());
+  if(normalized!==self.YYWashNativeSearchGuard.canonicalJson(state))
    throw Error('Worker 세수 상태 불일치: 입력 상태를 정확히 이식할 수 없습니다');
   const result=self.YYWashNativeSearchGuard.run({
    getState:wasmGetState,setState:wasmSetState,
    search:wasmSearchWashRoutes
   },request);
   self.postMessage({kind:'yy-native-search-probe-result',requestId,ok:true,
-   result,stateUnchanged:JSON.stringify(wasmGetState())===normalized});
+   result,stateUnchanged:self.YYWashNativeSearchGuard.canonicalJson(wasmGetState())===normalized});
  }catch(error){
   self.postMessage({kind:'yy-native-search-probe-result',requestId,ok:false,
    error:String(error?.message||error)});
