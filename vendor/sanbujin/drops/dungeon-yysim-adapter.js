@@ -64,5 +64,40 @@ function adapt(event){
   sourceVersion:root.DAILY_DATA?.ver,source:'yy-sim',
   sourceNpc:id,sourceDungeon:match.d.name};
 }
-root.SBJDungeonYYAdapter={adapt,findSource};
+function fullCatalog(original){
+ const rows=(original||[]).map(adapt);
+ const existing=new Set(rows.map(e=>npcId(e)).filter(Boolean));
+ for(const dungeon of all()){
+  for(const npc of dungeon.npcs||[]){
+   if(existing.has(Number(npc.id)))continue;
+   const branches=(dungeon.ops||[]).filter(op=>op.t==='skr'&&
+     op.bs?.some(x=>Number(x.npc)===Number(npc.id)));
+   const source=branches.flatMap(op=>op.bs.filter(b=>Number(b.npc)===Number(npc.id)));
+   const ordinary=source.filter(b=>['miss','weapon','equip'].includes(b.kind));
+   const colors=source.filter(b=>b.kind==='color');
+   if(!ordinary.length||!colors.length||
+     !(npc.equip?.length||npc.weapon?.length))continue;
+   const key=branches.find(op=>op.bs.some(b=>b.kind==='equip'||b.kind==='miss'||b.kind==='weapon'))?.key||dungeon.seed;
+   const colorKey=branches.find(op=>op.bs.some(b=>b.kind==='color'))?.key||key;
+   const pool=(ids)=>({ids:[...(ids||[])],seed:key,max:ids?.length||0,random:true});
+   const event={
+     id:'drop_'+npc.id+'_equip',dungeon:dungeon.name,boss:npc.name,
+     variant:/追魂|登峰|绝世/.test(dungeon.name)?'挑战':'普通',
+     outer:[...ordinary.filter(b=>b.kind==='equip'),
+       ...ordinary.filter(b=>b.kind==='weapon'),
+       ...ordinary.filter(b=>b.kind==='miss')]
+       .map(b=>[b.kind==='miss'?'none':b.kind,Number(b.w)]),
+     outerSeed:key,
+     color:[...colors].sort((a,b)=>[1,4,3,2].indexOf(a.color)-[1,4,3,2].indexOf(b.color))
+       .map(b=>[Number(b.color),Number(b.w)]),
+     colorSeed:colorKey,nested:true,equip:pool(npc.equip),weapon:pool(npc.weapon),
+     orange:[],source:'yy-sim',supplement:true,sourceNpc:npc.id,
+     sourceDungeon:dungeon.name
+   };
+   rows.push(event);existing.add(Number(npc.id));
+  }
+ }
+ return rows;
+}
+root.SBJDungeonYYAdapter={adapt,findSource,fullCatalog};
 })(window);
