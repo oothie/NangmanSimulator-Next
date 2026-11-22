@@ -13,13 +13,14 @@ root.YYWashTargetCatalog=[{"quality":2,"items":[{"id":184,"name":"气息浑厚",
 // 278 매화 6보 / 279 혈원주체 / 400 도심검담 / 401 월봉청영
 // 미수록 주인공 전용 재능은 기존 카탈로그에 새로 추가하지 않는다.
 const mainOnlyIds=new Set([238,239,241,246,252,253,254,257,258,259,260,278,279,400,401]);
-root.YYWashTargetsForRole=function(roleType){
+root.YYWashTargetsForRole=function(roleType,sex){
  const isMain=roleType==='주인공'||roleType==='主角';
+ const isFemale=Number(sex)===2;
  return root.YYWashTargetCatalog.map(group=>({
-  ...group,items:group.items.filter(item=>isMain||!mainOnlyIds.has(Number(item.id)))
+  ...group,items:group.items.filter(item=>(isMain||!mainOnlyIds.has(Number(item.id)))&&!(isFemale&&Number(item.id)===243))
  }));
 };
-root.YYWashIsTargetAllowed=function(roleType,id){
- return root.YYWashTargetsForRole(roleType).some(g=>g.items.some(t=>Number(t.id)===Number(id)));
+root.YYWashIsTargetAllowed=function(roleType,id,sex){
+ return root.YYWashTargetsForRole(roleType,sex).some(g=>g.items.some(t=>Number(t.id)===Number(id)));
 };
 })(window);
