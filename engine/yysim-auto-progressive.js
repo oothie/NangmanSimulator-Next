@@ -25,7 +25,16 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
  ensureSession();
  const ticker=setInterval(()=>{try{ensureSession();active()}catch(_){/* invalidated session */}},1000);
  let native;
- try{native=await call('auto-search',config)}
+ try{native=await call('auto-search',config,detail=>{
+  if(!detail||!/^anchor-/.test(String(detail.phase||'')))return;
+  onProgress({phase:detail.phase,total:null,indeterminate:true,
+   elapsedSeconds:Math.floor((Date.now()-started)/1000),
+   checked:detail.scannedWashes??null,
+   history:[],bestPills:null,
+   stage:detail.phase==='anchor-between'?
+    '확정한 자맥 사이에서 녹·파맥 후보 검사 중':
+    '마지막 자맥 이후 녹·파맥 실제 세수 계산 중'});
+ })}
  finally{clearInterval(ticker)}
  ensureSession();
  if(!native||native.nativeFunction!=='wasmSearchWashRoutes'||
