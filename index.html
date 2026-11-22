@@ -1025,8 +1025,11 @@ if(sub==='sim'){
 }
 if(sub==='auto'){
  const state=window.__washRuntime||{},api=window.YYWashAutoSearch;
- const catalog=window.YYWashTargetsForRole?.(r?.type)||[];
+ const catalog=window.YYWashTargetsForRole?.(r?.type,r?.raw?.Sex)||[];
  const supported=catalog.flatMap(g=>g.items.map(t=>t.id));
+ const savedPills=save?characterEntries(save.Items).filter(x=>Number(x?.ID)===2601).reduce((n,x)=>n+(Number(x?.Num)||0),0):null;
+ if(state.autoOwnedPills==null&&savedPills!=null)state.autoOwnedPills=Math.max(0,Math.floor(savedPills));
+ const ownedPills=Number.isSafeInteger(Number(state.autoOwnedPills))&&Number(state.autoOwnedPills)>=0?Number(state.autoOwnedPills):null;
  const usesColors=state.autoResult?.colorSearch===true;
  const selectedTargets=Array.isArray(state.autoDesiredIds)?state.autoDesiredIds.filter(id=>supported.includes(id)):[];
   if(Array.isArray(state.autoDesiredIds)&&selectedTargets.length!==state.autoDesiredIds.length){state.autoDesiredIds=selectedTargets;state.autoResult=null;}
@@ -1044,7 +1047,15 @@ if(sub==='auto'){
    '<span class="wash-auto-label">'+escape(talentName(t.id))+'</span><span class="wash-auto-id">#'+t.id+'</span>'+
    '<span class="wash-auto-check" aria-hidden="true">'+(selectedTargets.includes(t.id)?'✓':'')+'</span></button>').join('')+'</div></details>').join('');
  const card=analyzed?.routes?.length?'<div class="wash-guide-results">'+
- analyzed.routes.map((x,i)=>{
+ analyzed.routes.map((x,i)=>({x,i})).sort((a,b)=>{
+  const af=a.x.complete&&a.x.estimatedPills!=null&&ownedPills!=null&&a.x.estimatedPills<=ownedPills;
+  const bf=b.x.complete&&b.x.estimatedPills!=null&&ownedPills!=null&&b.x.estimatedPills<=ownedPills;
+  return Number(bf)-Number(af)||a.i-b.i;
+ }).map(({x,i})=>{
+  const budgetKnown=ownedPills!=null&&x.estimatedPills!=null;
+  const affordable=x.complete&&budgetKnown&&x.estimatedPills<=ownedPills;
+  const shortage=budgetKnown?Math.max(0,x.estimatedPills-ownedPills):null;
+  const remaining=budgetKnown?Math.max(0,ownedPills-x.estimatedPills):null;
   let replayError='';
   try{window.YYWashRouteReplay?.plan(x,mapNames)}catch(error){replayError=String(error.message||error)}
   const replayable=x.executable&&!!window.YYWashRouteReplay&&!replayError;
@@ -1058,6 +1069,8 @@ if(sub==='auto'){
     kind==='keep'?'목표 재능 유지':kind==='skip'?'건너뛰기':detail.label;
    const wash=detail.wash==null?'':'<span>세수 '+escape(detail.wash)+'회차</span>';
    const pills=detail.pills==null?'':'<span>누적 세수단 '+escape(Number(detail.pills).toLocaleString())+'개</span>';
+   const stepRemaining=ownedPills!=null&&detail.pills!=null?
+    '<span>잔여 세수단 '+escape(Math.max(0,ownedPills-Number(detail.pills)).toLocaleString())+'개'+(Number(detail.pills)>ownedPills?' · '+escape((Number(detail.pills)-ownedPills).toLocaleString())+'개 부족':'')+'</span>':'';
    const previousWash=n?Number(x.actions[n-1]?.wash_no??0):0;
    const currentWash=detail.wash==null?null:Number(detail.wash);
    const newWashes=currentWash!==null&&currentWash>previousWash?
@@ -1065,15 +1078,16 @@ if(sub==='auto'){
    return '<li class="wash-guide-step'+importance+'"><span class="wash-guide-number">'+(n+1)+'</span>'+
     '<div class="wash-guide-step-body">'+newWashes+'<strong>'+escape(verb)+'</strong>'+
     '<div class="wash-guide-step-detail">'+escape(detail.detail)+'</div>'+
-    '<div class="wash-guide-metrics">'+wash+pills+'</div></div></li>';
+    '<div class="wash-guide-metrics">'+wash+pills+stepRemaining+'</div></div></li>';
   }).join('');
   const slots=x.finalSlots.map(a=>'<span class="wash-guide-slot">'+escape(talentName(a.id))+(a.locked?' · 잠금':'')+'</span>').join('');
   return '<section class="wash-guide-route">'+
-   '<div class="wash-guide-heading"><div><span class="wash-guide-eyebrow">'+(i===0?'가장 적은 세수단 후보':'추가 경로 '+(i+1))+'</span>'+
+   '<div class="wash-guide-heading"><div><span class="wash-guide-eyebrow">'+(affordable?'보유량 내 실행 가능':i===0?'가장 적은 세수단 후보':'추가 경로 '+(i+1))+'</span>'+
    '<h4>'+escape(Number(x.estimatedPills??0).toLocaleString())+'개 <small>세수단</small></h4></div>'+
    '<div class="wash-guide-summary"><span>총 세수 '+escape(x.estimatedWashes??'—')+'회</span>'+
    '<span>치환 '+escape(x.exchanges??'—')+'회</span>'+
-   '<span>'+escape(x.complete?'목표 전부 확보':'목표 미완성')+'</span></div></div>'+
+   '<span>'+escape(x.complete?'목표 전부 확보':'목표 미완성')+'</span>'+
+   (budgetKnown?'<span>'+(affordable?'완료 후 '+escape(remaining.toLocaleString())+'개 남음':'보유량 초과 · '+escape(shortage.toLocaleString())+'개 부족')+'</span>':'')+'</div></div>'+
    '<div class="wash-guide-actions"><button type="button" class="btn" data-yy-copy-route="'+i+'">전체 경로 복사</button>'+
    (x.complete?'<button type="button" class="btn" data-yy-replay-route="'+i+'" '+(!replayable||state.loading?'disabled':'')+'>모의 실행으로 확인</button>':'')+'</div>'+
    (replayError?'<p class="micro">모의 실행 제한: '+escape(replayError)+'</p>':'')+
@@ -1084,6 +1098,14 @@ if(sub==='auto'){
    '<div class="wash-guide-slots">'+slots+'</div>'+
    (i>0?'</details>':'')+'</section>';
  }).join('')+'</div>':'';
+ const completeCostRoutes=analyzed?.routes?.filter(x=>x.complete&&x.estimatedPills!=null)||[];
+ const affordableCount=ownedPills==null?null:completeCostRoutes.filter(x=>x.estimatedPills<=ownedPills).length;
+ const minPills=completeCostRoutes.length?Math.min(...completeCostRoutes.map(x=>x.estimatedPills)):null;
+ const budgetStatus=analyzed?.stats?.complete&&ownedPills!=null?
+  '<p class="micro">보유 세수단 '+escape(ownedPills.toLocaleString())+'개 · 완주 가능한 탐색 후보 '+affordableCount+'개'+
+  (affordableCount?' · 가능 경로 우선 표시':minPills==null?' · 예상 소모 미확정':
+   ' · 최소 소모 '+escape(minPills.toLocaleString())+'개 · '+escape(Math.max(0,minPills-ownedPills).toLocaleString())+'개 부족')+
+  '. 보유량 초과 경로도 비교용으로 표시합니다.</p>':'';
  const anchorStats=result?.nativeDiagnostics?.method==='purple-anchor-nearest-native-wash'?result.nativeDiagnostics:null;
  const resultStatus=analyzed?
   '<p class="micro">'+(analyzed.stats.complete?
@@ -1108,6 +1130,8 @@ if(sub==='auto'){
   '<div class="actions">'+
   '<button type="button" class="btn" id="yyAutoClear">선택 초기화</button><span class="micro">선택 '+selectedTargets.length+' / 4개</span></div>'+
   '<div class="section-header"><h3>계산</h3></div>'+
+  '<div class="fields"><label>보유 세수단<input id="yyAutoOwnedPills" type="number" min="0" step="1" inputmode="numeric" value="'+escape(ownedPills??'')+'" '+(state.loading?'disabled':'')+'></label></div>'+
+  '<p class="micro">세이브 보유량으로 초기 설정됩니다. 수량 변경 시 원본 경로는 유지하고 단계별 잔여량과 부족량을 다시 계산합니다.</p>'+
   '<div class="actions"><button type="button" class="btn primary" id="yyAutoRun" '+(!r||!save||state.loading||!selectedTargets.length?'disabled':'')+'>'+(state.loading?'자동탐색 진행 중…':selectedTargets.some(id=>(window.YYWashTargetCatalog||[]).some(g=>g.quality!==4&&g.items.some(t=>Number(t.id)===Number(id))))?(selectedTargets.length===4&&[2,3].includes(selectedTargets.filter(id=>(window.YYWashTargetCatalog||[]).some(g=>g.quality===4&&g.items.some(t=>Number(t.id)===Number(id)))).length)?'선택 재능 자동 탐색':'선택 재능 자동 탐색'):'선택 재능 자동 계산')+'</button></div>'+
   (state.autoProgress?(()=>{const p=state.autoProgress;
     const percent=p.indeterminate||p.percentage==null?null:Number.isFinite(Number(p.percentage))?Math.min(100,Math.max(0,Math.round(Number(p.percentage)))):null;
@@ -1126,7 +1150,7 @@ if(sub==='auto'){
      '<div class="micro" style="margin-top:5px">'+(percent==null?'진행 단계 갱신 중':percent+'% · 현재 단계 기준')+' · 전체 경로의 전역 최솟값 보장 없음</div></div>';
    })():'')+
   (state.error?'<div class="notice">'+escape(state.error)+'</div>':'')+
-  '<div class="section-header"><h3>탐색 결과</h3></div>'+resultStatus+card+
+  '<div class="section-header"><h3>탐색 결과</h3></div>'+resultStatus+budgetStatus+card+
   '<p class="micro">자질 슬롯 개방에 필요한 재료는 포함되지 않습니다. 실제 게임에서 실행하기 전 단계를 확인하세요.</p>'+
   '</section>';
 }
@@ -3844,7 +3868,7 @@ if($('washV350Frame')){
 }
 document.querySelectorAll('.wash-auto-choice[data-yy-auto-id]').forEach(el=>el.onclick=()=>{
  const id=Number(el.dataset.yyAutoId),runtime=window.__washRuntime||{};
- if(!window.YYWashIsTargetAllowed?.(roles[selected]?.type,id))return;
+ if(!window.YYWashIsTargetAllowed?.(roles[selected]?.type,id,roles[selected]?.raw?.Sex))return;
  const ids=Array.isArray(runtime.autoDesiredIds)?[...runtime.autoDesiredIds]:[];
  const adding=!ids.includes(id);
  if(adding&&ids.length>=4){alert('자동 탐색 목표는 최대 4개까지 선택할 수 있습니다.');return}
@@ -3868,7 +3892,10 @@ document.querySelectorAll('[data-yy-replay-route]').forEach(el=>el.onclick=()=>w
   const nameOf=id=>characterTalentName(id)+' (#'+id+')';
   const textLines=['자동 세수 경로',
    '목표: '+route.goalIds.map(nameOf).join(' / '),
-   '예상 세수단: '+(route.estimatedPills??'미확정'),
+   '보유 세수단: '+(runtime.autoOwnedPills??'미확인'),
+    '예상 세수단: '+(route.estimatedPills??'미확정'),
+    '완료 후: '+(route.estimatedPills==null?'미확정':Number(runtime.autoOwnedPills)>=route.estimatedPills?
+    (Number(runtime.autoOwnedPills)-route.estimatedPills)+'개 남음':(route.estimatedPills-Number(runtime.autoOwnedPills))+'개 부족'),
    '모의 세수 횟수: '+(route.estimatedWashes??'미확정'),
    '치환 횟수: '+(route.exchanges??'미확정'),
    '선행 세수: '+(route.pad??'미확정'),
@@ -3878,13 +3905,18 @@ document.querySelectorAll('[data-yy-replay-route]').forEach(el=>el.onclick=()=>w
    const step=api.describeAction(action,report.nameIds||{},id=>nameOf(id).replace(/ \(#\d+\)$/, ''));
    textLines.push((i+1)+'. '+step.label+' · '+step.detail+
     (step.wash==null?'':' · 세수 '+step.wash+'회차')+
-    (step.pills==null?'':' · 누적 단약 '+step.pills));
+    (step.pills==null?'':' · 누적 세수단 '+step.pills+' · 잔여 '+Math.max(0,Number(runtime.autoOwnedPills)-step.pills)+'개'+(step.pills>Number(runtime.autoOwnedPills)?' · '+(step.pills-Number(runtime.autoOwnedPills))+'개 부족':'')));
   });
   if(!route.actions.length)textLines.push('원본 실행 단계 없음');
   textLines.push('최종 재능: '+route.finalSlots.map(x=>nameOf(x.id)+(x.locked?' [잠금]':'')).join(' / '));
   await navigator.clipboard.writeText(textLines.join('\n'));
  }catch(error){alert(String(error.message||error))}
 });
+if($('yyAutoOwnedPills'))$('yyAutoOwnedPills').onchange=()=>{
+ const runtime=window.__washRuntime||{},field=$('yyAutoOwnedPills'),raw=String(field.value||'').trim(),n=Number(raw);
+ if(!raw||!Number.isSafeInteger(n)||n<0){alert('보유 세수단은 0 이상의 정수로 입력하세요.');field.value=String(runtime.autoOwnedPills??0);return;}
+ runtime.autoOwnedPills=n;render();
+};
 if($('yyAutoRun'))$('yyAutoRun').onclick=()=>{
  try{
   const runtime=window.__washRuntime||{};
@@ -4530,7 +4562,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   }
   const api=window.YYWashAutoSearch;
   if(!api?.options)throw Error('원본 자동 탐색 표시 모듈이 로드되지 않았습니다');
-  const allowedCatalog=(window.YYWashTargetsForRole?.(source.role.type)||[]).flatMap(g=>
+  const allowedCatalog=(window.YYWashTargetsForRole?.(source.role.type,source.role.raw?.Sex)||[]).flatMap(g=>
    (g.items||[]).map(t=>({id:Number(t.id),grade:Number(g.quality)})));
   const options=api.options(e.detail,allowedCatalog.map(t=>t.id));
   const isColor=options.desiredIds.some(id=>
