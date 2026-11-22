@@ -3851,10 +3851,6 @@ document.querySelectorAll('.wash-auto-choice[data-yy-auto-id]').forEach(el=>el.o
  runtime.autoResult=null;runtime.autoProgress=null;
  render();
 });
-if($('yyAutoPreset'))$('yyAutoPreset').onclick=()=>{
- const runtime=window.__washRuntime||{};runtime.autoDesiredIds=[271,272,250,268];
- runtime.autoResult=null;runtime.autoProgress=null;render();
-};
 if($('yyAutoClear'))$('yyAutoClear').onclick=()=>{
  const runtime=window.__washRuntime||{};runtime.autoDesiredIds=[];
  runtime.autoResult=null;render();
