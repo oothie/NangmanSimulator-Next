@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.10.50</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.10.51</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -201,7 +201,7 @@ body{background:var(--bg)!important}
 .character-equip-row>b{font-size:14px}
 .character-equip-row .micro{display:block;margin-top:4px;overflow-wrap:anywhere}
 
-/* v0.10.50: yy-sim-inspired compact character workspace; no portrait rendering */
+/* v0.10.51: yy-sim-inspired compact character workspace; no portrait rendering */
 .character-workspace .character-role-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:13px 0 16px}
 .character-workspace .character-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
 .character-workspace .card{min-width:0}
@@ -484,7 +484,7 @@ body{background:var(--bg)!important}
 .quest-branch-item small{font-size:11px;color:var(--sub);overflow-wrap:anywhere}
 .quest-branch-item>span{font-size:12px;white-space:nowrap;color:var(--sub)}
 
-/* v0.10.50: yy-sim spacing in native calculator containers. */
+/* v0.10.51: yy-sim spacing in native calculator containers. */
 .equip-primary-tabs{gap:5px;flex-wrap:wrap}
 .equip-primary-tabs button{min-height:36px;padding:8px 12px;border-radius:6px}
 .equipment-runtime-status{border-radius:7px;border:1px solid var(--border);border-left:3px solid var(--gold);background:var(--paper);color:var(--text)}
@@ -493,12 +493,12 @@ body{background:var(--bg)!important}
 .equipment-host iframe{border-radius:8px;background:var(--panel)}
 @media(max-width:700px){.equip-primary-tabs button{font-size:12px;padding:7px 10px}.drop-workspace{min-height:640px}.equipment-runtime-status{padding:9px 11px}}
 
-/* v0.10.50: CSV downloads are intentionally removed from the visible site. */
+/* v0.10.51: CSV downloads are intentionally removed from the visible site. */
 #washHistoryExport,#washPreviewExport,#washPathExport,
 #downloadAccountCultivation,#questBranchExport,#questExportCsv,
 button[data-export-csv],a[download$=".csv"]{display:none!important}
 
-/* v0.10.50: readable wash and equipment navigation */
+/* v0.10.51: readable wash and equipment navigation */
 .equip-directory,.equip-detail-full{padding:18px 0}
 .equip-directory>input{width:min(100%,700px);padding:13px;font-size:16px}
 .equip-directory-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin:18px 0}
@@ -515,7 +515,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .talent{min-height:86px}.talent-text b{font-size:15px}.talent-text small,.config-item,.wash-grade{font-size:13px}
 @media(max-width:700px){.equip-directory-list,.equip-detail-rows{grid-template-columns:1fr}}
 
-/* v0.10.50: wash automatic search readable selection panels */
+/* v0.10.51: wash automatic search readable selection panels */
 .wash-auto-groups{display:grid;gap:14px;margin:15px 0 18px}
 .wash-auto-group{border:1px solid var(--border);background:var(--panel);border-radius:9px;padding:3px 14px}
 .wash-auto-group{--wash-grade-color:var(--gold);--wash-grade-bg:color-mix(in srgb,var(--wash-grade-color) 10%,var(--panel))}
@@ -630,7 +630,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 [data-theme=ink] .equip-detail-full,[data-theme=ink] .equip-detail-full *{border-color:var(--border)}
 .wiki-equipment-details{width:100%;max-width:390px;margin:14px 0;padding:11px 14px!important;display:block;background:transparent!important;border:1px solid var(--gold)!important;color:var(--text)!important;font-weight:700}.wiki-equipment-details:hover{background:#ad8b4c22!important}
 
-/* v0.10.50: distinct equipment detail controls; colors signal functions, while
+/* v0.10.51: distinct equipment detail controls; colors signal functions, while
    their surfaces and active states use the integrated paper/ink palette. */
 .equip-detail-full .equip-detail-buttons{
  display:grid!important;
@@ -713,7 +713,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 @media(max-width:930px){.equip-detail-full .equip-detail-buttons{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:520px){.equip-detail-full .equip-detail-buttons{gap:9px!important}.equip-detail-full .equip-detail-choice{min-height:90px!important;padding:12px!important}.equip-detail-full .equip-detail-choice strong{font-size:17px!important}.equip-detail-full .equip-detail-choice span{font-size:11px!important}}
 
-/* v0.10.50: unified site controls and accessible low-contrast equipment tabs. */
+/* v0.10.51: unified site controls and accessible low-contrast equipment tabs. */
 :root{color-scheme:light}
 [data-theme=ink]{color-scheme:dark}
 .btn.primary{background:var(--gold)!important;border-color:var(--gold)!important;color:#fff!important;font-weight:700}
@@ -726,7 +726,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 [data-theme=ink] .equip-detail-full select{background:var(--panel)!important;color:var(--text)!important;border-color:var(--border)!important}
 @media(max-width:700px){.equip-primary-tabs button{font-size:14px!important;min-height:44px!important}}
 
-/* v0.10.50: compact four-function equipment navigation, warm site-native accents. */
+/* v0.10.51: compact four-function equipment navigation, warm site-native accents. */
 .equip-detail-full .equip-detail-buttons{gap:8px!important;margin:14px 0 12px!important}
 .equip-detail-full .equip-detail-choice{
  min-height:64px!important;padding:10px 13px!important;gap:3px!important;
@@ -801,7 +801,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .wash-guide-alternative>summary{font-size:16px;padding:12px 0;cursor:pointer;font-weight:700}
 @media(max-width:640px){.wash-guide-route{padding:14px}.wash-guide-heading h4{font-size:29px}.wash-guide-step{padding:12px;grid-template-columns:36px minmax(0,1fr);gap:8px}.wash-guide-number{width:30px;height:30px}.wash-guide-step-body strong{font-size:16px}.wash-guide-step-detail{font-size:15px}}
 </style><script defer src="./vendor/sanbujin/shared/app/nangman-no-csv.js?rev=v082"></script><style>
-/* v0.10.50: compact wash view. Calculation controls are not changed. */
+/* v0.10.51: compact wash view. Calculation controls are not changed. */
 .layout:has(.wash-section){gap:12px;align-items:start}
 .layout .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 16px;margin-bottom:9px}
 .layout .hero h2{font-size:18px;margin:0}
@@ -827,7 +827,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .wiki-art-placeholder{display:inline-grid;place-items:center;flex:none;width:38px;height:38px;border:1px solid var(--border);border-radius:7px;background:var(--panel);font-weight:800;font-size:14px;color:var(--sub)}
 .wiki-art-placeholder.large{width:72px;height:72px;font-size:23px}
 </style></head>
-<body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터 · v0.10.50</small></div><nav class="nav" id="nav"></nav><div class="tools"><span id="topSaveStatus" class="micro">세이브 미연결</span><button id="saveLink" class="save-link">세이브 불러오기</button><button type="button" id="clearTopSave" class="save-link" title="이 브라우저의 세이브 삭제">해제</button><input id="file" type="file" accept=".json,application/json" hidden><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
+<body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터 · v0.10.51</small></div><nav class="nav" id="nav"></nav><div class="tools"><span id="topSaveStatus" class="micro">세이브 미연결</span><button id="saveLink" class="save-link">세이브 불러오기</button><button type="button" id="clearTopSave" class="save-link" title="이 브라우저의 세이브 삭제">해제</button><input id="file" type="file" accept=".json,application/json" hidden><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
 <main class="page"><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="장비 계산 영역"></section><section id="dropWorkspace" class="drop-workspace" hidden aria-label="드랍 계산 영역"></section></main></div>
 <script src="./shared/private-save-cache.js?rev=v083"></script><script src="./vendor/sanbujin/shared/equip_data.js"></script>
 <script src="./vendor/yysim/char_data.js"></script>
@@ -1467,7 +1467,7 @@ function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.10.50</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
+return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.10.51</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
 }
 
 function embeddedEngine(url,label,caption){
@@ -3098,7 +3098,7 @@ function yyProgressEntries(save,role,tab){
    ['검왕각 검술 지도','jwgjz_',120,'검법','training'],
    ['극락곡 권각 지도','jlgcc_',120,'권법','training'],
    ['저택 방석 내공 수련','home_putuan_ngmax_',30,'내공','training'],
-   ['저택 유력 수련','home_youli_max_xiuwei_',null,'수련','training'],
+   ['저택 유력 수련','home_youli_max_xiuwei_',100,'수련','training'],
    ['제갈 비전','eat_8926_',null,'습득','training'],
   ['무상단','2630_',100,'복용','consumable'],
   ['진무단','2640_',100,'복용','consumable'],
@@ -3136,7 +3136,7 @@ function yyProgressEntries(save,role,tab){
   if(main)items.push(...mainTraining);
   items.push(group('구혼각 혈지 정련',blood.map(x=>row(...x))));
  }
- for(const [name,prefix,max,label,kind] of singles)if(kind===tab&&id!=null)
+ for(const [name,prefix,max,label,kind] of singles)if(kind===tab&&id!=null&&!(main&&['home_putuan_ngmax_','home_youli_max_xiuwei_','eat_8926_'].includes(prefix)))
   items.push(group(name,[row(label,prefix+id,max,prefix==='getMZ_BiGuanShi_'||prefix==='getRX_HanYuGuan_')]));
  if(tab==='training'&&main){
   const extraTraining=[['유주 매화장 경공','mh_mr_qgxw',200],['저택 매화장 경공','home_meihua_max',30],
@@ -3530,108 +3530,51 @@ function yyAccountAllGrowthCatalogView(entries){
 }
 
 function yyAccountCultivationView(){
- const ordered=roles.filter(r=>r.type==='주인공').concat(roles.filter(r=>r.type==='동료'),roles.filter(r=>r.type==='이탈'));
- const entries=ordered.map(r=>{
-  const stats=yyRoleCultivationModel(r),train=yyProgressStat(yyProgressEntries(save,r,'training'));
-  const pills=yyProgressStat(yyProgressEntries(save,r,'consumable'));
-  return {r,stats,train,pills};
- });
- const known=entries.filter(x=>x.stats.total!==null),unknown=entries.length-known.length;
- const sumKnown=known.reduce((sum,x)=>sum+x.stats.total,0);
- const tracks=[['1','권법'],['2','도법'],['3','검법'],['4','창·곤'],['ng','내공'],['qg','경공']];
- const extraTotals=tracks.map(([key,name])=>{
-  const vals=entries.map(e=>e.stats.records.find(x=>x.id===key)?.extra);
-  const missing=vals.filter(x=>x==null).length;
-  return {key,name,total:vals.reduce((n,x)=>n+(Number.isFinite(x)?x:0),0),missing};
- });
- const extraGrandTotal=extraTotals.reduce((n,x)=>n+x.total,0);
- const hasCompleteExtra=extraTotals.every(x=>x.missing===0);
- const trainingStarted=entries.reduce((n,x)=>n+x.train.started,0),trainingCompleted=entries.reduce((n,x)=>n+x.train.complete,0);
- const consumableStarted=entries.reduce((n,x)=>n+x.pills.started,0),consumableCompleted=entries.reduce((n,x)=>n+x.pills.complete,0);
- const active=entries.filter(x=>x.r.type!=='이탈');
- const shared=roles.find(x=>x.type==='주인공')||roles[0];
- const sharedRows=shared?yyProgressEntries(save,shared,'other').items:[];
- const globalRoot=(Array.isArray(save)?save[0]:save)?.globalVariable;
- const roleCells=entries.map(({r,stats,train,pills})=>{
-  const index=roles.indexOf(r),name=escape(r.name);
-  return '<tr><td><button class="yy-account-open" data-character-jump="'+index+'" type="button">'+name+'</button>'+
-   '<div class="micro">'+escape(r.type)+' · Lv'+escape(r.level??'—')+' · ID '+escape(r.id)+'</div></td>'+
-   stats.records.map(x=>'<td class="num">'+(x.current===null?(x.extra===null?'—':'<small title="완성 수련 미확인 · 저장 추가 수련">추가 '+x.extra+'</small>'):x.current)+'</td>').join('')+
-   '<td class="num"><b>'+(stats.total===null?'—':stats.total)+'</b></td>'+
-   '<td class="num">'+train.started+' / '+train.complete+'</td><td class="num">'+pills.started+' / '+pills.complete+'</td></tr>';
- }).join('');
- const progress=(title,model,detail)=>yyRoleSection(title,
-  '<p class="micro">'+detail+'</p>'+
-  '<div class="yy-account-cards">'+model.map(({title,values})=>{
-   const ok=values.filter(x=>x.current!==null);
-   return '<div class="yy-account-card"><strong>'+escape(title)+'</strong><small>'+
-    ok.filter(x=>x.max!=null&&x.current>=x.max).length+'/'+values.length+' 항목 완료 · '+
-    ok.filter(x=>x.current>0&&(x.max==null||x.current<x.max)).length+' 항목 진행</small>'+
-    '<div class="yy-account-values">'+values.map(x=>'<span>'+escape(x.label)+': '+(x.current??'—')+'/'+(x.max??'?')+'</span>').join('')+'</div></div>';
-  }).join('')+'</div>');
- const globalProgress=shared?yyProgressEntries(save,shared,'training').items.slice(0,2):[];
+ const active=roles.filter(r=>r.type!=='이탈'),ordered=roles.filter(r=>r.type==='주인공').concat(roles.filter(r=>r.type==='동료'),roles.filter(r=>r.type==='이탈'));
+ const records=ordered.map(r=>({r,stat:yyRoleCultivationModel(r),train:yyProgressStat(yyProgressEntries(save,r,'training')),pills:yyProgressStat(yyProgressEntries(save,r,'consumable'))}));
+ const known=records.filter(x=>x.stat.total!=null);
+ const sum=known.reduce((n,x)=>n+x.stat.total,0);
  return '<section class="yy-account-overview">'+
- '<div class="yy-account-actions"><button type="button" id="downloadAccountCultivation" class="btn">계정 수련 기록 CSV 내보내기</button><span class="micro">현재·과거 획득 기록 분리 · 세이브 원본은 변경하지 않음</span></div>'+
- yyRoleSection('계정 수련 개요',
- '<p class="role-status-note">주인공·동료·이탈 인물을 각각 표시합니다. 아래 6계열 합계는 캐릭터별 현재 수련치의 합산이며 공유 수련 이력은 별도 표시합니다. 완성 수련 데이터 미확인 캐릭터는 확정 합계에서 제외하고, 추가 수련 원시값은 별도로 표시합니다.</p>'+
- '<div class="role-grid stat-grid">'+[
- ['인물 수',entries.length+'명',active.length+'명 보유 · 이탈 '+(entries.length-active.length)+'명'],
- ['수련 확인 인물',known.length+' / '+entries.length,'미확인 '+unknown+'명'],
- ['확인된 수련 합계',known.length?sumKnown.toLocaleString('ko-KR'):'—','미확인 제외 / 1인당 최대 9000'],
- ['저장 추가 수련 합계',extraGrandTotal.toLocaleString('ko-KR'),hasCompleteExtra?'전체 인물 6계열 원시 저장값':'일부 저장값 미확인 제외'],
- ['전체 수련 시작',trainingStarted+'개',trainingCompleted+'개 완료 · 캐릭터별 수련 그룹'],
- ['전체 단약 시작',consumableStarted+'개',consumableCompleted+'개 완료 · 캐릭터별 복용 그룹'],
- ['계정 공통 키',globalRoot&&typeof globalRoot==='object'?Object.keys(globalRoot).length.toLocaleString('ko-KR')+'개':'미연결','세이브 globalVariable']
+ yyRoleSection('계정 수련 개요','<div class="role-grid stat-grid">'+[
+ ['전체 인물',ordered.length+'명','보유 '+active.length+'명 · 이탈 '+(ordered.length-active.length)+'명'],
+ ['수련 확인',known.length+' / '+ordered.length+'명','확인 가능한 현재 수련치'],
+ ['확인 수련 합계',sum.toLocaleString('ko-KR'),'미확인 인물 제외'],
+ ['단약 진행',records.reduce((n,x)=>n+x.pills.started,0)+'개','복용 기록이 있는 항목'],
+ ['수련 진행',records.reduce((n,x)=>n+x.train.started,0)+'개','수련 기록이 있는 항목']
  ].map(([name,value,note])=>'<div class="stat-cell"><span class="label">'+escape(name)+'</span><span class="value">'+escape(value)+'</span><span class="sub">'+escape(note)+'</span></div>').join('')+'</div>')+
- accountFold('6계열 추가 수련 저장값 상세',yyRoleSection('계정 전체 6계열 추가 수련 저장값',
- '<p class="micro">이 값은 무학에서 얻은 수련치를 포함하지 않은 WXXW 추가 수련 원시값입니다. 이력과 중복 합산하지 않으며, 완성 수련 계산이 불가능한 인물도 집계합니다.</p>'+
- '<div class="role-grid stat-grid">'+extraTotals.map(x=>'<div class="stat-cell"><span class="label">'+escape(x.name)+'</span>'+
- '<span class="value">'+x.total.toLocaleString('ko-KR')+'</span>'+
- '<span class="sub">'+(x.missing?x.missing+'명 미확인 제외':'전체 인물 기록')+'</span></div>').join('')+'</div>'))+
- yyRoleSection('주요 단약 · 인물별 실제 복용 횟수',
- '<p class="micro">대표 단약의 복용 횟수를 <b>현재 / 최대</b>로 표시합니다. 전체 항목은 계정 → 단약·수련 전체에서 비교하세요.</p>'+
- '<div class="account-quick-pills">'+entries.map(e=>{
-  const names=['용호단','풍령단','웅백환','익신단','보리자','칠보현단'];
-  const groups=yyProgressEntries(save,e.r,'consumable').items;
-  return '<div class="account-track"><div class="account-track-top"><strong>'+escape(e.r.name)+'</strong><small>'+escape(e.r.type)+'</small></div>'+
-   '<div class="account-pill-rows">'+names.map(name=>{
-    const g=groups.find(x=>x.title===name),v=g?.values?.[0];
-    if(!v)return '';
-    return '<div class="account-pill-line"><span>'+escape(name)+'</span><strong>'+escape(v.current??'—')+' / '+escape(v.max)+'</strong>'+
-      accountProgressBar(v.current,v.max,'violet')+'</div>';
-   }).join('')+'</div></div>';
- }).join('')+'</div>')+
- accountFold('전체 인물 6계열 비교표',yyRoleSection('전체 캐릭터 6계열 수련 비교',
- '<p class="micro">인물 이름을 누르면 해당 인물의 수련 메뉴로 이동합니다. 수련·단약 칸은 각각 시작한 그룹 / 완료한 그룹 개수입니다. 완료 그룹은 시작 그룹에도 포함됩니다.</p>'+
- '<div class="yy-account-scroll account-account-table"><table class="module-table yy-account-table"><thead><tr><th>인물</th>'+
- ['권법','도법','검법','창·곤','내공','경공','총합','수련 시작/완료','단약 시작/완료'].map(x=>'<th>'+x+'</th>').join('')+
- '</tr></thead><tbody>'+roleCells+'</tbody></table></div>'))+
- accountFold('수련 원본 계산 · 진단 및 상세 기록',
- yyCultivationAuditView(entries)+yyAccountCrossCheckView(entries)+
- yyAccountPermanentHistoryView(entries)+yyAccountHistoryView(entries))+
- accountFold('주인공 공유 및 계정 공통 성장 상세',
- (globalProgress.length?progress('주인공 공통 수련 기록',globalProgress,'육선문 용두 정련과 무관 목인 수련은 주인공 공통 기록으로 한 번만 표시합니다.'):'')+
- (sharedRows.length?progress('계정 공유 영구 성장',sharedRows,'가원 석쇄력 등 공유 제한 기록은 인물별 수련 합계에 중복 가산하지 않습니다.'):'') )+
- '<p class="micro">표시된 수련 수치는 현재 전투 능력치와 다를 수 있습니다.</p></section>';
+ '<p class="micro">인물별 상세 기록은 인물 → 수련·단약, 계정 전체 비교는 단약 · 수련 전체에서 확인합니다.</p></section>';
 }
-
-/* 인물별 영구 수련·단약: 진행하지 않은 원본 항목도 빠짐없이 표시 */
+// APK 아이템 설명 및 업로드된 캐릭터 시퀀스 시뮬레이터의 효과표를 기준으로 표시한다.
+function yyPillEffect(name){
+ const known={
+ '원양단':'팔힘 자질 +50','쇄허단':'신법 자질 +50','감리단':'근골 자질 +50','자화단':'내식 자질 +50',
+ '대력환':'팔힘 자질 +5','영허단':'신법 자질 +5','진용단':'근골 자질 +5','명혜단':'내식 자질 +5',
+ '용호단':'팔힘 +1','풍령단':'신법 +1','웅백환':'근골 +1','익신단':'내식 +1','보리자':'팔힘·신법·근골·내식 +1',
+ '무상단':'공격·방어·기혈·명중·속도·회피·막기 중 랜덤 성장',
+ '진무단':'자질 +10 (종류 랜덤)','황천수':'명중 +4 · 속도 +5 · 공격 +3 중 랜덤',
+ '구유고':'막기 +5 · 회피 +5 · 방어 +6 중 랜덤','염라화':'1회 팔힘 +1 · 2회 신법 +1 · 3회 둘 다 +1',
+ '쇄혈정':'1회 근골 +1 · 2회 내식 +1 · 3회 둘 다 +1',
+ '태극신단':'내식·신법 +2','자오취골단':'인내 +100','자미하단':'진기 용량·내공 경지',
+ '칠보현단':'인내·기혈·회피·속도','자청금단':'최대 기혈','벽린내단':'진기·내식'};
+ return known[name]||'';
+}
 function yyRoleGrowthOverview(role,kind){
  const model=yyProgressEntries(save,role,kind),title=kind==='training'?'수련':'단약';
  if(!model.available)return yyRoleSection(title,'<p class="micro">세이브의 진행 기록이 없습니다.</p>');
  const groups=model.items,values=groups.flatMap(g=>g.values);
  const completed=values.filter(v=>v.max!=null&&v.current!=null&&v.current>=v.max).length;
  const counter=v=>v.max==null?String(v.current??'—'):(v.current??'—')+' / '+v.max+(v.soft?'+':'');
+ const pillEffect=kind==='consumable'?yyPillEffect:null;
  const card=g=>{
   if(g.values.length===1){
    const v=g.values[0];
    return '<div class="account-track"><div class="account-track-top"><span>'+escape(g.title)+'</span>'+
     '<b class="account-count '+(v.max!=null&&v.current>=v.max?'is-complete':'')+'">'+escape(counter(v))+'</b></div>'+
     (v.max!=null?accountProgressBar(v.current,v.max,kind==='training'?'teal':'violet'):'')+
-    '<small>'+escape(v.label)+'</small></div>';
+    '<small>'+escape(v.label)+(pillEffect&&pillEffect(g.title)?' · 효과: '+escape(pillEffect(g.title)):'')+'</small></div>';
   }
   return '<div class="account-track"><div class="account-track-top"><strong>'+escape(g.title)+'</strong><small> · '+g.values.length+'개 세부 수치</small></div>'+
-   '<div class="yy-progress-list">'+g.values.map(v=>'<div class="yy-progress-row"><span>'+escape(v.label)+'</span>'+
+   (pillEffect&&pillEffect(g.title)?'<small>효과: '+escape(pillEffect(g.title))+'</small>':'')+'<div class="yy-progress-list">'+g.values.map(v=>'<div class="yy-progress-row"><span>'+escape(v.label)+'</span>'+
     accountProgressBar(v.current,v.max,kind==='training'?'teal':'violet')+'<b>'+escape(counter(v))+'</b></div>').join('')+
    '</div></div>';
  };
@@ -3642,7 +3585,7 @@ function yyRoleGrowthOverview(role,kind){
   ['기록 있음',values.filter(v=>v.current!=null&&v.current>0).length+'개','현재 / 상한 직접 확인']
  ].map(([n,v,note])=>'<div class="account-kpi"><small>'+escape(n)+'</small><strong>'+escape(v)+'</strong><small>'+escape(note)+'</small></div>').join('')+'</div>'+
  '<div class="account-track-grid">'+groups.map(card).join('')+'</div>'+
- '<p class="micro">복용·수련 기록은 항목마다 실제 수치로 표시합니다. 상한을 확인하지 못한 항목은 ?로 표시하며 0회는 미출시를 의미하지 않습니다.</p>');
+ '<p class="micro">복용·수련 기록은 항목마다 실제 수치로 표시합니다. 상한이 없는 단약은 복용량만 표시하며 0회는 미출시를 의미하지 않습니다.</p>');
 }
 
 
@@ -4023,9 +3966,6 @@ function yyAccountRecordAndResourceView(section='jianghu'){
   ['업적 포인트',achievePoint??'—','세이브 AchievePoint']
  ].map(([name,value,note])=>'<div class="stat-cell"><span class="label">'+escape(name)+'</span><span class="value">'+escape(value)+'</span><span class="sub">'+escape(note)+'</span></div>').join('')+'</div>'+
  '<p class="micro">한국판 세이브의 Branch와 Achieves를 별도 집계합니다. Branch.step=-1은 완료 기록이지만 이벤트 내부 분기도 포함하므로 실제 게임의 강호 기록 완료율과 동일하지 않습니다. 업적 Reward 필드는 원본 값이며 보상 수령 여부로 단정하지 않습니다.</p>'+
- '<details class="yy-account-history"><summary>분기·이벤트 '+records.length+'건 펼치기</summary>'+
- '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>기록명 / ID</th><th>상태</th><th>시작 저장일</th></tr></thead><tbody>'+
- branchRows+'</tbody></table></div></details>'+
  '<details class="yy-account-history"><summary>한국판 원본 업적 '+Object.keys(achieveNames).length+'종 · 세이브 기록 '+achievements.length+'건 보기</summary>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>업적명 / ID</th><th>세이브 상태</th><th>Reward 원본 단계 / 목표 단계</th></tr></thead><tbody>'+
  achievementRows+'</tbody></table></div></details>')+
@@ -4076,13 +4016,20 @@ function yyAccountGrowthDashboard(entries,mode='consumable'){
  const started=values.filter(v=>v.current>0).length;
  const complete=values.filter(v=>v.max!=null&&v.current>=v.max).length;
  const numeric=v=>v.max==null?String(v.current??'—'):(v.current??'—')+' / '+v.max+(v.soft?'+':'');
- const table=rows.map(item=>
-  '<tr><th scope="row">'+escape(item.title)+(item.label==='복용'?'':' <small>· '+escape(item.label)+'</small>')+'</th>'+
-  item.values.map(v=>'<td>'+(v?
+ const perPage=12, pages=[];
+ for(let offset=0;offset<rows.length;offset+=perPage){
+  const batch=rows.slice(offset,offset+perPage);
+  const table=batch.map(item=>
+   '<tr><th scope="row">'+escape(item.title)+(item.label==='복용'?'':' <small>· '+escape(item.label)+'</small>')+
+   (activeMode==='consumable'&&yyPillEffect(item.title)?'<small class="micro" style="display:block">효과: '+escape(yyPillEffect(item.title))+'</small>':'')+'</th>'+
+   item.values.map(v=>'<td>'+(v?
     '<strong class="account-count '+(v.current==null?'is-zero':v.max!=null&&v.current>=v.max?'is-complete':v.current>0?'is-progress':'is-zero')+'">'+
      escape(numeric(v))+'</strong>'+(v.max!=null?accountProgressBar(v.current,v.max,color):''):
-    '<span class="micro">해당 없음</span>')+'</td>').join('')+'</tr>'
- ).join('');
+    '<span class="micro">해당 없음</span>')+'</td>').join('')+'</tr>').join('');
+  pages.push('<details class="yy-account-history" '+(offset===0?'open':'')+'><summary>'+title+' '+(offset+1)+'–'+Math.min(offset+perPage,rows.length)+' / '+rows.length+'개 항목</summary>'+
+   '<div class="yy-account-scroll account-compare-scroll"><table class="module-table account-growth-table"><thead><tr><th>'+title+' 이름</th>'+
+   byRole.map(({r})=>'<th>'+escape(r.name)+'</th>').join('')+'</tr></thead><tbody>'+table+'</tbody></table></div></details>');
+ }
  const stats='<div class="account-kpis">'+[
    ['인물',byRole.length+'명','현재·이탈 인물 포함'],
    [title+' 종류',items.size+'종','0회 항목 모두 포함'],
@@ -4095,8 +4042,7 @@ function yyAccountGrowthDashboard(entries,mode='consumable'){
   ].map(([id,label])=>'<button type="button" data-account-growth="'+id+'" class="'+(activeMode===id?'active':'')+'" aria-pressed="'+(activeMode===id)+'">'+label+'</button>').join('')+'</nav>'+
   '<p class="micro">왼쪽에 '+title+' 이름, 오른쪽에 인물별 실제 기록을 배치했습니다. 각 인물을 같은 행에서 비교할 수 있습니다. 0회 항목도 표시됩니다.</p>'+
   stats+
-  '<div class="yy-account-scroll account-compare-scroll"><table class="module-table account-growth-table"><thead><tr><th>'+title+' 이름</th>'+
-  byRole.map(({r})=>'<th>'+escape(r.name)+'</th>').join('')+'</tr></thead><tbody>'+table+'</tbody></table></div>'+
+  pages.join('')+
   '<p class="micro">색상: 청록은 수련, 보라는 단약. 숫자는 현재/상한이며, 상한이 없는 대자질단은 복용 횟수만 표시합니다.</p>'+
  '</section>';
 }
@@ -4460,7 +4406,7 @@ if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  link.download='Nangman_Quest_Branches_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questRegion='all';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.10.50',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questRegion='all';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.10.51',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 
 if($('equipSearch'))$('equipSearch').oninput=e=>{equipSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipSearch');x.focus();x.setSelectionRange(p,p)};
 if($('equipOwnSearch'))$('equipOwnSearch').oninput=e=>{equipOwnSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipOwnSearch');x.focus();x.setSelectionRange(p,p)};
@@ -4774,7 +4720,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.10.50',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.10.51',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;equipmentLastOriginalTab=null;render()}});
@@ -5533,7 +5479,7 @@ window.addEventListener('message',e=>{
  }
 });
 </script>
-<!-- v0.10.50: read-only localization audit with hidden dialogs, select choices and element paths. -->
+<!-- v0.10.51: read-only localization audit with hidden dialogs, select choices and element paths. -->
 <script>
 (function(){
   const hanja=/[\u3400-\u9fff]/;
