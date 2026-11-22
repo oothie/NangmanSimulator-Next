@@ -66,7 +66,17 @@ jobs:
       - name: Validate native talent IDs and grades before mixed search
         run: node tests/yysim-grade-catalog-contract.cjs
       - name: Execute original WASM in Node and classify mixed-grade outcomes
-        run: node tests/yysim-native-headless-grade.cjs
+        run: |
+          set -o pipefail
+          node tests/yysim-native-headless-grade.cjs 2>&1 | tee native-grade-report.txt
+      - name: Retain original WASM grade diagnostic output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-wasm-mixed-grade-diagnostic
+          path: native-grade-report.txt
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify native single-call final-route minimum and UI
         run: node tests/yysim-auto-progressive-smoke.cjs
       - name: Verify original results adapter and final-slot goals
