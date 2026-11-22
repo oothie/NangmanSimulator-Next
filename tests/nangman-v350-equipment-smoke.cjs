@@ -21,7 +21,10 @@ for(const view of ['find','auto','owned','region'])
  assert(parent.includes("'nangman350:"+view+"'"),'native tab configured: '+view);
 assert(parent.includes("'nangman-v350'"),'single persistent native equipment frame');
 assert(parent.includes("equipmentLastOriginalTab"),'finder/auto state retained during parent re-render');
-assert(parent.includes("'equip-orange'"),'Sanbujin orange retained');
+assert(parent.includes("['unique','유일템','nangman350:unique']"),'native unique tab replaces old orange sequence tab');
+assert(bridge.includes("'region','unique'"),'embedded bridge accepts original unique mode');
+assert(native.includes('function paintUniqueRegionSeq('),'original unique region-option sequence preserved');
+assert(native.includes("주황 유일장비는 정련할 수 없습니다."),'orange unique detail cannot refine');
 assert(parent.includes("'jianwang-auto'"),'Sanbujin Jianwang auto retained');
 assert(parent.includes("'jianwang-manual'"),'Sanbujin Jianwang manual retained');
 assert(parent.includes('sendEquipmentFocus();'),'external equipment detail selection forwarded');
