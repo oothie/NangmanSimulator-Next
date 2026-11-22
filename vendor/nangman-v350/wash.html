@@ -406,7 +406,67 @@ html[data-theme=ink] table,html[data-theme=ink] th,html[data-theme=ink] td{
  background-color:#242730!important;color:#ece6dd!important;border-color:#52545b!important}
 html[data-theme=ink] .active,html[data-theme=ink] button.primary{
  background:#765c37!important;color:#fff!important}
-</style></head>
+</style><style id="nangman-v350-theme-contrast-v01057">
+/* The embedded simulator inherits the current site palette immediately.
+   Keep grade colors distinct without making text unreadable in ink mode. */
+html[data-theme="ink"]{
+ --wash-card:#252830;--wash-elevated:#20242c;--wash-ink:#f0ece5;
+ --wash-muted:#c3bdb4;--wash-line:#555964;--wash-accent:#cca76b;
+ --wash-soft-gold:#3a3024;color-scheme:dark;
+}
+html:not([data-theme="ink"]){
+ --wash-card:#fffdf7;--wash-elevated:#f8f4eb;--wash-ink:#231e17;
+ --wash-muted:#655d53;--wash-line:#d6caba;--wash-accent:#9c7941;
+ --wash-soft-gold:#f3e6cd;color-scheme:light;
+}
+html,body{background:var(--wash-elevated)!important;color:var(--wash-ink)!important}
+#washModule .card,#washModule details,#washModule .sim-left,
+#washModule .sim-right,#washModule .scroll,#washModule .sim-right>.card{
+ background:var(--wash-card)!important;color:var(--wash-ink)!important;
+ border-color:var(--wash-line)!important;
+}
+#washModule input,#washModule select,#washModule textarea,
+#washModule button:not(.primary):not(.active){
+ color:var(--wash-ink)!important;background:var(--wash-elevated)!important;
+ border-color:var(--wash-line)!important;
+}
+#washModule input:focus-visible,#washModule select:focus-visible,
+#washModule button:focus-visible{
+ outline:2px solid var(--wash-accent)!important;outline-offset:2px;
+}
+#washModule button.primary,#washModule .tabs button.active,
+#washModule .n-subtabs button.active{
+ background:var(--wash-accent)!important;border-color:var(--wash-accent)!important;
+ color:#161719!important;font-weight:750;
+}
+html:not([data-theme="ink"]) #washModule button.primary,
+html:not([data-theme="ink"]) #washModule .tabs button.active,
+html:not([data-theme="ink"]) #washModule .n-subtabs button.active{
+ color:#ffffff!important;
+}
+#washModule button:disabled{opacity:.48!important}
+#washModule .small,#washModule small,#washModule .muted{
+ color:var(--wash-muted)!important;
+}
+#washModule table,#washModule th,#washModule td{
+ color:var(--wash-ink)!important;border-color:var(--wash-line)!important;
+}
+#washModule th{background:var(--wash-elevated)!important}
+#washModule td.num,#washModule .badge,
+#washModule .sim-cost-badge,#washModule #simRecentLog{
+ background:var(--wash-elevated)!important;color:var(--wash-ink)!important;
+ border-color:var(--wash-line)!important;
+}
+#washModule .q1{background:var(--wash-card)!important;color:var(--wash-ink)!important}
+#washModule .q2{background:color-mix(in srgb,#39976b 23%,var(--wash-card))!important;color:var(--wash-ink)!important}
+#washModule .q3{background:color-mix(in srgb,#4688d3 25%,var(--wash-card))!important;color:var(--wash-ink)!important}
+#washModule .q4{background:color-mix(in srgb,#ae77cb 29%,var(--wash-card))!important;color:var(--wash-ink)!important}
+#washModule .good{border-color:#46976b!important;background:color-mix(in srgb,#46976b 18%,var(--wash-card))!important}
+#washModule .warn{border-color:#c59e44!important;background:color-mix(in srgb,#c59e44 19%,var(--wash-card))!important}
+#washModule .bad{border-color:#b75b5b!important;background:color-mix(in srgb,#b75b5b 19%,var(--wash-card))!important}
+#washModule .good,#washModule .warn,#washModule .bad{color:var(--wash-ink)!important}
+</style>
+</head>
 <body>
 <main>
 <h1>낭만강호 시뮬레이터 v3.50</h1>
