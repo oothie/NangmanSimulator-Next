@@ -72,9 +72,9 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=0,horizon=90
    // The original native error may be Chinese (purple-only request guard).
    // The user-facing mixed-grade failure must use the confirmed Korean
    // final-slot diagnosis, without implying that any minimum was found.
-   error:best?null:(diagnostic?.method==='purple-anchor-nearest-native-wash'?
-    native.result.error:mixedFailureMessage)||native.result.error||
-    '설정한 원본 탐색 범위 내 최종 경로 없음'},
+   error:best?null:(mixedFailureMessage||(native.result.error?
+    api.koreanError?.(native.result.error):null)||
+    '설정한 2,500회 탐색 범위에서 목표 재능의 최종 경로를 찾지 못했습니다.')},
   bestPills:best?.estimatedPills??null,
   globallyOptimal:best?.globallyOptimal===true};
 }
