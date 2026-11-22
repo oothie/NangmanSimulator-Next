@@ -249,33 +249,87 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    if(!forecastOk)return {found:false,error:historyBlocked?'기록이 오래되어 시드를 복원할 수 없습니다.':'암시장 시드가 없습니다.'};
    const ids=new Set((shopIds||[]).map(Number).filter(Number.isFinite));
    if(!ids.size)return {found:false,error:'목표 상품을 선택하세요.'};
-   const eligible=available.filter(x=>ids.has(x.id));
-   if(!eligible.length){
-     const exhausted=soldOut.filter(x=>ids.has(x.id));
+   const chosen=available.find(x=>ids.has(x.id));
+   if(!chosen){
+     const exhausted=soldOut.find(x=>ids.has(x.id));
      return {found:false,unavailable:true,expanded:0,
-       error:exhausted.length?'이 세이브에서 목표 상품의 구매 상한에 도달했습니다.':
+       error:exhausted?'이 세이브에서 목표 상품의 구매 상한에 도달했습니다.':
          '현재 판매 후보에 포함되지 않은 상품입니다.'};
    }
+   // A goal is the number of future PURCHASES, not the first appearance.
+   // Limited goods: the caller uses stock minus save.RandShop.Counts.
+   const goal=Math.max(1,Math.min(1000,Math.trunc(n(options.quantity,1))));
+   const bought=countsMap(shop.Counts)[chosen.id]||0;
+   const availableCount=chosen.stock==null?null:Math.max(0,chosen.stock-bought);
+   if(availableCount!=null&&goal>availableCount)
+    return {found:false,unavailable:true,required:goal,remaining:availableCount,
+     error:'남은 구매 상한보다 많은 수량을 요청했습니다.'};
    const vipAllowance=this.paidAllowance(options.vip);
-   const mode=options.mode==='fastest'?'fastest':'cheapest';
-   const periodLimit=Math.max(1,Math.min(28,Math.trunc(n(options.periods,12))));
-   const cap=Math.max(500,Math.min(30000,Math.trunc(n(options.maxStates,9000))));
-   const costPerRefresh=20; // original ghost-market paid refresh costs 20 ingots
-   const target=items=>(items||[]).find(x=>ids.has(x.id));
-   // Market schedule: 08:00/20:00 KST. Daily refresh allowance resets
-   // separately at 06:00 KST, even if the shelf does not change then.
+   const mode=options.mode==='free'?'free':options.mode==='fastest'?'fastest':'cheapest';
+   const periodLimit=Math.max(1,Math.min(180,Math.trunc(n(options.periods,12))));
+   const cap=Math.max(500,Math.min(100000,Math.trunc(n(options.maxStates,9000))));
+   const costPerRefresh=20;
+   const target=items=>(items||[]).find(x=>ids.has(x.id))||null;
+   const current=target(today);
+   const currentAvailable=current&&Number(current.buyed||0)!==1?current:null;
+   // Current-shelf purchase needs no new RNG roll. Never count a previously
+   // purchased entry twice or count a mere appearance as an acquisition.
+   const initialQty=currentAvailable?1:0;
    const nextDaily=t=>(resetDay(t)+1)*86400-10800;
    const nextAuto=nextHalfDay(now),deadline=nextAuto+(periodLimit-1)*43200;
    const initial={seed:n(rng.seeds.guishishop),lucky,time:now,
-      nextAuto,nextDaily:nextDaily(now),period:0,used:vipAllowance.used,
-      cost:0,paid:0,steps:[],item:target(today)};
-   if(initial.item)return {mode,found:true,when:now,cost:0,paid:0,
-      item:initial.item,steps:[{kind:'current',time:now,items:today}],
-      expanded:0,proven:true,periods:periodLimit,vip:vipAllowance.vip};
+     nextAuto,nextDaily:nextDaily(now),period:0,used:vipAllowance.used,
+     cost:0,paid:0,purchased:initialQty,lastItem:currentAvailable,
+     steps:currentAvailable?[{kind:'current',time:now,items:today,
+       acquired:1,totalAcquired:1}]:[]};
+   let expanded=0;
+   const finish=node=>({mode,found:true,when:node.time,cost:node.cost,
+     paid:node.paid,item:node.lastItem,required:goal,acquired:node.purchased,
+     remaining:goal-node.purchased,
+     purchases:node.steps.filter(x=>x.acquired>0).map(x=>({
+       kind:x.kind,time:x.time,acquired:x.acquired,totalAcquired:x.totalAcquired,
+       index:x.index??null
+     })),steps:node.steps,expanded,periods:periodLimit,
+     vip:vipAllowance.vip,proven:true,
+     purchaseCost:node.purchased*n(chosen.price),
+     purchaseMoney:chosen.money});
+   if(initial.purchased>=goal)return finish(initial);
+   const withShelf=(node,items,step,changes={})=>{
+     const match=target(items);
+     const acquired=match&&node.purchased<goal?1:0;
+     const totalAcquired=node.purchased+acquired;
+     return {...node,...changes,purchased:totalAcquired,
+       lastItem:acquired?match:node.lastItem,
+       steps:node.steps.concat([{...step,items,acquired,totalAcquired}])};
+   };
+   if(mode==='free'){
+     // The deterministic free-only route consumes exactly one scheduled
+     // shelf RNG stream every 12 hours. It has no VIP or paid refreshes.
+     const rr=rng.clone(),steps=initial.steps.slice(),purchases=initialQty;
+     let got=purchases,found=initial.lastItem;
+     for(let i=1;i<=periodLimit&&got<goal;i++){
+       const when=nextAuto+(i-1)*43200;
+       const items=draw(rr,available,false,false,slots);
+       const match=target(items),acquired=match?1:0;
+       got+=acquired;
+       if(match)found=match;
+       steps.push({kind:'auto',time:when,items,acquired,totalAcquired:got});
+     }
+     expanded=steps.length;
+     const node={...initial,purchased:got,lastItem:found,
+       time:steps.at(-1)?.time??now,steps};
+     if(got>=goal)return finish(node);
+     return {mode,found:false,required:goal,acquired:got,remaining:goal-got,
+       expanded,periods:periodLimit,vip:vipAllowance.vip,paid:0,cost:0,
+       purchases:steps.filter(x=>x.acquired>0).map(x=>({
+         kind:x.kind,time:x.time,acquired:x.acquired,totalAcquired:x.totalAcquired
+       })),steps,limited:true,
+       error:'선택한 무료 자동 교체 기간 안에서는 남은 목표 수량을 모두 획득하지 못했습니다.'};
+   }
    const cmp=(a,b)=>mode==='fastest'?
-      a.time-b.time||a.cost-b.cost||a.period-b.period:
-      a.cost-b.cost||a.time-b.time||a.period-b.period;
-   // Binary min-heap avoids re-sorting the entire frontier each draw.
+     a.time-b.time||a.cost-b.cost||a.period-b.period:
+     a.cost-b.cost||a.time-b.time||a.period-b.period;
+   // Keep the original best-first shortest-path exploration and daily reset.
    const heap=[],seen=new Map();
    const push=node=>{let i=heap.length;heap.push(node);
      while(i>0){const p=(i-1)>>1;if(cmp(heap[p],node)<=0)break;heap[i]=heap[p];i=p}
@@ -286,50 +340,46 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
          if(c+1<heap.length&&cmp(heap[c+1],heap[c])<0)c++;
          if(cmp(tail,heap[c])<=0)break;
          heap[i]=heap[c];i=c}heap[i]=tail}return head};
-   push(initial);let expanded=0,best=null;
+   push(initial);
+   let best=null;
    while(heap.length&&expanded<cap){
      const node=pop();
-     const key=[node.seed,node.lucky,node.time,node.period,node.used].join('|');
+     // Distinct acquired quantities must NOT merge into the same RNG state.
+     const key=[node.seed,node.lucky,node.time,node.period,node.used,node.purchased].join('|');
      if(seen.has(key)&&seen.get(key)<=node.cost)continue;
      seen.set(key,node.cost);expanded++;
-     if(node.item){best=node;break}
-     // A manual refresh consumes a rare-roll plus repeated weighted draws.
+     if(node.purchased>=goal){best=node;break}
      if(node.used<vipAllowance.max){
-       const r=new KeyRng({guishishop:node.seed});
+       const rr=new KeyRng({guishishop:node.seed});
        const threshold=16.666666666666668+node.lucky;
-       const rareHit=r.chance('guishishop',threshold);
+       const rareHit=rr.chance('guishishop',threshold);
        const nextLucky=rareHit?threshold-100:threshold;
-       const items=draw(r,available,true,rareHit,slots);
-       push({...node,seed:r.seeds.guishishop,lucky:nextLucky,
-         used:node.used+1,cost:node.cost+costPerRefresh,paid:node.paid+1,
-         item:target(items),
-         steps:node.steps.concat([{kind:'paid',time:node.time,
-           index:node.used+1,rareHit,items}])});
+       const items=draw(rr,available,true,rareHit,slots);
+       push(withShelf(node,items,{kind:'paid',time:node.time,index:node.used+1,
+         rareHit},{seed:rr.seeds.guishishop,lucky:nextLucky,
+         used:node.used+1,cost:node.cost+costPerRefresh,paid:node.paid+1}));
      }
-     // Advance the clock without RNG consumption at daily 06:00 reset.
-     // At 08:00/20:00 consume an automatic weighted market draw.
      const autoFirst=node.nextAuto<=node.nextDaily;
      const t=autoFirst?node.nextAuto:node.nextDaily;
      if(t<=deadline){
        if(autoFirst){
-         const r=new KeyRng({guishishop:node.seed});
-         const items=draw(r,available,false,false,slots);
-         push({...node,seed:r.seeds.guishishop,time:t,nextAuto:t+43200,
-           nextDaily:node.nextDaily,period:node.period+1,item:target(items),
-           steps:node.steps.concat([{kind:'auto',time:t,items}])});
+         const rr=new KeyRng({guishishop:node.seed});
+         const items=draw(rr,available,false,false,slots);
+         push(withShelf(node,items,{kind:'auto',time:t},{
+           seed:rr.seeds.guishishop,time:t,nextAuto:t+43200,
+           nextDaily:node.nextDaily,period:node.period+1}));
        }else{
          push({...node,time:t,nextDaily:nextDaily(t),used:0,
-           steps:node.steps.concat([{kind:'reset',time:t}])});
+           steps:node.steps.concat([{kind:'reset',time:t,acquired:0,
+             totalAcquired:node.purchased}])});
        }
      }
    }
-   if(best)return {mode,found:true,when:best.time,cost:best.cost,
-     paid:best.paid,item:best.item,steps:best.steps,expanded,periods:periodLimit,
-     vip:vipAllowance.vip,proven:true};
-   return {mode,found:false,expanded,periods:periodLimit,vip:vipAllowance.vip,
-     limited:heap.length>0,error:heap.length>0?
-     '탐색 상태 상한에 도달했습니다. 결과 미발견을 불가능으로 해석하면 안 됩니다.':
-     '선택한 날짜와 VIP 허용량 안에서 목표 상품을 발견하지 못했습니다.'};
+   if(best)return finish(best);
+   return {mode,found:false,required:goal,expanded,periods:periodLimit,
+     vip:vipAllowance.vip,limited:heap.length>0,
+     error:heap.length>0?'탐색 상태 상한에 도달했습니다. 전체 수량 획득 경로를 아직 확정하지 못했습니다.':
+       '선택한 기간과 VIP 허용량에서 목표 수량을 전부 획득하는 경로를 찾지 못했습니다.'};
 
   }
  };
