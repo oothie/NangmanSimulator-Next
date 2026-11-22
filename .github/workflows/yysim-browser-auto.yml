@@ -10,6 +10,7 @@ on:
       - 'vendor/yysim/core_glue.js'
       - 'tests/yysim-native-only-browser.cjs'
       - 'tests/yysim-native-grade-contract.cjs'
+      - 'tests/yysim-native-grade-mutation-probe.cjs'
       - 'tests/yysim-native-single-pass.cjs'
       - 'tests/yysim-wasm-route-audit.cjs'
       - 'tests/yysim-wasm-callgraph.cjs'
@@ -42,3 +43,5 @@ jobs:
         run: node tests/yysim-native-only-browser.cjs
       - name: Original WASM grade contract diagnostic
         run: node tests/yysim-native-grade-contract.cjs
+      - name: Isolated native WASM talent grade gate probe
+        run: node tests/yysim-native-grade-mutation-probe.cjs
