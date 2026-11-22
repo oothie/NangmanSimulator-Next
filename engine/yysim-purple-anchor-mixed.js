@@ -357,6 +357,30 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
           if(!sourceId||!targetId)throw Error('재탐색 치환 ID 누락');
           if(protectedIds.has(sourceId))
            throw Error('이미 보유한 목표 맥을 치환할 수 없습니다');
+          // A native purple-only route was computed before the additional
+          // green/blue lock changed the RNG. Its old exchange endpoints can
+          // therefore be structurally impossible in the actual WASM state.
+          // Reject illegal endpoints BEFORE invoking exchangeTalent(), so
+          // neither RNG nor saved slot state is advanced by a doomed call.
+          const fromTalent=talents[String(sourceId)];
+          const toTalent=talents[String(targetId)];
+          if(fromTalent&&toTalent&&(
+           number(fromTalent.type)!==number(toTalent.type)||
+           number(fromTalent.pinzhi)===4&&number(toTalent.pinzhi)===4)){
+           diagnostics.illegalExchangePruned=
+            (diagnostics.illegalExchangePruned||0)+1;
+           diagnostics.illegalExchangeExamples=
+            diagnostics.illegalExchangeExamples||[];
+           if(diagnostics.illegalExchangeExamples.length<5)
+            diagnostics.illegalExchangeExamples.push({
+             wash:count(getState(),'total_wash'),from:sourceId,to:targetId,
+             fromGrade:number(fromTalent.pinzhi),
+             toGrade:number(toTalent.pinzhi),
+             fromFamily:number(fromTalent.type),toFamily:number(toTalent.type)
+            });
+           throw Error('원본 자맥 재탐색의 치환 대상 계열·등급 불일치: '+
+            sourceId+' → '+targetId);
+          }
           resyncTo(sourceId);
           const slot=getState().talents.findIndex(t=>number(t.id)===sourceId);
           if(slot<0)throw Error('재탐색 치환 원맥이 달라졌습니다');
