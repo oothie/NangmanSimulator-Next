@@ -3860,7 +3860,7 @@ if($('yyAutoRun'))$('yyAutoRun').onclick=()=>{
   const runtime=window.__washRuntime||{};
   const input=window.YYWashAutoSearch.options({
    desiredIds:runtime.autoDesiredIds||[],
-   maxPad:30,horizon:3000,topN:12
+   maxPad:20,horizon:900,topN:8
   },(window.YYWashTargetCatalog||[]).flatMap(g=>g.items.map(t=>t.id)));
   const catalog=window.YYWashTargetCatalog||[];
   const colorSelected=input.desiredIds.some(id=>catalog.some(g=>g.quality!==4&&g.items.some(t=>t.id===id)));
