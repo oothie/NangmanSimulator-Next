@@ -15,7 +15,7 @@ const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({
 }[c]));
 const characterEntries=v=>Array.isArray(v)?v:v&&typeof v==='object'?Object.values(v):[];
 function render(save,verified={},page='map'){
- return new Function('save','window','yyRoleSection','characterEntries','escape','accountMapSearch','accountLootFilter','accountMapVisible','accountProgressBar','accountFold','page',
+ return new Function('save','window','yyRoleSection','characterEntries','escape','accountMapSearch','accountLootFilter','accountMapVisible','accountProgressBar','accountFold','yyAccountMapName','page',
   fn+';return yyAccountRecordAndResourceView(page)')(
   save,{NangmanQuest:{verified},NangmanMapLoot60014:[
    {mapId:'sfj',objectId:'2012',x:15,y:22,kind:'stump',depotKey:'shudun_sfj2012',treeFlag:'shudun_sfj2012'},
@@ -23,7 +23,7 @@ function render(save,verified={},page='map'){
    {mapId:'sfj',objectId:'2872',x:24,y:11,kind:'chest',depotKey:'sfj_Box_2872'},
    {mapId:'sfj',objectId:'2888',x:19,y:6,kind:'chest',depotKey:'sfj_Box_2888'},
    {mapId:'nyz',objectId:'3999',x:2,y:17,kind:'chest',depotKey:'nyz_Box_3999'}
-  ]},section,characterEntries,escape,'','active',36,(a,b)=>'<meter>'+a+'/'+b+'</meter>',(title,body)=>'<details>'+title+body+'</details>',page);
+  ]},section,characterEntries,escape,'','active',36,(a,b)=>'<meter>'+a+'/'+b+'</meter>',(title,body)=>'<details>'+title+body+'</details>',id=>({sfj:'십방집',nyz:'남양도'})[id]||id,page);
 }
 const fixture={
  Branch:{event_known:{step:-1,recv:1795253568,trace:true},event_pending:{step:2}},
