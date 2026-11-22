@@ -63,6 +63,20 @@ const cheaper={pad:0,pills:7,washes:3,exchanges:1,optimal:false,
  assert.equal(partialGreen.result.routes.length,0,'No incomplete mixed route may be displayed as successful');
  assert.match(partialGreen.result.error,/최종 슬롯/);
  assert.equal(partialGreen.nativeDiagnostics.returned,1);
+ const mixedProgress=[];
+ await p.run({api,desiredIds:[268,184],maxPad:20,horizon:900,topN:5,
+  onProgress:row=>mixedProgress.push(row),
+  call:async(_op,_config,onNativeProgress)=>{
+   onNativeProgress({phase:'anchor-between',scannedWashes:55,
+    candidateRoutes:1,bestPills:888});
+   return {nativeFunction:'wasmSearchWashRoutes',
+    result:{routes:[{pills:888,washes:120,exchanges:1,pad:0,
+     final_slots:[{id:268,locked:true},{id:184,locked:true}]}]}};
+  }});
+ assert(mixedProgress.some(row=>row.phase==='anchor-between'&&
+  row.checked===55&&row.found===1&&row.bestPills===888),
+  'True native four-slot progress best pill cost must reach the existing UI');
+
  assert.equal(result.globallyOptimal,false,'native optimal false stays false');
  assert.equal(result.history.length,1);
  assert.equal(result.history[0].horizon,1500);
