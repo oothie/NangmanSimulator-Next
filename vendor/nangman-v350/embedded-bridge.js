@@ -4,7 +4,7 @@
  */
 (function(){
 'use strict';
-const validViews=new Set(['find','auto','owned','region']);
+const validViews=new Set(['find','auto','owned','region','unique']);
 const origin=location.origin;
 let active='find',saveVersion=-1;
 
