@@ -11,9 +11,9 @@ const base64=String(sandbox.__wasm_blob||'');
 if(!/^[A-Za-z0-9+/\s=]+$/.test(base64))throw Error('Native WASM embedded data is not base64');
 const bytes=Buffer.from(base64.replace(/\s/g,''),'base64');
 if(bytes.toString('hex',0,4)!=='0061736d')throw Error('WASM binary header mismatch');
-const module=new WebAssembly.Module(bytes);
-const imports=WebAssembly.Module.imports(module).filter(x=>x.kind==='function').length;
-const exported=WebAssembly.Module.exports(module);
+const wasmModule=new WebAssembly.Module(bytes);
+const imports=WebAssembly.Module.imports(wasmModule).filter(x=>x.kind==='function').length;
+const exported=WebAssembly.Module.exports(wasmModule);
 let at=8,wasmExports=[],bodySizes=[];
 function readInt(cursor){
  let n=0,shift=0,byte;
