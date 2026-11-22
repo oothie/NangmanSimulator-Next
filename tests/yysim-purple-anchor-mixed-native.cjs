@@ -523,6 +523,50 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   /미지원 원본 자맥 실행 단계: open_slot/.test(x.reason)),
   'Original native open_slot must not reject the actual 1121 talent goals');
  assert(wasmSetState(source));
+ // 1121 Moon-young (ID 10029), save-derived scalar state. No raw
+ // save or private globalVariable table is placed in public GitHub.
+ const moonState={...source,mode:'seed',seed:660687189,role_id:10029,
+  salt:262731,zizhi:150,sex:2,role_level:89,
+  str_gift:190,con_gift:180,dex_gift:200,int_gift:200,
+  role_stats:{str_val:9,con:9,dex:12,int_val:10},
+  talents:[],tal_lucky:0,total_wash:0,total_pills:0,
+  total_talent_bars:0,exchange_count:0,
+  born_rc:0,has_born_talent:true,rng_variant:'73324',
+  luck_seed:0,luck_seed_inited:false,
+  quality_counts:{1:0,2:0,3:0,4:0},
+  gold_count:0,pity_count:0,last_purple_total_pills:null,
+  has_bag_pills:true,bag_pills:20000,global_vars:{}};
+ const moonNative=[];
+ for(const order of [[268,262],[262,268]]){
+  for(const pad of [0,5,10,15,20,30]){
+   assert(wasmSetState(moonState));
+   const result=YYWashNativeSearchGuard.run({
+    getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes
+   },{desired_ids:order,max_pad:pad,horizon:900,top_n:8});
+   moonNative.push({order,pad,costs:(result.routes||[]).map(x=>({
+    pills:x.pills,steps:x.actions?.length||0,washes:x.actions?.at(-1)?.wash_no??null
+   }))});
+  }
+ }
+ console.log('YY_MOON_1121_PURPLE_BACKBONES '+JSON.stringify(moonNative));
+ assert(wasmSetState(moonState));
+ const moonMixed=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[268,262,237,204],maxPad:0,horizon:900,topN:8,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:YYWashNativeSearchGuard
+ });
+ console.log('YY_MOON_1121_MIXED '+JSON.stringify({
+  cost:moonMixed.routes[0]?.pills??null,
+  washes:moonMixed.routes[0]?.washes??null,
+  attempts:moonMixed.diagnostics.purpleNativeCalls,
+  purpleCosts:moonMixed.diagnostics.purpleBackboneCosts,
+  betweenCandidates:moonMixed.diagnostics.betweenCandidates,
+  betweenExamined:moonMixed.diagnostics.betweenExamined,
+  failures:moonMixed.diagnostics.failures.slice(0,5),
+  actions:moonMixed.routes[0]?.actions?.length??null
+ }));
+ assert(wasmSetState(source));
  console.log('YY_PURPLE_ANCHOR_MIXED_REAL_WASM '+JSON.stringify({
   shape:[271,268,272,184],
   routes:out.routes.map(r=>({pills:r.pills,washes:r.washes,final:r.final_slots,
