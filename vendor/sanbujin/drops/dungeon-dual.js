@@ -7,7 +7,9 @@ if(!area||!status||!body||!root.SBJDungeonDual)return;
 const source=root.DAILY_DATA?.dungeons||[];
 const original=root.SBJDungeonCatalog||[];
 const combined=root.SBJDungeonYYAdapter.fullCatalog(original);
-const colors=['색상 없음','백색','녹색','청색','자색'];
+const colors=['색상 미확인','백색','녹색','청색','자색'];
+const bossOverrides={'恶贼':'악적','茧':'견','迷':'미','柱子':'주자',
+ '风':'풍','山':'산','清虚':'청허','凌红尘':'능홍진'};
 const names={
  聚仙寨:'취선채',邹家堡:'추가보',墨门遗迹:'묵문유적',血衣楼:'혈의루',
  铁刃门:'철인문',天一教:'천일교',枯骨门:'고골문',燕王府:'연왕부',
@@ -34,7 +36,8 @@ function cell(row,content,css){
 }
 function resultNode(r,engine){
  const wrap=make('div',null,'dungeon-dual-result');
- if(r?.missing){wrap.append(make('strong','필요한 시드 없음','dungeon-dual-muted'));return wrap}
+ if(r?.missing){wrap.append(make('strong',r.reason||
+   '필요한 시드 또는 보상 후보 없음','dungeon-dual-muted'));return wrap}
  if(!r?.supported){
   wrap.append(make('strong','일반 장비 예측 자료 없음','dungeon-dual-muted'));return wrap;
  }
@@ -72,7 +75,9 @@ function render(){
    const tr=make('tr');
    const record=combined.find(e=>Number(e.sourceNpc||String(e.id).match(/drop_(\d+)/)?.[1])===Number(npc.id)&&
      e.sourceDungeon===current.name);
-   cell(tr,root.SBJ_KOREAN?.translate?.(record?.boss||npc.name)||record?.boss||npc.name,'dungeon-dual-boss');
+   const bossChinese=record?.boss||npc.name;
+   cell(tr,bossOverrides[bossChinese]||root.SBJ_KOREAN?.translate?.(bossChinese)||
+     bossChinese,'dungeon-dual-boss');
    cell(tr,resultNode(yy.get(npc.id),'yy'));
    cell(tr,resultNode(san.get(npc.id),'san'));
    body.append(tr);
