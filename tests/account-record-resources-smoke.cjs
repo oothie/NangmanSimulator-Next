@@ -24,18 +24,22 @@ const fixture={
  Achieves:[{ID:1,Reward:2}],AchievePoint:182,
  BattleCount:110711,KillEnermy:110299,WudaoWin:943,
  MapData:{
-  swz:{tmxObj:{'2872':{pic:'pic_box_empty.png',nick:'yes'},'1234':{pic:'empty',nick:'yes'}}},
+  sfj:{tmxObj:{'2872':{pic:'pic_box_empty.png',nick:'yes'},'1234':{pic:'empty',nick:'yes'}}},
   nyz:{tmxObj:{'3001':{pic:'pic_stump_empty.png'},'3002':{nick:'yes',json:'yes'}}},
   hua:{tmxObj:{}}
  },
- EncryptMap:{swz:{Plants:{'7':{Count:3}},Kuangs:{'301':{Count:6}}}}
+ EncryptMap:{sfj:{Plants:{'7':{Count:3}},Kuangs:{'301':{Count:6}}}}
 };
+fixture.globalVariable={find_TotalShuDun:2,shudun_sfj2012:1,shudun_nyz2004:1};
 const out=render(fixture,{event_known:['한국판 검증 이벤트','']});
 assert(render(fixture,{event_known:['한국판 검증 이벤트','']},'jianghu').includes('한국판 검증 이벤트'),'quest name matched');
 assert(render(fixture,{},'jianghu').includes('업적 저장 항목'),'achievements shown');
 assert(render(fixture,{event_known:['한국판 검증 이벤트','']},'jianghu').includes('110,711'),'account activity count');
 assert(out.includes('그루터기 / 보물상자'),'correct collectible category');
 assert(out.includes('상자·그루터기 외형 식별'),'both visually confirmed marker types summarized');
+assert(out.includes('획득한 그루터기')&&out.includes('2개'),'confirmed stump pickup counters');
+assert(out.includes('shudun_sfj2012'),'confirmed stump record row');
+assert(out.includes('개별 획득 목록과 일치'),'cumulative count equals individual records');
 assert(out.includes('십방집')&&out.includes('남양도'),'per-map labels');
 assert(out.includes('종류 미확인'),'unknown classifications retained');
 assert(!out.includes('채집·채광 기록'),'repeatable resource collection removed');
