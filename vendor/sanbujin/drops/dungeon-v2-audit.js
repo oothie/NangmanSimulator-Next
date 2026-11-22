@@ -15,8 +15,10 @@ const longForm=(item,color,extra={})=>({item:num(item),color:item?num(color):0,.
 const winByDungeon={byj:'win_byj',dcy:'win_dcy',lsby:'win_lsby',
  ywf:'win_ywf',byjzt:'win_byjzt'};
 function finishDungeon(runtime,plan,index){
- const current=plan[index],next=plan[index+1];
- if(!current||next?.dungeon===current.dungeon)return;
+ const current=plan[index];
+ if(!current)return;
+ const bosses=current.dungeon.npcs||[];
+ if(!bosses.length||Number(current.npc.id)!==Number(bosses[bosses.length-1].id))return;
  const counter=winByDungeon[current.dungeon.id];
  if(counter)runtime.state.add(counter,1);
 }
