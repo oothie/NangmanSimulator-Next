@@ -53,7 +53,8 @@ if(!routes)throw Error('WASM route export search_wash_routes not found; inspect 
 const bodyIndex=routes.index-imports;
 if(bodyIndex<0||bodyIndex>=bodySizes.length)throw Error('WASM native route export index points outside code bodies');
 // The export is wasm-bindgen JSON glue, not the actual route solver.
-// Decode its direct 'call' candidates and identify the largest local callee.
+// Its first large callee is the 78 request adapter, not the full search core.
+// The adapter then reaches the much larger internal function 4.
 // The wrapper is simple enough that raw 0x10 scanning is diagnostic only;
 // do not modify native instructions using this heuristic.
 const directCalls=[];
@@ -81,15 +82,15 @@ for(let i=0;i<routeBodyOffset.size;i++){
   bodySizes[target-imports]:null;
  if(candidateSize!==null)directCalls.push({functionIndex:target,bodyBytes:candidateSize});
 }
-const searchCallees=directCalls.filter(x=>x.functionIndex!==routes.index&&x.bodyBytes>1000)
+const adapterCallees=directCalls.filter(x=>x.functionIndex!==routes.index&&x.bodyBytes>1000)
  .sort((a,b)=>b.bodyBytes-a.bodyBytes);
-if(!searchCallees.length)throw Error('WASM search solver target could not be located');
-if(searchCallees[0].functionIndex!==78||searchCallees[0].bodyBytes!==4055)
+if(!adapterCallees.length)throw Error('WASM search adapter target could not be located');
+if(adapterCallees[0].functionIndex!==78||adapterCallees[0].bodyBytes!==4055)
  throw Error('Original yy-sim WASM search implementation changed; re-audit before extending');
 
 const record={moduleBytes:bytes.length,importedFunctions:imports,definedFunctions:bodySizes.length,
  nativeRouteFunctionIndex:routes.index,nativeRouteBodyBytes:bodySizes[bodyIndex],
- searchWrapperCalls:directCalls,solverCandidate:searchCallees[0],
+ searchWrapperCalls:directCalls,requestAdapterCandidate:adapterCallees[0],
  relatedExports:funcs.map(x=>({name:x.name,index:x.index})),
  searchExportPresent:exported.some(x=>x.name==='search_wash_routes'&&x.kind==='function')};
 console.log('YY_SIM_ORIGINAL_WASM_STRUCTURE',JSON.stringify(record));
