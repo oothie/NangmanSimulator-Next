@@ -298,7 +298,7 @@ while(dataPosition<bytes.length){
    if(memoryOffset!==null){
     const data=bytes.subarray(start,start+length);
     for(const name of sourceNames){
-     const needle=Buffer.from('src\\\\wash_search\\\\'+name+'.rs');
+     const needle=Buffer.from('src\\wash_search\\'+name+'.rs');
      let at=-1;
      while((at=data.indexOf(needle,at+1))>=0){
       const address=memoryOffset+at,pointer=Buffer.alloc(4);
