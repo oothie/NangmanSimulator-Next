@@ -642,7 +642,6 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    '원본 WASM 자맥 기준 경로 0개 · 선택 자맥 순서 '+(diagnostics.purpleAttempts||1)+
    '개 검사 · 녹·파맥 탐색 시작 전 중단');
   for(const native of baseline?.routes||[]){
-  for(const native of baseline?.routes||[]){
    let replayed;
    const marks=[];
    try{replayed=replay(native,m=>marks.push(m));diagnostics.replayed++}
