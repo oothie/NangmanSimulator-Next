@@ -31,6 +31,17 @@ Extend the ORIGINAL `search_wash_routes` native yy-sim optimizer to handle green
 ## Native request-flag bypass result
 `tests/yysim-native-quality-opcode-probe.cjs` now includes the isolated function4 bytecode patch at offset 5532: `i32.load8_u state+300` is replaced only in a disposable compiled copy with `drop; i32.const 0; nop` (four bytes). The variant retains the exact same original table and deterministic purple 271 baseline of 936 pills. In direct real native tests, BOTH green-only and blue-only are STILL rejected by `路径搜索只能预选紫脉`; mixed final slots remain incomplete. The comparison at offset 5532 is therefore **not sufficient to bypass the original native grade restriction**. Do not deploy this mutation.
 
+## Core four-literal audit (additional)
+The original core function4 contains 13 i32.const(4) near-comparison candidates at byte offsets:
+515, 1511, 6993, 6997, 7493, 7497, 7845, 7849, 9429, 11400, 11489, 11566, 14313.
+The decoded neighborhoods predominantly show slot-vector initialization, clamping to four slots, and 4-byte indexing, **not a demonstrated talent-grade restriction**. In particular:
+- 515: writes constant 4 to per-search state offset 1192 before comparing unrelated locals.
+- 6993/6997, 7493/7497, 7845/7849: `select` / clamp forms.
+- 9429, 11400, 11566, 14313: 4-byte slot array indexing.
+- 11489: loop comparing local 11 with slot capacity 4.
+**Avoid using any of these core constants as a replacement for a proven pinzhi predicate.**
+The original native Rust source modules are only available as filenames embedded in the binary, not as editable source in this repository.
+
 ## Pending next steps
 1. Follow the branch/dataflow preceding core4's native error builder; identify the grade predicate for the preselection and distinguish it from RNG's native quality distribution.
 2. Inspect function13 `next_purple` candidate-event loop beyond the 3 unsuccessful tested offsets.
