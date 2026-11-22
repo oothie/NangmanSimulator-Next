@@ -36,7 +36,7 @@
     $('wildTime').disabled = $('wildInterval').disabled = !timed;
     const ready = isTomb ? tomb.ready(input) : engine.usable(input.seed) && (!tiger || engine.usable(input.tigerSeed));
     $('wildRun').disabled = !ready;
-    const label = isTomb ? '제릉 · 거령 병용 출현과 90레벨 장비·기타 보상을 함께 계산합니다. 1121 세이브에서 8·12·20·21회차 실측과 일치한 보상 순서 가설을 적용합니다. 추가 실측에서 제109회 청운추가 예측 녹색과 달리 청색(방어 220·명중 68)으로 확인되어, 색상·추가 옵션은 검증 중입니다. 장비별 Eds를 추적하지만 다른 세이브의 순회 순서까지 확정된 것은 아닙니다.' : tiger
+    const label = isTomb ? '제릉 · 거령 병용 출현과 90레벨 장비·기타 보상을 함께 계산합니다. 1121 세이브의 8·12·20·21회차와 추가 실측 109회 청운추(청색·방어 +220·명중 +68)를 모두 재현하는 색상 순서 가설을 적용합니다. 색상 순서는 동등한 후보 4개 중 하나이며, 다른 세이브의 Lua 순회 순서까지 확정된 것은 아닙니다. 장비별 Eds를 추적합니다.' : tiger
       ? '원본 실행 순서에 따라 호랑이 종류와 호골 천장을 예측합니다. 현재 호골 연속 미획득 ' + input.drought + '회.'
       : timed ? '드랍 여부와 품질은 세이브 순서로 예측합니다. 장비 옵션은 입력한 판정 시각에 따라 달라집니다.'
         : '원본 보상 함수를 직접 호출하는 특수몹 드랍 시뮬레이션입니다. 표시 회차는 전체 일반 필드 사냥 횟수가 아닙니다. 별도 특수몹 출현 순서가 연결되기 전까지 일반 사냥 1회당 이 함수를 한 번 호출한다고 해석하면 안 됩니다.';
@@ -80,7 +80,7 @@
         (row.tiger ? ' · ' + row.tiger : '') + (row.kind === 'tomb' ? ' · ' + (row.spawn ? '특수몹 35256' : '일반 전투') : '') + ' · ' + (EQUIP_DATA.equipment?.[row.itemId]?.koName || (row.kind === 'tomb' ? (row.itemName || (row.itemId ? '기타 보상 ID ' + row.itemId : row.spawn ? '장비 드랍 없음' : '예상 드랍 없음')) : ko(row.itemName || '예상 드랍 없음'))) +
         (row.color ? ' · ' + color[row.color] : '');
       item.append(node('strong', label));
-      if (row.kind === 'tomb') item.append(node('span', row.color ? '90레벨 장비 · 분기 순서 경험적 추정(제109회 청운추 색상 불일치 확인) · 최종 정련/망정 미연결' : row.reason || (row.spawn ? '장비 이외 보상 또는 드랍 없음' : '특수몹 미등장'), 'wild-row-note'));
+      if (row.kind === 'tomb') item.append(node('span', row.color ? '90레벨 장비 · 1121 세이브 제109회 실측 반영(다른 세이브 검증 필요) · 최종 정련/망정 미연결' : row.reason || (row.spawn ? '장비 이외 보상 또는 드랍 없음' : '특수몹 미등장'), 'wild-row-note'));
       if (row.tiger) item.append(node('span', '호골 연속 미획득 ' + row.droughtBefore + ' → ' + row.droughtAfter, 'wild-row-note'));
       if (row.color > 1) {
         const attrs = row.affixes?.map(({prop, value}) => {
