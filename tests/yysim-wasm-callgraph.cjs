@@ -255,6 +255,9 @@ for(let i=0;i<coreSearch.instructions.length;i++){
 }
 assert(nativeEventCalls.some(x=>x.destination===13),
  'Expected direct original purple candidate generation call');
+assert(nativeEventCalls.some(x=>x.destination===13&&x.offset===14886),
+ 'Original native next_purple event call site moved; audit call argument bound');
+
 const coreComparisons=comparisonWindows(coreSearch);
 const coreGradeReview=gradeReviewSitesFor(coreSearch);
 for(const item of tally.values()){
