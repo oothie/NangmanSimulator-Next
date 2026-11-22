@@ -764,7 +764,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 <script>window.NANGMAN_YY_EQUIP_DATA=window.EQUIP_DATA;window.EQUIP_DATA=window.NANGMAN_PREVIOUS_EQUIP_DATA;</script>
 <script src="./engine/yysim-combat-original.js?rev=v0102"></script>
 <script>
-(()=>{'use strict';const tabs=[['wash','세수'],['equip','장비'],['character','인물'],['wiki','백과'],['daily','일일'],['drop','드랍'],['quest','임무']];let v=(['wash','character','wiki','daily','drop','quest','save'].includes(location.hash.slice(1))?location.hash.slice(1):'wash'),sub='sim',save=null,filename='',roles=[],selected=0,filter='';
+(()=>{'use strict';const tabs=[['wash','세수'],['equip','장비'],['character','인물'],['account','계정'],['wiki','백과'],['daily','일일'],['drop','드랍'],['quest','임무']];let v=(['wash','character','account','wiki','daily','drop','quest','save'].includes(location.hash.slice(1))?location.hash.slice(1):'wash'),sub='sim',save=null,filename='',roles=[],selected=0,filter='';
 const $=id=>document.getElementById(id),escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));const card=(t,x)=>'<section class="card"><h3>'+t+'</h3>'+x+'</section>';
 function getRoles(o){let a=[],ids=new Set;function add(r,type){if(!r||typeof r!=='object')return;const id=r.ID??r.Id??r.id;if(id==null||ids.has(String(id)))return;ids.add(String(id));a.push({id,type,name:String(r.Name||r.NickName||r.name||'캐릭터 '+id).trim(),level:r.Lv??r.Level??'',raw:r})}add(o.MainRole,'주인공');for(let [key,type] of [['Roles','동료'],['Leavers','이탈']]){let x=o[key]||[],items=Array.isArray(x)?x:Object.values(typeof x==='object'?x:{});items.forEach(r=>add(r,type))}return a}
 function roleList(){const cats=['주인공','동료','이탈'];let out='';for(const cat of cats){const items=roles.filter(x=>x.type===cat);if(!items.length)continue;out+='<div class="role-g"><div class="role-title">'+cat+'<span>'+items.length+'</span></div>'+items.filter(r=>(r.name+' '+r.id).toLowerCase().includes(filter.toLowerCase())).map(r=>{const i=roles.indexOf(r);return '<button class="role '+(selected===i?'active':'')+'" data-role="'+i+'"><span class="avatar">'+escape(r.name.slice(0,1))+'</span><span><b>'+escape(r.name)+'</b><small>ID '+escape(r.id)+(r.level?' · Lv'+escape(r.level):'')+'</small></span></button>'}).join('')+'</div>'}return out||'<p class="blank">JSON 세이브를 불러오면 캐릭터 목록이 표시됩니다.</p>'}
@@ -1357,7 +1357,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero+tabbar+body+'</div
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='find',equipSearch='',equipFindLevel='all',equipFindType='all',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questSourceError='';
+let equipTab='find',equipSearch='',equipFindLevel='all',equipFindType='all',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel',accountTab='summary';let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyPeriods=12,marketStrategyResults=null,marketSlotsOverride=6;let questSourceError='';
 let questTab='current',questSearch='',questBranchFilter='active',questVisibleLimit=200,questCatalogLimit=150,questCategory='all',questFocusedId=null,questRegion='all';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
@@ -3465,7 +3465,7 @@ function yyRoleGrowthOverview(role,kind){
 /* 한국판 실제 세이브: Branch/Achieves, EncryptMap.Plants/Kuangs, MapData, Fogs.
  * 비어 있는 슬롯을 0회 획득으로 해석하거나 카운터를 임의로 합산하지 않는다.
  * Read-only: 세이브의 맵/광맥 RNG, 타임스탬프, 수량을 절대 변경하지 않는다. */
-function yyAccountRecordAndResourceView(){
+function yyAccountRecordAndResourceView(section='jianghu'){
  const root=Array.isArray(save)?save[0]:save||{};
  const dict=x=>x&&typeof x==='object'&&!Array.isArray(x)?x:{};
  const branch=dict(root.Branch),quests=window.NangmanQuest?.verified||{};
@@ -3525,7 +3525,7 @@ function yyAccountRecordAndResourceView(){
   entries:markers.filter(x=>x.mid===id)
  })).sort((a,b)=>a.name.localeCompare(b.name,'ko'));
  const rows=items=>items.map(x=>'<tr><td>'+escape(x.name)+' <small>('+escape(x.mid)+')</small></td><td>'+escape(x.type)+'</td><td>#'+escape(x.id)+'</td><td>'+escape(x.flag)+'</td><td>'+escape(x.pic||'—')+'</td></tr>').join('');
- return yyRoleSection('강호 기록 · 계정 공통',
+ const jianghuHtml=yyRoleSection('강호 기록 · 계정 공통',
  '<div class="role-grid stat-grid">'+[
   ['분기·이벤트 기록',records.length+'건','완료 '+completed.length+' · 진행 '+ongoing.length],
   ['추적 중',traced.length+'건','Branch.trace 저장값'],
@@ -3544,8 +3544,9 @@ function yyAccountRecordAndResourceView(){
  '<div class="role-grid stat-grid">'+cumulative.map(row=>
   '<div class="stat-cell"><span class="label">'+escape(row.name)+'</span>'+
   '<span class="value">'+(row.value==null?'—':row.value.toLocaleString('ko-KR'))+'</span>'+
-  '<span class="sub">'+escape(row.key)+'</span></div>').join('')+'</div>')+
- yyRoleSection('지도자원 · 그루터기 / 보물상자',
+  '<span class="sub">'+escape(row.key)+'</span></div>').join('')+'</div>');
+ if(section==='jianghu')return jianghuHtml;
+ return yyRoleSection('지도자원 · 그루터기 / 보물상자',
  '<div class="role-grid stat-grid">'+[
  ['지도 기록',perMap.length+'곳','MapData'],
  ['변경된 월드 오브젝트',markers.length+'개','tmxObj'],
@@ -3565,6 +3566,29 @@ function yyAccountRecordAndResourceView(){
  '<p class="micro">정확한 획득/미획득 체크리스트는 지도별 원본 Tiled 오브젝트 목록과 저장 ID 대조 이후 제공할 수 있습니다. 반복 채집·광맥 상태와 혼동하지 않습니다.</p>');
 }
 
+
+function accountView(){
+ const pages=[['summary','계정 요약'],['growth','단약 · 수련 전체'],['jianghu','강호 기록'],['map','지도자원']];
+ const ordered=roles.filter(r=>r.type==='주인공').concat(roles.filter(r=>r.type==='동료'),roles.filter(r=>r.type==='이탈'));
+ const entries=ordered.map(r=>({r,stats:yyRoleCultivationModel(r),
+  train:yyProgressStat(yyProgressEntries(save,r,'training')),
+  pills:yyProgressStat(yyProgressEntries(save,r,'consumable'))}));
+ const body=!save?'<section class="card"><p>세이브를 불러오면 계정 기록을 조회할 수 있습니다.</p></section>':
+  accountTab==='summary'?yyAccountCultivationView():
+  accountTab==='growth'?yyAccountGrowthDashboard(entries):
+  yyAccountRecordAndResourceView(accountTab);
+ return '<section class="account-workspace yy-account-overview">'+
+  '<header class="wr-hero"><h2 class="wr-name">계정</h2><p class="wr-hero-meta">전체 인물 '+roles.length+'명 · 저장된 성장 · 강호 · 지도 탐색 현황</p></header>'+
+  '<nav class="role-subtabs account-nav" aria-label="계정 메뉴">'+pages.map(([id,name])=>
+    '<button type="button" data-account-tab="'+id+'" class="'+(accountTab===id?'active':'')+'" aria-pressed="'+(accountTab===id)+'">'+name+'</button>').join('')+'</nav>'+
+  body+'</section>';
+}
+function yyAccountGrowthDashboard(entries){
+ return yyRoleSection('전원 단약·수련 기록',
+ '<p class="micro">진행 상태는 세이브의 계정 변수 기준입니다. 기록 0회인 항목도 확인할 수 있습니다. 한국 서버 미출시 여부는 별도 검증이 필요합니다.</p>'+
+ yyAccountAllGrowthCatalogView(entries));
+}
+
 function characterView(){
  const opts=[['panel','능력치'],['equip','장비'],['talent','재능'],['detail','상세'],['training','수련'],['consumable','단약'],['hengshan','직무'],['other','기타']];
  const role=roles[selected]||roles[0]||null,raw=role?.raw||{};
@@ -3572,7 +3596,7 @@ function characterView(){
  const picker='<aside class="role-page-aside"><div class="role-selector-toolbar"><strong>인물 선택 (총 '+roles.length+'명)</strong>'+
  '<input id="characterSearch" type="search" placeholder="이름 / 소속 / ID 검색" value="'+escape(characterFilter)+'" aria-label="캐릭터 검색"></div>'+
  '<div class="role-btn-list">'+
- '<button type="button" class="role-btn '+(characterTab==='account'?'active':'')+'" data-account-all="true" aria-pressed="'+(characterTab==='account')+'"><span class="role-btn-avatar">全</span><span class="role-btn-body"><strong class="role-btn-name">계정 전체</strong><small class="role-btn-meta">전체 단약 · 수련 · 강호 기록</small></span></button>'+
+ 
  groups.map(([type,label])=>{
   const all=roles.map((r,i)=>({r,i})).filter(x=>x.r.type===type);
   const visible=all.filter(({r})=>(r.name+' '+r.id+' '+(r.raw?.ShiLi||'')+' '+(r.raw?.MenPai??'')).toLowerCase().includes(characterFilter.toLowerCase()));
@@ -3588,7 +3612,7 @@ function characterView(){
  ' · 자질 '+escape(raw.ZiZhi??'—')+'</p></header>':
  '<header class="wr-hero"><h2 class="wr-name is-empty">캐릭터 미선택</h2><p class="wr-hero-meta">한국판 JSON 세이브를 불러오세요.</p></header>';
  let body='<p class="muted">세이브에 선택 가능한 캐릭터가 없습니다.</p>';
- if(characterTab==='account')body=yyAccountCultivationView()+yyAccountRecordAndResourceView();
+ if(characterTab==='account')body=yyRolePanel(role||roles[0]);
  else if(role){
   switch(characterTab){
    case 'panel': body=yyRolePanel(role);break;
@@ -3869,6 +3893,7 @@ function others(){
  if(v==='equip')return equipView();
  if(v==='wiki')return wikiView();
  if(v==='character')return characterView();
+ if(v==='account')return accountView();
  if(v==='daily')return dailyView();
  if(v==='quest')return questView();
  if(v==='drop')return '<div class="module-wrap">'+moduleHero('드랍','')+
@@ -3880,7 +3905,7 @@ function others(){
  const [name,desc]=info[v];
  return '<div class="module-wrap">'+moduleHero(name,desc)+'<div class="module-panel"><h3>기능 준비 중</h3><p class="micro">'+desc+'</p></div></div>';
 }
-function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('topSaveStatus').textContent=save?'세이브 연결 · '+roles.length+'명':'세이브 미연결';$('clearTopSave').hidden=!save;$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();updateDropVisibility();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);invalidateWashLink(roles[selected]?.id);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);characterTab='panel';invalidateWashLink(roles[selected]?.id);render()});const accountAll=document.querySelector('[data-account-all]');if(accountAll)accountAll.onclick=()=>{characterTab='account';render()};if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);invalidateWashLink(roles[selected]?.id);characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};if($('marketQuery'))$('marketQuery').oninput=e=>{marketPanel='search';marketQuery=e.target.value;const caret=e.target.selectionStart;render();const field=$('marketQuery');if(field){field.focus();field.setSelectionRange(caret,caret)}};
+function render(){$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('topSaveStatus').textContent=save?'세이브 연결 · '+roles.length+'명':'세이브 미연결';$('clearTopSave').hidden=!save;$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();updateDropVisibility();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);invalidateWashLink(roles[selected]?.id);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);characterTab='panel';invalidateWashLink(roles[selected]?.id);render()});const accountAll=document.querySelector('[data-account-all]');if(accountAll)accountAll.onclick=()=>{v='account';accountTab='summary';location.hash=v;render()};if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-account-tab]').forEach(b=>b.onclick=()=>{accountTab=b.dataset.accountTab;render()});document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);invalidateWashLink(roles[selected]?.id);v='character';location.hash=v;characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};if($('marketQuery'))$('marketQuery').oninput=e=>{marketPanel='search';marketQuery=e.target.value;const caret=e.target.selectionStart;render();const field=$('marketQuery');if(field){field.focus();field.setSelectionRange(caret,caret)}};
 if($('marketPeriods'))$('marketPeriods').onchange=e=>{marketPeriods=Number(e.target.value);render()};
 if($('marketVipSelect'))$('marketVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;render()};
 if($('marketSlotsSelect'))$('marketSlotsSelect').onchange=e=>{marketSlotsOverride=Number(e.target.value);marketSimStep=0;marketStrategyResults=null;render()};
