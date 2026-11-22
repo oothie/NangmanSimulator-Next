@@ -2,7 +2,7 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const ko = value => window.SBJ_KOREAN?.translate?.(String(value ?? '')) || String(value ?? '');
-  const engine = window.SBJDungeonDrop, catalog = window.SBJDungeonCatalog;
+  const engine = window.SBJDungeonDrop, catalog = window.SBJDungeonCatalog.map(event=>window.SBJDungeonYYAdapter?.adapt(event)||event);
   const groups = [...new Set(catalog.map(event => event.dungeon))];
   const area = $('dungeonArea'), boss = $('dungeonBoss');
   const sections = {wild: $('wildDrop'), dungeon: $('dungeonDrop'), shared: $('sharedGear'), treasure: $('treasureDrop')};
@@ -56,7 +56,7 @@
     $('dungeonRun').disabled = !ready;
     $('dungeonCount').disabled = $('dungeonOnlyHits').disabled = !event.outer;
     $('dungeonHint').textContent = ready
-      ? '선택한 우두머리의 보상 판정 구간을 독립적으로 예측합니다. 소탕·다른 우두머리·이벤트가 같은 순서를 사용하면 실제 결과가 달라질 수 있습니다.'
+      ? '선택한 우두머리의 yy-sim 보상 분기와 산부진의 시드 계산을 결합해 예측합니다. 소탕·다른 우두머리·이벤트가 같은 순서를 사용하면 실제 결과가 달라질 수 있습니다.'
       : event.outer ? '현재 세이브에 해당 우두머리의 난수 순서가 없습니다.' : '이 우두머리는 현재 전용 주황 장비 정보와 세이브 상태를 조회할 수 있습니다.';
     $('dungeonOrange').hidden = !event.orange.length;
     $('dungeonOrangeList').replaceChildren(...event.orange.map(drop => {
@@ -97,7 +97,7 @@
   const coverage=$('dungeonCoverageStatus');
   if(coverage)coverage.textContent='원본 데이터: '+groups.length+'개 관문·분류 · '+normalEvents.length+
     '개 일반 장비 보상 함수 · 90레벨 장비 후보 '+ninetyEntries.length+
-    '개 함수 / '+ninetyAreas.length+'개 관문 · 모든 예측은 한국판 실측 검증 전';
+    '개 함수 / '+ninetyAreas.length+'개 관문 · yy-sim 분기 적용 '+normalEvents.filter(e=>e.source==='yy-sim').length+'개 · 한국판 실측 검증 필요';
   groups.forEach((group, i) => area.add(new Option(ko(group), group, i === 0)));
   area.onchange = fillBosses;
   boss.onchange = renderBoss;
