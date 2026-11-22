@@ -130,6 +130,30 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
   if(!setState({...current,talents:list}))
    throw Error('원본 WASM 재능 잠금 상태 변경 실패');
  }
+ // Original yy-sim open_slot follows upgradeZiZhi: a virtual
+ // aptitude increment adds +100 strength and constitution gifts per step.
+ // Apply through the original WASM state API, never fabricate a new slot.
+ function openNativeSlot(action){
+  const note=String(action?.note||'');
+  const match=note.match(/15[1-4]/);
+  if(!match)throw Error('원본 슬롯 개방의 자질 조건을 확인할 수 없습니다: '+note);
+  const required=Number(match[0]);
+  let state=getState();
+  const z=Number(state?.zizhi);
+  if(!Number.isInteger(z)||z<150||z>154)
+   throw Error('원본 WASM 슬롯 개방 자질 상태가 올바르지 않습니다');
+  while(Number(state.zizhi)<required){
+   const next={...state,zizhi:Number(state.zizhi)+1,
+    str_gift:count(state,'str_gift')+100,
+    con_gift:count(state,'con_gift')+100};
+   if(!setState(next))throw Error('원본 WASM 슬롯 개방 실패: 자질 '+next.zizhi);
+   state=getState();
+   if(Number(state.zizhi)!==next.zizhi||
+      count(state,'str_gift')!==next.str_gift||
+      count(state,'con_gift')!==next.con_gift)
+    throw Error('원본 WASM 슬롯 개방 후 자질 수치 불일치');
+  }
+ }
  function replay(route,anchorProgress){
   restore(initial);
   const actions=Array.isArray(route.actions)?route.actions:[];
@@ -160,6 +184,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
       throw Error('원본 자맥 치환 결과가 원본 단계와 일치하지 않습니다');
      break;
     }
+    case 'open_slot':openNativeSlot(action);break;
     case 'wash_to':case 'skip':break;
     default:throw Error('미지원 원본 자맥 실행 단계: '+action.kind);
    }
@@ -215,7 +240,8 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
     const ret=exchangeTalent(index);
     if(!ret||ret.error||!idsOf(getState()).includes(to))
      throw Error('자맥 사이 삽입 후 치환 결과가 달라졌습니다');
-   }else if(!['wash_to','skip'].includes(action.kind))
+   }else if(action.kind==='open_slot')openNativeSlot(action);
+   else if(!['wash_to','skip'].includes(action.kind))
     throw Error('원본 단계 미지원: '+action.kind);
   };
   restore(mark.state);
@@ -440,7 +466,8 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
             });
            throw Error('재탐색 WASM 치환 결과 불일치');
           }
-         }else if(!['wash_to','skip'].includes(step.kind))
+         }else if(step.kind==='open_slot')openNativeSlot(step);
+         else if(!['wash_to','skip'].includes(step.kind))
           throw Error('원본 재탐색 미지원 단계: '+step.kind);
          // Once locked targets change native draw consumption, the old
          // roll_idx refers to a different RNG stream and must not be shown
