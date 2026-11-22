@@ -12,6 +12,14 @@ const equipmentFor=(catalog,d,n)=>catalog.find(e=>npcId(e)===Number(n)&&
  (root.SBJDungeonYYAdapter?.findSource(e)?.d.id===d.id))||
  catalog.find(e=>npcId(e)===Number(n))||null;
 const longForm=(item,color,extra={})=>({item:num(item),color:item?num(color):0,...extra});
+const winByDungeon={byj:'win_byj',dcy:'win_dcy',lsby:'win_lsby',
+ ywf:'win_ywf',byjzt:'win_byjzt'};
+function finishDungeon(runtime,plan,index){
+ const current=plan[index],next=plan[index+1];
+ if(!current||next?.dungeon===current.dungeon)return;
+ const counter=winByDungeon[current.dungeon.id];
+ if(counter)runtime.state.add(counter,1);
+}
 function createRuntime(input){
  const currents=new Map(),flags=new Map(input.flags||[]),temp=new Map(),trace=[];
  const stateOf=key=>currents.has(key)?currents.get(key):num(input.seeds?.[key]);
@@ -106,9 +114,11 @@ function native(input,plan,catalog,options={}){
     trace:j===selected.ids.length-1?operations:[],
     routeLength:selected.ids.length,sourceFunction:selected.run.name});
   }
+  finishDungeon(runtime,plan,i+selected.ids.length-1);
   i+=selected.ids.length;
  }
- return {rows:out,trace:runtime.trace,finalSeeds:Object.fromEntries(runtime.currents)};
+ return {rows:out,trace:runtime.trace,finalSeeds:Object.fromEntries(runtime.currents),
+  finalFlags:new Map(runtime.flags)};
 }
 function source(input,plan,options={}){
  const runtime=createRuntime(input),rows=[],ownership=root.SBJDungeonUniqueOwnership;
@@ -158,8 +168,10 @@ function source(input,plan,options={}){
   rows.push({npcId:id,...longForm(item,color),kind,supported:!reason,
    reason,mode:'source-v2',trace:runtime.trace.slice(begin),
    caveat:'yy-sim 보상 테이블에는 게임의 전체 특수 조건/재료 난수 호출이 없음'});
+  finishDungeon(runtime,plan,plan.indexOf(entry));
  }
- return {rows,trace:runtime.trace,finalSeeds:Object.fromEntries(runtime.currents)};
+ return {rows,trace:runtime.trace,finalSeeds:Object.fromEntries(runtime.currents),
+  finalFlags:new Map(runtime.flags)};
 }
 const fixture=Object.freeze({
  byj:[{npc:35219,item:4609,color:3},{npc:35214,item:5009,color:1},
@@ -167,7 +179,7 @@ const fixture=Object.freeze({
  dcy:[{npc:40372,item:0,color:0},{npc:40373,item:4009,color:2},
   {npc:40374,item:0,color:0}],
  lsby:[{npc:35260,item:0,color:0},{npc:35264,item:5209,color:2},
-  {npc:35268,item:4409,color:2}]
+  {npc:35268,item:4209,color:2}]
 });
 function compareMeasured(rows,expected){
  const actual=new Map((expected||[]).map(x=>[num(x.npc),x]));
