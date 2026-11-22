@@ -21,7 +21,7 @@ function options(raw,allowed){
  if(maxPad==null||maxPad<0||maxPad>200||
     horizon==null||horizon<20||horizon>5000||
     topN==null||topN<1||topN>20)
-  throw Error('자동탐색 범위와 결과 개수를 확인하세요');
+  throw Error('자동탐색 범위와 결과 개수 제한을 확인하세요');
  return {desiredIds:ids,maxPad,horizon,topN};
 }
 function routeOutcome(raw,selected){
