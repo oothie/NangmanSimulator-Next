@@ -79,3 +79,17 @@
 - 창옥 무준신: 앞선 1000범위 4회, 재료 범위 **2355/값1447**, 장비 판정 100/값92로 종료 시드 정확 재현. 이장: 앞선 1000범위 3회, 재료 범위 **2350/값356**, 장비 발생 100/값20, 장비 번호 1, 등급값22로 종료 시드 정확 재현. 이장 범위 2350은 실용적 범위(<=100000) 유일하지만 전체 31비트에서는 매우 큰 다른 후보도 있음.
 - 기존의 임의 추가 호출 1회 후보는 **재료 A/B/C를 제약하지 않은 부분 후보**였으므로 확정 패치로 사용하면 안 됨.
 - 재현 도구는 대화 컨테이너의 `forensics/dungeon_lsby_forensics.py` (합성 검증 및 시작/종료 save 인자 기반). 사용자 비공개 세이브/시드 저장소 업로드 금지 유지.
+
+## 양쪽 엔진 독립 교차검증 (v1.0.7)
+
+- 1122 전후 비공개 세이브를 로컬에서만 사용하여 `DAILY_DATA.dungeons`의 yy-sim 재구성 v2와 `dungeon-orange.js` 산부진 native route의 원본 RNG 호출 경로를 **각각 독립 재생**.
+- 9보스 장비+등급 완전 일치: **yy-sim 재구성 1/9**, **산부진 native 재생 2/9**. byj yy 0/3 native 0/3, dcy yy 1/3 native 1/3, lsby yy 0/3 native 1/3.
+- yy-sim, 산부진 첫 **RNG bound 차이**: byj **4번째 호출** yy=100/native=4, dcy **5번째** yy=100/native=282804, lsby **3번째** yy=3/native=100. 시작 seed 및 최초 공통 prefix는 동일.
+- byj: 최초 장비 발생 추첨값 14. yy-sim의 `miss50/equip50` 순서면 미드랍, 산부진의 `equip50/miss50` 순서면 장비 등장(실측 독선생은 흑살곤). **난수식 자체가 아니라 분기 구간 방향 차이로 결과 갈림**. 산부진 쪽 ID=4609는 일치, 품질은 불일치.
+- lsby: 윤무 장비 발생 추첨값 83. yy-sim의 `miss50/equip50`이면 장비 등장, 산부진 `equip50/miss50`이면 미드랍(실측 윤무 미드랍). 이어서 yy는 장비 번호 range=3 소비, native는 품질 range=100 소비, 뒤의 시드까지 완전히 갈라짐.
+- dcy: 무준신 특수보상 1000×4 직후 yy-sim은 장비 발생 range100, native는 재료 선택 range282804; 실측에서 추론한 소재 총합2355로 역산되어 둘 다 그대로는 원본과 불일치.
+- source v2는 yy-sim `skr` 표를 재구성한 *독립 모델*이지 전체 게임 호출 프로그램이 아님. `uniq` 조건을 무시하고 전부 소비하는 등 native와 다름. Dcy의 색상은 `skr` 결합 노드에 있어 장비 미드랍 시 색상 호출을 생략하지만 byj/lsby의 별도 품질 `skr`는 미드랍이어도 호출한다. 교차 비교 도구가 이를 구분.
+- **추가 독립 분석기** `vendor/sanbujin/drops/dungeon-v3-cross-audit.js`: yy/source 와 san/native의 각 Sds key별 호출 횟수, 처음 다른 bound, 종료 시드 비교. 사이트 드랍 v3 화면에 연결, v1.0.7.
+- `tests/dungeon-v3-cross-audit-smoke.cjs` 추가 및 GitHub Actions workflow 연동. 독립 회귀 `Dungeon v3 reverse regression` run **45027145060 success**.
+- 재현 분석은 로컬 `forensics/compare_sbj_yysim_1122.py`; 사용자 세이브 및 원시 시드 공개 저장소 업로드 없음. 사용자에게 `1122_산부진_yysim_독립비교_역추적보고.md` 보고서 제공.
+- **실제 공식 동일성 미확정**: 게임 네이티브 클라이언트 원본과 직접 비교 전까지 산부진/yy 원본 표현의 정확성을 가정하지 않는다. 시작/종료 세이브 간 다른 작업이 RNG에 끼어들었을 위험도 별도 보존.
