@@ -353,6 +353,37 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   'Measured native WASM cost must override inaccurate route metadata');
  assert(measured.diagnostics.purpleCostAdjusted>0,
   'Native replay cost adjustment should be reported');
+ // Minimal fields from the user's 1121 save: Yi Il-jin, aptitude 153,
+ // native purple goals 272/249/266 plus lower-grade friendship 234.
+ // No private inventory or quest data is copied into this fixture.
+ const role1121={...source,seed:90431629,role_id:10030,zizhi:153,
+  talents:[],tal_lucky:0,total_wash:0,total_pills:0,
+  str_gift:1695,con_gift:5000,dex_gift:5000,int_gift:5000,
+  role_level:100,bag_pills:20000,has_bag_pills:true,global_vars:{}};
+ assert(wasmSetState(role1121),'1121 Yi Il-jin minimal native fixture rejected');
+ const roleBefore=YYWashNativeSearchGuard.canonicalJson(wasmGetState());
+ const roleMixed=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[272,249,266,234],maxPad:20,horizon:900,topN:8,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:YYWashNativeSearchGuard
+ });
+ assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),roleBefore,
+  '1121 Yi Il-jin fixture must restore original WASM state');
+ console.log('YY_USER_1121_YI_ILJIN_MIXED '+JSON.stringify({
+  goals:[272,249,266,234],zizhi:153,
+  routes:roleMixed.routes.length,
+  bestPills:roleMixed.routes[0]?.pills??null,
+  nativeReturned:roleMixed.diagnostics.purpleNativeReturned||0,
+  replayRejected:roleMixed.diagnostics.purpleReplayRejected||0,
+  replayErrors:roleMixed.diagnostics.purpleReplayErrors||[],
+  scanned:roleMixed.diagnostics.scannedWashes,
+  failure:roleMixed.error
+ }));
+ assert(!(roleMixed.diagnostics.purpleReplayErrors||[]).some(x=>
+  /미지원 원본 자맥 실행 단계: open_slot/.test(x.reason)),
+  'Original native open_slot must not reject the actual 1121 talent goals');
+ assert(wasmSetState(source));
  console.log('YY_PURPLE_ANCHOR_MIXED_REAL_WASM '+JSON.stringify({
   shape:[271,268,272,184],
   routes:out.routes.map(r=>({pills:r.pills,washes:r.washes,final:r.final_slots,
