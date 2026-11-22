@@ -37,7 +37,7 @@ const roster=[{r:main},{r:companion}];
 let allViews='';
 for(let i=0;i<100;i++){
  account.setPage(i);const view=account.render(roster);
- const counters=view.match(/표 (\\d+) \/ (\\d+)/);
+ const counters=view.match(/표 ([0-9]+) \/ ([0-9]+)/);
  allViews+=view;
  if(counters&&Number(counters[1])>=Number(counters[2]))break;
 }
