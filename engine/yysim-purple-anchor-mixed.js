@@ -876,6 +876,8 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
      tailActions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
       wash_no:count(fixed,'total_wash')});
    }
+   const deferredStart=clone(getState());
+   const deferredActions=clone(tailActions);
    let seen=new Set(shape.colors.filter(id=>idsOf(getState()).includes(id))),
     stopped=false;
    // All goals can already be held in a real loaded save, or one of the
@@ -924,6 +926,10 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    }
    if(!stopped&&!routes.length)diagnostics.failures.push(
     '자맥 확정 이후 '+horizon+'회 내 최종 녹·파맥 조합 미발견');
+   // First compare locking lower grades at different real WASM sightings.
+   try{await searchDeferredColorLocks(deferredStart,deferredActions,
+    native,diagnostics,routes)}
+   catch(error){diagnostics.failures.push('녹·파맥 시점 비교: '+String(error?.message||error))}
    // Also attempt the user-requested interval immediately after the
    // earlier purple anchors, before the last purple's next locked step.
    try{await searchBetween(native,marks,diagnostics,routes)}
