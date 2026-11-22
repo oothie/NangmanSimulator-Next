@@ -2,7 +2,7 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const ko = value => window.SBJ_KOREAN?.translate?.(String(value ?? '')) || String(value ?? '');
-  const engine = window.SBJDungeonDrop, catalog = window.SBJDungeonCatalog.map(event=>window.SBJDungeonYYAdapter?.adapt(event)||event);
+  const engine = window.SBJDungeonDrop, catalog = window.SBJDungeonYYAdapter?.fullCatalog(window.SBJDungeonCatalog)||window.SBJDungeonCatalog;
   const groups = [...new Set(catalog.map(event => event.dungeon))];
   const area = $('dungeonArea'), boss = $('dungeonBoss');
   const sections = {wild: $('wildDrop'), dungeon: $('dungeonDrop'), shared: $('sharedGear'), treasure: $('treasureDrop')};
