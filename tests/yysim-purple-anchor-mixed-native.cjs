@@ -376,6 +376,16 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   str_gift:1695,con_gift:5000,dex_gift:5000,int_gift:5000,
   role_level:100,bag_pills:20000,has_bag_pills:true,global_vars:{}};
  assert(wasmSetState(role1121),'1121 Yi Il-jin minimal native fixture rejected');
+ // Compare a minimal reconstruction against the exact public-safe
+ // scalar mapping used by index.html for this character's save.
+ // Do not commit the user's raw save or its private globalVariable map.
+ console.log('YY_1121_STATE_SHAPE '+JSON.stringify({
+  minimal:{salt:role1121.salt,roleStats:role1121.role_stats,
+   rngVariant:role1121.rng_variant,hasBornTalent:role1121.has_born_talent},
+  mapped:{salt:262731,roleStats:{str_val:11,con:200,dex:210,int_val:13},
+   rngVariant:'73324',hasBornTalent:true},
+  originalGlobalKeys:Object.keys(role1121.global_vars||{}).length
+ }));
  const roleBefore=YYWashNativeSearchGuard.canonicalJson(wasmGetState());
  const roleMixed=await YYWashPurpleAnchorMixed.run({
   desiredIds:[272,249,266,234],maxPad:20,horizon:900,topN:8,
@@ -401,6 +411,7 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   assert(native.actions.some(step=>step.kind==='open_slot'),
    'Aptitude 153 user route must include an original open_slot action');
  }
+ console.log('YY_USER_1121_ROUTE_ACTIONS '+JSON.stringify(roleMixed.routes[0]?.actions||[]));
  console.log('YY_USER_1121_YI_ILJIN_MIXED '+JSON.stringify({
   goals:[272,249,266,234],zizhi:153,
   routes:roleMixed.routes.length,
