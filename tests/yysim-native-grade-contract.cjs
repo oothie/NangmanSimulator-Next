@@ -182,6 +182,22 @@ const path=require('node:path');
   assert(audit.outcome.unchanged&&audit.preserved,'native grade audit mutated live state');
   assert.equal(audit.outcome.rows.length,3);
   assert.equal(audit.outcome.mixedGoalResults.length,6);
+  // Characterized real WASM contract: original search explicitly forbids
+  // green/blue-only goals and never completes these mixed final-slot fixtures.
+  // If these assertions change after a native upgrade, investigate it instead
+  // of silently treating intermediate acquisition as a completed route.
+  assert(audit.outcome.rows[0].valid>0,'Purple native reference must remain searchable');
+  for(const grade of [2,3]){
+   const row=audit.outcome.rows.find(x=>x.grade===grade);
+   assert.equal(row.valid,0,'Original native non-purple-only goal unexpectedly complete');
+   assert.match(String(row.error||''),/只能预选紫脉/,
+    'Unexpected original WASM grade restriction message');
+  }
+  for(const name of ['green-purple','blue-purple','green-blue-purple']){
+   const row=audit.outcome.mixedGoalResults.find(x=>x.name===name);
+   assert.equal(row?.complete,0,'Native mixed-grade final-slot support changed: '+name);
+  }
+
   assert(audit.outcome.nativePurpleBaseline.deterministic);
   assert.equal(audit.outcome.nativePurpleBaseline.timesMs.length,2);
   assert(audit.outcome.mixedGoalResults.every(r=>Number.isFinite(r.elapsedMs)&&r.elapsedMs>=0));
