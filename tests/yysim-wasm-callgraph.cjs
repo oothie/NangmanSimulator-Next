@@ -314,6 +314,24 @@ assert.deepEqual(purpleOperandInstructions.map(x=>[
  x.opcode,x.opcode===65?x.value:x.opcode===40?x.memOffset:
   [32,34].includes(x.opcode)?x.immediate:null
 ]),purpleOperandContract,'Native next_purple four-input bytecode changed');
+// Resolve the immediately visible *writers* of each local feeding function
+// 13. Values can cross branches and loops, so these remain a bounded
+// def-use inventory, not a full SSA proof or a talent grade identification.
+const nextPurpleLocalOrigins=[3,5,6,26,33].map(localIndex=>{
+ const instructions=coreSearch.instructions;
+ const definitions=instructions.filter(x=>x.offset<14886&&
+  (x.opcode===33||x.opcode===34)&&x.immediate===localIndex);
+ return {localIndex,definitionCount:definitions.length,
+  previousDefinitions:definitions.slice(-12).map(def=>{
+   const at=instructions.findIndex(x=>x.offset===def.offset);
+   return {offset:def.offset,assignmentOpcode:def.opcode,
+    preceding:instructions.slice(Math.max(0,at-8),at)
+     .map(x=>({offset:x.offset,opcode:x.opcode,value:x.value??null,
+      local:x.immediate??null,memOffset:x.memOffset??null}))};
+  })};
+});
+assert(nextPurpleLocalOrigins.some(x=>x.localIndex===33&&x.definitionCount>0),
+ 'Original core local 33 is no longer assigned within search function');
 const purpleFourInputs=[
  {kind:'pointer-base-plus-offset',localIndex:3,addend:2648},
  {kind:'pointer-base-plus-offset',localIndex:3,addend:1560},
@@ -554,6 +572,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  nativeEventCalls,
  purpleCallOperands,
  purpleFourInputs,
+ nextPurpleLocalOrigins,
  purpleGenerator:{index:13,signature:wasmFunctionSignature(13),
   instructionCount:nativePurpleGenerator.instructions.length,
   comparisonsNearGrades:purpleGeneratorCompareWindows.slice(0,30)},
