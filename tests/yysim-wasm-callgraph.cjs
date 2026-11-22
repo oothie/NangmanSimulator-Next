@@ -296,6 +296,34 @@ const purpleCallOperands=coreSearch.instructions.slice(purpleCallSite-28,purpleC
   immediate:x.immediate??null,value:x.value??null,memOffset:x.memOffset??null}));
 assert(purpleCallOperands.some(x=>x.opcode===32),
  'Expected real local.get bytecode near native purple generator');
+
+// Decode the exact four operand expressions feeding call 13. This is the
+// original bytecode contract, not an assumption that any operand is a grade.
+//  1) base(local 3) + 2648
+//  2) base(local 3) + 1560
+//  3) local 33
+//  4) select(-1, derived bound, unsigned comparison)
+const purpleOperandInstructions=coreSearch.instructions.slice(purpleCallSite-18,purpleCallSite);
+const purpleOperandContract=[
+ [32,3],[65,2648],[106,null],[32,3],[65,1560],[106,null],
+ [32,33],[65,-1],[32,3],[40,1716],[34,6],[32,26],
+ [106,null],[34,5],[32,5],[32,6],[73,null],[27,null]
+];
+assert.deepEqual(purpleOperandInstructions.map(x=>[
+ x.opcode,x.opcode===65?x.value:x.opcode===40?x.memOffset:
+  [32,34].includes(x.opcode)?x.immediate:null
+]),purpleOperandContract,'Native next_purple four-input bytecode changed');
+const purpleFourInputs=[
+ {kind:'pointer-base-plus-offset',localIndex:3,addend:2648},
+ {kind:'pointer-base-plus-offset',localIndex:3,addend:1560},
+ {kind:'local-value',localIndex:33},
+ {kind:'unsigned-select',left:-1,rightLocalIndex:5,
+  condition:{leftLocalIndex:5,rightLocalIndex:6,opcode:73},
+  source:{baseLocalIndex:3,memOffset:1716,addLocalIndex:26}}
+];
+// This argument-local inventory allows follow-on def/use analysis of the
+// exact source slots without claiming that 2648 or 1560 is TalentData.pinzhi.
+
 const nativePurpleGenerator=inspect(13);
 const purpleGeneratorCompareWindows=comparisonWindows(nativePurpleGenerator);
 // The three functions identified through original next_purple.rs source-location
@@ -495,6 +523,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  exploredCoreFunctions:exploredFromCore.size,
  nativeEventCalls,
  purpleCallOperands,
+ purpleFourInputs,
  purpleGenerator:{index:13,signature:wasmFunctionSignature(13),
   instructionCount:nativePurpleGenerator.instructions.length,
   comparisonsNearGrades:purpleGeneratorCompareWindows.slice(0,30)},
