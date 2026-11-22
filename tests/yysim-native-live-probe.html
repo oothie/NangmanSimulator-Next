@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>원본 yy-sim WASM 직접 검증 · v0.10.28</title>
+<style>
+:root{color-scheme:light dark;font-family:system-ui,"Malgun Gothic",sans-serif}
+body{max-width:860px;margin:28px auto;padding:0 16px;line-height:1.55}
+h1{font-size:1.45rem}p{color:inherit}button,select{font:inherit;padding:.55rem .85rem;border-radius:.55rem}
+button{cursor:pointer}button:disabled{cursor:wait;opacity:.6}
+table{border-collapse:collapse;width:100%;margin:1rem 0}
+td,th{padding:.55rem;border-bottom:1px solid #8886;text-align:left}
+pre{white-space:pre-wrap;word-break:break-word;max-height:32rem;overflow:auto;background:Canvas;border:1px solid #8886;border-radius:.5rem;padding:12px}
+small{opacity:.78} .error{color:#c13636} .ok{color:#13805a}
+</style>
+<script src="../vendor/yysim/wasm_data.js?rev=0.10.28"></script>
+<script src="../vendor/yysim/core_glue.js?rev=0.10.28"></script>
+<script src="../vendor/yysim/data.js?rev=0.10.28"></script>
+<script src="../engine/yysim-native-search-guard.js?rev=0.10.28"></script>
+</head><body>
+<h1>원본 yy-sim 세수 WASM 직접 검증</h1>
+<p>자맥 3개와 자맥 3개+녹맥 1개를 <strong>동일 시드·원본 WASM 탐색 함수</strong>로 직접 비교합니다.
+원본을 대체하는 자체 탐색은 사용하지 않으며 게임 세이브를 업로드하지 않습니다.</p>
+<label for="windowSize">탐색 범위</label>
+<select id="windowSize"><option value="60">60회 (빠른 확인)</option><option value="300">300회</option><option value="900" selected>900회 (원본 기본)</option></select>
+<label for="maxPad">선행 세수</label>
+<select id="maxPad"><option value="0">0</option><option value="20" selected>20 (원본 기본)</option></select>
+<button id="run" type="button">원본 WASM 비교 실행</button>
+<button id="copy" type="button" disabled>검사 결과 복사</button>
+<p id="status" aria-live="polite">실행 전</p>
+<table><thead><tr><th>목표</th><th>결과</th><th>완료 경로</th><th>최저 세수단 후보</th><th>실측 소요</th></tr></thead><tbody id="result"></tbody></table>
+<details><summary>원본 응답 요약 JSON 보기</summary><pre id="output"></pre></details>
+<p><small>탐색 결과가 없다는 뜻은 원본 WASM이 해당 맥을 지원하지 않는다는 증거가 아닙니다. 전체 범위의 전역 최솟값은 보장하지 않습니다. 이 페이지는 분석용으로 기존 자동탐색과 분리되어 있습니다.</small></p>
+<script>
+'use strict';
+const status=document.querySelector('#status'),tbody=document.querySelector('#result');
+const button=document.querySelector('#run'),copy=document.querySelector('#copy');
+let report=null,ready=false;
+const targets=[
+ {name:'자맥 1개 (대조)',ids:[271]},
+ {name:'자맥 3개 (기준)',ids:[271,268,272]},
+ {name:'자맥 3개 + 녹맥 1개',ids:[271,268,272,184]}
+];
+function sourceResult(raw,ids){
+ if(!raw||!Array.isArray(raw.routes))return {status:'원본 반환 형식 오류',complete:0,candidates:0,best:null};
+ const complete=raw.routes.filter(route=>{
+  const final=new Set((route.final_slots||[]).map(x=>Number(x?.id)));
+  return ids.every(id=>final.has(id));
+ });
+ const costs=complete.map(x=>Number(x.pills)).filter(x=>Number.isSafeInteger(x)&&x>=0);
+ return {status:raw.error?'원본 오류':complete.length?'최종 목표 확인':
+  raw.routes.length?'불완전 경로':'검색 범위 내 미발견',
+  complete:complete.length,candidates:raw.routes.length,
+  best:costs.length?Math.min(...costs):null,error:raw.error||null};
+}
+async function run(){
+ button.disabled=true;copy.disabled=true;tbody.textContent='';report=null;
+ const horizon=Number(document.querySelector('#windowSize').value);
+ const maxPad=Number(document.querySelector('#maxPad').value);
+ try{
+  status.textContent='원본 WASM 로딩 및 초기화 중…';
+  await new Promise(resolve=>setTimeout(resolve,0));
+  if(!ready){
+   if(!(await initWasm())||!wasmInitEngine(TALENT_DATA,ZZ_DATA))
+    throw Error('원본 WASM 초기화 실패: '+String(window.__yyWasmInitError||'unknown'));
+   ready=true;
+  }
+  const initial=wasmGetState();
+  if(!initial)throw Error('원본 초기 상태 조회 실패');
+  const fixture={...initial,zizhi:154,seed:447882174,role_id:10044,
+   talents:[{id:171,locked:false},{id:172,locked:false},{id:173,locked:false},{id:174,locked:false}],
+   total_wash:0,total_pills:0,bag_pills:20000,has_bag_pills:true};
+  if(!wasmSetState(fixture))throw Error('동일 비교 상태 설정 실패');
+  const stable=wasmGetState(),guard=YYWashNativeSearchGuard;
+  if(!stable||!guard?.run)throw Error('원본 상태 보호 함수 준비 실패');
+  report={version:'v0.10.28',nativeFunction:'wasmSearchWashRoutes',seed:fixture.seed,
+   horizon,maxPad,gradeTargets:targets,results:[]};
+  for(const target of targets){
+   status.textContent='원본 WASM 계산 중: '+target.name;
+   await new Promise(resolve=>setTimeout(resolve,20));
+   const start=performance.now();let raw=null,error=null;
+   try{raw=guard.run({getState:wasmGetState,setState:wasmSetState,
+    search:wasmSearchWashRoutes},
+    {desired_ids:target.ids,max_pad:maxPad,horizon,top_n:8})}
+   catch(e){error=String(e?.message||e)}
+   const elapsedMs=Math.round((performance.now()-start)*100)/100;
+   if(!guard.statesEqual(stable,wasmGetState()))
+    throw Error('원본 WASM 상태가 변경됨: '+target.name);
+   const row=error?{status:'원본 예외',complete:0,candidates:0,best:null,error}:
+    sourceResult(raw,target.ids);
+   const item={name:target.name,ids:target.ids,elapsedMs,...row};
+   report.results.push(item);
+   const tr=document.createElement('tr');
+   for(const val of [item.name,item.status+' ('+item.candidates+'개)',item.complete,
+    item.best??'미확인',item.elapsedMs+'ms']){
+    const td=document.createElement('td');td.textContent=String(val);tr.append(td);
+   }
+   tbody.append(tr);
+  }
+  status.textContent='원본 WASM 3개 목표 비교 완료 · 탐색 범위 내 결과만 표시';
+  document.querySelector('#output').textContent=JSON.stringify(report,null,2);
+  copy.disabled=false;
+ }catch(error){
+  status.className='error';
+  status.textContent='검사 실패: '+String(error?.message||error);
+ }finally{button.disabled=false}
+}
+button.addEventListener('click',()=>{status.className='';run()});
+copy.addEventListener('click',()=>{if(report)navigator.clipboard.writeText(JSON.stringify(report,null,2)).catch(e=>{
+ status.textContent='복사 실패: '+String(e?.message||e);
+})});
+</script>
+</body></html>
