@@ -183,6 +183,14 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    const washed=doWash();
    if(!washed||washed.error||count(getState(),'total_wash')!==before+1)break;
    diagnostics.scannedWashes++;
+   // An earlier full four-slot native route is a strict upper bound:
+   // every future wash only increases total consumed pills. Skip later
+   // events which cannot improve the best completed route.
+   const best=Math.min(Infinity,...routes.map(r=>r.pills));
+   if(count(getState(),'total_pills')-count(initial,'total_pills')>=best){
+    diagnostics.betweenScanPruned=(diagnostics.betweenScanPruned||0)+1;
+    break;
+   }
    const state=clone(getState());
    const found=shape.colors.filter(id=>idsOf(state).includes(id));
    if(found.length)candidatesInWindow.push({time:wash,state,appearing:found});
