@@ -628,19 +628,44 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
      purpleRoutes:attempt?.routes?.length||0,
      scannedWashes:diagnostics.scannedWashes,candidateRoutes:0});
     await new Promise(resolve=>setTimeout(resolve,0));
-    if(!baseline)baseline=attempt;
-    if(attempt?.routes?.length){
-     baseline=attempt;
+    diagnostics.purpleNativeReturned=(diagnostics.purpleNativeReturned||0)+
+     (attempt?.routes?.length||0);
+    if(!baseline)baseline={...attempt,routes:[]};
+    // A returned native route is not yet usable. Try replay against the
+    // original WASM state before committing to this ordering. If every
+    // route diverges, another purple ordering may still be replayable.
+    const replayable=[];
+    for(const candidate of attempt?.routes||[]){
+     try{replay(candidate);replayable.push(candidate)}
+     catch(error){
+      diagnostics.purpleReplayRejected=(diagnostics.purpleReplayRejected||0)+1;
+      if((diagnostics.purpleReplayErrors||[]).length<6){
+       diagnostics.purpleReplayErrors=diagnostics.purpleReplayErrors||[];
+       diagnostics.purpleReplayErrors.push({
+        order,reason:String(error?.message||error)
+       });
+      }
+     }
+    }
+    restore(initial);
+    if(replayable.length){
+     baseline={...attempt,routes:replayable};
      break;
     }
     // Preserve the original request error when no permutation works.
    }
   }
   diagnostics.purpleRoutes=baseline?.routes?.length||0;
-  diagnostics.purpleNoRoute=diagnostics.purpleRoutes===0;
+  diagnostics.purpleNoRoute=diagnostics.purpleRoutes===0&&
+   !diagnostics.purpleNativeReturned;
+  diagnostics.purpleReplayNoRoute=diagnostics.purpleRoutes===0&&
+   (diagnostics.purpleNativeReturned||0)>0;
   if(diagnostics.purpleNoRoute)diagnostics.failures.push(
    '원본 WASM 자맥 기준 경로 0개 · 선택 자맥 순서 '+(diagnostics.purpleAttempts||1)+
    '개 검사 · 녹·파맥 탐색 시작 전 중단');
+  if(diagnostics.purpleReplayNoRoute)diagnostics.failures.push(
+   '원본 자맥 경로 '+diagnostics.purpleNativeReturned+
+   '개가 반환됐지만 세이브 기반 원본 WASM 재현이 모두 실패했습니다');
   for(const native of baseline?.routes||[]){
    let replayed;
    const marks=[];
@@ -730,8 +755,10 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    diagnostics.purpleNoRoute?
     '선택한 자맥의 원본 WASM 기준 경로가 검색 범위 내 0개입니다. 자맥 순서 '+
     diagnostics.purpleAttempts+'개를 검사했지만 기준 경로가 없어 녹·파맥 분기는 시작되지 않았습니다.':
-    diagnostics.replayed===0?
-     '원본 자맥 경로가 반환됐지만 실제 세이브 상태에서 재현되지 않았습니다. 재현 실패 진단을 확인하세요.':
+    diagnostics.purpleReplayNoRoute||diagnostics.replayed===0?
+     '원본 자맥 경로 '+(diagnostics.purpleNativeReturned||diagnostics.purpleRoutes||0)+
+     '개를 받았으나 실제 세이브 원본 WASM 재현에 실패했습니다. 자맥 순서 '+
+     (diagnostics.purpleAttempts||0)+'개를 검사했습니다.':
      '자맥 기준 경로는 재현됐지만 최종 녹·파맥을 모두 보유하는 경로를 찾지 못했습니다 (검색 범위 내)',
   nativePurpleScanned:diagnostics.purpleNativeScanned??baseline?.scanned??0};
 }
