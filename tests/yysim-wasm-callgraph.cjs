@@ -298,6 +298,30 @@ assert(purpleCallOperands.some(x=>x.opcode===32),
  'Expected real local.get bytecode near native purple generator');
 const nativePurpleGenerator=inspect(13);
 const purpleGeneratorCompareWindows=comparisonWindows(nativePurpleGenerator);
+// The three functions identified through original next_purple.rs source-location
+// metadata are inspected separately. Constant 2/3/4 in these bodies may mean
+// a grade, slot count, vector stride, or state-machine arm: preserve their
+// neighboring memory operands rather than relabeling all of them as grades.
+const nativePurpleFunctions=[13,75,117].map(index=>{
+ const decoded=index===13?nativePurpleGenerator:inspect(index);
+ const windows=comparisonWindows(decoded);
+ const candidates=windows.map(site=>{
+  const pos=decoded.instructions.findIndex(x=>x.offset===site.offset);
+  const nearby=decoded.instructions.slice(Math.max(0,pos-9),Math.min(decoded.instructions.length,pos+9));
+  const loads=nearby.filter(x=>x.opcode>=40&&x.opcode<=53);
+  const memory=nearby.filter(x=>x.opcode>=40&&x.opcode<=62)
+   .map(x=>({offset:x.offset,opcode:x.opcode,memOffset:x.memOffset}));
+  return {...site,nearby:nearby.map(x=>({offset:x.offset,opcode:x.opcode,
+    value:x.value??null,localIndex:x.immediate??null,memOffset:x.memOffset??null})),
+   memory,loadOffsets:loads.map(x=>x.memOffset)};
+ });
+ return {index,bodyBytes:decoded.bodyBytes,comparisonSites:candidates.length,
+  sites:candidates,opcodeCount:decoded.instructions.length};
+});
+assert(nativePurpleFunctions.every(x=>x.opcodeCount>0),
+ 'Original native next_purple source functions failed disassembly');
+assert(nativePurpleFunctions.find(x=>x.index===13)?.comparisonSites>0,
+ 'Original native purple event source no longer has grade-adjacent comparisons');
 
 
 const coreComparisons=comparisonWindows(coreSearch);
@@ -474,6 +498,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  purpleGenerator:{index:13,signature:wasmFunctionSignature(13),
   instructionCount:nativePurpleGenerator.instructions.length,
   comparisonsNearGrades:purpleGeneratorCompareWindows.slice(0,30)},
+ nativePurpleFunctions,
  qualityDataflowCandidates:qualityDataflowCandidates.slice(0,70),
  solver:{index:solver.index,bodyBytes:solver.bodyBytes,callInstructions:solver.callCount,uniqueDependencies:tally.size},
  mostFrequent:dependencies.slice(0,15),largestDependencies:byBody,
