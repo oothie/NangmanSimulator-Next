@@ -52,7 +52,11 @@ async function main(){
   {name:'blue',ids:[202]},
   {name:'green-purple',ids:[184,271]},
   {name:'blue-purple',ids:[202,271]},
-  {name:'green-blue-purple',ids:[184,202,271]}
+  {name:'green-blue-purple',ids:[184,202,271]},
+  // The exact user-reported regression shape: 3 purple native targets,
+  // then the SAME 3 purples plus one green target of a distinct type.
+  {name:'three-purple',ids:[271,268,272]},
+  {name:'three-purple-plus-green',ids:[271,268,272,184]}
  ];
  const outcomes=[];
  for(const item of grades){
@@ -89,9 +93,22 @@ async function main(){
  assert.deepEqual({json:attempts[0].json,error:attempts[0].error},
   {json:attempts[1].json,error:attempts[1].error},
   'Original purple WASM search is not deterministic for the same state');
+ const purpleThree=outcomes.find(x=>x.name==='three-purple');
+ const mixedFour=outcomes.find(x=>x.name==='three-purple-plus-green');
+ assert(purpleThree&&mixedFour,'3 purple + 1 green regression pair missing');
+ const comparison={
+  sameNativeState:true,sameMaxPad:0,sameHorizon:30,sameTopN:2,
+  purpleOnly:{classification:purpleThree.classification,
+   elapsedMs:purpleThree.elapsedMs,complete:purpleThree.complete,
+   cheapest:purpleThree.cheapest??null},
+  threePurplePlusGreen:{classification:mixedFour.classification,
+   elapsedMs:mixedFour.elapsedMs,complete:mixedFour.complete,
+   cheapest:mixedFour.cheapest??null}
+ };
  const report={wasmEngine:'original-yy-sim',readOnly:true,
   nativeCall:'search_wash_routes',purpleDeterministic:true,
-  purpleMs:attempts.map(x=>x.ms),gradeResults:outcomes};
+  purpleMs:attempts.map(x=>x.ms),threePurpleGreenComparison:comparison,
+  gradeResults:outcomes};
  console.log('YY_SIM_NATIVE_NODE_GRADE_RESULT',JSON.stringify(report));
 }
 main().catch(error=>{console.error(error);process.exitCode=1});
