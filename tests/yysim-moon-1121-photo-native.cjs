@@ -5,7 +5,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
 globalThis.window=globalThis;globalThis.location={protocol:'file:'};
-for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vendor/yysim/data.js'])
+for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vendor/yysim/data.js','engine/yysim-native-search-guard.js'])
  vm.runInThisContext(fs.readFileSync(path.join(root,file),'utf8'),{filename:file,timeout:30000});
 (async()=>{
  assert(await initWasm());assert(wasmInitEngine(TALENT_DATA,ZZ_DATA));
@@ -21,6 +21,13 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vend
   quality_counts:{1:0,2:0,3:0,4:0},
   gold_count:0,pity_count:0,last_purple_total_pills:null,
   has_bag_pills:true,bag_pills:20000,global_vars:{}};
+ const nativeSource={...moon,zizhi:150,str_gift:190,con_gift:180};
+ assert(wasmSetState(nativeSource));
+ const originalTwo=YYWashNativeSearchGuard.run({
+  getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes
+ },{desired_ids:[268,262],max_pad:0,horizon:900,top_n:8});
+ console.log('MOON_NATIVE_PURPLE_ACTIONS '+JSON.stringify(
+  originalTwo.routes[0]?.actions||[]));
  assert(wasmSetState(moon));
  const snapshot=()=>wasmGetState();
  const pills=()=>Number(snapshot().total_pills||0);
