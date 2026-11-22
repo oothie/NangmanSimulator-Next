@@ -10,6 +10,9 @@ on:
       - 'tests/yysim-native-search-guard-smoke.cjs'
       - 'vendor/yysim/wasm_data.js'
       - 'tests/yysim-auto-search-smoke.cjs'
+      - 'tests/yysim-grade-catalog-contract.cjs'
+      - 'engine/yysim-target-catalog.js'
+      - 'vendor/yysim/data.js'
       - 'tests/yysim-auto-progressive-smoke.cjs'
       - 'tests/yysim-wasm-callgraph.cjs'
       - 'index.html'
@@ -23,6 +26,9 @@ on:
       - 'tests/yysim-native-search-guard-smoke.cjs'
       - 'vendor/yysim/wasm_data.js'
       - 'tests/yysim-auto-search-smoke.cjs'
+      - 'tests/yysim-grade-catalog-contract.cjs'
+      - 'engine/yysim-target-catalog.js'
+      - 'vendor/yysim/data.js'
       - 'tests/yysim-auto-progressive-smoke.cjs'
       - 'tests/yysim-wasm-callgraph.cjs'
       - 'index.html'
@@ -51,8 +57,11 @@ jobs:
           node --check tests/yysim-auto-progressive-smoke.cjs
           node --check tests/yysim-wasm-callgraph.cjs
           node --check tests/yysim-native-grade-contract.cjs
+          node --check tests/yysim-grade-catalog-contract.cjs
       - name: Verify original WASM state restore on native errors
         run: node tests/yysim-native-search-guard-smoke.cjs
+      - name: Validate native talent IDs and grades before mixed search
+        run: node tests/yysim-grade-catalog-contract.cjs
       - name: Verify native single-call final-route minimum and UI
         run: node tests/yysim-auto-progressive-smoke.cjs
       - name: Verify original results adapter and final-slot goals
