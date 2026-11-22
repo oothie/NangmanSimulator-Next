@@ -31,7 +31,7 @@ function signedLeb(cur){
  return value;
 }
 function readName(cur){const n=uleb(cur),end=cur.pos+n;assert(end<=bytes.length);const val=bytes.toString('utf8',cur.pos,end);cur.pos=end;return val}
-let position=8,importCount=0,functions=[],exports=[],typeSignatures=[],functionTypeIds=[];
+let position=8,importCount=0,functions=[],wasmExports=[],typeSignatures=[],functionTypeIds=[];
 while(position<bytes.length){
  const id=bytes[position++],cur={pos:position},len=uleb(cur),end=cur.pos+len;
  assert(end<=bytes.length);
@@ -61,7 +61,7 @@ while(position<bytes.length){
   for(let i=0;i<n;i++)functionTypeIds.push(uleb(cur));
  }else if(id===7){
   const n=uleb(cur);
-  for(let i=0;i<n;i++)exports.push({name:readName(cur),kind:bytes[cur.pos++],index:uleb(cur)});
+  for(let i=0;i<n;i++)wasmExports.push({name:readName(cur),kind:bytes[cur.pos++],index:uleb(cur)});
  }else if(id===10){
   const n=uleb(cur);
   for(let i=0;i<n;i++){
@@ -73,7 +73,7 @@ while(position<bytes.length){
  }
  position=end;
 }
-const named=new Map(exports.filter(x=>x.kind===0).map(x=>[x.index,x.name]));
+const named=new Map(wasmExports.filter(x=>x.kind===0).map(x=>[x.index,x.name]));
 const wasmFunctionSignature=(index)=>{
  const type=typeSignatures[functionTypeIds[index-importCount]];
  assert(type,'WASM function type not found for '+index);
@@ -134,7 +134,7 @@ function inspect(index){
  instructionCache.set(index,decoded);
  return decoded;
 }
-const search=exports.find(x=>x.name==='search_wash_routes'&&x.kind===0);
+const search=wasmExports.find(x=>x.name==='search_wash_routes'&&x.kind===0);
 assert(search,'Original WASM search export absent');
 const wrapper=inspect(search.index);
 assert(wrapper.calls.some(x=>x.index===78),'Native search wrapper must reach function 78');
