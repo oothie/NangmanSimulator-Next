@@ -208,6 +208,12 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
   diagnostics.betweenCandidates=(diagnostics.betweenCandidates||0)+
    candidatesInWindow.length;
   diagnostics.betweenExamined=(diagnostics.betweenExamined||0)+chosen.length;
+  // Diagnostics intentionally expose only wash positions and counts, not
+  // raw RNG seeds or intermediate private save contents.
+  diagnostics.betweenSampledWashes=diagnostics.betweenSampledWashes||[];
+  if(diagnostics.betweenSampledWashes.length<24)
+   diagnostics.betweenSampledWashes.push(
+    ...chosen.map(x=>x.time).slice(0,24-diagnostics.betweenSampledWashes.length));
   for(const candidate of chosen){
    const {time,appearing}=candidate;
    const originalScan=candidate.state;
