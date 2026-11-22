@@ -4,6 +4,23 @@
  */
 (function(root){
 'use strict';
+// Rust's serde HashMap serialization can reorder object keys (especially
+// global_vars) without changing any game data. JSON.stringify(a)===
+// JSON.stringify(b) is not a valid state-equality test in that case.
+// Preserve array/slot order, but normalize object key order recursively.
+function canonicalJson(value){
+ const normalize=input=>{
+  if(Array.isArray(input))return input.map(normalize);
+  if(input&&typeof input==='object'){
+   const normalized={};
+   for(const key of Object.keys(input).sort())normalized[key]=normalize(input[key]);
+   return normalized;
+  }
+  return input;
+ };
+ return JSON.stringify(normalize(value));
+}
+function statesEqual(a,b){return canonicalJson(a)===canonicalJson(b)}
 function run({getState,setState,search},request){
  if(typeof getState!=='function'||typeof setState!=='function'||
     typeof search!=='function')throw Error('원본 WASM 상태 보호 함수가 준비되지 않았습니다');
@@ -14,18 +31,19 @@ function run({getState,setState,search},request){
  const before=JSON.stringify(original);
  if(!before)throw Error('원본 세수 상태 직렬화에 실패했습니다');
  const saved=JSON.parse(before);
+ const beforeIdentity=canonicalJson(saved);
  let result,searchError=null,after=null,stateError=null;
  try{result=search(request)}
  catch(error){searchError=error}
- try{after=JSON.stringify(getState())}
+ try{after=canonicalJson(getState())}
  catch(error){stateError=error}
- if(after!==before){
+ if(after!==beforeIdentity){
   // An error is not proof that the native module stayed read-only.
   // Restore even when search() itself threw; do not expose partial results.
   try{
    const restored=setState(saved);
-   const verified=JSON.stringify(getState());
-   if(restored===false||verified!==before)
+   const verified=canonicalJson(getState());
+   if(restored===false||verified!==beforeIdentity)
     throw Error('복원 후 WASM 세수 상태가 원본과 일치하지 않습니다');
   }catch(error){
    throw Error('원본 WASM 자동 탐색 상태 복원 실패: '+
@@ -43,5 +61,5 @@ function run({getState,setState,search},request){
   throw Error('원본 WASM 자동 경로 탐색 결과 형식을 확인할 수 없습니다');
  return result;
 }
-root.YYWashNativeSearchGuard={run};
+root.YYWashNativeSearchGuard={run,canonicalJson,statesEqual};
 })(window);
