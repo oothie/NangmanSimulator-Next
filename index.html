@@ -1981,7 +1981,7 @@ function marketDate(ts){
 function marketStrategyGoal(target,root){
  if(!target)return {quantity:0,purchased:0,remaining:0,limited:false};
  const purchased=Number(window.NangmanMarket.countsMap(root?.RandShop?.Counts)[target.id]||0);
- const limited=Number.isFinite(Number(target.stock))&&target.stock!=null;
+ const limited=[223,224,222,225].includes(Number(target.id))&&target.stock!=null;
  const remaining=limited?Math.max(0,Number(target.stock)-purchased):null;
  const quantity=limited?remaining:Math.max(1,Math.min(1000,Math.floor(Number(marketStrategyQuantity)||1)));
  return {quantity,purchased,remaining,limited};
@@ -1992,7 +1992,7 @@ function marketStrategyMarkup(state,ko){
  const rest=all.filter(x=>!targets.includes(x.id));
  const sorted=[...featured,...rest];
  const target=all.find(x=>x.id===marketStrategyTarget);
- const goal=marketStrategyGoal(target,save),exhausted=goal.limited&&goal.quantity===0;
+ const goal=marketStrategyGoal(target,save),exhausted=soldSet.has(Number(target?.id))||(goal.limited&&goal.quantity===0);
  const views=marketStrategyResults?.save===save&&
   marketStrategyResults?.slots===marketSlotsOverride&&
   marketStrategyResults?.target===marketStrategyTarget&&
