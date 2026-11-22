@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
-const ctx={window:{},setTimeout};vm.createContext(ctx);
+const ctx={window:{},setTimeout,setInterval,clearInterval};vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname,'../engine/yysim-auto-progressive.js'),'utf8'),ctx);
 const {run}=ctx.window.YYWashProgressive;
 let count=0;const calls=[],progress=[];
@@ -30,6 +30,6 @@ const api={
  assert.equal(result.result.routes.length,1,'incomplete native routes must not be returned');
  assert.equal(result.bestPills,21);
  assert.equal(progress.length,2);
- assert.equal(progress[1].phase,1);
+ assert.equal(progress.at(-1).phase,'verified');
  console.log('PASS: original native yy-sim automatic search has one call, honors bounds and rejects incomplete routes');
 })().catch(e=>{console.error(e);process.exitCode=1});
