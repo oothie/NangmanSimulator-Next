@@ -293,6 +293,21 @@ body{background:var(--bg)!important}
 .account-section-fold>summary{cursor:pointer;padding:12px 14px;color:var(--text);font-weight:650}
 .account-section-fold[open]>summary{border-bottom:1px solid var(--border)}
 .account-section-fold>.account-section-inner{padding:12px}
+
+.account-growth-table th,.account-growth-table td{font-variant-numeric:tabular-nums;padding:7px 10px;white-space:nowrap;vertical-align:middle}
+.account-growth-table thead th{position:sticky;top:0;background:var(--paper);z-index:2}
+.account-growth-table tbody th{text-align:left;font-weight:600;position:sticky;left:0;background:var(--paper);z-index:1}
+.account-growth-table .account-meter{min-width:65px;width:100%;max-width:115px;height:6px;margin:4px auto 0}
+.account-growth-table td{text-align:center;min-width:115px}
+.account-growth-table th:first-child{min-width:150px}
+.account-count{font-weight:750;font-size:14px;color:var(--text)}
+.account-count.is-complete{color:#3a9b7a}
+.account-count.is-progress{color:#b48839}
+.account-count.is-zero{color:var(--sub)}
+.account-compare-scroll{max-height:660px;overflow:auto}
+.account-kpi strong{white-space:normal}
+@media(max-width:600px){.account-growth-table th:first-child{min-width:130px}.account-growth-table td{min-width:95px}}
+
 .account-resource-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:9px}
 .account-resource-card{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:11px}
 .account-resource-card summary{cursor:pointer;font-weight:650}
@@ -3521,7 +3536,7 @@ function yyRoleGrowthOverview(role,kind){
    '<div>'+accountProgressBar(x.current,x.max,kind==='training'?'teal':'violet')+'</div>'+
    '<b>'+(x.current??'—')+' / '+x.max+'</b></div>').join('')+'</div></details>';
  }).join('')+'</div>'+
- '<p class="micro">세이브에 기록이 없는 원본 항목도 0으로 표시됩니다. 한국판 미출시 여부는 별도의 출시 정보와 비교해야 합니다.</p>');
+ '<p class="micro">각 행의 숫자는 실제 복용·수련 기록 / 상한입니다. 한국판 출시 여부는 별도 확인이 필요합니다.</p>');
 }
 function yyAccountRecordAndResourceView(section='jianghu'){
  const root=Array.isArray(save)?save[0]:save||{};
@@ -3716,42 +3731,52 @@ function accountView(){
   body+'</section>';
 }
 function yyAccountGrowthDashboard(entries){
- const types=[['training','수련','teal'],['consumable','단약','violet']];
- const models=types.map(([key,title,color])=>{
-  const byRole=entries.map(({r})=>({name:r.name,role:r,
-   model:yyProgressEntries(save,r,key)}));
-  const all=byRole.flatMap(x=>x.model.items);
-  const groups=all.length,finished=all.filter(g=>g.values.length&&g.values.every(v=>v.current!=null&&v.current>=v.max)).length;
-  const active=all.filter(g=>g.values.some(v=>v.current!=null&&v.current>0)).length;
-  const count=all.reduce((n,g)=>n+g.values.length,0);
-  return {key,title,color,byRole,groups,finished,active,count};
- });
- const summary='<div class="account-kpis">'+models.flatMap(m=>[
-  [m.title+' 분류',m.groups+'그룹',m.count+'개 세부 기록'],
-  [m.title+' 완료',m.finished+'그룹',m.active+'개 그룹 진행 기록']
- ]).map(([t,v,n])=>'<div class="account-kpi"><small>'+escape(t)+'</small><strong>'+escape(v)+'</strong><small>'+escape(n)+'</small></div>').join('')+'</div>';
- const panels=models.map(m=>
-  yyRoleSection('전체 인물 '+m.title+' 진행표',
-   '<div class="account-track-grid">'+m.byRole.map(({name,model})=>{
-    const total=model.items.length,done=model.items.filter(g=>g.values.length&&g.values.every(v=>v.current!=null&&v.current>=v.max)).length;
-    const started=model.items.filter(g=>g.values.some(v=>v.current!=null&&v.current>0)).length;
-    return '<div class="account-track"><div class="account-track-top"><span>'+escape(name)+'</span><b>'+done+' / '+total+' 그룹 완료</b></div>'+
-     accountProgressBar(done,total,m.color)+
-     '<small>'+started+'개 진행 기록 · '+Math.max(0,total-started)+'개 미시작 분류</small></div>';
-   }).join('')+'</div>'+
-   accountFold(m.title+' 전체 항목 상세 · 0회 포함',
-    '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>인물</th><th>항목</th><th>능력치</th><th>진행</th><th>저장 상태</th></tr></thead><tbody>'+
-    m.byRole.flatMap(({name,model})=>model.items.flatMap(group=>group.values.map(v=>
-     '<tr><td>'+escape(name)+'</td><td>'+escape(group.title)+'</td><td>'+escape(v.label)+'</td>'+
-     '<td>'+accountProgressBar(v.current,v.max,m.color)+(v.current??'—')+' / '+v.max+'</td>'+
-     '<td>'+(v.current==null?'값 미확인':v.current>=v.max?'완료':v.current>0?'진행 중':'미시작 · 출시 미확인')+'</td></tr>'
-    ))).join('')+'</tbody></table></div>')
-  )).join('');
- return '<section class="yy-account-overview">'+
- '<p class="role-status-note">각 분류와 인물별 완료 현황을 요약합니다. 원본 데이터의 미출시 가능 항목도 포함하며, 세이브 값 0은 미시작/출시 미확인으로 표시합니다.</p>'+
- summary+panels+'</section>';
+ const plans=[['consumable','단약','violet'],['training','수련','teal']];
+ return '<section class="yy-account-overview account-growth-page">'+
+ '<p class="role-status-note">항목별 실제 복용 횟수·수련 수치를 표시합니다. 예: 용호단 5/5는 5회 복용한 기록입니다. 인물별 진행값을 묶어 한 표에서 비교할 수 있습니다. 0회 항목도 포함하며 한국판 출시 여부와는 구분합니다.</p>'+
+ plans.map(([key,title,color])=>{
+  const byRole=entries.map(({r})=>({r,groups:yyProgressEntries(save,r,key).items}));
+  const itemNames=new Map();
+  for(const entry of byRole)for(const g of entry.groups)for(const v of g.values){
+   const id=g.title+'|'+v.label;
+   if(!itemNames.has(id))itemNames.set(id,{id,title:g.title,label:v.label,max:v.max});
+  }
+  const catalog=[...itemNames.values()].sort((a,b)=>a.title.localeCompare(b.title,'ko')||a.label.localeCompare(b.label,'ko'));
+  const sum=catalog.map(item=>{
+   const values=byRole.map(entry=>{
+    const g=entry.groups.find(x=>x.title===item.title);
+    return g?.values.find(x=>x.label===item.label)||null;
+   });
+   const valid=values.filter(v=>v&&v.current!=null);
+   return {...item,values,started:valid.filter(v=>v.current>0).length,
+    complete:valid.filter(v=>v.current>=v.max).length,valid:valid.length,
+    current:valid.reduce((n,v)=>n+v.current,0),max:valid.reduce((n,v)=>n+v.max,0)};
+  });
+  const active=sum.filter(v=>v.started>0),completed=sum.filter(v=>v.valid>0&&v.complete===v.valid);
+  const rows=sum.map(row=>'<tr><th scope="row">'+escape(row.title)+(row.label==='복용'?'':' <small>· '+escape(row.label)+'</small>')+'</th>'+
+   byRole.map((entry,index)=>{
+    const item=row.values[index];
+    return '<td>'+(item?'<strong class="account-count '+(item.current>=item.max?'is-complete':item.current>0?'is-progress':'is-zero')+'">'+
+     (item.current==null?'—':item.current)+' / '+item.max+'</strong>'+
+     accountProgressBar(item.current,item.max,color):'—')+'</td>';
+   }).join('')+'</tr>').join('');
+  const highlights=active.slice().sort((a,b)=>b.current-a.current).slice(0,12);
+  return yyRoleSection('계정 전체 '+title+' · 항목별 복용·수련 수치',
+   '<div class="account-kpis">'+[
+    ['전체 '+title+' 항목',sum.length+'종','각 인물별 0회 포함'],
+    ['진행 기록이 있는 항목',active.length+'종','최소 1명 진행'],
+    ['확인된 완료 항목',completed.length+'종','해당 항목 대상 전원 완료']
+   ].map(([n,v,note])=>'<div class="account-kpi"><small>'+escape(n)+'</small><strong>'+escape(v)+'</strong><small>'+escape(note)+'</small></div>').join('')+'</div>'+
+   '<div class="account-track-grid">'+highlights.map(item=>
+     '<div class="account-track"><div class="account-track-top"><span>'+escape(item.title)+(item.label==='복용'?'':' · '+escape(item.label))+'</span><b>'+item.current+' / '+item.max+'</b></div>'+
+     accountProgressBar(item.current,item.max,color)+
+     '<small>'+item.started+'명 기록 · '+item.complete+'명 완료 / '+item.valid+'명 대상</small></div>').join('')+'</div>'+
+   accountFold(title+' 전체 비교표 · '+sum.length+'종',
+    '<div class="yy-account-scroll account-compare-scroll"><table class="module-table account-growth-table"><thead><tr><th>'+title+' 이름</th>'+
+    byRole.map(({r})=>'<th>'+escape(r.name)+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table></div>',false)+
+   '<p class="micro">막대는 각 인물의 현재 수치 / 항목 상한입니다. 합산 수치는 대상 인물의 실제 기록만 포함합니다.</p>');
+ }).join('')+'</section>';
 }
-
 function characterView(){
  const opts=[['panel','능력치'],['equip','장비'],['talent','재능'],['detail','상세'],['training','수련'],['consumable','단약'],['hengshan','직무'],['other','기타']];
  const role=roles[selected]||roles[0]||null,raw=role?.raw||{};
