@@ -12,7 +12,17 @@ const path=require('node:path');
  try{
   browser=await chromium.launch({headless:true,args:['--no-sandbox']});
   const page=await browser.newPage();
-  await page.goto('http://127.0.0.1:8766/',{waitUntil:'domcontentloaded'});
+  // Node's HTTP server starts asynchronously. Retry connection refused
+  // rather than treating a startup race as a failed WASM regression.
+  for(let attempt=0;attempt<30;attempt++){
+   try{
+    await page.goto('http://127.0.0.1:8766/',{waitUntil:'domcontentloaded'});
+    break;
+   }catch(error){
+    if(attempt===29)throw error;
+    await new Promise(resolve=>setTimeout(resolve,200));
+   }
+  }
   const audit=await page.evaluate(async()=>{
    const {washSearchEngine}=await import('./engine/local-engine-bridge.js');
    await washSearchEngine.call('init');
