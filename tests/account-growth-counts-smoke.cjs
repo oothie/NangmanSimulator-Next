@@ -48,10 +48,13 @@ assert(!allViews.includes('완료1 진행1'),'no abstract group counts');
 assert(allViews.includes('data-account-page'),'next-table controls exist');
 const trainingView=account.render(roster,'training');
 assert(trainingView.includes('수련 기록')&&trainingView.includes('인물'),'training table has names at left');
-const sixView=account.render(roster,'cultivation');
-assert(sixView.includes('6종 수련')&&sixView.includes('권법')&&sixView.includes('경공'),
- 'all six martial cultivation values appear in the paged comparison');
-assert(sixView.includes('100 / 1,500'),'six-group values use real cultivation model and 1500 cap');
+account.setPage(0);
+const sixFirst=account.render(roster,'cultivation');
+account.setPage(1);
+const sixNext=account.render(roster,'cultivation');
+assert(sixFirst.includes('6종 수련')&&sixFirst.includes('권법')&&sixNext.includes('경공'),
+ 'all six martial cultivation groups are available across successive no-scroll tables');
+assert(sixFirst.includes('100 / 1,500'),'six-group values use actual cultivation model and 1500 cap');
 const roleSource=extract('function yyRoleGrowthOverview(','function yyAccountRecordAndResourceView(');
 const roleView=new Function('yyProgressEntries','yyRoleSection','accountProgressBar','escape','save','yyPillEffect',roleSource+';return yyRoleGrowthOverview')(
  progress,section,bar,escaped,fixture,()=> '');
