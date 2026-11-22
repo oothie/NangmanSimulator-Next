@@ -38,7 +38,9 @@ function lookup(event){
   colors,items:[...new Set(missingEquipPool?event.equip?.ids||[]:match.n.equip||[])],
   weapons:[...new Set(missingWeaponPool?event.weapon?.ids||[]:match.n.weapon||[])],
   inferredPool:missingEquipPool||missingWeaponPool,
-  uniques:match.n.uniques||[],source:'yy-sim',sum};
+  uniques:match.n.uniques||[],
+  uniqueOps:(match.d.ops||[]).filter(op=>op.t==='uniq'&&Number(op.npc)===npcId),
+  source:'yy-sim',sum};
 }
 function fallback(event){
  if(!event.outer)return null;
@@ -50,7 +52,7 @@ function fallback(event){
   colors:[1,2,3,4].map(c=>({color:c,prob:(event.color||[]).filter(x=>Number(x[0])===c)
    .reduce((s,x)=>s+number(x[1]),0)/Math.max(1,colorTotal)})),
   items:[...new Set(event.equip?.ids||[])],weapons:[...new Set(event.weapon?.ids||[])],
-  uniques:[],source:'산부진',sum:total};
+  uniques:[],uniqueOps:[],source:'산부진',sum:total};
 }
 function rate(event){return lookup(event)||fallback(event)}
 function render(target,event){
@@ -97,6 +99,38 @@ function render(target,event){
   d.colors.map(x=>({1:'백색',2:'녹색',3:'청색',4:'자색'}[x.color]+' '+percent(x.prob))).join(' · ')+
   ' · 개별 장비 확률은 균등한 장비 선택을 전제로 계산했습니다.';
  target.append(sub);
+ if(d.uniqueOps?.length){
+  const title=document.createElement('h4');title.textContent='전용·특수 보상 기본 판정';target.append(title);
+  const uniqueTable=document.createElement('table');uniqueTable.className='dungeon-rate-table';
+  const head=document.createElement('tr');
+  for(const label of ['보상 아이템','기본 판정 비율','조건']){
+   const th=document.createElement('th');th.textContent=label;head.append(th)
+  }
+  uniqueTable.append(head);
+  for(const op of d.uniqueOps){
+   const low=Number(op.lo),high=Number(op.hi),threshold=Number(op.th);
+   // Integer RNG is inclusive at both endpoints.
+   const cases=op.cmp==='<='?Math.floor(threshold)-low+1:
+     op.cmp==='<'?Math.ceil(threshold)-low:
+     op.cmp==='>='?high-Math.ceil(threshold)+1:
+     op.cmp==='>'?high-Math.floor(threshold):NaN;
+   const prob=high>=low&&Number.isFinite(cases)?
+     Math.max(0,Math.min(high-low+1,cases))/(high-low+1):NaN;
+   const row=document.createElement('tr');
+   const notes=[op.cap!=null?'획득 상한 '+op.cap+'회':'',
+     Number(op.mul)!==1?'원본 보정 계수 '+op.mul:'',
+     op.win?'누적/상태 변수 적용':''].filter(Boolean).join(' · ')||'원본 보상 조건 적용';
+   for(const label of [localeName(op.item)+' (#'+op.item+')',
+     Number.isFinite(prob)?percent(prob):'원본 판정 확인 필요',notes]){
+    const td=document.createElement('td');td.textContent=label;row.append(td)
+   }
+   uniqueTable.append(row);
+  }
+  target.append(uniqueTable);
+  const caveat=document.createElement('p');caveat.className='progress-note';
+  caveat.textContent='기본 판정 비율은 yy-sim의 난수 구간과 비교 조건으로 계산했습니다. 누적 보정, 획득 기록, 조건부 판정이 적용되면 실제 회차별 확률은 달라질 수 있습니다.';
+  target.append(caveat);
+ }
  if(d.inferredPool){
   const note=document.createElement('p');note.className='progress-note';
   note.textContent='이 보스는 yy-sim 장비 후보 목록이 비어 있어 산부진 후보 장비 ID를 보완했습니다. 개별 장비 확률은 참고용입니다.';
