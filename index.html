@@ -3011,7 +3011,7 @@ function yyProgressEntries(save,role,tab){
   const n=Number(raw);
   return raw==null||!Number.isFinite(n)?null:n;
  };
- const row=(label,key,max)=>{const n=find(key);return {label,current:n===null?null:Math.max(0,max==null?n:Math.min(max,n)),max}};
+ const row=(label,key,max,soft=false)=>{const n=find(key);return {label,current:n===null?null:Math.max(0,max==null||soft?n:Math.min(max,n)),max,soft}};
  const group=(title,items,detail='')=>({title,values:items,detail});
  const mainTraining=[
   group('육선문 용두 정련',[['공격','3255_atk',50],['기혈','3255_hp',200],['방어','3255_def',100],['회피','3255_dodge',80],['명중','3255_hit',80],['속도','3255_speed',80],['초식방어','3255_parry',80],['인내','3255_renxing',80]].map(x=>row(...x))),
@@ -3070,12 +3070,12 @@ function yyProgressEntries(save,role,tab){
   items.push(group('구혼각 혈지 정련',blood.map(x=>row(...x))));
  }
  for(const [name,prefix,max,label,kind] of singles)if(kind===tab&&id!=null)
-  items.push(group(name,[row(label,prefix+id,max)]));
+  items.push(group(name,[row(label,prefix+id,max,prefix==='getMZ_BiGuanShi_'||prefix==='getRX_HanYuGuan_')]));
  if(tab==='training'&&main){
   const extraTraining=[['유주 매화장 경공','mh_mr_qgxw',200],['저택 매화장 경공','home_meihua_max',30],
    ['창랑 교관 창곤','adwxwcl',100],['동자공 팔힘','334_str',30],
    ['동자공 근골','334_con',30],['동자공 내식','334_int',30]];
-  for(const [name,key,max] of extraTraining)items.push(group(name,[row('수련',key,max)]));
+  for(const [name,key,max] of extraTraining)items.push(group(name,[row('수련',key,max,key==='mh_mr_qgxw')]));
  }
  if(tab==='consumable'&&id!=null){
   const types=[['팔힘 초과 상한','str'],['신법 초과 상한','dex'],['근골 초과 상한','con'],['내식 초과 상한','int']];
@@ -3554,7 +3554,7 @@ function yyRoleGrowthOverview(role,kind){
  if(!model.available)return yyRoleSection(title,'<p class="micro">세이브의 진행 기록이 없습니다.</p>');
  const groups=model.items,values=groups.flatMap(g=>g.values);
  const completed=values.filter(v=>v.max!=null&&v.current!=null&&v.current>=v.max).length;
- const counter=v=>(v.current??'—')+' / '+(v.max??'?');
+ const counter=v=>(v.current??'—')+' / '+(v.max??'?')+(v.soft?'+':'');
  const card=g=>{
   if(g.values.length===1){
    const v=g.values[0];
@@ -3794,7 +3794,7 @@ function yyAccountGrowthDashboard(entries){
    byRole.map((entry,index)=>{
     const item=row.values[index];
     return '<td>'+(item?'<strong class="account-count '+(item.max!=null&&item.current>=item.max?'is-complete':item.current>0?'is-progress':'is-zero')+'">'+
-     (item.current==null?'—':item.current)+' / '+(item.max??'?')+'</strong>'+
+     (item.current==null?'—':item.current)+' / '+(item.max??'?')+(item.values.some(v=>v?.soft)?'+':'')+'</strong>'+
      accountProgressBar(item.current,item.max,color):'—')+'</td>';
    }).join('')+'</tr>').join('');
   const highlights=active.slice().sort((a,b)=>b.current-a.current).slice(0,12);
@@ -3805,7 +3805,7 @@ function yyAccountGrowthDashboard(entries){
     ['확인된 완료 항목',completed.length+'종','해당 항목 대상 전원 완료']
    ].map(([n,v,note])=>'<div class="account-kpi"><small>'+escape(n)+'</small><strong>'+escape(v)+'</strong><small>'+escape(note)+'</small></div>').join('')+'</div>'+
    '<div class="account-track-grid">'+highlights.map(item=>
-     '<div class="account-track"><div class="account-track-top"><span>'+escape(item.title)+(item.label==='복용'?'':' · '+escape(item.label))+'</span><b>'+item.current+' / '+(item.max??'?')+'</b></div>'+
+     '<div class="account-track"><div class="account-track-top"><span>'+escape(item.title)+(item.label==='복용'?'':' · '+escape(item.label))+'</span><b>'+item.current+' / '+(item.max??'?')+(item.values.some(v=>v?.soft)?'+':'')+'</b></div>'+
      accountProgressBar(item.current,item.max,color)+
      '<small>'+item.started+'명 기록 · '+item.complete+'명 완료 / '+item.valid+'명 대상</small></div>').join('')+'</div>'+
    accountFold(title+' 전체 비교표 · '+sum.length+'종',
