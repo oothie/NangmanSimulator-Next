@@ -43,11 +43,13 @@ const fixture={globalVariable:{'3255_atk':51,'muren_addXW1':50,'2660_atk':29,'26
  '2633_1':5,'2658_1':1,'eat_2662_int_1':2,'home_ssrx_max':5,'2660_atk_10058':12}};
 const main={id:1,raw:{ID:1},type:'주인공'};
 const companion={id:10058,raw:{ID:10058},type:'동료'};
-assert.equal(yyProgressEntries(fixture,main,'training').items.length,21,'main source training groups plus original oothie records');
+assert.equal(yyProgressEntries(fixture,main,'training').items.length,18,'main-only housing training excluded');
 assert.equal(yyProgressEntries(fixture,main,'consumable').items.length,37,'main original pills including EatDrugs');
 assert.equal(yyProgressEntries(fixture,companion,'consumable').items.length,32,'companion original pills including EatDrugs');
 assert.equal(yyProgressEntries(fixture,main,'other').items.length,1,'shared stone lock');
 assert.equal(yyProgressEntries(fixture,main,'training').items[0].values[0].current,50,'upper bound enforced');
+assert(!yyProgressEntries(fixture,main,'training').items.some(x=>/저택 유력|저택 방석|제갈 비전/.test(x.title)),'main-exclusive restrictions');
+assert.equal(yyProgressEntries(fixture,companion,'training').items.find(x=>x.title==='저택 유력 수련').values[0].max,100,'companion youli max 100');
 assert.equal(yyProgressEntries(fixture,companion,'training').items[0].values[0].current,12,'per-character blood pool');
 assert.equal(yyProgressEntries(fixture,main,'consumable').items.find(x=>x.title==='무상단').values[0].current,28);
 assert.equal(yyProgressEntries(fixture,main,'consumable').items.find(x=>x.title==='파장단').values[3].current,2);
@@ -87,25 +89,25 @@ const {yyRoleCultivationModel,yyAccountCultivationView,yyCultivationAudit,yyAcco
 assert.equal(yyRoleCultivationModel(roster[0]).records.length,6,'all six cultivation branches');
 assert.equal(yyRoleCultivationModel(roster[0]).records[0].history[0].name,'자양서원 지도','Korean history names');
 const accountHtml=yyAccountCultivationView();
-assert(accountHtml.includes('계정 전체 수련 획득 이력'),'history ledger visible');
-assert.equal((accountHtml.match(/data-character-jump/g)||[]).length,2,'account drilldown per role');
-assert.equal((accountHtml.match(/계정 공유 영구 성장/g)||[]).length,1,'shared growth displayed only once');
-assert(accountHtml.includes('인물 수'),'account summary');
-assert(accountHtml.includes('계정 전체 영구 성장 진행 내역'),'account permanent growth ledger');
-assert(accountHtml.includes('계정 전체 수련 계산 교차 검사'),'account independent six-track cross-check');
-assert(accountHtml.includes('계정 전체 6계열 추가 수련 저장값'),'independent WXXW account totals');
-assert(accountHtml.includes('저장 추가 수련 합계'),'saved cultivation raw sum');
-assert(accountHtml.includes('권법'),'track label in account panel');
+assert(!accountHtml.includes('계정 전체 수련 획득 이력'),'summary detail ledger intentionally removed');
+assert(!accountHtml.includes('data-character-jump'),'summary is compact without per-role matrix');
+assert(!accountHtml.includes('계정 공유 영구 성장'),'shared growth summary removed');
+assert(accountHtml.includes('전체 인물'),'account summary');
+
+
+
+
+
 const fallbackApi={cultivation:()=>({cultivation:{records:[]}})};
 const missingSource=accountFactory({RoleStatusData:fallbackApi},mainSave,roster,
  (title,inner)=>'<section><h3>'+title+'</h3>'+inner+'</section>',value=>String(value),yyProgressEntries,
  value=>Array.isArray(value)?value:value&&typeof value==='object'?Object.values(value):[]);
 const fallbackHtml=missingSource.yyAccountCultivationView();
-assert(fallbackHtml.includes('추가 120'),'saved WXXW remains visible when learned stats are unknown');
-assert(fallbackHtml.includes('저장 추가 수련 합계'),'saved WXXW all-roster sum without engine');
 
-assert(accountHtml.includes('수련 데이터 연결 진단'),'unmapped martial audit section');
-assert(accountHtml.includes('검사한 무학 기록'),'audit enumerates source skills');
+
+
+
+
 const csv=yyAccountCultivationCsv();
 assert(csv.includes('현재 저장값'),'csv current values header');
 assert(csv.includes('과거 획득 기록'),'csv historical section');
