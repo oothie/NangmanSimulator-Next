@@ -268,6 +268,12 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    diagnostics.betweenSampledWashes.push(
     ...chosen.map(x=>x.time).slice(0,24-diagnostics.betweenSampledWashes.length));
   for(const candidate of chosen){
+   // Already-spent native pills are a strict lower bound on final cost.
+   const best=Math.min(Infinity,...routes.map(r=>r.pills));
+   if(count(candidate.state,'total_pills')-count(initial,'total_pills')>=best){
+    diagnostics.candidatePruned=(diagnostics.candidatePruned||0)+1;
+    continue;
+   }
    const {time,appearing}=candidate;
    const originalScan=candidate.state;
    restore(originalScan);
@@ -464,7 +470,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
           diagnostics.replanComplete=(diagnostics.replanComplete||0)+1;
           break;
          }
-         if(extra===horizon)break;
+         if(extra===horizon||reachedIncumbent())break;
          const at=count(getState(),'total_wash');
          const washed=doWash();
          if(!washed||washed.error||count(getState(),'total_wash')!==at+1)break;
@@ -536,7 +542,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
       reportBest('anchor-between');
       break;
      }
-     if(offset===horizon)break;
+     if(offset===horizon||reachedIncumbent())break;
      const before=count(getState(),'total_wash'),ret=doWash();
      if(!ret||ret.error||count(getState(),'total_wash')!==before+1)break;
      diagnostics.scannedWashes++;
@@ -564,6 +570,14 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
   purpleTargets:shape.purple,colorTargets:shape.colors,
   purpleRoutes:0,replayed:0,failures:[],scannedWashes:0,
   windows:['purple-between','last-purple-after']};
+ // Never prune without a complete original-WASM four-target result.
+ const reachedIncumbent=()=>{
+  if(!routes.length)return false;
+  const best=Math.min(...routes.map(r=>r.pills));
+  if(count(getState(),'total_pills')-count(initial,'total_pills')<best)return false;
+  diagnostics.prunedByCost=(diagnostics.prunedByCost||0)+1;
+  return true;
+ };
  const reportBest=(phase)=>progress({phase,scannedWashes:diagnostics.scannedWashes,
   candidateRoutes:routes.length,bestPills:routes.length?
    Math.min(...routes.map(r=>r.pills)):null});
@@ -626,6 +640,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    const from=count(getState(),'total_wash');
    // Nearest following green/blue event wins for this purple backbone.
    for(let offset=1;offset<=horizon;offset++){
+    if(reachedIncumbent())break;
     const before=getState(),w=doWash();
     if(!w||w.error||count(getState(),'total_wash')<=count(before,'total_wash')){
      diagnostics.failures.push('자맥 이후 실제 세수 후보 탐색 중단');
