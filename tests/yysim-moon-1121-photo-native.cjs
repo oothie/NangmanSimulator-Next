@@ -79,13 +79,32 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vend
   Number(t.id)===id&&t.locked)));
  assert.equal(pills(),916);assert.equal(Number(snapshot().total_wash),175);
  console.log('PASS MOON_1121_ORIGINAL_WASM_916');
+ for(const stock of [20000,100000]){
+  assert(wasmSetState({...manual128,bag_pills:stock}));
+  wash(19,'stock parity 19');
+  const at147=snapshot().talents.map(t=>Number(t.id));
+  lock(237,true);wash(28,'stock parity 28');
+  const at175=snapshot().talents.map(t=>Number(t.id));
+  console.log('MOON_STOCK_PARITY '+JSON.stringify({
+   stock,at147,at175,pills:pills()
+  }));
+  assert(at147.includes(237)&&at175.includes(204));
+ }
  assert(wasmSetState(nativeSource));
- const variant128=[];
+ const variant128=[],tailSnapshots=[];
  const getTrackedState=()=>{
   const state=wasmGetState();
   if(Number(state.total_wash)===128&&Number(state.total_pills)===484&&
    [268,262].every(id=>state.talents.some(t=>Number(t.id)===id)))
    variant128.push(JSON.parse(JSON.stringify(state)));
+  if([147,175].includes(Number(state.total_wash))){
+   const key=[state.total_wash,state.total_pills,
+    state.talents.map(t=>t.id+':'+(t.locked?'L':'U')).join(',')].join('|');
+   if(!tailSnapshots.some(x=>x.key===key))tailSnapshots.push({
+    key,wash:state.total_wash,pills:state.total_pills,
+    talents:state.talents.map(t=>({id:t.id,locked:t.locked}))
+   });
+  }
   return state;
  };
  const mixed=await YYWashPurpleAnchorMixed.run({
@@ -106,6 +125,7 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vend
    }))
   }));
  }else console.log('MOON_128_VARIANT_DIFFERENCES no native 484 snapshot');
+ console.log('MOON_TAIL_NATIVE_SNAPSHOTS '+JSON.stringify(tailSnapshots));
  console.log('MOON_NATIVE_OPTIMIZED '+JSON.stringify({
   pills:mixed.routes[0]?.pills??null,
   washes:mixed.routes[0]?.washes??null,
