@@ -523,7 +523,19 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
  let baseline=null;
  try{
   restore(initial);
-  baseline=guard.run({getState,setState,search},
+  if(hasAll(getState(),shape.purple)){
+   // When all purple goals are already on the character, the optimal
+   // purple backbone is exactly zero additional washes. Retain those
+   // existing purple talents through native WASM state operations;
+   // do not require a fabricated or empty native purple search route.
+   diagnostics.preexistingPurple=true;
+   baseline={scanned:0,routes:[{
+    actions:shape.purple.map(id=>({
+     kind:'keep',talent:talents[String(id)].name,
+     wash_no:count(initial,'total_wash')
+    })),pills:0,pad:0,order_ids:[...shape.purple]
+   }]};
+  }else baseline=guard.run({getState,setState,search},
    {desired_ids:shape.purple,max_pad:maxPad,horizon,top_n:topN});
   diagnostics.purpleRoutes=baseline?.routes?.length||0;
   for(const native of baseline?.routes||[]){
@@ -535,24 +547,34 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
    restore(start);
    // Freeze all purple anchors. Free only nonselected, replaceable slots.
    const fixed=getState();
+   const retainedTargets=new Set([...shape.purple,...shape.colors]);
    const slots=fixed.talents.map(t=>({...t,
-    locked:shape.purple.includes(number(t.id))}));
+    locked:retainedTargets.has(number(t.id))}));
    if(!setState({...fixed,talents:slots})){
     diagnostics.failures.push('자맥 확정 후 자유 슬롯 생성 실패');continue;
    }
    const tailActions=[...replayed.actions];
    for(const slot of fixed.talents){
     const id=number(slot.id);
-    if(slot.locked&&!shape.purple.includes(id))
+    if(slot.locked&&!retainedTargets.has(id))
      tailActions.push({kind:'unlock',talent:talents[String(id)]?.name||String(id),
       wash_no:count(fixed,'total_wash')});
    }
-   for(const id of shape.purple){
-    if(!fixed.talents.find(t=>number(t.id)===id)?.locked)
+   for(const id of retainedTargets){
+    const existing=fixed.talents.find(t=>number(t.id)===id);
+    if(existing&&!existing.locked)
      tailActions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
       wash_no:count(fixed,'total_wash')});
    }
-   let seen=new Set(),stopped=false;
+   let seen=new Set(shape.colors.filter(id=>idsOf(getState()).includes(id))),
+    stopped=false;
+   // All goals can already be held in a real loaded save, or one of the
+   // colors may have appeared while following the native purple backbone.
+   // Never wash away or re-search an already completed four-slot result.
+   if(seen.size===shape.colors.length&&hasAll(getState(),desiredIds)){
+    routes.push(actionsToRoute(tailActions,getState(),initial,native,desiredIds));
+    reportBest('anchor-wash');
+   }else{
    const from=count(getState(),'total_wash');
    // Nearest following green/blue event wins for this purple backbone.
    for(let offset=1;offset<=horizon;offset++){
@@ -587,6 +609,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
       candidateRoutes:routes.length});
      await new Promise(resolve=>setTimeout(resolve,0));
     }
+   }
    }
    if(!stopped&&!routes.length)diagnostics.failures.push(
     '자맥 확정 이후 '+horizon+'회 내 최종 녹·파맥 조합 미발견');
