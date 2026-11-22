@@ -77,6 +77,16 @@ async function main(){
    candidates:0}:goalResult(raw,item.ids);
   outcomes.push({name:item.name,elapsedMs,...summary});
  }
+ // The native purple-only baseline is the control group. If even its
+ // raw original WASM request throws or returns an invalid JSON contract,
+ // mixed-grade conclusions are meaningless and this characterization must
+ // fail loudly rather than recording every query as "unsupported".
+ const purpleControl=outcomes.find(item=>item.name==='purple');
+ assert(purpleControl,'Purple-only native reference was not executed');
+ assert.notEqual(purpleControl.classification,'native-exception',
+  'Original purple WASM search failed; do not infer mixed-grade behavior');
+ assert.notEqual(purpleControl.classification,'invalid-native-response',
+  'Original purple WASM returned an invalid response');
  // The existing original purple-only function must remain deterministic.
  const request={desired_ids:[271],max_pad:0,horizon:30,top_n:2};
  const attempts=[];
@@ -93,6 +103,9 @@ async function main(){
  assert.deepEqual({json:attempts[0].json,error:attempts[0].error},
   {json:attempts[1].json,error:attempts[1].error},
   'Original purple WASM search is not deterministic for the same state');
+ // Preserve no-route versus native-exception distinctions for the
+ // exact 3-purple control; both results belong in logs, but errors must
+ // never be converted into an invented minimum-pill estimate.
  const purpleThree=outcomes.find(x=>x.name==='three-purple');
  const mixedFour=outcomes.find(x=>x.name==='three-purple-plus-green');
  assert(purpleThree&&mixedFour,'3 purple + 1 green regression pair missing');
