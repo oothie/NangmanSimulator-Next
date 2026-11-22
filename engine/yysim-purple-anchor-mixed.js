@@ -22,6 +22,25 @@ function requestShape(ids,talents){
     new Set(families).size!==4)return null;
  return {purple,colors};
 }
+// Bounded native event selection: prefer cheaper early events while retaining
+// interior and late alternatives that may follow a different valid WASM path.
+// These are candidate priorities, NEVER a claim about final route cost.
+function sampleIntervalCandidates(events,cap=8){
+ if(!Array.isArray(events)||!events.length||cap<=0)return [];
+ if(events.length<=cap)return events.slice();
+ const first=Math.min(4,Math.max(1,cap-3));
+ const last=Math.min(2,cap-first);
+ const indices=new Set();
+ for(let i=0;i<first;i++)indices.add(i);
+ for(let i=events.length-last;i<events.length;i++)indices.add(i);
+ const available=cap-indices.size;
+ for(let i=1;i<=available;i++){
+  const index=Math.round((first-1)+i*(events.length-last-first+1)/(available+1));
+  indices.add(Math.max(first,Math.min(events.length-last-1,index)));
+ }
+ for(let i=first;indices.size<cap&&i<events.length-last;i++)indices.add(i);
+ return [...indices].sort((a,b)=>a-b).slice(0,cap).map(i=>events[i]);
+}
 function actionsToRoute(actions,final,base,original,desiredIds,window='last-purple-after'){
  const washes=count(final,'total_wash')-count(base,'total_wash');
  const pills=count(final,'total_pills')-count(base,'total_pills');
