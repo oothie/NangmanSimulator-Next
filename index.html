@@ -343,6 +343,18 @@ body{background:var(--bg)!important}
 .yy-role-workspace .yy-progress-list{padding:8px 0}
 @media(max-width:620px){.account-workspace{padding:6px 0}.account-workspace .account-nav{position:static}.account-workspace .account-nav button{flex:1;min-width:120px}.account-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+
+/* Account controls use exactly the same site navigation as People; applies in both themes. */
+.account-workspace .account-nav{position:static;top:auto;display:flex;align-items:center;gap:5px;overflow-x:auto;flex-wrap:wrap;background:transparent;border:0;border-bottom:1px solid var(--border);padding:0 0 9px;border-radius:0;box-shadow:none}
+.account-workspace .account-nav button{appearance:none;flex:0 0 auto;min-width:0;border:0;border-bottom:2px solid transparent;border-radius:4px;padding:9px 15px;background:transparent;color:var(--sub);box-shadow:none;font:inherit;font-size:14px;cursor:pointer}
+.account-workspace .account-nav button.active,.account-workspace .account-nav button[aria-pressed=true]{color:var(--text);background:color-mix(in srgb,var(--gold) 16%,transparent);border-bottom-color:var(--gold);font-weight:700}
+.account-workspace .account-nav button:hover{color:var(--text);background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.account-workspace .account-nav button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[data-theme=ink] .account-workspace .account-nav button{color:var(--sub);background:transparent}
+[data-theme=ink] .account-workspace .account-nav button.active{color:var(--text);background:color-mix(in srgb,var(--gold) 20%,transparent)}
+.yy-role-workspace .account-track-grid>.account-track{min-height:84px}
+.yy-role-workspace .account-track .yy-progress-list{padding:10px 0}
+
 .drop-workspace{margin:0 0 40px;width:100%;min-height:900px}
 .drop-workspace[hidden]{display:none!important}
 #dropEngineFrame{display:block;border:0;width:100%;height:1540px;min-height:1000px;background:transparent}
@@ -2829,6 +2841,28 @@ function characterCombatOriginal(role){
   return null;
  }
 }
+
+const KOREAN_COMBAT_PART_NAMES={
+ itNei:'내공 내식',hitTaolu:'외공 명중',hitQing:'경공 명중',
+ dodgeNei:'내공 회피',dodgeTaolu:'외공 회피',dodgeQing:'경공 회피',
+ parryQing:'경공 초식방어',speedNei:'내공 속도',speedTaolu:'외공 속도',speedQing:'경공 속도',
+ hitNei:'내공 명중',parryNei:'내공 초식방어',parryTaolu:'외공 초식방어',
+ atkNei:'내공 공격',atkTaolu:'외공 공격',atkQing:'경공 공격',
+ defNei:'내공 방어',defTaolu:'외공 방어',defQing:'경공 방어',
+ hpNei:'내공 기혈',hpTaolu:'외공 기혈',hpQing:'경공 기혈'
+};
+function koreanCombatPartName(key,local){
+ const id=String(key),translated=local?.[id]||KOREAN_COMBAT_PART_NAMES[id];
+ if(translated)return translated;
+ const m=/^(hit|dodge|parry|speed|atk|def|hp|it|ren|blood|mp)(Nei|Taolu|Qing)$/.exec(id);
+ if(m){
+  const source={Nei:'내공',Taolu:'외공',Qing:'경공'}[m[2]];
+  const type={hit:'명중',dodge:'회피',parry:'초식방어',speed:'속도',atk:'공격',def:'방어',hp:'기혈',it:'내식',ren:'인내',blood:'흡혈',mp:'내력'}[m[1]];
+  return source+' '+type;
+ }
+ return id;
+}
+
 function characterCombatFinal(role){
  const computed=characterCombatOriginal(role);
  if(!computed){
@@ -2858,7 +2892,7 @@ function characterCombatFinal(role){
   const values=Object.entries(obj).filter(([,value])=>typeof value==='number'&&Number.isFinite(value));
   if(!values.length)return '';
   return '<details class="yy-combat-stage"><summary>'+escape(label)+' · '+values.length+'항목</summary>'+
-   '<div class="yy-combat-stage-grid">'+values.map(([field,value])=>'<div><span>'+escape(properties[field]||field)+'</span><b>'+escape(fmt(value))+'</b></div>').join('')+
+   '<div class="yy-combat-stage-grid">'+values.map(([field,value])=>'<div><span>'+escape(koreanCombatPartName(field,properties))+'</span><b>'+escape(fmt(value))+'</b></div>').join('')+
    '</div></details>';
  }).filter(Boolean).join('');
  return '<section class="role-section yy-combat-final"><p class="wr-kicker">최종 전투 능력치</p>'+
@@ -3614,9 +3648,24 @@ const YY_ACCOUNT_KO_MAPS={
   qz_island_1:'섬용도',nz_dl:'대리',nz_km:'전지',wxj01:'문향교',wsc:'무쌍성',
   hss_bz_hole2:'장군총',hsn_zj_1:'천정봉',hj_cz:'창주',hj_sfk:'석불구',
   xueyuan03:'나무초',dxs_maze_2:'기관 유적',migong_nl:'미림 대산',nz_xgll:'샹그릴라',
-  mmyj:'묵문 유적'
+  mmyj:'묵문 유적',
+   dh_mgkhole1:'돈황 · 막고굴 제1층',lingyue_hole_3:'명월산 · 영월궁 산동굴 3구역',
+   xueyuan08:'우쓰 설원 · 제8구역'
  };
-function yyAccountMapName(id){return YY_ACCOUNT_KO_MAPS[String(id)]||String(id)}
+function yyAccountMapName(id){
+ const key=String(id);
+ if(YY_ACCOUNT_KO_MAPS[key])return YY_ACCOUNT_KO_MAPS[key];
+ const stems=[['dh_mgkhole','돈황 · 막고굴'],['lingyue_hole_','명월산 · 영월궁 산동굴'],
+  ['xueyuan','우쓰 설원'],['jlg_hole','극락곡 · 동굴'],['nz_','남령 · '],
+  ['sfj_','십방집 · '],['qc_','청성산 · '],['qz_','천주 · '],['dxs_','대설산 · '],
+  ['hsn_','항산 · '],['hss_','형산 · '],['ly_','낙양 · '],['yz_','유주 · '],
+  ['taiyi_','태을산 · '],['nyz_','남양도 · ']];
+ for(const [prefix,name] of stems)if(key.startsWith(prefix)){
+  const rest=key.slice(prefix.length);
+  return name+(rest?(' · '+(/^[0-9]+$/.test(rest)?'제'+Number(rest)+'구역':'세부 지역')):'');
+ }
+ return '지역명 확인 중';
+}
 
 function yyAccountMappedLootView(root,mapName){
  const original=window.NangmanMapLoot60014;
@@ -3665,7 +3714,7 @@ function yyAccountMappedLootView(root,mapName){
    (x.state==='획득'?'is-done':x.state==='일부 수령'?'is-partial':'is-pending')+'">'+escape(x.state)+'</span></td></tr>').join('')+
   '</tbody></table></div>';
  const cards=visible.map(m=>'<details class="account-resource-card"><summary><strong>'+escape(m.name)+'</strong>'+
-   '<small>그루터기 '+done(m.stump)+'/'+m.stump.length+' · 보물상자 '+done(m.chest)+'/'+m.chest.length+'</small></summary>'+
+   '<small>그루터기 '+done(m.stump)+'/'+m.stump.length+' · 보물상자 '+done(m.chest)+'/'+m.chest.length+' <span title="원본 지도 ID">('+escape(m.id)+')</span></small></summary>'+
   (m.stump.length?details(m.stump,'그루터기','teal'):'')+
   (m.chest.length?details(m.chest,'보물상자','amber'):'')+'</details>').join('');
  return '<section class="yy-account-overview account-map-page">'+
