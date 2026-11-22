@@ -42,7 +42,8 @@ function yyPredict(input,dungeon,entries){
  for(const {npc} of entries){
   const npcOps=(dungeon.ops||[]).filter(op=>op.t==='skr'&&
    (op.bs||[]).some(b=>Number(b.npc)===Number(npc.id)));
-  let kind='none',item=0,color=0,unavailable=false,hasOrdinary=false;
+  let kind='none',item=0,color=0,unavailable=false,hasOrdinary=false,
+      missingType='';
   for(const op of npcOps){
    const branches=(op.bs||[]).filter(b=>Number(b.npc)===Number(npc.id));
    for(const subset of [
@@ -51,7 +52,7 @@ function yyPredict(input,dungeon,entries){
    ]){
     if(!subset.length)continue;
     const selected=draw(op.key,subset.map(b=>num(b.w)));
-    if(selected===null){unavailable=true;break}
+    if(selected===null){unavailable=true;missingType='해당 보스 난수 시드 누락';break}
     const branch=subset[selected];
     if(branch.kind==='color'){color=Number(branch.color)||0;continue}
     hasOrdinary=true;
@@ -59,15 +60,15 @@ function yyPredict(input,dungeon,entries){
     const pool=npc[kind]||[];
     if(kind!=='none'&&pool.length){
      const ix=uniform(op.key,pool.length);
-     if(ix===null){unavailable=true;break}
+     if(ix===null){unavailable=true;missingType='장비 선택 시드 누락';break}
      item=Number(pool[ix-1])||0;
-    }else if(kind!=='none'){unavailable=true}
+    }else if(kind!=='none'){unavailable=true;missingType='yy-sim 장비 후보 목록 미등록'}
    }
    if(unavailable)break;
   }
   rows.push({npcId:Number(npc.id),boss:npc.name,item,
    color:item?color:0,kind,model:'yy-sim',missing:unavailable,
-   supported:hasOrdinary,originalOperations:npcOps.length,
+   supported:hasOrdinary,reason:missingType,originalOperations:npcOps.length,
    specialCandidates:(dungeon.ops||[]).filter(op=>op.t==='uniq'&&
       Number(op.npc)===Number(npc.id)).map(op=>Number(op.item))});
  }
@@ -97,7 +98,8 @@ function sanPredict(input,entries,originalCatalog){
    item:item?.item||0,color:item?.color||0,kind:item?.kind||'none',
    specialDrops:item?.specialDrops||[],nativeReplay:!!item?.nativeReplay,
    missing:unavailable||!!error,supported:!!item,
-   original:original,reason:item?.nativeReason||(!event?'해당 보스 복원 자료 없음':error||'')};
+   original:original,reason:item?.nativeReason||
+    (unavailable?'해당 보스 난수 시드 누락':!event?'산부진 보스 복원 자료 없음':error||'')};
  });
  return {source:'sanbujin',rows,missingSeeds:[...new Set(missing.flatMap(x=>
     root.SBJDungeonDrop.missing(input,x.event)))],error,
