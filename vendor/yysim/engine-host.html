@@ -112,7 +112,40 @@ try{
    checked:0,found:0,bestPills:null});
   await new Promise(resolve=>setTimeout(resolve,0));
   const sourceState=wasmGetState();
-  let result=await window.YYWashIntermediateSearch.run({
+  // Probe the original yy-sim native route engine FIRST. The host's purple-
+  // only UI guard is not proof that the underlying WASM rejects other grades.
+  // Accept only native routes whose terminal slots actually hold EVERY goal;
+  // never turn a transient match or error payload into a successful route.
+  let nativeMixed=null,nativeMixedError=null;
+  try{
+   report({stage:'원본 yy-sim WASM 혼합 목표 직접 탐색',phase:'native',completed:0,
+    total:1,percentage:1,checked:0,found:0,bestPills:null});
+   await new Promise(resolve=>setTimeout(resolve,0));
+   const candidate=wasmSearchWashRoutes({
+    desired_ids:ids,max_pad:Number(payload?.maxPad??30),horizon,top_n:topN
+   });
+   const afterNative=wasmGetState();
+   if(JSON.stringify(sourceState)!==JSON.stringify(afterNative)){
+    if(!wasmSetState(sourceState))throw Error('원본 WASM 직접 탐색 후 상태 복원 실패');
+    throw Error('원본 WASM 직접 탐색 중 상태 변경');
+   }
+   if(!candidate||!Array.isArray(candidate.routes))throw Error(String(candidate?.error||'원본 WASM 결과 형식 오류'));
+   const verified=candidate.routes.filter(route=>
+    Array.isArray(route.final_slots)&&ids.every(id=>
+     route.final_slots.some(slot=>Number(slot?.id)===id))&&
+    Number.isFinite(Number(route.pills))&&Number(route.pills)>=0&&
+    Number.isFinite(Number(route.washes))&&Number(route.washes)>=0&&
+    Array.isArray(route.actions));
+   if(verified.length){
+    nativeMixed={...candidate,routes:verified.map(route=>({...route,optimal:false,
+     source:'wasm_native_mixed_verified'}))};
+   }else nativeMixedError='원본 전용 함수에서 네 맥의 최종 동시 보유 경로를 확인하지 못함';
+  }catch(error){
+   nativeMixedError=String(error?.message||error);
+   if(JSON.stringify(wasmGetState())!==JSON.stringify(sourceState)&&
+      !wasmSetState(sourceState))throw Error('혼합 원본 탐색 실패 후 상태 복원 불가');
+  }
+  let result=nativeMixed||await window.YYWashIntermediateSearch.run({
    ids,horizon,topN,getState:wasmGetState,setState:wasmSetState,
    doWash:wasmDoWash,getConflicts:wasmGetConflicts,
    doExchange:wasmExchangeTalent,
@@ -130,6 +163,12 @@ try{
    yieldControl:()=>new Promise(resolve=>setTimeout(resolve,0)),
    onProgress:report
   });
+  if(nativeMixed){
+   result.nativeMixedFastPath=true;
+   result.nativeSearchError=null;
+  }else if(nativeMixedError){
+   result.nativeSearchError=nativeMixedError;
+  }
   // Only call the more expensive native exchange beam if 2+ purple targets
   // cannot be found together by the cheaper original WASM wash-order scan.
   // This branch is bounded; never claim exhaustive optimality.
