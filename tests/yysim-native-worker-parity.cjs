@@ -29,7 +29,7 @@ const {chromium}=require('playwright');
    const frame=washSearchEngine.frame.contentWindow;
    const reqs=[
     {name:'purple',desired_ids:[271],max_pad:0,horizon:30,top_n:2},
-    {name:'mixed-diagnostic-only',desired_ids:[184,191,271],max_pad:0,horizon:30,top_n:2}
+    {name:'mixed-diagnostic-only',desired_ids:[184,202,271],max_pad:0,horizon:30,top_n:2}
    ];
    const worker=new Worker('./vendor/yysim/native-search-worker.js');
    const responses=[];
