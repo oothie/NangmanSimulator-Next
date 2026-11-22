@@ -6,10 +6,10 @@
  */
 (function(root){
 'use strict';
-async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=900,topN=10,
+async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=0,horizon=900,topN=10,
  onProgress=()=>{}}={}){
  if(typeof call!=='function'||!api?.options||!api?.routeOutcome)
-  throw Error('yy-sim 원본 자동 탐색 엔진이 준비되지 않았습니다');
+  throw Error('자동탐색 엔진이 준비되지 않았습니다');
  const config=api.options({desiredIds,maxPad,horizon,topN});
  ensureSession();
  // The native yy-sim search is ONE opaque WASM call. Neither inspected
@@ -19,7 +19,7 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
  let latestStage=null;
  const active=()=>onProgress({...(
   latestStage||{phase:'native',total:null,indeterminate:true,
-   history:[],bestPills:null,stage:'원본 yy-sim WASM 경로 탐색 실행 중'}),
+   history:[],bestPills:null,stage:'자동탐색 경로 계산 중'}),
   elapsedSeconds:Math.floor((Date.now()-started)/1000)});
  active();
  // Let the browser paint before issuing the CPU-heavy iframe request.
@@ -64,7 +64,7 @@ async function run({call,ensureSession=()=>{},api,desiredIds,maxPad=20,horizon=9
   '원본 WASM이 경로 '+diagnostic.returned+'개를 반환했지만 녹·파맥 포함 목표가 최종 슬롯에 모두 남지 않아 제외했습니다. 최저 세수단 미확정':
   mixedFailure?'원본 WASM 탐색 범위 안에서 녹·파맥 포함 최종 완성 경로를 찾지 못했습니다. 최저 세수단 미확정':null;
  onProgress({phase:'verified',total:1,indeterminate:false,elapsedSeconds:Math.floor((Date.now()-started)/1000),history,bestPills:best?.estimatedPills??null,
-  stage:'원본 yy-sim WASM 탐색 결과 검증 완료'});
+  stage:'자동탐색 결과 확인 완료'});
  return {nativeFunction:'wasmSearchWashRoutes',desiredIds:config.desiredIds,
   maxPad:config.maxPad,horizon:config.horizon,topN:config.topN,
   nameIds:native.nameIds||{},history,progressive:true,nativeDiagnostics:diagnostic,
