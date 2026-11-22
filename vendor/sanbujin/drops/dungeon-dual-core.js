@@ -124,7 +124,7 @@ function compare(input,dungeon,catalog,originalCatalog){
  return {dungeon:dungeon.name,dungeonId:dungeon.id,
   bosses:entries.map(x=>({id:x.npc.id,name:x.npc.name})),
   yy:yyPredict(input,dungeon,entries),
-  san:sanPredict(input,entries,originalCatalog)};
+  san:sanPredict(input,entries,originalCatalog,dungeon)};
 }
 root.SBJDungeonDual={compare,sourceDungeon,orderedEvents,yyPredict,sanPredict};
 })(window);
