@@ -32,6 +32,8 @@ const path=require('node:path');
      {id:173,locked:false},{id:174,locked:false}],
     total_wash:0,total_pills:0,bag_pills:20000,has_bag_pills:true};
    await washSearchEngine.call('set-state',current);
+   const exactInitialState=await washSearchEngine.call('state');
+   const initialSerialized=JSON.stringify(exactInitialState);
    const frame=washSearchEngine.frame;
    const target=Array.from(document.querySelectorAll('iframe')).find(x=>x===frame);
    if(!target)throw Error('native iframe unavailable');
@@ -47,6 +49,16 @@ const path=require('node:path');
      search:wasmSearchWashRoutes
     },request);
     const conflicts=wasmGetConflicts();
+    const available=wasmGetAvailableTalents();
+    const availableSummary={
+     type:Array.isArray(available)?'array':typeof available,
+     length:Array.isArray(available)?available.length:null,
+     keys:available&&!Array.isArray(available)&&typeof available==='object'?
+      Object.keys(available).slice(0,25):[],
+     sample:Array.isArray(available)?available.slice(0,3):
+      available&&typeof available==='object'?
+       Object.entries(available).slice(0,3):null
+    };
     const conflictSummary={
      type:Array.isArray(conflicts)?'array':typeof conflicts,
      length:Array.isArray(conflicts)?conflicts.length:null,
@@ -159,10 +171,10 @@ const path=require('node:path');
       throw Error('original native request field probe mutated state');
     }
     return {rows,mixedGoalResults,nativePurpleBaseline,requestVariants,
-     conflictSummary,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
+     conflictSummary,availableSummary,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
    })()`);
-   const state=await washSearchEngine.call('state');
-   return {outcome,preserved:JSON.stringify(state)===JSON.stringify(await washSearchEngine.call('state'))};
+   const finalState=await washSearchEngine.call('state');
+   return {outcome,preserved:JSON.stringify(finalState)===initialSerialized};
   });
   assert(audit.outcome.unchanged&&audit.preserved,'native grade audit mutated live state');
   assert.equal(audit.outcome.rows.length,3);
