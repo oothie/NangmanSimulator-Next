@@ -3516,7 +3516,7 @@ function yyAccountRecordAndResourceView(){
   const v=dict(raw),pic=String(v.pic||''),nick=String(v.nick||'');
   const label=[pic,nick,v.json].join(' ');
   const type=/(?:stump|tree[_ -]?stub|그루터기|树桩|樹樁)/i.test(label)?'그루터기':
-   /(?:box|chest|보물상자|나무상자|철상자|木箱|宝箱)/i.test(label)?'보물상자':'종류 미확인';
+   /(?:box|chest|보물상자|나무상자|철상자|木箱|宝箱)/i.test(label)&&!/letterbox/i.test(label)?'보물상자':'종류 미확인';
   return {mid,name:mapName(mid),id,pic,type,flag:/empty|open/i.test(pic)?'빈/열린 외형 저장':'오브젝트 변경 기록'};
  }));
  const identified=markers.filter(x=>x.type!=='종류 미확인');
@@ -3561,7 +3561,7 @@ function yyAccountRecordAndResourceView(){
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>지역</th><th>종류</th><th>오브젝트 ID</th><th>상태</th><th>외형</th></tr></thead><tbody>'+rows(identified)+'</tbody></table></div></details>':'')+
  '<details class="yy-account-history"><summary>종류 미확인 오브젝트 '+(markers.length-identified.length)+'개</summary>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>지역</th><th>종류</th><th>오브젝트 ID</th><th>상태</th><th>외형</th></tr></thead><tbody>'+
- rows(markers.filter(x=>x.type==='종류 미확인'))+'</tbody></table></div></details>'+
+ rows(markers.filter(x=>x.type==='종류 미확인').slice(0,200))+'</tbody></table></div><p class="micro">원본 기록은 최대 200개만 펼쳐 표시합니다. 전체 '+(markers.length-identified.length)+'개 중 나머지는 지도별 집계에 포함됩니다.</p></details>'+
  '<p class="micro">정확한 획득/미획득 체크리스트는 지도별 원본 Tiled 오브젝트 목록과 저장 ID 대조 이후 제공할 수 있습니다. 반복 채집·광맥 상태와 혼동하지 않습니다.</p>');
 }
 
