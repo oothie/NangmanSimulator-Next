@@ -8,6 +8,7 @@ const context={window:{}};vm.createContext(context);
 vm.runInContext(source+'\n;this.wasmPayload=EMBEDDED_WASM_B64;',context,{timeout:30000});
 const bytes=Buffer.from(context.wasmPayload,'base64');
 assert.equal(bytes.toString('hex',0,4),'0061736d');
+assert(WebAssembly.validate(bytes),'Original yy-sim WASM binary did not pass runtime validation');
 function uleb(cur){
  let value=0,multiplier=1,byte;
  do{
@@ -351,6 +352,35 @@ assert(nativePurpleFunctions.every(x=>x.opcodeCount>0),
 assert(nativePurpleFunctions.find(x=>x.index===13)?.comparisonSites>0,
  'Original native purple event source no longer has grade-adjacent comparisons');
 
+// Generate a reproducible review table: group 2/3/4 comparison windows by
+// function and their adjacent *actual* memory offsets. This is not proof
+// that any memory field is a talent quality. It prevents re-investigating
+// generic literal "4" sites as if they were validated quality gates.
+const nativeQualityReview=nativePurpleFunctions.map(group=>{
+ const buckets=new Map();
+ for(const site of group.sites){
+  const keys=site.loadOffsets.length?
+   [...new Set(site.loadOffsets)].map(String):['no-adjacent-load'];
+  for(const key of keys){
+   const entry=buckets.get(key)||{fieldOffset:key,counts:{2:0,3:0,4:0},
+    sourceOffsets:[],comparisonOpcodes:[]};
+   entry.counts[site.literal]++;
+   entry.sourceOffsets.push(site.offset);
+   if(!entry.comparisonOpcodes.includes(site.comparisonOpcode))
+    entry.comparisonOpcodes.push(site.comparisonOpcode);
+   buckets.set(key,entry);
+  }
+ }
+ const groups=[...buckets.values()].sort((a,b)=>
+  b.sourceOffsets.length-a.sourceOffsets.length||
+  a.fieldOffset.localeCompare(b.fieldOffset));
+ return {index:group.index,comparedWindows:group.comparisonSites,
+  memoryLoadGroups:groups};
+});
+assert(nativeQualityReview.length===3,
+ 'All original Rust next_purple function sites must be surveyed');
+
+
 
 const coreComparisons=comparisonWindows(coreSearch);
 const coreGradeReview=gradeReviewSitesFor(coreSearch);
@@ -528,6 +558,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
   instructionCount:nativePurpleGenerator.instructions.length,
   comparisonsNearGrades:purpleGeneratorCompareWindows.slice(0,30)},
  nativePurpleFunctions,
+ nativeQualityReview,
  qualityDataflowCandidates:qualityDataflowCandidates.slice(0,70),
  solver:{index:solver.index,bodyBytes:solver.bodyBytes,callInstructions:solver.callCount,uniqueDependencies:tally.size},
  mostFrequent:dependencies.slice(0,15),largestDependencies:byBody,
