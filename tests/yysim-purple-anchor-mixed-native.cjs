@@ -616,6 +616,11 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  }
  console.log('YY_MOON_PHOTO_REPLAY '+JSON.stringify(photoLogs));
  assert(wasmSetState(moonState));
+ assert.equal(moonMixed.routes[0]?.pills,910,
+  'Moon 1121 original-WASM mixed search must find 910 pills');
+ assert.equal(moonMixed.routes[0]?.washes,175);
+ assert([268,262,237,204].every(id=>moonMixed.routes[0].final_slots.some(t=>
+  Number(t.id)===id&&t.locked)));
  console.log('YY_MOON_1121_MIXED '+JSON.stringify({
   cost:moonMixed.routes[0]?.pills??null,
   washes:moonMixed.routes[0]?.washes??null,
