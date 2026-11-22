@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.10.63</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v0.10.64</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -800,10 +800,10 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .wash-guide-slot{padding:10px 13px;border:1px solid var(--border);background:var(--paper);border-radius:8px;font-weight:700;font-size:15px}
 .wash-guide-alternative>summary{font-size:16px;padding:12px 0;cursor:pointer;font-weight:700}
 @media(max-width:640px){.wash-guide-route{padding:14px}.wash-guide-heading h4{font-size:29px}.wash-guide-step{padding:12px;grid-template-columns:36px minmax(0,1fr);gap:8px}.wash-guide-number{width:30px;height:30px}.wash-guide-step-body strong{font-size:16px}.wash-guide-step-detail{font-size:15px}}
-/* v0.10.63: embed regular wash using active site theme, never a fixed light iframe. */
+/* v0.10.64: embed regular wash using active site theme, never a fixed light iframe. */
 [data-theme=ink] #washV350Frame{background:#252830!important;color-scheme:dark!important}
 [data-theme=paper] #washV350Frame{background:#fffdf7!important;color-scheme:light!important}
-/* v0.10.63: hide all experimental appearance previews until original sprite mapping is verified. */
+/* v0.10.64: hide all experimental appearance previews until original sprite mapping is verified. */
 .appearance-section,[data-appearance-role],.appearance-stage{display:none!important}
 
 /* Account: paginated person-left / records-right tables. No nested scrolling. */
@@ -866,7 +866,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .appearance-status{text-align:center;max-width:230px;font-size:13px;line-height:1.65;padding:16px;color:var(--text-secondary,#77808e)}
 .appearance-caption{text-align:center}
 </style></head>
-<body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터 · v0.10.63</small></div><nav class="nav" id="nav"></nav><div class="tools"><span id="topSaveStatus" class="micro">세이브 미연결</span><button id="saveLink" class="save-link">세이브 불러오기</button><button type="button" id="clearTopSave" class="save-link" title="이 브라우저의 세이브 삭제">해제</button><input id="file" type="file" accept=".json,application/json" hidden><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
+<body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호<small>한국판 통합 시뮬레이터 · v0.10.64</small></div><nav class="nav" id="nav"></nav><div class="tools"><span id="topSaveStatus" class="micro">세이브 미연결</span><button id="saveLink" class="save-link">세이브 불러오기</button><button type="button" id="clearTopSave" class="save-link" title="이 브라우저의 세이브 삭제">해제</button><input id="file" type="file" accept=".json,application/json" hidden><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
 <main class="page"><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="장비 계산 영역"></section><section id="dropWorkspace" class="drop-workspace" hidden aria-label="드랍 계산 영역"></section></main></div>
 <script src="./shared/private-save-cache.js?rev=v083"></script><script src="./vendor/sanbujin/shared/equip_data.js"></script>
 <script src="./vendor/yysim/char_data.js"></script>
@@ -1500,13 +1500,13 @@ return '<div class="layout">'+aside+'<div class="work">'+hero +tabbar+body+'</di
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='find',equipSearch='',equipFindLevel='all',equipFindType='all',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel',accountTab='summary',accountGrowthMode='consumable',accountMapSearch='',accountLootFilter='active',accountMapVisible=36;let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyQuantity=1,marketStrategyPeriods=120,marketStrategyResults=null,marketSlotsOverride=6;let questSourceError='';
+let equipTab='find',equipSearch='',equipFindLevel='all',equipFindType='all',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel',accountTab='summary',accountGrowthMode='consumable',accountMapSearch='',accountLootFilter='active',accountMapVisible=36;let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyQuantity=1,marketStrategyPeriods=120,marketStrategyResults=null,marketSlotsOverride=6,marketStrategyWorker=null,marketStrategyJob=0,marketStrategyProgress='';let questSourceError='';
 let questTab='current',questSearch='',questBranchFilter='active',questVisibleLimit=200,questCatalogLimit=150,questCategory='all',questFocusedId=null,questRegion='all';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.10.63</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
+return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v0.10.64</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
 }
 
 function embeddedEngine(url,label,caption){
@@ -1994,6 +1994,11 @@ function marketStrategyGoal(target,root){
  const quantity=limited?remaining:Math.max(1,Math.min(1000,Math.floor(Number(marketStrategyQuantity)||1)));
  return {quantity,purchased,remaining,limited};
 }
+function stopMarketStrategy(){
+ if(marketStrategyWorker){marketStrategyWorker.terminate();marketStrategyWorker=null}
+ marketStrategyJob++;
+ marketStrategyProgress='';
+}
 function marketStrategyMarkup(state,ko){
  const all=[...state.available,...state.soldOut],soldSet=new Set(state.soldOut.map(x=>x.id));
  const targets=[223,224,222,225],featured=targets.map(id=>all.find(x=>x.id===id)).filter(Boolean);
@@ -2058,7 +2063,9 @@ function marketStrategyMarkup(state,ko){
    '<label>예측 기간<select id="marketStrategyPeriods">'+periodChoices.sort((a,b)=>a-b).map(x=>
       '<option value="'+x+'" '+(x===marketStrategyPeriods?'selected':'')+'>'+x+'회 무료 자동 교체</option>').join('')+'</select></label>'+
    '<button class="btn primary" id="marketStrategyRun" '+
-    (!state.seedOk||!target||exhausted?'disabled':'')+'>2가지 전체 획득 전략 계산</button></div>'+
+    (!state.seedOk||!target||exhausted||marketStrategyWorker?'disabled':'')+'>'+(marketStrategyWorker?'계산 중':'2가지 전체 획득 전략 계산')+'</button>'+ 
+   (marketStrategyWorker?'<button type="button" class="btn" id="marketStrategyCancel">계산 취소</button>':'')+'</div>'+
+   '<p class="micro" id="marketStrategyStatus" aria-live="polite">'+escape(marketStrategyProgress)+'</p>'+
   (target?'<div class="market-target-summary">'+marketImage(target)+'<div><b>'+
     escape(label(target.id))+'</b><small>상품 #'+target.id+' · '+
     (goal.limited?'총 '+target.stock+'개 중 구매 '+goal.purchased+'개 · 남은 '+goal.quantity+'개 전부':
@@ -4442,23 +4449,55 @@ if($('marketStrategyVipSelect'))$('marketStrategyVipSelect').onchange=e=>{market
 if($('marketStrategyTarget'))$('marketStrategyTarget').onchange=e=>{marketStrategyTarget=Number(e.target.value);marketStrategyResults=null;render()};
 if($('marketStrategyQuantity'))$('marketStrategyQuantity').onchange=e=>{marketStrategyQuantity=Math.max(1,Math.min(1000,Math.floor(Number(e.target.value)||1)));marketStrategyResults=null;render()};
 if($('marketStrategyPeriods'))$('marketStrategyPeriods').onchange=e=>{marketStrategyPeriods=Number(e.target.value);marketStrategyResults=null;render()};
+if($('marketStrategyCancel'))$('marketStrategyCancel').onclick=()=>{stopMarketStrategy();render()};
 if($('marketStrategyRun'))$('marketStrategyRun').onclick=()=>{
  if(!save)return;
+ stopMarketStrategy();
  const anchor=Math.floor(Date.now()/1000);
  const state=window.NangmanMarket.predict(save,window.DAILY_DATA,anchor,{slots:marketSlotsOverride});
  const target=[...state.available,...state.soldOut].find(x=>x.id===marketStrategyTarget);
  const quantity=marketStrategyGoal(target,save).quantity;
  if(quantity<=0)return;
- // Evaluate only the selected VIP. Twelve expensive searches for every VIP
- // would block the browser, especially for the 15-page limited manuals.
- const vip=marketVipOverride,base={vip,quantity,periods:marketStrategyPeriods,maxStates:300000};
- const plans={
-   free:state.searchStrategy([marketStrategyTarget],{...base,mode:'free'}),
-   fastest:state.searchStrategy([marketStrategyTarget],{...base,mode:'fastest'})
- };
- marketStrategyResults={plans,anchor,target:marketStrategyTarget,quantity,
-   vip,periods:marketStrategyPeriods,save,slots:marketSlotsOverride};
- render();
+ const requestId=marketStrategyJob,vip=marketVipOverride,periods=marketStrategyPeriods,
+   slots=marketSlotsOverride,shopId=marketStrategyTarget,sourceSave=save;
+ marketStrategyResults=null;
+ marketStrategyProgress='시드 분석 및 탐색 준비 중…';
+ try{
+  const worker=new Worker('engine/market-strategy-worker.js');
+  marketStrategyWorker=worker;
+  worker.onmessage=event=>{
+   const message=event.data||{};
+   if(requestId!==marketStrategyJob||marketStrategyWorker!==worker)return;
+   if(message.type==='progress'){
+    marketStrategyProgress=message.stage+' · '+Number(message.expanded||0).toLocaleString('ko-KR')+
+     ' / '+Number(message.limit||300000).toLocaleString('ko-KR')+' 상태 검사';
+    const status=$('marketStrategyStatus');if(status)status.textContent=marketStrategyProgress;
+   }else if(message.type==='result'){
+    marketStrategyResults={plans:message.plans,anchor,target:shopId,quantity,
+      vip,periods,save:sourceSave,slots};
+    worker.terminate();marketStrategyWorker=null;
+    marketStrategyProgress='탐색 완료 · 결과를 표시합니다.';
+    render();
+   }else if(message.type==='error'){
+    worker.terminate();marketStrategyWorker=null;
+    marketStrategyProgress='탐색 실패: '+message.message;
+    render();
+   }
+  };
+  worker.onerror=event=>{
+   if(marketStrategyWorker!==worker)return;
+   worker.terminate();marketStrategyWorker=null;
+   marketStrategyProgress='백그라운드 탐색기를 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
+   render();
+  };
+  worker.postMessage({type:'calculate',requestId,save:sourceSave,anchor,
+    slots,vip,target:shopId,quantity,periods,maxStates:300000});
+  render();
+ }catch(error){
+  marketStrategyWorker=null;
+  marketStrategyProgress='탐색기를 시작할 수 없습니다: '+String(error?.message||error);
+  render();
+ }
 };
 document.querySelectorAll('[data-market-panel]').forEach(el=>{el.hidden=el.dataset.marketPanel!==marketPanel});
 document.querySelectorAll('[data-market-tab]').forEach(el=>el.onclick=()=>{marketPanel=el.dataset.marketTab;render()});
@@ -4483,7 +4522,7 @@ if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  link.download='Nangman_Quest_Branches_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questRegion='all';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.10.63',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questRegion='all';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v0.10.64',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=0;wikiDetail=null;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiDetail=null;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 
 if($('equipSearch'))$('equipSearch').oninput=e=>{equipSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipSearch');x.focus();x.setSelectionRange(p,p)};
 if($('equipOwnSearch'))$('equipOwnSearch').oninput=e=>{equipOwnSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipOwnSearch');x.focus();x.setSelectionRange(p,p)};
@@ -4798,7 +4837,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.10.63',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v0.10.64',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;equipmentLastOriginalTab=null;render()}});
