@@ -199,7 +199,7 @@
     // The only optional fit is explicit and guarded to the exact pre-hunt
     // 1121 RNG state; other saves must use unconditioned predictions.
     if(eighthEvidence.checked&&!isOriginal1121(current)){
-      forecastStatus.textContent='8회차 실측 조건은 1121.json 사냥 전 난수 상태에만 적용할 수 있습니다. 현재 세이브에는 적용하지 않았습니다.';
+      forecastStatus.textContent='선택한 조건은 현재 세이브의 난수 상태와 일치하지 않아 적용하지 않았습니다.';
       return;
     }
     const constraints=eighthEvidence.checked?[{serial:8,spawn:true,itemId:4009,color:1}]:[];
@@ -211,9 +211,9 @@
     tombForecastSummary=summarizeCandidates(search.matches,pad,count);
     showForecast(tombForecastSummary,search.matches,count,pad);
     const missing=Object.values(current.eds||{}).length===0?' · 장비별 Eds 저장이 없어 옵션 시드는 일부 미연결입니다.':'';
-    forecastStatus.textContent=count+'회 35255 원본 조우 이벤트 가설 · '+search.matches.length+
+    forecastStatus.textContent=count+'회 35255 조우 이벤트 계산 · '+search.matches.length+
       '/'+search.tested+'개 분기 순서 후보'+
-      (eighthEvidence.checked?' · 1121 원본 시드에서 8번째 조우=실제 8회차라는 추가 가정 적용':' · 별도의 실측 조건 미적용')+
+      (eighthEvidence.checked?' · 선택한 추가 조건 적용':' · 별도의 실측 조건 미적용')+
       ' · 실제 필드 사냥 횟수와 이벤트 호출 횟수의 매핑 미확정'+
       (current.gate3007Unknown?' · 진행 조건 3007 미기록 (통과 가정)':'')+missing;
     forecastCsv.disabled=false;
@@ -304,7 +304,7 @@
         {title:'색상',value:row=>color[row.color]||''},
         {title:'예상 추가 옵션(검증 전)',value:row=>row.affixes?
           row.affixes.map(a=>a.prop+':'+a.value).join('; '):''},
-        {title:'한계',value:row=>target.kind==='tomb'?'1121 실측 기반 제릉 분기 · 최종 정련/망정 미연결':
+        {title:'한계',value:row=>target.kind==='tomb'?'제릉 장비 · 최종 정련/망정 미연결':
           target.kind==='story'?'특수몹 보상 호출 · 일반 사냥 회차 아님 · 최종 정련/망정 미연결':
           '세이브 시드 기반 가상 계산 · 실게임/최종 정련 검증 필요'}
       ];
