@@ -29,9 +29,31 @@ function adapt(event){
  const outer=branches.filter(b=>['miss','equip','weapon'].includes(b.kind));
  const color=branches.filter(b=>b.kind==='color');
  if(!outer.length||!color.length)return event;
- // Order matters: choose() consumes the source list in its native order.
- const weights=outer.map(b=>[b.kind==='miss'?'none':b.kind,Number(b.w)]);
- const colorWeights=color.map(b=>[Number(b.color),Number(b.w)]);
+ // yy-sim stores branches in display order, not execution order.
+ // Preserve the recovered native Sanbujin pick interval order while applying
+ // yy-sim weights and available item categories. This is essential for
+ // deterministic seed predictions (e.g. Yan Wang purple is first, not last).
+ const aggregate=kind=>outer.filter(b=>b.kind===kind)
+  .reduce((sum,b)=>sum+Number(b.w),0);
+ let remaining={equip:aggregate('equip'),weapon:aggregate('weapon'),
+  none:aggregate('miss')};
+ const weights=(event.outer||[]).map(([kind,weight])=>{
+  let category=kind,amount=Math.max(0,Number(weight)||0);
+  if(remaining[category]>=amount){remaining[category]-=amount;return [category,amount]}
+  if(category==='weapon'&&remaining.weapon===0&&remaining.none>=amount){
+   remaining.none-=amount;return ['none',amount];
+  }
+  // Source weight change: retain native slot, but use only remaining
+  // category capacity. Unallocated mass is reconciled below.
+  amount=Math.min(amount,Math.max(0,remaining[category]||0));
+  remaining[category]-=amount;
+  return [category,amount];
+ });
+ for(const [kind,left] of Object.entries(remaining)){
+  if(left>0)weights.push([kind,left]);
+ }
+ const colorById=new Map(color.map(b=>[Number(b.color),Number(b.w)]));
+ const colorWeights=event.color.map(([id,weight])=>[id,colorById.get(Number(id))??Number(weight)]);
  const key=operations.find(op=>op.bs.some(b=>['miss','equip','weapon'].includes(b.kind)))?.key||event.outerSeed;
  const ckey=operations.find(op=>op.bs.some(b=>b.kind==='color'))?.key||event.colorSeed;
  const usePool=(old,list)=>{const ids=(list||[]).length?[...list]:[...(old?.ids||[])];
