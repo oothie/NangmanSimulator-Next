@@ -17,8 +17,8 @@ const {chromium}=require('playwright'),cp=require('node:child_process'),path=req
    await washSearchEngine.call('init');
    const baseline=await washSearchEngine.call('state');
    const copied={...baseline,role_id:10044,zizhi:154,seed:447882174,
-    talents:[{id:170,locked:false},{id:171,locked:false},
-     {id:172,locked:false},{id:173,locked:false}],
+    talents:[{id:171,locked:false},{id:172,locked:false},
+     {id:173,locked:false},{id:174,locked:false}],
     total_pills:0,total_wash:0,bag_pills:10000,has_bag_pills:true};
    await washSearchEngine.call('set-state',copied);
    const frame=washSearchEngine.frame.contentWindow;
