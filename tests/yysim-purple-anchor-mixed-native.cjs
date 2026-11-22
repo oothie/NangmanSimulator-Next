@@ -412,6 +412,32 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
    'Aptitude 153 user route must include an original open_slot action');
  }
  console.log('YY_USER_1121_ROUTE_ACTIONS '+JSON.stringify(roleMixed.routes[0]?.actions||[]));
+ // Separate source-state parity from the originally published minimal
+ // 4285 fixture. These are scalar fields from the same Yi Il-jin save,
+ // with the 7,592-key private globalVariable map intentionally omitted.
+ const mapped1121={...role1121,
+  salt:262731,role_stats:{str_val:11,con:200,dex:210,int_val:13},
+  luck_seed:0,luck_seed_inited:false,born_rc:0,
+  has_born_talent:true,rng_variant:'73324',sex:1,
+  gold_count:0,pity_count:0,exchange_count:0,total_talent_bars:0,
+  quality_counts:{1:0,2:0,3:0,4:0},last_purple_total_pills:null
+ };
+ assert(wasmSetState(mapped1121));
+ const mappedBefore=YYWashNativeSearchGuard.canonicalJson(wasmGetState());
+ const mappedResult=await YYWashPurpleAnchorMixed.run({
+  desiredIds:[272,249,266,234],maxPad:20,horizon:900,topN:8,
+  talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
+  search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+  guard:YYWashNativeSearchGuard
+ });
+ assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),mappedBefore);
+ console.log('YY_1121_SCALARS_ONLY '+JSON.stringify({
+  routes:mappedResult.routes.length,pills:mappedResult.routes[0]?.pills??null,
+  washes:mappedResult.routes[0]?.washes??null,
+  attempts:mappedResult.diagnostics.purpleAttempts,
+  replayRejected:mappedResult.diagnostics.purpleReplayRejected||0
+ }));
+ assert(wasmSetState(source));
  console.log('YY_USER_1121_YI_ILJIN_MIXED '+JSON.stringify({
   goals:[272,249,266,234],zizhi:153,
   routes:roleMixed.routes.length,
