@@ -22,7 +22,7 @@ function requestShape(ids,talents){
     new Set(families).size!==4)return null;
  return {purple,colors};
 }
-function actionsToRoute(actions,final,base,original,desiredIds){
+function actionsToRoute(actions,final,base,original,desiredIds,window='last-purple-after'){
  const washes=count(final,'total_wash')-count(base,'total_wash');
  const pills=count(final,'total_pills')-count(base,'total_pills');
  return {
@@ -30,7 +30,7 @@ function actionsToRoute(actions,final,base,original,desiredIds){
   actions,pills,washes,exchanges:actions.filter(a=>a.kind==='exchange').length,
   pad:number(original.pad)||0,optimal:false,
   strategy:'자맥 원본 경로 확정 → 녹·파맥 실측 가까운 맥 탐색',
-  anchor_window:'last-purple-after',native_verified:true
+  anchor_window:window,native_verified:true
  };
 }
 async function run({desiredIds,maxPad=20,horizon=900,topN=8,
