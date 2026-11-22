@@ -5,19 +5,19 @@ const source=()=>root.DAILY_DATA?.dungeons||[];
 const number=v=>Number(v)||0;
 const percent=p=>Number.isFinite(p)?(p*100).toLocaleString('ko-KR',{maximumFractionDigits:3})+'%':'—';
 const localeName=id=>{
+ const ko=root.NangmanDungeonKoreanNames?.[id];
+ if(ko)return String(ko).trim();
  const item=root.EQUIP_DATA?.equipment?.[id];
- return item?.koName||((item?.name&&root.SBJ_KOREAN?.translate?.(item.name))||item?.name)||'아이템 #'+id;
+ return item?.koName||((item?.name&&root.SBJ_KOREAN?.translate?.(item.name))||item?.name)||
+  root.SBJ_KOREAN?.translate?.(root.ITEM_NAMES?.[id]||'')||'이름 미확인';
 };
 function lookup(event){
  const npcId=Number(String(event?.id||'').match(/^drop_(\d+)_equip$/)?.[1]);
  if(!npcId)return null;
- const hits=source().flatMap(d=>(d.npcs||[]).filter(n=>Number(n.id)===npcId)
-  .map(n=>({d,n})));
- if(!hits.length)return null;
- // The same NPC ID can occur in normal/hard variants. Prefer the
- // matching dungeon display name, otherwise identical NPC-rate records.
- const match=hits.find(x=>String(x.d.name).includes(String(event.variant||'').replace('普通','')))||
-  hits.find(x=>String(event.dungeon).includes(String(x.d.name).split('·')[0]))||hits[0];
+ const match=root.SBJDungeonYYAdapter?.findSource(event)||
+  source().flatMap(d=>(d.npcs||[]).filter(n=>Number(n.id)===npcId)
+   .map(n=>({d,n})))[0];
+ if(!match)return null;
  const ops=(match.d.ops||[]).filter(op=>op.t==='skr'&&
   op.bs?.some(b=>Number(b.npc)===npcId));
  const byKind=(kind)=>ops.flatMap(op=>op.bs.filter(b=>b.kind===kind));
@@ -33,7 +33,7 @@ function lookup(event){
    Math.max(1,(event.color||[]).reduce((s,x)=>s+number(x[1]),0))}));
  const missingEquipPool=chance('equip')>0&&!(match.n.equip||[]).length;
  const missingWeaponPool=chance('weapon')>0&&!(match.n.weapon||[]).length;
- return {npcId,dungeon:match.d.name,boss:match.n.name,
+ return {npcId,dungeon:event.dungeon,boss:event.boss,
   equip:chance('equip'),weapon:chance('weapon'),none:chance('miss'),
   colors,items:[...new Set(missingEquipPool?event.equip?.ids||[]:match.n.equip||[])],
   weapons:[...new Set(missingWeaponPool?event.weapon?.ids||[]:match.n.weapon||[])],
@@ -105,7 +105,7 @@ function render(target,event){
    if(op.cap!=null)conditions.push('획득 상한 '+op.cap);
    if(op.flag)conditions.push('기록 반영');
    const label=isVariable?score+' (기초 기준) · 실제 변동':score;
-   addRow(table,[localeName(op.item)+' (#'+op.item+')',label,conditions.join(' · ')||'기본 판정']);
+   addRow(table,[localeName(op.item),label,conditions.join(' · ')||'기본 판정']);
   }
   section.append(table);
   section.append(node('p','이 수치는 yy-sim 원본 난수 범위의 기초 판정 비율입니다. 보스 처치 횟수·획득 이력·보정 계수가 개입하는 전용 보상은 현재 세이브에 따라 실제 확률이 변동할 수 있으므로 고정 확률로 간주하지 않습니다.','progress-note'));
@@ -123,7 +123,7 @@ function render(target,event){
  for(const [list,prob] of [[d.items,d.equip],[d.weapons,d.weapon]]){
   for(const id of list){
    const each=list.length?prob/list.length:0;
-   addRow(ordinaryTable,[localeName(id)+' (#'+id+')',percent(each),percent(each*purple)]);
+   addRow(ordinaryTable,[localeName(id),percent(each),percent(each*purple)]);
   }
  }
  if(d.items.length+d.weapons.length)ordinary.append(ordinaryTable);
