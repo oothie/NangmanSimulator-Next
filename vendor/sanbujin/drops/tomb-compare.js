@@ -35,7 +35,7 @@ function render(data){
  }
  output.append(table);
  if(data.cases?.length){
-  const title=node('h3','제릉 보상 가중치 분기 가설 비교 (실게임 검증 전)');
+  const title=node('h3','제릉 보상 계산 방식 비교');
   output.append(title);
   const hypotheses=document.createElement('table');
   hypotheses.style.width='100%';
