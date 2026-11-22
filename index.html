@@ -3557,14 +3557,45 @@ function yyAccountRecordAndResourceView(section='jianghu'){
  const achievementRows=achievements.slice().sort((a,b)=>Number(a.ID)-Number(b.ID)).map(row=>
   '<tr><td>#'+escape(row.ID)+'</td><td>'+escape(row.Reward??'—')+'</td></tr>').join('');
  const knownMaps={
-  wyc:'망우촌',swz:'십방집',hua:'화산',taiyi:'태을산',hz:'항주',
-  hsn:'형산',qc:'청성산',qls:'기련산',nl:'남령',lxz:'낙하진',
-  shaolin:'소림사',lqz:'용천진',cbs:'장백산',dxs:'대설산',yz:'유주',
-  kunlun:'곤륜산',cd:'청두',ly:'낙양',gs:'고소',sb:'새북',
-  nyz:'남양도',emei:'아미산',taz:'태안진',ts:'태산',
-  dh:'돈황',qz:'천도',fmz:'봉명집',jilegu:'극락곡'
+  wyc:'망우촌',swz:'쌍왕진',sfj:'십방집',hua:'화산',taiyi:'태을산',hz:'항주',
+  hsn:'항산',hss:'형산',qc:'청성산',qls:'기련산',nl:'남령',lxz:'낙하진',
+  shaolin:'숭산',lqz:'용천진',cbs:'백산',dxs:'대설산',yz:'유주',
+  kunlun:'곤륜산',cd:'성도',ly:'낙양',gs:'고소',sb:'새북',
+  nyz:'남양도',emei:'아미산',taz:'태안진',ts:'천산',
+  dh:'돈황',qz:'천주',fmz:'봉명집',jilegu:'양천령',
+  jianwang:'오산',lingyue:'명월산',xueyuan07:'캉단산',xueyuan05:'다고산',
+  ylg_1:'반딧불숲',ylg_2:'야낭곡',lxz_qf:'진부',taiyi_zl:'죽림',
+  qc_qlg:'천룡곡',qz_xsc:'어촌',qz_sz:'악귀섬',sfj_gc_migong:'고창 미궁',
+  ywg:'약왕곡',yz_gudao:'서풍고도',yz_sb:'낙일목장',
+  jlg_hole6:'은밀한 골짜기',jlg_hole7:'매령',qz_yinhuandao:'은환도',
+  hz_djc:'동강촌',sfj_wg:'내제 초원',qc_lyx1:'용은협',
+  qz_island_3:'내풍섬',sfj_dys:'대월지 거점',gs_sdm:'철인문',
+  sfj_qsm2:'칠살 주둔지',xueyuan01:'아도 설원',gs_lf:'이부',
+  qz_island_1:'섬용도'
  };
  const mapName=id=>knownMaps[String(id)]||String(id);
+ // The Korean 60014 client stores one-time stump retrieval as shudun_<map><objectId>.
+ // This is a verified acquisition marker: do not infer unopened stumps from absent keys.
+ const gv=dict(root.globalVariable||root.GlobalVariable||root.P);
+ const stumpMarks=Object.entries(gv).filter(([key,val])=>/^shudun_[\w]+$/i.test(key)&&Number(val)>0)
+   .map(([key,val])=>{
+    const raw=key.slice(7),parts=/^(.+?)(\d{4})$/.exec(raw);
+    const mid=parts?parts[1]:raw;
+    return {key,id:parts?parts[2]:'?',mid,name:mapName(mid),value:Number(val)};
+   });
+ const officialStumpCount=Number.isFinite(Number(gv.find_TotalShuDun))?
+  Number(gv.find_TotalShuDun):null;
+ const stumpMap=new Map();
+ for(const mark of stumpMarks){
+  if(!stumpMap.has(mark.mid))stumpMap.set(mark.mid,[]);
+  stumpMap.get(mark.mid).push(mark);
+ }
+ // Generic box-named counters are NOT authoritative chest opening evidence:
+ // include them as unverified candidate records only.
+ const boxCandidates=Object.entries(gv).filter(([key,val])=>
+   /(?:box|chest|宝箱|宝盒)/i.test(key)&&/^(?:open|opened|get_|box_)/i.test(key)&&Number(val)>0)
+   .map(([key,val])=>({key,value:Number(val)}));
+
 
  // One-off objects (tree stumps / treasure chests) are stored in MapData.tmxObj;
  // repeatable mine/plant nodes are intentionally excluded.
@@ -3578,9 +3609,10 @@ function yyAccountRecordAndResourceView(section='jianghu'){
   return {mid,name:mapName(mid),id,pic,type,flag:/empty|open/i.test(pic)?'빈/열린 외형 저장':'오브젝트 변경 기록'};
  }));
  const identified=markers.filter(x=>x.type!=='종류 미확인');
- const perMap=mapKeys.map(([id])=>({
+ const perMap=[...new Set([...mapKeys.map(([id])=>id),...stumpMap.keys()])].map(id=>({
   id,name:mapName(id),
-  entries:markers.filter(x=>x.mid===id)
+  entries:markers.filter(x=>x.mid===id),
+  stumps:stumpMap.get(id)||[]
  })).sort((a,b)=>a.name.localeCompare(b.name,'ko'));
  const rows=items=>items.map(x=>'<tr><td>'+escape(x.name)+' <small>('+escape(x.mid)+')</small></td><td>'+escape(x.type)+'</td><td>#'+escape(x.id)+'</td><td>'+escape(x.flag)+'</td><td>'+escape(x.pic||'—')+'</td></tr>').join('');
  const jianghuHtml=yyRoleSection('강호 기록 · 계정 공통',
