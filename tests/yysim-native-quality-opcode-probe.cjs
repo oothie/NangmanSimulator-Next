@@ -14,7 +14,13 @@ const variants={
  gradeGatesTriple:[2665,3332,6303],
  bypassRequestGuard:[-5532],
  nextPurpleAllCandidateFours:[2665,3332,4138,6303,6361,6370,6905,6914,7445,7454],
- nextPurpleLateCandidateFours:[4138,6361,6370,6905,6914,7445,7454]
+ nextPurpleLateCandidateFours:[4138,6361,6370,6905,6914,7445,7454],
+ coreQuality2At3530:[-3530],
+ coreQuality2At3735:[-3735],
+ coreQuality2Pair:[-3530,-3735],
+ coreQuality3At432:[-432],
+ coreQuality3At1094:[-1094],
+ coreQuality3Pairs:[-432,-445,-1094,-1107]
 };
 function readUleb(bytes,c){
  let n=0,s=0,v;
@@ -82,6 +88,17 @@ if(!process.argv.includes('--child')){
   const body=functionBodyStart(bytes,13);
   assert(body.size>10000&&body.size<20000,'native next_purple body contract changed');
   for(const offset of offsets){
+   if(offset<0&&offset!==-5532){
+    const core=functionBodyStart(bytes,4),at=core.start-offset;
+    const prior=[-3530,-3735].includes(offset)?2:3;
+    const next=prior===2?4:2;
+    assert.equal(bytes[at],65,'Expected i32.const in native core at '+(-offset));
+    assert.equal(bytes[at+1],prior,'Unexpected core comparison operand at '+(-offset));
+    assert([70,71,73,75,77,79].includes(bytes[at+2]),
+     'Expected integer comparison after core grade candidate '+(-offset));
+    bytes[at+1]=next;
+    continue;
+   }
    if(offset===-5532){
     // Research-only: native core4 builds the purple-only error after
     // i32.load8_u from a request-validation flag at state+300.
@@ -146,6 +163,8 @@ if(!process.argv.includes('--child')){
    assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),identity,
     'WASM state changed in '+name+'/'+x.label);
    rows.push({label:x.label,routes:routes.length,complete:complete.length,
+    nativeOrderIds:routes[0]?.order_ids||null,
+    finalIds:routes[0]?.final_slots?.map(t=>Number(t.id))||null,
     cheapest:complete.length?Math.min(...complete.map(r=>Number(r.pills))):null,
     error:error||raw?.error||null});
   }
