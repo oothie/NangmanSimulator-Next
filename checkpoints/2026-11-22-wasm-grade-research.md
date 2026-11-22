@@ -99,6 +99,9 @@ The original yy-sim route search predicts hypothetical cost independent of the p
 - A synthetic saved character holding 3 purple anchors while missing green184 found a **1470-pill** actual native green extension; zero actual inventory was preserved by isolated virtual-funding logic. A character holding all four needed exactly **0** additional pills/0 washes. These are synthetic fixtures, not values for a user's own save.
 - Original WASM asset and RNG data remain untouched. Positive-cost best-of-bounded routes retain `optimal:false`; only proven cost-zero routes are marked globally optimal. Other application character regression continues to fail and is not claimed to be addressed.
 
+### Zero-pill UI result pipeline verification
+`tests/yysim-auto-progressive-smoke.cjs` now directly verifies the complete 4-slot `YYWashProgressive.run → YYWashAutoSearch.routeOutcome` pipeline preserves `bestPills: 0`, retains one `executable` route, and sets `globallyOptimal: true` on a native complete source route with zero further pills. This prevents a JavaScript falsy-zero filter from hiding a mathematically proven minimum. The browser-native test independently confirms zero-pill source preservation and all four final locks.
+
 ## Pending next steps
 1. Follow the branch/dataflow preceding core4's native error builder; identify the grade predicate for the preselection and distinguish it from RNG's native quality distribution.
 2. Inspect function13 `next_purple` candidate-event loop beyond the 3 unsuccessful tested offsets.
