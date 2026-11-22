@@ -58,7 +58,10 @@ assert(source.includes('function yyRoleExtraCombat('),'source kL combat-extra de
 assert(source.includes('ExtMpFirst'),'extra true-essence stat included');
 assert(source.includes('ExtParry'),'extra parry stat included');
 // Extended tab: account-wide current cultivation, historical progress and shared counters.
-assert(source.includes("['account','계정 전체']"),'account-wide training tab');
+assert(source.includes('data-account-all'),'account-wide records must be in the left sidebar');
+assert(!source.includes("['account','계정 전체']"),'account should no longer be a character subtab');
+assert(source.includes("['character','인물']"),'top character tab should be renamed to people');
+assert(source.includes('yyAccountAllGrowthCatalogView(entries)'),'all account growth records include zero-count entries');
 assert(source.includes("data-character-jump"),'account-to-role training drilldown');
 const accountCode=source.slice(source.indexOf('function yyRoleCultivationModel('),source.indexOf('function characterView(){'));
 assert(accountCode.includes('function yyAccountHistoryView('),'historical cultivation source ledger');
@@ -156,4 +159,4 @@ assert.equal(byName['인내 초기값'],629,'initial unbuffed resilience');
 assert.equal(byName['진원 초기값'],33.4,'initial unbuffed true-essence');
 assert(baseApi.characterSourceBasePanel(sample).includes('551'),'detail references shared calculation');
 
-console.log('PASS: yy-sim role page structure, all 9 tabs, selector wiring and version labels');
+console.log('PASS: yy-sim role page structure, 8 person subtabs and separate account navigation');
