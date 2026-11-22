@@ -1,59 +1,70 @@
-// Progressive multi-pass search must retain true native results and only claim
-// lowest pill cost *within enumerated candidates*, not global optimality.
+// The original yy-sim WASM route search is invoked ONCE at the user bounds.
+// No local sequential/locking/beam search, hidden extra passes, or false
+// global-optimality/percentage is allowed.
 'use strict';
-const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const root=path.resolve(__dirname,'..'),ctx={window:{}};vm.createContext(ctx);
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const root=path.resolve(__dirname,'..');
+const ctx={window:{},setTimeout,clearTimeout,setInterval,clearInterval,Date};
+vm.createContext(ctx);
 for(const file of ['yysim-auto-search.js','yysim-auto-progressive.js'])
  vm.runInContext(fs.readFileSync(path.join(root,'engine',file),'utf8'),ctx,{filename:file});
 const api=ctx.window.YYWashAutoSearch,p=ctx.window.YYWashProgressive;
-const levels=Array.from(p.levels({maxPad:20,horizon:1500,topN:8}));
-assert.deepEqual(Array.from(levels,x=>[x.maxPad,x.horizon]),[[3,300],[8,900],[20,1500]]);
-assert.equal(p.levels({maxPad:0,horizon:100,topN:2}).length,1,'identical stages deduplicated');
-const existing={pad:0,pills:10,washes:3,exchanges:0,optimal:false,actions:[],
- final_slots:[{id:268,locked:false}]};
-const cheaper={pad:3,pills:7,washes:2,exchanges:1,optimal:false,
+const expensive={pad:3,pills:15,washes:5,exchanges:0,optimal:false,
+ actions:[{kind:'wash_to',wash_no:5}],final_slots:[{id:268,locked:false}]};
+const cheaper={pad:0,pills:7,washes:3,exchanges:1,optimal:false,
  actions:[{kind:'exchange',to:'天生神力'}],final_slots:[{id:268,locked:true}]};
-let calls=0,checks=0;const updates=[];
-async function call(op,config){
- assert.equal(op,'auto-search');assert.deepEqual(Array.from(config.desiredIds),[268]);
- calls++;return {nativeFunction:'wasmSearchWashRoutes',
-  nameIds:{'天生神力':268},result:{scanned:100*calls,
-   routes:calls===1?[existing]:calls===2?[existing,cheaper]:[cheaper]}};
-}
 (async()=>{
- const res=await p.run({call,api,desiredIds:[268],maxPad:20,horizon:1500,topN:8,
-  ensureSession:()=>checks++,onProgress:r=>updates.push(r)});
- assert.equal(calls,3);assert(checks>=6);
- assert.equal(updates.length,3);
+ let calls=0,checks=0;const updates=[];
+ const reqs=[];
+ async function call(op,config){
+  assert.equal(op,'auto-search');calls++;reqs.push({...config});
+  await new Promise(resolve=>setTimeout(resolve,12));
+  return {nativeFunction:'wasmSearchWashRoutes',nameIds:{'天生神力':268},
+   result:{scanned:100,routes:[expensive,cheaper]}};
+ }
+ const result=await p.run({call,api,desiredIds:[268],maxPad:20,horizon:1500,topN:8,
+  ensureSession:()=>checks++,onProgress:item=>updates.push(item)});
+ assert.equal(calls,1,'native search called exactly once');
+ assert(checks>=3,'session verified around async execution');
+ assert.equal(reqs[0].maxPad,20);assert.equal(reqs[0].horizon,1500);
+ assert.equal(reqs[0].topN,8);
+ assert.deepEqual(Array.from(reqs[0].desiredIds),[268]);
+ assert.equal(updates[0].phase,'native');
+ assert.equal(updates[0].indeterminate,true,'opaque WASM gives no percentage');
+ assert.equal(updates.at(-1).phase,'verified');
  assert.equal(updates.at(-1).bestPills,7);
- assert.equal(res.bestPills,7);
- assert.equal(res.result.routes.length,2,'same native candidate across stages deduplicated');
- assert.equal(res.result.scanned,600,'sum is documented as overlapping scan work');
- let extendedCalls=0;
- const fallback=await p.run({api,desiredIds:[268],maxPad:30,horizon:3000,topN:8,
-  call:async()=>{extendedCalls++;return {nativeFunction:'wasmSearchWashRoutes',
+ assert.equal(result.bestPills,7);
+ assert.equal(result.result.routes.length,2);
+ assert.equal(result.result.routes[0].pills,7,'prefer cheaper actual final path');
+ assert.equal(result.globallyOptimal,false,'native optimal false stays false');
+ assert.equal(result.history.length,1);
+ assert.equal(result.history[0].horizon,1500);
+ assert.equal(result.result.scanned,100,'do not sum fictional extra passes');
+ assert.equal(result.nativeFunction,'wasmSearchWashRoutes');
+ let misses=0;
+ const none=await p.run({api,desiredIds:[268],maxPad:30,horizon:3000,topN:8,
+  call:async()=>{misses++;return {nativeFunction:'wasmSearchWashRoutes',
    result:{scanned:4,routes:[]}};}});
- assert.equal(extendedCalls,5,'missing goals automatically extend search in two bounded stages');
- assert.deepEqual(Array.from(fallback.history,x=>[x.maxPad,x.horizon]),
-  [[3,300],[8,900],[30,3000],[100,4000],[200,5000]]);
- assert.equal(fallback.bestPills,null,'no candidates still cannot be marked complete');
- assert.equal(res.globallyOptimal,false,'native optimal:false cannot mean guaranteed best globally');
- assert(res.progressive===true&&res.history.length===3);
- assert.equal(api.routeOutcome(res.result,[268]).routes[0].estimatedPills,7);
- const alternative={...cheaper,steps:[{kind:'luck-reset',roll_idx:31}],luck_init:{roll_idx:31,by:'exchange'}};
- const repeated={...cheaper,steps:[{kind:'luck-reset',roll_idx:32}],luck_init:{roll_idx:32,by:'exchange'}};
- const alternate=await p.run({api,desiredIds:[268],maxPad:3,horizon:300,topN:8,
-  call:async()=>({nativeFunction:'wasmSearchWashRoutes',result:{routes:[alternative,repeated,alternative],scanned:3}})});
- assert.equal(alternate.result.routes.length,2,'same cost/actions but different luck reset branches are distinct paths');
+ assert.equal(misses,1,'missing result must not auto-extend to 4000/5000');
+ assert.equal(none.bestPills,null);
+ assert.equal(none.result.routes.length,0);
+ assert.equal(none.history.length,1);
+ const transient={...cheaper,final_slots:[{id:268,locked:false}]};
+ const incomplete={...cheaper,final_slots:[{id:271,locked:false}],
+  acquired_events:[{id:268,wash_no:2}]};
+ const verified=await p.run({api,desiredIds:[268],maxPad:3,horizon:300,
+  call:async()=>({nativeFunction:'wasmSearchWashRoutes',
+   result:{scanned:2,routes:[incomplete,transient]}})});
+ assert.equal(verified.result.routes.length,1,'transient acquisitions never satisfy final goals');
  await assert.rejects(()=>p.run({call:async()=>({}),api,desiredIds:[268],
   maxPad:3,horizon:300,topN:5}),/원본 WASM 자동 탐색/);
  await assert.rejects(()=>p.run({call:async()=>({}),api,desiredIds:[268,268],
   maxPad:3,horizon:300,topN:5}),/서로 다른/);
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
- assert(html.includes('./engine/yysim-auto-progressive.js'));
- assert(!html.includes('id="yyAutoProgressive"'),'progressive search must be automatic, not a second UI button');
- assert(html.includes("colorSelected?'washEngineAutoColor':'washEngineAutoProgressive'"));
+ assert(html.includes('./engine/yysim-auto-progressive.js?rev=20261122-progress'));
  assert(html.includes("op==='washEngineAutoProgressive'"));
- assert(html.includes('state.autoProgress=progress;announce()'));
- console.log('PASS: progressive native yy-sim search scans 3 bounded levels, ranks real routes, dedupes, never falsely certifies optimal');
+ assert(html.includes('p.indeterminate'),'WASM UI must report uncertain duration');
+ assert(!html.includes('id="yyAutoProgressive"'),'no second automatic search button');
+ console.log('PASS: one native WASM call, no extra bounds, real elapsed status, final goal verification');
 })().catch(err=>{console.error(err);process.exitCode=1});
