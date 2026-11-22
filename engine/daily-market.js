@@ -354,6 +354,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      a.cost-b.cost||a.time-b.time||a.period-b.period;
    // Prioritize by admissible completion date, retaining exact RNG-state branches.
    const heap=[],seen=new Map();
+   const progress=typeof options.onProgress==='function'?options.onProgress:null;
    const push=node=>{
      if(mode==='fastest'){
        node.bound=optimisticTime(node);
@@ -373,9 +374,16 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    while(heap.length&&expanded<cap){
      const node=pop();
      // Distinct acquired quantities must NOT merge into the same RNG state.
-     const key=[node.seed,node.lucky,node.time,node.period,node.used,node.purchased].join('|');
-     if(seen.has(key)&&seen.get(key)<=node.cost)continue;
-     seen.set(key,node.cost);expanded++;
+     // Pareto dominance: at identical RNG/time/lucky/allowance state,
+     // no fewer acquired items and no greater cost dominates the route.
+     const key=[node.seed,node.lucky,node.time,node.used].join('|');
+     const frontier=seen.get(key)||[];
+     if(frontier.some(x=>x.qty>=node.purchased&&x.cost<=node.cost))continue;
+     seen.set(key,frontier.filter(x=>x.qty>node.purchased||x.cost<node.cost)
+       .concat([{qty:node.purchased,cost:node.cost}]));
+     expanded++;
+     if(progress&&expanded%5000===0)progress({expanded,limit:cap,
+       acquired:node.purchased,required:goal,at:node.time,queued:heap.length});
      if(node.purchased>=goal){best=node;break}
      if(node.used<vipAllowance.max){
        const rr=new KeyRng({guishishop:node.seed});
