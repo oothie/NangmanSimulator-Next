@@ -52,6 +52,17 @@ const cheaper={pad:0,pills:7,washes:3,exchanges:1,optimal:false,
   'missing replay actions cannot be applied to native WASM state');
  assert.equal(mixed.history[0].replayReady,1);
 
+ // Original native search may accept a mixed-grade request but return a
+ // route that drops the green/blue goal. Never invent a pill minimum.
+ const partialGreen=await p.run({api,desiredIds:[268,184],maxPad:20,horizon:900,topN:5,
+  call:async()=>({nativeFunction:'wasmSearchWashRoutes',
+   nativeDiagnostics:{isMixed:true,returned:1,complete:0,incomplete:1},
+   result:{routes:[{pills:5,washes:2,exchanges:0,pad:0,
+    final_slots:[{id:268,locked:false}]}]}})});
+ assert.equal(partialGreen.bestPills,null,'Incomplete green final goal has no minimum');
+ assert.equal(partialGreen.result.routes.length,0,'No incomplete mixed route may be displayed as successful');
+ assert.match(partialGreen.result.error,/최종 슬롯/);
+ assert.equal(partialGreen.nativeDiagnostics.returned,1);
  assert.equal(result.globallyOptimal,false,'native optimal false stays false');
  assert.equal(result.history.length,1);
  assert.equal(result.history[0].horizon,1500);
