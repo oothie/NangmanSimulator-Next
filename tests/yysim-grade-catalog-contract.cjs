@@ -49,12 +49,18 @@ assert(nativeContract.includes('[184,202,271]'));
 assert(workerContract.includes('[184,202,271]'));
 
 const host=fs.readFileSync(path.join(root,'vendor/yysim/engine-host.html'),'utf8');
-assert(host.includes('TALENT_DATA[String(id)]?.pinzhi!==4'),
- 'User-facing native search must remain purple-only until mixed-grade result validation');
+assert(host.includes('![2,3,4].includes(TALENT_DATA[String(id)]?.pinzhi)'),
+ 'Original WASM search must accept only known green/blue/purple grade IDs');
+assert(host.includes('completeRoutes=result.routes.filter(route=>'),
+ 'Native mixed result must verify every requested goal in the final slots');
+assert(host.includes('nativeDiagnostics'),
+ 'The host must distinguish incomplete native mixed paths from valid results');
 assert(host.includes('wasmSearchWashRoutes'),
  'Host search must still call original native WASM');
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert(page.includes('녹·파맥 확장 준비 중'),
- 'Do not falsely advertise unverified mixed-grade native search');
+assert(page.includes('녹·파맥 원본 WASM 실험 탐색'),
+ 'Mixed native WASM calls must be labeled experimental, never solved');
+assert(page.includes('최종 슬롯에 모든 목표 재능이 남지 않으면 실패'),
+ 'Mixed native UI must not claim incomplete paths as an achievement');
 console.log('PASS: source-matched grade catalog counts',JSON.stringify(counts),
- 'no dummy IDs, no premature native mixed-color enablement');
+ 'no dummy IDs, experimental original-native mixed IDs, strict final routes');
