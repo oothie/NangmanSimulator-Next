@@ -30,11 +30,21 @@ function signedLeb(cur){
  return value;
 }
 function readName(cur){const n=uleb(cur),end=cur.pos+n;assert(end<=bytes.length);const val=bytes.toString('utf8',cur.pos,end);cur.pos=end;return val}
-let position=8,importCount=0,functions=[],exports=[];
+let position=8,importCount=0,functions=[],exports=[],typeSignatures=[],functionTypeIds=[];
 while(position<bytes.length){
  const id=bytes[position++],cur={pos:position},len=uleb(cur),end=cur.pos+len;
  assert(end<=bytes.length);
- if(id===2){
+ if(id===1){
+  const n=uleb(cur);
+  for(let i=0;i<n;i++){
+   assert.equal(bytes[cur.pos++],96,'Expected WASM function type');
+   const argCount=uleb(cur),params=[];
+   for(let j=0;j<argCount;j++)params.push(bytes[cur.pos++]);
+   const resultCount=uleb(cur),returns=[];
+   for(let j=0;j<resultCount;j++)returns.push(bytes[cur.pos++]);
+   typeSignatures.push({params,returns});
+  }
+ }else if(id===2){
   const n=uleb(cur);
   for(let i=0;i<n;i++){
    readName(cur);readName(cur);
@@ -45,6 +55,9 @@ while(position<bytes.length){
    else if(kind===3){cur.pos+=2}
    else throw Error('Unknown import kind '+kind);
   }
+ }else if(id===3){
+  const n=uleb(cur);
+  for(let i=0;i<n;i++)functionTypeIds.push(uleb(cur));
  }else if(id===7){
   const n=uleb(cur);
   for(let i=0;i<n;i++)exports.push({name:readName(cur),kind:bytes[cur.pos++],index:uleb(cur)});
@@ -60,6 +73,18 @@ while(position<bytes.length){
  position=end;
 }
 const named=new Map(exports.filter(x=>x.kind===0).map(x=>[x.index,x.name]));
+const wasmFunctionSignature=(index)=>{
+ const type=typeSignatures[functionTypeIds[index-importCount]];
+ assert(type,'WASM function type not found for '+index);
+ return {index,params:type.params,returns:type.returns};
+};
+const nativeFunctionSignatures=[4,13,16,30,75,78,117,227,960]
+ .map(wasmFunctionSignature);
+assert.deepEqual(wasmFunctionSignature(13).params,[127,127,127,127],
+ 'Original next_purple function13 parameters changed');
+assert.deepEqual(wasmFunctionSignature(16).returns,[127],
+ 'Original exchange function16 return type changed');
+
 const instructionCache=new Map();
 function inspect(index){
  if(instructionCache.has(index))return instructionCache.get(index);
@@ -441,5 +466,6 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  reachableFunctions:reachable.length,
  nestedReviewSites:nestedGradeSites.sort((a,b)=>a.depth-b.depth||b.total-a.total).slice(0,35),
  originalRustModules,
- moduleReachability
+ moduleReachability,
+ nativeFunctionSignatures
 }));
