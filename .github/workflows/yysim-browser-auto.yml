@@ -5,10 +5,12 @@ on:
     paths:
       - 'index.html'
       - 'engine/local-engine-bridge.js'
+      - 'engine/yysim-auto-progressive.js'
       - 'vendor/yysim/engine-host.html'
       - 'vendor/yysim/core_glue.js'
       - 'tests/yysim-native-only-browser.cjs'
       - 'tests/yysim-native-grade-contract.cjs'
+      - 'tests/yysim-native-single-pass.cjs'
       - '.github/workflows/yysim-browser-auto.yml'
   workflow_dispatch:
 jobs:
@@ -25,6 +27,8 @@ jobs:
       - name: Install browser test runtime
         run: |
           npm install --no-save --ignore-scripts playwright@1.57.0
+      - name: Native route single-call contract
+        run: node tests/yysim-native-single-pass.cjs
       - name: Chromium original yy-sim WASM auto-search regression
         run: node tests/yysim-native-only-browser.cjs
       - name: Original WASM grade contract diagnostic
