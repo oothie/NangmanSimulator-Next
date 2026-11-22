@@ -55,96 +55,82 @@ function fallback(event){
   uniques:[],uniqueOps:[],source:'산부진',sum:total};
 }
 function rate(event){return lookup(event)||fallback(event)}
+function baseChance(op){
+ const lo=Number(op.lo),hi=Number(op.hi),th=Number(op.th);
+ if(!Number.isFinite(lo)||!Number.isFinite(hi)||!Number.isFinite(th)||hi<lo)return NaN;
+ const count=op.cmp==='<='?Math.floor(th)-lo+1:
+  op.cmp==='<'?Math.ceil(th)-lo:
+  op.cmp==='>='?hi-Math.ceil(th)+1:
+  op.cmp==='>'?hi-Math.floor(th):NaN;
+ return Number.isFinite(count)?Math.max(0,Math.min(hi-lo+1,count))/(hi-lo+1):NaN;
+}
+function node(tag,content,cls){
+ const el=document.createElement(tag);
+ if(content!=null)el.textContent=String(content);
+ if(cls)el.className=cls;
+ return el;
+}
+function addRow(table,values){
+ const row=node('tr');
+ for(const val of values)row.append(node('td',val));
+ table.append(row);
+ return row;
+}
+function tableOf(headers){
+ const table=node('table',null,'dungeon-rate-table');
+ const header=node('tr');
+ for(const label of headers)header.append(node('th',label));
+ table.append(header);
+ return table;
+}
 function render(target,event){
  if(!target)return;
  target.replaceChildren();
  const d=rate(event);
- if(!d)return;
- const heading=document.createElement('h3');
- heading.textContent='보스별 일반 장비 드랍 확률';
- target.append(heading);
- const desc=document.createElement('p');
- desc.className='progress-note';
- desc.textContent='자료: '+d.source+' 보상 가중치 · 일반 장비 '+percent(d.equip+d.weapon)+
-   ' / 장비 없음 '+percent(d.none)+
-   ' · 일반 장비에 대한 확률입니다. 전용 주황 장비는 별도 판정됩니다.';
- target.append(desc);
- const kinds=document.createElement('div');kinds.className='dungeon-rate-stats';
- for(const [name,p] of [['일반 장비',d.equip],['일반 무기',d.weapon],
-    ['장비 미드랍',d.none]]){
-  const entry=document.createElement('span');
-  entry.textContent=name+' '+percent(p);kinds.append(entry);
+ if(!d){target.append(node('p','해당 보스의 드랍 확률 자료가 없습니다.','progress-note'));return;}
+ target.append(node('h3','보스별 드랍 정보'));
+ target.append(node('p',d.dungeon+' · '+d.boss+' · '+d.source+' 데이터','progress-note'));
+ // yy-sim models special/unique rewards separately from the ordinary equipment draw.
+ const special=(d.uniqueOps||[]).slice();
+ if(special.length){
+  const section=node('section',null,'dungeon-unique-section');
+  section.append(node('h4','전용·특수 보상'));
+  const table=tableOf(['드랍 아이템','기본 판정 기준','추가 조건']);
+  for(const op of special){
+   const chance=baseChance(op),isVariable=!!op.win||Number(op.mul)!==1;
+   const score=Number.isFinite(chance)?percent(chance):'비율 확인 필요';
+   const conditions=[];
+   if(op.win)conditions.push('변동값 '+op.win);
+   if(Number(op.mul)!==1)conditions.push('계수 ×'+op.mul);
+   if(op.cap!=null)conditions.push('획득 상한 '+op.cap);
+   if(op.flag)conditions.push('기록 반영');
+   const label=isVariable?score+' (기초 기준) · 실제 변동':score;
+   addRow(table,[localeName(op.item)+' (#'+op.item+')',label,conditions.join(' · ')||'기본 판정']);
+  }
+  section.append(table);
+  section.append(node('p','이 수치는 yy-sim 원본 난수 범위의 기초 판정 비율입니다. 보스 처치 횟수·획득 이력·보정 계수가 개입하는 전용 보상은 현재 세이브에 따라 실제 확률이 변동할 수 있으므로 고정 확률로 간주하지 않습니다.','progress-note'));
+  target.append(section);
+ }else{
+  target.append(node('p','연결된 yy-sim 전용 보상 확률 항목이 없습니다.','progress-note'));
  }
- target.append(kinds);
- const t=document.createElement('table');t.className='dungeon-rate-table';
- const header=document.createElement('tr');
- for(const v of ['장비명','1회 드랍 확률','자색 드랍 확률']){const x=document.createElement('th');x.textContent=v;header.append(x)}
- t.append(header);
+ const ordinary=node('details',null,'dungeon-ordinary-details');
+ ordinary.append(node('summary','일반 장비 드랍 확률 · '+percent(d.equip+d.weapon)+' (펼쳐보기)'));
+ ordinary.append(node('p','일반 장비 '+percent(d.equip)+' · 일반 무기 '+percent(d.weapon)+' · 미드랍 '+percent(d.none),'progress-note'));
+ ordinary.append(node('p','등급별 확률(장비 획득 시): '+
+   d.colors.map(c=>({1:'백색',2:'녹색',3:'청색',4:'자색'}[c.color]+' '+percent(c.prob))).join(' / '),'progress-note'));
+ const ordinaryTable=tableOf(['일반 장비 후보','전체 회차 기준','자색 포함']);
  const purple=d.colors.find(x=>x.color===4)?.prob||0;
- for(const [list,p] of [[d.items,d.equip],[d.weapons,d.weapon]]){
+ for(const [list,prob] of [[d.items,d.equip],[d.weapons,d.weapon]]){
   for(const id of list){
-   const tr=document.createElement('tr');
-   const amount=list.length?p/list.length:0;
-   for(const cell of [localeName(id)+' (#'+id+')',percent(amount),percent(amount*purple)]){
-    const el=document.createElement('td');el.textContent=cell;tr.append(el);
-   }
-   t.append(tr);
+   const each=list.length?prob/list.length:0;
+   addRow(ordinaryTable,[localeName(id)+' (#'+id+')',percent(each),percent(each*purple)]);
   }
  }
- if(d.items.length+d.weapons.length)target.append(t);
- else{const p=document.createElement('p');p.className='progress-note';
-  p.textContent='이 보스의 일반 장비 후보는 연결되지 않았습니다.';target.append(p)}
- const sub=document.createElement('p');sub.className='progress-note';
- sub.textContent='장비 등급(장비가 드랍된 경우): '+
-  d.colors.map(x=>({1:'백색',2:'녹색',3:'청색',4:'자색'}[x.color]+' '+percent(x.prob))).join(' · ')+
-  ' · 개별 장비 확률은 균등한 장비 선택을 전제로 계산했습니다.';
- target.append(sub);
- if(d.uniqueOps?.length){
-  const title=document.createElement('h4');title.textContent='전용·특수 보상 기본 판정';target.append(title);
-  const uniqueTable=document.createElement('table');uniqueTable.className='dungeon-rate-table';
-  const head=document.createElement('tr');
-  for(const label of ['보상 아이템','기본 판정 비율','조건']){
-   const th=document.createElement('th');th.textContent=label;head.append(th)
-  }
-  uniqueTable.append(head);
-  for(const op of d.uniqueOps){
-   const low=Number(op.lo),high=Number(op.hi),threshold=Number(op.th);
-   // Integer RNG is inclusive at both endpoints.
-   const cases=op.cmp==='<='?Math.floor(threshold)-low+1:
-     op.cmp==='<'?Math.ceil(threshold)-low:
-     op.cmp==='>='?high-Math.ceil(threshold)+1:
-     op.cmp==='>'?high-Math.floor(threshold):NaN;
-   const prob=high>=low&&Number.isFinite(cases)?
-     Math.max(0,Math.min(high-low+1,cases))/(high-low+1):NaN;
-   const row=document.createElement('tr');
-   const notes=[op.cap!=null?'획득 상한 '+op.cap+'회':'',
-     Number(op.mul)!==1?'원본 보정 계수 '+op.mul:'',
-     op.win?'누적/상태 변수 적용':''].filter(Boolean).join(' · ')||'원본 보상 조건 적용';
-   for(const label of [localeName(op.item)+' (#'+op.item+')',
-     Number.isFinite(prob)?percent(prob):'원본 판정 확인 필요',notes]){
-    const td=document.createElement('td');td.textContent=label;row.append(td)
-   }
-   uniqueTable.append(row);
-  }
-  target.append(uniqueTable);
-  const caveat=document.createElement('p');caveat.className='progress-note';
-  caveat.textContent='기본 판정 비율은 yy-sim의 난수 구간과 비교 조건으로 계산했습니다. 누적 보정, 획득 기록, 조건부 판정이 적용되면 실제 회차별 확률은 달라질 수 있습니다.';
-  target.append(caveat);
- }
- if(d.inferredPool){
-  const note=document.createElement('p');note.className='progress-note';
-  note.textContent='이 보스는 yy-sim 장비 후보 목록이 비어 있어 산부진 후보 장비 ID를 보완했습니다. 개별 장비 확률은 참고용입니다.';
-  target.append(note);
- }
- if(d.source==='yy-sim'&&event?.outer){
-  const oldTotal=event.outer.reduce((s,x)=>s+number(x[1]),0);
-  const oldEquip=event.outer.filter(x=>x[0]==='equip').reduce((s,x)=>s+number(x[1]),0)/Math.max(1,oldTotal);
-  if(Math.abs(oldEquip-d.equip)>0.0000001){
-   const warn=document.createElement('p');warn.className='progress-note';
-   warn.textContent='참고: yy-sim과 기존 산부진 장비 분기 가중치가 다릅니다. 확률표는 yy-sim 기준이며 예측 난수 엔진은 변경하지 않았습니다.';
-   target.append(warn);
-  }
- }
+ if(d.items.length+d.weapons.length)ordinary.append(ordinaryTable);
+ else ordinary.append(node('p','연결된 일반 장비 후보가 없습니다.','progress-note'));
+ ordinary.append(node('p','개별 일반 장비 확률은 보스 보상 가중치와 장비 후보 내 균등 추첨을 적용한 값입니다. 일반 장비와 전용 보상은 별개의 드랍 판정입니다.','progress-note'));
+ target.append(ordinary);
+ if(d.inferredPool)target.append(node('p','일부 장비 후보는 yy-sim의 빈 항목을 산부진 후보 데이터로 보완했습니다.','progress-note'));
 }
 root.SBJDungeonRates={rate,render,percent};
 })(window);
