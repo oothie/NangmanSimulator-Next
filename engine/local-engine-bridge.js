@@ -26,7 +26,7 @@ export class LocalEngine {
   frame.style.display='none';
   frame.sandbox='allow-scripts allow-same-origin';
   const separator=this.source.includes('?')?'&':'?';
-  frame.src=this.source+separator+'engineRev=0.10.17&attempt='+this.bootAttempt;
+  frame.src=this.source+separator+'engineRev=0.10.18&attempt='+this.bootAttempt;
   this.frame=frame;
   this.mountPromise=new Promise((resolve,reject)=>{
    frame.onload=()=>resolve();
