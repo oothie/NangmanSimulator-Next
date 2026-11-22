@@ -20,7 +20,7 @@ themeStyle.textContent+="\n\n/* Equipment detail's original in-frame navigation 
    backgrounds. Use the same neutral site theme on both the item cards and
    their region-sequence table, without flattening grade colors. */
 themeStyle.textContent += `
-html[data-nangman-theme="dark"] body #rk218 #rmain :is(.res.unique218,.unique218,.ownedlist>.res,.resname,.unique-pick247){
+html[data-nangman-theme="dark"] body #rk218 #rmain :is(.res.unique218,.unique218,.ownedlist>.res,.resname){
  background:var(--host-panel)!important;color:var(--host-text)!important;
  border-color:var(--host-border)!important;box-shadow:none!important
 }
