@@ -139,6 +139,37 @@ for(const file of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js','vend
  assert.equal(mixed.routes[0]?.washes,175);
  assert([268,262,237,204].every(id=>mixed.routes[0].final_slots.some(t=>
   Number(t.id)===id&&t.locked)));
+ // Every instruction displayed to the user must itself replay on the
+ // original native WASM; correct final slots alone are insufficient.
+ assert(wasmSetState(nativeSource));
+ const names=new Map(Object.entries(TALENT_DATA).map(([id,t])=>[String(t.name),Number(id)]));
+ for(const action of mixed.routes[0].actions){
+  const at=Number(action.wash_no);
+  assert(Number.isInteger(at)&&at>=Number(snapshot().total_wash),
+   'Backwards step in guided 910 route: '+JSON.stringify(action));
+  while(Number(snapshot().total_wash)<at)wash(1,'guided route');
+  if(['lock','unlock','keep'].includes(action.kind)){
+   const id=names.get(String(action.talent));
+   lock(id,action.kind!=='unlock');
+  }else if(action.kind==='exchange'){
+   exchange(names.get(String(action.from)),names.get(String(action.to||action.talent)));
+  }else if(action.kind==='open_slot'){
+   const match=String(action.note||'').match(/15[1-4]/);
+   assert(match,'Missing guided native slot requirement');
+   const wanted=Number(match[0]);
+   while(Number(snapshot().zizhi)<wanted){
+    const state=snapshot();
+    assert(wasmSetState({...state,zizhi:Number(state.zizhi)+1,
+     str_gift:Number(state.str_gift)+100,con_gift:Number(state.con_gift)+100}));
+   }
+  }else assert(['wash_to','skip'].includes(action.kind),'Unknown guided action');
+  if(action.pills_after!=null)assert.equal(pills(),Number(action.pills_after),
+   'Displayed step pill count differs from measured native WASM at '+action.kind);
+ }
+ assert.equal(pills(),910);
+ assert.equal(Number(snapshot().total_wash),175);
+ assert.deepEqual(snapshot().talents.map(t=>({id:Number(t.id),locked:!!t.locked})),
+  mixed.routes[0].final_slots.map(t=>({id:Number(t.id),locked:!!t.locked})));
  assert(wasmSetState(initial));
  console.log('PASS MOON_1121_AUTO_OPTIMIZED_910');
 })().catch(e=>{console.error(e);process.exitCode=1});
