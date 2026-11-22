@@ -357,54 +357,6 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
           if(!sourceId||!targetId)throw Error('재탐색 치환 ID 누락');
           if(protectedIds.has(sourceId))
            throw Error('이미 보유한 목표 맥을 치환할 수 없습니다');
-          // A native purple-only route was computed before the additional
-          // green/blue lock changed the RNG. Its old exchange endpoints can
-          // therefore be structurally impossible in the actual WASM state.
-          // Reject illegal endpoints BEFORE invoking exchangeTalent(), so
-          // neither RNG nor saved slot state is advanced by a doomed call.
-          const fromTalent=talents[String(sourceId)];
-          const toTalent=talents[String(targetId)];
-          if(fromTalent&&toTalent&&(
-           number(fromTalent.type)!==number(toTalent.type)||
-           number(fromTalent.pinzhi)===4&&number(toTalent.pinzhi)===4)){
-           diagnostics.illegalExchangePruned=
-            (diagnostics.illegalExchangePruned||0)+1;
-           diagnostics.illegalExchangeExamples=
-            diagnostics.illegalExchangeExamples||[];
-           if(diagnostics.illegalExchangeExamples.length<5)
-            diagnostics.illegalExchangeExamples.push({
-             wash:count(getState(),'total_wash'),from:sourceId,to:targetId,
-             fromGrade:number(fromTalent.pinzhi),
-             toGrade:number(toTalent.pinzhi),
-             fromFamily:number(fromTalent.type),toFamily:number(toTalent.type)
-            });
-           // Query the ORIGINAL purple route optimizer from the actual
-           // divergence state. This is diagnostic until its new full route
-           // can be replayed and proved to preserve green/blue targets.
-           if((diagnostics.exchangeRecoveryProbes||0)<2){
-            diagnostics.exchangeRecoveryProbes=
-             (diagnostics.exchangeRecoveryProbes||0)+1;
-            try{
-             const recovered=guard.run({getState,setState,search},{
-              desired_ids:shape.purple,max_pad:Math.min(maxPad,20),
-              horizon:Math.min(horizon,300),top_n:2});
-             diagnostics.exchangeRecoveryExamples=
-              diagnostics.exchangeRecoveryExamples||[];
-             diagnostics.exchangeRecoveryExamples.push({
-              atWash:count(getState(),'total_wash'),
-              nativeRoutes:recovered?.routes?.length||0,
-              error:recovered?.error||null,
-              firstActions:(recovered?.routes?.[0]?.actions||[]).slice(0,4)
-               .map(a=>({kind:a.kind,wash:a.wash_no,
-                talent:a.talent,from:a.from,to:a.to}))
-             });
-            }catch(err){
-             diagnostics.exchangeRecoveryError=String(err?.message||err);
-            }
-           }
-           throw Error('원본 자맥 재탐색의 치환 대상 계열·등급 불일치: '+
-            sourceId+' → '+targetId);
-          }
           resyncTo(sourceId);
           const slot=getState().talents.findIndex(t=>number(t.id)===sourceId);
           if(slot<0)throw Error('재탐색 치환 원맥이 달라졌습니다');
