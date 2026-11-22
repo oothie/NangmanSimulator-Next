@@ -75,13 +75,24 @@ function yyPredict(input,dungeon,entries){
  return {source:'yy-sim',dungeon:dungeon.name,rows,
   missingSeeds:[...missingKeys],details:'원본 yy-sim 보상 가중치/실행 목록을 순서대로 계산. 전용 보상의 조건식은 별도 판정.'};
 }
-function sanPredict(input,entries,originalCatalog){
+function sanPredict(input,entries,originalCatalog,dungeon){
  const lookup=new Map((originalCatalog||[]).filter(e=>e.outer).map(e=>[npcId(e),e]));
- const withOriginal=entries.map(({npc,event})=>({
-  npc,
-  event:lookup.get(Number(npc.id))||event||null,
-  original:lookup.has(Number(npc.id))
- }));
+ const duplicateIds=new Set();
+ for(const d of all()){
+  for(const npc of d.npcs||[]){
+   if(all().some(other=>other!==d&&(other.npcs||[]).some(n=>Number(n.id)===Number(npc.id))))
+    duplicateIds.add(Number(npc.id));
+  }
+ }
+ const withOriginal=entries.map(({npc,event})=>{
+  const raw=lookup.get(Number(npc.id));
+  // Do not silently substitute the normal difficulty's recovered native
+  // source for the same NPC ID in a different yy-sim dungeon variant.
+  const variantMismatch=!!raw&&duplicateIds.has(Number(npc.id))&&
+    sourceDungeon(raw)?.id!==dungeon.id;
+  return {npc,event:variantMismatch?null:(raw||event||null),
+   original:!!raw&&!variantMismatch,variantMismatch};
+ });
  const supported=withOriginal.filter(x=>x.event?.outer);
  const missing=supported.filter(x=>root.SBJDungeonDrop.missing(input,x.event).length);
  let prediction=null,error=null;
@@ -91,7 +102,7 @@ function sanPredict(input,entries,originalCatalog){
  }
  const map=new Map();
  if(prediction)for(let i=0;i<supported.length;i++)map.set(Number(supported[i].npc.id),prediction[i]);
- const rows=withOriginal.map(({npc,event,original})=>{
+ const rows=withOriginal.map(({npc,event,original,variantMismatch})=>{
   const item=map.get(Number(npc.id));
   const unavailable=!!event&&root.SBJDungeonDrop.missing(input,event).length>0;
   return {npcId:Number(npc.id),boss:npc.name,
@@ -99,7 +110,9 @@ function sanPredict(input,entries,originalCatalog){
    specialDrops:item?.specialDrops||[],nativeReplay:!!item?.nativeReplay,
    missing:unavailable||!!error,supported:!!item,
    original:original,reason:item?.nativeReason||
-    (unavailable?'해당 보스 난수 시드 누락':!event?'산부진 보스 복원 자료 없음':error||'')};
+    (unavailable?'해당 보스 난수 시드 누락':
+      variantMismatch?'해당 난이도 산부진 원본 미복원':
+      !event?'산부진 보스 복원 자료 없음':error||'')};
  });
  return {source:'sanbujin',rows,missingSeeds:[...new Set(missing.flatMap(x=>
     root.SBJDungeonDrop.missing(input,x.event)))],error,
