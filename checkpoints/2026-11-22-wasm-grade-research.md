@@ -92,6 +92,13 @@ The original yy-sim route search predicts hypothetical cost independent of the p
 6. **Live browser tests:** `tests/yysim-anchor-browser.cjs` now includes the complete save / zero-pill native host branch. Production `YYWashAutoSearch.routeOutcome` handles nonnegative 0 costs explicitly, and `YYWashProgressive` filters only incomplete/unverified routes.
 7. Site release `v0.10.35`, synchronized page title/site version, iframe `engineRev=0.10.35`, and `anchor-v5` asset cache. No original WASM binary or user save is modified. Native, v3.50 wash, and browser regression checks were passing before v0.10.35 cache update; recheck newest commit CI independently. Character regression remains a separate failing workflow.
 
+## v0.10.36 release validation
+- Production-site release version, HTML title, iframe engineRev and anchor script revision were advanced in sync to **v0.10.36** / `20261122-anchor-v6`.
+- Real browser/Playwright output with original WASM verified [271,268,272,184] -> **7357 pills**, [271,268,184,202] -> **5032 pills**. A loaded-save fixture already containing [271,268,272,184], with green initially unlocked, returned **0 additional pills**, locked all four goals, `optimal:true` (mathematically the global minimum because cost is nonnegative), and preserved the exact source state. The original purple-only route search was bypassed on this already-held save. This real browser check passed at commit `c40466fe`.
+- Original WASM replay of the returned user-facing action sequences is covered by native tests. [271,268,272,202] -> **4148 pills** was also reproduced in a separate fresh native WASM process and independently replayed through 18 actions. No fabricated 180-horizon route is asserted; a larger 900 window is required for this synthetic seed.
+- A synthetic saved character holding 3 purple anchors while missing green184 found a **1470-pill** actual native green extension; zero actual inventory was preserved by isolated virtual-funding logic. A character holding all four needed exactly **0** additional pills/0 washes. These are synthetic fixtures, not values for a user's own save.
+- Original WASM asset and RNG data remain untouched. Positive-cost best-of-bounded routes retain `optimal:false`; only proven cost-zero routes are marked globally optimal. Other application character regression continues to fail and is not claimed to be addressed.
+
 ## Pending next steps
 1. Follow the branch/dataflow preceding core4's native error builder; identify the grade predicate for the preselection and distinguish it from RNG's native quality distribution.
 2. Inspect function13 `next_purple` candidate-event loop beyond the 3 unsuccessful tested offsets.
