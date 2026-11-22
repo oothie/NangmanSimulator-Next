@@ -4470,7 +4470,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    throw Error('모의 실행할 경로 번호가 올바르지 않습니다');
   const route=routes[index];
   const output=await window.YYWashRouteReplay.run({
-   route,nameIds:report.nameIds||{},call:(name,payload)=>washEngine.call(name,payload),ensureSession
+   route,nameIds:report.nameIds||{},call:(name,payload,onNativeProgress)=>washEngine.call(name,payload,onNativeProgress),ensureSession
   });
   ensureSession();
   if(JSON.stringify(output.original)!==JSON.stringify(output.state)){
