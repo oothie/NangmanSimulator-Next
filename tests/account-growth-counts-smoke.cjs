@@ -37,9 +37,9 @@ const roster=[{r:main},{r:companion}];
 let allViews='';
 for(let i=0;i<100;i++){
  account.setPage(i);const view=account.render(roster);
- if(i>0&&view.includes('표 1 /'))break;
+ const counters=view.match(/표 (\\d+) \/ (\\d+)/);
  allViews+=view;
- if(view.includes('표 '+(i+1)+' / '+(i+1)))break;
+ if(counters&&Number(counters[1])>=Number(counters[2]))break;
 }
 assert(allViews.includes('용호단'),'paged list includes individual pills');
 assert(allViews.includes('5 / 5')&&allViews.includes('4 / 5'),'real pill counts side by side on a single role row');
