@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ko">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>원본 yy-sim WASM 직접 검증 · v0.10.28</title>
+<title>원본 yy-sim WASM 직접 검증 · v0.10.29</title>
 <style>
 :root{color-scheme:light dark;font-family:system-ui,"Malgun Gothic",sans-serif}
 body{max-width:860px;margin:28px auto;padding:0 16px;line-height:1.55}
@@ -12,10 +12,10 @@ td,th{padding:.55rem;border-bottom:1px solid #8886;text-align:left}
 pre{white-space:pre-wrap;word-break:break-word;max-height:32rem;overflow:auto;background:Canvas;border:1px solid #8886;border-radius:.5rem;padding:12px}
 small{opacity:.78} .error{color:#c13636} .ok{color:#13805a}
 </style>
-<script src="../vendor/yysim/wasm_data.js?rev=0.10.28"></script>
-<script src="../vendor/yysim/core_glue.js?rev=0.10.28"></script>
-<script src="../vendor/yysim/data.js?rev=0.10.28"></script>
-<script src="../engine/yysim-native-search-guard.js?rev=0.10.28"></script>
+<script src="../vendor/yysim/wasm_data.js?rev=0.10.29"></script>
+<script src="../vendor/yysim/core_glue.js?rev=0.10.29"></script>
+<script src="../vendor/yysim/data.js?rev=0.10.29"></script>
+<script src="../engine/yysim-native-search-guard.js?rev=0.10.29"></script>
 </head><body>
 <h1>원본 yy-sim 세수 WASM 직접 검증</h1>
 <p>자맥 3개와 자맥 3개+녹맥 1개를 <strong>동일 시드·원본 WASM 탐색 함수</strong>로 직접 비교합니다.
@@ -74,8 +74,8 @@ async function run(){
   const stable=wasmGetState(),guard=YYWashNativeSearchGuard;
   if(!stable||!guard?.run)throw Error('원본 상태 보호 함수 준비 실패');
   const isolated=document.querySelector('#useWorker').checked;
-  const worker=isolated?new Worker('../vendor/yysim/native-search-worker.js'):null;
-  report={version:'v0.10.28',nativeFunction:'wasmSearchWashRoutes',seed:fixture.seed,
+  const worker=isolated?new Worker('../vendor/yysim/native-search-worker.js?rev=0.10.29'):null;
+  report={version:'v0.10.29',nativeFunction:'wasmSearchWashRoutes',seed:fixture.seed,
    execution:isolated?'original-wasm-worker':'original-wasm-direct',
    horizon,maxPad,gradeTargets:targets,results:[]};
   try{
