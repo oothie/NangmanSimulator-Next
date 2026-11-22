@@ -36,7 +36,7 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  // final targets. It may be absent from a short bounded window, but never
  // accept merely having seen either target in an intermediate wash.
  const two=await YYWashPurpleAnchorMixed.run({
-  desiredIds:[271,268,184,202],maxPad:0,horizon:40,topN:1,
+  desiredIds:[271,268,184,202],maxPad:0,horizon:200,topN:1,
   talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
   guard:YYWashNativeSearchGuard
