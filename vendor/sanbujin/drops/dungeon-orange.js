@@ -697,7 +697,7 @@
         s.set("name_drop_c_num", 2);
         break;
     }
-    s.set("name_drop_mishiloc", SeedRandom('seed_lsby',2001, 2003));
+    s.set("name_drop_mishiloc", 2000 + s.draw('seed_lsby', 3));
     switch (s.pick("seed_lsby", [50,50])) {
       case 0:
         s.set("drop_35264_equip", s.draw('seed_lsby', 4));
