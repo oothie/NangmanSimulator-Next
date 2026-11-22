@@ -8,6 +8,11 @@
   const sections = {wild: $('wildDrop'), dungeon: $('dungeonDrop'), shared: $('sharedGear'), treasure: $('treasureDrop')};
   const links = {wild: $('dropWildLink'), dungeon: $('dropDungeonLink'), shared: $('dropSharedLink'), treasure: $('dropTreasureLink')};
   const colors = ['', '백색 장비', '녹색 장비', '청색 장비', '자색 장비'];
+  const itemName=id=>window.NangmanDungeonKoreanNames?.[id]||
+    EQUIP_DATA.equipment?.[id]?.koName||
+    ko(EQUIP_DATA.equipment?.[id]?.name||'이름 미확인');
+  const specialName=row=>(row.specialDrops||[]).map(itemName).join(' · ');
+
   let input, rows = [];
 
   function switchMode(current) {
@@ -38,13 +43,24 @@
   function render() {
     $('dungeonExport').disabled=!rows.length;
     const quality=$('dungeonQuality').value;
-    const scoped=quality==='purple'?rows.filter(row=>row.item&&row.color===4):rows;
-    const shown = $('dungeonOnlyHits').checked ? scoped.filter(row => row.item) : scoped;
+    const scoped=quality==='purple'?rows.filter(row=>row.item&&row.color===4||(row.specialDrops||[]).length):rows;
+    const shown = $('dungeonOnlyHits').checked ? scoped.filter(row => row.item||(row.specialDrops||[]).length) : scoped;
     const track=rows.equipmentStream||{tracked:0,missing:0};
-    $('dungeonStatus').textContent = '예측 완료 ' + rows.length + '회 · ' + rows.filter(row => row.item).length + '회 일반 장비 드랍 · 자색 ' + rows.filter(row => row.item && row.color===4).length + '회 · 90레벨 장비 공유 Eds 추적 '+track.tracked+'건'+(track.missing?' (시드 누락 '+track.missing+'건)':'')+' · 최종 정련/망정 미연결';
+    $('dungeonStatus').textContent = '예측 완료 ' + rows.length + '회 · ' +
+      rows.filter(row => row.item).length + '회 일반 장비 드랍 · 전용 보상 '+
+      rows.reduce((n,row)=>n+(row.specialDrops||[]).length,0)+'개 · 자색 ' +
+      rows.filter(row => row.item && row.color===4).length + '회 · 원본 전체 판정 '+
+      rows.filter(row=>row.nativeReplay).length+'회 · 90레벨 장비 Eds '+track.tracked+
+      '건'+(track.missing?' (시드 누락 '+track.missing+'건)':'')+
+      ' · 미복원 구간은 일반 장비만 예측 · 최종 정련/망정 미연결';
     $('dungeonResults').replaceChildren(...shown.map(row => record(
-      '제 ' + row.index + '회 · ' + (row.item ? (EQUIP_DATA.equipment[row.item]?.koName || ko(EQUIP_DATA.equipment[row.item]?.name) || '장비 #' + row.item) : '일반 장비 없음'),
-      row.item ? [colors[row.color], row.kind === 'weapon' ? '일반 무기' : '일반 장비',row.sharedEdsTracked?'장비별 시드 '+row.sameItemOrder+'번째 진행':row.sharedEdsTracked===false?'장비별 옵션 시드 누락':''].filter(Boolean).join(' · ') : ''
+      '제 '+row.index+'회 · '+(row.item?itemName(row.item):'일반 장비 없음')+
+      ((row.specialDrops||[]).length?' · 전용 보상 '+specialName(row):''),
+      [row.item?colors[row.color]:'',
+       row.item?(row.kind==='weapon'?'일반 무기':'일반 장비'):'',
+       row.sharedEdsTracked?'장비별 Eds '+row.sameItemOrder+'번째 진행':
+         row.sharedEdsTracked===false?'장비별 옵션 시드 누락':'',
+       row.nativeReplay?'원본 보상 함수 재현':'yy-sim 장비 분기 계산'].filter(Boolean).join(' · ')
     )));
     if (!shown.length) $('dungeonResults').append(record(quality==='purple'?'이 구간에서 자색 장비가 예측되지 않았습니다.':'이 구간에서 일반 장비가 예측되지 않았습니다.'));
   }
@@ -106,8 +122,8 @@
   $('dungeonExport').onclick=()=>{
     try{
       const event=selected();
-      const scoped=rows.filter(row=>($('dungeonQuality').value!=='purple'||row.item&&row.color===4)&&
-        (!$('dungeonOnlyHits').checked||row.item));
+      const scoped=rows.filter(row=>($('dungeonQuality').value!=='purple'||row.item&&row.color===4||(row.specialDrops||[]).length)&&
+        (!$('dungeonOnlyHits').checked||row.item||(row.specialDrops||[]).length));
       const columns=[
         {title:'회차',key:'index'},
         {title:'관문',value:()=>ko(event.dungeon)},
@@ -116,6 +132,8 @@
         {title:'장비명',value:row=>row.item?(EQUIP_DATA.equipment?.[row.item]?.koName||
           ko(EQUIP_DATA.equipment?.[row.item]?.name||'장비 #'+row.item)):''},
         {title:'색상',value:row=>colors[row.color]||''},
+        {title:'전용·특수 보상',value:row=>specialName(row)},
+        {title:'원본 함수 재현',value:row=>row.nativeReplay?'완료':'일반 분기만'},
         {title:'드랍 구분',key:'kind'},
         {title:'90레벨 장비 시드 추적',value:row=>row.sharedEdsTracked===true?'완료':row.sharedEdsTracked===false?'시드 누락':'해당 없음'},
         {title:'같은 장비 ID의 저장 이후 순번',key:'sameItemOrder'},
@@ -185,8 +203,12 @@
        '개 · 90레벨 장비 Eds 추적 '+(sequenceRows.equipmentStream?.tracked||0)+'건'+(sequenceRows.equipmentStream?.missing?' / 시드 누락 '+sequenceRows.equipmentStream.missing+'건':'')+' · 보스별 드랍 판정 가설 / 최종 정련·망정 미연결';
       $('dungeonSequenceResults').replaceChildren(...sequenceRows.map(x=>record(
        '#'+x.index+' · '+ko(x.dungeon)+' / '+ko(x.boss)+' · '+
-       (x.item?(EQUIP_DATA.equipment?.[x.item]?.koName||ko(EQUIP_DATA.equipment?.[x.item]?.name||'장비 #'+x.item)):'일반 장비 없음'),
-       x.item?(colors[x.color]||'색상 미확인')+' · '+x.eventId+(x.sharedEdsTracked?' · 장비별 Eds '+x.sameItemOrder+'번째':x.sharedEdsTracked===false?' · 옵션 시드 누락':''):'원본 보상 없음')));
+       (x.item?itemName(x.item):'일반 장비 없음')+
+       ((x.specialDrops||[]).length?' · 전용 보상 '+specialName(x):''),
+       [x.item?colors[x.color]:'',
+        x.nativeReplay?'원본 보상 함수 재현':'yy-sim 일반 장비 분기',
+        x.sharedEdsTracked?'장비별 Eds '+x.sameItemOrder+'번째':
+          x.sharedEdsTracked===false?'옵션 시드 누락':''].filter(Boolean).join(' · '))));
       $('dungeonSequenceExport').disabled=!sequenceRows.length;
     }catch(error){seqStatus.textContent=String(error.message||error)}
   };
@@ -201,6 +223,8 @@
       {title:'한국판 장비명',value:x=>x.item?
        (EQUIP_DATA.equipment?.[x.item]?.koName||ko(EQUIP_DATA.equipment?.[x.item]?.name||'장비 #'+x.item)):''},
       {title:'예상 색상',value:x=>colors[x.color]||''},
+      {title:'전용·특수 보상',value:x=>specialName(x)},
+      {title:'원본 함수 재현',value:x=>x.nativeReplay?'완료':'일반 분기만'},
       {title:'Eds 추적',value:x=>x.sharedEdsTracked===true?'추적':x.sharedEdsTracked===false?'시드 누락':''},
       {title:'같은 장비 후속 횟수',key:'sameItemOrder'},
       {title:'예측 한계',value:()=> '공유 보상 RNG 순서 재현, 실전 추가 난수 소비 및 최종 정련/망정 검증 전'}
