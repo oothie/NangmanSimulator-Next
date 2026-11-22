@@ -98,6 +98,7 @@
       if(!native){
         rows.push({...resolveEvent(step,event),nativeReplay:false});i++;continue;
       }
+      const previous=new Map(vars);
       native.run(state);
       for(let j=0;j<native.ids.length;j++){
         const e=events[i+j],npc=idOf(e),count=Number(vars.get(e.id)||0),
@@ -107,8 +108,13 @@
         const item=isEquip?e.equip.ids[count-1]:
           isWeapon?e.weapon.ids[weapon-1]:0;
         const color=Number(vars.get('drop_'+npc+'_color')||0);
+        const source=root.SBJDungeonYYAdapter?.findSource(e);
+        const specialDrops=(source?.d?.ops||[])
+          .filter(op=>op.t==='uniq'&&Number(op.npc)===npc&&
+            Number(vars.get(op.flag)||0)===1&&Number(previous.get(op.flag)||0)!==1)
+          .map(op=>Number(op.item)).filter(Number.isFinite);
         rows.push({kind:isEquip?'equip':isWeapon?'weapon':'none',
-          item,color:item?color:0,nativeReplay:true});
+          item,color:item?color:0,nativeReplay:true,specialDrops});
       }
       i+=native.ids.length;
     }
