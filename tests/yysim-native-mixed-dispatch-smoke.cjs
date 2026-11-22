@@ -20,7 +20,9 @@ const TALENT_DATA={'184':{id:184,pinzhi:2,name:'气息浑厚'},
 let requestCount=0;
 const ctx={window:fakeWindow,parent:fakeParent,location:{origin:'https://local.test'},
  TALENT_DATA,ZZ_DATA:{},EMBEDDED_WASM_B64:'fixture',setTimeout,
- initWasm:async()=>true,wasmInitEngine:()=>true,wasmGetState:()=>JSON.parse(JSON.stringify(state)),
+ initWasm:async()=>true,wasmInitEngine:()=>true,
+ wasmGetState:()=>JSON.parse(JSON.stringify(state)),
+ wasmSetState:newState=>{Object.assign(state,JSON.parse(JSON.stringify(newState)));return true},
  wasmSearchWashRoutes:req=>{
   requestCount++;
   const routes=req.desired_ids.includes(184)?[
