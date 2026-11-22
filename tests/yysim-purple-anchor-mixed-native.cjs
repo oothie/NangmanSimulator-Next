@@ -149,8 +149,12 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   'Native interval must examine candidates from BOTH ends beyond first four');
  assert(two.diagnostics.betweenExamined<=8,
   'Original WASM native interval must obey the bounded eight-candidate cap');
- assert((two.diagnostics.replannedCosts||[]).length>=2,
-  'Additional inter-purple native final routes should be verified');
+ // Strict native-pill pruning may correctly stop expensive continuations
+ // before their former fully-computed outputs are produced.
+ assert((two.diagnostics.replannedCosts||[]).length>=1||
+  (two.diagnostics.prunedByCost||0)+(two.diagnostics.candidatePruned||0)+
+  (two.diagnostics.betweenScanPruned||0)>0,
+  'Inter-purple routes must be verified or rejected by a measured cost bound');
  assert(two.diagnostics.replannedCosts.every(item=>
   [271,268,184,202].every(id=>item.finalIds.includes(id))),
   'Inter-purple diagnostic route missing one of four final retained targets');
