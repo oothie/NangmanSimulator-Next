@@ -1,33 +1,39 @@
 'use strict';
-// Static guardrail: public browser diagnosis must invoke the original native
-// search only. It is not a new solver and must never claim a global optimum.
+// Save-based native WASM diagnosis must never fall back to a fabricated seed
+// or hand-picked fixed target. This test does not claim mixed WASM correctness.
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'tests/yysim-native-live-probe.html'),'utf8');
-const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]
- .map(x=>x[1]).filter(Boolean);
-assert.equal(scripts.length,1,'One inline native probe expected');
-new vm.Script(scripts[0],{filename:'native-live-probe.js'});
-for(const src of ['../vendor/yysim/wasm_data.js','../vendor/yysim/core_glue.js',
- '../vendor/yysim/data.js','../engine/yysim-native-search-guard.js']){
- assert(html.includes(src),'Missing original WASM script '+src);
+const source=fs.readFileSync(path.join(root,'tests/yysim-native-save-probe.js'),'utf8');
+const mapping=fs.readFileSync(path.join(root,'engine/yysim-save-state.js'),'utf8');
+new vm.Script(source,{filename:'yysim-native-save-probe.js'});
+new vm.Script(mapping,{filename:'yysim-save-state.js'});
+for(const script of ['../vendor/yysim/wasm_data.js','../vendor/yysim/core_glue.js',
+ '../vendor/yysim/data.js','../engine/yysim-native-search-guard.js',
+ '../engine/yysim-target-catalog.js','../engine/yysim-save-state.js',
+ './yysim-native-save-probe.js']){
+ assert(html.includes(script),'Missing source '+script);
 }
-assert(html.includes('search:wasmSearchWashRoutes'),
- 'Browser native diagnosis must run the original WASM search');
-assert(html.includes('guard.statesEqual(stable,wasmGetState())'),
- 'Native state must be checked after each diagnostic call');
-assert(html.includes('ids:[271,268,272]'));
-assert(html.includes('ids:[271,268,272,184]'));
-assert(html.includes('final_slots'));
-assert(html.includes("new Worker('../vendor/yysim/native-search-worker.js?rev=0.10.29')"),
- 'Browser diagnosis should provide nonblocking original WASM Worker mode');
-assert(html.includes('reply.stateUnchanged!==true'),
- 'Worker must confirm state unchanged after native route query');
-assert(html.includes("clearInterval(ticker)"),
- 'Native diagnostic must clean up real elapsed-time ticker');
-assert(html.includes('원본 WASM Worker 180초 응답 시간 초과'),
- 'Worker deadline must be a reported execution error, not a missing route');
-
-assert(!html.includes('globallyOptimal:true'),'Never claim original native proof of global optimality');
-console.log('PASS: original WASM browser diagnostic source, syntax and final goals');
+for(const id of ['file','role','previewLimit','scan','preview','conflicts','filter',
+ 'goals','run','output','useWorker']){
+ assert(html.includes('id="'+id+'"'),'Missing real-save native UI: '+id);
+}
+assert(source.includes('source.build(save,selectedRole,wasmGetState())'),
+ 'Selected role must be loaded through original save-state builder');
+assert(source.includes('wasmPreviewSequence(count)'),
+ 'Raw purple sequence must come from original WASM');
+assert(source.includes('earlier_conflict_name'),
+ 'Exchange references must come from original WASM preview');
+assert(source.includes('search:wasmSearchWashRoutes'),
+ 'Selected goals must call original native WASM, never local solver');
+assert(source.includes('final_slots'),
+ 'Native route must be verified against final talents');
+assert(source.includes('new Worker('),
+ 'Real-time diagnostic must offer isolated native WASM Worker');
+assert(!source.includes('447882174'),
+ 'Previous fabricated seed is forbidden in real character diagnosis');
+assert(!source.includes('ids:[271,268,272]'),
+ 'Previous fixed purple targets must not be the new diagnostic controls');
+assert(!html.includes('globallyOptimal:true'));
+console.log('PASS: original WASM save/role, raw sequence/conflicts, selectable goals, real final slots');
