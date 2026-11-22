@@ -77,4 +77,27 @@ assert.equal(observed[108].affixes[1].prop,'hit_add');
 assert.equal(observed[108].affixes[1].value,68);
 assert.equal(JSON.stringify(actualSave.Rnds.Eds),JSON.stringify({5609:734963273}),
  'prediction must not mutate source Eds');
+const legacy109=tomb.predict(tomb.open(actualSave),{count:109,
+ colorOrder:[2,1,4,3],equipment:{5609:qingyun}});
+for(let i=0;i<108;i++){
+ assert.equal(observed[i].itemId,legacy109[i].itemId,'#'+(i+1)+' item must stay identical');
+ assert.equal(observed[i].color,legacy109[i].color,'#'+(i+1)+' quality must stay identical');
+}
+assert.equal(legacy109[108].itemId,observed[108].itemId);
+assert.equal(legacy109[108].color,2,'old #109 green prediction reproduced');
+assert.equal(observed.final.equipmentSeed,legacy109.final.equipmentSeed,
+ 'color-order correction must not alter item/reward RNG stream');
+assert.equal(observed.final.eds['5609'],legacy109.final.eds['5609'],
+ 'corrected color must not consume extra shared Eds rolls');
+// All four still-compatible color orders agree through 500 calls on this save;
+// no single unique native Lua traversal order can be claimed from this record.
+const colorCandidates=[[3,2,1,4],[3,2,4,1],[3,4,2,1],[4,3,2,1]];
+const common500=tomb.predict(tomb.open(actualSave),{count:500,colorOrder:colorCandidates[0]});
+for(const candidate of colorCandidates.slice(1)){
+ const check=tomb.predict(tomb.open(actualSave),{count:500,colorOrder:candidate});
+ assert.deepEqual(Array.from(check,row=>[row.itemId||0,row.color||0]),
+  Array.from(common500,row=>[row.itemId||0,row.color||0]),
+  'remaining candidate orders must stay observationally equivalent through 500');
+}
+
 console.log('PASS: Diling 100 encounter / NPC 35256 / original 90-equipment pool / guarded hypotheses / UI');
