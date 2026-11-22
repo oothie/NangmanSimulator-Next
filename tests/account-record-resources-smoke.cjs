@@ -14,10 +14,10 @@ const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({
  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 }[c]));
 const characterEntries=v=>Array.isArray(v)?v:v&&typeof v==='object'?Object.values(v):[];
-function render(save,verified={}){
- return new Function('save','window','yyRoleSection','characterEntries','escape',
-  fn+';return yyAccountRecordAndResourceView()')(
-  save,{NangmanQuest:{verified}},section,characterEntries,escape);
+function render(save,verified={},page='map'){
+ return new Function('save','window','yyRoleSection','characterEntries','escape','accountMapSearch','accountProgressBar','accountFold','page',
+  fn+';return yyAccountRecordAndResourceView(page)')(
+  save,{NangmanQuest:{verified}},section,characterEntries,escape,'',(a,b)=>'<meter>'+a+'/'+b+'</meter>',(title,body)=>'<details>'+title+body+'</details>',page);
 }
 const fixture={
  Branch:{event_known:{step:-1,recv:1795253568,trace:true},event_pending:{step:2}},
@@ -31,18 +31,18 @@ const fixture={
  EncryptMap:{swz:{Plants:{'7':{Count:3}},Kuangs:{'301':{Count:6}}}}
 };
 const out=render(fixture,{event_known:['한국판 검증 이벤트','']});
-assert(out.includes('한국판 검증 이벤트'),'quest name matched');
-assert(out.includes('업적 저장 항목'),'achievements shown');
-assert(out.includes('110,711'),'account activity count');
+assert(render(fixture,{event_known:['한국판 검증 이벤트','']},'jianghu').includes('한국판 검증 이벤트'),'quest name matched');
+assert(render(fixture,{},'jianghu').includes('업적 저장 항목'),'achievements shown');
+assert(render(fixture,{event_known:['한국판 검증 이벤트','']},'jianghu').includes('110,711'),'account activity count');
 assert(out.includes('그루터기 / 보물상자'),'correct collectible category');
-assert(out.includes('pic_box_empty.png')&&out.includes('pic_stump_empty.png'),'both visually confirmed markers');
+assert(out.includes('상자·그루터기 외형 식별'),'both visually confirmed marker types summarized');
 assert(out.includes('십방집')&&out.includes('남양도'),'per-map labels');
 assert(out.includes('종류 미확인'),'unknown classifications retained');
 assert(!out.includes('채집·채광 기록'),'repeatable resource collection removed');
 assert(!out.includes('Count 원본값'),'mine counts removed from UI');
 const empty=render({});
 assert(empty.includes('그루터기 / 보물상자'),'empty map is safe');
-assert(empty.includes('0개'),'empty counts safe');
+assert(empty.includes('종류 미확인'),'empty counts safe');
 const malformed=render({MapData:{swz:null,hua:{tmxObj:{'2':null}}}});
 assert(malformed.includes('종류 미확인'),'unknown object does not crash');
 
