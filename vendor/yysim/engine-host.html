@@ -69,7 +69,7 @@ try{
   // Talents in the same native type family cannot coexist in final slots.
   // Reject impossible mixed-grade requests before starting expensive WASM work.
   const families=ids.map(id=>TALENT_DATA[String(id)]?.type);
-  const knownFamilies=families.filter(v=>v!==null&&v!==undefined);
+  const knownFamilies=families.filter(v=>Number.isInteger(v)&&v>0);
   if(new Set(knownFamilies).size!==knownFamilies.length)
    throw Error('동일 계열의 재능은 최종 슬롯에 함께 남길 수 없습니다. 충돌하는 목표 재능을 변경하세요');
   if(!Number.isInteger(maxPad)||maxPad<0||maxPad>200||
