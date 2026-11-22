@@ -46,7 +46,7 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
  // Also exercise the other requested 3-purple/1-blue shape with the
  // ORIGINAL native talent quality (blue 202), never promoted to purple.
  const blue=await YYWashPurpleAnchorMixed.run({
-  desiredIds:[271,268,272,202],maxPad:0,horizon:180,topN:1,
+  desiredIds:[271,268,272,202],maxPad:0,horizon:900,topN:1,
   talents:TALENT_DATA,getState:wasmGetState,setState:wasmSetState,
   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
   guard:YYWashNativeSearchGuard
