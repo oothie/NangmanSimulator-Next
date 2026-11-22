@@ -18,6 +18,32 @@ const path=require('node:path');
    try{await page.goto('http://127.0.0.1:8781/',{waitUntil:'domcontentloaded'});break}
    catch(error){if(i===29)throw error;await new Promise(r=>setTimeout(r,200))}
   }
+  // The normal wash UI is embedded: theme changes must reach the iframe
+  // immediately, without requiring tab navigation, reload, or a save.
+  await page.locator('#washV350Frame').waitFor({state:'attached'});
+  await page.locator('#ink').click();
+  await page.waitForFunction(()=>{
+   const frame=document.querySelector('#washV350Frame');
+   return frame?.contentWindow?.document.documentElement.dataset.theme==='ink';
+  },{timeout:15000});
+  const inkTheme=await page.evaluate(()=>{
+   const frame=document.querySelector('#washV350Frame');
+   const doc=frame.contentWindow.document;
+   return {frameTheme:doc.documentElement.dataset.theme,
+    bodyBg:getComputedStyle(doc.body).backgroundColor,
+    primary:getComputedStyle(doc.querySelector('#washModule')).color};
+  });
+  assert.equal(inkTheme.frameTheme,'ink','normal wash must switch to dark immediately');
+  await page.locator('#paper').click();
+  await page.waitForFunction(()=>{
+   const frame=document.querySelector('#washV350Frame');
+   return frame?.contentWindow?.document.documentElement.dataset.theme==='paper';
+  },{timeout:15000});
+  const paperTheme=await page.evaluate(()=>{
+   const frame=document.querySelector('#washV350Frame');
+   return getComputedStyle(frame.contentWindow.document.body).backgroundColor;
+  });
+  assert.notEqual(paperTheme,inkTheme.bodyBg,'normal wash background actually changes');
   const actual=await page.evaluate(async()=>{
    const {washEngine}=await import('./engine/local-engine-bridge.js');
    await washEngine.call('init');
