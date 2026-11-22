@@ -70,6 +70,10 @@ body .dungeon-coverage strong{font-size:14px}
 .dungeon-rate-table{width:100%;border-collapse:collapse;font-size:13px}
 .dungeon-rate-table th,.dungeon-rate-table td{border-bottom:1px solid var(--border,#b5a995);padding:7px 9px;text-align:left}
 .dungeon-rate-table th:nth-child(n+2),.dungeon-rate-table td:nth-child(n+2){text-align:right}
+</style><style>.dungeon-actual-results{overflow-x:auto}
+.dungeon-actual-results table{width:100%;border-collapse:collapse;min-width:550px}
+.dungeon-actual-results th,.dungeon-actual-results td{padding:8px;border-bottom:1px solid var(--border,#b5a995);text-align:left}
+.dungeon-actual-results .match{color:#367a52}.dungeon-actual-results .mismatch{color:#b14b3e}
 </style></head><body class="sbj-web"><main class="hub-main progress-main">
 <header class="progress-heading"><span class="hub-mark" aria-hidden="true">낭</span><div><h1>드랍 시뮬레이션</h1><p>세이브의 난수 순서로 장비와 보물 드랍을 예측합니다.</p></div></header>
 <nav class="drop-modes" aria-label="드랍 종류">
@@ -167,6 +171,17 @@ body .dungeon-coverage strong{font-size:14px}
 
   <p id="dungeonStatus" role="status"></p>
   <ol id="dungeonResults" class="wild-results"></ol>
+ <details id="dungeonActualPanel">
+  <summary>1122 세이브 예측 · 실측 대조</summary>
+  <p class="progress-note">1122 세이브를 먼저 불러와 관문 예측을 실행한 뒤, 실제 드랍 결과를 회차·장비 ID·색상으로 입력하세요. 장비가 없으면 ID 0, 색상 0으로 적습니다. 숫자 색상은 1 백색, 2 녹색, 3 청색, 4 자색입니다.</p>
+  <div class="wild-fields">
+   <label>비교할 예측<select id="dungeonActualSource"><option value="single">선택한 보스 반복 예측</option><option value="sequence">관문 연속 보상 예측</option></select></label>
+   <label>실측 입력 (한 줄에 회차, 장비 ID, 색상)<textarea id="dungeonActualRows" rows="5" placeholder="1,4009,1&#10;2,0,0&#10;3,5009,4" style="min-width:300px;max-width:100%"></textarea></label>
+   <button type="button" id="dungeonActualRun">예측·실측 비교</button>
+  </div>
+  <p id="dungeonActualStatus" role="status"></p>
+  <div id="dungeonActualResults" class="dungeon-actual-results"></div>
+ </details>
  <details id="dungeonSequencePanel">
   <summary>여러 관문 연속 드랍 · 보스 순서 지정 (전체 관문 지원)</summary>
   <p class="progress-note">같은 RNG 키를 사용하는 보스는 처치 순서에 영향을 받습니다. 미복원 보스는 제외됩니다.</p>
