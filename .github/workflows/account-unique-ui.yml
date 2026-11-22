@@ -1,0 +1,29 @@
+name: Account records and unique equipment UI regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'vendor/nangman-v350/equipment.html'
+      - 'vendor/nangman-v350/embedded-bridge.js'
+      - 'vendor/nangman-v350/wash.html'
+      - 'tests/account-growth-counts-smoke.cjs'
+      - 'tests/nangman-v350-equipment-smoke.cjs'
+      - 'tests/wash-ui-theme-regression.cjs'
+      - '.github/workflows/account-unique-ui.yml'
+  workflow_dispatch:
+jobs:
+  account-unique-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify paginated pill-training history and six cultivation groups
+        run: node tests/account-growth-counts-smoke.cjs
+      - name: Verify original unique-item engine integration and refinement exclusion
+        run: node tests/nangman-v350-equipment-smoke.cjs
+      - name: Verify regular wash dark theme regression
+        run: node tests/wash-ui-theme-regression.cjs
