@@ -23,7 +23,11 @@ assert(!v350.includes('data-pane="rulesPane"'),'rules tab deleted');
 assert(v350.includes('nangman-v350-site-theme'),'same theme palette override');
 assert(v350.includes("if(!match)throw Error("),'selected role must exist, no fallback to wrong character');
 assert(v350.includes("roleSel.value=match.value"),'parent selection forwarded to source engine');
-for(const op of ["auto-search","auto-intermediate-search"])assert(wasm.includes("op==='"+op+"'"));
+assert(wasm.includes("op==='auto-search'"));
+assert(!wasm.includes("op==='auto-intermediate-search'"),
+ 'Removed own sequential wash mode must remain disabled');
+assert(wasm.includes('YYWashPurpleAnchorMixed.run'),
+ 'Original WASM purple-anchor route extension must be linked');
 const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 for(const script of scripts){if(/^\s*import\s/m.test(script))continue;
  assert.doesNotThrow(()=>new Function(script),'integrated script syntax');}
