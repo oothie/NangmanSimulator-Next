@@ -41,13 +41,13 @@ assert(out.includes('획득한 그루터기')&&out.includes('2개'),'confirmed s
 assert(out.includes('shudun_sfj2012'),'confirmed stump record row');
 assert(out.includes('개별 획득 목록과 일치'),'cumulative count equals individual records');
 assert(out.includes('십방집')&&out.includes('남양도'),'per-map labels');
-assert(out.includes('종류 미확인'),'unknown classifications retained');
+assert(out.includes('종류 확인 필요'),'unknown classifications retained');
 assert(!out.includes('채집·채광 기록'),'repeatable resource collection removed');
 assert(!out.includes('Count 원본값'),'mine counts removed from UI');
 const empty=render({});
 assert(empty.includes('그루터기 / 보물상자'),'empty map is safe');
 assert(empty.includes('종류 미확인'),'empty counts safe');
 const malformed=render({MapData:{swz:null,hua:{tmxObj:{'2':null}}}});
-assert(malformed.includes('종류 미확인'),'unknown object does not crash');
+assert(malformed.includes('종류 확인 필요'),'unknown object does not crash');
 
 console.log('PASS: account Jianghu records and map-object chest/stump status categories');
