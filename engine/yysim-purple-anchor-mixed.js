@@ -41,6 +41,34 @@ function sampleIntervalCandidates(events,cap=8){
  for(let i=first;indices.size<cap&&i<events.length-last;i++)indices.add(i);
  return [...indices].sort((a,b)=>a-b).slice(0,cap).map(i=>events[i]);
 }
+// When two lower-grade goals are selected, reserve native replay slots
+// for candidates where EACH goal arrives first. Without this, frequent
+// appearances of one color can fill the entire eight-candidate budget.
+function sampleMixedColorCandidates(events,colors,cap=8){
+ if(!Array.isArray(events)||!events.length||cap<=0)return [];
+ if(!Array.isArray(colors)||colors.length<2)
+  return sampleIntervalCandidates(events,cap);
+ const picked=new Map();
+ const add=event=>{if(event&&picked.size<cap)picked.set(event.time,event);};
+ // Include two earliest native events for each possible first color.
+ for(const color of colors){
+  let n=0;
+  for(const event of events){
+   if((event.appearing||[]).includes(color)){
+    add(event);
+    if(++n>=2)break;
+   }
+  }
+ }
+ // Preserve broad coverage even when one color is scarce or absent.
+ for(const event of sampleIntervalCandidates(events,cap))add(event);
+ for(const event of events){if(picked.size>=cap)break;add(event);}
+ // Explore the cheapest partial states first; this creates a verified
+ // incumbent sooner, and subsequent native wash costs are nonnegative.
+ return [...picked.values()].sort((a,b)=>
+  count(a.state,'total_pills')-count(b.state,'total_pills')||
+  a.time-b.time);
+}
 function actionsToRoute(actions,final,base,original,desiredIds,window='last-purple-after'){
  const washes=count(final,'total_wash')-count(base,'total_wash');
  const pills=count(final,'total_pills')-count(base,'total_pills');
@@ -229,7 +257,7 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
   }
   // Fixed native replay budget, but include the interior of the interval.
   // An edge-only sample can miss a cheaper completed final four-slot route.
-  const chosen=sampleIntervalCandidates(candidatesInWindow,8);
+  const chosen=sampleMixedColorCandidates(candidatesInWindow,shape.colors,8);
   diagnostics.betweenCandidates=(diagnostics.betweenCandidates||0)+
    candidatesInWindow.length;
   diagnostics.betweenExamined=(diagnostics.betweenExamined||0)+chosen.length;
@@ -645,5 +673,5 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
   diagnostics,error:routes.length?null:'자맥 확정 후 녹·파맥 최종 보유 경로 미발견 (검색 범위 내)',
   nativePurpleScanned:baseline?.scanned??0};
 }
-root.YYWashPurpleAnchorMixed={requestShape,run,sampleIntervalCandidates};
+root.YYWashPurpleAnchorMixed={requestShape,run,sampleIntervalCandidates,sampleMixedColorCandidates};
 })(window);
