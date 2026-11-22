@@ -2,7 +2,15 @@
 
 배포 사이트: https://nangman-sim.pages.dev/
 
-현재 코드 버전: **v0.10.25**
+현재 코드 버전: **v0.10.26**
+
+## v0.10.26 — 원본 세수 상태 비교 오류 수정 및 혼합 목표 WASM 직접 실행 검증
+- **실제 상태 판정 수정:** 원본 WASM의 `global_vars` 등 객체는 Rust/JSON 직렬화에서 속성 순서만 달라질 수 있습니다. 기존 `JSON.stringify(before)!==JSON.stringify(after)`는 내용이 같아도 오류·불필요한 복원을 일으킬 위험이 있으므로, `engine/yysim-native-search-guard.js`에 **중첩 객체의 키만 정렬하는 구조적 비교**를 구현했습니다. 재능 슬롯 배열 순서·시드·잠금 여부 등 값 차이는 그대로 감지합니다. 특수 키 `__proto__`도 누락되지 않도록 null-prototype 객체로 정규화합니다.
+- 이 비교를 실제 `engine-host.html`의 **원본 자동탐색 상태 보호·재능 충돌 조회·연동 치환 검색**과 독립 WASM Worker/브라우저 검증에 연결했습니다. 연동 치환 상태 복원 실패는 성공으로 표시하지 않습니다. WASM 원본 바이너리와 자맥 검색 알고리즘은 **변경하지 않았습니다**.
+- `tests/yysim-native-search-guard-smoke.cjs`에 객체 키 순서 변경 허용, 실제 시드/슬롯 순서 변경 감지, 특수 JSON 키 보존, WASM 오류 복원 검사를 보강했습니다. 저장소 최신 소스를 직접 실행한 구조적 비교·읽기전용 검사와 관련 JS 파일 구문 검사는 통과했습니다.
+- **원본 WASM 실측용 Node.js 테스트 추가:** `tests/yysim-native-headless-grade.cjs`가 브라우저 없이 `wasm_data.js`와 `core_glue.js`를 그대로 초기화하여 자맥 단독·녹맥 단독·파맥 단독·혼합 목표를 실행하고, **자맥 3개 대 자맥 3개+녹맥 1개**의 동일 시드/범위 결과 및 경과 시간을 비교합니다. 같은 상태에서 자맥 원본 결과의 재현성과 상태 보존도 검사하며 CI `yy-wash-native-regression.yml`에 연결했습니다.
+- **중요:** 새 Node.js 테스트는 GitHub 저장소에 추가된 실행 코드입니다. 실제 **원본 WASM 실측 로그 및 GitHub Actions 통과 결과는 아직 확보하지 못했습니다.** 따라서 녹맥·파맥 최종 최소 경로, 품질 판정 분기 및 Worker 전환은 여전히 미완료입니다. UI에 미검증된 탐색 결과를 표시하지 않습니다.
+
 
 ## v0.10.25 — 원본 혼합 WASM 판정 정확도·상태 보존 검증 강화
 - 원본 `wasmSearchWashRoutes` 자맥 단독·녹맥 단독·파맥 단독 및 혼합 조합 진단을 **기존 `YYWashNativeSearchGuard.run`으로 감싸**, 검색 예외 중에도 원본 WASM 세수 상태 복원을 검사합니다. 독립 Worker 비교에서도 원본 iframe에 동일한 상태 보호를 적용합니다.
