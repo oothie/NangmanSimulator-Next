@@ -88,6 +88,24 @@ function summary(state){
   replayFinal=summary(wasmGetState());
  }catch(e){replayError=String(e.message||e)}
  assert(wasmSetState(start));
+ // Compare unlimited diagnostic pill stock to the exact same original
+ // native RNG seed at a normal stock. Funding a detached WASM must not alter
+ // talent IDs, RNG seed, wash count, or effective pill cost.
+ const stocks=[];
+ for(const stock of [20000,100000]){
+  assert(wasmSetState({...start,bag_pills:stock,has_bag_pills:true}));
+  const series=[];
+  for(let k=0;k<12;k++){
+   const event=wasmDoWash();
+   if(!event||event.error)throw Error('Budget parity wash failed '+stock);
+   series.push({ids:event.talents.map(t=>t.id),seed:event.end_s,
+    wash:event.wash_no,pills:event.pills_used});
+  }
+  stocks.push(series);
+ }
+ assert.deepEqual(stocks[0],stocks[1],
+  'Increasing virtual pill stock changed native RNG or wash cost');
+ assert(wasmSetState(start));
  const out={native:{
   scanned:native.scanned,error:native.error,
   orderIds:path0?.order_ids,finalSlots:path0?.final_slots,
@@ -97,6 +115,7 @@ function summary(state){
    type:typeof preview,keys:Object.keys(preview||{}),
    purples:preview?.purples?.slice(0,5)},
   washes:washes.slice(0,6),stateSamples:states.slice(0,6),
+  budgetParity:{confirmed:true,events:stocks[0].length},
   routeReplay:{error:replayError,events:replayTrace.slice(0,25),final:replayFinal},
   lockBranch:{ok:lockOk,locked:summary(afterLock),
    firstWash:lockedWash,afterWash:summary(afterLockedWash)},
