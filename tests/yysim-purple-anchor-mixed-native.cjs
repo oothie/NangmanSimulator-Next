@@ -53,6 +53,19 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   'Two-color route exceeds validated native cost');
  assert(two.diagnostics.replanAttempts>0&&two.diagnostics.replanNativeRoutes>0,
   'Remaining-purple original WASM native replanning was not exercised');
+ assert(two.diagnostics.betweenCandidates>4&&
+  two.diagnostics.betweenExamined>4,
+  'Native interval must examine candidates from BOTH ends beyond first four');
+ assert(two.diagnostics.betweenExamined<=8,
+  'Original WASM native interval must obey the bounded eight-candidate cap');
+ assert((two.diagnostics.replannedCosts||[]).length>=2,
+  'Additional inter-purple native final routes should be verified');
+ assert(two.diagnostics.replannedCosts.every(item=>
+  [271,268,184,202].every(id=>item.finalIds.includes(id))),
+  'Inter-purple diagnostic route missing one of four final retained targets');
+ assert(two.routes[0].pills<=
+  Math.min(...two.diagnostics.replannedCosts.map(item=>item.pills)),
+  'Expensive inter-purple branches must not displace a cheaper complete route');
  assert(two.routes.every(r=>[271,268,184,202].every(id=>
   r.final_slots.some(t=>Number(t.id)===id))),'Two-color result has missing final slot');
  assert(two.routes.every(r=>r.optimal===false),'A bounded search is not globally optimal');
