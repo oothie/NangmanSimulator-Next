@@ -43,9 +43,9 @@ const fixture={globalVariable:{'3255_atk':51,'muren_addXW1':50,'2660_atk':29,'26
  '2633_1':5,'2658_1':1,'eat_2662_int_1':2,'home_ssrx_max':5,'2660_atk_10058':12}};
 const main={id:1,raw:{ID:1},type:'주인공'};
 const companion={id:10058,raw:{ID:10058},type:'동료'};
-assert.equal(yyProgressEntries(fixture,main,'training').items.length,8,'main source training groups');
-assert.equal(yyProgressEntries(fixture,main,'consumable').items.length,29,'main original pills');
-assert.equal(yyProgressEntries(fixture,companion,'consumable').items.length,24,'companion original pills');
+assert.equal(yyProgressEntries(fixture,main,'training').items.length,21,'main source training groups plus original oothie records');
+assert.equal(yyProgressEntries(fixture,main,'consumable').items.length,37,'main original pills including EatDrugs');
+assert.equal(yyProgressEntries(fixture,companion,'consumable').items.length,32,'companion original pills including EatDrugs');
 assert.equal(yyProgressEntries(fixture,main,'other').items.length,1,'shared stone lock');
 assert.equal(yyProgressEntries(fixture,main,'training').items[0].values[0].current,50,'upper bound enforced');
 assert.equal(yyProgressEntries(fixture,companion,'training').items[0].values[0].current,12,'per-character blood pool');
