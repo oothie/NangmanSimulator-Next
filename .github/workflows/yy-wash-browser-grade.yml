@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'tests/yysim-native-grade-contract.cjs'
+      - 'tests/yysim-native-worker-parity.cjs'
+      - 'vendor/yysim/native-search-worker.js'
       - 'vendor/yysim/engine-host.html'
       - 'engine/yysim-native-search-guard.js'
       - 'vendor/yysim/wasm_data.js'
@@ -29,3 +31,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Run read-only native WASM grade and mixed-goal characterization
         run: node tests/yysim-native-grade-contract.cjs
+      - name: Compare isolated native Worker with original iframe
+        id: worker_parity
+        continue-on-error: true
+        run: node tests/yysim-native-worker-parity.cjs
