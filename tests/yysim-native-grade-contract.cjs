@@ -40,13 +40,31 @@ const path=require('node:path');
    // user-facing command; use it only from this regression characterization.
    const outcome=engine.eval(`(function(){
     const original=wasmGetState();
+    const native=window.YYWashNativeSearchGuard;
+    if(!native?.run)throw Error('Original WASM search state guard unavailable');
+    const safeSearch=request=>native.run({
+     getState:wasmGetState,setState:wasmSetState,
+     search:wasmSearchWashRoutes
+    },request);
+    const conflicts=wasmGetConflicts();
+    const conflictSummary={
+     type:Array.isArray(conflicts)?'array':typeof conflicts,
+     length:Array.isArray(conflicts)?conflicts.length:null,
+     keys:!Array.isArray(conflicts)&&conflicts&&typeof conflicts==='object'?
+      Object.keys(conflicts).slice(0,25):[],
+     sample:Array.isArray(conflicts)?conflicts.slice(0,3):
+      conflicts&&typeof conflicts==='object'?
+       Object.entries(conflicts).slice(0,3):null
+    };
+    if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
+     throw Error('Original native conflict read changed WASM state');
     const candidates=[
      {grade:4,id:271},{grade:2,id:184},{grade:3,id:191}
     ];
     const rows=[];
     for(const item of candidates){
      let response=null,error=null;
-     try{response=wasmSearchWashRoutes({
+     try{response=safeSearch({
       desired_ids:[item.id],max_pad:0,horizon:30,top_n:1
      })}catch(err){error=String(err.message||err)}
      const valid=(response?.routes||[]).filter(route=>
@@ -82,7 +100,7 @@ const path=require('node:path');
     for(const target of sets){
      let response=null,error=null;
      const started=performance.now();
-     try{response=wasmSearchWashRoutes({
+     try{response=safeSearch({
       desired_ids:target.ids,max_pad:0,horizon:30,top_n:2
      })}catch(err){error=String(err?.message||err)}
      const elapsedMs=Math.round((performance.now()-started)*100)/100;
@@ -107,7 +125,7 @@ const path=require('node:path');
     const baselineTrials=[];
     for(let i=0;i<2;i++){
      const started=performance.now();
-     const result=wasmSearchWashRoutes(baselineRequest);
+     const result=safeSearch(baselineRequest);
      baselineTrials.push({elapsedMs:Math.round((performance.now()-started)*100)/100,
       result:JSON.stringify(result)});
      if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
@@ -132,7 +150,7 @@ const path=require('node:path');
     const requestVariants=[];
     for(const item of optionalRequests){
      let response=null,error=null;
-     try{response=wasmSearchWashRoutes(item.req)}catch(e){error=String(e?.message||e)}
+     try{response=safeSearch(item.req)}catch(e){error=String(e?.message||e)}
      requestVariants.push({name:item.name,
       returned:response?.routes?.length??null,
       error:error||response?.error||null,
@@ -140,7 +158,8 @@ const path=require('node:path');
      if(JSON.stringify(wasmGetState())!==JSON.stringify(original))
       throw Error('original native request field probe mutated state');
     }
-    return {rows,mixedGoalResults,nativePurpleBaseline,requestVariants,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
+    return {rows,mixedGoalResults,nativePurpleBaseline,requestVariants,
+     conflictSummary,unchanged:JSON.stringify(wasmGetState())===JSON.stringify(original)};
    })()`);
    const state=await washSearchEngine.call('state');
    return {outcome,preserved:JSON.stringify(state)===JSON.stringify(await washSearchEngine.call('state'))};
