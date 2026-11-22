@@ -120,6 +120,8 @@ if(!process.argv.includes('--child')){
   const identity=YYWashNativeSearchGuard.canonicalJson(wasmGetState());
   const sets=[
    {label:'purple',ids:[271]},
+   {label:'green-only',ids:[184]},
+   {label:'blue-only',ids:[202]},
    {label:'green-purple',ids:[184,271]},
    {label:'blue-purple',ids:[202,271]},
    {label:'3purple-green',ids:[271,268,272,184]},
