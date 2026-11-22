@@ -3475,14 +3475,27 @@ function yyAccountRecordAndResourceView(){
  const traced=records.filter(([,r])=>r.trace===true);
  const achievements=characterEntries(root.Achieves).filter(x=>x&&Number.isFinite(Number(x.ID)));
  const achievePoint=Number.isFinite(Number(root.AchievePoint))?Number(root.AchievePoint):null;
+ const cumulative=[
+  ['전투 횟수','BattleCount'],['적 처치 횟수','KillEnermy'],
+  ['무도 승리','WudaoWin'],['동물 포획','CatchAnimal'],
+  ['제작 횟수','MakeCount'],['90레벨 장비 제작','Make90Count'],
+  ['100레벨 장비 제작','Make100Count']
+ ].map(([name,key])=>({name,key,value:
+  root[key]!==null&&root[key]!==undefined&&Number.isFinite(Number(root[key]))?
+   Number(root[key]):null}));
  const translatedBranch=id=>{
   const hit=quests[id]||quests[String(id)];
   return Array.isArray(hit)?String(hit[0]||id):typeof hit==='string'?hit:String(id);
  };
+ const branchDate=v=>{
+  const n=Number(v);
+  return Number.isFinite(n)&&n>=1000000000&&n<=4102444800?
+   new Date(n*1000).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}):'—';
+ };
  const branchRows=records.slice().sort((a,b)=>Number(b[1].recv||0)-Number(a[1].recv||0)).map(([id,r])=>
   '<tr><td>'+escape(translatedBranch(id))+(translatedBranch(id)!==id?'<small> · '+escape(id)+'</small>':'')+'</td>'+
   '<td>'+(Number(r.step)===-1?'완료 기록':'진행 · '+escape(r.step))+(r.trace===true?' · 추적':'')+'</td>'+
-  '<td>'+escape(r.recv?new Date(Number(r.recv)*1000).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}):'—')+'</td></tr>').join('');
+  '<td>'+escape(branchDate(r.recv))+'</td></tr>').join('');
  const achievementRows=achievements.slice().sort((a,b)=>Number(a.ID)-Number(b.ID)).map(row=>
   '<tr><td>#'+escape(row.ID)+'</td><td>'+escape(row.Reward??'—')+'</td></tr>').join('');
  const knownMaps={
@@ -3542,6 +3555,12 @@ function yyAccountRecordAndResourceView(){
  '<details class="yy-account-history"><summary>업적 '+achievements.length+'건 펼치기</summary>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>업적 ID</th><th>Reward 원본값</th></tr></thead><tbody>'+
  achievementRows+'</tbody></table></div></details>')+
+ yyRoleSection('강호 활동 · 세이브 누적 기록',
+ '<p class="micro">산부진에서 참고하는 계정 통계와 한국판 세이브의 동일 저장 키를 연결했습니다. 리셋·집계 범위가 따로 있는 기록은 원본 저장값만 표시합니다.</p>'+
+ '<div class="role-grid stat-grid">'+cumulative.map(row=>
+  '<div class="stat-cell"><span class="label">'+escape(row.name)+'</span>'+
+  '<span class="value">'+(row.value==null?'—':row.value.toLocaleString('ko-KR'))+'</span>'+
+  '<span class="sub">'+escape(row.key)+'</span></div>').join('')+'</div>')+
  yyRoleSection('지도자원 · 식물과 광맥',
  '<div class="role-grid stat-grid">'+[
   ['지도 저장 항목',mapRows.length+'곳','EncryptMap'],
