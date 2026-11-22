@@ -145,6 +145,28 @@ for(const item of tally.values()){
   candidateCallees.push({index:item.index,unparsed:String(error?.message||error)});
  }
 }
+// Bounded transitive view of the ORIGINAL algorithm's helper functions.
+// Never infer a talent-quality predicate from a literal 4 alone.
+const queue=[{index:78,depth:0}],visited=new Set(),reachable=[],nestedGradeSites=[];
+while(queue.length){
+ const next=queue.shift();
+ if(visited.has(next.index)||next.depth>3)continue;
+ visited.add(next.index);
+ try{
+  const decoded=next.index===78?solver:inspect(next.index);
+  reachable.push({index:next.index,depth:next.depth,bodyBytes:decoded.bodyBytes});
+  const sites=gradeReviewSitesFor(decoded);
+  if(sites.length)nestedGradeSites.push({index:next.index,depth:next.depth,
+   sites:sites.slice(0,6),total:sites.length});
+  if(next.depth<3)for(const item of decoded.calls){
+   if(item.bodyBytes!==null&&item.bodyBytes<=50000&&!visited.has(item.index))
+    queue.push({index:item.index,depth:next.depth+1});
+  }
+ }catch(error){
+  reachable.push({index:next.index,depth:next.depth,
+   skipped:String(error?.message||error).slice(0,100)});
+ }
+}
 assert.equal(solver.bodyBytes,4055,'Native solver changed; re-characterize original yy-sim binary');
 assert.equal(solver.instructions.length,1824,'Unexpected native instruction count');
 assert.equal(solver.callCount,83,'Unexpected native search call instruction count');
@@ -162,5 +184,7 @@ console.log('YY_SIM_NATIVE_SEARCH_CALL_GRAPH',JSON.stringify({
  solverConstants:[...constantCounts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,20),
  gradeFourCandidates:solver.constants.filter(x=>x.value===4).map(x=>x.offset),
  gradeComparisonReviewSites:gradeReviewSites,
- candidateCallees:candidateCallees.slice(0,25)
+ candidateCallees:candidateCallees.slice(0,25),
+ reachableFunctions:reachable.length,
+ nestedReviewSites:nestedGradeSites.sort((a,b)=>a.depth-b.depth||b.total-a.total).slice(0,35)
 }));
