@@ -9,6 +9,8 @@ on:
       - 'vendor/yysim/engine-host.html'
       - 'vendor/yysim/core_glue.js'
       - 'tests/yysim-native-only-browser.cjs'
+      - 'tests/yysim-anchor-browser.cjs'
+      - 'engine/yysim-purple-anchor-mixed.js'
       - 'tests/yysim-native-grade-contract.cjs'
       - 'tests/yysim-native-grade-mutation-probe.cjs'
       - 'tests/yysim-native-single-pass.cjs'
@@ -47,6 +49,8 @@ jobs:
         run: node tests/yysim-native-single-pass.cjs
       - name: Chromium original yy-sim WASM auto-search regression
         run: node tests/yysim-native-only-browser.cjs
+      - name: Chromium user-requested four-slot purple-anchor mixed grade search
+        run: node tests/yysim-anchor-browser.cjs
       - name: Original WASM grade contract diagnostic
         run: node tests/yysim-native-grade-contract.cjs
       - name: Isolated native WASM talent grade gate probe
