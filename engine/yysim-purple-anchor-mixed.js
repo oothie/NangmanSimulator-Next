@@ -378,6 +378,30 @@ async function run({desiredIds,maxPad=20,horizon=900,topN=8,
              toGrade:number(toTalent.pinzhi),
              fromFamily:number(fromTalent.type),toFamily:number(toTalent.type)
             });
+           // Query the ORIGINAL purple route optimizer from the actual
+           // divergence state. This is diagnostic until its new full route
+           // can be replayed and proved to preserve green/blue targets.
+           if((diagnostics.exchangeRecoveryProbes||0)<2){
+            diagnostics.exchangeRecoveryProbes=
+             (diagnostics.exchangeRecoveryProbes||0)+1;
+            try{
+             const recovered=guard.run({getState,setState,search},{
+              desired_ids:shape.purple,max_pad:Math.min(maxPad,20),
+              horizon:Math.min(horizon,300),top_n:2});
+             diagnostics.exchangeRecoveryExamples=
+              diagnostics.exchangeRecoveryExamples||[];
+             diagnostics.exchangeRecoveryExamples.push({
+              atWash:count(getState(),'total_wash'),
+              nativeRoutes:recovered?.routes?.length||0,
+              error:recovered?.error||null,
+              firstActions:(recovered?.routes?.[0]?.actions||[]).slice(0,4)
+               .map(a=>({kind:a.kind,wash:a.wash_no,
+                talent:a.talent,from:a.from,to:a.to}))
+             });
+            }catch(err){
+             diagnostics.exchangeRecoveryError=String(err?.message||err);
+            }
+           }
            throw Error('원본 자맥 재탐색의 치환 대상 계열·등급 불일치: '+
             sourceId+' → '+targetId);
           }
