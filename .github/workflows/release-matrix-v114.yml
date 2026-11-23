@@ -1,0 +1,26 @@
+name: Public v1.1.4 per-tab functional matrix
+on:
+  push:
+    branches:
+      - release/v1.1.4-public-audit
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run eight-tab functionality regression
+        run: node scripts/release-test-matrix-v114.cjs
+      - name: Export checked tests and known failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-v114-functional-regressions
+          path: release-reports/test-matrix-v114.json
+          if-no-files-found: warn
