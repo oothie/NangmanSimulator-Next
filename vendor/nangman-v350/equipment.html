@@ -8680,7 +8680,7 @@ function updateJianwangHint() {
     }
     if (action === 'mangjing') {
         if (!canPredictJianwangMangjing(equip)) {
-            hint.textContent = `${equip._source || base?._source || '세이브'} · ${jianwangStageName(equip)} 표시됨，但유효한 값 없음:  MJSeed 或이미 주입됨特殊옵션，임의 생성 불가: 망정시퀀스`;
+            hint.textContent = `${equip._source || base?._source || '세이브'} · ${jianwangStageName(equip)} 장비는 망정 시드가 유효하지 않거나 특수 옵션이 이미 부여되어 있어 망정 시퀀스를 생성할 수 없습니다`;
             return;
         }
         const materialText = material ? `「${material.name}」 옵션 범위 적용` : '실제 제작에 사용한 재료를 선택하세요';
@@ -8689,7 +8689,7 @@ function updateJianwangHint() {
     }
     if (action === JIANWANG_SHATTER_90 || action === JIANWANG_SHATTER_100) {
         if (!validJianwangRedSeed(nextRedSeed)) {
-            hint.textContent = `${jianwangStageName(equip)} · 세이브유효한 값 없음:  MakeRnd.RedSeeds[5707]，不能예측下一개60레벨검배`;
+            hint.textContent = `${jianwangStageName(equip)} · 세이브에 유효한 MakeRnd.RedSeeds[5707]이 없어 다음 60급 검배를 예측할 수 없습니다`;
             return;
         }
         const next = createJianwangBlankFromRedSeed(nextRedSeed);
@@ -8741,15 +8741,15 @@ function updateJianwangCycleHint() {
     } else if (!validJianwangRedSeed(nextRedSeed)) {
         hint.textContent = '세이브유효한 값 없음:  MakeRnd.RedSeeds[5707]，진행할 수 없음: 쇄검예측';
     } else if (needsRoute && !validJianwangCZSeed(equip)) {
-        hint.textContent = `${jianwangStageName(equip)}유효한 값 없음:  CZSeed，없음法先推到90레벨`;
+        hint.textContent = `${jianwangStageName(equip)}의 CZSeed가 유효하지 않아 90급까지 진행할 수 없습니다`;
     } else if (needsRoute && !routeReady) {
-        hint.textContent = `${jianwangStageName(equip)}아직 도달하지 않은90레벨，먼저 선택하세요: 최종90레벨보검路线`;
+        hint.textContent = `${jianwangStageName(equip)}은 아직 90급이 아닙니다. 먼저 최종 90급 보검 경로를 선택하세요`;
     } else if (JIANWANG_LEVEL_100_IDS.has(id)) {
         hint.textContent = '현재100레벨신병은 신병 분해 후 첫 순환에 진입 · 이후 각 새 검은60→70→80→90→10次재주조순환';
     } else if (equip._jianwangVirtualFirst) {
         hint.textContent = '세이브의 RedSeeds[5707]에서 계산한 가상 검배입니다. 선택한 경로로 90급까지 승련하고 다음 검부터 쇄검 순환을 시작합니다';
     } else if (needsRoute) {
-        hint.textContent = `${jianwangStageName(equip)}보존 없이 선택한 90급 경로까지 진행한 뒤 쇄검 · 之后새 검마다 별도 페이지`;
+        hint.textContent = `${jianwangStageName(equip)}을 보존 없이 선택한 90급 경로까지 진행한 뒤 쇄검합니다. 이후 새 검마다 별도 페이지에 표시합니다`;
     } else {
         hint.textContent = '현재90레벨보검바로 쇄검 후 첫 순환에 진입 · 새 검마다 별도 페이지并예측60→90与보존하지 않은 재주조 10회';
     }
@@ -10021,7 +10021,7 @@ function koreanizeVisibleText(text){
     ['共','총 '],['条','건'],['件','개'],['剑','검'],['后','후'],['前','전'],['区间','구간'],
     ['批次','회차'],['雪银','설은'],['青金石','청금석'],['绿','녹색'],['蓝','파란색'],['紫','자색'],
     ['橙','주황색'],['红','붉은색'],['白','흰색'],['攻击','공격'],['防御','방어'],['命中','명중'],
-    ['气血','기혈'],['速度','속도'],['闪避','회피'],['招架','막기'],['内劲','내경'],['罡气','강기'],
+    ['气血','기혈'],['速度','속도'],['闪避','회피'],['招架','막기'],['内劲','내기'],['罡气','강기'],
     ['穿甲','관통'],['拳脚','권법'],['剑法','검법'],['刀法','도법'],['棍法','창곤'],['吸血','흡혈'],
     ['免伤','피해면역'],['反伤','피해반사'],['韧性','인성'],['随机','랜덤'],['整数','정수'],
     ['总','총'],['必须是','이어야 함'],['不能','불가'],['可以','가능'],['不','미'],['已','이미 '],
