@@ -116,6 +116,12 @@ function native(input,plan,catalog,options={}){
     trace:j===selected.ids.length-1?operations:[],
     routeLength:selected.ids.length,sourceFunction:selected.run.name});
   }
+  // The recovered Liu mansion route checks item 8915 (고리의 열쇠)
+  // before deciding whether to consume the key RNG draw. If the key drops
+  // during a simulated clear, subsequent simulated clears must see it as owned.
+  // A special-drop flag alone does not update this native inventory check.
+  if(selected.ids.includes(35264)&&runtime.state.get('drop_8915_35264')===1)
+   runtime.state.set(8915,1);
   finishDungeon(runtime,plan,i+selected.ids.length-1);
   i+=selected.ids.length;
  }
