@@ -260,12 +260,24 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
  // A shifted seed/lock order often invalidates the original continuation:
  // reject those branches rather than pretending the saved route still works.
  async function searchBetween(native,marks,diagnostics,routes){
-  const prefixCount=shape.purple.length-1;
-  const candidates=marks.filter(m=>
-   shape.purple.filter(id=>m.state.talents.some(t=>
-    number(t.id)===id&&t.locked)).length===prefixCount);
-  const mark=candidates.at(-1);
-  if(!mark)return;
+  // A final-purple-only result may reject green/blue insertion between
+  // the first and second purple, yet an EARLIER confirmed purple often
+  // allows a valid native replan. Try the two most recent distinct anchor
+  // depths instead of assuming the last pre-final marker is sufficient.
+  const candidates=marks.filter(m=>{
+   const locked=shape.purple.filter(id=>m.state.talents.some(t=>
+    number(t.id)===id&&t.locked)).length;
+   return locked>=1&&locked<shape.purple.length;
+  }).reverse();
+  const checked=new Set(),selected=[];
+  for(const mark of candidates){
+   const depth=shape.purple.filter(id=>mark.state.talents.some(t=>
+    number(t.id)===id&&t.locked)).length;
+   if(checked.has(depth))continue;
+   checked.add(depth);selected.push(mark);
+   if(selected.length>=2)break;
+  }
+  async function tryAnchor(mark){
   const originalActions=native.actions||[];
   const apply=action=>{
    const wash=Number(action.wash_no);
@@ -649,6 +661,22 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     diagnostics.betweenRejected=(diagnostics.betweenRejected||0)+1;
    }finally{restore(originalScan)}
   }
+  }
+  for(const mark of selected){
+   try{
+    diagnostics.betweenAnchorDepths=diagnostics.betweenAnchorDepths||[];
+    diagnostics.betweenAnchorDepths.push(
+     shape.purple.filter(id=>mark.state.talents.some(t=>
+      number(t.id)===id&&t.locked)).length);
+    await tryAnchor(mark);
+   }catch(error){
+    diagnostics.betweenAnchorErrors=(diagnostics.betweenAnchorErrors||0)+1;
+    if((diagnostics.betweenAnchorReasons||[]).length<4){
+     diagnostics.betweenAnchorReasons=diagnostics.betweenAnchorReasons||[];
+     diagnostics.betweenAnchorReasons.push(String(error?.message||error));
+    }
+   }
+  }
  }
  // A first sighting lock changes the WASM draw sequence. For two
  // lower-grade goals, consider later genuine sightings before locking either.
@@ -762,7 +790,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    // anchor branches instead of stopping at the first purple-only winner.
    const twoPurple=shape.purple.length===2;
    const attempted=new Set(),paddingModes=[...new Set(
-    twoPurple?[0,5,10,20,maxPad]:[0,maxPad])];
+    twoPurple?[0,5,10,20,maxPad]:[0,5,maxPad])];
    const allMatching=[],seenBackbones=new Set();
    diagnostics.purpleAttempts=0;
    diagnostics.purpleNativeCalls=0;
@@ -819,15 +847,17 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
      await new Promise(resolve=>setTimeout(resolve,0));
     }
     if(matching.length){
+     // Do not stop after the first valid 3-purple route. A slightly
+     // dearer/differently ordered purple backbone can be the ONLY route
+     // on which all four goals coexist after green/blue insertion.
      allMatching.push(...matching);
-     if(!twoPurple)break;
     }
    }
    if(allMatching.length){
     allMatching.sort((a,b)=>a.purpleMeasuredPills-b.purpleMeasuredPills);
     // Each is independently replayed against the original native WASM;
     // never assume the cheapest purple cost implies cheapest mixed cost.
-    const selected=allMatching.slice(0,twoPurple?16:topN);
+    const selected=allMatching.slice(0,twoPurple?16:Math.max(12,topN));
     baseline={...(baseline||{}),routes:selected};
     diagnostics.purpleBackboneCosts=selected.map(x=>({
      pills:x.purpleMeasuredPills,maxPad:x.purplePad,
