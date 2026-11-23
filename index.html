@@ -1034,11 +1034,11 @@ function washSandbox(){
  '<button type="button" class="btn" data-wash-exchange="'+index+'" '+(!canEdit||t.locked?'disabled':'')+'>치환</button></div>').join('')+'</div>'+
  '<p class="micro">현재 세이브를 직접 바꾸지 않습니다. 잠금은 최대 3개까지, 치환은 잠금 해제된 슬롯만 가능합니다. 실행은 직전 묶음으로 되돌릴 수 있습니다.</p>':''; 
  return '<section class="wash-section"><div class="section-header"><h3>세수 시뮬레이션</h3><small>'+ (state.ready?'로컬 엔진 준비됨':'엔진 대기')+'</small></div>'+
- '<p class="micro">세수 시드·잠금 상태를 계산합니다. 실제 세이브는 변경하지 않습니다. 실제 한국판 다음 세수 결과와의 일치 검증은 별도입니다.</p>'+
+ 
  '<div class="actions"><button class="btn primary" id="washEngineImport" '+(!save||roles[selected]?.raw?.BornTalent?.S==null?'disabled':'')+'>선택 캐릭터의 세이브로 WASM 연결</button>'+
  '<span class="micro">엔진 상태: '+(state.origin==='save'&&state.linkedRoleId===roles[selected]?.id?'선택 캐릭터 세이브 복사본':state.origin==='test'?'시험 상태':'세이브 미연결')+'</span></div>'+
  '<details><summary>독립 시험용 임의 시드 입력</summary><div class="module-columns">'+
- '<div class="module-group"><label>시험 세수 시드</label><input id="washSeedInput" inputmode="numeric" value="'+escape(state.seed||'2000548318')+'"></div>'+
+ '<div class="module-group"><label>시험 세수 시드</label><input id="washSeedInput" inputmode="numeric" value="'+escape(state.seed||'')+'"></div>'+
  '<div class="module-group"><label>캐릭터 ID</label><input id="washRoleInput" inputmode="numeric" value="'+escape(state.roleId||roles[selected]?.id||10044)+'"></div>'+
  '<div class="module-group"><label>시험 개방 칸 수</label><select id="washZizhiInput">'+
  [150,151,152,153,154].map(n=>'<option value="'+n+'" '+(Number(state.zizhi||153)===n?'selected':'')+'>'+(n-150)+'칸</option>').join('')+
@@ -1132,7 +1132,7 @@ if(sub==='sim'){
  '<button class="btn" id="washMainUpgrade" '+(!canRun||(dashboard?.zizhi??Number(r?.raw?.ZiZhi||154))>=154?'disabled':'')+'>다음 재능 칸 개방</button>'+
  '<button class="btn" id="washMainResetRole" '+(!save||!r||runtime.loading?'disabled':'')+'>선택 캐릭터 초기화</button>'+
  '<button class="btn" id="washMainScan" '+(!canRun?'disabled':'')+'>다음 자맥·충돌 미리보기</button></div></div>'+
- '<p class="micro">세수 버튼을 누르면 선택 인물의 세이브를 자동으로 WASM 가상 상태에 연결합니다. 실제 게임 세이브는 변경하지 않습니다. 재능 칸 개방은 가상으로 처리되며 실제 재료 소비를 계산하지 않습니다.</p></section>';
+ </section>';
  const washRuns=Array.isArray(runtime.log)?runtime.log:[];
   const qualityPanel=dashboard?'<div class="wash-section"><div class="section-header"><h3>재능 등급별 출현</h3></div>'+
    [1,2,3,4].map(q=>{
@@ -1144,7 +1144,7 @@ if(sub==='sim'){
    }).join('')+'</div>':'';
   const purpleRows=Array.isArray(runtime.preview?.purples)?runtime.preview.purples.slice(0,8):[];
   const nextPurple=purpleRows.length?'<section class="wash-section"><div class="section-header"><h3>원본 자맥·선행 충돌 미리보기</h3></div>'+
-   '<p class="micro">현재 WASM 상태에서 조회한 자맥 시퀀스입니다. 실제로 잠금을 변경하면 천장 경로가 달라질 수 있습니다.</p>'+
+   
    '<div class="history">'+purpleRows.map(t=>{
     const label=characterTalentName(t.talent_id);
     const conflict=t.earlier_conflict_name?
@@ -1312,7 +1312,7 @@ if(sub==='auto'){
      (p.indeterminate?'<div role="progressbar" aria-label="세수 경로 계산 중" style="height:10px;border-radius:12px;overflow:hidden;background:var(--surface-2,rgba(128,128,128,.18))"><div style="height:100%;width:100%;background:repeating-linear-gradient(110deg,var(--accent,#9a668e) 0 12px,transparent 12px 25px);opacity:.65"></div></div>':
       '<div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+escape(percent??0)+'" aria-label="자동탐색 진행률" style="height:10px;border-radius:12px;overflow:hidden;background:var(--surface-2,rgba(128,128,128,.18))">'+
      '<div style="height:100%;width:'+escape(percent??6)+'%;background:var(--accent,#9a668e);transition:width .2s"></div></div>')+
-     '<div class="micro" style="margin-top:5px">'+(percent==null?'원본 WASM 내부 진행량 미공개 · 확인된 검사 회차만 표시':percent+'% · 완료된 실제 검증 단계 기준')+' · 전체 경로의 전역 최솟값 보장 없음</div></div>';
+     '<div class="micro" style="margin-top:5px">'+(percent==null?'계산 중':percent+'% · 완료된 실제 검증 단계 기준')+' · 전체 경로의 전역 최솟값 보장 없음</div></div>';
    })():'')+
   (state.error?'<div class="notice">'+escape(state.error)+'</div>':'')+
   '<div class="section-header"><h3>탐색 결과</h3></div>'+resultStatus+budgetStatus+card+
@@ -1361,15 +1361,15 @@ if(sub==='exchange'){
    escape(x.id!=null?characterTalentName(x.id):linkName(x.sourceName))+
    ' · '+(i===0?'첫 자맥':'이후 자맥')+' · 선행 충돌 '+escape(linkName(x.conflict||'없음'))+
    '<button type="button" class="btn" data-yy-preview-remove="'+escape(x.event)+'">제외</button></div>').join(''):
-   '<p>왼쪽 자맥 시퀀스에서 1~4개를 선택하세요. 원본은 2~3개 연동을 권장합니다.</p>')+'</div>'+
+   '<p>왼쪽 자맥 시퀀스에서 1~4개를 선택하세요. </p>')+'</div>'+
   '<div class="fields"><label>선행 세수 탐색 (원본 상한 '+maxLinkPad+')<input id="yyPreviewLinkedPad" type="number" min="0" max="'+maxLinkPad+
    '" value="'+escape(state.yyLinkedPad??Math.min(20,maxLinkPad))+'"></label></div>'+
   '<div class="actions"><button type="button" id="yyPreviewLinkedRun" class="btn primary" '+
    (!valid||!linkedNos.length?'disabled':'')+'>선택 자맥 연동 치환 추론</button>'+
    '<button type="button" class="btn" id="yyPreviewLinkedClear">선택 해제</button></div>'+
-  (linkResults.length?'<p class="micro">원본 WASM 선행 세수 0~'+escape(linked.maxPad)+
+  (linkResults.length?'<p class="micro">선행 세수 0~'+escape(linked.maxPad)+
     '회 · 경로 '+linkResults.length+'개 · 신맥·중간 치환 분기는 세부 항목을 확인</p>'+linkTable:
-   '<p class="micro">선택된 회차가 있으면 원본 WASM의 연동 치환 시퀀스를 조회할 수 있습니다.</p>')+
+   '<p class="micro">선택된 회차가 있으면 연동 치환 순서를 조회할 수 있습니다.</p>')+
   '</div>';
  const tbl=rows.length?'<div class="yy-account-scroll"><table class="module-table"><thead><tr>'+
   '<th>순서</th><th>자맥</th><th>세수 회차</th><th>누적 단약</th><th>이전 자맥 간격</th>'+
@@ -1384,7 +1384,7 @@ if(sub==='exchange'){
   '</tr>').join('')+'</tbody></table></div>':
   '<div class="history">선택한 조건에 해당하는 자맥이 없습니다.</div>';
  body='<section class="wash-section"><div class="section-header"><h3>자맥 시퀀스 미리보기</h3></div>'+
- '<p class="micro">원본 WASM이 반환한 자맥별 세수 회차·누적 세수단·선행 충돌맥·치환 가능 여부를 표시합니다. 실제 한국 서버의 다음 결과와 일치한다고 확정한 것은 아닙니다.</p>'+
+ 
  '<div class="fields"><label>미리보기 상한<input id="washPreviewCount" type="number" min="1" max="5000" value="'+escape(state.previewLimit??900)+'"></label>'+
  '<label>결과 필터<select id="washPreviewFilter"><option value="all" '+((state.purpleFilter||'all')==='all'?'selected':'')+'>전체 자맥</option>'+
  '<option value="exchange" '+(state.purpleFilter==='exchange'?'selected':'')+'>치환 가능한 자맥</option>'+
@@ -1491,7 +1491,7 @@ if(sub==='path'){
  const single=String(runtime.targetTalentId??'');
  const num=runtime.pathLimit??900;
  body='<section class="wash-section"><div class="section-header"><h3>도맥법 목표 자맥·충돌맥 탐색</h3></div>'+
- '<p class="micro">이 화면은 자맥·충돌맥 ID를 직접 지정하는 <b>수동 경로 분석</b>입니다. 자동 최적 경로를 찾으려면 상단 <b>원본 자동 탐색</b> 탭을 사용하세요. 게임 내 세수단은 소비하지 않습니다.</p>'+
+ 
  '<div class="fields"><label>자맥 선택<select id="washPathPurplePick">'+purpleOptions+'</select></label><label>충돌맥 선택<select id="washPathConflictPick">'+purpleOptions+'</select></label></div>'+
  '<div class="actions"><button class="btn" id="washPathAdd">선택한 맥 쌍 추가</button></div>'+
  '<div class="fields"><label>목표 쌍 (자맥ID:충돌맥ID, 한 줄에 하나 · 최대 4개)<textarea id="washPathPairs" rows="4" placeholder="예: 261:262">'+escape(pairs)+'</textarea></label>'+
@@ -1499,11 +1499,11 @@ if(sub==='path'){
  '<div class="actions"><button class="btn primary" id="washPathRun" '+(!valid?'disabled':'')+'>원본 도맥법 경로 후보 조회</button>'+
  '<button class="btn" id="washConflictInspect" '+(!valid?'disabled':'')+'>현재 인물 충돌·가용 재능 조회</button></div>'+
  goalAuditView+summary+pathTable+conflictsPanel+(runtime.constraints?'<details><summary>원본 WASM 세부 충돌 자료(JSON)</summary>'+
- '<p class="micro">현재 인물 세수 WASM 상태에서 직접 조회한 자료입니다. 미확인 명칭은 재능 ID로 표시합니다.</p>'+
+ 
  '<pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(runtime.constraintsDisplay||'자료 없음')+'</pre></details>':'')+
  (reports?'<details><summary>원본 계산 결과 구조 확인</summary><pre class="history" style="white-space:pre-wrap;max-height:360px;overflow:auto">'+escape(pathText.slice(0,18000))+'</pre></details>':'')+
  '<div class="section-header"><h3>목표 자맥까지 모의 세수</h3></div>'+
- '<p class="micro">원본 WASM의 <code>wash_until_talent_name</code> 실행을 사용합니다. 최대 5000회, 실행 전 상태 저장 후 되돌리기 가능. 현재 목표 자맥의 한국 서버 적중 여부는 미검증입니다.</p>'+
+ 
  '<div class="fields"><label>목표 자맥<select id="washTalentTarget"><option value="">선택</option>'+purpleSourceIds.map(id=>'<option value="'+id+'" '+(String(id)===single?'selected':'')+'>'+escape(characterTalentName(id))+' (#'+id+')</option>').join('')+'</select></label></div>'+
  '<div class="fields"><label>다음 치환 탐색 한도<select id="washNextConflictLimit"><option value="100" '+(runtime.nextConflictLimit===100?'selected':'')+'>100회</option><option value="500" '+((runtime.nextConflictLimit??500)===500?'selected':'')+'>500회</option><option value="1000" '+(runtime.nextConflictLimit===1000?'selected':'')+'>1000회</option></select></label></div>'+
  '<div class="actions"><button id="washPathLockGoals" class="btn" '+(!valid?'disabled':'')+'>현재 보유한 목표 자맥 잠금 (최대 3칸)</button>'+
@@ -1633,7 +1633,7 @@ function equipDetailView(){
  '<div class="equip-detail-header"><button type="button" class="btn" id="equipBack">← 이전 화면</button>'+
  '<span class="micro">'+escape(x.source||'보유 장비')+'</span></div>'+
  '<h2>'+escape(equipName(id))+'</h2>'+
- '<p class="micro">장비 상세 · 한국판 저장 옵션 및 원본 계산 엔진 연결</p>'+
+ 
  '<nav class="equip-detail-buttons" aria-label="장비 상세 기능 선택">'+
  makeButton('route','장비 정보','능력치 및 획득 결과','equip-action-route',false,'')+
  makeButton('refine','정련','최대 1,000회 · 옵션별 조회','equip-action-xl',orange,'주황 장비는 정련할 수 없습니다')+
@@ -2460,7 +2460,7 @@ function characterEquipCombatSplitView(raw){
  const split=characterEquipCombatSplit(raw),fmt=n=>Number(n.toFixed(3)).toLocaleString('ko-KR');
  const text=(name,source)=>'<tr><td>'+name+'</td><td>'+fmt(source.atk)+'</td><td>'+fmt(source.hit)+'</td></tr>';
  return '<section class="card"><h3>무기 구분 · 공격/명중 기여</h3>'+
- '<p class="micro">원본 wb()에서는 무기 종류 1~4의 공격과 명중을 나머지 장비와 분리해 적용합니다. 무기 공격에는 전용 재능·비기 계열별 보정이 추가됩니다. 아래 값은 해당 보정 전의 장비 부분값입니다.</p>'+
+ 
  '<table class="module-table"><thead><tr><th>장비 분류</th><th>공격 기여</th><th>명중 기여</th></tr></thead><tbody>'+
  text('무기 기여 (원본 계열 조건)',split.weapon)+text('비무기 기여',split.other)+'</tbody></table>'+
  (split.excludedWeaponHit.length?'<p class="micro">원본 wb의 무기 계열 조건으로 명중 계산에서 제외된 무기: '+
@@ -2482,7 +2482,7 @@ function characterEquipSourceView(raw){
  const rows=characterEquipSourceStats(raw);
  const fmt=v=>Number(v.toFixed(3)).toLocaleString('ko-KR');
  return '<section class="card"><h3>식 장비 기여분 · 부여옵션 포함</h3>'+
- '<p class="micro">원본 Yt/Ia/Af/qf 산식 기준으로 장비 기본 수치, 강화 계수(LvProp), 부여옵션을 합산했습니다. 장비 훈련·마법 부여(부마)·무기 계열별 공격/명중 제한 및 전체 전투 보정은 제외한 부분 계산입니다.</p>'+
+ 
  '<table class="module-table"><thead><tr><th>능력치</th><th>기본·강화</th><th>부여옵션</th><th>부분 합계</th></tr></thead><tbody>'+
  rows.map(x=>'<tr><td>'+escape(x.label)+'</td><td>'+fmt(x.base)+'</td><td>'+fmt(x.affix)+'</td><td><b>'+fmt(x.base+x.affix)+'</b></td></tr>').join('')+
  '</tbody></table><p class="micro">부여옵션 출처: EnMans / EnExts / EnSpecials / exts / EnStroys. EnNoXLExts는 원본 S1에 포함되지 않아 제외합니다. 이 표는 게임의 최종 능력치가 아닙니다.</p></section>';
@@ -2886,7 +2886,7 @@ function yyOriginalCultivationEffectsView(role){
  const items=yyOriginalCultivationEffects(role?.raw||{});
  const fmt=v=>Number(v.toFixed(3)).toLocaleString('ko-KR');
  return yyRoleSection('수련 전투 보정',
- '<p class="micro">원본 u0/Od 공식: (저장 수련 + 습득 무학 수련)을 1,500으로 제한하고, 해당 계열 자질 계수 × 0.025를 곱합니다. 복제 무학 수련 및 이전 가능 수련은 기록과 계산 방향이 다를 수 있어 별개로 표시합니다.</p>'+
+ 
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>계열</th><th>수련</th><th>자질 계수</th><th>원본 수련 보정</th><th>무학 기록</th></tr></thead><tbody>'+
  items.map(x=>'<tr><td>'+escape(x.label)+'</td><td>'+(x.current===null?'미확인':fmt(x.current))+'</td>'+
  '<td>'+fmt(x.gift)+'</td><td>'+(x.bonusPct===null?'미확인':fmt(x.bonusPct)+'%')+'</td><td>'+x.count+(x.unknown?' · 미확인 '+x.unknown:'')+'</td></tr>').join('')+'</tbody></table></div>'+
@@ -4099,7 +4099,7 @@ function yyAccountRecordAndResourceView(section='jianghu'){
   ['업적 저장 항목',achievements.length+'건','업적 ID 기준'],
   ['업적 포인트',achievePoint??'—','세이브 AchievePoint']
  ].map(([name,value,note])=>'<div class="stat-cell"><span class="label">'+escape(name)+'</span><span class="value">'+escape(value)+'</span><span class="sub">'+escape(note)+'</span></div>').join('')+'</div>'+
- '<p class="micro">한국판 세이브의 Branch와 Achieves를 별도 집계합니다. Branch.step=-1은 완료 기록이지만 이벤트 내부 분기도 포함하므로 실제 게임의 강호 기록 완료율과 동일하지 않습니다. 업적 Reward 필드는 원본 값이며 보상 수령 여부로 단정하지 않습니다.</p>'+
+ 
  '<details class="yy-account-history"><summary>임무·이벤트 상세 기록 '+records.length+'건 보기</summary>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>한국판 임무 이름 / 기록 ID</th><th>진행 상태</th><th>수락일</th></tr></thead><tbody>'+
  (branchRows||'<tr><td colspan="3">기록 없음</td></tr>')+'</tbody></table></div></details>'+
@@ -5328,7 +5328,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    state.log.push({kind:action,index,...result});
   }
   state.lastConflict=null;state.liveTalents=result.state.talents;syncWasmBag(result.state);state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';
-  state.output=(action==='toggle-lock'?'원본 WASM 잠금 변경':'원본 WASM 치환 실행')+
+  state.output=(action==='toggle-lock'?'재능 잠금 변경':'재능 치환')+
    ' · 슬롯 '+(index+1)+' · 실게임과 무관한 가상 상태\n'+JSON.stringify(result,null,2);
  }else if(op==='washEngineConstraints'){
   if(!state.active||state.origin!=='save')
