@@ -4517,7 +4517,7 @@ function others(){
 function hideInternalExplanationNotes(){
  const container=$('view');
  if(!container)return;
- const provenance=/(?:산부진|yy[- ]?sim|yysim|원본\\s*WASM|WASM\\s*(?:사본|원본|함수|계산|상태)|실측|회귀\\s*검사|교차\\s*검증|연구용|v73618)/i;
+ const provenance=/(?:산부진|yy[- ]?sim|yysim|원본\s*WASM|WASM\s*(?:사본|원본|함수|계산|상태)|실측|회귀\s*검사|교차\s*검증|연구용|v73618)/i;
  container.querySelectorAll('p.micro,p.role-status-note,.module-lead').forEach(node=>{
   if(provenance.test(node.textContent||''))node.remove();
  });
