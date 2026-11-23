@@ -11718,7 +11718,7 @@ function paintDetailPanel(h,o,tab){
    }
    if(tab==='cl')return rkPaintCl237(p,o,e,cfg);
  }
- if(tab==='route')return rkDetailRoute237(h,o,e,cfg);if(tab==='xl')return rkPaintXl237(h,o,e,cfg);if(tab==='mj')return rkPaintMj237(h,o,e,cfg);if(tab==='cl')return rkPaintCl237(h,o,e,cfg)
+ if(tab==='route')return rkDetailRoute237(h,o,e,cfg);if(tab==='xl'){const base=o?.xl?.base||e;return rkPaintXl237(h,o,base,EQUIP_DATA.equipment[String(base.id)]||cfg)}if(tab==='mj')return rkPaintMj237(h,o,e,cfg);if(tab==='cl')return rkPaintCl237(h,o,e,cfg)
 }
 window.rkMakePreviewNative233=rkMakePreviewNative233;window.rkXilianPlanNative233=rkXilianPlanNative233;window.rkStrongPreviewNative233=rkStrongPreviewNative233;
 /* result/owned/region all enter the same top detail page */
