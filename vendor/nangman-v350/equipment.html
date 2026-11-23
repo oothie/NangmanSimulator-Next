@@ -10411,7 +10411,7 @@ function craftRoutesForEquip218(id){
  const cfg=EQUIP_DATA.equipment[String(id)],paper=realPaperForEquip218(id);
  if(!cfg||!paper)return [];
  const line=craftLine218(cfg.type);
- return sortedCraftsmen().filter(n=>n.zhi===line&&(n.pf||[]).some(pid=>Number(pid)===Number(paper.id))).map(npc=>({npc,p:{
+ return sortedCraftsmen().filter(n=>n.zhi===line&&(n.pf||[]).length>0).map(npc=>({npc,p:{
    selectId:paper.id,equipId:cfg.id,label:`${ename(cfg)} (${KO_PAPER_NAMES[String(paper.id)]||'도면'} · Lv${cfg.lv})`,paper,equip:cfg
  }}));
 }
@@ -11158,7 +11158,7 @@ function regionCell226(z){
  const ext=(z.exts||[]).map(p=>`<span class="normal-prop226">${esc(propLabel218(p.prop))} ${esc(formatPropValue(p.prop,p.value))}</span>`).join(' · ');
  const reg=(z.region||[]).map(p=>`<span class="region-prop226">${esc(propLabel218(p.prop))} ${esc(formatPropValue(p.prop,p.value))}</span>`).join(' · ');
  const sp=(z.special||[]).map(p=>`<span class="special-prop226">${esc(propLabel218(p.prop))} ${esc(formatPropValue(p.prop,p.value))}</span>`).join(' · ');
- const pity=z.pity?'<span class="pity-badge239">천장</span>':'';
+ const pity=z.pity?'<span class="pity-badge239">'+Number(z.pity_order||1)+'천장</span>':'';
  return `<div class="r239-cell"><div class="r225q r239-head">${qualityHtml226(z.color)}${pity}</div>${ext?`<div class="r225ext r239-line"><span class="r239-label">일반</span>${ext}</div>`:''}${reg?`<div class="r225reg r239-line"><span class="r239-label">지역</span>${reg}</div>`:'<div class="r225reg none r239-line"><span class="r239-label">지역</span>없음</div>'}${sp?`<div class="r225spec r239-line"><span class="r239-label">재료</span>${sp}</div>`:''}</div>`;
 }
 function paintRegionSeq(h,id){
