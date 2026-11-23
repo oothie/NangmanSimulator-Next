@@ -12,7 +12,7 @@ const messages=[],parent={postMessage(m){messages.push(m)}};
 const ctx={window:{addEventListener(name,callback){if(name==='message')listener=callback}},
  parent,location:{origin:'https://test.local'},
  TALENT_DATA:Object.fromEntries([271,272,250,268,249].map(id=>[id,{name:'native-'+id,pinzhi:4}])),
- ZZ_DATA:{},initWasm:async()=>true,wasmInitEngine:()=>true,
+ ZZ_DATA:{},EMBEDDED_WASM_B64:'fixture-mock-nonempty',initWasm:async()=>true,wasmInitEngine:()=>true,
  wasmGetState(){return JSON.parse(JSON.stringify(state))},
  wasmSetState(value){sets++;state=JSON.parse(JSON.stringify(value));
   if(rejectNext){rejectNext=false;return false}return true}};
