@@ -51,7 +51,7 @@ function createRuntime(input){
     map.set(name,num(map.get(name))+num(v))},
   branch:key=>{if(!flags.has(String(key)))throw Error('분기 정보 누락: '+key);
     return num(flags.get(String(key)))},
-  draw:(key,bound)=>roll(key,bound,'산부진 원본 draw'),
+  draw:(key,bound,context)=>roll(key,bound,context||'산부진 원본 draw'),
   pick:(key,weights)=>pick(key,weights,'산부진 원본 pick')};
  return {roll,pick,state,flags,trace,currents,checkpoint:()=>({
   traceLength:trace.length,currents:new Map(currents),flags:new Map(flags),
