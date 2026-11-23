@@ -109,8 +109,8 @@ assert.equal(posts.at(-1)[0].kind,'nangman-drop-mode','switches existing iframe 
 assert.equal(posts.at(-1)[0].mode,'dungeon','dungeon tab bridged');
 assert.equal(host.children.length,1,'switching drop mode keeps iframe');
 dropAPI.setSave({MainRole:{ID:1}});dropAPI.updateDropVisibility();
-assert.equal(posts.at(-1)[0].save.MainRole.ID,1,'transfers newly imported save');
-assert.equal(posts.at(-1)[0].version,1,'save revision increments on import');
+assert.equal(posts.filter(([m])=>m.kind==='nangman-save').at(-1)[0].save.MainRole.ID,1,'transfers newly imported save');
+assert.equal(posts.filter(([m])=>m.kind==='nangman-save').at(-1)[0].version,1,'save revision increments on import');
 events.message({origin:'https://sim.example',source:dropWindow,data:{
  kind:'nangman-embedded-status',module:'drops',status:'save-loaded',version:0}});
 assert(!elements.dropRuntimeStatus.textContent.includes('적용 확인됨'),'stale acknowledgement ignored');
@@ -118,5 +118,5 @@ events.message({origin:'https://sim.example',source:dropWindow,data:{
  kind:'nangman-embedded-status',module:'drops',status:'save-loaded',version:1}});
 assert(elements.dropRuntimeStatus.textContent.includes('적용 확인됨'),'matching revision confirms save');
 dropAPI.setSave(null);dropAPI.updateDropVisibility();
-assert.equal(posts.at(-1)[0].save,null,'clearing save clears drop engine');
+assert.equal(posts.filter(([m])=>m.kind==='nangman-save').at(-1)[0].save,null,'clearing save clears drop engine');
 console.log('PASS: yy-sim save->WASM mapping, role invalidation, purple sequence, detailed quest records without NPC locations and persistent drop');
