@@ -4,6 +4,9 @@
 (function(){
 'use strict';
 const rules=[
+ // Character descriptions from original yy-sim must use Korean in-game labels.
+ [/江湖中人/g,'강호인'],
+ [/劫镖劫匪/g,'표차 습격 도적'],
  [/초식\s*방어\s*무시/g,'막기파기'],
  [/초식\s*방어\s*파기/g,'막기파기'],
  [/회피\s*무시/g,'회피파기'],
