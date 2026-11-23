@@ -1862,21 +1862,24 @@ function wikiImgTag(x,large=false){
  if(x.cat==='buff'){
   add(window.NANGMAN_BUFF_ICON_DATA?.[raw]);
   if(/^icon_buff_[\w-]+$/i.test(raw)){
-   add('./icons/buff/'+raw+'.png');
-   add('./icons/buffs/'+raw+'.png');
+   if(window.NANGMAN_HOSTED_BUFF_ICONS?.has(Number(raw.replace(/^icon_buff_/,''))))
+    add('./icons/buff/'+raw+'.png');
   }
  }else if(x.source==='crafts'||x.source==='arts'){
   const key=/^icon_skill_\d+$/.test(raw)?raw:'icon_skill_'+x.id;
   add(window.NANGMAN_SKILL_ICON_DATA?.[key]);
-  add('./icons/skill/'+String(x.id)+'.png');
+  if(window.NANGMAN_HOSTED_SKILL_ICONS?.has(Number(x.id)))
+   add('./icons/skill/'+String(x.id)+'.png');
  }else if(x.source==='items'||x.source==='equips'||x.source==='martial'){
   // Original Korean APK artwork packaged by category, never inferred from unrelated icons.
   const folder=x.source==='equips'?'equip':x.source==='martial'?'martial':'item';
   const id=String(raw||x.id);
   if(/^\d+$/.test(id)&&folder==='item'&&window.NANGMAN_HOSTED_ITEM_ICONS?.has(Number(id)))
    add('./icons/item/'+id+'.png');
-  // Equip and martial PNGs are not yet installed in the public bundle.
-  // Never issue a predicted /icons/* request unless an actual image exists.
+  if(/^\d+$/.test(id)&&folder==='equip'&&window.NANGMAN_HOSTED_EQUIP_ICONS?.has(Number(id)))
+   add('./icons/equip/'+id+'.png');
+  if(/^\d+$/.test(id)&&folder==='martial'&&window.NANGMAN_HOSTED_MARTIAL_ICONS?.has(Number(id)))
+   add('./icons/martial/'+id+'.png');
  }
  add(url);
  if(!srcs.length)return '<span class="wiki-art-placeholder'+(large?' large':'')+'" aria-hidden="true"></span>';
