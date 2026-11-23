@@ -887,6 +887,32 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    diagnostics.purpleAnchorMarks=(diagnostics.purpleAnchorMarks||0)+marks.length;
    const start=replayed.state;
    restore(start);
+   const tailActions=[...replayed.actions];
+   // A 3-purple native path commonly terminates at aptitude 153 with
+   // exactly three available slots. Freeing filler locks does NOT open
+   // a fourth slot: 3 locked purples leave zero movable slots.
+   // Upgrade through the SAME native WASM state API as an 'open_slot'
+   // route action, before asking the original doWash for green/blue.
+   // Never invent a talent slot or advance an unrecorded RNG roll.
+   if(shape.purple.length===3&&shape.colors.length===1&&
+      number(getState().zizhi)<154){
+    const beforeOpen=getState(),at=count(beforeOpen,'total_wash');
+    try{
+     openNativeSlot({kind:'open_slot',note:'자질 154'});
+    }catch(error){
+     diagnostics.failures.push('네 번째 재능 칸 개방 실패: '+
+      String(error?.message||error));
+     continue;
+    }
+    const opened=getState();
+    if(number(opened.zizhi)!==154){
+     diagnostics.failures.push('네 번째 재능 칸 개방 후 자질 154가 확인되지 않았습니다');
+     continue;
+    }
+    diagnostics.fourthSlotOpened=(diagnostics.fourthSlotOpened||0)+1;
+    tailActions.push({kind:'open_slot',note:'자질 154 · 네 번째 재능 칸 개방',
+     wash_no:at,pills_after:count(opened,'total_pills')-count(initial,'total_pills')});
+   }
    // Freeze all purple anchors. Free only nonselected, replaceable slots.
    const fixed=getState();
    const retainedTargets=new Set([...shape.purple,...shape.colors]);
@@ -895,7 +921,6 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    if(!setState({...fixed,talents:slots})){
     diagnostics.failures.push('자맥 확정 후 자유 슬롯 생성 실패');continue;
    }
-   const tailActions=[...replayed.actions];
    for(const slot of fixed.talents){
     const id=number(slot.id);
     if(slot.locked&&!retainedTargets.has(id))
