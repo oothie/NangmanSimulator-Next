@@ -83,15 +83,17 @@
     return result;
   }
   function replay(input,events,options={}){
-    const step=stream(input),vars=new Map(input.flags),temp=new Map();
+    const step=stream(input),vars=new Map([...input.flags].map(([k,v])=>[String(k),v])),temp=new Map();
+    // Game client checks item 8915 directly, not only the drop flag.
+    if(input.owned?.has(8915))vars.set('8915',1);
     const owned=root.SBJDungeonUniqueOwnership;
     owned?.preventExisting(input,vars,options);
     const scope=where=>where==='temp'?temp:vars;
     const state={level:input.level,
-      branch:key=>{if(!vars.has(key))throw Error('미복원 임무 분기: '+key);return Number(vars.get(key))},
-      get:(key,where)=>scope(where).get(key)||0,
-      set:(key,val,where)=>{scope(where).set(key,Number(val)||0)},
-      add:(key,val,where)=>{const m=scope(where);m.set(key,(m.get(key)||0)+Number(val||0))},
+      branch:key=>{const k=String(key);if(!vars.has(k))throw Error('미복원 임무 분기: '+k);return Number(vars.get(k))},
+      get:(key,where)=>scope(where).get(String(key))||0,
+      set:(key,val,where)=>{scope(where).set(String(key),Number(val)||0)},
+      add:(key,val,where)=>{const m=scope(where),k=String(key);m.set(k,(m.get(k)||0)+Number(val||0))},
       draw:(key,bound)=>step(key,null,bound),
       pick:(key,weights)=>step(key,weights)};
     const routes=nativeRoutes(),rows=[];
@@ -132,6 +134,16 @@
         rows.push({kind:isEquip?'equip':isWeapon?'weapon':'none',
           item,color:item?color:0,nativeReplay:true,specialDrops:availableSpecial});
       }
+      // Replay is a sequence of clears, not a set of independent battles.
+      // A key obtained from Gori must be visible to the next Liu mansion
+      // clear; the source route gates one 100-range draw on item 8915.
+      if(native.ids.includes(35264)&&state.get('drop_8915_35264')===1)
+        state.set(8915,1);
+      const dungeon=root.SBJDungeonYYAdapter?.findSource(event)?.d?.id;
+      const counter={byj:'win_byj',dcy:'win_dcy',lsby:'win_lsby',
+        ywf:'win_ywf',byjzt:'win_byjzt'}[dungeon];
+      const lastBoss=root.SBJDungeonYYAdapter?.findSource(event)?.d?.npcs?.at(-1)?.id;
+      if(counter&&Number(native.ids.at(-1))===Number(lastBoss))state.add(counter,1);
       i+=native.ids.length;
     }
     return rows;
