@@ -11,7 +11,7 @@ const talentData={'261':{name:'拳脚无双',pinzhi:4},'262':{name:'剑术无双
  '260':{name:'两仪相合',pinzhi:3}};
 const env={window:{addEventListener(name,fn){if(name==='message')onMessage=fn}},
  location:{origin:'https://local.example'},parent,
- initWasm:async()=>true,wasmInitEngine:()=>true,TALENT_DATA:talentData,ZZ_DATA:{},
+ EMBEDDED_WASM_B64:'fixture-mock-nonempty',initWasm:async()=>true,wasmInitEngine:()=>true,TALENT_DATA:talentData,ZZ_DATA:{},
  wasmGetState:()=>({...originalState}),wasmSetState:()=>true,
  wasmPreviewExchangePads:(targets,maxPad)=>{targetCalls.push({targets,maxPad});return outputShape==='array'?[{pad:12}]:{paths:[{pad:3}]}},
  wasmWashUntilTalentName:(name,count)=>{washCalls.push({name,count});originalState={...originalState,seed:888};return [{wash:1}]}
