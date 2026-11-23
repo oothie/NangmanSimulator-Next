@@ -11065,7 +11065,7 @@ function propsHtml(e){
  const a=[];
  (e.exts||[]).forEach((x,i)=>a.push(`<span class="tag normal-prop226">${i+1}. ${esc(propLabel218(x.prop))} +${esc(formatPropValue(x.prop,x.value))}</span>`));
  (e._make_region||[]).forEach(x=>a.push(`<span class="tag region-prop226">지역 ${esc(propLabel218(x.prop))} +${esc(formatPropValue(x.prop,x.value))}</span>`));
- (e.specials||e._make_special||[]).forEach(x=>a.push(`<span class="tag special-prop226">추가재료 ${esc(propLabel218(x.prop))} +${esc(formatPropValue(x.prop,x.value))}</span>`));
+ if(!e._regionHideSpecial)(e.specials||e._make_special||[]).forEach(x=>a.push(`<span class="tag special-prop226">추가재료 ${esc(propLabel218(x.prop))} +${esc(formatPropValue(x.prop,x.value))}</span>`));
  return a.join('')||'추가 옵션 없음'
 }
 function rkAscendForRefine218(e){
@@ -11292,6 +11292,7 @@ function paintRegionSeq(h,id){
    }
    const chosenMake={...actual,_regionKind352:kind,_regionOrdinal352:idx+1};
    const eq=virtualFromMake(chosenMake,col.rt.p.selectId);
+   eq._regionHideSpecial=true; // Keep material effects in RNG, hide them only in regional detail presentation.
    showDetailTop233({equip:eq,make:chosenMake,rt:col.rt},'region');
   });
   const draw=()=>{
