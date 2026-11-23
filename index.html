@@ -1852,9 +1852,9 @@ function wikiImgTag(x,large=false){
   const key=/^icon_skill_\d+$/.test(raw)?raw:'icon_skill_'+x.id;
   add(window.NANGMAN_SKILL_ICON_DATA?.[key]);
   add('./icons/skill/'+String(x.id)+'.png');
- }else if(x.source==='items'||x.source==='equips'){
-  // Future local APK resources are preferred if present.
-  const folder=x.source==='equips'?'equip':'item';
+ }else if(x.source==='items'||x.source==='equips'||x.source==='martial'){
+  // Original Korean APK artwork packaged by category, never inferred from unrelated icons.
+  const folder=x.source==='equips'?'equip':x.source==='martial'?'martial':'item';
   const id=String(raw||x.id);
   if(/^\d+$/.test(id))add('./icons/'+folder+'/'+id+'.png');
  }
