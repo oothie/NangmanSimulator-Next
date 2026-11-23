@@ -56,7 +56,7 @@ async function ready(){for(let i=0;i<60;i++){try{
   let selectors=['[data-sub]','[data-module-tab]','[data-equipment-tab]','[data-market-panel]','[data-market-tab]','[data-account-tab]','[data-account-growth]','[data-wiki-cat]','[data-quest-filter]','[data-quest-category]','[data-quest-branch]','[data-drop-mode]'];
   let visitedSub=new Set();
   for(const selector of selectors){
-   const items=await page.locator(selector).evaluateAll(els=>els.map(e=>({
+   const items=await page.locator(selector+':visible').evaluateAll(els=>els.map(e=>({
     key:Array.from(e.attributes).find(a=>a.name.startsWith('data-')&&a.name!=='data-theme')?.value,
     label:e.textContent.trim().slice(0,40)
    }))).catch(()=>[]);
@@ -64,7 +64,7 @@ async function ready(){for(let i=0;i<60;i++){try{
     if(!item.key||visitedSub.has(selector+item.key)||visitedSub.size>=44)continue;
     visitedSub.add(selector+item.key);
     try{
-     await page.locator(selector).filter({hasText:item.label}).first().click({timeout:2500});
+     await page.locator(selector+':visible').filter({hasText:item.label}).first().click({timeout:1600});
      await scan(tab+'/'+item.label);
     }catch(e){errors.push('subnav: '+tab+'/'+item.key+' '+String(e.message).slice(0,100))}
    }
@@ -93,12 +93,12 @@ async function ready(){for(let i=0;i<60;i++){try{
    for(const selector of ['[data-sub]','[data-module-tab]','[data-equipment-tab]',
     '[data-account-tab]','[data-account-growth]','[data-wiki-cat]','[data-market-tab]',
     '[data-market-panel]','[data-drop-mode]','[data-quest-filter]','[data-quest-category]']){
-    const list=await page.locator(selector).evaluateAll(els=>els.slice(0,6).map(e=>({
+    const list=await page.locator(selector+':visible').evaluateAll(els=>els.slice(0,6).map(e=>({
      label:e.textContent.trim(),visible:e.offsetWidth>0&&e.offsetHeight>0,
      type:e.getAttribute('type')||''}))).catch(()=>[]);
     for(const info of list.filter(x=>x.visible).slice(0,5)){
      try{
-      await page.locator(selector).filter({hasText:info.label}).first().click({timeout:1600});
+      await page.locator(selector+':visible').filter({hasText:info.label}).first().click({timeout:1600});
       await scan('synthetic/'+tab+'/'+info.label.slice(0,30));
      }catch(e){errors.push('synthetic-subnav '+tab+': '+String(e.message).slice(0,85))}
     }
