@@ -30,7 +30,7 @@ function modelEquipmentSeeds(before,gearRows){
  return {projected,uses};
 }
 function preview(before,count){
- if(!Number.isInteger(count)||count<1||count>500)throw Error('사냥 횟수는 1~500회로 입력하세요.');
+ if(!Number.isInteger(count)||count<1||count>2000)throw Error('사냥 횟수는 1~2000회로 입력하세요.');
  const save=rootSave(before);
  const input=root.SBJTombDrop?.open(save);
  if(!input||!root.SBJTombDrop.ready(input)){
@@ -89,7 +89,7 @@ function diff(before,after){
  return {seeds,flags,streamChanges,gearPool:GEAR_IDS,warnings};
 }
 function reconcile(before,after,count){
- if(!Number.isInteger(count)||count<1||count>500)throw Error('사냥 횟수는 1~500회로 입력하세요.');
+ if(!Number.isInteger(count)||count<1||count>2000)throw Error('사냥 횟수는 1~2000회로 입력하세요.');
  const observed=diff(before,after),tomb=root.SBJTombDrop;
  const source=rootSave(before);
  if(!tomb?.trace)return {...observed,count,cases:[],message:'제릉 실험 엔진이 연결되지 않았습니다.'};
