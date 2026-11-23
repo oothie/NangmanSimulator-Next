@@ -4067,7 +4067,7 @@ function yyAccountRecordAndResourceView(section='jianghu'){
    Number(root[key]):null}));
  const translatedBranch=id=>{
   const hit=quests[id]||quests[String(id)];
-  return Array.isArray(hit)?String(hit[0]||id):typeof hit==='string'?hit:String(id);
+  return Array.isArray(hit)?String(hit[0]||'미확인 임무'):typeof hit==='string'?hit:'미확인 임무';
  };
  const branchDate=v=>{
   const n=Number(v);
