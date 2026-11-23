@@ -25,4 +25,17 @@ assert.equal(comp.mismatches[0].npc,2);
 assert.equal(comp.mismatches[0].expected.color,3);
 // The fixture must never be used to overwrite actual predicted item/color.
 assert.equal(comp.checks[1].predicted.color,2);
+// Two clears of the same boss must compare with their matching clear, not
+// with the most recent fixture row. An unobserved third clear is excluded.
+const repeated=measurement([
+ {npcId:51001,item:5209,color:1,supported:true},
+ {npcId:51001,item:5209,color:4,supported:true},
+ {npcId:51001,item:4209,color:1,supported:true}], [
+ {npc:51001,item:5209,color:1},
+ {npc:51001,item:5209,color:2}]);
+assert.equal(repeated.checked,2);
+assert.equal(repeated.matched,1);
+assert.equal(repeated.mismatches.length,1);
+assert.equal(repeated.mismatches[0].expected.color,2);
+assert.equal(repeated.mismatches[0].predicted.color,4);
 console.log('PASS reverse trace: unmodified results, shortest hidden-call path, end-seed check');
