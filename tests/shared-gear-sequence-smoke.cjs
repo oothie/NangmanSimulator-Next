@@ -62,6 +62,6 @@ assert(ui.includes('initialOptions(row)'),'initial affixes come from common per-
 assert(html.includes('최초 추가 옵션 (최종 정련·망정 아님)'),'do not confuse initial rolls with completed refinement');
 assert(ui.includes('sharedScenarioRows'),'three-order result table wired');
 assert(html.includes('id="sharedScenarioTable"'));
-assert(html.includes('순서를 바꿨을 때 실제 공유 RNG의 추가 소비'),'alternatives explicitly hypothetical');
+assert(html.includes('처리 순서 비교는 가상 계산입니다.'),'alternatives explicitly hypothetical');
 assert(ui.includes('실게임 품질/정련/망정 미검증'),'no invented complete gear stats');
 console.log('PASS: common 90-gear per-ID receipt ordinal across field/dungeon, color independent, source RNG untouched');
