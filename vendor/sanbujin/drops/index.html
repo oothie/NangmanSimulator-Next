@@ -89,7 +89,32 @@ body .dungeon-coverage strong{font-size:14px}
 .dungeon-dual-meta{font-size:13px;color:var(--sub,#777)}
 .dungeon-dual-muted,.dungeon-dual-footnote{font-size:12px;color:var(--sub,#777)}
 @media(max-width:650px){.dungeon-dual-table{min-width:580px}.dungeon-dual-table th,.dungeon-dual-table td{padding:9px 10px}}
-</style></head><body class="sbj-web"><main class="hub-main progress-main">
+</style><style id="nangman-field-id-grade-only-v108">
+/* Hide explanations, audits and option/timing controls without removing the engine's nodes. */
+#wildDrop > :not(form):not(#wildResults){display:none!important}
+#wildDrop #wildTiming,#wildDrop #wildHint,#wildDrop #wildTombOrderField,
+#wildDrop .wild-actions label,#wildDrop #wildExport{display:none!important}
+#wildDrop .wild-form{padding:3px 0 10px!important}
+#wildDrop .wild-actions{margin:6px 0!important}
+#wildDrop #wildResults{list-style:none;padding:0;margin:6px 0;display:grid;gap:7px}
+#wildDrop #wildResults .nm-field-drop{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:11px 12px;border:1px solid var(--border,#bba98e);border-radius:8px;background:var(--panel,#fffdf8);font-size:14px}
+#wildDrop .nm-field-round{color:var(--sub,#777);min-width:38px}
+#wildDrop .nm-field-name{font-size:14px;flex:1 1 145px}
+#wildDrop .nm-field-quality{border-radius:5px;padding:3px 9px;font-size:13px;font-weight:750;border:1px solid currentColor;white-space:nowrap}
+#wildDrop .nm-field-grade-1 .nm-field-quality{color:#5a626d;background:#e8eaed}
+#wildDrop .nm-field-grade-2 .nm-field-quality{color:#206b37;background:#e5f4e9}
+#wildDrop .nm-field-grade-3 .nm-field-quality{color:#1c589a;background:#e5efff}
+#wildDrop .nm-field-grade-4 .nm-field-quality{color:#7644a3;background:#f4e9ff}
+html[data-theme=dark] #wildDrop .nm-field-grade-1 .nm-field-quality,
+html[data-theme=ink] #wildDrop .nm-field-grade-1 .nm-field-quality{color:#e5e7eb;background:#414752}
+html[data-theme=dark] #wildDrop .nm-field-grade-2 .nm-field-quality,
+html[data-theme=ink] #wildDrop .nm-field-grade-2 .nm-field-quality{color:#92e2a2;background:#21472c}
+html[data-theme=dark] #wildDrop .nm-field-grade-3 .nm-field-quality,
+html[data-theme=ink] #wildDrop .nm-field-grade-3 .nm-field-quality{color:#9bc4ff;background:#243b60}
+html[data-theme=dark] #wildDrop .nm-field-grade-4 .nm-field-quality,
+html[data-theme=ink] #wildDrop .nm-field-grade-4 .nm-field-quality{color:#dab6ff;background:#49305f}
+</style>
+</head><body class="sbj-web"><main class="hub-main progress-main">
 <header class="progress-heading"><span class="hub-mark" aria-hidden="true">낭</span><div><h1>드랍 시뮬레이션</h1><p>세이브의 난수 순서로 장비와 보물 드랍을 예측합니다.</p></div></header>
 <nav class="drop-modes" aria-label="드랍 종류">
   <button type="button" id="dropWildLink" aria-controls="wildDrop">필드 드랍</button>
@@ -307,7 +332,7 @@ body .dungeon-coverage strong{font-size:14px}
 </section>
 </main>
 <script defer src="../shared/equip_data.js"></script>
-<script defer src="./drop-export.js"></script><script defer src="./wild-data.js?rev=20261121g"></script><script defer src="./wild-core.js?rev=20261121a"></script><script defer src="./tomb-core.js?rev=20261122-h109"></script><script defer src="./tomb-compare-core.js"></script><script defer src="./tomb-compare.js"></script><script defer src="./wild.js?rev=20261122-h109"></script>
+<script defer src="./drop-export.js"></script><script defer src="./wild-data.js?rev=20261121g"></script><script defer src="./wild-core.js?rev=20261121a"></script><script defer src="./tomb-core.js?rev=20261122-h109"></script><script defer src="./tomb-compare-core.js"></script><script defer src="./tomb-compare.js"></script><script defer src="./wild.js?rev=20261123-v108"></script>
 <script defer src="./dungeon-data.js?rev=20261121a"></script><script defer src="./dungeon-orange.js?rev=1.0.4"></script>
 <script defer src="./dungeon-core.js?rev=1.0.4"></script><script defer src="../../yysim/daily_data.js?rev=73618"></script>
 <script defer src="./dungeon-names-ko.js?rev=1.0.1-r2"></script>
