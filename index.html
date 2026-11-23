@@ -5222,7 +5222,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   Object.assign(data,{seed:state.seed,role_id:Number(state.roleId),zizhi:Number(state.zizhi)||153,sex:1,vip:1,
     talents:[],tal_lucky:0,total_wash:0,total_pills:0,gold_count:0,pity_count:0,exchange_count:0});
   const next=await washEngine.call('set-state',data);
-  state.origin='test';state.linkedRoleId=null;state.lastConflict=null;state.active=true;state.liveTalents=next?.talents||[];syncWasmBag(next);state.log=[];state.undoStates=[];state.historyHiddenBefore=0;state.historyPage=1;state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.output='시험 상태 설정 완료\n'+JSON.stringify(next,null,2);
+  state.origin='test';state.linkedRoleId=null;state.lastConflict=null;state.active=true;state.liveTalents=next?.talents||[];syncWasmBag(next);state.log=[];state.undoStates=[];state.historyHiddenBefore=0;state.historyPage=1;state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.output='시험 상태 설정 완료 · 개방 칸 수 '+washOpenedSlots(next.zizhi)+' · 재능 '+(next.talents?.length??0)+'칸 · 실제 세이브 변경 없음';
  }else if(op==='washEngineConfigure'){
   if(!state.active||state.origin!=='save')throw Error('선택 인물의 세수 WASM 연결이 필요합니다');
   const sex=Number(e.detail.sex),vip=Number(e.detail.vip);
