@@ -3,6 +3,9 @@ on:
   push:
     paths:
       - 'engine/yysim-purple-anchor-mixed.js'
+      - 'engine/yysim-auto-search.js'
+      - 'index.html'
+      - 'tests/wash-opened-slot-display.cjs'
       - 'tests/yysim-fourth-slot-mixed-native.cjs'
       - '.github/workflows/yy-wash-fourth-slot.yml'
   workflow_dispatch:
@@ -17,5 +20,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify opened 0–4 slots across wash UI
+        run: node tests/wash-opened-slot-display.cjs
       - name: Verify fourth-slot native wash transition
         run: node tests/yysim-fourth-slot-mixed-native.cjs
