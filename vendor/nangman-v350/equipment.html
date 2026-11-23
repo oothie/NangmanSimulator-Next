@@ -10481,7 +10481,7 @@ function isUniqueCraft(id){
 }
 function normalCraftCfgs(){return actualCraftCfgs218().filter(e=>Number(e.lv)<100&&!isUniqueCraft(e.id))}
 function uniqueCraftCfgs(){return cfgs().filter(e=>Number(e.lv)<100&&isUniqueCraft(e.id)&&!isDropOnlyCraft(e.id))}
-function supportsOrangeMangjing360(e){const id=Number(e?.id??e?.ID||0);return id===5021||uniqueCraftCfgs().some(c=>Number(c.id)===id)}
+function supportsOrangeMangjing360(e){const id=Number((e?.id??e?.ID) || 0);return id===5021||uniqueCraftCfgs().some(c=>Number(c.id)===id)}
 function ensureRngLoaded(){
  if(saveLoaded||makeRndSnapshot)return true;
  if(window.__EQUIP_SAVE_ROOT__){try{loadSaveData(window.__EQUIP_SAVE_ROOT__);return !!(saveLoaded||makeRndSnapshot)}catch(_){}}
