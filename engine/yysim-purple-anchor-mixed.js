@@ -85,7 +85,7 @@ function actionsToRoute(actions,final,base,original,desiredIds,window='last-purp
 }
 async function run({desiredIds,maxPad=0,horizon=900,topN=8,
  talents,getState,setState,search,doWash,exchangeTalent,
- guard,progress=()=>{}}={}){
+ guard,progress=()=>{},expanded=false}={}){
  const shape=requestShape(desiredIds,talents);
  if(!shape)throw Error('자맥 3개+녹·파맥 1개 또는 자맥 2개+녹·파맥 2개를 선택하세요');
  if([getState,setState,search,doWash,exchangeTalent].some(x=>typeof x!=='function')||
@@ -749,6 +749,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
  const routes=[],diagnostics={method:'purple-anchor-nearest-native-wash',
   purpleTargets:shape.purple,colorTargets:shape.colors,
   purpleRoutes:0,replayed:0,failures:[],scannedWashes:0,
+  expandedSearch:expanded,
   windows:['purple-between','last-purple-after']};
  // Never prune without a complete original-WASM four-target result.
  const reachedIncumbent=()=>{
@@ -790,7 +791,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    // anchor branches instead of stopping at the first purple-only winner.
    const twoPurple=shape.purple.length===2;
    const attempted=new Set(),paddingModes=[...new Set(
-    twoPurple?[0,5,10,20,maxPad]:[0,5,maxPad])];
+    twoPurple?[0,5,10,20,maxPad]:expanded?[0,5,maxPad]:[0,maxPad])];
    const allMatching=[],seenBackbones=new Set();
    diagnostics.purpleAttempts=0;
    diagnostics.purpleNativeCalls=0;
@@ -851,13 +852,14 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
      // dearer/differently ordered purple backbone can be the ONLY route
      // on which all four goals coexist after green/blue insertion.
      allMatching.push(...matching);
+     if(!twoPurple&&!expanded)break;
     }
    }
    if(allMatching.length){
     allMatching.sort((a,b)=>a.purpleMeasuredPills-b.purpleMeasuredPills);
     // Each is independently replayed against the original native WASM;
     // never assume the cheapest purple cost implies cheapest mixed cost.
-    const selected=allMatching.slice(0,twoPurple?16:Math.max(12,topN));
+    const selected=allMatching.slice(0,twoPurple?16:expanded?Math.max(12,topN):topN);
     baseline={...(baseline||{}),routes:selected};
     diagnostics.purpleBackboneCosts=selected.map(x=>({
      pills:x.purpleMeasuredPills,maxPad:x.purplePad,
@@ -967,6 +969,25 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    restore(initial);
   }
  }finally{restore(originalState)}
+ // Keep the original fast purple-only solution when it already yields
+ // all four goals. Only broaden permutations/padding/backbones if a real
+ // native purple candidate existed but mixed retention failed.
+ // This avoids making every working 3+1 search 6–18 times slower.
+ if(!expanded&&shape.purple.length===3&&routes.length===0&&
+    ((diagnostics.purpleNativeReturned||0)>0||diagnostics.replayed>0)){
+  progress({phase:'anchor-expanded',scannedWashes:diagnostics.scannedWashes,
+   stage:'기본 자맥 경로에 녹·파맥이 남지 않아 다른 자맥 경로를 재탐색합니다'});
+  const retry=await run({desiredIds,maxPad,horizon,topN,talents,getState,setState,
+   search,doWash,exchangeTalent,guard,progress,expanded:true});
+  retry.diagnostics.initialPass={
+   purpleNativeCalls:diagnostics.purpleNativeCalls,
+   purpleReturned:diagnostics.purpleNativeReturned||0,
+   replayed:diagnostics.replayed,
+   scannedWashes:diagnostics.scannedWashes,
+   firstFailure:diagnostics.failures[0]||null
+  };
+  return retry;
+ }
  routes.sort((a,b)=>a.pills-b.pills||a.washes-b.washes);
  return {routes:routes.slice(0,topN),scanned:diagnostics.scannedWashes,
   diagnostics,error:routes.length?null:
