@@ -603,7 +603,7 @@
       s.set("drop_5628_35264", 0);
     }
     if (s.get(8915) === 0 && s.get('win_lsby') > 10) {
-      if (s.draw('seed_lsby', 100, '고리의 열쇠 추첨 · 8915')-s.get('roll_8915_35264') < 20) {
+      if (s.draw('seed_lsby', 100)-s.get('roll_8915_35264') < 20) {
         s.set("drop_8915_35264", 1);
         s.add("roll_8915_35264", -80);
       } else {
