@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" data-sbj-feature="equip-auto">
-<head><script data-feature-config>window.SBJ_FEATURE_PAGE="equip-auto";window.SBJ_FEATURE_MODE="equip";</script><script>if(!window.SBJ_FEATURE_PAGE){document.documentElement.style.visibility="hidden";var mode=new URLSearchParams(location.search).get("mode"),dest={equip:"equip-auto",jianwang:"jianwang-auto",hengshan:"hengshan-auto",wash:"wash-auto"}[mode]||"equip-auto";location.replace("../"+dest+"/index.html");}</script>
+<head><script>window.NANGMAN_DISABLE_HENGSHAN=true;</script><script data-feature-config>window.SBJ_FEATURE_PAGE="equip-auto";window.SBJ_FEATURE_MODE="equip";</script><script>if(!window.SBJ_FEATURE_PAGE){document.documentElement.style.visibility="hidden";var mode=new URLSearchParams(location.search).get("mode"),dest={equip:"equip-auto",jianwang:"jianwang-auto",hengshan:"hengshan-auto",wash:"wash-auto"}[mode]||"equip-auto";location.replace("../"+dest+"/index.html");}</script>
 
     <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -267,7 +267,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                 <div class="auto-mode-tabs" role="tablist" aria-label="자동 시뮬레이션 유형">
                     <button id="btnAutoEquipMode" class="auto-mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="autoEquipModePanel">장비</button>
                     <button id="btnAutoJianwangMode" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoJianwangModePanel">검왕각</button>
-                    <button id="btnAutoHengshanMode" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoHengshanModePanel">항산파 제자</button>
+                    <button id="btnAutoHengshanMode" hidden style="display:none!important" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoHengshanModePanel">항산파 제자</button>
                     <button id="btnAutoWashMode" hidden style="display:none;" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoWashModePanel">세수·도맥법</button>
                 </div>
             </section>
@@ -478,7 +478,7 @@ body.sbj-workbench{background:transparent!important;padding:8px 0!important;marg
                     </div>
                 </div>
 
-                <div id="autoHengshanModePanel" class="auto-mode-panel hengshan-auto-panel" role="tabpanel" aria-labelledby="btnAutoHengshanMode" hidden>
+                <div id="autoHengshanModePanel" hidden style="display:none!important" class="auto-mode-panel hengshan-auto-panel" role="tabpanel" aria-labelledby="btnAutoHengshanMode" hidden>
                 <main class="hs hs-embedded">
                     <header class="hs-head" hidden>
                         <div class="hs-save">
