@@ -850,6 +850,7 @@
     /* ---------------- 启动 ---------------- */
 
     function start() {
+        if (window.NANGMAN_DISABLE_HENGSHAN === true) return;
         initTabs();
 
         $('studentSelect').addEventListener('change', function (e) { selectStudent(e.target.value); });
