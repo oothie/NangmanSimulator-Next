@@ -17,6 +17,10 @@ assert.equal(wikiImage({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}),
  'https://yy-sim.pages.dev/icons/skill/309.png','secret art uses actual skill icon folder');
 assert.equal(wikiImage({source:'buff',cat:'buff',id:'201',obj:source.buff[0]}),
  'https://yy-sim.pages.dev/icons/buff/icon_buff_10.png','V6.20 original buff sprite');
-assert(wikiImgTag({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}).includes('src="https://yy-sim.pages.dev/icons/skill/309.png"'));
+assert(wikiImgTag({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}).includes('src="./icons/skill/309.png"'),'first party image is tried first');
+assert(wikiImgTag({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}).includes('https://yy-sim.pages.dev/icons/skill/309.png'),'remote original remains a fallback');
+const localWin={...win,NANGMAN_SKILL_ICON_DATA:{icon_skill_309:'data:image/png;base64,TEST'}};
+const localResolver=new Function('window','wikiSource','wikiFallbackSource','escape',html.slice(a,b)+';return {wikiImage,wikiImgTag}')(localWin,source,null,x=>String(x));
+assert(localResolver.wikiImgTag({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}).includes('src="data:image/png;base64,TEST"'),'bundled sprites take priority');
 assert.equal(wikiImage({source:'arts',cat:'arts',id:'999999',obj:{}}),'','unknown skill does not invent image URL');
 console.log('PASS: craft/secret-art skill PNGs and original V6.20 buff sprite paths');
