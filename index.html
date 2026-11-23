@@ -5132,6 +5132,19 @@ window.addEventListener('message',event=>{
  equipmentLastOriginalTab=null;v='equip';render();sendEquipmentFocus();window.scrollTo(0,0);
 });
 window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.data?.kind!=='nangman-equip-close-detail')return;
+ if(![...equipmentFrames.values()].some(frame=>frame.contentWindow===event.source))return;
+ if(!equipDetail)return;
+ const back=String(event.data.target||equipPrevious||'find');
+ equipDetail=null;
+ equipmentLastOriginalTab=null;
+ equipTab=equipmentTabs.some(t=>t[0]===back)?back:equipPrevious;
+ v='equip';
+ history.replaceState(null,'','#equip');
+ render();
+ restoreEquipmentReturn();
+});
+window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.data?.kind!=='nangman-equip-navigate')return;
  const allowed=[...equipmentFrames.values()].some(frame=>frame.contentWindow===event.source);
  if(!allowed)return;
