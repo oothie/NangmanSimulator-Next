@@ -15,6 +15,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Build allowlisted public artifact
+        run: node scripts/build-public-v114.cjs
       - name: Release source and privacy scan
         run: node scripts/release-audit-v114.cjs
       - name: Upload audit report
@@ -22,5 +24,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: public-release-qa-report
-          path: release-reports/qa-v1.1.4.json
+          path: |
+            release-reports/qa-v1.1.4.json
+            release-reports/public-bundle-v114.json
           if-no-files-found: warn
