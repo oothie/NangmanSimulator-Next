@@ -1623,6 +1623,8 @@ function equipDetailView(){
  const x=equipDetail||{},equipment=x.eq||{},id=Number(equipment.ID??equipment.id),cfg=equipCatalog()[String(id)]||{};
  const orange=Number(cfg.weapon_color)===5||Number(equipment.Color??equipment.color)===5;
  const weapon=[1,2,3,4].includes(Number(cfg.type));
+ const orangeRecipe=Object.values(window.EQUIP_DATA?.papers||{}).some(p=>Number(p.dz_equip)===id&&Number(p.min_color)===5&&Number(p.max_color)===5);
+ const allowMangjing=!orange||id===5021||orangeRecipe&&!/관문|임무|퀘스트|드랍/.test(String(x.source||''));
  const active=x.mode||'route';
  const makeButton=(mode,label,meta,cls,disabled,reason)=>
   '<button type="button" class="equip-detail-choice '+cls+(active===mode?' is-active':'')+
@@ -1637,7 +1639,7 @@ function equipDetailView(){
  '<nav class="equip-detail-buttons" aria-label="장비 상세 기능 선택">'+
  makeButton('route','장비 정보','능력치 및 획득 결과','equip-action-route',false,'')+
  makeButton('refine','정련','최대 1,000회 · 옵션별 조회','equip-action-xl',orange,'주황 장비는 정련할 수 없습니다')+
- makeButton('mangjing','망정','최대 200회 · 추가 옵션','equip-action-mj',false,'')+
+ makeButton('mangjing','망정','최대 200회 · 추가 옵션','equip-action-mj',!allowMangjing,'이 장비는 망정할 수 없습니다')+
  makeButton('strong','촉련','최대 1,000회 · 무기 전용','equip-action-cl',!weapon,'촉련은 무기만 가능합니다')+
  '</nav>'+
  '<p class="micro">정련은 옵션 1·2·3을 구분하여 조회합니다. 세이브에 해당 장비의 시드가 없으면 예측값을 임의로 생성하지 않습니다.</p>'+
