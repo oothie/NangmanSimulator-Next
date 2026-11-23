@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - 'vendor/sanbujin/drops/tomb-core.js'
+      - 'vendor/sanbujin/drops/tomb-compare-core.js'
       - 'vendor/sanbujin/drops/wild-core.js'
       - 'vendor/sanbujin/drops/wild.js'
       - 'vendor/sanbujin/drops/index.html'
       - 'tests/tomb-field-smoke.cjs'
+      - 'tests/tomb-compare-smoke.cjs'
       - '.github/workflows/field-2000-regression.yml'
   workflow_dispatch:
 
@@ -28,4 +30,6 @@ jobs:
           node --check vendor/sanbujin/drops/tomb-core.js
           node --check vendor/sanbujin/drops/wild.js
       - name: Verify 2000 hunting calls on actual independent field model
-        run: node tests/tomb-field-smoke.cjs
+        run: |
+          node tests/tomb-field-smoke.cjs
+          node tests/tomb-compare-smoke.cjs
