@@ -39,11 +39,14 @@ jobs:
           print('Original icon files imported:',count)
           if count==0:raise SystemExit('Archive contains no valid game icons')
           from pathlib import Path
-          ids=sorted(int(x.stem) for x in Path('icons/item').glob('*.png') if x.stem.isdecimal())
+          arrays=[]
+          for folder,label in [('item','ITEM'),('buff','BUFF'),('skill','SKILL'),('equip','EQUIP'),('martial','MARTIAL')]:
+            files=Path('icons',folder).glob('*.png')
+            ids=sorted(int(x.stem) for x in files if x.stem.isdecimal())
+            arrays.append('window.NANGMAN_HOSTED_'+label+'_ICONS=new Set('+str(ids)+');')
           Path('data/item-icon-manifest.js').write_text(
-            '/* Verified hosted original item PNG IDs */\n'
-            +'window.NANGMAN_HOSTED_ITEM_ICONS=new Set('+str(ids)+');\n',
-            encoding='utf-8'
+            '/* Verified hosted original Korean game PNG icon IDs */\n'
+            +'\n'.join(arrays)+'\n',encoding='utf-8'
           )
           PY
       - name: Publish originals to the simulator
