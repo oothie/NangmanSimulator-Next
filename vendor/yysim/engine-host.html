@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>세수 계산 엔진</title></head><body><script src="./wasm_data.js?rev=0.10.21"></script><script src="./core_glue.js?rev=0.10.21"></script><script src="./data.js?rev=0.10.21"></script><script src="../../engine/yysim-target-catalog.js?rev=0.10.48"></script><script src="../../engine/yysim-native-search-guard.js?rev=0.10.26"></script><script src="../../engine/yysim-purple-anchor-mixed.js?rev=20261123-anchor-v19"></script><script>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>세수 계산 엔진</title></head><body><script src="./wasm_data.js?rev=0.10.21"></script><script src="./core_glue.js?rev=0.10.21"></script><script src="./data.js?rev=0.10.21"></script><script src="../../engine/yysim-target-catalog.js?rev=0.10.48"></script><script src="../../engine/yysim-native-search-guard.js?rev=0.10.61"></script><script src="../../engine/yysim-purple-anchor-mixed.js?rev=20261123-anchor-v19"></script><script>
 let ready=false;
 const washSelectableIds=()=>new Set((window.YYWashTargetCatalog||[])
  .flatMap(group=>group.items||[]).map(item=>Number(item.id)));
@@ -84,7 +84,7 @@ try{
    const startState=wasmGetState();
    if(!startState||typeof startState!=='object')
     throw Error('원본 자동탐색 시작 상태를 읽지 못했습니다');
-   const worker=new Worker('./native-auto-search-worker.js?rev=0.10.58');
+   const worker=new Worker('./native-auto-search-worker.js?rev=0.10.61');
    const response=await new Promise((resolve,reject)=>{
     const limit=setTimeout(()=>{
      worker.terminate();
