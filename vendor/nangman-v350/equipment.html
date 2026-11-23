@@ -10800,7 +10800,7 @@ function setSearchProgress264(stage,done,total,craftDone,craftTotal,xl,mj,res){
 async function xilianTry264(e,r,cache,progress){
  if(!r.reqs.some(x=>['ext1','ext2','ext3','exts','total'].includes(x.where))||R.bud.mud<=0)return{equip:e,flags:[],items:[],mud:0,base:clone(e),lastAccept:-1,stopIndex:-1,scanned:0};
  const ck=`MAX269|${e.id}|${e.CZSeed}|${R.bud.mud}|REG:${JSON.stringify(e._make_region||[])}|${searchReqSig263(r,'xl')}`;if(cache?.has(ck))return clone(cache.get(ck));
- const budget=Math.max(0,Math.floor(Number(R.bud.mud)||0)),n=Math.min(500,Math.max(20,budget)),base=clone(e),seq=rkXilianSequence233(toWasmEquip(base),n),BEAM=96;
+ const budget=Math.max(0,Math.floor(Number(R.bud.mud)||0)),n=Math.min(1000,Math.max(20,budget)),base=clone(e),seq=rkXilianSequence233(toWasmEquip(base),n),BEAM=96;
  const fixedRegion=clone(base._make_region||[]),fixedSpecial=clone(base._make_special||base.specials||[]);
  const evalExts=exts=>{const z={exts,_make_region:fixedRegion,_make_special:fixedSpecial,specials:fixedSpecial};const L=layersOfEquip(z);return{score:searchRawScore264(L,r),ok:meets(L,r)}};
  const startEval=evalExts(clone(base.exts||[]));
@@ -11529,7 +11529,7 @@ function rkPaintXl237(h,o,e,cfg){
  chips(h.querySelector('#dxlm'),[['hit','달성'],['cp','CP값'],['budget','예산 내 최고'],['top','최고'],['all','전체']].map(x=>({v:x[0],n:x[1]})),v=>RK237.mode===v,v=>{RK237.mode=v;if(v!=='all'&&!o._rkXlProp)o._rkXlProp=props[0]||null;rkPaintXl237(h,o,e,cfg)});
  h.querySelector('#dxslot').onchange=x=>{RK237.xlSlot=Math.max(0,Math.min(3,Number(x.target.value)||0));if(RK237.mode!=='all')RK237.mode='all';rkPaintXl237(h,o,e,cfg)};
  h.querySelector('#dxmud').onchange=x=>{RK237.xlMud=Math.max(1,Math.min(1000,+x.target.value||500));rkPaintXl237(h,o,e,cfg)};
- h.querySelectorAll('[data-rkxl-check]').forEach(el=>el.onchange=()=>{const at=Number(el.dataset.rkxlCheck),chosen=new Set(o._rkXlChosen360||[]);if(el.checked)chosen.add(at);else chosen.delete(at);o._rkXlChosen360=[...chosen].sort((a,b)=>a-b);rkPaintXl237(h,o,e,cfg)});
+ h.querySelectorAll('[data-rkxl-check]').forEach(el=>el.onchange=()=>{const scroll=h.querySelector('.scroll218'),prev=scroll?.scrollTop||0,at=Number(el.dataset.rkxlCheck),chosen=new Set(o._rkXlChosen360||[]);if(el.checked)chosen.add(at);else chosen.delete(at);o._rkXlChosen360=[...chosen].sort((a,b)=>a-b);rkPaintXl237(h,o,e,cfg);const next=h.querySelector('.scroll218');if(next)next.scrollTop=prev});
 }
 function rkPreferredMjMaterial242(o,e,pairs){
  let dz=Number(o?.rt?.p?.paper?.dz_mat??o?.recipe?.dz_mat??o?.paper?.dz_mat??0);
