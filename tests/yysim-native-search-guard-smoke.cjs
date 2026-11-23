@@ -14,6 +14,42 @@ function fixture(search){
   search:()=>search(state)};
  return {state,before,restores:()=>restores,api};
 }
+// Original native search omitted the implicit zero-wash opening needed
+// before its first actual wash. 334 × 2 = 668 requires 2 slots (152)
+// even if the save starts at 150 / 0 slots. Not character-specific.
+for(const [nativeZ,expectedPrefix] of [[150,true],[151,true],[152,false]]){
+ const save={zizhi:nativeZ,total_wash:0,total_pills:0,talents:[]};
+ let actual={...save};
+ const route={pills:2268,actions:[
+  {kind:'lock',talent:'생기충만',wash_no:334,pills_after:668},
+  {kind:'open_slot',wash_no:334,note:'开槽至 153（3 格）'},
+  {kind:'open_slot',wash_no:334,note:'开槽至 154（4 格）'}
+ ]};
+ const out=guard.run({getState:()=>actual,
+  setState:state=>{actual={...state};return true},
+  search:()=>({routes:[route]})},{desired_ids:[271,272,249]});
+ assert.equal(out.routes[0].pills,2268,'Native total cost unchanged');
+ assert.equal(out.routes[0].actions.length,expectedPrefix?4:3);
+ if(expectedPrefix){
+  assert.equal(out.routes[0].actions[0].kind,'open_slot');
+  assert.equal(out.routes[0].actions[0].wash_no,0);
+  assert.match(out.routes[0].actions[0].note,/152/);
+  assert.equal(out.routes[0].initial_open_slots,2);
+ }else assert.equal(out.routes[0].actions[0].kind,'lock');
+ assert.equal(guard.canonicalJson(actual),guard.canonicalJson(save),
+  'Reconstruction must never mutate the source save');
+}
+for(const [firstCost,expected] of [[334,151],[1002,153],[1670,154]]){
+ const out=guard.restoreImplicitInitialSlots({actions:[
+  {kind:'lock',wash_no:334,pills_after:firstCost}
+ ]},{zizhi:150,total_wash:0,total_pills:0});
+ assert.match(out.actions[0].note,new RegExp(String(expected)));
+}
+assert.equal(guard.restoreImplicitInitialSlots({
+ actions:[{kind:'lock',wash_no:334,pills_after:999}]
+},{zizhi:150,total_wash:0}).actions.length,1,
+ 'Ambiguous native cost cannot invent an opening');
+
 const good=fixture(()=>({routes:[{pills:7,final_slots:[{id:271}]}]}));
 const result=guard.run(good.api,{desired_ids:[271]});
 assert.equal(result.routes[0].pills,7);
