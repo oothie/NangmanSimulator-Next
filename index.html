@@ -1873,7 +1873,10 @@ function wikiImgTag(x,large=false){
   // Original Korean APK artwork packaged by category, never inferred from unrelated icons.
   const folder=x.source==='equips'?'equip':x.source==='martial'?'martial':'item';
   const id=String(raw||x.id);
-  if(/^\d+$/.test(id))add('./icons/'+folder+'/'+id+'.png');
+  if(/^\d+$/.test(id)&&folder==='item'&&window.NANGMAN_HOSTED_ITEM_ICONS?.has(Number(id)))
+   add('./icons/item/'+id+'.png');
+  // Equip and martial PNGs are not yet installed in the public bundle.
+  // Never issue a predicted /icons/* request unless an actual image exists.
  }
  add(url);
  if(!srcs.length)return '<span class="wiki-art-placeholder'+(large?' large':'')+'" aria-hidden="true"></span>';
