@@ -163,8 +163,8 @@
   function runTombForecast(){
    forecastHost.replaceChildren();tombForecastSummary=[];forecastCsv.disabled=true;
    const count=Number(forecastCount.value),pad=Number(forecastPad.value);
-   if(!Number.isInteger(count)||count<1||count>500||!Number.isInteger(pad)||pad<0||pad>500||count+pad>500){
-    forecastStatus.textContent='앞선 이벤트 호출 + 이후 이벤트 호출 합계는 최대 500회입니다.';return;
+   if(!Number.isInteger(count)||count<1||count>2000||!Number.isInteger(pad)||pad<0||pad>2000||count+pad>2000){
+    forecastStatus.textContent='앞선 이벤트 호출 + 이후 이벤트 호출 합계는 최대 2000회입니다.';return;
    }
    if(!archive){forecastStatus.textContent='먼저 사냥 전 세이브를 불러오세요.';return;}
    const current=tomb.open(archive);
@@ -297,6 +297,9 @@
     reset();
     const target = targets[Number(picker.value)];
     const pad = Number($('wildPad').value), count = Number($('wildCount').value);
+    if(!Number.isInteger(pad)||pad<0||!Number.isInteger(count)||count<1||pad+count>2000){
+      $('wildStatus').textContent='선행 사냥과 예측 횟수의 합계는 최대 2000회입니다.';return;
+    }
     const interval = Number($('wildInterval').value), bait = $('wildBait').value;
     const time = Math.floor(Date.parse($('wildTime').value + '+08:00') / 1000);
     try {
