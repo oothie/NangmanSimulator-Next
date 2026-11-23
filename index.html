@@ -4098,6 +4098,9 @@ function yyAccountRecordAndResourceView(section='jianghu'){
   ['업적 포인트',achievePoint??'—','세이브 AchievePoint']
  ].map(([name,value,note])=>'<div class="stat-cell"><span class="label">'+escape(name)+'</span><span class="value">'+escape(value)+'</span><span class="sub">'+escape(note)+'</span></div>').join('')+'</div>'+
  '<p class="micro">한국판 세이브의 Branch와 Achieves를 별도 집계합니다. Branch.step=-1은 완료 기록이지만 이벤트 내부 분기도 포함하므로 실제 게임의 강호 기록 완료율과 동일하지 않습니다. 업적 Reward 필드는 원본 값이며 보상 수령 여부로 단정하지 않습니다.</p>'+
+ '<details class="yy-account-history"><summary>임무·이벤트 상세 기록 '+records.length+'건 보기</summary>'+
+ '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>한국판 임무 이름 / 기록 ID</th><th>진행 상태</th><th>수락일</th></tr></thead><tbody>'+
+ (branchRows||'<tr><td colspan="3">기록 없음</td></tr>')+'</tbody></table></div></details>'+
  '<details class="yy-account-history"><summary>한국판 원본 업적 '+Object.keys(achieveNames).length+'종 · 세이브 기록 '+achievements.length+'건 보기</summary>'+
  '<div class="yy-account-scroll"><table class="module-table"><thead><tr><th>업적명 / ID</th><th>세이브 상태</th><th>Reward 원본 단계 / 목표 단계</th></tr></thead><tbody>'+
  achievementRows+'</tbody></table></div></details>')+
