@@ -39,7 +39,8 @@ const fixture={
 };
 fixture.globalVariable={find_TotalShuDun:2,shudun_sfj2012:1,shudun_nyz2004:1};
 const out=render(fixture,{event_known:['한국판 검증 이벤트','']});
-assert(render(fixture,{event_known:['한국판 검증 이벤트','']},'jianghu').includes('미확인 임무'),'unmapped client event uses Korean fallback');
+assert(render(fixture,{event_known:['한국판 검증 이벤트','']},'jianghu').includes('한국판 검증 이벤트'),'verified Korean name in account event records');
+assert(render(fixture,{},'jianghu').includes('미확인 임무'),'unknown event uses Korean fallback, not naked ID');
 assert(render(fixture,{},'jianghu').includes('업적 저장 항목'),'achievements shown');
 assert(render(fixture,{event_known:['한국판 검증 이벤트','']},'jianghu').includes('110,711'),'account activity count');
 assert(out.includes('그루터기')&&out.includes('보물상자'),'only two map resource types');
