@@ -1132,7 +1132,7 @@ if(sub==='sim'){
  '<button class="btn" id="washMainUpgrade" '+(!canRun||(dashboard?.zizhi??Number(r?.raw?.ZiZhi||154))>=154?'disabled':'')+'>다음 재능 칸 개방</button>'+
  '<button class="btn" id="washMainResetRole" '+(!save||!r||runtime.loading?'disabled':'')+'>선택 캐릭터 초기화</button>'+
  '<button class="btn" id="washMainScan" '+(!canRun?'disabled':'')+'>다음 자맥·충돌 미리보기</button></div></div>'+
- </section>';
+ '</section>';
  const washRuns=Array.isArray(runtime.log)?runtime.log:[];
   const qualityPanel=dashboard?'<div class="wash-section"><div class="section-header"><h3>재능 등급별 출현</h3></div>'+
    [1,2,3,4].map(q=>{
@@ -2184,8 +2184,7 @@ function dailyMarketView(){
  const status=state.historyBlocked?'세이브의 귀시 기록이 너무 오래되어 '+state.missed+'회 변경을 안전하게 복원할 수 없습니다. 부정확한 예측을 방지하기 위해 현재 저장 상품만 표시합니다. 최신 세이브를 다시 불러와 주세요.':!state.seedOk?'귀시 RNG 시드 guishishop이 없어 향후 판매를 예측할 수 없습니다. 현재 저장 상품만 표시합니다.':
   state.stale?'세이브 귀시 시간에서 '+state.missed+'회 정시 변경을 복원했습니다. 이는 원본 RNG 계산에 근거한 모의 예측이며 현재 게임과 비교 검증이 필요합니다.':
   '세이브에 저장된 상품 목록을 현재 판매 목록으로 표시합니다.';
- return 
- '<div class="market-stats">'+[
+ return '<div class="market-stats">'+[
   ['예측 슬롯',state.slots+'칸'],['저장 슬롯',state.saveSlots+'칸'],
   ['선택 VIP 갱신 잔여',allowance.left+'회'],['판매 후보 상품',state.available.length+'종']
  ].map(([name,value])=>'<div class="stat-cell"><span class="label">'+name+'</span><span class="value">'+escape(value)+'</span></div>').join('')+'</div>'+
