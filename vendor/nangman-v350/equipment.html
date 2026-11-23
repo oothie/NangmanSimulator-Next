@@ -11566,7 +11566,7 @@ function rkClFallbackHtml252(e,cfg){
 }
 
 function rkDetailRoute237(h,o,e,cfg){
- const reg=(e._make_region||[]).map(x=>`${propLabel218(x.prop)} ${formatPropValue(x.prop,x.value)}`).join(' · ')||'없음',sp=(e.specials||e._make_special||[]).map(x=>`${propLabel218(x.prop)} ${formatPropValue(x.prop,x.value)}`).join(' · ')||'없음';
+ const reg=((o.make?.region?.length ? o.make.region : e._make_region)||[]).map(x=>`${propLabel218(x.prop)} ${formatPropValue(x.prop,x.value)}`).join(' · ')||'없음',sp=(e.specials||e._make_special||[]).map(x=>`${propLabel218(x.prop)} ${formatPropValue(x.prop,x.value)}`).join(' · ')||'없음';
  let initial='';
  if(o.uniqueSpecialCtx){
    const mats=specialMaterialsForEquip(e);
@@ -12046,6 +12046,7 @@ function paintOwnedDetailPage(m,e){showDetailTop233(e,'owned')}
        const mjBase=clone(finalEq),madeCfg=EQUIP_DATA.equipment[String(z.equip_id)]||{},finalCfg=EQUIP_DATA.equipment[String(finalEq.id)]||{};
        if(Number(madeCfg.lv)===90&&Number(finalCfg.lv)>=100)mjBase._rkAscendedFrom=Number(z.equip_id);
        mj=bestMang339(mjBase);if(mj)finalEq=mj.equip;
+       finalEq._make_region=clone(z.region||[]); // Keep the exact craft-region bonus through refinement and mangjing.
        const obj={equip:finalEq,base:clone(base),make:z,rt,recipe:{lvs:[90],parts:[Number(cfg.type)],equipIds:[Number(cfg.id)],colors:[Number(z.color)],reqs:[{where:'exts',prop:A.prop,min:0,label:propLabel218(A.prop)}]},xl,mj,searchBudget264:{mud:A.mud,mj:A.mj},_rkXlFlags:xl?.flags?.slice()||[],_rkXlN:Math.max(100,xl?.items?.length||xl?.flags?.length||0),_rkMjN:Math.max(20,A.mj)};
        A.results.push(obj);if(done%10===0)await new Promise(r=>setTimeout(r,0));
      }
