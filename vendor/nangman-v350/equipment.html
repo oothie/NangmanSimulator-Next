@@ -10728,14 +10728,14 @@ function recipeSentence(r){const ids=r.parts.map(tname).join('·')||'모든 부�
 function showThreshold(p,v){return Math.abs(Number(v))<1?`${Math.round(Number(v)*10000)/100}%`:String(v)}
 function normalizeMin(p,v){let n=Number(v)||0;if(n>1){const sample=sampleProp(p);if(sample>0&&sample<1)n=n/100}return n}
 function sampleProp(p){for(const e of cfgs()){const z=e.exts?.[p];if(Array.isArray(z)&&typeof z[0]==='number')return Math.abs(z[0])}return 0}
-function paintFind(m){initRecipes();m.innerHTML=`<details class="box218" open><summary>설정 1</summary><div class="bbody"><div class="recipebar" id="rlist"></div><div id="redit"></div></div></details><details class="box218" open><summary>설정 2</summary><div class="bbody"><div class="grp218"><div class="glab">저장된 조건 선택</div><div class="chips" id="ruse"></div></div><div class="budget"><label><b>제작</b><input class="num218" id="bcraft" type="number" min="1" max="1000" value="${R.bud.crafts}"> 회</label><label><b>정련</b><input class="num218" id="bmud" type="number" min="0" max="2500" value="${R.bud.mud}"> 연금니 기준</label><label><b>망정</b><input class="num218" id="bmj" type="number" min="0" max="100" value="${R.bud.mj}"> 회</label></div><div class="budget">${craftSpecialSelect361(null)}</div><button class="rbtn primary" id="rgo">예산 내 최대 옵션 찾기</button><div class="search-progress264" id="rprog264" hidden><div class="bar"><i></i></div><div class="line" id="rstage264">준비</div><div class="counts"><span>제작 <b id="rpcraft264">0/0</b></span><span>정련 <b id="rpxl264">0</b></span><span>망정 <b id="rpmj264">0</b></span><span>결과 <b id="rpres264">0</b></span></div></div><div id="rmsg" class="note218"></div></div></details><div id="rresults"></div>`;paintRecipeBar();paintRecipeEditor();paintUse();q('#bcraft').onchange=e=>R.bud.crafts=Math.max(1,Math.min(1000,+e.target.value||100));q('#bmud').onchange=e=>R.bud.mud=Math.max(0,Math.min(2500,+e.target.value||0));q('#bmj').onchange=e=>R.bud.mj=Math.max(0,Math.min(100,+e.target.value||0));q('#rgo').onclick=runSearch;q('#craftSpecial361').onchange=e=>{R.craftSpecialId=Number(e.target.value)||0;R.results=[];paintResults()};paintResults()}
+function paintFind(m){initRecipes();m.innerHTML=`<details class="box218" open><summary>설정 1</summary><div class="bbody"><div class="recipebar" id="rlist"></div><div id="redit"></div></div></details><details class="box218" open><summary>설정 2</summary><div class="bbody"><div class="grp218"><div class="glab">저장된 조건 선택</div><div class="chips" id="ruse"></div></div><div class="budget"><label><b>제작</b><input class="num218" id="bcraft" type="number" min="1" max="1000" value="${R.bud.crafts}"> 회</label><label><b>정련</b><input class="num218" id="bmud" type="number" min="0" max="2500" value="${R.bud.mud}"> 연금니 기준</label><label><b>망정</b><input class="num218" id="bmj" type="number" min="0" max="100" value="${R.bud.mj}"> 회</label></div><div class="budget">${craftSpecialSelect361(null)}</div><button class="rbtn primary" id="rgo">예산 내 최대 옵션 찾기</button><div class="search-progress264" id="rprog264" hidden><div class="bar"><i></i></div><div class="line" id="rstage264">준비</div><div class="counts"><span>제작 <b id="rpcraft264">0/0</b></span><span>정련 <b id="rpxl264">0</b></span><span>망정 <b id="rpmj264">0</b></span><span>결과 <b id="rpres264">0</b></span></div></div><div id="rmsg" class="note218"></div></div></details><div id="rresults"></div>`;paintRecipeBar();paintRecipeEditor();paintUse();q('#bcraft').onchange=e=>R.bud.crafts=Math.max(1,Math.min(1000,+e.target.value||100));q('#bmud').onchange=e=>R.bud.mud=Math.max(0,Math.min(2500,+e.target.value||0));q('#bmj').onchange=e=>R.bud.mj=Math.max(0,Math.min(100,+e.target.value||0));q('#rgo').onclick=runSearch;q('#craftSpecial361').onchange=e=>{R.craftSpecialId=Number(e.target.value)||0;R.results=[];paintResults()};refreshFindSpecial361();paintResults()}
 function paintRecipeBar(){const h=q('#rlist');if(!h)return;h.innerHTML='<span class="note218">저장된 설정:</span>';for(const r of R.recipes){const b=E('button','chip'+(r.id===R.pick?' on':''),recipeDisplayName256(r));b.onclick=()=>{R.pick=r.id;R.draft=cloneRecipe259(r);paintFind(q('#rmain'))};h.append(b)}const plus=E('button','chip','새 설정');plus.onclick=()=>{R.pick=null;R.draft=freshDraft259();paintFind(q('#rmain'))};h.append(plus);const sp=E('span','spacer');h.append(sp);if(R.pick&&R.recipes.some(x=>x.id===R.pick)){const d=E('button','rbtn','삭제');d.onclick=()=>{R.recipes=R.recipes.filter(x=>x.id!==R.pick);R.use=R.use.filter(x=>x!==R.pick);savePresets259();R.pick=R.recipes[0]?.id||null;R.draft=R.pick?cloneRecipe259(R.recipes[0]):freshDraft259();paintFind(q('#rmain'))};h.append(d)}}
-function paintUse(){const h=q('#ruse');if(!h)return;if(!R.recipes.length){h.innerHTML='<span class="note218">설정 1에서 조건을 저장하세요.</span>';return}chips(h,R.recipes.map(r=>({v:r.id,n:recipeDisplayName256(r)})),v=>R.use.includes(v),v=>{R.use=R.use.includes(v)?R.use.filter(x=>x!==v):R.use.concat(v);paintUse()})}
+function paintUse(){const h=q('#ruse');if(!h)return;if(!R.recipes.length){h.innerHTML='<span class="note218">설정 1에서 조건을 저장하세요.</span>';return}chips(h,R.recipes.map(r=>({v:r.id,n:recipeDisplayName256(r)})),v=>R.use.includes(v),v=>{R.use=R.use.includes(v)?R.use.filter(x=>x!==v):R.use.concat(v);paintUse();refreshFindSpecial361()})}
 function paintRecipeEditor(){const h=q('#redit'),r=rec();if(!h||!r)return;h.innerHTML=`<div class="recipe-card"><div><div class="grp218"><div class="glab">조건</div><div class="sentence" id="rsentence"></div></div><div class="grp218 identity"><div><div class="glab">등급</div><div class="chips" id="rlvs"></div></div><div><div class="glab">부위</div><div class="chips" id="rparts"></div></div><div><div class="glab">장비 종류</div><div class="chips" id="requips"></div></div><div><div class="glab">품질</div><div class="chips" id="rcolors"></div></div></div><button type="button" class="rbtn primary save-preset259" id="rsave259">옵션 저장</button></div><div><div class="grp218"><div class="glab">옵션 조건</div><div id="rreqs"></div></div></div></div>`;
  chips(q('#rlvs'),[90,100].map(v=>({v,n:v+'급'})),v=>recipeTier256(r)===v,v=>{r.lvs=[v];r.equipIds=[];r.reqs=[];paintRecipeEditor()});
  const pset=allNormalPartTypes256();chips(q('#rparts'),pset.map(v=>({v,n:tname(v)})),v=>r.parts.includes(v),v=>{r.parts=r.parts.includes(v)?r.parts.filter(x=>x!==v):r.parts.concat(v);if(!r.parts.length)r.parts=[v];r.equipIds=[];r.reqs=[];paintRecipeEditor()});
  const eqChoices=equipChoicesForRecipe256(r),allEquip={v:0,n:'전체'};chips(q('#requips'),[allEquip,...eqChoices.map(x=>({v:x.id,n:x.name}))],v=>v===0?!(r.equipIds||[]).length:(r.equipIds||[]).includes(v),v=>{if(v===0)r.equipIds=[];else{const a=new Set(r.equipIds||[]);a.has(v)?a.delete(v):a.add(v);r.equipIds=[...a]}r.reqs=[];paintRecipeEditor()});
- chips(q('#rcolors'),[2,3,4].map(v=>({v,n:qname(v)})),v=>r.colors.includes(v),v=>{r.colors=r.colors.includes(v)?r.colors.filter(x=>x!==v):r.colors.concat(v);paintRecipeEditor()});paintReqs(r);q('#rsentence').textContent=recipeSentence(r);q('#rsave259').onclick=saveDraft259}
+ chips(q('#rcolors'),[2,3,4].map(v=>({v,n:qname(v)})),v=>r.colors.includes(v),v=>{r.colors=r.colors.includes(v)?r.colors.filter(x=>x!==v):r.colors.concat(v);paintRecipeEditor()});paintReqs(r);q('#rsentence').textContent=recipeSentence(r);q('#rsave259').onclick=saveDraft259;refreshFindSpecial361()}
 function paintReqs(r){
  const h=q('#rreqs');h.innerHTML='';
  for(const w of SECS){
@@ -10971,7 +10971,7 @@ function searchCostParts269(x){
 function searchCostText269(x){return searchCostParts269(x).join(' · ')||'추가 소모 없음'}
 async function runSearch(){
  const msg=q('#rmsg'),pg=q('#rprog264');R.results=[];paintResults();if(!ensureRngLoaded()){msg.innerHTML='<span class="bad218">세이브 RNG를 먼저 불러오세요.</span>';return}
- const recipes=R.recipes.filter(r=>R.use.includes(r.id));if(!recipes.length){msg.textContent='설정 2에서 저장된 조건을 하나 이상 선택하세요.';return}
+ refreshFindSpecial361();const recipes=R.recipes.filter(r=>R.use.includes(r.id));if(!recipes.length){msg.textContent='설정 2에서 저장된 조건을 하나 이상 선택하세요.';return}
  if(!R.craftSpecialId||!EQUIP_DATA.special?.[String(R.craftSpecialId)]){msg.textContent='최초 특수재료를 선택해야 장비 찾기가 가능합니다.';if(pg)pg.hidden=true;return}
  const token=++R.searchToken;if(pg)pg.hidden=false;msg.textContent='예산 내 최대 옵션 검색 중…';const all=[],craftCache=new Map(),xlCache=new Map(),mjCache=new Map();let work=0,craftDone=0,xlDone=0,mjDone=0;
  const jobs=[];for(const r of recipes){for(const baseCfg of craftCfgsForRecipe256(r).filter(e=>routeFor(e.id).length)){for(const rt of routeFor(baseCfg.id)){if(routeMatchesReq256(rt,r)&&craftSpecialFor361(baseCfg)===Number(R.craftSpecialId))jobs.push({r,baseCfg,rt})}}}
@@ -11183,8 +11183,24 @@ function regionSplitPity352(req, normalLimit){
  }
  return{normal,pity};
 }
+function findSpecialMaterials361(){
+ const selectedRecipes=R.recipes.filter(r=>R.use.includes(r.id));
+ const recipes=selectedRecipes.length?selectedRecipes:(R.draft?[R.draft]:[]);
+ const eligible=new Map();
+ for(const recipe of recipes)for(const equip of craftCfgsForRecipe256(recipe)){
+  for(const material of specialMaterialsForEquip(equip))eligible.set(Number(material.id),material);
+ }
+ return [...eligible.values()].sort((a,b)=>Number(a.id)-Number(b.id));
+}
+function refreshFindSpecial361(){
+ const node=q('#craftSpecial361');if(!node)return;
+ const available=findSpecialMaterials361();
+ if(!available.some(x=>Number(x.id)===Number(R.craftSpecialId)))R.craftSpecialId=0;
+ node.innerHTML='<option value="" disabled'+(!R.craftSpecialId?' selected':'')+'>특수재료 선택</option>'+
+ available.map(x=>'<option value="'+Number(x.id)+'"'+(Number(x.id)===Number(R.craftSpecialId)?' selected':'')+'>'+esc(x.name)+(Number(x.id)===8825?' (내기)':Number(x.id)===8826?' (강기)':'')+'</option>').join('');
+}
 function craftSpecialSelect361(currentCfg){
- const mats=currentCfg?specialMaterialsForEquip(currentCfg):Object.values(EQUIP_DATA.special||{}).sort((a,b)=>a.id-b.id);
+ const mats=currentCfg?specialMaterialsForEquip(currentCfg):findSpecialMaterials361();
  const options=mats;
  const selected=options.some(x=>Number(x.id)===Number(R.craftSpecialId))?Number(R.craftSpecialId):0;
  return '<label class="region-special-select361"><b>최초 특수재료</b> <select class="rinput" id="craftSpecial361" required>'+
