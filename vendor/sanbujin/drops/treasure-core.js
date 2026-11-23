@@ -3,7 +3,7 @@
   'use strict';
   const {draw, usable} = root.SBJWildDrop;
   const value = field => Number(field?.Value ?? field?.value ?? field?.V ?? field?.v ?? field?.Num ?? field?.num ?? field);
-  const sites = {shifang: '십방집', saibei: '새북', tomb: '제릉 외전'};
+  const sites = {shifang: '십방집', saibei: '새북'};
 
   function open(save) {
     const {seeds, flags, level} = root.SBJDungeonDrop.open(save);
@@ -20,15 +20,6 @@
       const roll = draw(seed, bound);
       seed = roll.seed;
       return roll.value;
-    });
-  }
-
-  function tombEnemies(input, count) {
-    let boost = input.tombBoost;
-    return rolls(input.tombSeed, 1000, count).map(roll => {
-      const special = roll <= boost + input.tombFood * 10;
-      boost += special ? -200 : 100;
-      return special;
     });
   }
 
@@ -72,8 +63,8 @@
     return rows;
   }
 
-  function fixedSequence(input, options, random, enemies) {
-    let day = 0, index = 0, tombIndex = 0, boost = input.boost, checked = input.checked, status = input.status;
+  function fixedSequence(input, options, random) {
+    let day = 0, index = 0, boost = input.boost, checked = input.checked, status = input.status;
     const rows = [];
     while (rows.length < options.count && day <= options.refreshes) {
       if (status !== 5 && (status !== 0 || checked >= 10)) {
@@ -83,28 +74,23 @@
         status = 0;
         continue;
       }
-      const site = status === 5 ? 'tomb' : options.site;
-      const special = site === 'tomb' && enemies[tombIndex++];
-      let drop = '', pending = false;
-      if (status === 5 && special) {
-        drop = 'oil';
-        status = 1;
-      } else if (status === 0) {
+      let drop = '';
+      if (status === 0) {
         checked++;
         if (random[index++] <= boost + 10) {
           boost = -10;
           checked = 10;
-          pending = site === 'tomb' && options.oil;
-          status = pending ? 5 : 1;
-          if (!pending) drop = 'clue';
+          status = 1;
+          drop = 'clue';
         }
       }
-      rows.push({fight: rows.length + 1, day, site, drop, pending});
+      rows.push({fight: rows.length + 1, day, site: options.site, drop, pending: false});
     }
     return rows;
   }
 
   function predict(input, options) {
+    if (!Object.hasOwn(sites,options.site)) throw Error('보물찾기 예측은 십방집과 새북만 지원합니다.');
     if (input.level < 30) throw Error('주인공이 30레벨 이상이어야 보물찾기가 발동합니다.');
     if (!usable(input.seed)) throw Error('세이브에 비단/경문/책장 드랍 순서가 없습니다. 게임에서 필드 사냥을 한 번 진행한 뒤 세이브를 다시 추출하세요.');
     if (!Number.isInteger(input.status) || input.status < 0 || input.status > 5) {
@@ -114,28 +100,12 @@
       !Number.isInteger(options.refreshes) || options.refreshes < 0 || options.refreshes > 60) {
       throw Error('사냥 횟수는 1~500회, 일일 갱신 횟수는 0~60회까지 입력할 수 있습니다.');
     }
+    if (input.status === 5) throw Error('진행 중인 보물찾기를 완료한 뒤 다음 순서를 계산하세요.');
     const random = rolls(input.seed, 1010, options.count);
-    const needsTomb = input.status === 5 || options.site === 'tomb' && options.oil;
-    if (needsTomb && !usable(input.tombSeed)) {
-      throw Error('세이브에 제릉 외전 몬스터 순서가 없습니다. 외전에서 필드 사냥을 한 번 진행한 뒤 세이브를 다시 추출하세요.');
-    }
-    const enemies = needsTomb ? tombEnemies(input, options.count) : [];
-    if (!options.optimize) return fixedSequence(input, options, random, enemies);
-
-    // A newly triggered ordinary clue is immediate. An oil-paper trigger uses
-    // the same draw but needs a later battle, so it cannot improve total drops.
-    const prefix = [];
-    if (input.status === 5) {
-      const hit = enemies.indexOf(true);
-      const length = hit < 0 ? options.count : hit + 1;
-      for (let fight = 1; fight <= length; fight++) {
-        prefix.push({fight, day: 0, site: 'tomb', drop: fight === hit + 1 ? 'oil' : ''});
-      }
-    }
-    if (prefix.length === options.count) return prefix;
+    if (!options.optimize) return fixedSequence(input, options, random);
     const day = input.status > 0 ? 1 : 0;
     const start = day ? {...input, boost: input.boost + 10} : input;
-    return ordinaryBest(start, options, random, prefix, day);
+    return ordinaryBest(start, options, random, [], day);
   }
 
   root.SBJTreasureDrop = {open, predict, sites};
