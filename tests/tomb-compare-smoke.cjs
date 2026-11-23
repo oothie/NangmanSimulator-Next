@@ -28,7 +28,7 @@ assert(result.cases.some(c=>c.order==='descending'&&c.mismatches===0&&c.missing=
 assert.equal(result.cases.find(c=>c.order==='descending').checks.length,3);
 assert.equal(JSON.stringify(before),snapshot,'comparison never modifies saved before state');
 assert.equal(JSON.stringify(after),snapshotAfter,'after-save JSON preserved');
-assert.equal(compare.preview(before,2000).length,2000,
+assert.equal(compare.preview(before,2000).cases[0].rows.length,2000,
  'two-save preview must accept the advertised 2000 field events');
 assert.equal(compare.reconcile(before,after,2000).count,2000,
  'two-save comparison must accept the advertised 2000 field events');
