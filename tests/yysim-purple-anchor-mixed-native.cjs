@@ -30,7 +30,7 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
   guard:emptyAnchorGuard
  });
- assert.equal(emptyNativeAttempts,18,'All six purple orders must check three native padding modes before declaring no route');
+ assert.equal(emptyNativeAttempts,12,'Unreachable purple goals should stop after six orders and two native padding modes');
  assert.equal(unavailable.routes.length,0);
  assert.equal(unavailable.diagnostics.purpleNoRoute,true);
  assert.equal(unavailable.diagnostics.scannedWashes,0);
