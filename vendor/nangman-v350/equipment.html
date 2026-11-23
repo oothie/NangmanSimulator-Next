@@ -11814,10 +11814,17 @@ function paintOwnedDetailPage(m,e){showDetailTop233(e,'owned')}
  }
  function autoCostSummary346(o){
    let silver=0,mud=0,mat=0,matName='';
+   const ascend={silver:0,mud:0,mat:0,matName:'',applied:false};
    try{
      const made=virtualFromMake(o.make,o.rt?.p?.selectId);
      if(Number((EQUIP_DATA.equipment[String(made.id)]||{}).lv||made.need_lv||0)===90){
-       for(const c of calcShengLianCost(made)||[]){if(c.id===3001)silver+=Number(c.n||0);else if(c.id===8801)mud+=Number(c.n||0);else if(c.id===3026||c.id===3036){mat+=Number(c.n||0);matName=c.name||matName}}
+       ascend.applied=true;
+       for(const c of calcShengLianCost(made)||[]){
+         const qty=Number(c.n||0);
+         if(c.id===3001){silver+=qty;ascend.silver+=qty}
+         else if(c.id===8801){mud+=qty;ascend.mud+=qty}
+         else if(c.id===3026||c.id===3036){mat+=qty;matName=c.name||matName;ascend.mat+=qty;ascend.matName=c.name||ascend.matName}
+       }
      }
    }catch(_){}
    try{
@@ -11827,11 +11834,16 @@ function paintOwnedDetailPage(m,e){showDetailTop233(e,'owned')}
      }
    }catch(_){}
    if(!matName){const typ=Number(o?.equip?.typ||0);matName=(typ>=5&&typ<=7)?'청선익':'곤오석'}
-   return{silver,mud,mat,matName};
+   return{silver,mud,mat,matName,ascend};
  }
  function autoCostAside346(o){
    const c=autoCostSummary346(o);
-   return '<aside class="auto346-costside"><div class="auto346-costtitle">소모 재화량</div><div><b>은화</b><span>'+esc339(moneyText271(c.silver))+'</span></div><div><b>'+esc339(c.matName)+'</b><span>'+Number(c.mat).toLocaleString('ko-KR')+'</span></div><div><b>연금니</b><span>'+Number(c.mud).toLocaleString('ko-KR')+'</span></div></aside>';
+   const ascend=c.ascend;
+   const ascendRow=ascend.applied?'<div class="auto346-costtitle">승련 소모 재화 (합계 포함)</div>'+
+    '<div><b>은화</b><span>'+esc339(moneyText271(ascend.silver))+'</span></div>'+
+    '<div><b>'+esc339(ascend.matName||'승련 재료')+'</b><span>'+Number(ascend.mat).toLocaleString('ko-KR')+'</span></div>'+
+    '<div><b>연금니</b><span>'+Number(ascend.mud).toLocaleString('ko-KR')+'</span></div>':'';
+   return '<aside class="auto346-costside"><div class="auto346-costtitle">총 소모 재화량 (승련 포함)</div><div><b>은화</b><span>'+esc339(moneyText271(c.silver))+'</span></div><div><b>'+esc339(c.matName)+'</b><span>'+Number(c.mat).toLocaleString('ko-KR')+'</span></div><div><b>연금니</b><span>'+Number(c.mud).toLocaleString('ko-KR')+'</span></div>'+ascendRow+'</aside>';
  }
  function resultCard339(o,i){
    const z=o.make,e=o.equip,cfg=EQUIP_DATA.equipment[String(e.id)]||{};
