@@ -11218,8 +11218,8 @@ function craftSpecialFor361(cfg){
  return mat&&specialMaterialSupportsEquip(mat,cfg)?id:0;
 }
 function regionImplicitSpecial361(cfg){
- const selected=craftSpecialFor361(cfg);
- if(selected)return selected;
+ // 지역별 제작 목록은 장비 찾기의 선택과 무관하게 항상 해당 부위의
+ // 사용 가능한 특수재료를 적용한 제작 시드로 계산한다.
  const eligible=specialMaterialsForEquip(cfg);
  return Number(eligible[0]?.id||0);
 }
@@ -11229,7 +11229,7 @@ function paintRegionSeq(h,id){
  const count=Math.max(20,Math.min(1000,Number(S.count)||100));
  const token=++S.renderToken;
  const routes=representativeRoutes226(id);
- h.innerHTML=`<details class="box218" open><summary>지역별 제작 시퀀스 · ${esc(ename(cfg))}</summary><div class="bbody"><div class="regionbar225"><label>일반 제작 표시 개수 <select class="rinput" id="regionCount225">${[20,50,100,200,500,1000].map(n=>`<option value="${n}"${n===count?' selected':''}>${n}개</option>`).join('')}</select></label><span class="note218" id="regionInfo225">최초 특수재료 장착을 가정하여 계산 중…</span></div><div class="region-group352"><h3>천장 전용 제작 결과</h3><p class="note218">천장 전용 시드로 제작한 장비입니다. 일반 제작 회차에 포함되지 않습니다.</p><div class="regionScroll225"><table class="tbl218 regionTbl225"><thead id="regionPityHead352"></thead><tbody id="regionPityBody352"></tbody></table></div></div><div class="region-group352"><h3>일반 제작 결과</h3><p class="note218">일반 시드로 제작한 순서입니다. 천장 제작 후에도 다음 일반 시드부터 이어집니다.</p><div class="regionScroll225"><table class="tbl218 regionTbl225"><thead id="regionHead225"></thead><tbody id="regionBody225"></tbody></table></div></div><div id="regionDetail231"></div></div></details>`;
+ h.innerHTML=`<details class="box218" open><summary>지역별 제작 시퀀스 · ${esc(ename(cfg))}</summary><div class="bbody"><div class="regionbar225"><label>일반 제작 표시 개수 <select class="rinput" id="regionCount225">${[20,50,100,200,500,1000].map(n=>`<option value="${n}"${n===count?' selected':''}>${n}개</option>`).join('')}</select></label><span class="note218" id="regionInfo225">제작 결과 계산 중…</span></div><div class="region-group352"><h3>천장 전용 제작 결과</h3><p class="note218">천장 전용 시드로 제작한 장비입니다. 일반 제작 회차에 포함되지 않습니다.</p><div class="regionScroll225"><table class="tbl218 regionTbl225"><thead id="regionPityHead352"></thead><tbody id="regionPityBody352"></tbody></table></div></div><div class="region-group352"><h3>일반 제작 결과</h3><p class="note218">일반 시드로 제작한 순서입니다. 천장 제작 후에도 다음 일반 시드부터 이어집니다.</p><div class="regionScroll225"><table class="tbl218 regionTbl225"><thead id="regionHead225"></thead><tbody id="regionBody225"></tbody></table></div></div><div id="regionDetail231"></div></div></details>`;
  q('#regionCount225').onchange=e=>{S.count=Number(e.target.value)||100;paintRegionSeq(h,id)};
  const hd=q('#regionHead225'),bd=q('#regionBody225'),ph=q('#regionPityHead352'),pb=q('#regionPityBody352'),info=q('#regionInfo225');
  if(!hd||!bd||!ph||!pb)return;
@@ -11238,7 +11238,7 @@ function paintRegionSeq(h,id){
  const columns=[];let ri=0;
  const maker=makeRndSnapshot||extractMakeRnd(window.__EQUIP_SAVE_ROOT__)||{};
  const cacheKey=JSON.stringify([
-  'region-split-pity-v362',Number(id),count,regionImplicitSpecial361(cfg),
+  'region-split-pity-v363',Number(id),count,regionImplicitSpecial361(cfg),
   maker.Seeds?.[String(cfg.type)]?.[String(Math.floor(Number(cfg.lv)/10))],
   maker.IDSeeds?.[String(id)],maker.LuckySeeds?.[String(id)],
   maker.MakeLucky?.[String(id)],
@@ -11261,7 +11261,7 @@ function paintRegionSeq(h,id){
  function renderRows(){
   if(token!==S.renderToken)return;
   const pityCount=Math.max(0,...columns.map(c=>c.pity?.length||0));
-  if(info){const mat=EQUIP_DATA.special?.[String(regionImplicitSpecial361(cfg))];info.textContent=`제작처 ${columns.length}곳 · 일반 제작 ${count}회 · 천장 ${pityCount}개 · 최초 특수재료 ${mat?.name||'없음'} 적용 가정`}
+  if(info)info.textContent=`제작처 ${columns.length}곳 · 일반 제작 ${count}회 · 천장 ${pityCount}개`
   pb.innerHTML='';bd.innerHTML='';
   let pityPos=0,normalPos=0;
   const addRows=(body,kind,from,to)=>{let html='';
@@ -11315,7 +11315,7 @@ function paintRegionDetail231(at,id){
    if(k>=routes.length){
      host.innerHTML=`<details class="box218" open><summary>#${at} 세부 제작지역</summary><div class="bbody"><div class="scroll218"><table class="tbl218"><thead><tr><th>지역</th><th>지역 부가옵</th></tr></thead><tbody>${rows.join('')}</tbody></table></div></div></details>`;return;
    }
-   const rt=routes[k++],req={npc_id:rt.npc.id,select_id:rt.p.selectId,equip_id:id,special_id:0,min_color:rt.p.paper?.min_color||1,max_color:rt.p.paper?.max_color||4};
+   const rt=routes[k++],req={npc_id:rt.npc.id,select_id:rt.p.selectId,equip_id:id,special_id:regionImplicitSpecial361(cfg),min_color:rt.p.paper?.min_color||1,max_color:rt.p.paper?.max_color||4};
    let z=null;try{z=(rkMakePreviewNative233(req,at).items||[])[at-1]||null}catch(_){}
    const reg=(z?.region||[]).map(p=>`${esc(propLabel218(p.prop))} ${esc(formatPropValue(p.prop,p.value))}`).join(' · ')||'지역부가 없음';
    rows.push(`<tr><td>${esc(String(rt.npc.place||rt.npc.name||rt.npc.id))}</td><td class="region-prop226">${reg}</td></tr>`);
