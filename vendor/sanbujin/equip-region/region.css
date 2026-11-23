@@ -1,0 +1,33 @@
+/* Embedded regional browser driven by the same native MakeRnd core. */
+body.region-craft-view{padding:12px!important}
+body.region-craft-view>.app-container.equip-app{position:absolute!important;left:-100000px!important;top:-100000px!important;width:1px!important;height:1px!important;overflow:hidden!important;visibility:hidden!important;pointer-events:none!important}
+#regionBrowser{max-width:100%;margin:0 auto;padding:10px;color:var(--n-yy-text,var(--text-primary))}
+#regionBrowser h2{margin:0 0 15px;font-size:19px;font-weight:700}
+#regionBrowser .region-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#regionBrowser label{display:grid;gap:5px;font-size:13px}
+#regionBrowser select{width:100%;min-width:0;padding:9px}
+#regionBrowser .region-actions{margin:15px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#regionBrowser button{padding:9px 17px;border:1px solid var(--n-yy-line,var(--border-color));border-radius:7px;cursor:pointer;background:var(--n-yy-paper,var(--bg-card));color:inherit}
+#regionBrowser .region-result{overflow-x:auto}
+#regionBrowser .region-scroll{max-height:710px;overflow:auto}
+#regionBrowser table{width:100%;border-collapse:collapse;min-width:570px;font-size:13px}
+#regionBrowser td,#regionBrowser th{padding:9px 10px;border:1px solid var(--n-yy-line,var(--border-color));text-align:left;vertical-align:top}
+#regionBrowser td small{display:block;margin-top:4px;color:var(--n-yy-sub,var(--text-secondary));line-height:1.5}
+#regionBrowser thead th{position:sticky;top:0;background:var(--n-yy-paper,var(--bg-secondary))!important}
+@media(max-width:800px){#regionBrowser .region-controls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){#regionBrowser .region-controls{grid-template-columns:1fr}}
+
+#regionBrowser .region-controls{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))!important;gap:14px}
+#regionBrowser .region-controls label[hidden]{display:none!important}
+#regionBrowser .region-controls label{font-size:15px;font-weight:600}
+#regionBrowser .region-controls select{font-size:16px!important;min-height:46px}
+#regionBrowser .region-quality{display:inline-block;padding:3px 11px;border-radius:15px;font-weight:750;font-size:14px}
+#regionBrowser .region-quality-1{background:#e8e8e8;color:#313137}
+#regionBrowser .region-quality-2{background:#d6efd9;color:#216538}
+#regionBrowser .region-quality-3{background:#d9eaff;color:#225a98}
+#regionBrowser .region-quality-4{background:#ead8fb;color:#6b398c}
+#regionBrowser .region-quality-5{background:#ffe3c1;color:#925118}
+#regionBrowser .region-scroll table{min-width:640px}
+#regionBrowser .region-scroll :is(td,th){padding:12px 14px!important;font-size:15px!important}
+#regionBrowser .region-detail{background:var(--n-yy-soft)!important}
+#regionBrowser .region-result{max-height:750px}

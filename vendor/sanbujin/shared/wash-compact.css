@@ -1,0 +1,154 @@
+/* Compact wash workbench: retain the tool's ink-green, parchment and cinnabar. */
+html body.sbj-workbench #aiPredictionPanel{padding:14px!important;border-radius:16px!important}
+html body #autoWashModePanel{--wash-ink:var(--text-primary,#263b31);--wash-line:var(--sbj-border,#d8cfb6);font-size:14px;min-width:0}
+html body #autoWashModePanel .wash-workbench-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--wash-line)}
+html body #autoWashModePanel .wash-workbench-head>div{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+html body #autoWashModePanel .wash-workbench-head strong{font-size:17px;color:var(--wash-ink)}
+html body #autoWashModePanel .wash-workbench-head #aiAlgorithmVersion{display:inline-flex;background:var(--wash-ink);color:var(--bg-primary,#fffaef);padding:4px 9px;border-radius:6px;font-size:12px;font-weight:600;margin:0;line-height:1.6}
+html body #autoWashModePanel .wash-workbench-head button{font:inherit;color:var(--wash-ink);background:transparent;border:0;text-decoration:underline;text-underline-offset:4px;min-height:44px;padding:4px;white-space:nowrap}
+html body #autoWashModePanel #autoWashSaveGate{padding:10px!important;margin:0 0 10px!important;background:var(--bg-secondary,#f0ead9)!important;border-radius:10px!important;box-shadow:none!important}
+html body #autoWashModePanel .auto-wash-save-head{display:none!important}
+html body #autoWashModePanel .auto-wash-role-grid{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:7px 12px!important;align-items:end}
+html body #autoWashModePanel .auto-wash-role-select{font-size:12px!important;gap:4px!important}
+html body #autoWashModePanel .auto-wash-role-select select{min-height:44px!important;height:44px!important;padding:6px 10px!important;font-size:16px!important;border-radius:7px!important;max-width:100%}
+html body #autoWashModePanel .auto-wash-pill-card{border:0!important;padding:5px 0!important;margin:0!important;background:transparent!important;display:flex!important;flex-direction:column;align-items:flex-end;gap:3px;min-width:74px}
+html body #autoWashModePanel .auto-wash-pill-card span{font-size:11px}
+html body #autoWashModePanel .auto-wash-pill-card strong{font-size:17px;color:var(--purple,#805577);white-space:nowrap}
+html body #autoWashModePanel .auto-wash-role-summary{grid-column:1/-1;font-size:12px!important;line-height:1.5!important;padding:0!important;margin:0!important}
+html body #autoWashModePanel .wash-target-picker{border-block:1px solid var(--wash-line);margin:0 0 10px}
+html body #autoWashModePanel .wash-target-picker>summary{display:grid;grid-template-columns:1fr auto;gap:3px 12px;padding:9px 0;min-height:44px;cursor:pointer;list-style:none}
+html body #autoWashModePanel .wash-target-picker>summary::-webkit-details-marker{display:none}
+html body #autoWashModePanel .wash-target-picker>summary>span:first-child{font-size:13px;color:var(--wash-ink)}
+html body #autoWashModePanel #aiTargetCount{font-size:12px;font-weight:400;color:var(--text-muted,#746c58);margin-left:6px}
+html body #autoWashModePanel #aiSelectedTargetSummary{grid-column:1;grid-row:2;font-size:13px;color:var(--purple,#805577);line-height:1.6}
+html body #autoWashModePanel .wash-target-picker>summary>small{grid-column:2;grid-row:1/3;align-self:center;font-size:12px;color:var(--wash-ink);text-decoration:underline}
+html body #autoWashModePanel .ai-target-toolbar{display:grid!important;grid-template-columns:auto 1fr!important;gap:8px!important;border:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;margin:0 0 6px!important}
+html body #autoWashModePanel .ai-target-toolbar label{font-size:12px;white-space:nowrap}
+html body #autoWashModePanel .auto-step-number{display:none!important}
+html body #autoWashModePanel #aiTalentSearch{height:44px!important;min-height:44px!important;padding:6px 10px!important;font-size:16px!important;border-radius:7px!important;min-width:0}
+html body #autoWashModePanel .ai-target-quality-help{font-size:12px;margin:5px 0!important}
+html body #autoWashModePanel .ai-talent-section{padding:0!important;margin:0!important;border-bottom:1px solid var(--wash-line)!important}
+html body #autoWashModePanel .ai-talent-group-title{padding:8px 0!important;min-height:44px!important;box-sizing:border-box;font-size:14px!important}
+html body #autoWashModePanel .ai-talent-grid{gap:6px!important;grid-template-columns:repeat(auto-fit,minmax(125px,1fr))!important;padding-bottom:8px}
+html body #autoWashModePanel .ai-talent-choice{padding:7px!important;min-height:44px;box-sizing:border-box;font-size:13px!important}
+html body #autoWashModePanel .ai-selection-message:not(.is-error){display:none!important}
+html body #autoWashModePanel .ai-selection-message.is-error{font-size:12px;padding:6px 9px;margin:5px 0}
+html body #autoWashModePanel .wash-search-budget{display:grid!important;grid-template-columns:1fr auto!important;gap:4px 12px!important;align-items:center;padding:8px 10px!important;margin:8px 0!important;border-radius:9px!important}
+html body #autoWashModePanel .wash-search-budget>span:first-child{font-size:14px!important}
+html body #autoWashModePanel .wash-search-budget-input{display:flex!important;gap:7px;align-items:center}
+html body #autoWashModePanel .wash-search-budget input{width:104px!important;min-height:44px!important;height:44px!important;margin:0!important;padding:6px 9px!important;font-size:16px!important;border-radius:7px!important}
+html body #autoWashModePanel .wash-search-budget small{grid-column:1/-1;font-size:12px!important;line-height:1.5!important;margin:0!important}
+html body #autoWashModePanel .wash-search-help{font-size:12px!important;line-height:1.6!important;margin:6px 0 10px!important}
+html body #autoWashModePanel .ai-search-actions{display:flex!important;gap:8px!important;margin:8px 0!important}
+html body #autoWashModePanel .ai-search-actions .btn{min-height:44px!important;padding:9px 12px!important;font-size:15px!important;border-radius:9px!important}
+html body #autoWashModePanel .wash-cloud-actions{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+html body #autoWashModePanel .wash-cloud-actions button{flex:1 1 135px;min-height:44px;padding:7px!important;font-size:12px!important;border-radius:8px!important}
+html body #autoWashModePanel .wash-cloud-status:empty{display:none}
+html body #autoWashModePanel .wash-algorithm-help{margin:8px 0 12px;font-size:13px;line-height:1.65}
+html body #autoWashModePanel #washAlgorithmHelp>summary{display:none}
+html body #autoWashModePanel .ai-search-progress{padding:9px!important;margin:8px 0!important}
+html body #autoWashModePanel #aiRunningAlgorithm{display:none}
+html body #autoWashModePanel .ai-progress-head{flex-wrap:wrap;gap:4px;font-size:12px;line-height:1.6}
+html body #autoWashModePanel .ai-prediction-results{padding:10px!important;margin-top:10px!important}
+html body #autoWashModePanel .ai-result-summary{gap:4px;font-size:12px}
+html body #autoWashModePanel .ai-result-summary>span:first-child{font-size:12px}
+html body #autoWashModePanel .ai-best-cost strong{font-size:22px}
+html body #autoWashModePanel .ai-route-result{margin:8px 0!important}
+html body #autoWashModePanel .ai-route-result>summary{padding:10px!important;gap:8px!important;min-height:64px!important}
+html body #autoWashModePanel .ai-route-name>span{display:none}
+html body #autoWashModePanel .ai-route-name>b{font-size:13px}
+html body #autoWashModePanel .ai-route-total{font-size:19px!important}
+html body #autoWashModePanel .ai-route-total small{font-size:11px!important}
+html body #autoWashModePanel .ai-route-result .ai-route-metrics{grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px}
+html body #autoWashModePanel button:focus-visible,html body #autoWashModePanel summary:focus-visible{outline:2px solid var(--wash-ink);outline-offset:3px}
+@media(min-width:850px){html body #autoWashModePanel #autoWashSaveGate{padding:12px!important}html body #autoWashModePanel .auto-wash-role-grid{grid-template-columns:minmax(220px,1fr) auto!important}html body #autoWashModePanel .ai-talent-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+
+html body #autoWashModePanel .ai-result-summary>span:nth-child(2),html body #autoWashModePanel .ai-result-summary>span:last-child{display:none}
+html body #autoWashModePanel .ai-best-cost{order:-1}
+html body #autoWashModePanel .ai-more-routes>summary{font-size:13px;min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--wash-ink)}
+html body #autoWashModePanel .ai-route-rank{width:25px;height:25px;font-size:12px;flex:0 0 25px}
+
+html body #autoWashModePanel #btnAiPredict,html body #autoWashModePanel #btnAiCancel{flex:1 1 0!important;width:auto!important}
+html body #autoWashModePanel #btnAiRestart{flex:0 0 auto!important;width:auto!important;font-size:13px!important}
+html body #autoWashModePanel .ai-search-progress[data-state="stopped"] .ai-progress-track,html body #autoWashModePanel .ai-search-progress[data-state="stopped"] #aiProgressPercent{display:none}
+html body #autoWashModePanel .ai-result-summary>span{font-size:12px!important;line-height:1.5!important}
+html body #autoWashModePanel .ai-best-cost{font-size:13px!important}
+html[data-sbj-feature="wash-auto"] body .feature-heading{margin-bottom:8px!important}
+html[data-sbj-feature="wash-auto"] body .feature-mode-nav a{min-height:44px!important;padding:9px 16px!important}
+html body #autoWashModePanel .wash-workbench-head #aiAlgorithmVersion{background:#263b31!important;color:#fff8e8!important}
+html[data-sbj-feature="wash-auto"] body.sbj-workbench .feature-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0!important;margin:0 0 8px!important}
+html[data-sbj-feature="wash-auto"] body.sbj-workbench .feature-heading h1{font-size:18px!important;line-height:1.4}
+html[data-sbj-feature="wash-auto"] body.sbj-workbench .feature-mode-nav{width:150px;margin:0!important;padding:3px;gap:3px;border-radius:10px;flex:0 0 150px}
+html[data-sbj-feature="wash-auto"] body.sbj-workbench .feature-mode-nav a{font-size:13px!important}
+html[data-sbj-feature="wash-auto"] body.sbj-workbench .app-container{padding:10px 10px 24px!important}
+html[data-sbj-feature="wash-auto"] body.sbj-workbench #aiPredictionPanel{padding:8px 0!important;margin:0!important}
+html[data-sbj-feature="wash-auto"] body.sbj-workbench #aiPredictionPanel>.ai-prediction-title-row{display:none!important}
+
+html body #autoWashModePanel .wash-target-chip{display:inline-block;white-space:nowrap;margin-right:8px}
+html body #autoWashModePanel .wash-cloud-actions button{flex:1 1 0!important;width:auto!important;min-width:0}
+html[data-sbj-feature="wash-auto"] body.sbj-workbench .feature-heading h1{white-space:nowrap}
+html body #autoWashModePanel .btn-reset{background:var(--sbj-soft,#e7dec8)!important;color:var(--sbj-ink,#263b31)!important;border:1px solid var(--sbj-border,#d8cfb6)!important}
+
+/* Requested first row: role and pill ceiling, each an ordinary compact field. */
+html body #autoWashModePanel #autoWashSaveGate{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;margin:0 0 8px!important}
+html body #autoWashModePanel #autoWashSaveGate .auto-wash-role-grid{grid-template-columns:minmax(0,1fr) minmax(100px,.55fr)!important;gap:6px 10px!important;align-items:start}
+html body #autoWashModePanel #autoWashSaveGate .wash-search-budget{display:flex!important;flex-direction:column;align-items:stretch;gap:4px!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important}
+html body #autoWashModePanel #autoWashSaveGate .wash-search-budget>span:first-child{font-size:12px!important;line-height:1.5}
+html body #autoWashModePanel #autoWashSaveGate .wash-search-budget-input{width:100%;gap:5px!important}
+html body #autoWashModePanel #autoWashSaveGate .wash-search-budget input{width:0!important;min-width:0;flex:1}
+html body #autoWashModePanel #autoWashSaveGate .wash-search-budget small{display:none!important}
+html body #autoWashModePanel .wash-role-meta{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:3px 10px}
+html body #autoWashModePanel .wash-role-meta .auto-wash-role-summary{flex:1 1 180px;font-size:12px!important}
+html body #autoWashModePanel .wash-role-meta .auto-wash-pill-card{display:flex!important;flex-direction:row;gap:5px;align-items:baseline;min-width:0;padding:0!important}
+html body #autoWashModePanel .wash-role-meta .auto-wash-pill-card strong{font-size:13px!important}
+html body #autoWashModePanel .wash-role-meta .auto-wash-pill-card span{font-size:12px}
+/* Shorter role field with a third first-row action; labels retain touch targets. */
+html body #autoWashModePanel #autoWashSaveGate .auto-wash-role-grid{grid-template-columns:minmax(0,1fr) minmax(92px,.72fr) auto!important;gap:6px 8px!important}
+html body #autoWashModePanel .wash-origin-button{align-self:end;display:inline-flex;align-items:center;justify-content:center;gap:4px;box-sizing:border-box;min-height:44px;padding:7px 8px;border:1px solid color-mix(in srgb,var(--purple,#805577) 44%,var(--sbj-border,#d8cfb6))!important;border-radius:7px!important;background:color-mix(in srgb,var(--purple,#805577) 8%,var(--sbj-surface,#fffaf0))!important;color:var(--purple-bright,var(--purple,#805577))!important;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:inset 0 1px 0 #ffffff55;cursor:pointer}
+html body #autoWashModePanel .wash-origin-button svg{flex:0 0 15px;width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+html body #autoWashModePanel .wash-origin-button:hover:not(:disabled){background:color-mix(in srgb,var(--purple,#805577) 15%,var(--sbj-surface,#fffaf0))!important;border-color:var(--purple,#805577)!important}
+html body #autoWashModePanel :is(.wash-origin-button,#autoWashExchangeStatus):focus-visible{outline:2px solid var(--purple-bright,var(--purple,#805577));outline-offset:3px}
+html body #autoWashModePanel .wash-origin-button:disabled{opacity:.45;cursor:default}
+html body #autoWashModePanel .wash-account-status{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:nowrap;margin:2px 0}
+html body #autoWashModePanel .wash-vip-field{display:flex!important;flex-direction:row!important;flex:0 0 auto;align-items:center;gap:6px;margin:0!important;font-size:12px;color:var(--sbj-muted,#746c58);white-space:nowrap}
+html body #autoWashModePanel #autoWashVipSelect{box-sizing:border-box;flex:0 0 94px!important;min-width:0!important;min-height:44px;width:94px!important;max-width:94px!important;padding:5px 26px 5px 8px!important;font-size:16px;border-radius:7px}
+html body #autoWashModePanel #autoWashExchangeStatus{display:inline-flex;align-items:center;gap:5px;flex:0 1 auto;min-width:0;min-height:44px;padding:5px 0!important;font-size:12px;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:var(--sbj-muted,#746c58);white-space:nowrap;cursor:pointer}
+html body #autoWashModePanel #autoWashExchangeStatus::before{content:"";flex:0 0 5px;width:5px;height:5px;border-radius:50%;background:currentColor}
+html body #autoWashModePanel #autoWashExchangeStatus::after{content:"?";display:inline-grid;place-items:center;box-sizing:border-box;flex:0 0 13px;width:13px;height:13px;border:1px solid currentColor;border-radius:50%;font-size:10px;line-height:1}
+html body #autoWashModePanel #autoWashExchangeStatus[data-state="available"]{color:var(--green,#41694b)}
+html body #autoWashModePanel #autoWashExchangeStatus:hover:not(:disabled){text-decoration:underline;text-underline-offset:3px}
+html body #autoWashModePanel .wash-vip-source{font-size:12px;line-height:1.5;color:var(--sbj-muted,#746c58);margin:0 0 8px;text-align:right}
+html body dialog.wash-origin-dialog{box-sizing:border-box;width:min(620px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:16px!important;border-radius:14px!important;overflow:auto}
+html body dialog.wash-origin-dialog[open]{display:flex!important;flex-direction:column;gap:0}
+html body dialog.wash-origin-dialog>h2{flex-shrink:0;font-size:20px;line-height:1.4;margin:0 0 8px}
+html body dialog.wash-origin-dialog>p{flex-shrink:0;margin:5px 0!important;line-height:1.55}
+html body dialog.wash-origin-dialog .wash-origin-description{font-size:13px}
+html body dialog.wash-origin-dialog .wash-origin-slots{display:flex!important;flex-direction:row!important;align-items:center;align-self:stretch!important;box-sizing:border-box;width:100%!important;flex-shrink:0;gap:10px;min-width:0;margin:7px 0;font-size:13px}
+html body dialog.wash-origin-dialog .wash-origin-slots>span{flex:0 0 auto;white-space:nowrap}
+html body dialog.sc-dialog.wash-origin-dialog .wash-origin-slots select{box-sizing:border-box;flex:1 1 0!important;min-width:0!important;width:auto!important;max-width:none!important;min-height:44px;padding:6px 24px 6px 10px;font:inherit;font-size:16px;border-radius:7px}
+html body dialog.wash-origin-dialog .wash-origin-status{font-size:12px;color:var(--sbj-muted,#746c58)}
+html body dialog.wash-origin-dialog .wash-origin-note{font-size:12px;line-height:1.55;margin:5px 0}
+html body dialog.wash-origin-dialog .wash-origin-note-details{flex-shrink:0;padding:0!important;margin:0 0 7px;font-size:12px;color:var(--sbj-muted,#746c58)}
+html body dialog.wash-origin-dialog .wash-origin-note-details>summary{cursor:pointer;display:flex;align-items:center;gap:5px;min-height:36px;list-style:none}
+html body dialog.wash-origin-dialog .wash-origin-note-details>summary::before{content:'›';font-size:16px}
+html body dialog.wash-origin-dialog .wash-origin-note-details[open]>summary::before{transform:rotate(90deg)}
+html body dialog.wash-origin-dialog .wash-origin-rows{flex:0 1 auto;min-height:0;max-height:52dvh;width:100%;overflow:auto;overscroll-behavior:contain}
+html body dialog.wash-origin-dialog table.wash-origin-table{display:table!important;box-sizing:border-box;width:100%!important;max-width:100%!important;min-width:0!important;table-layout:fixed;border-collapse:collapse;margin:0!important;font-size:12px}
+html body dialog.wash-origin-dialog .wash-origin-table :is(th,td){padding:8px 4px!important;border-bottom:1px solid var(--sbj-border,#d8cfb6);text-align:left;line-height:1.5;overflow-wrap:anywhere}
+html body dialog.wash-origin-dialog .wash-origin-table th{position:sticky;top:0;background:var(--sbj-soft,#e7dec8);color:var(--sbj-muted,#746c58);font-weight:600}
+html body dialog.wash-origin-dialog .wash-origin-table :is(th,td):nth-child(1){width:15%}
+html body dialog.wash-origin-dialog .wash-origin-table :is(th,td):nth-child(2),html body dialog.wash-origin-dialog .wash-origin-table :is(th,td):nth-child(3){width:18%;font-variant-numeric:tabular-nums}
+html body dialog.wash-origin-dialog .wash-origin-table :is(th,td):nth-child(4){width:30%}
+html body dialog.wash-origin-dialog .wash-origin-table :is(th,td):nth-child(5){width:19%}
+html body dialog.wash-origin-dialog .wash-origin-table td:nth-child(4){color:var(--purple-bright,var(--purple,#805577))}
+html body dialog.wash-origin-dialog>.sc-actions{flex-shrink:0;gap:8px;margin:12px 0 0}
+html body dialog.wash-origin-dialog button{min-height:44px;padding:8px 14px;font-size:13px}
+@media(max-width:360px){html body dialog.wash-origin-dialog{padding:12px!important}html body dialog.wash-origin-dialog .wash-origin-table :is(th,td){font-size:11px;padding:7px 3px!important}}
+@media(max-width:360px){html body #autoWashModePanel .wash-origin-button{padding:7px 5px;font-size:12px;gap:3px}html body #autoWashModePanel .wash-origin-button svg{width:13px;height:13px;flex-basis:13px}html body #autoWashModePanel #autoWashSaveGate .auto-wash-role-grid{grid-template-columns:minmax(0,1fr) 92px 66px!important;gap:6px!important}html body #autoWashModePanel .wash-account-status{gap:4px}html body #autoWashModePanel #autoWashExchangeStatus{font-size:11px;gap:4px}html body #autoWashModePanel #autoWashVipSelect{flex-basis:94px!important;width:94px!important;max-width:94px!important}}
+
+
+html body #autoWashModePanel .wash-target-chip[data-quality="4"]{color:var(--purple-bright,var(--purple,#805577))!important}
+html body #autoWashModePanel .wash-target-chip[data-quality="3"]{color:var(--blue,#496da1)!important}
+html body #autoWashModePanel .wash-target-chip[data-quality="2"]{color:var(--green,#41694b)!important}
+html[data-sbj-theme="dark"] body #autoWashModePanel{--purple:#cba3c6;--purple-bright:#d5abd0;--blue:#a5c0e9;--green:#99c4a3}
+html[data-sbj-theme="dark"] body dialog.wash-origin-dialog{--purple:#cba3c6;--purple-bright:#d5abd0}

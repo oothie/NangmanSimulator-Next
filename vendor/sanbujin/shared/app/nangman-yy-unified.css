@@ -1,0 +1,135 @@
+/* v0.8.0: yy-sim visual bridge for embedded Sanbujin calculators.
+   Presentation only: never touches equipment, drop, RNG or save logic. */
+:root {
+  --n-yy-bg:#f3eee3;--n-yy-surface:#fffdf7;--n-yy-paper:#f8f4eb;
+  --n-yy-soft:#eee7da;--n-yy-text:#231e17;--n-yy-sub:#70675b;
+  --n-yy-line:#d6caba;--n-yy-gold:#9c7941;--n-yy-link:#35644f;
+  --n-yy-selected:#e8decd;--n-yy-selected-text:#33281a;
+  color-scheme:light;
+  --sbj-bg:var(--n-yy-bg)!important;--sbj-surface:var(--n-yy-surface)!important;
+  --sbj-soft:var(--n-yy-soft)!important;--sbj-ink:var(--n-yy-text)!important;
+  --sbj-muted:var(--n-yy-sub)!important;--sbj-border:var(--n-yy-line)!important;
+  --sbj-accent:var(--n-yy-gold)!important;--sbj-gold:var(--n-yy-gold)!important;
+  --sbj-selected:var(--n-yy-selected)!important;--sbj-on-selected:var(--n-yy-selected-text)!important;
+  --bg:var(--n-yy-bg)!important;--paper:var(--n-yy-surface)!important;
+  --ink:var(--n-yy-text)!important;--text:var(--n-yy-text)!important;--muted:var(--n-yy-sub)!important;
+  --accent:var(--n-yy-gold)!important;--gold:var(--n-yy-gold)!important;
+  --border:var(--n-yy-line)!important;
+  --bg-primary:var(--n-yy-bg)!important;--bg-secondary:var(--n-yy-paper)!important;
+  --bg-card:var(--n-yy-surface)!important;--bg-card-hover:var(--n-yy-soft)!important;
+  --text-primary:var(--n-yy-text)!important;--text-secondary:var(--n-yy-sub)!important;
+  --text-muted:var(--n-yy-sub)!important;--border-color:var(--n-yy-line)!important;
+  --ui-border:var(--n-yy-line)!important;--line:var(--n-yy-line)!important;
+  --white:var(--n-yy-text)!important;--font-sans:system-ui,"Malgun Gothic",sans-serif;
+}
+:root[data-sbj-theme="dark"],:root[data-nangman-theme="dark"]{
+  --n-yy-bg:#15181f;--n-yy-surface:#252830;--n-yy-paper:#1d2027;
+  --n-yy-soft:#30343c;--n-yy-text:#e9e3d9;--n-yy-sub:#b5aea4;
+  --n-yy-line:#454951;--n-yy-gold:#cca76b;--n-yy-link:#90c4ac;
+  --n-yy-selected:#49402f;--n-yy-selected-text:#f2dfb7;
+  color-scheme:dark;
+  --sbj-bg:var(--n-yy-bg)!important;--sbj-surface:var(--n-yy-surface)!important;
+  --sbj-soft:var(--n-yy-soft)!important;--sbj-ink:var(--n-yy-text)!important;
+  --sbj-muted:var(--n-yy-sub)!important;--sbj-border:var(--n-yy-line)!important;
+  --sbj-accent:var(--n-yy-gold)!important;--sbj-gold:var(--n-yy-gold)!important;
+  --sbj-selected:var(--n-yy-selected)!important;--sbj-on-selected:var(--n-yy-selected-text)!important;
+  --bg:var(--n-yy-bg)!important;--paper:var(--n-yy-surface)!important;
+  --ink:var(--n-yy-text)!important;--text:var(--n-yy-text)!important;--muted:var(--n-yy-sub)!important;
+  --accent:var(--n-yy-gold)!important;--gold:var(--n-yy-gold)!important;--border:var(--n-yy-line)!important;
+  --bg-primary:var(--n-yy-bg)!important;--bg-secondary:var(--n-yy-paper)!important;
+  --bg-card:var(--n-yy-surface)!important;--bg-card-hover:var(--n-yy-soft)!important;
+  --text-primary:var(--n-yy-text)!important;--text-secondary:var(--n-yy-sub)!important;
+  --text-muted:var(--n-yy-sub)!important;--border-color:var(--n-yy-line)!important;
+  --ui-border:var(--n-yy-line)!important;--line:var(--n-yy-line)!important;--white:var(--n-yy-text)!important;
+}
+/* Existing Sanbujin styles use hard-coded paper colors and !important.
+   The selectors below deliberately outrank those without affecting data-driven rarity colors. */
+html body,html body.sbj-web,html body .hub-main,html body .progress-main,
+html body .app-container,html body .equip-app,html body .hs{
+  background-color:var(--n-yy-bg)!important;color:var(--n-yy-text)!important;
+  font-family:system-ui,"Malgun Gothic",sans-serif!important;
+}
+html body :is(.wild-panel,.dungeon-coverage,.drop-orange,.tomb-forecast,
+  .tomb-evidence-control,.tomb-gate-diagnostic,.card,.panel,.config-panel,
+  .result-panel,.equip-auto-result-card,.equip-auto-sweep,.result-card,
+  .hs-card,.ai-panel,.ai-card,.modal-content,.modal-dialog,.dialog-content,
+  .tab-bar-card,.equip-section,.feature-heading,.feature-subheading,
+  .ou-window,.ou-stage,.ou-modal-box,.sbj-dialog,.page-card){
+  background-color:var(--n-yy-surface)!important;
+  color:var(--n-yy-text)!important;border-color:var(--n-yy-line)!important;
+  background-image:none!important;box-shadow:none!important;
+}
+html body :is(.progress-heading,.dungeon-coverage,.feature-heading,.feature-subheading,.tomb-prediction-grid article){
+  border-color:var(--n-yy-line)!important;
+}
+html body :is(.page-head,.sbj-hero,.mine-profile){
+  background:var(--n-yy-paper)!important;color:var(--n-yy-text)!important;
+  border-color:var(--n-yy-line)!important;
+}
+html body :is(.page-head,.sbj-hero,.mine-profile) :is(h1,h2,strong){color:var(--n-yy-text)!important}
+html body :is(.progress-heading p,.feature-heading p,
+  .dungeon-coverage p,.wild-row-note,.progress-note,
+  .muted,.hint,.caption,.text-muted,.ai-hint,.hs-message,.equip-hint){
+  color:var(--n-yy-sub)!important;
+}
+html body :is(h1,h2,h3,h4,h5,label,legend,th,td,summary,dt,dd){
+  color:var(--n-yy-text);
+}
+html body :is(input:not([type="checkbox"]):not([type="radio"]),
+  select,textarea,button,.btn,.sbj-button){
+  font-family:system-ui,"Malgun Gothic",sans-serif!important;
+  border-radius:7px!important;
+}
+html body :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
+  background:var(--n-yy-paper)!important;color:var(--n-yy-text)!important;
+  border:1px solid var(--n-yy-line)!important;
+  color-scheme:inherit;
+}
+html body :is(input,textarea)::placeholder{color:var(--n-yy-sub)!important;opacity:.85}
+html body :is(button,.btn,.sbj-button,.drop-modes button,.feature-mode-nav a,
+  .auto-mode-tabs button,.yyhx-manual-tabs button){
+  background:var(--n-yy-paper)!important;color:var(--n-yy-text)!important;
+  border:1px solid var(--n-yy-line)!important;
+}
+html body :is(button.primary,.btn-primary,.btn.primary,.sbj-button.primary,
+  button.is-active,button.active,button[aria-selected="true"],button[aria-pressed="true"],
+  .feature-mode-nav a[aria-current="page"],.drop-modes button[aria-current="page"]){
+  background:var(--n-yy-selected)!important;color:var(--n-yy-selected-text)!important;
+  border-color:var(--n-yy-gold)!important;
+}
+html body button:disabled{opacity:.48;cursor:not-allowed}
+html body :is(button,a,input,select,textarea):focus-visible{
+  outline:2px solid var(--n-yy-gold)!important;outline-offset:2px;
+}
+html body a:not(.btn):not(.sbj-button){color:var(--n-yy-link)}
+html body :is(table,.treasure-table,.tomb-prediction-table){
+  border-color:var(--n-yy-line)!important;color:var(--n-yy-text)!important;
+}
+html body :is(thead,thead tr,thead th,table th){
+  background:var(--n-yy-paper)!important;color:var(--n-yy-text)!important;
+  border-color:var(--n-yy-line)!important;
+}
+html body :is(tbody td,tbody th,table tr){
+  border-color:var(--n-yy-line)!important;
+}
+html body :is(tbody tr:nth-child(even),.tomb-prediction-grid article,.wild-results li){
+  background-color:var(--n-yy-surface)!important;
+}
+html body :is(.modal,.modal-overlay,.dialog-overlay){color:var(--n-yy-text)!important}
+html body :is(.result-good,.success,.green,.quality-green,.tomb-special){color:var(--n-yy-link)}
+html body .tomb-prediction-table .tomb-purple{color:#865b96!important}
+html[data-sbj-theme="dark"] body .tomb-prediction-table .tomb-purple{color:#c6a1df!important}
+html body .wild-results li{padding:.55rem .3rem;border-bottom:1px solid var(--n-yy-line)}
+/* Keep normal document flow: do not change the size/visibility of engine-owned modal layers. */
+html body .wild-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));align-items:end;gap:10px}
+html body .drop-modes{gap:6px;margin:10px 0 14px}
+html body .drop-modes button{padding:8px 12px;min-height:36px}
+html body :is(.wild-panel,.dungeon-coverage){padding:14px;border-radius:9px}
+html body :is(.feature-heading,.feature-subheading){padding:10px 0;margin-bottom:12px}
+html body .tomb-forecast[hidden],html body [hidden]{display:none!important}
+@media(max-width:650px){
+ html body .wild-fields{grid-template-columns:minmax(0,1fr)}
+ html body .drop-modes{display:flex;flex-wrap:wrap}
+ html body :is(.wild-panel,.dungeon-coverage){padding:10px}
+ html body :is(table,.treasure-table){font-size:12px}
+}

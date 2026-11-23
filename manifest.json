@@ -1,0 +1,407 @@
+{
+  "version": "v0.5.9",
+  "files": [
+    {
+      "path": "vendor/yysim/battle_talent_data.js",
+      "size": 21590,
+      "sha256": "b8f838ecf76f8636871c7e53d4da8519cb44972835d92df1aad4b08a6d6dbda0",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/born_talent_data.js",
+      "size": 22552,
+      "sha256": "0895f765dcac44049c09731933ba9ac31c12d196da1e035e1bc9525343ce0dd5",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/char_data.js",
+      "size": 11554,
+      "sha256": "ce9930220466410e0af6b79e98afd293ad4cc9c3ec492b0231c3095c07e7633e",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/core_glue.js",
+      "size": 49707,
+      "sha256": "1de67a15273b7af8c50a1ddcb6810a5b3acf29d2011b70dfbc61affb2456a3d6",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/daily_data.js",
+      "size": 85712,
+      "sha256": "b14b7bfb4abe3f66a28bc20d49e62b528fa380b6760f316c1ce92fa3a0aee83e",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/data.js",
+      "size": 28156,
+      "sha256": "f3b8b63537979263d0ec0044e3476fe25c366749ecd502d130b8813bd900a5cb",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/equip.css",
+      "size": 12647,
+      "sha256": "ebc0738326e1dc221681a09b9451ffbff173adcc23e275b1241499cc2d6f76a6",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/equip_data.js",
+      "size": 269743,
+      "sha256": "03195ed2ffbdac62948a78a32b112628468afa15252cf7981569e857af45492d",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/extra_attr_data.js",
+      "size": 285832,
+      "sha256": "d97ee02d2849fe422c8c2fffcdc8db79a733baf9cda1bbc2ca76aa5f187610b9",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/index.css",
+      "size": 34572,
+      "sha256": "a0baf76dfcbb809b6d8294da3911ff9395674c237d790955a67164e30894bc12",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/kongfu_data.js",
+      "size": 119477,
+      "sha256": "11fabf5822e272c4b6cd4f6a30c9d7b901c936305c969575f38292b801e128a2",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/life_hedao_data.js",
+      "size": 40607,
+      "sha256": "6be69eed02bb7994e7e55e7b76b047cbfd361ab4e575a58e546de5ac9779d7f3",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/role.css",
+      "size": 12083,
+      "sha256": "2a29323f76c228922e2abc69f46c2739744f127f4748171f3bc47af16d707356",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/sect_data.js",
+      "size": 52548,
+      "sha256": "da5455eeac26446059de47f60eeb5e21460e50e04ccafee45cdd2bfd5c911d22",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/version.js",
+      "size": 425,
+      "sha256": "cc849ad3678aaaa7a6dd113ada0b4f1c86e92b94d404502f2cbb095ee1568077",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/wasm_data.js",
+      "size": 1994819,
+      "sha256": "ba35af48bcfbaeda045506b3e185ff8c1daf1fbe5d415dc790fcd30da4d649bd",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/wiki_buff.js",
+      "size": 545275,
+      "sha256": "b3e12aea1973e69aea662a1752a03babfb7c1286747ca03bff2cc27ce258d0f0",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/wiki_data.js",
+      "size": 1163008,
+      "sha256": "819e962f850fe5188e0d4e33b6a7f5b2ec81774dd747d6bf912d16b43df8c676",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/yysim/yuxiaoxue-avatar-BaYAgdSF.png",
+      "size": 112754,
+      "sha256": "0f93d6523759127f0bd4b0cac04793534e0cef147816f6b4f26786a60a109ee3",
+      "source": "user-supplied yy-sim resources zip"
+    },
+    {
+      "path": "vendor/sanbujin/drops/dungeon-core.js",
+      "size": 4184,
+      "sha256": "1478c5353cb427b02c41bfd45b97518ef3c4035a8a74a12220823a87d968d189",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/drops/dungeon-data.js",
+      "size": 24070,
+      "sha256": "8a4acc615be9a965cbcd02b878e081503edf967edf94cd90a6a4e088a408d5ef",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/drops/dungeon-orange.js",
+      "size": 50473,
+      "sha256": "ebf81cc045315609592776e81c5ceeda6c34b700e1277ab4d3d6de99f3f52de1",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/drops/dungeon.js",
+      "size": 4944,
+      "sha256": "b3bd4e0af912d5839597893f1bc9659cef330996e2635baa484bbf23cd850459",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/drops/index.html",
+      "size": 7869,
+      "sha256": "cf2588e414051b6eb23e1ccc4a9b762240ea656b23411272d24c446107b74fa4",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/drops/treasure-core.js",
+      "size": 6161,
+      "sha256": "e7521288db3642243db258aa3d02acee0575324c7140718b04d3b14deab8bb01",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/drops/treasure.js",
+      "size": 3958,
+      "sha256": "6a0abfcb30fe07394bb371000b8117fc2f40f7c67a9e0ccd4ce3f31ab1844454",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/drops/wild-core.js",
+      "size": 6995,
+      "sha256": "01213b205bbe28044e76e4ca855a3ca1cd286110f23200c8c04dd49e4ef3ebf5",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/drops/wild-data.js",
+      "size": 4526,
+      "sha256": "748f06dc633a2f9ec781b98455a07466bdb3a651eecdb1bbb5acabe4c15360c2",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/drops/wild.css",
+      "size": 3659,
+      "sha256": "424563e2f4b2029b2b496ee82e768192bc87cd6c539b8ff4a2d4bd828a6c38d1",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/drops/wild.js",
+      "size": 5164,
+      "sha256": "a2320a7ce88ccab8b4620c4ba12bd8ec873f53d76c822fc2030366ad7356f76d",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/equip/equip.css",
+      "size": 23559,
+      "sha256": "965180f1d70e0affde40f41f895e03377fd073e5e8b0944b114e30e0d128160b",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/equip/equip.js",
+      "size": 200393,
+      "sha256": "d827b98317106d0dcffe51de67d1a22573cf45d114e26a355c5dc9dba4730cc7",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/equip/index.html",
+      "size": 31384,
+      "sha256": "0b61ff89d7cb472bd2db9aae04bd6dcd1ad75859b44ccd9cf4f11347943f4739",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/equip/orange-sequences.js",
+      "size": 15010,
+      "sha256": "60f1fbdd465f7c38fec5a4f4a911345f9b7b73babb3d5816a09c1e136d777189",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/equip/preview-worker.js",
+      "size": 697,
+      "sha256": "c7c6fbd21c6df76c874604cfb811970f8e939f5b1575fc9b8a26e2448c5c6a45",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/equip-auto/index.html",
+      "size": 68390,
+      "sha256": "77881574de21845aab3ed191e2a7ef4705d5cd3c95bf6659539b4bf2377c7e9b",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/archive_state.js",
+      "size": 6202,
+      "sha256": "986981cab5222196a201454a24db65883b02a932911d28af29962ca9de575999",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/born_talent_data.js",
+      "size": 22463,
+      "sha256": "2cb2c54992c191e3a27ee974e392827760e4509406a11179947dc5159d1ec339",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/core_glue.js",
+      "size": 38011,
+      "sha256": "f42d00895211a50c5ec11c22f765b1a3384ec18c4e342daabbe53dde992de81b",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/data.js",
+      "size": 28028,
+      "sha256": "28672d2b17a004209c50c4537a28ef3ca1453c880ba0c20628be6c8654e9c55b",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/equip_auto_optimizer.js",
+      "size": 61679,
+      "sha256": "d5d1de7d1edee020841e9b7b85b0eb69414d0bdb4324d8ef973fe1f8025dfeae",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/equip_auto_strong_preview.js",
+      "size": 19975,
+      "sha256": "9a626b15a5101d61e5766aa81c79474ca31eb2c388aa6e20d1dfcb8bc4fc7958",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/equip_card_views.js",
+      "size": 30059,
+      "sha256": "b5fc4ac12c8ac1ef0942dfdf94b0aae489f5d15ff847388a5b8f4f7edd0d3d9f",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/equip_data.js",
+      "size": 260332,
+      "sha256": "0a3284d24ea36521d79ec4bac44dc1fd825bb2b126027aeb28084318a94f234d",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/equip_favorites.js",
+      "size": 6925,
+      "sha256": "cfd31ff0f95426284d4e6fdf680dda64f521b9f29a2ff4d607bffed707871460",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/extra_attr_data.js",
+      "size": 159113,
+      "sha256": "8da03eb51b7bbab8dcbfcb82622404e4c94b3e54292217a2a2af1d405c901681",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/i18n.js",
+      "size": 616829,
+      "sha256": "7926aa074c11e2fe1d3b9ec03abb28f3aec3efaebc87d2bcd4913738f75e2b43",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/international_wash.js",
+      "size": 47190,
+      "sha256": "f86a67c9a6388e515bc7f78693a7f5e6612fb001f294338a8907d1d507eb6278",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/item_names.js",
+      "size": 96692,
+      "sha256": "4930e17782c958e485d038078bc3485d615f460d47a7d4f285a7c291644e643c",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/licenses/THIRD_PARTY_NOTICES.txt",
+      "size": 842,
+      "sha256": "e32726c13e04c17f65265c437e1b2103d32e06ed7691c46fb23c9336adb57545",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/licenses/YYJH-LICENSE.txt",
+      "size": 1070,
+      "sha256": "9f7ab759a4160915afe965a1e5fa7d453c4535602a6cf27d077d7f0484968b15",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/pako.min.js",
+      "size": 44260,
+      "sha256": "83a0cef96bef8fd0b1ae3d260bd2cfa992d821820d435f54fcf274d09726379d",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/save_decrypt.js",
+      "size": 61162,
+      "sha256": "6199549ba1a87389438bafad06c4437ac93bd8c2e870a9b91eeb1adc4393ebaf",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/save_file.js",
+      "size": 4665,
+      "sha256": "e4635b30c8069fcf515c49924ab4793e656067bee7d87aa2352c16e75b2bf463",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/sequence_rules.js",
+      "size": 4564,
+      "sha256": "406f89c8d0436c5769e37ccb4ea7b242692fa067661b8757cda4307eb2b57eaa",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/simulator.css",
+      "size": 245265,
+      "sha256": "8123d9b39feabd883c44f001fb9b2d8a0bd1baec2ab726071e49b0a3e80aa392",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/wash-compact.css",
+      "size": 20771,
+      "sha256": "038819d5f18349306eb23a714fe33b0b5c32d0398125c482bca53fb49c1f6dfb",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/wash_route_engine.js",
+      "size": 22287,
+      "sha256": "302c29541459d3927195be981e71dbb6ffec63fadfb7fed7ee22a9081e529317",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/wash_search_manager.js",
+      "size": 30895,
+      "sha256": "792f098481a3313bf8cff8cda213ea558c88c0cff0c17dfdbc71ceba04810efa",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/wash_source_engine.js",
+      "size": 19996,
+      "sha256": "e97bfbbf466e900b27f882fb82d69e77984769f01a0b786043d4b0faca41112b",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/wash_source_optimizer.js",
+      "size": 320,
+      "sha256": "2262c7682fc15919c6322b5dd6e6c404598ad96b6f933b75bb90ae93f8a5fff5",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/shared/wasm_data.js",
+      "size": 524984,
+      "sha256": "3235c03844430663907a47be15b62ef95feec87690ea7d3030c56d7a9fe6a87d",
+      "source": "user-supplied Sanbujin APK"
+    },
+    {
+      "path": "vendor/sanbujin/SOURCE.txt",
+      "size": 130,
+      "sha256": "83c63d7119b7158d976066f38a2887c9ca4b117ea2c22eff9d84089d68330b91",
+      "source": "manifest"
+    },
+    {
+      "path": "vendor/sanbujin/engine-host.html",
+      "size": 2196,
+      "sha256": "42307423aa2af6705845152a76bc541dd7c536b9c76c1d95ef2287b277b02712",
+      "source": "self-hosted bridge"
+    },
+    {
+      "path": "vendor/yysim/engine-host.html",
+      "size": 1405,
+      "sha256": "aeaac3d054d36cf236e7dc530b96a24f66c7c5c411289d196c2632eadc731b15",
+      "source": "self-hosted bridge"
+    },
+    {
+      "path": "engine/local-engine-bridge.js",
+      "size": 1828,
+      "sha256": "735df666c3c72cd0ff38d91a76b462f5dcf57757194ba1cabd928ae3a1e2f1e0",
+      "source": "self-hosted bridge"
+    },
+    {
+      "path": "ENGINE_ASSETS_README.md",
+      "size": 1298,
+      "sha256": "b9bddc10fde9d2274377dc8cb647376e21cb8c6c41ab0f14edc99514e83ce179",
+      "source": "self-hosted pack"
+    }
+  ]
+}

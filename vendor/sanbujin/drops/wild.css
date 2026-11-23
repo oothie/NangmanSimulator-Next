@@ -1,0 +1,47 @@
+.wild-panel { margin: 0 0 1rem; padding: 0 1rem; border: 1px solid var(--sbj-border); border-radius: 12px; background: var(--sbj-surface); }
+.wild-panel > summary, .wild-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.65rem; min-height: 44px; }
+.wild-panel summary { cursor: pointer; }
+.wild-panel > summary span, .wild-row-note { font-size: 0.8rem; color: var(--sbj-muted); }
+.wild-form { display: grid; gap: 0.65rem; padding-bottom: 0.75rem; }
+.wild-form p { margin: 0; }
+.wild-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.65rem; }
+.wild-fields label { display: grid; min-width: 0; gap: 0.25rem; font-size: 0.86rem; }
+.wild-fields label[hidden] { display: none; }
+.wild-fields select, .wild-fields input { width: 100%; min-width: 0; min-height: 44px; }
+#wildTiming summary { padding: 0.45rem 0; }
+.wild-actions label { display: inline-flex; min-height: 44px; align-items: center; gap: 0.35rem; }
+.wild-actions button { min-height: 44px; }
+#wildStatus:empty, .wild-results:empty { display: none; }
+.wild-results { padding: 0; margin: 0 0 1rem; list-style: none; }
+.wild-results li { padding: 0.55rem 0; border-top: 1px solid var(--sbj-border); overflow-wrap: anywhere; }
+.wild-row-note { display: block; }
+@media (max-width: 570px) {
+    .wild-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .wild-fields label:has(#wildTarget), .wild-fields label:has(#wildTime) { grid-column: 1 / -1; }
+}
+.drop-modes { display: flex; gap: 0.5rem; margin-bottom: 0.8rem; }
+.progress-main .drop-modes button { display: inline-flex; flex: 1; align-items: center; justify-content: center; min-height: 44px; padding-inline: 0.7rem; border: 1px solid var(--sbj-border); border-radius: 9px; background: var(--sbj-soft); color: var(--sbj-ink); text-decoration: none; font-weight: 600; }
+.progress-main .drop-modes button[aria-pressed="true"] { background: var(--sbj-ink); color: var(--sbj-surface); border-color: var(--sbj-ink); }
+.progress-main .drop-modes button:focus-visible { outline: 2px solid var(--sbj-gold); outline-offset: 2px; }
+.wild-panel { padding-top: 1rem; }
+.drop-orange h2 { margin: 0.5rem 0; font-size: 1rem; }
+#dungeonStatus:empty { display: none; }
+@media (max-width: 570px) { .wild-fields label:has(#dungeonArea) { grid-column: 1 / -1; } }
+.treasure-heading h2 { margin: 0 0 0.2rem; font-size: 1.18rem; }
+.treasure-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.treasure-rules { font-size: 0.86rem; color: var(--sbj-muted); }
+.treasure-rules summary { display: list-item; padding: 0.7rem 0; }
+.treasure-rules p + p { margin-top: 0.5rem; }
+#treasureRun { min-height: 44px; }
+.treasure-output { border-top: 1px solid var(--sbj-border); padding: 0.75rem 0; }
+.treasure-tools { display: flex; align-items: end; justify-content: space-between; gap: 0.5rem; }
+.treasure-tools > label:first-child, .treasure-tomb-field { display: grid; gap: 0.25rem; min-width: 0; font-size: 0.86rem; }
+.treasure-tomb-field { margin-top: 0.5rem; }
+.treasure-tomb-field[hidden] { display: none; }
+.treasure-tools select, .treasure-tomb-field select { min-height: 44px; width: 100%; }
+.treasure-check { display: flex; align-items: center; gap: 0.3rem; min-height: 44px; white-space: nowrap; font-size: 0.86rem; }
+#treasureResult { margin: 0.75rem 0; line-height: 1.5; }
+.treasure-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.86rem; }
+.treasure-table th, .treasure-table td { border-top: 1px solid var(--sbj-border); padding: 0.5rem 0.3rem; }
+.treasure-table th { color: var(--sbj-muted); white-space: nowrap; }
+.treasure-hit td:last-child { font-weight: 700; }

@@ -1,0 +1,1180 @@
+(function (root) {
+    'use strict';
+
+    const DEFAULT_OPTIONS = Object.freeze({
+        craftCount: 100,
+        refineCount: 200,
+        maxCraftCount: 5000,
+        maxRefineCount: 2000,
+        maxCraftWork: 100000,
+        maxRefineWork: 2000000,
+        refineLianjinBudget: 0,
+        resultLimit: 30,
+    });
+    const TARGET_PROPERTIES = Object.freeze([
+        'atk_add', 'dmg_off', 'def_ign', 'atk_extend',
+        'sword_add', 'unarmed_add', 'blade_add', 'stick_add',
+        'hp_add', 'def_add', 'speed_add', 'hit_add',
+        'blood', 'neij', 'gangqi', 'mp_back', 'mp_f',
+        'dodge_add', 'parry_add', 'renxing', 'po_parry',
+        'po_dodge', 'hp_back', 'dmg_ref',
+    ]);
+    const AUTO_PAPER_IDS = Object.freeze([
+        2581, 2584, 2580, 3461, 3439, 3449, 3460, 2586, 2585,
+        2587, 2583, 2582, 3458, 3454, 3429, 3456, 3409, 3419,
+    ]);
+    const SPECIAL_MATERIAL_PART_OVERRIDES = Object.freeze({
+        6884: Object.freeze([7]),
+    });
+    const SPECIAL_QUALITY_WEIGHTS = Object.freeze([5000, 500, 50, 5, 1]);
+    const SPECIAL_QUALITY_RANGES = Object.freeze([[85, 95], [95, 105], [105, 115], [115, 125], [125, 150]]);
+    const SPECIAL_QUALITY_MIN_FACTOR = 85;
+    const SPECIAL_QUALITY_MAX_FACTOR = 150;
+    const WHALE_MULTIPLIER = 245109059551232n;
+    const WHALE_INCREMENT = 48083817484545n;
+    const WHALE_MASK = 2147483647n;
+    const WHALE_REDUCTION_LIMIT = 2047483645n;
+    const CRAFTED_MJ_SEED_PAPER_MULTIPLIER = 198;
+    const REFINEMENT_THEORETICAL_MAX_MULTIPLIER = 1.25;
+    const REFINEMENT_SLOT_MULTIPLIERS = Object.freeze([1, 0.75, 0.5]);
+
+    function clone(value) {
+        return value == null ? value : JSON.parse(JSON.stringify(value));
+    }
+
+    function finiteNumber(value, fallback = 0) {
+        const number = Number(value);
+        return Number.isFinite(number) ? number : fallback;
+    }
+
+    function integerInRange(value, min, max, fallback) {
+        const number = Math.trunc(finiteNumber(value, fallback));
+        return Math.max(min, Math.min(max, number));
+    }
+
+    function normalizeOptions(options) {
+        const raw = { ...DEFAULT_OPTIONS, ...(options || {}) };
+        return {
+            craftCount: integerInRange(raw.craftCount, 1, raw.maxCraftCount, DEFAULT_OPTIONS.craftCount),
+            refineCount: integerInRange(raw.refineCount, 1, raw.maxRefineCount, DEFAULT_OPTIONS.refineCount),
+            maxCraftCount: integerInRange(raw.maxCraftCount, 1, 5000, DEFAULT_OPTIONS.maxCraftCount),
+            maxRefineCount: integerInRange(raw.maxRefineCount, 1, 2000, DEFAULT_OPTIONS.maxRefineCount),
+            maxCraftWork: integerInRange(raw.maxCraftWork, 1, 500000, DEFAULT_OPTIONS.maxCraftWork),
+            maxRefineWork: integerInRange(raw.maxRefineWork, 1, 10000000, DEFAULT_OPTIONS.maxRefineWork),
+            refineLianjinBudget: 0, // Ignore retired budget values from old callers and settings.
+            resultLimit: integerInRange(raw.resultLimit, 1, 100, DEFAULT_OPTIONS.resultLimit),
+            forceLocation: !!raw.forceLocation,
+            analyzeAll: !!raw.analyzeAll,
+            includeBlue: raw.includeBlue !== false,
+        };
+    }
+
+    function requireData(data) {
+        if (!data || !data.equipment || !data.papers || !data.craftsman) {
+            throw new TypeError('장비 데이터가 완전히 로드되지 않았습니다.');
+        }
+        return data;
+    }
+
+    function sortedCraftsmen(data) {
+        requireData(data);
+        return Object.values(data.craftsman).slice().sort((a, b) => {
+            const placeA = a.place || a.name || '';
+            const placeB = b.place || b.name || '';
+            if (placeA !== placeB) return placeA.localeCompare(placeB, 'zh');
+            return finiteNumber(a.id) - finiteNumber(b.id);
+        });
+    }
+
+    function papersForCraftsman(data, craftsmanId) {
+        requireData(data);
+        const craftsman = data.craftsman[String(craftsmanId)];
+        if (!craftsman) return [];
+        const freePapers = new Set((craftsman.pf || []).map(Number));
+        const allowedTypes = craftsman.zhi === 'fengzhi'
+            ? new Set([5, 6, 7])
+            : new Set([1, 2, 3, 4, 8, 9]);
+        return Object.values(data.papers)
+            .map(paper => ({
+                paper,
+                equip: data.equipment[String(paper.dz_equip)],
+                isFreePaper: freePapers.has(Number(paper.id)),
+            }))
+            .filter(item => item.equip && allowedTypes.has(Number(item.equip.type)))
+            .sort((a, b) => (finiteNumber(b.equip.lv) - finiteNumber(a.equip.lv))
+                || String(a.equip.name || '').localeCompare(String(b.equip.name || ''), 'zh'));
+    }
+
+    function specialMaterialParts(material) {
+        if (!material || !Array.isArray(material.part)) return [];
+        if (material.part.length) return material.part.map(Number);
+        return SPECIAL_MATERIAL_PART_OVERRIDES[String(material.id)] || [];
+    }
+
+    function specialMaterialSupportsEquip(material, equip) {
+        const equipType = finiteNumber(equip && (equip.typ != null ? equip.typ : equip.type));
+        return specialMaterialParts(material).includes(equipType);
+    }
+
+    function specialMaterialsForEquip(data, equip) {
+        return Object.values((data && data.special) || {})
+            .filter(material => specialMaterialSupportsEquip(material, equip))
+            .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'zh'));
+    }
+
+    function supportedTargetProperties(equip, data, targetProps) {
+        const available = new Set(Object.keys(equip && equip.exts || {}));
+        const next = equip && finiteNumber(equip.equ_next)
+            ? data && data.equipment && data.equipment[String(equip.equ_next)]
+            : null;
+        Object.keys(next && next.exts || {}).forEach(prop => available.add(prop));
+        return Array.from(new Set(targetProps || [])).filter(prop => TARGET_PROPERTIES.includes(prop) && available.has(prop));
+    }
+
+    function theoreticalRefinementSlotMaximum(equip, prop, slot = 1) {
+        const extConfig = equip && equip.exts && equip.exts[prop];
+        const baseValue = Number(Array.isArray(extConfig) ? extConfig[0] : NaN);
+        const slotMultiplier = REFINEMENT_SLOT_MULTIPLIERS[Math.trunc(Number(slot)) - 1];
+        if (!Number.isFinite(baseValue) || baseValue <= 0 || !slotMultiplier) return 0;
+        const maximum = baseValue * REFINEMENT_THEORETICAL_MAX_MULTIPLIER * slotMultiplier;
+        return baseValue >= 1 ? Math.floor(maximum) : maximum;
+    }
+
+    function theoreticalRefinementReference(equip, targetProps = Object.keys(equip && equip.exts || {})) {
+        return Array.from(new Set(targetProps || [])).reduce((reference, prop) => {
+            const maximum = REFINEMENT_SLOT_MULTIPLIERS.reduce((sum, _, index) => (
+                sum + theoreticalRefinementSlotMaximum(equip, prop, index + 1)
+            ), 0);
+            if (maximum > 0) reference[prop] = maximum;
+            return reference;
+        }, {});
+    }
+
+    function craftedMJSeedFromMakeResult(result, paperId) {
+        const czSeed = result && (result.CZSeed != null ? result.CZSeed : result.cz_seed);
+        if (!Number.isSafeInteger(paperId) || paperId <= 0) {
+            throw new TypeError(`제작 도면 ID는 양의 안전 정수여야 합니다. 입력값: ${String(paperId)}`);
+        }
+        const offset = paperId * CRAFTED_MJ_SEED_PAPER_MULTIPLIER;
+        if (!Number.isSafeInteger(czSeed) || czSeed <= offset) {
+            throw new TypeError(`장비 제작 진행도가 불완전합니다. 세이브를 다시 불러온 후 시도하세요.`);
+        }
+        return czSeed - offset;
+    }
+
+    function normalizePropertyList(list) {
+        return (Array.isArray(list) ? list : []).map(item => ({
+            prop: item && (item.prop || item.Key || item.key),
+            value: item && (item.value != null ? item.value : item.Value),
+        })).filter(item => item.prop);
+    }
+
+    function makeResultToEquip(result, data, paperId) {
+        const equipId = finiteNumber(result && (result.equip_id || result.id));
+        const config = data.equipment[String(equipId)] || {};
+        const czSeed = result && (result.CZSeed != null ? result.CZSeed : result.cz_seed);
+        return {
+            id: equipId,
+            only_id: finiteNumber(result && (result.only_id || result.OnlyID)),
+            name: result && result.name || config.name || String(equipId),
+            need_lv: finiteNumber(config.lv),
+            typ: finiteNumber(config.type),
+            color: finiteNumber(result && result.color, 1),
+            level: 0,
+            lv_prop: 0,
+            S: finiteNumber(result && (result.S != null ? result.S : result.s)),
+            MJSeed: craftedMJSeedFromMakeResult(result, paperId),
+            CZSeed: finiteNumber(czSeed),
+            XLLevel: 0,
+            XLNumber: 0,
+            exts: normalizePropertyList(result && result.exts),
+            specials: normalizePropertyList(result && result.special),
+            xilian_marks: [],
+            xilian_accepted: 0,
+        };
+    }
+
+    function canUpgrade(equip, data) {
+        const config = data.equipment[String(equip && equip.id)] || {};
+        return finiteNumber(equip && equip.need_lv) === 90
+            && finiteNumber(equip && equip.color) < 5
+            && finiteNumber(config.equ_next) > 0
+            && !!data.equipment[String(config.equ_next)];
+    }
+
+    function upgradeEquip(equip, data) {
+        if (!canUpgrade(equip, data)) return { equip: clone(equip), cost: null, upgraded: false };
+        const current = data.equipment[String(equip.id)] || {};
+        const next = data.equipment[String(current.equ_next)] || {};
+        const isArmor = finiteNumber(equip.typ) >= 5 && finiteNumber(equip.typ) <= 7;
+        const mainMaterial = isArmor
+            ? { id: 3036, name: '青蝉翼', amount: 120 }
+            : { id: 3026, name: '昆吾石', amount: 120 };
+        const price = finiteNumber(next.price) > 0 ? finiteNumber(next.price) : (finiteNumber(current.price) || 10000);
+        return {
+            equip: {
+                ...clone(equip),
+                id: finiteNumber(current.equ_next),
+                name: next.name || String(current.equ_next),
+                need_lv: finiteNumber(next.lv, 100),
+                typ: finiteNumber(next.type, equip.typ),
+            },
+            upgraded: true,
+            cost: {
+                materials: [
+                    { id: 8801, name: '连金泥', amount: 10 },
+                    mainMaterial,
+                ],
+                silver: Math.floor(price * 6),
+            },
+        };
+    }
+
+    function toWasmEquip(equip) {
+        return {
+            id: equip.id,
+            only_id: equip.only_id || 0,
+            name: equip.name,
+            color: equip.color,
+            level: equip.level || 0,
+            lv_prop: equip.lv_prop || 0,
+            S: equip.S || 0,
+            CZSeed: equip.CZSeed,
+            XLLevel: equip.XLLevel || 0,
+            XLNumber: equip.XLNumber || 0,
+            exts: clone(equip.exts || []),
+            xilian_accepted: (equip.xilian_marks || []).length,
+            xilian_marks: clone(equip.xilian_marks || []),
+            need_lv: equip.need_lv || 0,
+            typ: equip.typ || 0,
+        };
+    }
+
+    function refinementPreviewItems(bridge, equip, count) {
+        const response = bridge.xilianPlan(toWasmEquip(equip), Array(count).fill(false));
+        if (response && response.error && !(response.items || []).length) throw new Error(response.error);
+        return (response && response.items || []).slice(0, count);
+    }
+
+    function collectSlotMaxima(items, targetProp) {
+        const maxima = { 1: null, 2: null, 3: null };
+        items.forEach((item, zeroIndex) => {
+            const slot = finiteNumber(item && item.slot);
+            const prop = item && item.prop;
+            if (slot < 1 || slot > 3 || !prop || prop.prop !== targetProp) return;
+            const value = finiteNumber(prop.value, Number.NEGATIVE_INFINITY);
+            if (!Number.isFinite(value)) return;
+            const occurrence = { index: finiteNumber(item.index, zeroIndex + 1), slot, value };
+            if (!maxima[slot] || value > maxima[slot].value) {
+                maxima[slot] = { slot, value, occurrences: [occurrence] };
+            } else if (value === maxima[slot].value) {
+                maxima[slot].occurrences.push(occurrence);
+            }
+        });
+        return maxima;
+    }
+
+    function initialSlotMaxima(equip, targetProp) {
+        const maxima = { 1: null, 2: null, 3: null };
+        (Array.isArray(equip && equip.exts) ? equip.exts : []).slice(0, 3).forEach((prop, index) => {
+            const property = prop && (prop.prop || prop.Key || prop.key);
+            if (property !== targetProp) return;
+            const value = finiteNumber(prop && (prop.value != null ? prop.value : prop.Value), Number.NEGATIVE_INFINITY);
+            if (!Number.isFinite(value)) return;
+            const slot = index + 1;
+            const occurrence = { index: 0, slot, value, source: 'original' };
+            maxima[slot] = { slot, value, occurrences: [occurrence], source: 'original' };
+        });
+        return maxima;
+    }
+
+    function cartesianOccurrenceChoices(groups, visit, depth = 0, selected = []) {
+        if (depth >= groups.length) {
+            visit(selected.slice());
+            return;
+        }
+        groups[depth].forEach(item => {
+            selected.push(item);
+            cartesianOccurrenceChoices(groups, visit, depth + 1, selected);
+            selected.pop();
+        });
+    }
+
+    function multiplierWorkUntil(indices) {
+        const sorted = indices.slice().sort((a, b) => a - b);
+        let previous = 0;
+        let accepted = 0;
+        let work = 0;
+        sorted.forEach(index => {
+            work += (index - previous) * [1, 2, 4, 8][Math.min(accepted, 3)];
+            previous = index;
+            accepted += 1;
+        });
+        return { multiplierWork: work, cutoff: sorted[sorted.length - 1] || 0, sorted };
+    }
+
+    function selectCheapestMaxima(maxima) {
+        const groups = [1, 2, 3].map(slot => maxima[slot]).filter(Boolean).map(item => item.occurrences);
+        if (!groups.length) return null;
+        let best = null;
+        cartesianOccurrenceChoices(groups, choice => {
+            const work = multiplierWorkUntil(choice.map(item => item.index));
+            const signature = work.sorted.join(',');
+            const candidate = { ...work, occurrences: choice.slice(), signature };
+            if (!best
+                || candidate.multiplierWork < best.multiplierWork
+                || (candidate.multiplierWork === best.multiplierWork && candidate.cutoff < best.cutoff)
+                || (candidate.multiplierWork === best.multiplierWork && candidate.cutoff === best.cutoff && candidate.signature < best.signature)) {
+                best = candidate;
+            }
+        });
+        return best;
+    }
+
+    function refinementCost(equip, planItems, cutoff, data) {
+        if (!cutoff) return { mainMaterial: null, mainAmount: 0, lianjin: 0, silver: 0, multiplierWork: 0 };
+        const isArmor = finiteNumber(equip.typ) >= 5 && finiteNumber(equip.typ) <= 7;
+        const mainMaterial = isArmor
+            ? { id: 3036, name: '青蝉翼' }
+            : { id: 3026, name: '昆吾石' };
+        const price = finiteNumber(data.equipment[String(equip.id)] && data.equipment[String(equip.id)].price) || 10000;
+        const multiplierWork = planItems.slice(0, cutoff).reduce((sum, item) => sum + Math.max(1, finiteNumber(item.cost_mult, 1)), 0);
+        return {
+            mainMaterial,
+            mainAmount: 5 * multiplierWork,
+            lianjin: multiplierWork,
+            silver: Math.floor(price * 1.5) * cutoff,
+            multiplierWork,
+        };
+    }
+
+    function xilianMarkMask(marks) {
+        let mask = 0;
+        for (const raw of marks || []) {
+            const slot = Number(raw);
+            if (slot >= 1 && slot <= 3) mask |= 1 << (slot - 1);
+        }
+        return mask;
+    }
+
+    function xilianMaskMult(mask) {
+        const count = ((mask & 1) ? 1 : 0) + ((mask & 2) ? 1 : 0) + ((mask & 4) ? 1 : 0);
+        return [1, 2, 4, 8][count];
+    }
+
+    function xilianTargetValues(exts, target, slotCount) {
+        const out = [];
+        for (let i = 0; i < slotCount; i++) {
+            const prop = exts?.[i];
+            out.push(prop?.prop === target && Number.isFinite(Number(prop.value)) ? Number(prop.value) : 0);
+        }
+        return out;
+    }
+
+    function xilianTargetTotal(exts, target) {
+        return (exts || []).reduce((sum, prop) => {
+            return sum + (prop?.prop === target && Number.isFinite(Number(prop.value)) ? Number(prop.value) : 0);
+        }, 0);
+    }
+
+    function compareXilianPlanMeta(a, b) {
+        if (a.cutoffLianjin !== b.cutoffLianjin) return a.cutoffLianjin - b.cutoffLianjin;
+        if (a.lastStep !== b.lastStep) return a.lastStep - b.lastStep;
+        return a.keepCount - b.keepCount;
+    }
+
+    function xilianLinkedSteps(node) {
+        const out = [];
+        while (node) {
+            out.push(node.step);
+            node = node.prev;
+        }
+        return out.reverse();
+    }
+
+    // Shared automatic/manual planner: enumerate enabled slot masks, including
+    // preliminary non-target keeps that accelerate XLLevel, then minimize the
+    // replay path for the best discovered final values. Offers always come from
+    // the original WASM at the actual seed/XLLevel; no inverse growth formula.
+
+    function prepareRefinementEvaluation(bridge, eq, count) {
+        const toOnce = equip => {
+            const response = bridge.xilianPlan(toWasmEquip(equip), [false]);
+            if (response?.error || !response?.equip || !response.items?.[0]) throw new Error(response?.error || '정련 결과를 생성하지 못했습니다.');
+            return { equip: response.equip, result: response.items[0] };
+        };
+        const basePlan = bridge.xilianPlan(toWasmEquip(eq), Array(count).fill(false));
+        if (basePlan.error || basePlan.items?.length !== count) throw new Error(basePlan.error || '정련 순서가 불완전합니다. 다시 시도하세요.');
+        const seedBefore = [];
+        let seedProbe = JSON.parse(JSON.stringify(toWasmEquip(eq)));
+        for (let i = 0; i < count; i++) {
+            seedBefore.push(seedProbe.CZSeed);
+            seedProbe = toOnce(seedProbe).equip;
+        }
+        const offerCache = new Map();
+        function offerAt(step, effectiveLevel) {
+            const level = Math.min(100, effectiveLevel), key = `${step}|${level}`;
+            if (offerCache.has(key)) return offerCache.get(key);
+            const probe = {...toWasmEquip(eq), CZSeed: seedBefore[step - 1], XLLevel: level,
+                XLNumber: (Number(eq.XLNumber) || 0) + step - 1, xilian_marks: [], xilian_accepted: 0};
+            const result = toOnce(probe).result;
+            offerCache.set(key, result);
+            return result;
+        }
+        return {offerAt, previewItems: basePlan.items.slice(0, count)};
+    }
+
+    function buildRefinementMaxPlan(bridge, eq, count, target, options = {}) {
+        const slotCount = Math.min(3, Math.max(1, eq.exts?.length || 0));
+        const initialXl = Number(eq.XLLevel) || 0;
+        const initialMask = xilianMarkMask(eq.xilian_marks || []);
+        const initialValues = xilianTargetValues(eq.exts, target, slotCount);
+        const selectedSlots = Array.isArray(options.targetSlots) ? options.targetSlots.map(Number) : [];
+        const targetMask = selectedSlots.length ? xilianMarkMask(selectedSlots) : (1 << slotCount) - 1;
+        const budget = 0; // Automatic equipment results are never capped by mud cost.
+        let budgetExhausted = false;
+        const once = equip => {
+            const response = bridge.xilianPlan(toWasmEquip(equip), [false]);
+            if (response?.error || !response?.equip || !response.items?.[0]) throw new Error(response?.error || '정련 결과를 생성하지 못했습니다.');
+            return { equip: response.equip, result: response.items[0] };
+        };
+
+        const evaluation = options.preparedEvaluation || prepareRefinementEvaluation(bridge, eq, count);
+        const offerAt = evaluation.offerAt;
+
+        const candidates = [];
+        const allMask = (1 << slotCount) - 1;
+        for (let addedMask = 0; addedMask <= allMask; addedMask++) {
+            if (addedMask & initialMask || addedMask & ~targetMask) continue;
+            const enabledMask = initialMask | addedMask;
+            let mask = initialMask;
+            let xlLevel = initialXl;
+            const values = initialValues.slice();
+            const firstSteps = Array(slotCount).fill(0);
+            const bestSteps = Array(slotCount).fill(0);
+            const xlAfter = Array(count + 1).fill(initialXl);
+
+            for (let step = 1; step <= count; step++) {
+                const costMult = xilianMaskMult(mask);
+                if (budget > 0 && xlLevel - initialXl + costMult > budget) { budgetExhausted = true; break; }
+                const offer = offerAt(step, xlLevel);
+                xlLevel += costMult;
+                xlAfter[step] = xlLevel;
+                const slotIndex = Number(offer.slot) - 1;
+                if (slotIndex < 0 || slotIndex >= slotCount || !(enabledMask & (1 << slotIndex))) continue;
+
+                if (!(mask & (1 << slotIndex))) {
+                    mask |= 1 << slotIndex;
+                    firstSteps[slotIndex] = step;
+                    values[slotIndex] = offer.prop?.prop === target ? Number(offer.prop.value) || 0 : 0;
+                    if (offer.prop?.prop === target) bestSteps[slotIndex] = step;
+                } else if (offer.prop?.prop === target && Number(offer.prop.value) > values[slotIndex]) {
+                    values[slotIndex] = Number(offer.prop.value);
+                    bestSteps[slotIndex] = step;
+                }
+            }
+
+            const stepSet = new Set([...firstSteps, ...bestSteps].filter(Boolean));
+            const steps = [...stepSet].sort((a, b) => a - b);
+            const lastStep = steps.slice(-1)[0] || 0;
+            candidates.push({
+                enabledMask,
+                values,
+                steps,
+                keepCount: stepSet.size,
+                lastStep,
+                cutoffLianjin: lastStep ? xlAfter[lastStep] - initialXl : 0,
+            });
+        }
+
+        candidates.sort((a, b) => {
+            const totalA = a.values.reduce((sum, v) => sum + v, 0);
+            const totalB = b.values.reduce((sum, v) => sum + v, 0);
+            if (Math.abs(totalA - totalB) > 1e-12) return totalB - totalA;
+            return compareXilianPlanMeta(a, b);
+        });
+        if (!candidates.length) throw new Error('사용 가능한 정련 계획을 찾지 못했습니다.');
+        const maxTotal = candidates[0].values.reduce((sum, v) => sum + v, 0);
+
+        function minimizeTargetPath(targetValues, enabledMask) {
+            let achieved = 0;
+            for (let slot = 0; slot < slotCount; slot++) {
+                if (initialValues[slot] >= targetValues[slot] - 1e-12) achieved |= 1 << slot;
+            }
+            if (achieved === allMask) {
+                return { enabledMask, values: targetValues, steps: [], keepCount: 0, lastStep: 0, cutoffLianjin: 0 };
+            }
+
+            let states = new Map();
+            states.set(`${initialMask}|${Math.min(100, initialXl)}|${achieved}`, {
+                mask: initialMask,
+                xlLevel: initialXl,
+                achieved,
+                keepCount: 0,
+                path: null,
+            });
+            let best = null;
+
+            function addState(next, state) {
+                const key = `${state.mask}|${Math.min(100, state.xlLevel)}|${state.achieved}`;
+                const old = next.get(key);
+                if (!old || state.xlLevel < old.xlLevel ||
+                    (state.xlLevel === old.xlLevel && state.keepCount < old.keepCount)) next.set(key, state);
+            }
+
+            for (let step = 1; step <= count && states.size; step++) {
+                const next = new Map();
+                for (const state of states.values()) {
+                    const offer = offerAt(step, state.xlLevel);
+                    const nextXl = state.xlLevel + xilianMaskMult(state.mask);
+                    if (budget > 0 && nextXl - initialXl > budget) continue;
+                    addState(next, { ...state, xlLevel: nextXl });
+
+                    const slotIndex = Number(offer.slot) - 1;
+                    if (slotIndex < 0 || slotIndex >= slotCount || !(enabledMask & (1 << slotIndex))) continue;
+                    const bit = 1 << slotIndex;
+                    const unmarked = !(state.mask & bit);
+                    const reachesTarget = offer.prop?.prop === target &&
+                        Number(offer.prop.value) >= targetValues[slotIndex] - 1e-12;
+                    if (!unmarked && (!reachesTarget || (state.achieved & bit))) continue;
+
+                    let nextAchieved = state.achieved;
+                    if (reachesTarget) nextAchieved |= bit;
+                    else if (unmarked) nextAchieved &= ~bit;
+                    const accepted = {
+                        mask: state.mask | bit,
+                        xlLevel: nextXl,
+                        achieved: nextAchieved,
+                        keepCount: state.keepCount + 1,
+                        path: { step, prev: state.path },
+                    };
+                    if (accepted.achieved === allMask) {
+                        const done = {
+                            enabledMask,
+                            values: targetValues,
+                            steps: xilianLinkedSteps(accepted.path),
+                            keepCount: accepted.keepCount,
+                            lastStep: step,
+                            cutoffLianjin: nextXl - initialXl,
+                        };
+                        if (!best || compareXilianPlanMeta(done, best) < 0) best = done;
+                    } else addState(next, accepted);
+                }
+                states = next;
+            }
+            return best;
+        }
+
+        const refined = candidates
+            .filter(candidate => Math.abs(candidate.values.reduce((sum, v) => sum + v, 0) - maxTotal) <= 1e-12)
+            .map(candidate => minimizeTargetPath(candidate.values, candidate.enabledMask) || candidate)
+            .sort(compareXilianPlanMeta);
+        const best = refined[0];
+        const accepts = Array(count).fill(false);
+        for (const step of best.steps) accepts[step - 1] = true;
+        return {
+            target,
+            budgetExhausted,
+            total: best.values.reduce((sum, v) => sum + v, 0),
+            values: best.values,
+            steps: best.steps,
+            accepts,
+            cutoffLianjin: best.cutoffLianjin,
+            lastStep: best.lastStep,
+            keepCount: best.keepCount,
+        };
+    }
+
+
+    function analyzeRefinement(bridge, equip, targetProp, count, data, options, requiredSlot) {
+        const targetSlots = Array.isArray(requiredSlot) ? requiredSlot : requiredSlot ? [requiredSlot] : [];
+        const result = buildRefinementMaxPlan(bridge, equip, count, targetProp, { ...options, targetSlots });
+        const maxima = initialSlotMaxima(equip, targetProp);
+        if (!result.lastStep) return { prop: targetProp, maxima, total: result.total, plan: null, previewCount: count, budgetExhausted: result.budgetExhausted, consumedLianjin: 0 };
+        // Price the executable path only to its final keep, never sum independent
+        // per-slot previews or charge an extra multiplier on that final operation.
+        const replay = bridge.xilianPlan(toWasmEquip(equip), result.accepts.slice(0, result.lastStep));
+        if (replay?.error || !replay?.equip || replay.items?.length !== result.lastStep) throw new Error(replay?.error || '정련 계획 재현이 완료되지 않았습니다.');
+        const accepted = replay.items.filter(item => item.accepted).map(item => ({ index: item.index, slot: item.slot, prop: item.prop?.prop, value: item.prop?.value }));
+        const actualTotal = xilianTargetTotal(replay.equip.exts, targetProp);
+        if (Math.abs(actualTotal - result.total) > 1e-9) throw new Error('정련 계획과 단계별 계산 결과가 일치하지 않습니다. 다시 탐색하세요.');
+        for (let slot = 1; slot <= 3; slot++) {
+            const prop = replay.equip.exts?.[slot - 1];
+            if (prop?.prop !== targetProp) { maxima[slot] = null; continue; }
+            const kept = accepted.filter(item => item.slot === slot).at(-1);
+            const occurrence = kept ? { index: kept.index, slot, value: finiteNumber(prop.value) } : { index: 0, slot, value: finiteNumber(prop.value), source: 'original' };
+            maxima[slot] = { slot, value: occurrence.value, occurrences: [occurrence], ...(kept ? {} : { source: 'original' }) };
+        }
+        const cost = refinementCost(equip, replay.items, result.lastStep, data);
+        if (cost.lianjin !== result.cutoffLianjin) throw new Error('정련 계획의 재료 소모량을 검증하지 못했습니다. 다시 탐색하세요.');
+        return { prop: targetProp, maxima, total: actualTotal, plan: { accepts: accepted, accepted, cutoff: result.lastStep, cost }, previewCount: count, budgetExhausted: result.budgetExhausted, consumedLianjin: cost.lianjin };
+    }
+
+    // One executable route for multiple slot-specific targets. The search keeps
+    // only state metadata; the selected route is replayed against the original WASM.
+    function analyzeRefinementCombination(bridge, equip, targets, count, data) {
+        const wanted = [0, 1, 2].map(i => String((targets || [])[i] || ''));
+        const slotCount = Math.min(3, Math.max(1, equip.exts?.length || 0));
+        if (!wanted.some(Boolean) || wanted.some((prop, i) => prop && i >= slotCount)) return null;
+        // Matching one property in several slots must keep searching for better
+        // values, rather than stopping at the cheapest first complete match.
+        const properties = [...new Set(wanted.filter(Boolean))];
+        if (properties.length === 1) {
+            const prop = properties[0], targetSlots = wanted.flatMap((v, i) => v ? [i + 1] : []);
+            const result = analyzeRefinement(bridge, equip, prop, count, data, {}, targetSlots);
+            const cutoff = result.plan?.cutoff || 0, accepts = new Set((result.plan?.accepted || []).map(x => x.index));
+            const flags = Array.from({length:cutoff}, (_, i) => accepts.has(i + 1));
+            const replay = cutoff ? bridge.xilianPlan(toWasmEquip(equip), flags) : {equip:toWasmEquip(equip),items:[]};
+            if (replay?.error || !replay?.equip || replay.items?.length !== cutoff) throw new Error(replay?.error || '조합 경로 재현이 완료되지 않았습니다.');
+            if (wanted.some((v, i) => v && replay.equip.exts?.[i]?.prop !== v)) return null;
+            return {targets:wanted, slots:wanted.map((v,i)=>v?{slot:i+1,prop:v,value:Number(replay.equip.exts[i].value)||0}:null), cutoff, cost:result.plan?.cost || refinementCost(equip, [], 0, data), items:replay.items};
+        }
+        let required = 0, initially = 0;
+        wanted.forEach((prop, i) => {
+            if (!prop) return;
+            required |= 1 << i;
+            if (equip.exts?.[i]?.prop === prop) initially |= 1 << i;
+        });
+        const startLevel = Number(equip.XLLevel) || 0;
+        const startMask = xilianMarkMask(equip.xilian_marks || []);
+        const evaluation = prepareRefinementEvaluation(bridge, equip, count);
+        let best = initially === required ? { steps: [], cutoffLianjin: 0, lastStep: 0, keepCount: 0 } : null;
+        let states = new Map([[`${startMask}|${Math.min(100, startLevel)}|${initially}`, {mask:startMask, xlLevel:startLevel, achieved:initially, path:null, keepCount:0}]]);
+        function add(next, row) {
+            if (best && row.xlLevel - startLevel >= best.cutoffLianjin) return;
+            const key = `${row.mask}|${Math.min(100, row.xlLevel)}|${row.achieved}`, old = next.get(key);
+            if (!old || row.xlLevel < old.xlLevel || (row.xlLevel === old.xlLevel && row.keepCount < old.keepCount)) next.set(key, row);
+        }
+        for (let step = 1; step <= count && states.size && !(best && best.cutoffLianjin === 0); step++) {
+            const next = new Map();
+            for (const state of states.values()) {
+                const level = state.xlLevel + xilianMaskMult(state.mask);
+                if (best && level - startLevel > best.cutoffLianjin) continue;
+                const offer = evaluation.offerAt(step, state.xlLevel);
+                add(next, {...state, xlLevel:level});
+                const slot = Number(offer.slot) - 1;
+                if (slot < 0 || slot >= slotCount) continue;
+                const bit = 1 << slot, unmarked = !(state.mask & bit), matches = !!wanted[slot] && offer.prop?.prop === wanted[slot];
+                if (!unmarked && (!matches || (state.achieved & bit))) continue;
+                let achieved = state.achieved;
+                if (wanted[slot]) achieved = matches ? (achieved | bit) : (achieved & ~bit);
+                const accepted = {mask:state.mask | bit, xlLevel:level, achieved, path:{step,prev:state.path}, keepCount:state.keepCount + 1};
+                if ((achieved & required) === required) {
+                    const done = { steps:xilianLinkedSteps(accepted.path), cutoffLianjin:level-startLevel, lastStep:step, keepCount:accepted.keepCount };
+                    if (!best || compareXilianPlanMeta(done,best) < 0) best = done;
+                } else add(next, accepted);
+            }
+            states = next;
+        }
+        if (!best) return null;
+        const flags = Array(best.lastStep).fill(false); for (const step of best.steps) flags[step - 1] = true;
+        const replay = best.lastStep ? bridge.xilianPlan(toWasmEquip(equip), flags) : {equip:toWasmEquip(equip),items:[]};
+        if (replay?.error || !replay?.equip || replay.items?.length !== best.lastStep) throw new Error('조합 경로 재현이 완료되지 않았습니다.');
+        const slots = wanted.map((prop, i) => prop ? {slot:i+1, prop, value:Number(replay.equip.exts?.[i]?.value)||0} : null);
+        if (wanted.some((prop,i) => prop && replay.equip.exts?.[i]?.prop !== prop)) throw new Error('조합 경로 재현 결과가 목표에 미달했습니다.');
+        const cost = refinementCost(equip, replay.items, best.lastStep, data);
+        if (cost.lianjin !== best.cutoffLianjin) throw new Error('조합 경로 소모량 검증에 실패했습니다.');
+        return {targets:wanted, slots, cutoff:best.lastStep, cost, items:replay.items};
+    }
+
+    function requirePositiveInteger(value, field) {
+        if (!Number.isSafeInteger(value) || value < 1) {
+            throw new TypeError(`${field}는 양의 정수여야 합니다. 입력값: ${String(value)}`);
+        }
+        return value;
+    }
+
+    function drawWhaleInt(seed, maximum) {
+        const validSeed = requirePositiveInteger(seed, '순서 데이터');
+        const validMaximum = requirePositiveInteger(maximum, '난수 상한');
+        const mixed = BigInt.asUintN(64, (BigInt(validSeed) + BigInt(validMaximum)) * WHALE_MULTIPLIER + WHALE_INCREMENT);
+        const raw = (mixed >> 17n) & WHALE_MASK;
+        const nextSeed = Number((raw < WHALE_REDUCTION_LIMIT ? raw : raw - WHALE_REDUCTION_LIMIT) + 1n);
+        return { seed: nextSeed, value: nextSeed % validMaximum + 1 };
+    }
+
+    function drawWeightedIndex(seed, weights, context) {
+        const validWeights = (weights || []).map((weight, index) => {
+            if (!Number.isSafeInteger(weight) || weight < 0) throw new TypeError(`${context}의 ${index + 1}번째 가중치가 잘못됐습니다.`);
+            return weight;
+        });
+        const total = validWeights.reduce((sum, value) => sum + value, 0);
+        requirePositiveInteger(total, `${context} 총 가중치`);
+        const draw = drawWhaleInt(seed, total);
+        let cumulative = 0;
+        const index = validWeights.findIndex(weight => {
+            cumulative += weight;
+            return draw.value <= cumulative;
+        });
+        if (index < 0) throw new RangeError(`${context} 추첨에 실패했습니다.`);
+        return { seed: draw.seed, index };
+    }
+
+    function specialMaterialProperties(material) {
+        return (material.prop || []).map((entry, index) => {
+            if (!Array.isArray(entry) || typeof entry[0] !== 'string' || !Number.isSafeInteger(entry[1])) {
+                throw new TypeError(`추가 재료 '${material.name}'의 ${index + 1}번째 능력치가 올바르지 않습니다.`);
+            }
+            return { prop: entry[0], weight: entry[1] };
+        });
+    }
+
+    function specialMaterialBaseValue(material, equipLevel, propertyIndex) {
+        const raw = material.lvs && material.lvs[`lv${requirePositiveInteger(equipLevel, '장비 레벨')}`];
+        const value = Array.isArray(raw) ? raw[propertyIndex] : raw;
+        if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+            throw new TypeError(`추가 재료 '${material.name}'에 현재 장비 레벨의 수치가 없습니다.`);
+        }
+        return value;
+    }
+
+    function scaleSpecialMaterialValue(baseValue, factor) {
+        return baseValue < 1 ? baseValue * factor / 100 : Math.max(1, Math.floor(baseValue * factor / 100));
+    }
+
+    function specialMaterialValueRange(material, equipLevel, propertyIndex) {
+        const baseValue = specialMaterialBaseValue(material, equipLevel, propertyIndex);
+        return {
+            minimum: scaleSpecialMaterialValue(baseValue, SPECIAL_QUALITY_MIN_FACTOR),
+            maximum: scaleSpecialMaterialValue(baseValue, SPECIAL_QUALITY_MAX_FACTOR),
+        };
+    }
+
+    function predictSpecialAttachSequence(equip, material, count) {
+        if (!specialMaterialSupportsEquip(material, equip)) {
+            throw new RangeError(`특수 재료 '${material && material.name || material && material.id}'는 장비 '${equip && equip.name}'에 사용할 수 없습니다.`);
+        }
+        const properties = specialMaterialProperties(material);
+        let seed = requirePositiveInteger(equip.MJSeed, `장비 '${equip.name}'의 망정 진행도`);
+        const items = [];
+        for (let index = 1; index <= requirePositiveInteger(count, '추가 횟수'); index += 1) {
+            const seedBefore = seed;
+            const propertyDraw = drawWeightedIndex(seed, properties.map(item => item.weight), '재료 능력치');
+            seed = propertyDraw.seed;
+            const qualityDraw = drawWeightedIndex(seed, SPECIAL_QUALITY_WEIGHTS, '재료 품질');
+            seed = qualityDraw.seed;
+            const range = SPECIAL_QUALITY_RANGES[qualityDraw.index];
+            const factorDraw = drawWhaleInt(seed, range[1] - range[0] + 1);
+            seed = factorDraw.seed;
+            const factor = range[0] + factorDraw.value - 1;
+            const selected = properties[propertyDraw.index];
+            const baseValue = specialMaterialBaseValue(material, equip.need_lv, propertyDraw.index);
+            const valueRange = specialMaterialValueRange(material, equip.need_lv, propertyDraw.index);
+            items.push({
+                index,
+                prop: selected.prop,
+                value: scaleSpecialMaterialValue(baseValue, factor),
+                valueMinimum: valueRange.minimum,
+                valueMaximum: valueRange.maximum,
+                factor,
+                seedBefore,
+                seedAfter: seed,
+            });
+        }
+        const bestFactor = Math.max(...items.map(item => item.factor));
+        const maxima = properties.map(({ prop }) => {
+            const propertyItems = items.filter(item => item.prop === prop);
+            if (!propertyItems.length) return { prop, value: null, indexes: [], recommendedIndex: null };
+            const value = Math.max(...propertyItems.map(item => item.value));
+            const indexes = propertyItems.filter(item => item.value === value).map(item => item.index);
+            return { prop, value, indexes, recommendedIndex: indexes[0] };
+        });
+        return {
+            materialId: material.id,
+            materialName: material.name,
+            items,
+            maxima,
+            bestFactor,
+            bestIndexes: items.filter(item => item.factor === bestFactor).map(item => item.index),
+            recommendedIndex: items.find(item => item.factor === bestFactor).index,
+        };
+    }
+
+    function specialAttachEquipContext(equip) {
+        return {
+            id: finiteNumber(equip && equip.id),
+            name: String(equip && equip.name || ''),
+            need_lv: finiteNumber(equip && equip.need_lv),
+            typ: finiteNumber(equip && equip.typ),
+            MJSeed: finiteNumber(equip && equip.MJSeed),
+        };
+    }
+
+    /* 铁匠铺(dazao)做武器/戒指/挂坠，绣庄(fengzhi)做腰带/护腕/内甲。
+       游戏里同一类店铺的所有 NPC 都能做该类图纸，pf 只是店铺进货清单。 */
+    const DAZAO_TYPES = [1, 2, 3, 4, 8, 9];
+    const FENGZHI_TYPES = [5, 6, 7];
+
+    function craftsmanCanCraftPaper(craftsman, paper, data) {
+        if (!craftsman || !paper) return false;
+        const equip = data && data.equipment ? data.equipment[String(paper.dz_equip)] : null;
+        const type = Number(equip && equip.type);
+        const zhi = String(craftsman.zhi || '');
+        if (zhi === 'dazao') return DAZAO_TYPES.includes(type);
+        if (zhi === 'fengzhi') return FENGZHI_TYPES.includes(type);
+        return papersForCraftsman(data, craftsman.id).some(item => Number(item.paper.id) === Number(paper.id));
+    }
+
+    /* 某个工匠能做的全部图纸（按类型算，不再只看进货清单） */
+    function papersForCraftsmanByType(data, craftsmanId) {
+        const craftsman = data && data.craftsman ? data.craftsman[String(craftsmanId)] : null;
+        if (!craftsman) return [];
+        const zhi = String(craftsman.zhi || '');
+        if (zhi !== 'dazao' && zhi !== 'fengzhi') return papersForCraftsman(data, craftsmanId);
+        const types = zhi === 'dazao' ? DAZAO_TYPES : FENGZHI_TYPES;
+        const list = [];
+        Object.values(data.papers || {}).forEach(paper => {
+            const equip = data.equipment ? data.equipment[String(paper.dz_equip)] : null;
+            if (!equip) return;
+            if (types.includes(Number(equip.type))) list.push({ paper, equip });
+        });
+        return list;
+    }
+
+    function validateBranch(branch, data, options) {
+        const craftsman = data.craftsman[String(branch.npcId)];
+        const paper = data.papers[String(branch.paperId)];
+        const equip = paper && data.equipment[String(paper.dz_equip)];
+        if (!craftsman) throw new Error(`제작 지역을 찾지 못했습니다: ${branch.npcId}`);
+        if (!paper || !equip) throw new Error(`도면을 찾지 못했습니다: ${branch.paperId}`);
+        const available = craftsmanCanCraftPaper(craftsman, paper, data);
+        if (!available && !(options && options.forceLocation)) {
+            throw new Error(`'${craftsman.place || craftsman.name}'에서는 '${paper.name}' 도면으로 제작할 수 없습니다.`);
+        }
+        const specialId = finiteNumber(branch.specialId);
+        if (specialId) {
+            const material = data.special[String(specialId)];
+            if (!material || !specialMaterialSupportsEquip(material, equip)) {
+                throw new Error(`제작 재료 ${specialId}는 '${equip.name}'에 사용할 수 없습니다.`);
+            }
+        }
+        return { craftsman, paper, equip };
+    }
+
+    function buildMakeRequest(branch, data, options) {
+        const { paper } = validateBranch(branch, data, options);
+        return {
+            npc_id: finiteNumber(branch.npcId),
+            select_id: finiteNumber(paper.id),
+            equip_id: finiteNumber(paper.dz_equip),
+            special_id: finiteNumber(branch.specialId),
+            min_color: finiteNumber(paper.min_color, 1),
+            max_color: finiteNumber(paper.max_color, 4),
+        };
+    }
+
+    function craftCost(branch, craftNumber, data, options) {
+        const { craftsman, paper } = validateBranch(branch, data, options);
+        const count = Math.max(0, Math.trunc(finiteNumber(craftNumber)));
+        const freePaper = (craftsman.pf || []).map(Number).includes(Number(paper.id));
+        const materials = [];
+        if (!freePaper) materials.push({ id: paper.id, name: paper.name, amount: count });
+        materials.push({
+            id: paper.dz_mat,
+            name: data.itemNames && data.itemNames[String(paper.dz_mat)] || `재료 ${paper.dz_mat}`,
+            amount: finiteNumber(paper.dz_num) * count,
+        });
+        if (finiteNumber(branch.specialId)) {
+            const special = data.special[String(branch.specialId)];
+            materials.push({ id: special.id, name: special.name, amount: count });
+        }
+        return {
+            materials,
+            silver: (finiteNumber(craftsman.cost) + finiteNumber(paper.cost)) * count,
+        };
+    }
+
+    function compareCandidates(a, b) {
+        return (a.craftIndex - b.craftIndex)
+            || String(a.location).localeCompare(String(b.location), 'zh')
+            || String(a.paperName).localeCompare(String(b.paperName), 'zh')
+            || (b.score - a.score)
+            || (b.regionHits - a.regionHits)
+            || (a.refineWork - b.refineWork);
+    }
+
+    function selectDisplayCandidates(candidates, limit) {
+        if (candidates.length <= limit) return candidates.slice();
+        const selectedLocations = new Set();
+        const selected = [];
+        for (const candidate of candidates) {
+            if (selectedLocations.has(candidate.location)) continue;
+            selectedLocations.add(candidate.location);
+            selected.push(candidate);
+            if (selected.length >= limit) return selected.sort(compareCandidates);
+        }
+        for (const candidate of candidates) {
+            if (selected.includes(candidate)) continue;
+            selected.push(candidate);
+            if (selected.length >= limit) break;
+        }
+        return selected.sort(compareCandidates);
+    }
+
+    function makeBranchKey(branch) {
+        return `${branch.npcId}:${branch.paperId}:${finiteNumber(branch.specialId)}`;
+    }
+
+    async function simulateEquipmentRoutes(input) {
+        const data = requireData(input && input.data);
+        const bridge = input && input.bridge;
+        if (!bridge || typeof bridge.getMakeState !== 'function' || typeof bridge.setMakeState !== 'function'
+            || typeof bridge.makePreview !== 'function' || typeof bridge.xilianPlan !== 'function') {
+            throw new TypeError('장비 시뮬레이션 연결 기능이 불완전합니다.');
+        }
+        const options = normalizeOptions(input.options);
+        const requestedBranches = (input.branches || []).map(branch => ({ ...branch, key: makeBranchKey(branch) }));
+        const targetProps = Array.from(new Set((input.targetProps || []).filter(prop => TARGET_PROPERTIES.includes(prop))));
+        if (!requestedBranches.length) throw new Error('제작 지역과 제작 가능한 도면을 각각 하나 이상 선택하세요.');
+        if (!targetProps.length) throw new Error('목표 능력치를 하나 이상 선택하세요.');
+        const branchPlans = requestedBranches.map(branch => {
+            const meta = validateBranch(branch, data, options);
+            const compatibleTargetProps = supportedTargetProperties(meta.equip, data, targetProps);
+            return {
+                branch,
+                meta,
+                compatibleTargetProps,
+                unsupportedTargetProps: targetProps.filter(prop => !compatibleTargetProps.includes(prop)),
+            };
+        });
+        const activeBranchPlans = branchPlans.filter(plan => plan.compatibleTargetProps.length > 0);
+        const skippedBranches = branchPlans.filter(plan => plan.compatibleTargetProps.length === 0).map(plan => ({
+            key: plan.branch.key,
+            npcId: plan.meta.craftsman.id,
+            location: plan.meta.craftsman.place || plan.meta.craftsman.name,
+            paperId: plan.meta.paper.id,
+            paperName: plan.meta.paper.name,
+            equipId: plan.meta.equip.id,
+            equipName: plan.meta.equip.name,
+            targetProps: targetProps.slice(),
+            reason: '해당 장비의 옵션 후보에는 선택한 목표 능력치가 없습니다.',
+        }));
+        if (activeBranchPlans.length * options.craftCount > options.maxCraftWork) {
+            throw new Error(`탐색 범위가 너무 큽니다. 총 ${(activeBranchPlans.length * options.craftCount).toLocaleString()}회 제작을 예측해야 하므로 지역·도면·제작 횟수를 줄이세요.`);
+        }
+        const initialMakeState = clone(input.initialMakeState || bridge.getMakeState());
+        if (!initialMakeState) throw new Error('세이브에 사용 가능한 MakeRnd 제작 상태가 없습니다.');
+        const shouldCancel = typeof input.shouldCancel === 'function' ? input.shouldCancel : () => false;
+        const onProgress = typeof input.onProgress === 'function' ? input.onProgress : () => {};
+        const yieldControl = typeof input.yieldControl === 'function'
+            ? input.yieldControl
+            : () => new Promise(resolve => setTimeout(resolve, 0));
+        const branchResults = [];
+        const candidates = [];
+        let totalPurple = 0;
+        let totalBlue = 0;
+        let slotFiltered = 0;
+        const startedAt = Date.now();
+
+        try {
+            for (let branchIndex = 0; branchIndex < activeBranchPlans.length; branchIndex += 1) {
+                if (shouldCancel()) return { cancelled: true, branches: branchResults, skippedBranches, candidates: [] };
+                const plan = activeBranchPlans[branchIndex];
+                const branch = plan.branch;
+                const meta = plan.meta;
+                bridge.setMakeState(clone(initialMakeState));
+                onProgress({
+                    phase: 'craft', done: branchIndex, total: activeBranchPlans.length,
+                    message: `원본 세이브부터 계산: ${meta.craftsman.place || meta.craftsman.name} · ${meta.paper.name}`,
+                });
+                const request=buildMakeRequest(branch,data,options);
+                const response = bridge.makePreviewAsync?await bridge.makePreviewAsync(request,options.craftCount,shouldCancel):bridge.makePreview(request,options.craftCount);
+                if(response?.cancelled||shouldCancel())return {cancelled:true,branches:branchResults,skippedBranches,candidates:[]};
+                if (response && response.error && !(response.items || []).length) throw new Error(response.error);
+                const items = (response && response.items || []).slice(0, options.craftCount);
+                bridge.setMakeState(clone(initialMakeState));
+                const purpleItems = items.filter(item => finiteNumber(item.color) === 4);
+                const blueItems = items.filter(item => finiteNumber(item.color) === 3);
+                const slotFilter = Array.isArray(branch.slotFilter) ? branch.slotFilter : null;
+                const colorOkCount = items.filter(item => finiteNumber(item.color) === 4 || (options.includeBlue && finiteNumber(item.color) === 3)).length;
+                const eligibleItems = items.filter(item => {
+                    if (finiteNumber(item.color) !== 4 && !(options.includeBlue && finiteNumber(item.color) === 3)) return false;
+                    if (!slotFilter) return true;
+                    const exts = Array.isArray(item.exts) ? item.exts : [];
+                    /* 每个指定的词条位都必须匹配；空字符串表示该位任意属性 */
+                    return slotFilter.every((prop, index) => {
+                        if (!prop) return true;
+                        const slotProp = String((exts[index] && (exts[index].prop || exts[index].Key)) || '');
+                        return slotProp === prop;
+                    });
+                });
+                totalPurple += purpleItems.length;
+                totalBlue += blueItems.length;
+                slotFiltered += Math.max(0, colorOkCount - eligibleItems.length);
+                const branchResult = {
+                    key: branch.key,
+                    npcId: meta.craftsman.id,
+                    location: meta.craftsman.place || meta.craftsman.name,
+                    craftsmanName: meta.craftsman.name,
+                    paperId: meta.paper.id,
+                    paperName: meta.paper.name,
+                    equipId: meta.equip.id,
+                    equipName: meta.equip.name,
+                    specialId: finiteNumber(branch.specialId),
+                    targetProps: plan.compatibleTargetProps.slice(),
+                    unsupportedTargetProps: plan.unsupportedTargetProps.slice(),
+                    craftCount: items.length,
+                    purpleCount: purpleItems.length,
+                    purpleRate: items.length ? purpleItems.length / items.length : 0,
+                    blueCount: blueItems.length,
+                    blueRate: items.length ? blueItems.length / items.length : 0,
+                    candidateCount: eligibleItems.length,
+                    searchCost: craftCost(branch, items.length, data, options),
+                };
+                branchResults.push(branchResult);
+                for (const item of eligibleItems) {
+                    candidates.push({ branch, branchResult, item });
+                }
+                await yieldControl();
+            }
+
+            const refineWork = candidates.reduce((sum, source) => (
+                sum + source.branchResult.targetProps.length * options.refineCount
+            ), 0);
+            if (refineWork > options.maxRefineWork) {
+                throw new Error(`청색·자색 장비 후보가 많아 정련 분석에 약 ${refineWork.toLocaleString()}단계가 필요합니다. 지역·도면·정련 횟수를 줄이세요.`);
+            }
+
+            const detailed = [];
+            for (let candidateIndex = 0; candidateIndex < candidates.length; candidateIndex += 1) {
+                if (shouldCancel()) return { cancelled: true, branches: branchResults, skippedBranches, candidates: [] };
+                const source = candidates[candidateIndex];
+                const rawEquip = makeResultToEquip(source.item, data, source.branch.paperId);
+                const upgrade = upgradeEquip(rawEquip, data);
+                const equip = upgrade.equip;
+                const craftSpecialId = finiteNumber(source.branch.specialId);
+                const craftSpecialMaterial = craftSpecialId ? data.special[String(craftSpecialId)] : null;
+                const craftSpecialItems = normalizePropertyList(source.item.special);
+                const canSimulateSpecialAttach = !!(craftSpecialMaterial && craftSpecialItems.length);
+                onProgress({
+                    phase: 'refine', done: candidateIndex, total: candidates.length,
+                    message: `${Number(source.item.color) === 3 ? '청색 장비' : '자색 장비'} 분석 ${candidateIndex + 1}/${candidates.length}: ${source.branchResult.equipName} · 제작 제${source.item.index}회`,
+                });
+                const slotTargets = options.analyzeAll ? [] : (Array.isArray(source.branch.slotTargets) ? source.branch.slotTargets : []);
+                const evaluation = options.analyzeAll ? prepareRefinementEvaluation(bridge, equip, options.refineCount) : null;
+                const refineOptions = evaluation ? { ...options, preparedEvaluation: evaluation } : options;
+                const refinements = [];
+                for (let propIndex = 0; propIndex < source.branchResult.targetProps.length; propIndex += 1) {
+                    if (shouldCancel()) return { cancelled: true, branches: branchResults, skippedBranches, candidates: [] };
+                    const prop = source.branchResult.targetProps[propIndex];
+                    const slots = slotTargets.filter(item => item && item.prop === prop)
+                        .map(item => Number(item.slot)).filter(slot => slot >= 1 && slot <= 3);
+                    refinements.push(analyzeRefinement(bridge, equip, prop, options.refineCount, data, refineOptions, slots));
+                    if (options.analyzeAll && propIndex % 2 === 1) {
+                        onProgress({ phase: 'refine', done: candidateIndex + (propIndex + 1) / source.branchResult.targetProps.length,
+                            total: candidates.length, message: `장비 분석 ${candidateIndex + 1}/${candidates.length}: 정련 능력치 ${propIndex + 1}/${source.branchResult.targetProps.length}` });
+                        await yieldControl();
+                    }
+                }
+                const refinementRatingReference = theoreticalRefinementReference(
+                    data.equipment[String(equip.id)],
+                );
+                const region = normalizePropertyList(source.item.region);
+                const regionHits = region.filter(item => source.branchResult.targetProps.includes(item.prop)).length;
+                const score = refinements.reduce((sum, item) => sum + finiteNumber(item.total), 0);
+                const refineMultiplierWork = refinements.reduce((sum, item) => sum + finiteNumber(item.plan && item.plan.cost.multiplierWork), 0);
+                detailed.push({
+                    id: `${source.branch.key}:${source.item.index}`,
+                    branchKey: source.branch.key,
+                    location: source.branchResult.location,
+                    craftsmanName: source.branchResult.craftsmanName,
+                    paperId: source.branchResult.paperId,
+                    paperName: source.branchResult.paperName,
+                    equipId: equip.id,
+                    equipName: equip.name,
+                    originalEquipName: rawEquip.name,
+                    craftIndex: finiteNumber(source.item.index),
+                    color: finiteNumber(source.item.color),
+                    base: clone(source.item.base || {}),
+                    exts: normalizePropertyList(source.item.exts),
+                    region,
+                    special: craftSpecialItems,
+                    craftSpecialId,
+                    craftSpecialName: craftSpecialMaterial && craftSpecialMaterial.name || '',
+                    craftSpecialStage: craftSpecialId ? 'before' : null,
+                    craftSpecialEquipLevel: craftSpecialId ? rawEquip.need_lv : null,
+                    canSimulateSpecialAttach,
+                    specialAttachEquips: canSimulateSpecialAttach ? {
+                        before: specialAttachEquipContext(rawEquip),
+                        after: specialAttachEquipContext(equip),
+                    } : null,
+                    seedKind: source.item.pity ? '保底' : (source.item.seed_kind || '普通'),
+                    S: rawEquip.S,
+                    CZSeed: rawEquip.CZSeed,
+                    MJSeed: rawEquip.MJSeed,
+                    upgraded: upgrade.upgraded,
+                    upgradeCost: upgrade.cost,
+                    craftCost: craftCost(source.branch, finiteNumber(source.item.index), data, options),
+                    refinements,
+                    ...(options.analyzeAll ? { allRefinements: true, refineSequence: clone(evaluation.previewItems) } : {}),
+                    refinementRatingReference,
+                    unsupportedTargetProps: source.branchResult.unsupportedTargetProps.slice(),
+                    score,
+                    regionHits,
+                    refineWork: refineMultiplierWork,
+                });
+                if ((candidateIndex + 1) % 4 === 0) await yieldControl();
+            }
+
+            detailed.sort(compareCandidates);
+            const displayCandidates = selectDisplayCandidates(detailed, options.resultLimit);
+            return {
+                strength: '현재 입력 범위에서 제작 횟수 순으로 정렬',
+                objective: ['craft_index', 'location', 'paper', 'target_total', 'region_hits', 'refine_cost'],
+                targetProps,
+                options,
+                branches: branchResults,
+                skippedBranches,
+                candidates: detailed,
+                bestCandidates: displayCandidates,
+                summary: {
+                    requestedBranchCount: requestedBranches.length,
+                    branchCount: activeBranchPlans.length,
+                    skippedBranchCount: skippedBranches.length,
+                    totalCrafts: branchResults.reduce((sum, item) => sum + item.craftCount, 0),
+                    totalPurple,
+                    totalBlue,
+                    candidateCount: detailed.length,
+                    slotFiltered,
+                    elapsedMs: Date.now() - startedAt,
+                },
+            };
+        } finally {
+            bridge.setMakeState(clone(initialMakeState));
+        }
+    }
+
+    root.EquipmentAutoOptimizer = Object.freeze({
+        DEFAULT_OPTIONS,
+        TARGET_PROPERTIES,
+        AUTO_PAPER_IDS,
+        REFINEMENT_THEORETICAL_MAX_MULTIPLIER,
+        REFINEMENT_SLOT_MULTIPLIERS,
+        normalizeOptions,
+        sortedCraftsmen,
+        papersForCraftsman,
+        papersForCraftsmanByType,
+        craftsmanCanCraftPaper,
+        specialMaterialSupportsEquip,
+        specialMaterialsForEquip,
+        supportedTargetProperties,
+        theoreticalRefinementSlotMaximum,
+        theoreticalRefinementReference,
+        craftedMJSeedFromMakeResult,
+        makeResultToEquip,
+        canUpgrade,
+        upgradeEquip,
+        collectSlotMaxima,
+        initialSlotMaxima,
+        selectCheapestMaxima,
+        analyzeRefinement,
+        analyzeRefinementCombination,
+        buildRefinementMaxPlan,
+        specialMaterialValueRange,
+        predictSpecialAttachSequence,
+        buildMakeRequest,
+        craftCost,
+        compareCandidates,
+        simulateEquipmentRoutes,
+    });
+})(typeof window !== 'undefined' ? window : globalThis);

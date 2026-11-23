@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ko" data-sbj-feature="equip-auto">
+<head><script>window.NANGMAN_DISABLE_HENGSHAN=true;</script><script data-feature-config>window.SBJ_FEATURE_PAGE="equip-auto";window.SBJ_FEATURE_MODE="equip";</script><script>if(!window.SBJ_FEATURE_PAGE){document.documentElement.style.visibility="hidden";var mode=new URLSearchParams(location.search).get("mode"),dest={equip:"equip-auto",jianwang:"jianwang-auto",hengshan:"hengshan-auto",wash:"wash-auto"}[mode]||"equip-auto";location.replace("../"+dest+"/index.html");}</script>
+
+    <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>장비 자동 탐색 · 낭만강호</title>
+    <meta name="description" content="낭만강호 세수 시뮬레이터 · 맥 잠금, 천장, 결과 분석">
+    <link rel="stylesheet" href="../auto/style.css">
+    
+    <script src="../auto/app.js"></script>
+    
+    
+    <style>
+        /* 入口页已说明用途：这里不再重复标题与引导文案 */
+        #aiPredictionPanel .ai-kicker,
+        #aiPredictionPanel #aiPredictionTitle,
+        #aiPredictionPanel .ai-prediction-intro {
+            display: none !important;
+        }
+
+        #aiPredictionPanel .ai-prediction-title-row {
+            justify-content: flex-end !important;
+            margin-bottom: 0.2rem !important;
+        }
+
+        /* 恒山内嵌面板：入口页已说明，去掉重复的状态行与标题 */
+        #autoHengshanModePanel #hsMessage,
+        #autoHengshanModePanel #panelAuto > .hs-card > h2 {
+            display: none !important;
+        }
+
+        /* 剑王阁自动结果里的「100 级后 · 芒晶附加序列」 */
+        .jianwang-attach-wrap { margin-top: 12px; padding: 10px 12px; border: 1px solid var(--sbj-c-c581bce368,rgba(110, 86, 48, 0.22)); border-radius: 10px; background: var(--sbj-c-5b5c526bfe,#fffdf6); }
+        .jianwang-attach-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 8px 0; }
+        .jianwang-attach-controls label { display: inline-flex; gap: 6px; align-items: center; }
+        .jianwang-attach-controls select { min-width: 9rem; }
+        .jianwang-attach-controls input { width: 6rem; }
+        .jianwang-attach-result table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .jianwang-attach-result th, .jianwang-attach-result td { padding: 6px 8px; border-bottom: 1px solid var(--sbj-c-555e0f88fd,rgba(110, 86, 48, 0.15)); text-align: left; font-variant-numeric: tabular-nums; }
+        .jianwang-attach-result th { font-size: 12px; color: var(--sbj-c-1bdfe6e86b,#6e6653); }
+        .jianwang-attach-result tr.jianwang-best td { background: var(--sbj-c-5510c0b620,#fdf3e3); }
+    
+.equip-auto-blue-option{display:flex;align-items:center;gap:9px;min-height:44px;margin:10px 0;color:var(--sbj-c-87cce9a9e1,#263b31);font-weight:600;cursor:pointer;}.equip-auto-blue-option input{width:18px;height:18px;accent-color:var(--sbj-c-cb3dd8b738,#8b4934);}
+/* A compact three-slot control, aligned with the existing result toolbar. */
+html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-combo-filter{margin:0 0 16px;padding:14px 16px;border:1px solid var(--sbj-c-d0fbad750f,#ded4be);border-radius:12px;background:var(--sbj-c-5b5c526bfe,#fffdf6);}
+html body.sbj-workbench[data-workbench=auto] .equip-auto-combo-heading{display:flex;align-items:baseline;flex-wrap:wrap;gap:5px 12px;line-height:1.5;}
+html body.sbj-workbench[data-workbench=auto] .equip-auto-combo-heading strong{font-size:15px;color:var(--sbj-c-7097488170,#263b31);white-space:nowrap;}
+html body.sbj-workbench[data-workbench=auto] .equip-auto-combo-heading span{font-size:12px;color:var(--sbj-c-07e6651aa6,#746c58);}
+html body.sbj-workbench[data-workbench=auto] .equip-auto-combo-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:10px;align-items:end;margin-top:10px;}
+html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-combo-field{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:5px!important;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;color:var(--sbj-c-07e6651aa6,#746c58);font-size:12px;line-height:1.4;}
+html body.sbj-workbench[data-workbench=auto] .equip-auto-combo-field>span{white-space:nowrap;}
+html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-combo-field select{display:block!important;box-sizing:border-box;width:100%!important;min-width:0!important;max-width:none!important;height:44px!important;min-height:44px!important;padding:0 30px 0 10px!important;font-size:16px!important;}
+html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters #btnEquipAutoCombo{height:44px;min-height:44px;padding:0 18px;border:1px solid var(--sbj-c-3d26f447cd,#8b4934)!important;border-radius:9px;background:var(--sbj-c-35cbf51f1a,#8b4934)!important;color:var(--sbj-c-38133a0819,#fffaf0)!important;font-weight:600;white-space:nowrap;cursor:pointer;}
+html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters #btnEquipAutoCombo:disabled{opacity:.6;}
+html body.sbj-workbench[data-workbench=auto] .equip-auto-combo-help,html body.sbj-workbench[data-workbench=auto] #equipAutoComboStatus{margin:8px 0 0;font-size:12px;line-height:1.5;color:var(--sbj-c-07e6651aa6,#746c58);}
+html body.sbj-workbench[data-workbench=auto] #equipAutoComboStatus:empty{display:none;}
+@media(max-width:600px){html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-combo-filter{padding:12px;}html body.sbj-workbench[data-workbench=auto] .equip-auto-combo-controls{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters #btnEquipAutoCombo{grid-column:1/-1;width:100%;}}
+
+@media(max-width:360px){html body.sbj-workbench[data-workbench=auto] .equip-auto-combo-controls{grid-template-columns:repeat(2,minmax(0,1fr));}html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters #btnEquipAutoCombo{grid-column:auto;}}
+/* Keep page-size controls compact instead of stretching beyond the results. */
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-pager-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%;min-width:0;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-pager-controls .pager-size{display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;gap:6px!important;width:auto!important;min-width:0!important;max-width:100%!important;margin-left:auto!important;white-space:nowrap;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults #equipAutoResultPageSize{box-sizing:border-box;flex:0 0 80px!important;width:80px!important;min-width:80px!important;max-width:80px!important;height:44px!important;min-height:44px!important;padding:0 26px 0 10px!important;font-size:16px!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-pager-button{min-width:0!important;min-height:44px;padding:0 10px!important;}
+@media(max-width:640px){html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-pager-controls .meta-text{flex:1 0 100%;}html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-pager-controls .pager-size{margin-left:0!important;}}
+
+/* Result filters: keep each field named while removing the repeated label row. */
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-control-row:not(.is-sort){display:block!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-control-row:not(.is-sort)>.equip-auto-control-label{display:block;padding:0 0 8px!important;font-size:12px!important;letter-spacing:0!important;line-height:1.4!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-filter-grid{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px!important;align-items:center!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-filter-grid .equip-auto-filter-field{display:block!important;position:relative;width:100%!important;min-width:0!important;max-width:100%!important;margin:0!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-filter-grid .equip-auto-filter-sr{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;padding:0!important;border:0!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-filter-grid select{display:block!important;box-sizing:border-box;width:100%!important;min-width:0!important;max-width:100%!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0 25px 0 9px!important;font-size:14px!important;text-overflow:ellipsis;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-quality-row{display:flex!important;gap:8px!important;align-items:center!important;width:100%!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-filter-field:has(.equip-auto-quality-row){grid-column:span 2!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-quality-row>select{flex:1 1 auto!important;width:0!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-quality-toggle{display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;gap:5px!important;width:auto!important;min-width:0!important;min-height:44px;margin:0!important;white-space:nowrap!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-control-row.is-sort{align-items:center!important;gap:8px!important;margin-top:10px!important;padding-top:10px!important;}
+html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-control-row.is-sort .equip-auto-control-label{flex:0 0 auto!important;padding:0!important;font-size:12px!important;letter-spacing:0!important;}
+@media(max-width:900px){html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-filter-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}}
+@media(max-width:640px){html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-control-row.is-sort{flex-wrap:wrap!important;}html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-sort-hint{display:none!important;}}
+
+@media(max-width:360px){html body.sbj-workbench[data-workbench=auto] #autoEquipResults .equip-auto-filter-grid select{padding-left:6px!important;padding-right:18px!important;font-size:13px!important;}}
+</style>
+
+
+
+<meta name="theme-color" content="#f6f1e6">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="낭만강호 시뮬레이터">
+    <meta property="og:title" content="낭만강호 장비 시뮬레이터">
+    <meta property="og:description" content="한국판 세이브로 장비 제작과 정련 결과 및 세수 경로를 계산하는 낭만강호 시뮬레이터.">
+    <meta property="og:url" content="https://tool.launch-ai.cloud/suanbujin/auto/">
+    <meta property="og:image" content="https://tool.launch-ai.cloud/suanbujin/share-cover.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="낭만강호 장비 시뮬레이터">
+    <meta name="twitter:description" content="한국판 세이브로 장비 제작과 정련 결과 및 세수 경로를 계산하는 낭만강호 시뮬레이터.">
+    <meta name="twitter:image" content="https://tool.launch-ai.cloud/suanbujin/share-cover.jpg">
+    
+<meta name="apple-mobile-web-app-title" content="낭만강호 시뮬레이터"><script defer src="../shared/i18n.js"></script><style>html,body{max-width:100%;overflow-x:hidden}body{font-family:system-ui,"Malgun Gothic",sans-serif}img{max-width:100%}.sbj-site-header,.sbj-side-nav{display:none!important}</style><link rel="stylesheet" href="../shared/app/appearance.css"><link rel="stylesheet" href="../shell/shell.css"><link rel="stylesheet" href="../shared/app/theme.css"><link rel="stylesheet" href="../shared/app/workbench.css"><link rel="stylesheet" href="../shared/app/feature-page.css"><script>
+(function(){
+ try{localStorage.setItem('yyjh_locale_v1','ko-KR')}catch(e){}
+ window.NANGMAN_EMBEDDED_EQUIP=true;
+})();
+</script>
+<style id="nangman-integrated-equipment-style">
+html,body{background:transparent!important;color:inherit;overflow-x:hidden;min-height:0!important}
+body.sbj-workbench{background:transparent!important;padding:8px 0!important;margin:0!important}
+.feature-heading,.feature-mode-nav,#nangman-direct-header{display:none!important}
+.sbj-site-header,.sbj-site-nav{display:none!important}
+</style><link rel="stylesheet" href="../shared/app/nangman-yy-unified.css?rev=v0800"><script defer src="../shared/app/nangman-yy-theme-sync.js?rev=v0800"></script>
+<script defer src="../shared/app/nangman-no-csv.js?rev=v082"></script><script defer src="../../../shared/korean-terms.js?rev=v083"></script><link rel="stylesheet" href="../../../shared/readability-v084.css?v=084"><link rel="stylesheet" href="../shared/app/equipment-detail-v084.css?v=084"><script defer src="../shared/app/equipment-detail-v084.js?v=084"></script><link rel="stylesheet" href="./finder-v084.css?v=084"><script defer src="./finder-v084.js?v=084"></script></head>
+<body class="sbj-workbench" data-workbench="auto">
+    <div class="app-container"><header class="feature-heading"><h1>장비</h1><nav class="feature-mode-nav" aria-label="유사 기능 전환"><a data-feature-mode="equip-quick" href="/vendor/sanbujin/equip-quick/index.html?rev=98938bd19cc9">빠른 조회</a><a data-feature-mode="equip-auto" href="/vendor/sanbujin/equip-auto/index.html" aria-current="page">자동</a><a data-feature-mode="equip-manual" href="/vendor/sanbujin/equip/index.html">수동</a><a data-feature-mode="equip-orange" href="/vendor/sanbujin/equip-orange/index.html">주황 장비 순서</a></nav></header>
+
+        <div id="yyhxLegacyState" hidden style="display:none!important;">
+            <div class="archive-summary-info">
+                <div class="archive-summary-item">
+                    <span>세이브 상태</span>
+                    <strong id="saveStatus">불러오지 않음</strong>
+                </div>
+                <div class="archive-summary-item">
+                    <span>주인공</span>
+                    <strong id="archiveMainRole">—</strong>
+                </div>
+            </div>
+            <div class="archive-summary-actions">
+                <a id="archiveImportButton" class="btn btn-archive-action" href="/vendor/sanbujin/index.html">데이터 불러오기</a>
+                <button id="btnExportTable" class="btn btn-archive-action" type="button">표 내보내기</button>
+                <button id="btnResetWebsite" class="btn btn-archive-action" type="button" aria-live="polite">웹 초기화</button>
+            </div>
+        </div>
+<section id="simulatorConfigPanel" class="config-panel">
+            <input type="hidden" id="modeSelect" value="seed">
+
+            <div id="saveRoleRow" class="config-row role-row" hidden>
+                <div class="config-group grow role-select-group">
+                    <label>세이브 캐릭터</label>
+                    <div class="select-with-btn">
+                        <select id="saveRoleSelect">
+                            <option value="">캐릭터를 선택하세요</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="config-group bag-group">
+                    <span class="bag-label">가방의 세수단</span>
+                    <span id="bagPillDisplay" class="bag-value">--</span>
+                </div>
+            </div>
+
+            <div class="config-row">
+                <div class="config-group">
+                    <label>자질 등급</label>
+                    <select id="zizhiSelect">
+                        <option value="150">평범한 자질(0칸)</option>
+                        <option value="151">뛰어난 자질(1칸)</option>
+                        <option value="152">무림 준걸(2칸)</option>
+                        <option value="153" selected>절세 기재(3칸)</option>
+                        <option value="154">전무후무(4칸)</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <label>성별</label>
+                    <select id="sexSelect">
+                        <option value="1">남</option>
+                        <option value="2">여</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <label>VIP</label>
+                    <select id="vipSelect">
+                        <option value="0">없음</option>
+                        <option value="1" selected>VIP 1+</option>
+                        <option value="2">VIP 2+</option>
+                    </select>
+                    <p id="vipImpactHint" class="vip-impact-hint">VIP 1 이상: 구음귀맥·현양신맥·혼원기맥·일심양용 등을 사용할 수 있습니다. 캐릭터 유형 및 자질 조건도 충족해야 합니다. VIP는 세수단 소모량과 천장에 영향을 주지 않습니다.</p>
+                </div>
+            </div>
+
+            <div id="zizhiPanel" class="zizhi-panel">
+                <div class="zz-stats">
+                    <span class="zz-pill">팔힘 <b id="zzStr">0</b></span>
+                    <span class="zz-pill">근골 <b id="zzCon">0</b></span>
+                    <span class="zz-pill">신법 <b id="zzDex">0</b></span>
+                    <span class="zz-pill">내식 <b id="zzInt">0</b></span>
+                    <span class="zz-pill total">합계 <b id="zzTotal">0</b></span>
+                </div>
+                <button id="btnUpgradeZiZhi" class="btn-upgrade-zz" type="button">자질 상승</button>
+            </div>
+
+            <div class="config-row dlc-row" id="dlcRow" style="display:none;">
+                <div class="config-group">
+                    <label class="dlc-label">
+                        <input type="checkbox" id="dlcModeCheck" class="dlc-check">
+                        <span>추가 천장(300회)</span>
+                    </label>
+                    <span class="dlc-hint">추가 천장 규칙 사용: 자맥을 획득하지 못한 누적 횟수가 300에 도달하면 천장이 발동합니다.</span>
+                </div>
+            </div>
+
+            <div id="seedControls" class="sr-only" aria-hidden="true">
+                <input type="number" id="seedInput" value="2000548318">
+                <input type="number" id="luckSeedInput" value="">
+                <input type="number" id="roleIdInput" value="10044">
+                <input type="number" id="saltInput" value="278440">
+            </div>
+        </section>
+
+        <main class="main-content">
+            <section class="talent-display wash-simulator-only">
+                <div class="section-title">
+                    <span class="section-heading">현재 재능</span>
+                </div>
+                <p class="talent-tip">낮은 등급의 충돌맥을 먼저 잠그고 같은 유형의 자맥이 나오면 '!'를 눌러 치환할 수 있습니다. 치환은 별도 순서로 자맥을 결정하며 세수단을 소모하거나 원래 맥 순서를 진행하지 않습니다.</p>
+                <div id="talentSlots" class="talent-slots"></div>
+            </section>
+
+            <section class="action-panel wash-simulator-only">
+                <div class="action-buttons">
+                    <button id="btnWashOnce" class="btn btn-wash" type="button">세수</button>
+                    <button id="btnWash10" class="btn btn-wash-multi" type="button">연속 세수 ×10</button>
+                    <button id="btnWash100" class="btn btn-wash-auto" type="button">연속 세수 ×100</button>
+                    <button id="btnWashUntilGold" class="btn btn-wash-gold" type="button">자맥이 나올 때까지 세수</button>
+                </div>
+                <div class="action-custom-row">
+                    <div class="custom-wash-group">
+                        <label>연속 세수 횟수 지정:</label>
+                        <input type="number" id="customWashInput" min="1" max="1000" value="500">
+                        <button id="btnWashCustom" class="btn btn-wash-custom" type="button">연속 세수 <span id="customWashNum">500</span> 회</button>
+                    </div>
+                    <button id="btnAnalyzePurple" class="btn btn-analyze-purple" type="button">자맥 등장 순서 및 치환 시뮬레이션</button>
+                </div>
+                <div class="pity-bar">
+                    <div class="pity-label">천장 진행도</div>
+                    <div class="pity-track">
+                        <div id="pityFill" class="pity-fill" style="width: 0%;"></div>
+                    </div>
+                    <div id="pityText" class="pity-text">0 / 850</div>
+                </div>
+                <div class="cost-info">
+                    <span id="costInfo">1회 소모: 세수단 ×3</span>
+                </div>
+
+                <div id="nextConflictPanel" class="next-conflict-panel">
+                    <div class="next-conflict-head">
+                        <span class="next-conflict-title">다음 자맥 · 가장 가까운 충돌맥까지 세수</span>
+                        <span class="next-conflict-from">
+                            맥 순서에서
+                            <input type="number" id="nextConflictAfterWash" min="0" value="0" />
+                            이후
+                        </span>
+                        <button id="btnFindNextConflict" class="btn btn-wash-custom" type="button">찾기</button>
+                        <button id="btnNextConflictFromCurrent" class="btn btn-wash-custom" type="button">현재 진행도부터</button>
+                    </div>
+                    <div id="nextConflictResult" class="next-conflict-result">
+                        <span class="text-muted">다음 자맥과 가장 가까운 충돌맥을 찾습니다. 한 번에 충돌맥까지 세수하고 잠근 뒤 자맥까지 진행할 수 있습니다. 맥을 잠그면 천장 자맥이 잠그지 않은 예측 결과와 달라질 수 있습니다(게임과 동일).</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="config-panel auto-mode-switcher auto-simulator-only" aria-label="자동 시뮬레이션 유형">
+                <div class="auto-mode-tabs" role="tablist" aria-label="자동 시뮬레이션 유형">
+                    <button id="btnAutoEquipMode" class="auto-mode-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="autoEquipModePanel">장비</button>
+                    <button id="btnAutoJianwangMode" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoJianwangModePanel">검왕각</button>
+                    <button id="btnAutoHengshanMode" hidden style="display:none!important" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoHengshanModePanel">항산파 제자</button>
+                    <button id="btnAutoWashMode" hidden style="display:none;" class="auto-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="autoWashModePanel">세수·도맥법</button>
+                </div>
+            </section>
+
+                <details class="equip-auto-sweep-card" id="autoEquipSweepCard" aria-label="장비 빠른 조회" open>
+                <summary class="equip-auto-sweep-head">
+                    <strong>장비 빠른 조회<span class="equip-auto-sweep-tag">최상급 장비 한 번에 찾기</span></strong>
+                    <span class="equip-auto-sweep-state" aria-hidden="true">
+                        <span class="when-closed">펼치기</span><span class="when-open">접기</span>
+                    </span>
+                </summary>
+                <div id="equipAutoSweepBody">
+                    <p class="equip-auto-sweep-desc">도면 18개(자금 12개, 오루 6개)를 검사합니다. 자금 도면은 자금 용광로·호 대장장이·장 대장장이, 오루 도면은 월수·홍라·진삼낭에서 검색합니다. 선택한 품질 등급 이상만 표시합니다.</p>
+                    <div class="equip-auto-sweep-props">
+                        <div class="equip-auto-sweep-props-head">
+                            <span class="equip-auto-sweep-props-label">정련 능력치</span>
+                            <button type="button" id="btnEquipAutoSweepAllProps" class="equip-auto-sweep-allprops">모두 선택</button>
+                        </div>
+                        <div id="equipAutoSweepProps" class="equip-auto-sweep-prop-list" role="group" aria-label="집계할 정련 능력치 선택"></div>
+                    </div>
+                    <div class="equip-auto-sweep-controls">
+                        <div class="equip-auto-sweep-filters">
+<label>연금니 소모 ≤
+                            <input type="number" id="autoEquipSweepLianjin" min="0" max="100000" value="300" title="필터에만 적용: 장비별 실제 소모량을 반영하며 단일 능력치는 4단계까지의 ‘능력치별 정련’ 횟수로 제한합니다">
+                        </label>
+                        <label>제작 횟수 ≤
+                            <input type="number" id="autoEquipSweepCrafts" min="1" max="5000" value="40">
+                            <span>회</span>
+                        </label>
+                        <label>품질 ≥
+                            <select id="autoEquipSweepQuality">
+                                <option value="0">제한 없음</option>
+                                <option value="51">양호</option>
+                                <option value="71">우수</option>
+                                <option value="81">최상</option>
+                                <option value="91" selected>극품</option>
+                                <option value="96">신기</option>
+                            </select>
+                        </label>
+                                                </div>
+<button type="button" id="btnEquipAutoSweep" class="btn btn-primary">한 번에 찾기</button>
+                    </div>
+                    <p class="equip-auto-sweep-hint">연금니 N개 이내 정련 결과를 탐색합니다(최대 2,000회)</p>
+                    <progress id="equipAutoSweepProgress" class="equip-auto-sweep-progress" max="100" value="0" hidden></progress>
+                    <p id="equipAutoSweepStatus" class="equip-auto-sweep-status" hidden></p>
+                    <div id="equipAutoSweepResults" class="equip-auto-sweep-results"></div>
+                </div>
+            </details>
+
+            <section id="aiPredictionPanel" class="ai-prediction-panel auto-simulator-only" aria-labelledby="aiPredictionTitle">
+                <div class="section-title ai-prediction-title-row">
+                    <div>
+                        <span class="ai-kicker">LOCAL ROUTE OPTIMIZER</span>
+                        <h2 id="aiPredictionTitle" class="section-heading">자동 세수 · 최적 경로 탐색</h2>
+                    </div>
+                </div>
+                <p class="ai-prediction-intro">목표 맥과 세수단 소모 상한을 지정하면 모든 목표를 충족하는 경로를 심층 탐색합니다.</p>
+
+
+                <div id="autoEquipModePanel" class="auto-mode-panel equip-auto-panel" role="tabpanel" aria-labelledby="btnAutoEquipMode">
+                    <div class="equip-auto-snapshot-note">
+                        <strong>독립 세이브 분기</strong>
+                        <span>각 '지역 × 도면 × 최초 재료'는 불러온 세이브의 원래 제작 상태에서 시작합니다. 같은 분기 안에서만 제작 순서가 이어집니다.</span>
+                    </div>
+
+                    <p class="equip-auto-collapse-hint">안내: 단계 제목(예: '01 제작 지역 선택')을 누르면 접히고, 다시 누르면 펼쳐집니다.</p>
+
+                    <details class="equip-auto-section">
+                        <summary class="equip-auto-section-head">
+                            <div><span>01</span><strong>제작 지역 선택</strong></div>
+                            <span id="autoEquipLocationCount" class="ai-target-count">0개 선택</span>
+                        </summary>
+                        <div id="autoEquipLocationChoices" class="equip-auto-location-groups" role="group" aria-label="제작 지역 선택">
+                            <span class="text-muted">장비표를 불러오면 제작 지역이 표시됩니다</span>
+                        </div>
+                    </details>
+
+                    <details class="equip-auto-section">
+                        <summary class="equip-auto-section-head">
+                            <div><span>02</span><strong>도면 선택</strong></div>
+                            <span id="autoEquipPaperCount" class="ai-target-count">0개 선택</span>
+                        </summary>
+
+                        <div id="autoEquipPaperChoices" class="equip-auto-paper-list" role="group" aria-label="도면 선택">
+                            <span class="text-muted">제작 지역을 하나 이상 선택하세요</span>
+                        </div>
+                        <p class="equip-auto-help">각 도면에서 최초 제작 재료를 여러 개 선택할 수 있습니다. 재료별로 독립된 제작 분기가 생성되며, 재료를 선택하지 않으면 일반 제작으로 계산합니다.</p>
+                    </details>
+
+                    <details class="equip-auto-section equip-auto-settings">
+                        <summary class="equip-auto-section-head">
+                            <div><span>03</span><strong>시뮬레이션 설정</strong></div>
+                        </summary>
+                        <div class="ai-settings-grid">
+                            <div class="equip-auto-inline-field">
+                                <label>분기별 제작
+                                    <input type="number" id="autoEquipCraftCount" min="1" max="5000" value="100">
+                                    <span>회</span>
+                                </label>
+                                <label>장비별 정련
+                                    <input type="number" id="autoEquipRefineCount" min="1" max="2000" value="200">
+                                    <span>회</span>
+                                </label>
+                            </div>
+                            <label class="equip-auto-inline-field" title="후보 장비마다 최초 제작 재료를 기준으로 이 수만큼 망정 추가 옵션을 예측하고 선택한 등급 구간의 최댓값을 사용합니다">망정 순서
+                                <input type="number" id="autoEquipAttachScan" min="1" max="5000" value="100">
+                                <span>회</span>
+                                <select id="autoEquipAttachLevel">
+                                    <option value="before">90레벨</option>
+                                    <option value="after">100레벨</option>
+                                </select>
+                            </label>
+                        </div>
+                        <label class="equip-auto-blue-option"><input type="checkbox" id="autoEquipIncludeBlue" checked> 청색 장비도 함께 예측</label>
+                        <div id="autoEquipPropertyChoices" class="equip-auto-property-grid" role="group" aria-label="망정 재료 선택"></div>
+                        <p>설정한 횟수만큼 장비별 정련 결과를 예측하고 결과에서 능력치를 선택할 수 있습니다. 능력치별 계획은 각각 계산되므로 중첩할 수 없습니다. 정련은 승련이 끝난 100레벨 장비를 기준으로 계산합니다.</p>
+
+
+                        <div id="autoEquipSelectionMessage" class="ai-selection-message" aria-live="polite"></div>
+                        <div class="ai-search-actions">
+                            <button id="btnAutoEquipPredict" class="btn btn-ai-predict" type="button">장비 찾기</button>
+                            <button id="btnAutoEquipCancel" class="btn btn-reset" type="button" hidden>계산 취소</button>
+                        </div>
+                        <div id="autoEquipProgress" class="ai-search-progress" hidden aria-live="polite">
+                            <div class="ai-progress-head">
+                                <span id="autoEquipProgressText">계산 준비 중…</span>
+                                <b id="autoEquipProgressPercent">0%</b>
+                            </div>
+                            <div class="ai-progress-track"><div id="autoEquipProgressFill" class="ai-progress-fill"></div></div>
+                        </div>
+                    </details>
+                    <details class="equip-auto-section equip-auto-results-section">
+                        <summary class="equip-auto-section-head">
+                            <div><span>04</span><strong>시뮬레이션 결과</strong></div>
+                            <span id="autoEquipResultsCount" class="ai-target-count"></span>
+                        </summary>
+                        <div id="autoEquipResults" class="ai-prediction-results equip-auto-results" aria-live="polite">
+                            <div class="ai-result-empty">지역과 도면을 선택하고 시뮬레이션 횟수를 설정해 계산을 시작하세요. 완료 후 정련 능력치와 품질을 필터링할 수 있습니다.</div>
+                        </div>
+                    </details>
+
+                    <!-- 06 收藏列表已并入「藏兵阁」，这里不再展示（保留节点，避免旧脚本报错） -->
+                    <details class="equip-auto-section equip-auto-favorites" id="autoEquipFavoritesSection" hidden>
+                        <summary class="equip-auto-section-head">
+                            <div><span>06</span><strong>즐겨찾기 목록</strong></div>
+                            <span class="equip-auto-favorites-actions">
+                                <button type="button" id="btnBackupFavorites" class="equip-auto-export" title="즐겨찾기 전체를 JSON으로 내보냅니다. 주소 변경이나 캐시 삭제 후 다시 가져올 수 있습니다">백업</button>
+                                <button type="button" id="btnRestoreFavorites" class="equip-auto-export" title="JSON 백업에서 복원합니다. 장비별로 병합하며 기존 즐겨찾기를 덮어쓰지 않습니다">복원</button>
+                                <input type="file" id="favoritesRestoreInput" accept=".json,application/json" hidden>
+                                <button type="button" id="btnExportFavorites" class="equip-auto-export">표 내보내기</button>
+                                <span id="autoEquipFavoriteCount" class="ai-target-count">0개</span>
+                            </span>
+                        </summary>
+                        <div id="autoEquipFavorites" class="equip-auto-candidate-list equip-auto-favorites-list">
+                            <p class="ai-result-empty">결과의 ☆ 즐겨찾기를 누르면 이곳에 장비가 표시됩니다.</p>
+                        </div>
+                    </details>
+                </div>
+
+                <div id="autoJianwangModePanel" class="auto-mode-panel jianwang-auto-panel" role="tabpanel" aria-labelledby="btnAutoJianwangMode" hidden>
+                    <div class="equip-auto-snapshot-note">
+                        <strong>읽기 전용 시뮬레이션</strong>
+                        <span>선택한 검왕각 무기에서 시작하여 검 배아·재주조·검 파괴 경로를 비교합니다. 시뮬레이션은 세이브와 가방, 실제 게임의 검 배아 진행도를 변경하지 않습니다.</span>
+                    </div>
+
+                    <div class="jianwang-auto-config-grid">
+                        <label>시작 검
+                            <select id="autoJianwangStartSword">
+                                <option value="">세이브를 불러오면 표시됩니다</option>
+                            </select>
+                        </label>
+                        <label>90레벨 진파 경로
+                            <select id="autoJianwangRoute">
+                                <option value="">선택하세요</option>
+                            </select>
+                        </label>
+                        <label>목표 옵션
+                            <select id="autoJianwangTargetProp">
+                                <option value="">먼저 진파 경로를 선택하세요.</option>
+                            </select>
+                        </label>
+                        <label>동일 옵션 목표
+                            <select id="autoJianwangTargetCount">
+                                <option value="3">동일 옵션 3개</option>
+                                <option value="4" selected>동일 옵션 4개</option>
+                            </select>
+                        </label>
+                        <label>최대 신규 검 시뮬레이션 수
+                            <input type="number" id="autoJianwangMaxSwords" min="1" max="100000" value="500">
+                        </label>
+                    </div>
+
+                    <p id="autoJianwangStartHint" class="equip-auto-help">현재 검의 단계에 따라 진행합니다. 60~80레벨은 승급하고, 90레벨은 같은 경로라면 끝까지 재주조하며 다른 경로라면 바로 검을 파괴합니다. 100레벨은 바로 신병을 파괴합니다.</p>
+                    <div id="autoJianwangSelectionMessage" class="ai-selection-message" aria-live="polite"></div>
+                    <div class="ai-search-actions">
+                        <button id="btnAutoJianwangPredict" class="btn btn-ai-predict" type="button">검왕각 자동 시뮬레이션 시작</button>
+                        <button id="btnAutoJianwangCancel" class="btn btn-reset" type="button" hidden>계산 취소</button>
+                    </div>
+                    <div id="autoJianwangProgress" class="ai-search-progress" hidden aria-live="polite">
+                        <div class="ai-progress-head">
+                            <span id="autoJianwangProgressText">계산 준비 중…</span>
+                            <b id="autoJianwangProgressPercent">0%</b>
+                        </div>
+                        <div class="ai-progress-track"><div id="autoJianwangProgressFill" class="ai-progress-fill"></div></div>
+                    </div>
+                    <div id="autoJianwangResults" class="ai-prediction-results jianwang-auto-results" aria-live="polite">
+                        <div class="ai-result-empty">시작 검, 진파 경로, 목표 옵션과 동일 옵션 목표, 최대 시뮬레이션 횟수를 지정해 검색을 시작하세요.</div>
+                    </div>
+                </div>
+
+                <div id="autoHengshanModePanel" hidden style="display:none!important" class="auto-mode-panel hengshan-auto-panel" role="tabpanel" aria-labelledby="btnAutoHengshanMode" hidden>
+                <main class="hs hs-embedded">
+                    <header class="hs-head" hidden>
+                        <div class="hs-save">
+                            <span>세이브 상태</span>
+                            <strong id="hsSaveStatus">불러오지 않음</strong>
+                        </div>
+                    </header>
+                    <nav class="hs-tabs" role="tablist" aria-label="항산파 기능 전환" hidden>
+                        <button type="button" role="tab" data-tab="manual" aria-selected="true" aria-controls="panelManual">제자 시뮬레이션</button>
+                        <button type="button" role="tab" data-tab="shop" aria-selected="false" aria-controls="panelShop">제자 상점</button>
+                        <button type="button" role="tab" data-tab="auto" aria-selected="false" aria-controls="panelAuto">자동 시뮬레이션</button>
+                    </nav>
+                    <p class="hs-message" id="hsMessage" role="status">먼저 홈에서 세이브를 불러오세요.</p>
+
+                    <section id="panelManual" class="hs-panel" role="tabpanel">
+                        <div class="hs-card">
+                            <div class="hs-row">
+                                <label class="hs-field grow">
+                                    <span>시뮬레이션 대상</span>
+                                    <select id="studentSelect" disabled><option value="">항산파 제자가 포함된 세이브를 불러오면 표시됩니다.</option></select>
+                                </label>
+                                <button type="button" id="btnResetStudent" class="hs-btn" disabled>제자 원래 진행도 복원</button>
+                            </div>
+                            <div class="hs-state-grid" id="studentState" hidden>
+                                <div><span>등급</span><strong id="studentLevel">—</strong></div>
+                                <div><span>경험치</span><strong id="studentExp">—</strong></div>
+                                <div><span>매일 획득 경험치</span><strong id="studentDailyExp">—</strong></div>
+                            </div>
+                            <div id="studentTalents" class="hs-talent-list"></div>
+                        </div>
+
+                        <div class="hs-card" id="unlockCard" hidden>
+                            <h2>하루 진행</h2>
+                            <p class="hs-note">매일 기본 경험치는 세이브의 연구 효과를 따르며, '희정물동'은 경험치를 추가합니다. VIP는 고정 일일 경험치를 배율 적용하지 않습니다. 의뢰 추가 경험치는 '자동 시뮬레이션'에서 별도로 입력하세요.</p>
+                            <div id="unlockPreview" class="hs-unlock"></div>
+                            <button type="button" id="btnAdvanceDay" class="hs-btn is-primary">하루 진행</button>
+                        </div>
+
+                        <div class="hs-card" id="refreshCard" hidden>
+                            <h2>지정 슬롯 갱신</h2>
+                            <div class="hs-row">
+                                <label class="hs-field grow">
+                                    <span>위치 새로고침</span>
+                                    <select id="refreshSlot"></select>
+                                </label>
+                                <label class="hs-field">
+                                    <span>모의 진행 횟수</span>
+                                    <input id="refreshCount" type="number" min="1" max="1000" value="20" inputmode="numeric">
+                                </label>
+                                <button type="button" id="btnSimulateRefresh" class="hs-btn is-primary">모의 진행</button>
+                            </div>
+                            <p class="hs-note" id="refreshSummary">횟수를 지정하면 이후 결과를 일괄 확인합니다. 행을 누르면 해당 단계까지 진행합니다.</p>
+                            <div class="hs-table-wrap">
+                                <table class="hs-table">
+                                    <thead><tr><th>진행</th><th>획득한 재능</th><th>교체 후 조합</th><th>적용</th></tr></thead>
+                                    <tbody id="refreshRows"><tr><td colspan="4">시뮬레이션 시작 전</td></tr></tbody>
+                                </table>
+                            </div>
+                            <h3 class="hs-sub">이번 시뮬레이션 작업 기록 <span id="refreshHistoryCount">0개</span></h3>
+                            <div class="hs-table-wrap">
+                                <table class="hs-table">
+                                    <thead><tr><th>조작</th><th>위치 새로고침</th><th>진행 횟수</th><th>최종 획득</th><th>적용 후 조합</th></tr></thead>
+                                    <tbody id="refreshHistoryRows"><tr><td colspan="5">작업 기록 없음</td></tr></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="panelShop" class="hs-panel" role="tabpanel" hidden>
+                        <div class="hs-card">
+                            <div class="hs-row hs-row-split">
+                                <div class="hs-shop-state">
+                                    <span>페이지 갱신 횟수</span>
+                                    <strong id="shopRefreshCount">0회</strong>
+                                    <small id="shopRefreshMessage">불러온 세이브의 현재 회차를 읽었습니다. 현 상태에서 다음 회차를 로컬 시뮬레이션할 수 있습니다.</small>
+                                </div>
+                                <div class="hs-row">
+                                    <button type="button" id="btnShopRefresh" class="hs-btn is-primary" disabled>다음 회차 예측</button>
+                                    <button type="button" id="btnShopRestore" class="hs-btn" disabled>모집 원래 진행도 복원</button>
+                                </div>
+                            </div>
+                            <p class="hs-note">옥수전의 현재 후보와 로컬 시뮬레이션으로 찾은 후보를 표시합니다. 후보는 시뮬레이션 가방에 추가하여 제자·자동 탐색에 사용할 수 있습니다. 원본 세이브는 수정되지 않습니다.</p>
+                        </div>
+                        <div class="hs-card">
+                            <h2>옥수전 후보 <span id="shopStudentCount" class="hs-badge">0명</span></h2>
+                            <div id="shopStudentCards" class="hs-student-grid"></div>
+                        </div>
+                        <div class="hs-card" id="bagCard" hidden>
+                            <h2>시뮬레이션 가방 <span id="studentBagCount" class="hs-badge">0명</span></h2>
+                            <div id="studentBagCards" class="hs-student-grid"></div>
+                        </div>
+                    </section>
+
+                    <section id="panelAuto" class="hs-panel" role="tabpanel" hidden>
+                        <div class="hs-card">
+                            <h2>제자 자동 시뮬</h2>
+                            <div class="equip-auto-snapshot-note"><strong>제자 육성 경로</strong><span>모든 경로는 제자의 현재 육성 진행도에서 시작합니다. 레벨업, 장문령 수령, 대기시간, 재능 교체 순서를 비교해 교체 횟수가 적고 완료 시간이 빠른 경로를 찾습니다. 재능 교체 시 장문령 20개를 소모합니다.</span></div>
+                            <div class="hs-param-grid">
+                                <label class="hs-field"><span>항산파 제자 선택</span><select id="autoStudent"><option value="">세이브를 불러오면 표시됩니다</option></select></label>
+                                <label class="hs-field"><span>최대 교체 횟수</span><input id="autoMaxRefreshes" type="number" min="0" max="100000" value="20"></label>
+                                <label class="hs-field"><span>최대 진행 일수</span><input id="autoMaxDays" type="number" min="0" max="3650" value="365"></label>
+                                <label class="hs-field"><span>일일 추가 경험치(의뢰 등)</span><input id="autoDailyExtraExp" type="number" min="0" max="100000" value="0"></label>
+                                <label class="hs-field"><span>현재 장문령</span><input id="autoCurrentTokens" type="number" min="0" max="99" value="20"></label>
+                                <label class="hs-field"><span>일일 장문령 획득량</span><input id="autoDailyTokens" type="number" min="0" max="99" value="10"></label>
+                                <label class="hs-field"><span>장문령 최대치</span><input id="autoTokenCap" type="number" min="20" max="999" value="99"></label>
+                                <label class="hs-field"><span>교체 대기 시간(시간)</span><input id="autoCooldownHours" type="number" min="0" max="168" step="0.1" value="24"></label>
+                                <label class="hs-field"><span>다음 일일 정산까지(시간)</span><input id="autoNextDailyHours" type="number" min="0.1" max="24" step="0.1" value="24"></label>
+                            </div>
+                            <p class="hs-note">현재 버전은 세이브의 장문령 수량을 정확하게 식별하지 못합니다. 기본적으로 현재 20개·일일 10개·상한 99개로 계산하므로 연구 효과·보물·실제 상태에 맞춰 수정하세요.</p>
+                            <div class="hs-row">
+                                <select id="autoTalentCategory" aria-label="재능 분류 필터">
+                                    <option value="combat">전투 유형</option>
+                                    <option value="dispatch">파견 유형</option>
+                                    <option value="commission">의뢰 유형</option>
+                                    <option value="utility">기능 유형</option>
+                                    <option value="all" selected>전체</option>
+                                </select>
+                                <input id="autoTalentSearch" type="search" placeholder="재능 이름 입력" autocomplete="off">
+                                <span id="autoTargetCount" class="hs-badge">0 / 3개 선택됨</span>
+                            </div>
+                            <div id="autoTalentChoices" class="hs-choices" role="group" aria-label="목표 재능 선택"></div>
+                            <div class="hs-row">
+                                <button type="button" id="btnAutoRun" class="hs-btn is-primary">항산파 자동 탐색 시작</button>
+                            </div>
+                            <div id="autoResults" aria-live="polite">
+                                <p class="hs-note">제자와 목표 재능 1~3개를 선택한 뒤 레벨업, 장문령 수령, 대기시간, 재능 교체 순서를 비교합니다. 확장 옵션을 사용하면 장애물 제거·운세 교체·구간 건너뛰기도 검색합니다.</p>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+                </div>
+
+                <div id="autoWashModePanel" class="auto-mode-panel" role="tabpanel" aria-labelledby="btnAutoWashMode" hidden>
+                <div class="equip-auto-snapshot-note">
+                    <strong>현재 세이브를 기준으로 시뮬레이션 시작</strong>
+                    <span>탐색은 현재 세이브 진행도에서 시작합니다. 이번 시뮬레이션만 계산하며 원본 세이브와 가방은 변경되지 않습니다. 언제든 다시 탐색할 수 있습니다.</span>
+                </div>
+                <div id="autoWashSaveGate" class="auto-wash-save-gate">
+                    <div class="auto-wash-save-head">
+                        <div>
+                            <span class="auto-step-number">01</span>
+                            <div>
+                                <strong>캐릭터 선택</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="auto-wash-role-grid">
+                        <label class="auto-wash-role-select">캐릭터 선택
+                            <select id="autoWashRoleSelect" disabled>
+                                <option value="">인물을 선택하세요</option>
+                            </select>
+                        </label>
+                        <div class="auto-wash-pill-card">
+                            <span>현재 세수단</span>
+                            <strong id="autoWashBagPillDisplay">--</strong>
+                        </div>
+                        <div id="autoWashRoleSummary" class="auto-wash-role-summary">세이브를 불러온 후 캐릭터 한 명을 지정해야 세수 경로를 시뮬레이션할 수 있습니다.</div>
+                    </div>
+                </div>
+                <div class="ai-target-toolbar">
+                    <label for="aiTalentSearch"><span class="auto-step-number">02</span> 목표 맥 선택</label>
+                    <input type="search" id="aiTalentSearch" placeholder="맥 이름 입력" autocomplete="off">
+                    <span id="aiTargetCount" class="ai-target-count">0 / 4개 선택됨</span>
+                </div>
+                <p class="ai-target-quality-help">자맥·청맥·녹맥 중 최대 4개를 선택할 수 있습니다.</p>
+                <div id="aiTalentChoices" class="ai-talent-choices" role="group" aria-label="최종 목표 맥 선택: 자맥·청맥·녹맥">
+                    <span class="text-muted">캐릭터 선택 후 사용할 수 있는 자맥·청맥·녹맥을 표시합니다</span>
+                </div>
+                <p class="ai-network-note">온라인 탐색은 선택한 캐릭터의 세수 상태와 관련 육성 데이터만 전송하며 현재 세이브는 변경하지 않습니다.</p>
+<div id="aiSelectionMessage" class="ai-selection-message" aria-live="polite"></div>
+
+                <label class="wash-search-budget" for="aiMaxTotalPills">
+                    <span>모의 세수단 최대 소모량</span>
+                    <span class="wash-search-budget-input"><input type="number" id="aiMaxTotalPills" min="0" step="100" value="5000" aria-describedby="aiMaxTotalPillsHint"><span>개</span></span>
+                    <small id="aiMaxTotalPillsHint">지정한 세수단 소모량을 넘지 않는 경로만 탐색합니다. 재능 슬롯 개방에 필요한 자질 재료는 별도로 계산합니다.</small>
+                </label>
+                <p class="wash-search-help">세수단 소모 상한 내에서 심층 탐색합니다. 첫 결과 이후에는 해당 결과보다 세수단 소모가 많지 않은 경로만 보여 줍니다. 언제든 중지하거나 다른 화면으로 이동할 수 있습니다.</p>
+
+                <div class="ai-search-actions">
+                    <button id="btnAiPredict" class="btn btn-ai-predict" type="button">경로 탐색 시작</button>
+                    <button id="btnAiCancel" class="btn btn-reset" type="button" hidden>탐색 중지</button>
+                </div>
+                <div id="aiSearchProgress" class="ai-search-progress" data-state="idle" hidden aria-live="polite">
+                    <div class="ai-progress-head">
+                        <span id="aiProgressText">탐색 중입니다. 다른 페이지로 이동해도 됩니다.</span>
+                        <b id="aiProgressPercent"></b>
+                    </div>
+                    <div class="ai-progress-track" role="progressbar" aria-label="경로 탐색 진행도"><div id="aiProgressFill" class="ai-progress-fill"></div></div>
+                </div>
+                <div id="aiPredictionResults" class="ai-prediction-results" aria-live="polite">
+                    <div class="ai-result-empty">캐릭터와 목표 맥을 선택한 후 '경로 탐색 시작'을 누르세요.</div>
+                </div>
+                </div>
+            </section>
+
+            <section class="stats-panel wash-simulator-only">
+                <div class="section-title">
+                    <span class="section-heading">통계</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotalWash">0</div>
+                        <div class="stat-label">세수 횟수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotalPills">0</div>
+                        <div class="stat-label">세수단 소모</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value purple" id="statGoldCount">0</div>
+                        <div class="stat-label">자맥 등장 횟수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statPityCount">0</div>
+                        <div class="stat-label">천장 발동</div>
+                    </div>
+                </div>
+                <div class="stats-detail">
+                    <div class="quality-stats">
+                        <div class="quality-bar">
+                            <span class="quality-label q1">백</span>
+                            <div class="quality-track"><div id="barQ1" class="quality-fill q1" style="width:0%;"></div></div>
+                            <span class="quality-count" id="countQ1">0</span>
+                        </div>
+                        <div class="quality-bar">
+                            <span class="quality-label q2">녹</span>
+                            <div class="quality-track"><div id="barQ2" class="quality-fill q2" style="width:0%;"></div></div>
+                            <span class="quality-count" id="countQ2">0</span>
+                        </div>
+                        <div class="quality-bar">
+                            <span class="quality-label q3">청</span>
+                            <div class="quality-track"><div id="barQ3" class="quality-fill q3" style="width:0%;"></div></div>
+                            <span class="quality-count" id="countQ3">0</span>
+                        </div>
+                        <div class="quality-bar">
+                            <span class="quality-label q4">자</span>
+                            <div class="quality-track"><div id="barQ4" class="quality-fill q4" style="width:0%;"></div></div>
+                            <span class="quality-count" id="countQ4">0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="history-panel wash-simulator-only">
+                <div class="section-title history-title">
+                    <span class="section-heading">세수 기록</span>
+                    <div class="section-actions">
+                        <button id="btnExportLog" class="btn-text" type="button">내보내기</button>
+                        <button id="btnClearLog" class="btn-text" type="button">비우기</button>
+                    </div>
+                </div>
+                <div id="historyLog" class="history-log">
+                    <div class="log-empty">세수를 시작하지 않았습니다</div>
+                </div>
+                <div id="historyPager" class="pager-bar" hidden>
+                    <button type="button" id="btnHistoryPrev" class="btn btn-reset">이전 페이지</button>
+                    <span id="historyPagerInfo" class="meta-text">—</span>
+                    <button type="button" id="btnHistoryNext" class="btn btn-reset">다음 페이지</button>
+                    <label class="pager-size">페이지당
+                        <select id="historyPageSize">
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                        </select>
+                    </label>
+                </div>
+            </section>
+        </main>
+
+        <div id="purpleModal" class="modal-overlay wash-simulator-only" hidden>
+            <div class="modal-content modal-split">
+                <div class="modal-header">
+                    <h2>맥 등장 순서 예측 및 여러 자맥의 연계 치환 시뮬레이션</h2>
+                    <button id="btnClosePurpleModal" class="modal-close-btn" type="button">&times;</button>
+                </div>
+                <div class="modal-body purple-split-body">
+                    <div class="purple-pane purple-pane-seq">
+                        <div class="modal-toolbar">
+                            <div class="search-box">
+                                <input type="text" id="purpleSearchInput" placeholder="자맥 또는 충돌맥 검색...">
+                            </div>
+                            <div class="filter-box">
+                                <label><input type="checkbox" id="filterExchangeOnly"> 치환 가능만</label>
+                                <label><input type="checkbox" id="filterPityOnly"> 천장만</label>
+                            </div>
+                            <div class="stats-summary">
+                                검색 <b id="currentMaxWashesDisplay" class="purple-bright">3000</b> 회 세수 / 자맥 <b id="purpleCount" class="purple-bright">0</b> / 치환 가능 <b id="exchangeableCount" class="green-bright">0</b>
+                                <button id="btnLoadMoreSequence" class="btn btn-wash-custom" type="button">+3000</button>
+                            </div>
+                        </div>
+                        <div class="purple-table-container">
+                            <table class="purple-table">
+                                <thead>
+                                    <tr>
+                                        <th>순번</th>
+                                        <th>맥 등장 순서(개)</th>
+                                        <th>세수로 획득한 자맥</th>
+                                        <th>천장</th>
+                                        <th>가장 가까운 선행 동일 유형 충돌맥</th>
+                                        <th>조작</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="purpleTableBody">
+                                    <tr><td colspan="6" class="loading-td">맥 등장 순서를 분석하는 중...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="purple-pane purple-pane-exchange">
+                        <div id="exchangeAnalysisBlock" class="exchange-analysis-block">
+                            <div class="block-header">
+                                <h3>여러 자맥 연계 치환</h3>
+                                <span class="block-tip">왼쪽에서 치환 가능한 자맥 2~3개를 선택하세요</span>
+                            </div>
+                            <div id="exchangeBlockContent" class="block-content">
+                                <div class="block-empty">치환할 자맥을 선택하지 않았습니다. 왼쪽 표에서 '시뮬레이션 선택'을 누르세요.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <p class="modal-tip"><b>설명</b>맥 등장 순서는 누적 재능 개수이며 세수 횟수가 아닙니다. 신맥은 모두 시뮬레이션 대상으로 선택할 수 있습니다. 다른 신맥이 있으면 서로 충돌해 치환되며, 없으면 잠가 두었다가 다른 자맥을 신맥으로 치환한 다음 충돌시킬 수 있습니다. 일반 자맥과 달리 신맥 하나를 잠근 후 다른 신맥이 나오면 슬롯 안에서<b>모든 신맥에서 치환을 선택할 수 있습니다.</b>(동시에 2~3개 선택 가능). 일심양용처럼 하위 충돌맥이 없는 재능은 일반 충돌맥을 잠가 치환할 수 없습니다. 첫 치환이나 천장 이전에 자맥을 잠그고 세수를 진행하면 선택 가능한 치환 순서가 달라질 수 있습니다.<br><b>천장 주의사항</b>표에서 '천장'으로 표시된 자맥은<b>잠금 안 함</b>연속 세수 기준으로 예측합니다. 도중에 맥을 잠그면 천장 자맥이 달라질 수 있으며 이는 게임 동작과 같습니다.</p>
+                    <button id="btnRefreshPurpleAnalysis" class="btn btn-wash-gold" type="button">다시 예측</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script src="../shared/data.js"></script>
+    <script src="../shared/equip_data.js"></script>
+    <script src="../shared/item_names.js"></script>
+    <script src="../shared/wasm_data.js"></script>
+    <script src="../shared/sequence_rules.js"></script>
+    <script src="../shared/core_glue.js"></script>
+    <script src="../shared/international_wash.js"></script>
+    <script src="../shared/wash_route_engine.js"></script>
+    <script src="../shared/equip_auto_optimizer.js"></script>
+    <script src="../shared/jianwang_auto_optimizer.js"></script>
+    <script src="../shared/pako.min.js"></script>
+    <script src="../shared/save_decrypt.js"></script>
+    <script src="../shared/archive_state.js"></script>
+    <script src="../shared/wash_route_worker_bundle.js"></script>
+    <script src="../shared/cloud_items.js"></script>
+    <script src="../shared/fav_store.js"></script>
+    <script src="../shared/equip_card_views.js"></script>
+    <script src="../shared/wash_search_manager.js"></script>
+    <script src="../shared/simulator.js"></script>
+    <script src="../shared/equip_auto_strong_preview.js"></script>
+    <script>window.YYJH_HS_DEFAULT_TAB = 'auto';</script>
+    
+    
+    
+    
+
+<script>
+    // 默认进入装备模拟
+    window.addEventListener('DOMContentLoaded', function () {
+        if (typeof setAutoSimulatorMode === 'function') setAutoSimulatorMode(window.SBJ_FEATURE_MODE || 'equip');
+    });
+</script>
+<script>
+    /* 恒山模式胶水：切到恒山时显示内嵌面板；切回其他模式时由包装的 setAutoSimulatorMode 隐藏 */
+    (function () {
+        var HENG_TITLE = '자동 시뮬레이션 · 항산파 제자';
+        var HENG_INTRO = '세이브에 저장된 항산파 제자의 재능 교체·치환·상점 및 최적화 경로를 로컬에서 시뮬레이션합니다. 한국 서버 미출시 기능입니다.';
+        var HENG_KICKER = 'HENGSHAN OPTIMIZER';
+
+        function activateHengshan() {
+            ['btnAutoEquipMode', 'btnAutoJianwangMode', 'btnAutoWashMode'].forEach(function (id) {
+                var b = document.getElementById(id);
+                if (b) { b.classList.remove('is-active'); b.setAttribute('aria-selected', 'false'); }
+            });
+            ['autoEquipModePanel', 'autoJianwangModePanel', 'autoWashModePanel'].forEach(function (id) {
+                var p = document.getElementById(id);
+                if (p) p.hidden = true;
+            });
+            var btn = document.getElementById('btnAutoHengshanMode');
+            var panel = document.getElementById('autoHengshanModePanel');
+            if (btn) { btn.classList.add('is-active'); btn.setAttribute('aria-selected', 'true'); }
+            if (panel) panel.hidden = false;
+            var title = document.getElementById('aiPredictionTitle');
+            var intro = document.querySelector('#aiPredictionPanel > .ai-prediction-intro');
+            var kicker = document.querySelector('#aiPredictionPanel .ai-kicker');
+            if (title) title.textContent = HENG_TITLE;
+            if (intro) intro.textContent = HENG_INTRO;
+            if (kicker) kicker.textContent = HENG_KICKER;
+        }
+
+        // 包装全局 setAutoSimulatorMode：任何原生模式切换都收起恒山面板
+        var orig = window.setAutoSimulatorMode;
+        if (typeof orig === 'function') {
+            window.setAutoSimulatorMode = function (mode) {
+                var r = orig.apply(this, arguments);
+                var hp = document.getElementById('autoHengshanModePanel');
+                if (hp) hp.hidden = true;
+                var hb = document.getElementById('btnAutoHengshanMode');
+                if (hb) { hb.classList.remove('is-active'); hb.setAttribute('aria-selected', 'false'); }
+                return r;
+            };
+        }
+
+        var hengBtn = document.getElementById('btnAutoHengshanMode');
+        if (hengBtn) hengBtn.addEventListener('click', activateHengshan);
+    })();
+</script>
+<script>
+    /* 切换标签时同步地址栏 ?mode=，刷新后停留在当前标签 */
+    (function () {
+        if(window.SBJ_FEATURE_PAGE)return;
+        var map = {
+            btnAutoEquipMode: 'equip',
+            btnAutoJianwangMode: 'jianwang',
+            btnAutoHengshanMode: 'hengshan',
+            btnAutoWashMode: 'wash'
+        };
+        Object.keys(map).forEach(function (id) {
+            var btn = document.getElementById(id);
+            if (!btn) return;
+            btn.addEventListener('click', function () {
+                try {
+                    var url = new URL(location.href);
+                    url.searchParams.set('mode', map[id]);
+                    history.replaceState(null, '', url);
+                } catch (e) { }
+            });
+        });
+    })();
+</script>
+
+
+<script>(function(){window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.kind!=='nangman-save')return;try{const d=e.data.save;if(typeof loadParsedSaveData!=='function')throw Error('자동 장비 로더 미준비');loadParsedSaveData(d,true);parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'save-loaded'},location.origin)}catch(err){parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'error',message:String(err.message||err)},location.origin)}});window.addEventListener('load',()=>parent.postMessage({kind:'nangman-embedded-status',module:'auto',status:'ready'},location.origin));})();</script><script id="nangman-integrated-equipment-bridge">
+(function(){
+ const moduleName="equip-auto",isAuto=true;
+ let saved=null,requestedVersion=0,confirmedVersion=-1,running=false,retryTimer=null;
+ function signal(status,message,version){
+  if(parent!==window)parent.postMessage({kind:'nangman-native-equipment',module:moduleName,status,message:message||'',version:version??requestedVersion},location.origin);
+ }
+ async function apply(){
+  if(running||!saved||confirmedVersion===requestedVersion)return;
+  running=true;
+  const version=requestedVersion;
+  let worked=false,error='';
+  try{
+   const root=Array.isArray(saved)?saved[0]:saved;
+   if(!root||typeof root!=='object')throw Error('한국판 세이브 JSON 객체가 없습니다.');
+   for(let n=0;n<48;n++){
+    try{
+     if(isAuto&&typeof loadParsedSaveData==='function'){
+      const hasRole=(root.MainRole&&root.MainRole.ID!=null)||(Array.isArray(root.Roles)&&root.Roles.some(v=>v?.ID!=null))||(Array.isArray(root.Leavers)&&root.Leavers.some(v=>v?.ID!=null));
+      if(!hasRole)throw Error('한국판 세이브의 MainRole/Roles/Leavers 데이터가 없습니다.');
+      const r=loadParsedSaveData(root,true);if(r&&typeof r.then==='function')await r;
+      if(!window.state?.saveRoles?.length)throw Error('캐릭터 목록을 읽지 못했습니다.');
+      worked=true;break;
+     }
+     if(!isAuto&&typeof loadSaveData==='function'){
+      const r=loadSaveData(root);if(r&&typeof r.then==='function')await r;worked=true;break;
+     }
+    }catch(e){error=String(e.message||e)}
+    await new Promise(resolve=>setTimeout(resolve,250));
+   }
+   if(worked){
+    confirmedVersion=version;
+    signal('applied','한국판 세이브가 '+moduleName+' 계산기에 적용됐습니다.',version);
+   }else signal('error',error||'세이브 적용 기능을 준비 중입니다.',version);
+  }catch(e){signal('error',String(e.message||e),version)}
+  finally{
+   running=false;
+   if(worked&&requestedVersion!==version)setTimeout(apply,0);
+  }
+ }
+ window.addEventListener('message',e=>{
+  if(e.source!==parent||e.origin!==location.origin||e.data?.kind!=='nangman-equip-save')return;
+  if(!Number.isInteger(e.data.version))return;
+  if(confirmedVersion===e.data.version)return;
+  saved=e.data.save;requestedVersion=e.data.version;
+  clearTimeout(retryTimer);retryTimer=setTimeout(apply,125);
+ });
+ window.addEventListener('load',()=>{
+  try{window.YYJHI18n?.set('ko-KR')}catch(e){}
+  signal('ready','계산 준비됨');
+  if(saved)apply();
+ });
+})();
+</script></body>
+</html>

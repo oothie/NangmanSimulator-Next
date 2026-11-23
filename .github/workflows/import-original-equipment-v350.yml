@@ -1,0 +1,63 @@
+name: Import NangmanSimulator v3.50 native equipment engine
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-original-equipment-v350.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve authoritative v3.50 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error --retry 3 --max-time 90 \
+            https://raw.githubusercontent.com/oothie/NangmanSimulator/main/Nangman_Integrated_Simulator_v3_50.html \
+            -o /tmp/nangman-v350.html
+          test "$(wc -c < /tmp/nangman-v350.html)" -gt 1000000
+          python3 - <<'PY'
+          import base64,re,json,hashlib,pathlib
+          src=pathlib.Path('/tmp/nangman-v350.html').read_text('utf-8')
+          out=pathlib.Path('vendor/nangman-v350')
+          out.mkdir(parents=True,exist_ok=True)
+          m=re.search(r'(?:const|let|var)\s+EQUIPMENT_HTML_B64\s*=\s*["\x27]([A-Za-z0-9+/=]+)["\x27]',src)
+          if not m:
+            matches=[(x.start(),src[max(0,x.start()-70):x.start()+100]) for x in re.finditer('EQUIPMENT_HTML_B64',src)]
+            raise RuntimeError('no payload: '+str(matches[:5]))
+          b64=m.group(1)
+          engine=base64.b64decode(b64).decode('utf-8')
+          assert '<html' in engine.lower() or '<!doctype' in engine.lower()
+          (out/'equipment.html').write_text(engine,encoding='utf-8')
+          # The original engine is archived as base64 chunks; preserve bytes verbatim.
+          for p in out.glob('*.js'):p.unlink()
+          for n,i in enumerate(range(0,len(b64),220000),1):
+            (out/f'part{n:02d}.js').write_text(
+              'window.NANGMAN_V350_PARTS=window.NANGMAN_V350_PARTS||[];'+
+              'window.NANGMAN_V350_PARTS['+str(n-1)+']='+
+              json.dumps(b64[i:i+220000])+';\n',encoding='utf-8')
+          markers=['applySharedSaveJson','loadSaveData','jhOpen','setBagMode','jhRenderHome','jhSearch','jhFinder','jhAuto','eSet','eDetail','eTables','fBag','dTabs','eEq']
+          report={'source':'oothie/NangmanSimulator/Nangman_Integrated_Simulator_v3_50.html',
+           'sha256':hashlib.sha256(engine.encode()).hexdigest(),
+           'original_bytes':len(engine.encode()),'source_bytes':len(src.encode()),
+           'marker_counts':{x:engine.count(x) for x in markers},
+           'script_srcs':re.findall(r'<script[^>]+src=["\x27]([^"\x27]+)',engine,re.I)[:30],
+           'title':re.search(r'<title>(.*?)</title>',engine,re.S|re.I).group(1) if re.search(r'<title>(.*?)</title>',engine,re.S|re.I) else '',
+           'parts':n,
+           'snippets':{x:engine[max(0,engine.find(x)-150):engine.find(x)+450] for x in markers if x in engine}}
+          (out/'inventory.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps({k:v for k,v in report.items() if k!='snippets'},ensure_ascii=False,indent=2))
+          PY
+      - name: Commit pinned original equipment engine
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add vendor/nangman-v350/
+          if ! git diff --cached --quiet; then
+            git commit -m 'vendor(equipment): pin authoritative NangmanSimulator v3.50 equipment engine'
+            git push
+          fi

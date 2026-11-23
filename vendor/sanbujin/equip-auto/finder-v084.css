@@ -1,0 +1,19 @@
+/* v0.8.4 Roboking-style find flow, retaining verified equipment optimizer */
+html body[data-workbench="auto"] :is(.feature-heading,.feature-mode-nav,.equip-auto-collapse-hint,.equip-auto-snapshot-note,.equip-auto-sweep-wrap,#equipAutoSweep,#equipAutoSweepResults){display:none!important}
+html body[data-workbench="auto"] #aiPredictionPanel{margin:0!important;padding:0!important}
+html body[data-workbench="auto"] #aiPredictionTitle{font-size:24px!important;font-weight:750!important}
+html body[data-workbench="auto"] .ai-kicker{display:none!important}
+html body[data-workbench="auto"] .ai-prediction-title-row{margin:0 0 13px;padding:0 0 12px;border-bottom:1px solid var(--n-yy-line)}
+html body[data-workbench="auto"] .equip-auto-panel{display:grid!important;gap:14px}
+html body[data-workbench="auto"] .equip-auto-section{display:block!important;min-width:0;background:var(--n-yy-surface)!important;color:var(--n-yy-text)!important;border:1px solid var(--n-yy-line)!important;border-radius:12px!important;margin:0!important;padding:4px 16px 16px!important}
+html body[data-workbench="auto"] .equip-auto-section>summary{cursor:pointer;display:flex!important;align-items:center!important;min-height:56px!important;padding:10px 0!important;margin:0!important;font-size:18px!important;border-bottom:1px solid var(--n-yy-line)!important;color:var(--n-yy-text)!important}
+html body[data-workbench="auto"] .equip-auto-section>summary strong{font-size:17px!important}
+html body[data-workbench="auto"] :is(.equip-auto-location-groups,.equip-auto-paper-list,.equip-auto-property-grid){font-size:15px!important;line-height:1.6}
+html body[data-workbench="auto"] .equip-auto-section :is(label,button,select,input){font-size:15px!important}
+html body[data-workbench="auto"] #btnAutoEquipPredict{font-size:18px!important;min-height:51px!important;padding:12px 28px!important;border-radius:9px!important}
+html body[data-workbench="auto"] .equip-auto-results-section{margin-top:8px!important}
+html body[data-workbench="auto"] #autoEquipResults .equip-auto-candidate{font-size:15px!important;line-height:1.55}
+html body[data-workbench="auto"] #autoEquipResults .equip-auto-card-actions button{font-size:14px!important;min-height:41px!important;padding:9px 12px!important}
+html body[data-workbench="auto"] .equip-auto-candidate-body{padding:18px!important}
+html body[data-workbench="auto"] .equip-auto-details-grid{gap:13px!important}
+@media(max-width:700px){html body[data-workbench="auto"] .equip-auto-section{padding:7px 10px 12px!important}}

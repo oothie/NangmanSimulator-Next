@@ -1,0 +1,310 @@
+/* Local app workbench refresh. Scoped to feature documents; data and algorithms stay owned by their existing modules. */
+html body.sbj-workbench{background:var(--sbj-bg)!important;color:var(--sbj-ink);font:14px/1.6 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+html body.sbj-workbench [hidden]{display:none!important}
+html body.sbj-workbench :is(.app-container,main.hs){box-sizing:border-box!important;width:100%!important;max-width:1120px!important;margin:0 auto!important;padding:22px 24px 32px!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;min-height:0!important}
+body.sbj-workbench .wb-heading{display:flex;align-items:center;gap:12px;margin:0 0 20px;padding:0}
+.wb-heading-mark{display:grid;place-items:center;flex:0 0 42px;height:42px;background:var(--sbj-hero);color:var(--sbj-gold);font:700 24px/1 serif;border-radius:14px}
+.wb-heading-copy{min-width:0;flex:1}.wb-heading h1{font:700 24px/1.25 "Songti SC",serif!important;color:var(--sbj-ink)!important;margin:0!important;letter-spacing:.03em!important}.wb-heading p{font-size:12px;color:var(--sbj-muted);margin:4px 0 0}
+.wb-preview-tag{color:var(--sbj-accent);background:var(--sbj-soft);padding:3px 8px;border-radius:7px;font-size:10px;white-space:nowrap}
+html body.sbj-workbench :is(.config-panel,.history-panel,.manual-panel,.hs-card,.hy-panel,.equip-auto-sweep-card){border:1px solid var(--sbj-border)!important;border-radius:18px!important;box-shadow:none!important;background:var(--sbj-surface)!important;color:var(--sbj-ink)!important}
+html body.sbj-workbench :is(.config-panel,.history-panel,.manual-panel,.hs-card){padding:20px!important;margin-bottom:14px!important}
+html body.sbj-workbench :is(.panel-header,.section-head){align-items:center;gap:12px;margin-bottom:14px}
+html body.sbj-workbench :is(.panel-header h2,.history-panel h2,.manual-panel h2,.hs-card h2,.role-status-group h3){font:700 17px/1.45 system-ui,-apple-system,"PingFang SC",sans-serif!important;letter-spacing:0!important;color:var(--sbj-ink)!important;margin:0}
+html body.sbj-workbench :is(.meta-text,.cost-hint,.lucky-hint,.config-group>label,.config-row label,.field>span,.hint){font-size:12px!important;line-height:1.65;color:var(--sbj-muted)}
+html body.sbj-workbench :is(.config-row,.jianwang-auto-config-grid){gap:14px}
+html body.sbj-workbench .config-group{min-width:0!important}
+html body.sbj-workbench :is(.config-panel,.auto-mode-panel,.hs-card,.history-panel,.manual-panel,.card) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea){min-width:0;max-width:100%;box-sizing:border-box;border:1px solid var(--sbj-border)!important;border-radius:11px!important;background:var(--sbj-bg)!important;color:var(--sbj-ink)!important;font-family:inherit!important;font-size:16px!important;min-height:44px;padding:10px 12px!important;box-shadow:none!important}
+html body.sbj-workbench :is(input,select,textarea):focus-visible{outline:2px solid var(--sbj-gold)!important;outline-offset:2px}
+html body.sbj-workbench :is(input[type=checkbox],input[type=radio]){width:18px;height:18px;accent-color:var(--sbj-accent);flex-shrink:0}
+html body.sbj-workbench :is(.check-row,.check-label){min-height:36px;line-height:1.5;font-size:13px!important}
+html body.sbj-workbench :is(.btn,.button,.hs-btn){min-height:42px;display:inline-flex;justify-content:center;align-items:center;gap:6px;font:600 14px/1.35 system-ui!important;border-radius:11px!important;padding:10px 16px!important;box-shadow:none!important;transition:background-color .12s ease,border-color .12s ease!important;touch-action:manipulation}
+html body.sbj-workbench :is(.btn-wash,.btn-wash-gold,.btn-primary,.button.primary,.hs-btn.primary){background:var(--sbj-legacy-action-bg,#8b4934)!important;color:#fffaf0!important;border:1px solid transparent!important}
+html body.sbj-workbench :is(.btn-wash-custom,.btn-outline,.button:not(.primary),.hs-btn:not(.primary)){background:var(--sbj-soft)!important;color:var(--sbj-ink)!important;border:1px solid var(--sbj-border)!important}
+html body.sbj-workbench :is(.btn,.button,.hs-btn):disabled{opacity:.46;cursor:not-allowed;box-shadow:none!important}
+html body.sbj-workbench :is(button,a,summary):focus-visible{outline:2px solid var(--sbj-gold)!important;outline-offset:3px}
+html body.sbj-workbench .action-buttons{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--sbj-border)}
+html body.sbj-workbench .equip-make-actions #btnMakeOnce{background:var(--sbj-soft)!important;color:var(--sbj-ink)!important;border-color:var(--sbj-border)!important}
+html body.sbj-workbench :is(.auto-mode-switcher,.tab-bar-card){border:0!important;border-radius:0!important;padding:0!important;background:transparent!important;box-shadow:none!important}
+html body.sbj-workbench :is(.auto-mode-tabs,.yyhx-manual-tabs){display:flex!important;width:100%!important;box-sizing:border-box;gap:4px!important;padding:5px!important;margin:0 0 14px!important;background:var(--sbj-soft)!important;border:0!important;border-radius:14px!important;overflow-x:auto;scrollbar-width:none;box-shadow:none!important}
+html body.sbj-workbench :is(.auto-mode-tabs button,.yyhx-manual-tabs a){flex:1;min-width:0;min-height:42px!important;padding:9px 8px!important;border:0!important;border-radius:10px!important;background:transparent!important;color:var(--sbj-muted)!important;font:600 13px/1.4 system-ui,-apple-system,"PingFang SC",sans-serif!important;white-space:nowrap;text-decoration:none;display:flex;align-items:center;justify-content:center}
+html body.sbj-workbench :is(.auto-mode-tabs button.is-active,.yyhx-manual-tabs a[aria-current=page]){background:var(--sbj-hero)!important;color:var(--sbj-on-hero)!important;box-shadow:none!important}
+html body.sbj-workbench :is(.auto-mode-tabs button,.yyhx-manual-tabs a)::after{display:none!important}
+html body.sbj-workbench .tab-bar{gap:5px;padding:0!important;border:0!important;background:transparent!important;display:flex!important;overflow-x:auto;scrollbar-width:none}
+html body.sbj-workbench .tab-btn{flex:1;min-width:max-content;min-height:36px;padding:8px 12px!important;border:0!important;border-radius:9px!important;background:transparent!important;color:var(--sbj-muted)!important;font:600 13px/1.4 system-ui!important}
+html body.sbj-workbench .tab-btn.active{color:var(--sbj-accent)!important;background:var(--sbj-soft)!important}
+html body.sbj-workbench .tab-bar-card::before{display:none!important}
+html body.sbj-workbench .ai-prediction-panel{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+html body.sbj-workbench .auto-mode-panel{padding:20px!important;border:1px solid var(--sbj-border)!important;border-radius:18px!important;background:var(--sbj-surface)!important}
+html body.sbj-workbench .equip-auto-sweep-card{padding:0!important;margin-bottom:14px!important;overflow:hidden}
+html body.sbj-workbench .equip-auto-sweep-head{padding:17px 20px!important;margin:0!important;min-height:52px;font-size:16px!important;gap:12px}
+html body.sbj-workbench #equipAutoSweepBody{padding:0 20px 20px!important}
+html body.sbj-workbench .equip-auto-sweep-tag{display:inline-flex;font-style:normal!important;border:0!important;background:var(--sbj-soft)!important;color:var(--sbj-accent)!important;font-size:11px!important;padding:4px 9px!important;border-radius:7px!important}
+html body.sbj-workbench .equip-auto-sweep-filters{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px!important;width:100%;margin:14px 0!important}
+html body.sbj-workbench .equip-auto-sweep-filters label{display:flex!important;flex-direction:column;align-items:stretch!important;gap:5px!important;min-width:0;font-size:12px!important}
+html body.sbj-workbench .equip-auto-sweep-filters :is(input,select){width:100%!important;max-width:none!important;min-width:0!important;min-height:44px!important;font-size:16px!important;padding:9px!important;border:1px solid var(--sbj-border)!important;border-radius:10px!important;background:var(--sbj-bg)!important;color:var(--sbj-ink)!important}
+html body.sbj-workbench .equip-auto-sweep-controls{display:block!important}
+html body.sbj-workbench #btnEquipAutoSweep{display:flex;width:100%;min-height:44px;font-size:15px!important;justify-content:center;align-items:center;background:var(--sbj-legacy-action-bg,#8b4934)!important;color:#fffaf0!important;border:0!important;border-radius:11px!important;padding:11px!important}
+html body.sbj-workbench .equip-auto-sweep-prop-list{gap:6px!important}
+html body.sbj-workbench .equip-auto-sweep-prop{min-height:32px;font-size:13px!important;padding:5px 12px!important;border-color:var(--sbj-border)!important}
+.wb-property-picker{margin:12px 0;border:1px solid var(--sbj-border);border-radius:12px;background:var(--sbj-bg)}
+.wb-property-picker>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;padding:12px 14px;list-style:none;font-size:13px;font-weight:600}
+.wb-property-picker>summary::-webkit-details-marker{display:none}.wb-property-picker>summary::after{content:"＋";color:var(--sbj-accent);font-size:18px}
+.wb-property-picker[open]>summary::after{content:"−"}.wb-property-count{margin-left:auto;font-size:11px;font-weight:400;color:var(--sbj-muted)}
+.wb-property-picker>.equip-auto-sweep-props{padding:0 14px 14px!important;margin:0!important}
+.wb-property-picker .equip-auto-sweep-props-label{display:none!important}
+.wb-property-picker .equip-auto-sweep-props-head{justify-content:flex-end}
+.wb-help{margin:8px 0 14px;padding:0;border:0;font-size:12px;color:var(--sbj-muted)}
+.wb-help>summary{cursor:pointer;min-height:30px;display:flex;align-items:center;gap:7px;list-style:none;font-size:12px;color:var(--sbj-accent)}
+.wb-help>summary::before{content:"?";display:grid;place-items:center;width:17px;height:17px;border:1px solid var(--sbj-border);border-radius:50%;font-size:10px}
+.wb-help>summary::after{content:"⌄";font-size:13px}.wb-help[open]>summary::after{content:"⌃"}.wb-help>summary::-webkit-details-marker{display:none}
+html body.sbj-workbench .wb-help :is(p,.equip-auto-snapshot-note){font-size:12px!important;line-height:1.7;margin:8px 0!important}
+html body.sbj-workbench .equip-auto-snapshot-note{display:block;padding:0!important;margin-bottom:14px!important;font-size:12px}
+html body.sbj-workbench .equip-auto-snapshot-note strong{display:none!important}
+html body.sbj-workbench .equip-auto-collapse-hint{display:none!important}
+.wb-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.wb-section-head h2{font:700 16px/1.4 system-ui!important;margin:0!important;color:var(--sbj-ink)!important}
+.wb-section-head small{font-size:11px;color:var(--sbj-muted)}
+html body.sbj-workbench .equip-auto-section{border:1px solid var(--sbj-border)!important;border-radius:12px!important;margin:10px 0!important;overflow:hidden;background:var(--sbj-bg)!important}
+html body.sbj-workbench .equip-auto-section-head{padding:14px 12px!important;min-height:54px;gap:10px!important;border:0!important}
+html body.sbj-workbench .equip-auto-section-head strong{font-size:14px!important;line-height:1.5}
+html body.sbj-workbench .equip-auto-section-head>div>span{width:26px!important;height:26px!important;border-radius:8px!important;background:var(--sbj-soft)!important;color:var(--sbj-accent)!important;font:600 11px/26px system-ui!important}
+html body.sbj-workbench .ai-target-count{font-size:11px!important;background:var(--sbj-soft)!important;color:var(--sbj-muted)!important;padding:4px 8px!important;border:0!important;border-radius:8px!important}
+html body.sbj-workbench .equip-auto-section[open]>.equip-auto-section-head{border-bottom:1px solid var(--sbj-border)!important}
+html body.sbj-workbench .equip-auto-section> :not(summary){margin:14px!important}
+html body.sbj-workbench :is(.auto-wash-save-gate,.auto-target-panel,.auto-options-panel,.jianwang-auto-config-grid){border:1px solid var(--sbj-border)!important;border-radius:13px!important;padding:16px!important;background:var(--sbj-bg)!important}
+html body.sbj-workbench :is(.auto-wash-role-grid,.auto-wash-role-facts){gap:12px}
+html body.sbj-workbench :is(.auto-step-number,.hs-step-no){background:var(--sbj-soft)!important;color:var(--sbj-accent)!important;border-radius:8px!important}
+html body.sbj-workbench :is(.auto-wash-role-pill,.auto-target-search,.auto-target-picks,.auto-options-panel){font-size:13px!important}
+html body.sbj-workbench :is(.ai-result-empty,.empty,.manual-result.empty,.role-status-empty){font-size:13px!important;padding:20px!important;border-style:dashed!important;border-color:var(--sbj-border)!important;border-radius:12px!important;background:var(--sbj-bg)!important;color:var(--sbj-muted)!important;line-height:1.7}
+html body.sbj-workbench .equip-auto-result-card{border-radius:15px!important;border:1px solid var(--sbj-border)!important;padding:16px!important;box-shadow:none!important;margin-bottom:12px!important}
+html body.sbj-workbench .equip-auto-paper{font-size:15px!important}.sbj-workbench .equip-auto-card-actions{gap:7px!important}
+html body.sbj-workbench .equip-auto-card-actions button{min-height:34px;font-size:12px!important;border-radius:9px!important;box-shadow:none!important}
+html body.sbj-workbench :is(.equip-auto-round,.equip-auto-chip,.equip-auto-candidate-costs,.equip-auto-expand-hint){font-size:11px!important;line-height:1.7}
+html body.sbj-workbench .equip-auto-total strong{font-size:16px!important}
+.wb-fold-toggle,.wb-role-toggle{border:0!important;background:var(--sbj-soft)!important;color:var(--sbj-accent)!important;border-radius:8px!important;min-height:34px;padding:7px 11px!important;white-space:nowrap;font:600 12px/1.3 system-ui!important;cursor:pointer}
+.wb-foldable[data-wb-collapsed=true]>:not(.panel-header):not(.wb-section-head){display:none!important}
+html body.sbj-workbench .wb-foldable[data-wb-collapsed=true]{padding-bottom:16px!important}
+.wb-foldable[data-wb-collapsed=true]>.panel-header{margin-bottom:0!important}
+html body.sbj-workbench .role-status-overview{background:var(--sbj-hero)!important;color:var(--sbj-on-hero)!important;border-color:var(--sbj-gold)!important;padding:20px!important}
+html body.sbj-workbench .role-status-overview::before{display:none!important}
+html body.sbj-workbench .role-status-overview :is(h2,#roleStatusTag){color:var(--sbj-on-hero)!important}
+html body.sbj-workbench .role-status-summary{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+html body.sbj-workbench .role-status-summary>div{display:block;padding:10px!important;border:0!important;border-radius:10px!important;background:rgba(255,250,240,.07)!important}
+html body.sbj-workbench .role-status-summary span{display:block;color:var(--sbj-on-hero)!important;font-size:11px;opacity:.75}
+html body.sbj-workbench .role-status-summary :is(strong,b){display:block;color:var(--sbj-on-hero)!important;font-size:20px}
+html body.sbj-workbench .role-status-header{margin-bottom:16px}
+html body.sbj-workbench .role-status-kicker{display:none!important}
+html body.sbj-workbench .role-status-group-head{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"title action" "note action";gap:4px 12px;margin:0}
+.role-status-group-head h3{grid-area:title}.role-status-group-head>span{grid-area:note;font-size:11px;line-height:1.6}
+.role-status-group-head>.wb-role-toggle{grid-area:action}
+html body.sbj-workbench .role-status-group{gap:0!important}
+html body.sbj-workbench .role-status-card-grid:not([hidden]){margin-top:18px}
+html body.sbj-workbench .role-status-card{border:1px solid var(--sbj-border)!important;border-radius:12px!important;background:var(--sbj-bg)!important;padding:16px!important}
+html body.sbj-workbench .role-status-card h4{font-size:14px!important}.sbj-workbench .role-status-card p{font-size:12px!important}
+html body.sbj-workbench .role-status-badge{border:0!important;border-radius:6px!important;padding:4px 8px!important;background:var(--sbj-soft)!important;color:var(--sbj-muted)!important;font-size:10px!important}
+html body.sbj-workbench .role-status-progress-row{margin-bottom:14px}.sbj-workbench .role-status-progress-row span{font-size:12px!important}
+html body.sbj-workbench .role-status-track{height:5px;background:var(--sbj-soft)!important;border-radius:4px}
+html body.sbj-workbench .hy-app{--hy-ink:var(--sbj-ink);--hy-ink-2:var(--sbj-ink);--hy-body:var(--sbj-ink);--hy-muted:var(--sbj-muted);--hy-faint:var(--sbj-muted);--hy-line:var(--sbj-border);--hy-line-2:var(--sbj-border);--hy-paper:var(--sbj-surface);--hy-seal:var(--sbj-accent)}
+html body.sbj-workbench .hy-hero{background:var(--sbj-hero)!important;color:var(--sbj-on-hero)!important;border:1px solid var(--sbj-gold);border-radius:18px;padding:22px!important;margin-bottom:16px}
+html body.sbj-workbench .hy-hero :is(p,h1,span,strong){color:var(--sbj-on-hero)!important}
+html body.sbj-workbench .hy-app .hy-hero-name{color:var(--sbj-on-hero)!important;font-size:27px!important;margin:8px 0!important;letter-spacing:.04em}
+html body.sbj-workbench .hy-hero-meta{gap:14px!important;padding:16px 0 0!important;margin:16px 0 0!important;border-top:1px solid rgba(255,250,240,.14)}
+html body.sbj-workbench .hy-hero-cell strong{font:600 14px/1.5 system-ui!important}
+html body.sbj-workbench .hy-hero-cell span{font-size:11px!important;opacity:.72}
+html body.sbj-workbench .hy-panel{padding:20px!important;margin-bottom:16px}
+html body.sbj-workbench .hy-sec{margin-bottom:16px!important;gap:10px!important}
+html body.sbj-workbench .hy-sec-title{font:700 17px/1.4 system-ui!important;letter-spacing:0!important}
+html body.sbj-workbench .hy-sec-no{width:26px;height:26px;border-radius:8px;background:var(--sbj-soft)!important;color:var(--sbj-accent)!important;display:grid;place-items:center;font:600 13px/1 system-ui!important}
+html body.sbj-workbench .hy-stats{gap:10px!important;grid-template-columns:repeat(5,minmax(0,1fr))}
+html body.sbj-workbench .hy-stat{border:1px solid var(--sbj-border)!important;border-radius:11px;padding:14px!important;background:var(--sbj-bg)!important}
+html body.sbj-workbench .hy-stat :is(strong,b,.hy-stat-value){font:700 23px/1.4 system-ui!important}
+html body.sbj-workbench .hy-stat :is(span,.hy-stat-label){font-size:12px!important}
+html body.sbj-workbench .hy-letter{border:1px solid var(--sbj-border)!important;border-radius:12px;overflow:hidden;background:var(--sbj-bg)}
+html body.sbj-workbench .hy-letter-head{min-height:48px;padding:14px!important;font-size:14px}
+html body.sbj-workbench .training{max-width:1120px;padding:22px 24px 32px!important}
+html body.sbj-workbench .training .page-head{margin:0 0 16px;padding:20px 22px!important;border-radius:18px!important}
+html body.sbj-workbench .training .page-head h1{font-size:25px!important}
+html body.sbj-workbench .training .card{border:1px solid var(--sbj-border)!important;border-radius:18px!important;padding:20px!important;background:var(--sbj-surface)!important;box-shadow:none!important}
+html body.sbj-workbench .training .roster{border:1px solid var(--sbj-border)!important;border-radius:13px!important;background:var(--sbj-bg)!important}
+html body.sbj-workbench .training .actor-row{padding:16px!important}
+html body.sbj-workbench .training .formation-settings{border-radius:12px!important;padding:16px!important}
+html body.sbj-workbench .training :is(.team-title h3,.actor-name){font-size:15px!important}
+html body.sbj-workbench .training .notice{font-size:12px!important;padding:0 2px;margin:0 0 16px;line-height:1.7}
+.wb-table-scroll{max-width:100%;overflow:auto;overscroll-behavior-x:contain;border:1px solid var(--sbj-border);border-radius:12px;scrollbar-width:thin}
+html body.sbj-workbench .wb-table-scroll table{margin:0!important;border:0!important;width:100%}
+html body.sbj-workbench :is(th,td){font-size:12px;padding:11px!important;line-height:1.6;border-color:var(--sbj-border)!important}
+html body.sbj-workbench th{font-weight:600;background:var(--sbj-soft)!important;color:var(--sbj-muted)!important}
+html body.sbj-workbench tbody tr:nth-child(even){background:var(--sbj-bg)}
+html body.sbj-workbench :is(.modal-content,.ai-settings-modal,.equip-auto-modal,.equip-strong-modal,.hs-dialog-panel){border-radius:20px!important;border:1px solid var(--sbj-border)!important;background:var(--sbj-surface)!important;color:var(--sbj-ink)!important;padding:22px!important;box-shadow:0 18px 70px #0003!important}
+@media(min-width:900px){html body.sbj-workbench .config-row{gap:18px}.wb-heading{margin-bottom:24px}.wb-heading h1{font-size:27px!important}html body.sbj-workbench .role-status-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wb-table-scroll{max-height:70vh}}
+@media(max-width:600px){
+ html body.sbj-workbench :is(.app-container,main.hs){padding:18px 14px 26px!important}
+ .wb-heading{gap:10px;margin-bottom:16px!important}.wb-heading-mark{flex-basis:36px;height:36px;font-size:21px;border-radius:11px}.wb-heading h1{font-size:22px!important}.wb-heading p{font-size:11px}
+ html body.sbj-workbench :is(.config-panel,.history-panel,.manual-panel,.hs-card){padding:16px!important;margin-bottom:12px!important}
+ html body.sbj-workbench :is(.config-row,.jianwang-auto-config-grid){gap:12px}
+ html body.sbj-workbench .config-row>.config-group{flex:1 1 140px!important;width:auto!important}
+ html body.sbj-workbench :is(.auto-mode-tabs button,.yyhx-manual-tabs a){font-size:12px!important;min-height:40px!important;padding:8px 5px!important}
+ html body.sbj-workbench .ai-prediction-panel{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+html body.sbj-workbench .auto-mode-panel{padding:16px!important}
+ html body.sbj-workbench .equip-auto-sweep-head{padding:16px!important;font-size:15px!important}
+ html body.sbj-workbench #equipAutoSweepBody{padding:0 16px 16px!important}
+ html body.sbj-workbench .equip-auto-sweep-tag{font-size:10px!important;padding:3px 6px!important}
+ html body.sbj-workbench .equip-auto-sweep-filters{gap:9px!important}
+ html body.sbj-workbench .equip-auto-section-head{flex-wrap:wrap;gap:6px!important}
+ html body.sbj-workbench .equip-auto-section-head>div{min-width:0;flex:1;gap:8px!important}
+ html body.sbj-workbench .equip-auto-section-head strong{font-size:13px!important}
+ html body.sbj-workbench .equip-auto-section-head .ai-target-count{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ html body.sbj-workbench .action-buttons>*{flex:1 1 140px;min-width:0}
+ html body.sbj-workbench .role-status-summary{grid-template-columns:repeat(4,minmax(0,1fr))}.role-status-summary>div{padding:9px 6px!important}
+ html body.sbj-workbench .hy-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ html body.sbj-workbench .hy-hero-meta{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html body.sbj-workbench .training{padding:18px 14px 26px!important}
+ html body.sbj-workbench .training .card{padding:16px!important}
+ html body.sbj-workbench .training .page-head{padding:18px!important}
+ html body.sbj-workbench .wb-table-scroll :is(th,td){padding:10px!important}
+}
+@media(prefers-reduced-motion:reduce){body.sbj-workbench *{scroll-behavior:auto!important;transition:none!important}}
+
+/* Legacy files use ID selectors and important type sizes; override just these
+   components, without touching unrelated pages. */
+html body.sbj-workbench #hyName{color:var(--sbj-on-hero)!important}
+html body.sbj-workbench #roleStatusSummary :is(strong,b){font-size:20px!important;line-height:1.3!important}
+html body.sbj-workbench #hyStats>.hy-stat{padding:14px!important;border-left:1px solid var(--sbj-border)!important}
+
+/* Closed native selects must not combine legacy short heights with the new
+   input padding. Normalize the face while retaining the platform option picker. */
+html body.sbj-workbench :is(select:not([multiple]):not([size]),select[size="1"]){
+ appearance:none!important;-webkit-appearance:none!important;
+ box-sizing:border-box!important;width:100%;min-width:0;max-width:100%;
+ height:44px!important;min-height:44px!important;max-height:none!important;flex:0 0 auto!important;
+ margin-top:0;margin-bottom:0;padding:8px 36px 8px 12px!important;
+ font-family:inherit!important;font-size:16px!important;line-height:24px!important;
+ vertical-align:middle;text-indent:0!important;
+ color:var(--sbj-ink)!important;background-color:var(--sbj-bg)!important;
+ background-image:linear-gradient(45deg,transparent 50%,var(--sbj-muted) 50%),linear-gradient(135deg,var(--sbj-muted) 50%,transparent 50%)!important;
+ background-position:calc(100% - 17px) center,calc(100% - 12px) center!important;
+ background-size:5px 5px,5px 5px!important;background-repeat:no-repeat!important;
+ border:1px solid var(--sbj-border)!important;border-radius:11px!important;box-shadow:none!important;
+}
+html body.sbj-workbench .jianwang-auto-config-grid>label{height:auto!important;min-height:0!important;overflow:visible!important}
+html body.sbj-workbench .equip-auto-quality-row{height:auto!important;min-height:44px;align-items:center}
+
+/* Numeric disciple parameters use the available phone width without shrinking
+   their text or touch targets; long disciple names retain a full-width row. */
+@media(max-width:640px){
+ html body.sbj-workbench .hs-param-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px 10px!important}
+ html body.sbj-workbench .hs-param-grid>.hs-field{min-width:0!important;gap:5px}
+ html body.sbj-workbench .hs-param-grid>.hs-field:first-child{grid-column:1/-1}
+ html body.sbj-workbench .hs-param-grid>.hs-field>span{font-size:12px!important;line-height:1.5!important;letter-spacing:0!important}
+ html body.sbj-workbench .hs-param-grid>.hs-field:not(:first-child)>span{min-height:18px;flex:1;display:flex;align-items:flex-end}
+ html body.sbj-workbench .hs-param-grid input{width:100%!important;height:44px!important;min-height:44px!important;flex:0 0 44px!important;margin:0!important;padding:8px 10px!important;line-height:24px!important}
+}
+
+/* Equipment result controls: desktop chips use semantic theme pairs instead
+   of legacy independent foreground/background colors. Phone chip geometry is unchanged. */
+@media(min-width:641px){
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-sort-chip{
+  background:var(--sbj-bg)!important;color:var(--sbj-ink)!important;border:1px solid var(--sbj-border)!important;
+  box-shadow:none!important;transition:background-color .12s ease,border-color .12s ease,color .12s ease!important;
+ }
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-sort-chip:not(:disabled):hover{
+  background:var(--sbj-soft)!important;border-color:var(--sbj-gold)!important;
+ }
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-sort-chip.is-active{
+  background:var(--sbj-selected)!important;color:var(--sbj-on-selected)!important;border-color:var(--sbj-selected)!important;font-weight:700;
+ }
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-sort-chip:focus-visible{
+  outline:2px solid var(--sbj-accent)!important;outline-offset:3px!important;
+ }
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-sort-chip:disabled{
+  background:var(--sbj-soft)!important;color:var(--sbj-muted)!important;border-color:var(--sbj-border)!important;opacity:.65;cursor:not-allowed;
+ }
+}
+/* Result filters remain two genuinely equal columns on phones. The final
+   quality control spans the row so the checkbox never squeezes either column. */
+@media(max-width:640px){
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-filter-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:10px!important;row-gap:10px!important;align-items:end!important;
+ }
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-filter-field{
+  width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;
+ }
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-filter-field>span{
+  font-size:12px!important;line-height:1.5!important;white-space:normal!important;
+ }
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-filter-field:has(.equip-auto-quality-row){grid-column:1/-1!important}
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-quality-row{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;width:100%!important;min-width:0!important;
+ }
+ html body.sbj-workbench[data-workbench=auto] .equip-auto-result-filters .equip-auto-quality-toggle{
+  display:inline-flex!important;align-items:center!important;gap:6px!important;min-height:44px!important;margin:0!important;padding:0 4px!important;font-size:12px!important;line-height:1.5!important;white-space:nowrap!important;width:auto!important;
+ }
+}
+
+/* Expanded equipment choices: readable desktop labels and a semantic dark
+   palette. Keep the phone grid and compact option geometry owned by its existing rules. */
+@media(min-width:641px){
+ html body.sbj-workbench[data-workbench=auto] #autoEquipModePanel :is(.equip-auto-paper-check,.equip-auto-choice){min-height:40px!important;box-sizing:border-box!important}
+ html body.sbj-workbench[data-workbench=auto] #autoEquipModePanel :is(.equip-auto-paper-check strong,.equip-auto-choice strong,.equip-auto-prop-chip,.equip-auto-attach-chip){font-size:14px!important;line-height:1.5!important;white-space:normal!important;overflow-wrap:anywhere}
+ html body.sbj-workbench[data-workbench=auto] #autoEquipModePanel .equip-auto-choice small{font-size:12px!important;line-height:1.5!important}
+ html body.sbj-workbench[data-workbench=auto] #autoEquipModePanel :is(.equip-auto-paper-card,.equip-auto-choice):focus-within{outline:2px solid var(--sbj-accent)!important;outline-offset:2px!important}
+}
+@media(min-width:761px){
+ html body.sbj-workbench[data-workbench=auto] #autoEquipModePanel .equip-auto-paper-group-body{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))!important}
+}
+@media(min-width:641px){
+ html[data-sbj-theme=dark] body.sbj-workbench[data-workbench=auto] #autoEquipModePanel :is(.equip-auto-choice,.equip-auto-paper-card,.equip-auto-prop-chip,.equip-auto-attach-chip){
+  background:var(--sbj-bg)!important;color:var(--sbj-ink)!important;border-color:var(--sbj-border)!important;background-image:none!important;
+ }
+ html[data-sbj-theme=dark] body.sbj-workbench[data-workbench=auto] #autoEquipModePanel .equip-auto-paper-check{background:transparent!important;color:inherit!important;box-shadow:none!important}
+ html[data-sbj-theme=dark] body.sbj-workbench[data-workbench=auto] #autoEquipModePanel :is(.equip-auto-paper-check strong,.equip-auto-choice span,.equip-auto-choice strong){color:inherit!important;text-shadow:none!important}
+ html[data-sbj-theme=dark] body.sbj-workbench[data-workbench=auto] #autoEquipModePanel :is(.equip-auto-choice small,.equip-auto-paper-check small){color:var(--sbj-muted)!important}
+ html[data-sbj-theme=dark] body.sbj-workbench[data-workbench=auto] #autoEquipModePanel :is(.equip-auto-choice,.equip-auto-paper-card,.equip-auto-prop-chip,.equip-auto-attach-chip):hover{
+  background:var(--sbj-soft)!important;color:var(--sbj-ink)!important;box-shadow:inset 0 0 0 1px var(--sbj-border)!important;
+ }
+ html[data-sbj-theme=dark] body.sbj-workbench[data-workbench=auto] #autoEquipModePanel :is(.equip-auto-choice.is-selected,.equip-auto-paper-card.is-selected,.equip-auto-prop-chip.is-used,.equip-auto-attach-chip.is-selected){
+  background:var(--sbj-soft)!important;color:var(--sbj-accent)!important;box-shadow:inset 0 0 0 1px var(--sbj-gold)!important;font-weight:700;
+ }
+ html[data-sbj-theme=dark] body.sbj-workbench[data-workbench=auto] #autoEquipModePanel .equip-auto-paper-card.is-incompatible{opacity:1!important}
+ html[data-sbj-theme=dark] body.sbj-workbench[data-workbench=auto] #autoEquipModePanel .equip-auto-paper-card.is-incompatible:not(.is-selected) strong{color:var(--sbj-muted)!important}
+}
+
+/* The role selector is the first visible wash configuration row. */
+html body.sbj-workbench[data-workbench="wash"] #simulatorConfigPanel>.role-row{border-top:0!important;padding-top:0!important;margin-top:0!important;}
+
+/* Shared text and form semantics for all feature workbenches. */
+html body.sbj-workbench :is(.equip-auto-sweep-desc,.equip-auto-sweep-hint,.equip-auto-help,.empty-row,.talent-tip,.next-conflict-from,.log-empty,.text-muted,.vip-impact-hint,.role-status-group-head>span,.equip-auto-sweep-allprops){color:var(--sbj-muted)!important;}
+html body.sbj-workbench #customWashInput,html body.sbj-workbench #nextConflictAfterWash{font-size:16px!important;min-height:44px;}
+html body.sbj-workbench main.hs .hs-panel{background:transparent!important;border:0!important;padding:0!important;}
+html body.sbj-workbench main.hs .hs-tabs button:not([aria-selected=true]){color:var(--sbj-muted)!important;}
+html[data-sbj-theme=light] body.sbj-workbench .hs-badge{color:#376d41!important;}
+
+/* Manual result tables keep readable columns inside their own scroll area. */
+html body.sbj-workbench .wb-preview-scroll{box-sizing:border-box;width:100%;max-width:100%;min-width:0;max-height:min(68vh,680px);overflow:auto;overscroll-behavior:contain;border-radius:12px;scrollbar-width:thin;scrollbar-color:var(--sbj-border) var(--sbj-bg);}
+html body.sbj-workbench .wb-preview-scroll:focus-visible{outline:2px solid var(--sbj-gold);outline-offset:2px;}
+html body.sbj-workbench #previewTable[data-wb-wide=true]{display:table!important;overflow:visible!important;max-width:none!important;min-width:1080px;table-layout:auto;}
+html body.sbj-workbench #previewTable[data-wb-wide=true] :is(th,td){word-break:normal;overflow-wrap:normal;}
+html body.sbj-workbench #previewTable[data-wb-wide=true] .prop-line{white-space:nowrap;}
+html body.sbj-workbench #previewTable[data-wb-wide=true] .mark-input{width:130px!important;min-width:110px;}
+html body.sbj-workbench #previewTable .btn-row-action{min-width:96px;min-height:44px;white-space:nowrap;padding:9px 12px;}
+html body.sbj-workbench #previewTable[data-wb-wide=true] thead th{position:sticky;top:0;z-index:2;background:var(--sbj-soft);}
+html body.sbj-workbench #previewTable[data-wb-actions=true] :is(th,td):last-child{position:sticky;right:0;width:118px;min-width:118px;max-width:118px;box-sizing:border-box;background:var(--sbj-surface);box-shadow:-4px 0 8px #0001;z-index:1;}
+html body.sbj-workbench #previewTable[data-wb-actions=true] tbody tr:nth-child(even) td:last-child{background:var(--sbj-bg);}
+html body.sbj-workbench #previewTable[data-wb-actions=true] thead th:last-child{z-index:3;background:var(--sbj-soft);}
+.wb-table-hint{margin:10px 0 6px;font-size:12px;color:var(--sbj-muted);}
+html body.sbj-workbench #previewPager{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px;align-items:center;box-sizing:border-box;width:100%;max-width:100%;}
+html body.sbj-workbench #previewPager>*{min-width:0;}
+html body.sbj-workbench #previewPagerInfo{text-align:center;}
+html body.sbj-workbench #previewPageSizeWrap{margin-left:0;justify-self:end;max-width:100%;white-space:nowrap;}
+html body.sbj-workbench #previewPageSize{width:90px!important;min-width:90px!important;max-width:90px!important;flex:0 0 90px;}
+@media(max-width:640px){html body.sbj-workbench #previewPager{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr);}html body.sbj-workbench #previewPager>button{font-size:13px;padding:8px 6px;}html body.sbj-workbench #previewPageSizeWrap{grid-column:1/-1;}html body.sbj-workbench #previewPagerInfo{font-size:12px;white-space:normal;overflow-wrap:anywhere;}}
+
+html body.sbj-workbench :is(#makeFilterBar,#xilianFilterBar){display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;min-width:0;}
+html body.sbj-workbench :is(#makeFilterBar,#xilianFilterBar)>label{display:flex;flex-direction:column;align-items:stretch;gap:5px;min-width:0;white-space:normal;}
+html body.sbj-workbench :is(#makeFilterBar,#xilianFilterBar)>.meta-text{grid-column:1/-1;}
+html body.sbj-workbench #previewPager>button{white-space:nowrap;}
+
+@media(max-width:640px){html body.sbj-workbench #previewTable[data-wb-wide=true] .mark-input{width:110px!important;min-width:110px;}}
+
+html body.sbj-workbench #previewTable[data-wb-mark-column=true] :is(th,td):nth-last-child(2){width:152px;min-width:152px;max-width:152px;box-sizing:border-box;}
+@media(max-width:640px){html body.sbj-workbench #previewTable[data-wb-mark-column=true] :is(th,td):nth-last-child(2){width:132px;min-width:132px;max-width:132px;}}

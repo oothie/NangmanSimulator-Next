@@ -1,0 +1,509 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>세수 계산 엔진</title></head><body><script src="./wasm_data.js?rev=0.10.21"></script><script src="./core_glue.js?rev=0.10.21"></script><script src="./data.js?rev=0.10.21"></script><script src="../../engine/yysim-target-catalog.js?rev=0.10.48"></script><script src="../../engine/yysim-native-search-guard.js?rev=0.10.61"></script><script src="../../engine/yysim-purple-anchor-mixed.js?rev=20261123-anchor-v19"></script><script>
+let ready=false;
+const washSelectableIds=()=>new Set((window.YYWashTargetCatalog||[])
+ .flatMap(group=>group.items||[]).map(item=>Number(item.id)));
+function send(requestId,ok,data){parent.postMessage({kind:'yysim-wash',requestId,ok,data},location.origin)}
+function progress(requestId,data){parent.postMessage({kind:'yysim-wash',requestId,progress:true,data},location.origin)}
+window.addEventListener('message',async e=>{if(e.origin!==location.origin||e.source!==parent)return;
+const {kind,requestId,op,payload}=e.data||{};if(kind!=='nangman-engine-command')return;
+try{
+ if(op==='init'){
+  if(!ready){
+   if(typeof initWasm!=='function'||typeof wasmInitEngine!=='function')
+    throw Error('WASM 로딩 파일(core_glue.js)을 불러오지 못했습니다');
+   if(typeof TALENT_DATA==='undefined'||typeof ZZ_DATA==='undefined')
+    throw Error('WASM 세수 데이터(data.js)를 불러오지 못했습니다');
+   if(typeof EMBEDDED_WASM_B64==='undefined'||!EMBEDDED_WASM_B64)
+    throw Error('WASM 내장 데이터(wasm_data.js)가 없습니다. 브라우저 캐시 또는 배포 파일을 확인하세요');
+   const ok=await initWasm();
+   if(!ok)throw Error('WASM 모듈 로딩 실패: '+(window.__yyWasmInitError||'원본 WASM 실행 환경을 확인하세요'));
+   if(!wasmInitEngine(TALENT_DATA,ZZ_DATA))
+    throw Error('WASM 세수 재능 데이터 초기화 실패. 자료 버전이 일치하는지 확인하세요');
+   ready=true;
+  }
+  send(requestId,true,{ready:true});return
+ }
+ if(!ready)throw Error('yy-sim 엔진 초기화가 필요합니다');
+ if(op==='state'){send(requestId,true,wasmGetState());return}
+ if(op==='set-state'){if(!wasmSetState(payload))throw Error('세수 상태 지정 실패');send(requestId,true,wasmGetState());return}
+ if(op==='preview'){const count=Number(payload?.count||900);
+  if(!Number.isInteger(count)||count<1||count>5000)throw Error('미리보기는 1–5000회 범위입니다');
+  const preview=wasmPreviewSequence(count);
+  if(!preview||typeof preview!=='object'||!Array.isArray(preview.purples))
+   throw Error('원본 WASM 자맥 미리보기 결과 형식이 잘못되었습니다');
+  const nameIds=Object.fromEntries(Object.entries(TALENT_DATA).filter(([,x])=>x?.name).map(([id,x])=>[x.name,id]));
+  send(requestId,true,{preview,count,nameIds});
+  return
+ }
+ if(op==='talent-constraints'){
+  const before=wasmGetState();
+  if(!before)throw Error('원본 세수 상태를 확인할 수 없습니다');
+  const available=wasmGetAvailableTalents();
+  const conflicts=wasmGetConflicts();
+  const after=wasmGetState();
+  if(!after||!window.YYWashNativeSearchGuard.statesEqual(before,after))
+   throw Error('재능 조회 중 WASM 상태가 변경됐습니다. 원본 결과를 적용하지 않습니다');
+  if(!available||typeof available!=='object'||available.error||
+     !conflicts||typeof conflicts!=='object'||conflicts.error)
+   throw Error('원본 WASM 재능·충돌 자료 구조를 확인할 수 없습니다');
+  const nameIds=Object.fromEntries(Object.entries(TALENT_DATA).filter(([,x])=>x?.name).map(([id,x])=>[x.name,id]));
+  send(requestId,true,{available,conflicts,nameIds});
+  return
+ }
+ if(op==='auto-search'){
+  // Real yy-sim search_wash_routes SearchReq. Keep the original WASM contract:
+  // desired_ids, max_pad, horizon, top_n, with native routes/steps/actions.
+  const ids=payload?.desiredIds;
+  const maxPad=Number(payload?.maxPad??0);
+  const horizon=Number(payload?.horizon??2500);
+  const topN=Number(payload?.topN??8);
+  // Dispatch green/blue/purple goals to ORIGINAL native search. This is an
+  // experimental characterization of the existing WASM, NOT proof that its
+  // purple-oriented generator can fulfill a mixed final state. Only fully
+  // complete final-slot routes may be surfaced as successful candidates.
+  if(!Array.isArray(ids)||ids.length<1||ids.length>4||
+     new Set(ids).size!==ids.length||
+     ids.some(id=>!Number.isInteger(id)||![2,3,4].includes(TALENT_DATA[String(id)]?.pinzhi)||
+       !washSelectableIds().has(id)))
+   throw Error('자동탐색은 등록된 녹맥·파맥·자맥 재능을 1~4개 선택해야 합니다');
+  // Talents in the same native type family cannot coexist in final slots.
+  // Reject impossible mixed-grade requests before starting expensive WASM work.
+  const families=ids.map(id=>TALENT_DATA[String(id)]?.type);
+  const knownFamilies=families.filter(v=>Number.isInteger(v)&&v>0);
+  if(new Set(knownFamilies).size!==knownFamilies.length)
+   throw Error('동일 계열의 재능은 최종 슬롯에 함께 남길 수 없습니다. 충돌하는 목표 재능을 변경하세요');
+  if(!Number.isInteger(maxPad)||maxPad<0||maxPad>200||
+     !Number.isInteger(horizon)||horizon<20||horizon>5000||
+     !Number.isInteger(topN)||topN<1||topN>20)
+   throw Error('자동탐색 범위 및 결과 개수를 확인하세요');
+  await new Promise(resolve=>setTimeout(resolve,0));
+  // Keep the original deterministic WASM search unchanged, but execute
+  // its synchronous native call in a Worker. A blocked iframe still causes a
+  // browser "page not responding" dialog even when the parent shows a spinner.
+  if(typeof Worker==='function'){
+   const startState=wasmGetState();
+   if(!startState||typeof startState!=='object')
+    throw Error('원본 자동탐색 시작 상태를 읽지 못했습니다');
+   const worker=new Worker('./native-auto-search-worker.js?rev=0.10.61');
+   const response=await new Promise((resolve,reject)=>{
+    const limit=setTimeout(()=>{
+     worker.terminate();
+     reject(Error('원본 세수 자동탐색이 5분 응답 제한을 초과했습니다'));
+    },295000);
+    let finished=false;
+    const close=()=>{if(finished)return false;finished=true;clearTimeout(limit);worker.terminate();return true};
+    worker.onmessage=event=>{
+     const packet=event.data||{};
+     if(packet.requestId!==requestId)return;
+     if(packet.kind==='nangman-native-auto-progress'){
+      if(!finished)progress(requestId,packet.data);
+      return;
+     }
+     if(packet.kind==='nangman-native-auto-result'&&close()){
+      if(packet.ok)resolve(packet.data);
+      else reject(Error(String(packet.error||'원본 세수 자동탐색 실행 오류')));
+     }
+    };
+    worker.onerror=error=>{
+     if(close())reject(Error('세수 탐색 작업자 실행 실패: '+String(error?.message||'원본 계산 파일을 확인하세요')));
+    };
+    worker.onmessageerror=()=>{if(close())reject(Error('세수 탐색 결과 전달에 실패했습니다'))};
+    try{worker.postMessage({kind:'nangman-native-auto-search',requestId,
+      state:startState,request:{desired_ids:ids,max_pad:maxPad,horizon,top_n:topN}})}
+    catch(error){if(close())reject(error)}
+   });
+   send(requestId,true,response);
+   return
+  }
+  throw Error('현재 브라우저는 백그라운드 세수 탐색을 지원하지 않습니다. 최신 브라우저에서 다시 시도하세요');
+  // Requested 4-slot combinations: let ORIGINAL yy-sim first solve only
+  // the 2/3 purple anchor goals, then replay that path with ORIGINAL WASM
+  // and scan nearby green/blue talents in the free slots. The result is
+  // accepted ONLY when all four actually remain in final WASM slots.
+  const anchor=window.YYWashPurpleAnchorMixed?.requestShape(ids,TALENT_DATA);
+  if(anchor){
+   const mixed=await window.YYWashPurpleAnchorMixed.run({
+    desiredIds:ids,maxPad,horizon,topN,talents:TALENT_DATA,
+    getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes,
+    doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+    guard:window.YYWashNativeSearchGuard,
+    progress:data=>progress(requestId,data)
+   });
+   const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
+    .filter(([,item])=>item?.name).map(([id,item])=>[item.name,Number(id)]));
+   send(requestId,true,{
+    result:mixed,desiredIds:ids,maxPad,horizon,topN,nameIds,
+    nativeFunction:'wasmSearchWashRoutes',
+    nativeDiagnostics:{isMixed:true,returned:mixed.routes.length,
+     complete:mixed.routes.length,incomplete:0,
+     method:'purple-anchor-original-wasm',...mixed.diagnostics}
+   });
+   return
+  }
+  const search={desired_ids:ids,max_pad:maxPad,horizon,top_n:topN};
+  const guard=window.YYWashNativeSearchGuard;
+  if(!guard?.run)throw Error('원본 WASM 검색 상태 보호 모듈이 준비되지 않았습니다');
+  const result=guard.run({getState:wasmGetState,setState:wasmSetState,
+   search:wasmSearchWashRoutes},search);
+  // A non-empty native route does NOT imply mixed-grade success: inspect
+  // final_slots for each requested ID before returning to the UI.
+  const isMixed=ids.some(id=>TALENT_DATA[String(id)]?.pinzhi!==4);
+  const completeRoutes=result.routes.filter(route=>{
+   const final=new Set((route?.final_slots||[]).map(item=>Number(item?.id)));
+   return ids.every(id=>final.has(id));
+  });
+  const nativeDiagnostics={
+   isMixed,returned:result.routes.length,complete:completeRoutes.length,
+   incomplete:result.routes.length-completeRoutes.length,
+   unsupportedNotProven:isMixed&&completeRoutes.length===0
+  };
+  const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
+   .filter(([,x])=>x?.name).map(([id,x])=>[x.name,Number(id)]));
+  send(requestId,true,{result,desiredIds:ids,maxPad,horizon,topN,nameIds,
+    nativeDiagnostics,nativeFunction:'wasmSearchWashRoutes'});
+  return
+ }
+ if(op==='sequence-pads'){
+  // Source yy-sim: route selection is by purple *wash_no* rather than
+  // manually entered ID pair; the first conflict_wash_no uses wash_times.
+  const washNos=payload?.washNos;
+  const previewLimit=Number(payload?.previewLimit??3000);
+  const requestedPad=Number(payload?.maxPad??20);
+  if(!Array.isArray(washNos)||washNos.length<1||washNos.length>4||
+     new Set(washNos).size!==washNos.length||
+     washNos.some(no=>!Number.isInteger(no)||no<1)||
+     !Number.isInteger(previewLimit)||previewLimit<1||previewLimit>5000||
+     !Number.isInteger(requestedPad)||requestedPad<0||requestedPad>200)
+   throw Error('자맥 회차 1~4개·원본 미리보기 1~5000회·선행 세수 0~200 범위로 지정하세요');
+  const before=wasmGetState();
+  if(!before)throw Error('원본 자맥 시퀀스 시작 상태를 확인할 수 없습니다');
+  const original=wasmPreviewSequence(previewLimit);
+  if(!original||!Array.isArray(original.purples))throw Error('원본 자맥 미리보기를 읽지 못했습니다');
+  const sorted=[...washNos].sort((a,b)=>a-b);
+  const maxAvailable=sorted.length>=2?
+   Math.max(0,Math.min(200,sorted[1]-sorted[0]-1)):30;
+  const pad=Math.min(requestedPad,maxAvailable);
+  const selected=sorted.map((no,index)=>{
+   const item=original.purples.find(x=>Number(x.wash_no)===no);
+   if(!item||TALENT_DATA[String(item.talent_id)]?.pinzhi!==4)
+    throw Error('원본 미리보기에 선택한 자맥 회차가 존재하지 않습니다');
+   const divine=[248,249,250].includes(Number(item.talent_id));
+   if(!item.can_exchange&&!divine)
+    throw Error('원본에서 치환할 수 없는 자맥입니다');
+   if(!item.earlier_conflict_name&&!divine)
+    throw Error('선행 충돌맥이 없는 일반 자맥은 연동 치환을 계산할 수 없습니다');
+   const lockOnly=divine&&!item.earlier_conflict_name;
+   return {purple_name:item.talent_name,
+    conflict_name:item.earlier_conflict_name||'',
+    conflict_wash_no:!lockOnly&&index===0?Number(item.earlier_conflict_wash_times||0):0,
+    lock_only:lockOnly,wash_no:no};
+  });
+  const targets=selected.map(x=>({
+   purple_name:x.purple_name,conflict_name:x.conflict_name,
+   conflict_wash_no:x.conflict_wash_no,lock_only:x.lock_only}));
+  const results=wasmPreviewExchangePads(targets,pad);
+  const after=wasmGetState();
+  if(!after||!window.YYWashNativeSearchGuard.statesEqual(before,after)){
+   const restored=wasmSetState(before);
+   if(!restored||!window.YYWashNativeSearchGuard.statesEqual(before,wasmGetState()))
+    throw Error('원본 연동 치환 탐색 상태 복구 검증 실패');
+   throw Error('원본 연동 치환 탐색 중 실제 WASM 상태 변경 감지 · 복구 완료');
+  }
+  if(!results||typeof results!=='object'||results.error)
+   throw Error('원본 연동 치환 탐색 결과 구조를 확인할 수 없습니다');
+  const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
+    .filter(([,item])=>item?.name).map(([id,item])=>[item.name,Number(id)]));
+  send(requestId,true,{results,targets,selectedWashNos:sorted,
+   maxPad:pad,maxAvailable,previewLimit,nameIds,
+   nativeFunction:'wasmPreviewExchangePads'});
+  return
+ }
+ if(op==='exchange-pads'){
+  const targets=payload?.targets;
+  const maxPad=Number(payload?.maxPad??900);
+  if(!Array.isArray(targets)||targets.length<1||targets.length>4||
+     !Number.isInteger(maxPad)||maxPad<1||maxPad>5000)
+   throw Error('도맥법 목표 1~4개, 탐색 횟수 1~5000회로 설정하세요');
+  const mapped=targets.map(entry=>{
+   const purple=Number(entry?.purpleId),conflict=Number(entry?.conflictId);
+   const a=TALENT_DATA[String(purple)],b=TALENT_DATA[String(conflict)];
+   if(!Number.isInteger(purple)||!Number.isInteger(conflict)||!a?.name||!b?.name||
+      a.pinzhi!==4||b.pinzhi!==4||a.name==='备用天赋'||b.name==='备用天赋')throw Error('원본 자색 재능만 선택하세요. 예비 재능은 제외됩니다');
+   return {purple_name:a.name,conflict_name:b.name};
+  });
+  const results=wasmPreviewExchangePads(mapped,maxPad);
+  if(results==null||typeof results!=='object'||results.error)
+   throw Error('원본 WASM 도맥법 경로 결과를 확인할 수 없습니다');
+  const nameIds=Object.fromEntries(Object.entries(TALENT_DATA).filter(([,item])=>item?.name).map(([id,item])=>[item.name,id]));
+  send(requestId,true,{results,targets:mapped,maxPad,nameIds});
+  return
+ }
+ if(op==='until-talent-any'){
+  // Replays only a specified recorded native wash_until_talent_name step.
+  const id=Number(payload?.talentId),limit=Number(payload?.count);
+  const talent=TALENT_DATA[String(id)];
+  if(!Number.isInteger(id)||!talent?.name||
+     ![2,3,4].includes(talent.pinzhi)||talent.name==='备用天赋'||
+     !Number.isInteger(limit)||limit<1||limit>5000)
+   throw Error('원본 녹맥·파맥·자맥과 최대 5000회 이하의 세수 한도가 필요합니다');
+  const before=wasmGetState();
+  if(!before?.talents)throw Error('원본 WASM 세수 상태 미확인');
+  try{
+   const batch=wasmWashUntilTalentName(talent.name,limit);
+   const after=wasmGetState();
+   if(!Array.isArray(batch)||!after?.talents)
+    throw Error('원본 WASM 목표 세수 결과가 올바르지 않습니다');
+   const found=after.talents.some(x=>Number(x.id)===id);
+   if(!found)throw Error('지정된 원본 경로 재능을 탐색 범위에서 확보하지 못했습니다');
+   send(requestId,true,{state:after,performed:batch.length,found,
+    talentId:id,sourceName:talent.name});
+  }catch(error){
+   if(!wasmSetState(before)||JSON.stringify(wasmGetState())!==JSON.stringify(before))
+    throw Error(String(error.message||error)+' / 목표 세수 실패 후 WASM 복구 검증 실패');
+   throw error;
+  }
+  return
+ }
+ if(op==='until-talent'){
+  const id=Number(payload?.talentId),limit=Number(payload?.count??1000);
+  const entry=TALENT_DATA[String(id)];
+  if(!Number.isInteger(id)||!entry?.name||entry.pinzhi!==4||entry.name==='备用天赋'||
+    !Number.isInteger(limit)||limit<1||limit>5000)
+   throw Error('원본 자색 재능 ID와 세수 횟수 1~5000회를 입력하세요');
+  const snapshot=wasmGetState();
+  if(!snapshot)throw Error('원본 세수 상태를 읽지 못했습니다');
+  const results=wasmWashUntilTalentName(entry.name,limit);
+  const state=wasmGetState();
+  if(!state||!results||typeof results!=='object'||results.error)
+   throw Error('원본 목표 자맥 세수 상태·결과를 읽지 못했습니다');
+  send(requestId,true,{results,state,limit,talentId:id,sourceName:entry.name});
+  return
+ }
+ if(op==='until-exchange'||op==='until-exchange-and-replace'){
+  const limit=Number(payload?.count??500);
+  const target=payload?.talentId==null?null:Number(payload.talentId);
+  if(!Number.isInteger(limit)||limit<1||limit>1000)
+   throw Error('다음 치환까지 모의 세수는 최대 1000회로 제한됩니다');
+  if(target!=null&&(!Number.isInteger(target)||!TALENT_DATA[String(target)]||
+     TALENT_DATA[String(target)].pinzhi!==4||TALENT_DATA[String(target)].name==='备用天赋'))
+   throw Error('목표 자맥은 원본 자색 재능만 사용할 수 있습니다');
+  const start=wasmGetState();
+  if(!start)throw Error('모의 세수 시작 상태를 읽지 못했습니다');
+  const outcomes=[];
+  const findCollision=current=>{
+   const candidates=wasmGetConflicts();
+   if(!Array.isArray(candidates))throw Error('원본 WASM 충돌 판정 구조를 확인할 수 없습니다');
+   return candidates.find(x=>{
+    const index=Number(x?.index),earlier=Number(x?.earlier_index);
+    if(x?.can_exchange!==true||x?.index==null||!Number.isInteger(index)||
+       index<0||index>=current?.talents?.length||
+       current.talents[index]?.locked===true)return false;
+    return target==null||current.talents[index]?.id===target||
+       (x.earlier_index!=null&&Number.isInteger(earlier)&&earlier>=0&&current.talents[earlier]?.id===target);
+   })||null;
+  };
+  let matched=null,stopped='limit';
+  try{
+   matched=findCollision(start);
+   if(matched)stopped='conflict';
+   for(let i=0;i<limit&&!matched;i++){
+    const before=wasmGetState();
+    const wash=wasmDoWash();
+    const current=wasmGetState();
+    if(!current||!Array.isArray(current.talents))throw Error('모의 세수 진행 상태가 올바르지 않습니다');
+    if(wash?.error)throw Error('원본 WASM 모의 세수 오류');
+    if(JSON.stringify(before)===JSON.stringify(current)){
+     stopped='unchanged';break;
+    }
+    outcomes.push(wash);
+    matched=findCollision(current);
+    if(matched){stopped='conflict';break;}
+    if(i%25===24)await new Promise(resolve=>setTimeout(resolve,0));
+   }
+  }catch(error){
+   wasmSetState(start);
+   throw error;
+  }
+  let exchange=null;
+  if(op==='until-exchange-and-replace'&&matched){
+   const current=wasmGetState();
+   const index=Number(matched.index);
+   const fresh=wasmGetConflicts();
+   if(!Array.isArray(fresh)||!Number.isInteger(index)||
+      index<0||index>=current?.talents?.length||
+      current.talents[index].locked||
+      !fresh.some(x=>Number(x?.index)===index&&x?.can_exchange===true)){
+    wasmSetState(start);
+    throw Error('충돌 판정이 변경되어 다음 치환 전체를 이전 상태로 복구했습니다');
+   }
+   try{
+    exchange=wasmExchangeTalent(index);
+    if(!exchange||exchange.success!==true){
+     wasmSetState(start);
+     throw Error('원본 WASM 치환 실패: 이전 세수 상태까지 복구했습니다');
+    }
+   }catch(err){
+    wasmSetState(start);
+    throw err;
+   }
+  }
+  const state=wasmGetState();
+  if(!state||!Number.isFinite(Number(state.seed))){
+   wasmSetState(start);
+   throw Error('치환 후 상태 검증 실패: 다음 치환 전체를 이전 상태로 복구했습니다');
+  }
+  send(requestId,true,{results:outcomes,state,found:!!matched,
+    conflict:matched,performed:outcomes.length,limit,stopReason:stopped,
+    targetId:target,exchange,autoExchanged:exchange?.success===true});
+  return
+ }
+ if(op==='lock-present-goals'){
+  const ids=payload?.targetIds;
+  if(!Array.isArray(ids)||ids.length<1||ids.length>4||
+     new Set(ids).size!==ids.length||
+     ids.some(id=>!Number.isInteger(id)||!TALENT_DATA[String(id)]||
+       TALENT_DATA[String(id)].pinzhi!==4||
+       TALENT_DATA[String(id)].name==='备用天赋'))
+   throw Error('목표 슬롯 잠금은 원본 자색 재능 ID 1~4개만 허용합니다');
+  const original=wasmGetState();
+  if(!original||!Array.isArray(original.talents))
+   throw Error('원본 WASM 재능 슬롯을 읽을 수 없습니다');
+  const copy={...original,talents:original.talents.map(x=>({...x}))};
+  let locked=copy.talents.filter(x=>x.locked===true).length;
+  if(locked>3)throw Error('현재 잠금 상태가 원본 최대 3칸과 일치하지 않습니다');
+  const applied=[],missing=[],alreadyLocked=[],maxed=[];
+  for(const id of ids){
+   const index=copy.talents.findIndex(x=>x.id===id);
+   if(index<0){missing.push(id);continue}
+   if(copy.talents[index].locked){alreadyLocked.push(id);continue}
+   if(locked>=3){maxed.push(id);continue}
+   copy.talents[index].locked=true;
+   locked++;
+   applied.push({id,index});
+  }
+  if(applied.length){
+   try{
+    if(!wasmSetState(copy))throw Error('원본 WASM 목표 슬롯 잠금 적용에 실패했습니다');
+   }catch(error){
+    wasmSetState(original);
+    throw error;
+   }
+  }
+  const state=wasmGetState();
+  if(!state||!Array.isArray(state.talents)||
+     state.talents.filter(x=>x.locked===true).length>3||
+     applied.some(x=>state.talents[x.index]?.id!==x.id||
+       state.talents[x.index]?.locked!==true)){
+   wasmSetState(original);
+   throw Error('원본 WASM 잠금 결과 검증에 실패해 이전 상태로 복구했습니다');
+  }
+  send(requestId,true,{state,applied,missing,alreadyLocked,maxed,
+   changed:applied.length>0,locked:state.talents.filter(x=>x.locked===true).length});
+  return
+ }
+ if(op==='upgrade-zizhi'){
+  // Exact original yanyu_utils app.js upgradeZiZhi simulation: +1 aptitude
+  // and +100 strength/constitution gifts, without inventory deductions.
+  const before=wasmGetState();
+  const current=Number(before?.zizhi);
+  if(!before||!Number.isInteger(current)||current<150||current>=154||
+     !ZZ_DATA[String(current)]||!ZZ_DATA[String(current+1)])
+   throw Error('원본 자질 단계가 올바르지 않거나 이미 네 슬롯이 개방되었습니다');
+  const next={...before,zizhi:current+1,
+   str_gift:Number(before.str_gift||0)+100,
+   con_gift:Number(before.con_gift||0)+100};
+  if(!Number.isSafeInteger(next.str_gift)||!Number.isSafeInteger(next.con_gift))
+   throw Error('자질 보정 수치가 범위를 벗어났습니다');
+  try{
+   if(!wasmSetState(next))throw Error('원본 WASM 자질 상승을 적용하지 못했습니다');
+   const after=wasmGetState();
+   if(!after||Number(after.zizhi)!==current+1||
+      Number(after.str_gift)!==next.str_gift||Number(after.con_gift)!==next.con_gift||
+      !Array.isArray(after.talents)||
+      JSON.stringify(after.talents)!==JSON.stringify(before.talents))
+    throw Error('원본 자질 상승 결과에 예상하지 못한 변동이 있습니다');
+   send(requestId,true,{state:after,from:current,to:current+1,
+    slots:Number(ZZ_DATA[String(current+1)].num_talent),
+    source:'original-upgradeZiZhi',inventoryDeducted:false});
+  }catch(error){
+   if(!wasmSetState(before)||JSON.stringify(wasmGetState())!==JSON.stringify(before))
+    throw Error(String(error.message||error)+' / 자질 상승 실패 후 WASM 상태 복구 검증 실패');
+   throw error;
+  }
+  return
+ }
+ if(op==='toggle-lock'){
+  const index=Number(payload?.index);
+  const state=wasmGetState();
+  if(!Number.isInteger(index)||index<0||index>=4||
+     !state||!Array.isArray(state.talents)||!state.talents[index])
+   throw Error('잠금할 현재 재능 슬롯 번호를 확인하세요');
+  const copy={...state,talents:state.talents.map(t=>({...t}))};
+  const t=copy.talents[index],previous=!!t.locked;
+  if(!previous&&copy.talents.filter(x=>x.locked).length>=3)
+   throw Error('최대 3개의 재능만 잠글 수 있습니다');
+  t.locked=!previous;
+  if(!wasmSetState(copy))throw Error('WASM 잠금 상태 적용에 실패했습니다');
+  const actual=wasmGetState();
+  if(!actual||!!actual.talents?.[index]?.locked===previous){
+   wasmSetState(state);
+   throw Error('WASM에서 잠금 상태를 확인할 수 없습니다. 이전 상태로 복구했습니다');
+  }
+  send(requestId,true,{index,locked:!previous,state:actual});
+  return
+ }
+ if(op==='exchange-talent'||op==='exchange-matched'){
+  const index=Number(payload?.index);
+  const snapshot=wasmGetState();
+  if(!Number.isInteger(index)||index<0||index>=4||!snapshot?.talents?.[index])
+   throw Error('치환할 현재 재능 슬롯 번호를 확인하세요');
+  if(snapshot.talents[index].locked)throw Error('잠긴 슬롯은 치환할 수 없습니다');
+  if(op==='exchange-matched'){
+   const conflicts=wasmGetConflicts();
+   if(!Array.isArray(conflicts)||!conflicts.some(row=>Number(row?.index)===index&&row.can_exchange===true))
+    throw Error('현재 원본 WASM에 치환 가능한 동일 슬롯 충돌이 없습니다. 다시 탐색하세요');
+  }
+  const result=wasmExchangeTalent(index);
+  if(!result||result.success!==true){
+   wasmSetState(snapshot);
+   throw Error('원본 WASM 치환 조건을 충족하지 못했습니다. 이전 상태로 복구했습니다');
+  }
+  const state=wasmGetState();
+  if(!state||!Number.isFinite(Number(state.seed))){
+   wasmSetState(snapshot);
+   throw Error('치환 후 WASM 상태를 읽지 못해 이전 상태로 복구했습니다');
+  }
+  send(requestId,true,{index,result,state});
+  return
+ }
+ if(op==='until-gold'){
+  const limit=Number(payload?.count||1000);
+  if(!Number.isInteger(limit)||limit<1||limit>5000)throw Error('자맥 자동 세수는 1–5000회 범위만 허용합니다');
+  const results=wasmWashUntilGold(limit);
+  send(requestId,true,{results:Array.isArray(results)?results:[],state:wasmGetState(),limit});
+  return
+ }
+ if(op==='wash'){
+  const count=Number(payload?.count??1);
+  if(!Number.isInteger(count)||count<1||count>100)throw Error('모의 세수는 1–100회 정수로 실행하세요');
+  const snapshot=wasmGetState();
+  if(!snapshot)throw Error('WASM 모의 세수 시작 상태를 확인할 수 없습니다');
+  const results=count===1?wasmDoWash():wasmWashMulti(count);
+  const performed=Array.isArray(results)?results.length:results?1:0;
+  const state=wasmGetState();
+  if(!state||!Number.isFinite(Number(state.seed))){
+   wasmSetState(snapshot);
+   throw Error('모의 세수 후 상태를 확인할 수 없어 복구했습니다');
+  }
+  if(performed===0&&JSON.stringify(state)!==JSON.stringify(snapshot)){
+   wasmSetState(snapshot);
+   throw Error('모의 세수 실행 기록이 없어 이전 상태로 복구했습니다');
+  }
+  send(requestId,true,{results,state,requested:count,performed,
+   partial:performed<count});
+  return
+ }
+ throw Error('알 수 없는 명령');
+}catch(err){send(requestId,false,{error:String(err.message||err)})}
+});
+</script></body></html>

@@ -1,0 +1,540 @@
+/* 角色面板页增量样式 */
+
+/* 顶部 hero（身份模块提出来放上面） */
+.role-section.role-hero {
+    padding: 14px 18px;
+}
+.role-section.role-hero h4 {
+    margin: 0 0 10px;
+    border-bottom: 1px solid var(--border-soft, var(--border-color));
+    padding-bottom: 6px;
+}
+
+/* ---------- 全局细滚动条（dark 主题统一） ---------- */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--border-accent);
+}
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.role-app .sim-nav {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.role-app .sim-nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.role-app .sim-nav a:hover,
+.role-app .sim-nav a.active {
+    color: var(--purple-bright);
+}
+
+.role-app .nav-sep {
+    margin: 0 0.4rem;
+    color: var(--border-color);
+}
+
+.role-app .config-panel input[type="search"] {
+    width: 100%;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 4px;
+    padding: 0.45rem 0.6rem;
+    font-family: var(--font-sans);
+}
+
+.role-app .config-panel input[type="search"]:focus {
+    outline: none;
+    border-color: var(--border-accent);
+}
+
+.role-app .config-panel input[type="search"]::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+}
+
+.role-empty {
+    margin: 1.5rem 0;
+    padding: 2rem 1.25rem;
+    text-align: center;
+    color: var(--text-muted);
+    border: 1px dashed var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-card);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+.role-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.role-hero h2 {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+    gap: 0.55rem 0.75rem;
+}
+
+.identity-grid {
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 0.75rem 1rem;
+}
+
+.combat-grid {
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+}
+
+.stat-cell {
+    padding: 0.55rem 0.65rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.stat-cell .label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+}
+
+.stat-cell .value {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    word-break: break-all;
+}
+
+.stat-cell .value.accent {
+    color: var(--purple-bright);
+}
+
+.stat-cell .sub {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.final-grid {
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+}
+
+.final-skill-hint {
+    grid-column: 1 / -1;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 0.15rem;
+}
+
+.final-cell .value {
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.role-table .prop-line {
+    display: inline-block;
+    margin: 0.1rem 0.35rem 0.1rem 0;
+    color: var(--accent, #6eb5ff);
+    font-size: 0.8rem;
+}
+
+.fashion-row td {
+    color: var(--text-muted);
+}
+
+.fashion-tag {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.attr-table-wrap {
+    overflow-x: auto;
+}
+
+.role-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+}
+
+.role-table th,
+.role-table td {
+    padding: 0.5rem 0.55rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: top;
+}
+
+.role-table th {
+    color: var(--text-muted);
+    font-weight: 500;
+    background: var(--bg-secondary);
+    white-space: nowrap;
+}
+
+.role-table td {
+    color: var(--text-secondary);
+}
+
+.role-table .empty-row {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 1.2rem;
+}
+
+.role-table .num {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+}
+
+.role-table .est {
+    color: var(--purple-bright);
+    font-weight: 600;
+}
+
+.talent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.talent-section-title {
+    margin-top: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+}
+
+.talent-section-title:first-child {
+    margin-top: 0;
+}
+
+.talent-empty {
+    margin: 0 !important;
+    padding: 0.65rem 0.7rem !important;
+    font-size: 0.82rem;
+}
+
+.talent-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.55rem 0.75rem;
+    align-items: start;
+    padding: 0.55rem 0.7rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.talent-row.talent-born {
+    border-color: #6a5438;
+    background: linear-gradient(135deg, rgba(120, 90, 40, 0.18), var(--bg-primary) 70%);
+}
+
+.talent-row.talent-battle {
+    border-color: #3d5a4a;
+    background: linear-gradient(135deg, rgba(50, 110, 80, 0.2), var(--bg-primary) 70%);
+}
+
+.talent-pz {
+    font-size: 0.72rem;
+    padding: 0.12rem 0.4rem;
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.talent-pz.pz-1 { color: var(--white); border-color: #3a3f4a; }
+.talent-pz.pz-2 { color: var(--green-bright); border-color: #2f4a35; }
+.talent-pz.pz-3 { color: var(--blue-bright); border-color: #2a3d55; }
+.talent-pz.pz-4 { color: var(--purple-bright); border-color: #4a3461; }
+.talent-pz.pz-born { color: #d4a574; border-color: #6a5438; }
+.talent-pz.pz-battle { color: #7dcea0; border-color: #3d5a4a; }
+
+.talent-name {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.talent-desc {
+    margin-top: 0.2rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+    white-space: pre-wrap;
+}
+
+.talent-effects {
+    margin-top: 0.25rem;
+    font-size: 0.74rem;
+    color: var(--accent, #6eb5ff);
+    line-height: 1.4;
+}
+
+.talent-lock {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.talent-lock.on {
+    color: var(--red);
+}
+
+.color-1 { color: var(--white); }
+.color-2 { color: var(--green-bright); }
+.color-3 { color: var(--blue-bright); }
+.color-4 { color: var(--purple-bright); }
+.color-5 { color: #e8b86d; }
+.color-6 { color: var(--red); }
+
+.prop-line {
+    display: inline-block;
+    margin-right: 0.45rem;
+    white-space: nowrap;
+}
+
+.wugong-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.sub-title {
+    margin: 0 0 0.55rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.wugong-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.wugong-item {
+    padding: 0.4rem 0.55rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.wugong-item.active {
+    border-color: #3d4a61;
+    color: var(--text-primary);
+}
+
+.wugong-item .wg-id {
+    color: var(--text-muted);
+    margin-left: 0.35rem;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 800px) {
+    .wugong-split {
+        grid-template-columns: 1fr;
+    }
+    .talent-row {
+        grid-template-columns: auto 1fr;
+    }
+    .talent-lock {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ============================================================
+ * 角色选择按钮（替代 <select>）
+ * ============================================================ */
+
+/* ============================================================
+ * 角色选择按钮列表（永远展开）
+ * ============================================================ */
+
+.role-selector {
+    margin: 0.75rem 0 1rem;
+}
+
+.role-selector-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.04em;
+}
+
+.role-btn-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+}
+
+.role-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 0.85rem 1rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.12s, background 0.12s, color 0.12s, transform 0.08s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.role-btn:hover {
+    border-color: var(--border-accent);
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    transform: translateY(-1px);
+}
+
+.role-btn:focus {
+    outline: none;
+    border-color: var(--purple-bright);
+}
+
+.role-btn:active {
+    transform: translateY(0);
+}
+
+.role-btn.active {
+    border-color: var(--purple-bright);
+    background: rgba(159, 130, 247, 0.12);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 1px var(--purple-bright);
+}
+
+/* tag chip：圆角胶囊 + 背景色块 —— "主角" / "随从" / "离队" / "队员" */
+.role-btn-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+}
+
+/* 主角 tag：紫色（与 high-quality 紫系一致） */
+.role-btn.tag-主角 .role-btn-tag {
+    background: rgba(159, 130, 247, 0.18);
+    color: var(--purple-bright);
+}
+
+/* 主角 tag 在 wash 页是 tag-main（slug 是 main） */
+.role-btn.tag-main .role-btn-tag {
+    background: rgba(159, 130, 247, 0.18);
+    color: var(--purple-bright);
+}
+
+/* 随从 / 队员 tag：蓝色 */
+.role-btn.tag-随从 .role-btn-tag,
+.role-btn.tag-队员 .role-btn-tag,
+.role-btn.tag-role .role-btn-tag {
+    background: rgba(120, 175, 240, 0.18);
+    color: var(--blue-bright);
+}
+
+/* 离队 tag：灰色降级 */
+.role-btn.tag-离队 .role-btn-tag,
+.role-btn.tag-leave .role-btn-tag {
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    opacity: 0.75;
+}
+
+/* name：突出（最大字号 + bold） */
+.role-btn-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+}
+
+.role-btn.active .role-btn-name {
+    color: var(--purple-bright);
+}
+
+/* meta：降级为 secondary text */
+.role-btn-meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.role-table tbody tr {
+    transition: background-color 200ms ease;
+}
+
+.role-table tbody tr:hover {
+    background: rgba(192, 132, 252, 0.05);
+}
+
+.role-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.role-section h4 {
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-soft, var(--border-color));
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 600px) {
+    .role-btn-list {
+        grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    }
+}
