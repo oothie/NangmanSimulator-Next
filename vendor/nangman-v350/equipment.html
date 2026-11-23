@@ -11513,7 +11513,23 @@ function rkPaintXl237(h,o,e,cfg){
  if(RK237.mode==='all'){
    body=rows.map(z=>{const x=z.raw,d=review.display[x.at-1];return `<tr><td><label><input type="checkbox" data-rkxl-check="${x.at}" ${d?.accepted?'checked':''}> ${x.at}</label></td><td>${x.slot}</td><td>${esc(propLabel218(x.prop))}</td><td><b>${esc(formatPropValue(x.prop,d?.actual??x.value))}</b> <small>(${esc(formatPropValue(x.prop,x.maxValue))})</small></td><td>${x.pct}%</td></tr>`}).join('')||'<tr><td colspan="5">해당 슬롯·옵션 결과가 없습니다.</td></tr>';
  }else if(!prop){
-   body='<tr><td colspan="4">계산할 옵션을 하나 선택하세요.</td></tr>';
+   if(RK237.mode==='budget'){
+     const cacheKey=String(baseEq.CZSeed)+'|'+String(baseEq.XLLevel)+'|'+RK237.xlMud+'|'+JSON.stringify(baseEq.exts||[]);
+     let data=o._rkBudgetAll360?.key===cacheKey?o._rkBudgetAll360.data:null;
+     if(!data){
+       data=props.map(p=>{
+         const c=rkXlCurve237(baseEq,p,RK237.xlMud,1000);
+         const best=c?.front?.filter(x=>x.mud<=RK237.xlMud).reduce((prev,x)=>!prev||x.total>prev.total?x:prev,null);
+         return {prop:p,best};
+       });
+       o._rkBudgetAll360={key:cacheKey,data};
+     }
+     body=data.map(({prop:p,best})=>best?
+       '<tr><td>'+esc(propLabel218(p))+'</td><td>'+best.mud+'</td><td><b>'+esc(formatPropValue(p,best.total))+'</b></td><td>'+
+       (best.steps.map(t=>t.at+'번째 · '+t.slot+'번 슬롯 · '+esc(propLabel218(t.prop))+' '+esc(formatPropValue(t.prop,t.v))+' · '+t.mud+' 연금니').join('<br>')||'정련 없음')+'</td></tr>':
+       '<tr><td>'+esc(propLabel218(p))+'</td><td colspan="3">해당 예산 내 결과 없음</td></tr>'
+     ).join('');
+   }else body='<tr><td colspan="4">계산할 옵션을 하나 선택하세요.</td></tr>';
  }else{
    if(RK237.mode==='hit'&&o?.xl){
      body=rkSearchXlHitRow272(o,prop,bcfg);
@@ -11526,8 +11542,8 @@ function rkPaintXl237(h,o,e,cfg){
  <div class="rk237-groups"><div class="picker237"><b>옵션</b><div class="chips" id="dxlp"></div></div><label class="picker237"><b>정련 슬롯</b><select class="rinput" id="dxslot"><option value="0" ${RK237.xlSlot===0?'selected':''}>옵션 1·2·3 전체</option>${[1,2,3].map(v=>`<option value="${v}" ${RK237.xlSlot===v?'selected':''}>옵션 ${v}</option>`).join('')}</select></label><div class="picker237"><b>보기</b><div class="chips" id="dxlm"></div></div><label class="picker237"><b>연금니 예산</b><input class="rinput" id="dxmud" type="number" min="1" max="1000" value="${RK237.xlMud}"></label></div>
   ${RK237.mode==='all'?`<div class="note218" role="status"><b>직접 선택 ${review.selected}개</b> · ${esc(formatXilianCostText(review.costs))} · ${review.totalMud>RK237.xlMud?'연금니 예산 초과':'연금니 예산 내'}<p>선택 후 옵션: ${review.current.map((x,i)=>x?`${i+1}. ${esc(propLabel218(x.prop))} ${esc(formatPropValue(x.prop,x.value))}`:'—').join(' · ')}</p></div>`:''}<div class="scroll218"><table class="tbl218 detail-table218"><thead><tr>${RK237.mode==='all'?'<th>#</th><th>슬롯</th><th>옵션</th><th>실제 수치 (최대)</th><th>비율</th>':'<th>구분</th><th>총 연금니</th><th>완성 수치</th><th>어떻게 정련</th>'}</tr></thead><tbody>${body}</tbody></table></div>`;
  const picks=[{v:'__all__',n:'전체 옵션'}].concat(props.map(p=>({v:p,n:propLabel218(p)})));
- chips(h.querySelector('#dxlp'),picks,v=>(v==='__all__'?prop===null:v===prop),v=>{o._rkXlProp=v==='__all__'?null:v;if(RK237.mode!=='all'&&o._rkXlProp===null)RK237.mode='all';rkPaintXl237(h,o,e,cfg)});
- chips(h.querySelector('#dxlm'),[['hit','달성'],['cp','CP값'],['budget','예산 내 최고'],['top','최고'],['all','전체']].map(x=>({v:x[0],n:x[1]})),v=>RK237.mode===v,v=>{RK237.mode=v;if(v!=='all'&&!o._rkXlProp)o._rkXlProp=props[0]||null;rkPaintXl237(h,o,e,cfg)});
+ chips(h.querySelector('#dxlp'),picks,v=>(v==='__all__'?prop===null:v===prop),v=>{o._rkXlProp=v==='__all__'?null:v;if(RK237.mode!=='all'&&RK237.mode!=='budget'&&o._rkXlProp===null)RK237.mode='all';rkPaintXl237(h,o,e,cfg)});
+ chips(h.querySelector('#dxlm'),[['hit','달성'],['cp','CP값'],['budget','예산 내 최고'],['top','최고'],['all','전체']].map(x=>({v:x[0],n:x[1]})),v=>RK237.mode===v,v=>{RK237.mode=v;if(v!=='all'&&v!=='budget'&&!o._rkXlProp)o._rkXlProp=props[0]||null;if(v==='budget')o._rkXlProp=null;rkPaintXl237(h,o,e,cfg)});
  h.querySelector('#dxslot').onchange=x=>{RK237.xlSlot=Math.max(0,Math.min(3,Number(x.target.value)||0));if(RK237.mode!=='all')RK237.mode='all';rkPaintXl237(h,o,e,cfg)};
  h.querySelector('#dxmud').onchange=x=>{RK237.xlMud=Math.max(1,Math.min(1000,+x.target.value||500));rkPaintXl237(h,o,e,cfg)};
  h.querySelectorAll('[data-rkxl-check]').forEach(el=>el.onchange=()=>{const scroll=h.querySelector('.scroll218'),prev=scroll?.scrollTop||0,at=Number(el.dataset.rkxlCheck),chosen=new Set(o._rkXlChosen360||[]);if(el.checked)chosen.add(at);else chosen.delete(at);o._rkXlChosen360=[...chosen].sort((a,b)=>a-b);rkPaintXl237(h,o,e,cfg);const next=h.querySelector('.scroll218');if(next)next.scrollTop=prev});
