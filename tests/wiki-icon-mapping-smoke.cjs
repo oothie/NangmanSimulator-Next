@@ -8,7 +8,7 @@ const source={
  arts:[{id:309,n:'오금희'}],
  buff:[{id:201,n:'조급',icon:'icon_buff_10'}]
 };
-const win={NANGMAN_V620_BUFF_KO:{201:['조급','설명','icon_buff_10']},NANGMAN_54506_BUFF_KO:{}};
+const win={NANGMAN_V620_BUFF_KO:{201:['조급','설명','icon_buff_10']},NANGMAN_54506_BUFF_KO:{},NANGMAN_HOSTED_SKILL_ICONS:new Set([301,309]),NANGMAN_HOSTED_BUFF_ICONS:new Set([10])};
 const {wikiImage,wikiImgTag}=new Function('window','wikiSource','wikiFallbackSource','escape',
  html.slice(a,b)+';return {wikiImage,wikiImgTag}')(win,source,null,x=>String(x));
 assert.equal(wikiImage({source:'crafts',cat:'craft',id:'301',obj:source.crafts[0]}),
@@ -18,6 +18,9 @@ assert.equal(wikiImage({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}),
 assert.equal(wikiImage({source:'buff',cat:'buff',id:'201',obj:source.buff[0]}),
  'https://yy-sim.pages.dev/icons/buff/icon_buff_10.png','V6.20 original buff sprite');
 assert(wikiImgTag({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}).includes('src="./icons/skill/309.png"'),'first party image is tried first');
+const missingPack={...win,NANGMAN_HOSTED_SKILL_ICONS:new Set()};
+const fallback=new Function('window','wikiSource','wikiFallbackSource','escape',html.slice(a,b)+';return {wikiImage,wikiImgTag}')(missingPack,source,null,x=>String(x));
+assert(!fallback.wikiImgTag({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}).includes('src="./icons/skill/309.png"'),'missing original icon pack must not trigger 404');
 assert(wikiImgTag({source:'arts',cat:'arts',id:'309',obj:source.arts[0]}).includes('https://yy-sim.pages.dev/icons/skill/309.png'),'remote original remains a fallback');
 const localWin={...win,NANGMAN_SKILL_ICON_DATA:{icon_skill_309:'data:image/png;base64,TEST'}};
 const localResolver=new Function('window','wikiSource','wikiFallbackSource','escape',html.slice(a,b)+';return {wikiImage,wikiImgTag}')(localWin,source,null,x=>String(x));
