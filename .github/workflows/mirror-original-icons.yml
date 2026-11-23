@@ -1,0 +1,37 @@
+name: Mirror original game icons
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/mirror-wiki-icons.cjs'
+      - '.github/workflows/mirror-original-icons.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: mirror-game-icons
+  cancel-in-progress: false
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fetch verified PNGs
+        run: node tools/mirror-wiki-icons.cjs
+      - name: Commit first-party icon files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add icons/item icons/equip
+          if git diff --cached --quiet; then
+            echo "No new icons"
+          else
+            git commit -m "Mirror original item and equipment PNG assets"
+            git push
+          fi
