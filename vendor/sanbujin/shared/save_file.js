@@ -24,7 +24,7 @@
    if (typeof location !== 'undefined' && /(^|\.)(pages\.dev|github\.io)$/.test(location.hostname)) throw Error('공개 시뮬레이터에서는 세이브를 원격 검증 서버로 전송하지 않습니다.');
    response=await fetch('/api/feilong/v1/cloud/archive-open',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/octet-stream'},body:bytes,signal:controller.signal});
    value=await response.json();
-  }catch(error){assertCurrent(owner,token);throw Error(error.name==='AbortError'?'存档验证超时，请重试':'暂时无法验证存档，请检查网络后重试');}
+  }catch(error){assertCurrent(owner,token);throw Error(error.name==='AbortError'?'세이브 검증 시간이 초과되었습니다. 다시 시도하세요.':'세이브를 검증할 수 없습니다. 연결 상태를 확인하고 다시 시도하세요.');}
   finally{clearTimeout(timer);}
   assertCurrent(owner,token);
   if(!response.ok||!value?.ok){
