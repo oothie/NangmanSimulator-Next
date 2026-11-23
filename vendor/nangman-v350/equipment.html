@@ -10948,8 +10948,20 @@ function mangCostSummary263(mj){
  /* Roboking 기준: 목표 특수재료는 마지막 장착용 1개만 계산 */
  return `특수재료「${name}」×1 · 망정×${stones}${route}`;
 }
+function searchAscendCost346(x){
+ if(!x?.make)return'';
+ try{
+  const made=virtualFromMake(x.make,x.rt?.p?.selectId);
+  const cfg=EQUIP_DATA.equipment[String(made.id)]||{};
+  const originalLevel=Number(cfg.lv||made.need_lv||0);
+  const resultLevel=Number(x?.equip?.need_lv||EQUIP_DATA.equipment[String(x?.equip?.id)]?.lv||0);
+  if(originalLevel!==90||resultLevel<100||!cfg.equ_next)return'';
+  return formatCostList(calcShengLianCost(made));
+ }catch(_){return''}
+}
 function searchCostParts269(x){
  const a=[];if(x?.make?.index)a.push(`제작 ${Number(x.make.index)}회`);
+ const ascend=searchAscendCost346(x);if(ascend)a.push(`승련 ${ascend}`);
  const xl=xlCostSummary263(x?.xl);if(xl)a.push(`정련 ${xl}`);
  const mj=mangCostSummary263(x?.mj);if(mj)a.push(`망정 ${mj}`);
  return a
@@ -11029,8 +11041,8 @@ function searchPathText275(o){
  return parts.join(' · ')||'검색 결과';
 }
 function searchActualCost275(o){
- const a=[],craft=searchCraftMaterial275(o),xl=xlCostSummary263(o?.xl),mj=mangCostSummary263(o?.mj);
- if(craft)a.push(craft);if(xl)a.push(xl);if(mj)a.push(mj);
+ const a=[],craft=searchCraftMaterial275(o),ascend=searchAscendCost346(o),xl=xlCostSummary263(o?.xl),mj=mangCostSummary263(o?.mj);
+ if(craft)a.push('제작 '+craft);if(ascend)a.push('승련 '+ascend);if(xl)a.push('정련 '+xl);if(mj)a.push('망정 '+mj);
  return a.join(' · ')||'추가 소모 없음';
 }
 function searchCardSide275(o){
