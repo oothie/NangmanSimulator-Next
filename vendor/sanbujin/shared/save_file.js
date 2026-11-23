@@ -21,6 +21,7 @@
   const owner=state(),token=owner?.begin?.('archive-open'),controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),30000);let response,value;
   try{
+   if (typeof location !== 'undefined' && /(^|\.)(pages\.dev|github\.io)$/.test(location.hostname)) throw Error('공개 시뮬레이터에서는 세이브를 원격 검증 서버로 전송하지 않습니다.');
    response=await fetch('/api/feilong/v1/cloud/archive-open',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/octet-stream'},body:bytes,signal:controller.signal});
    value=await response.json();
   }catch(error){assertCurrent(owner,token);throw Error(error.name==='AbortError'?'存档验证超时，请重试':'暂时无法验证存档，请检查网络后重试');}
