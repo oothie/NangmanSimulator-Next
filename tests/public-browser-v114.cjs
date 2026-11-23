@@ -2,7 +2,9 @@
 /* Real Chromium public-visitor audit. No customer saves are loaded. */
 const {chromium}=require('playwright'),http=require('node:http'),
  path=require('node:path'),fs=require('node:fs'),cp=require('node:child_process');
-const root=path.resolve(__dirname,'..'),port=18764;
+const source=path.resolve(__dirname,'..'),port=18764;
+cp.execFileSync(process.execPath,[path.join(source,'scripts/build-public-v114.cjs')],{cwd:source,stdio:'ignore'});
+const root=path.join(source,'dist-public');
 const server=cp.spawn('python3',['-m','http.server',String(port),'--bind','127.0.0.1'],{cwd:root,stdio:'ignore'});
 const rest=ms=>new Promise(r=>setTimeout(r,ms));
 async function ready(){for(let i=0;i<60;i++){try{
