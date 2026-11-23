@@ -61,43 +61,23 @@
     configure();
   }
 
+  // Site v1.0.8: show only the forecast hunting round, Korean equipment name/ID and grade.
+  // Preserve raw rows, seed progression and filtering data for the original engine.
   function render() {
-    const host = $('wildResults'), onlyHits = $('wildOnlyHits').checked;
-    $('wildExport').disabled = !rows.length;
-    const quality=$('wildQuality').value;
-    const qualifying=rows.filter(row=>quality==='purple'?row.color===4:
-      quality==='equip'?Boolean(row.color):true);
-    const shown = onlyHits ? qualifying.filter(row => row.itemId || row.spawn) : qualifying;
-    const hits = rows.filter(row => !row.padding && row.itemId).length;
-    const padding = rows.filter(row => row.padding).length;
-    const appearances = rows.filter(row => !row.padding && row.kind === 'tomb' && row.spawn).length;
-    const purple = rows.filter(row => !row.padding && row.color === 4).length;
-    const story=targets[Number(picker.value)]?.kind==='story';
-    $('wildStatus').textContent = (story?'선행 특수몹 보상 호출 ':'선행 사냥 ') + padding + '회 · 예측 ' + (rows.length - padding) + '회 · 드랍 ' + hits + '회 · 자색 ' + purple + '회' + (story?' · 일반 사냥 회차와 별개':rows.some(row => row.kind === 'tomb') ? ' · 제릉 필드 특수몹 등장 ' + appearances + '회' : '');
-    host.replaceChildren(...shown.map(row => {
-      const item = node('li', '');
-      const label = '제 ' + row.serial + (story?'회 특수몹 보상 호출':'회') + (row.padding ? ' · 선행 사냥' : '') +
-        (row.tiger ? ' · ' + row.tiger : '') + (row.kind === 'tomb' ? ' · ' + (row.spawn ? '특수몹 35256' : '일반 전투') : '') + ' · ' + (EQUIP_DATA.equipment?.[row.itemId]?.koName || (row.kind === 'tomb' ? (row.itemName || (row.itemId ? '기타 보상 ID ' + row.itemId : row.spawn ? '장비 드랍 없음' : '예상 드랍 없음')) : ko(row.itemName || '예상 드랍 없음'))) +
-        (row.color ? ' · ' + color[row.color] : '');
-      item.append(node('strong', label));
-      if (row.kind === 'tomb') item.append(node('span', row.color ? '90레벨 장비 · 최종 정련/망정 미연결' : row.reason || (row.spawn ? '장비 이외 보상 또는 드랍 없음' : '특수몹 미등장'), 'wild-row-note'));
-      if (row.tiger) item.append(node('span', '호골 연속 미획득 ' + row.droughtBefore + ' → ' + row.droughtAfter, 'wild-row-note'));
-      if (row.color > 1) {
-        const attrs = row.affixes?.map(({prop, value}) => {
-          const label = EQUIP_DATA.propNames?.[prop] || EQUIP_DATA.props?.[prop] || prop;
-          const percent = value < 1 || prop === 'atk_extend';
-          const display = percent ? (Math.round(value * 10000) / 100) + '%' : value;
-          return ko(label) + ' ' + display;
-        });
-        item.append(node('span', attrs ? attrs.join(' · ') || '추가 옵션 없음' : '장비 옵션 계산에 필요한 데이터가 없습니다', 'wild-row-note'));
-      }
-      if (row.time) {
-        const time = new Date((row.time + 28800) * 1000).toISOString().slice(0, 19).replace('T', ' ');
-        item.append(node('span', '옵션 판정 시각 ' + time + ' 기준', 'wild-row-note'));
-      }
+    const host=$('wildResults');
+    const shown=rows.filter(row=>!row.padding && row.itemId && Number(row.color)>=1 && Number(row.color)<=4);
+    const labels=['','백색','녹색','청색','자색'];
+    host.replaceChildren(...shown.map(row=>{
+      const item=node('li','', 'nm-field-drop nm-field-grade-'+Number(row.color));
+      const name=ko(EQUIP_DATA.equipment?.[row.itemId]?.koName || row.itemName || '장비');
+      item.append(node('span',String(row.serial)+'회','nm-field-round'));
+      item.append(node('strong',name+' (ID '+row.itemId+')','nm-field-name'));
+      item.append(node('span',labels[Number(row.color)],'nm-field-quality'));
       return item;
     }));
-    if (!shown.length) host.append(node('li', quality==='purple'?'선택 범위에서 자색 장비 드랍이 예측되지 않았습니다.':'이 구간에서는 드랍이 없습니다.'));
+    if(!shown.length)host.append(node('li','장비 드랍 없음','nm-field-empty'));
+    $('wildStatus').textContent='';
+    $('wildExport').disabled=true;
   }
 
   // Field forecast across ALL candidate Lua weight traversal orders.
