@@ -1,0 +1,51 @@
+name: Install original Korean game icon pack
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'NangmanSimulator_Original_Icons_60014.zip'
+      - '.github/workflows/import-original-icon-pack.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: original-korean-icon-install
+  cancel-in-progress: false
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install original PNGs
+        shell: bash
+        run: |
+          if [ ! -f NangmanSimulator_Original_Icons_60014.zip ]; then
+            echo "No original icon pack has been uploaded yet"
+            exit 0
+          fi
+          python3 - <<'PY'
+          import zipfile,os,re
+          archive='NangmanSimulator_Original_Icons_60014.zip'
+          count=0
+          with zipfile.ZipFile(archive) as z:
+            for entry in z.infolist():
+              name=entry.filename
+              if not re.fullmatch(r'icons/(?:item|equip|buff|skill|martial)/[a-zA-Z0-9_-]+\.(?:png|jpg|webp)',name):continue
+              data=z.read(entry)
+              if not data.startswith(b'\x89PNG\r\n\x1a\n') and not data.startswith(b'\xff\xd8\xff'):continue
+              os.makedirs(os.path.dirname(name),exist_ok=True)
+              with open(name,'wb') as f:f.write(data)
+              count+=1
+          print('Original icon files imported:',count)
+          if count==0:raise SystemExit('Archive contains no valid game icons')
+          PY
+      - name: Publish originals to the simulator
+        run: |
+          if [ ! -f NangmanSimulator_Original_Icons_60014.zip ]; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add icons
+          git rm -f NangmanSimulator_Original_Icons_60014.zip
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Install first-party 60014 Korean original icon assets"
+          git push
