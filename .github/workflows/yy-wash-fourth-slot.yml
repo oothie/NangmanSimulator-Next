@@ -1,0 +1,21 @@
+name: Original WASM 3-purple plus green fourth-slot regression
+on:
+  push:
+    paths:
+      - 'engine/yysim-purple-anchor-mixed.js'
+      - 'tests/yysim-fourth-slot-mixed-native.cjs'
+      - '.github/workflows/yy-wash-fourth-slot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fourth-slot-wasm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify fourth-slot native wash transition
+        run: node tests/yysim-fourth-slot-mixed-native.cjs
