@@ -53,15 +53,12 @@ async function ready(){for(let i=0;i<60;i++){try{
   await page.locator('[data-view="'+tab+'"]').first().click({timeout:12000});
   await rest(400);
   await scan(tab);
-  let selectors=['[data-sub]','[data-character-tab]','[data-account-tab]','[data-wiki-tab]','[data-daily-tab]','[data-quest-tab]','[data-equip-tab]','[data-drop-mode]','[data-quest-view]'];
+  let selectors=['[data-sub]','[data-module-tab]','[data-equipment-tab]','[data-market-panel]','[data-market-tab]','[data-account-tab]','[data-account-growth]','[data-wiki-cat]','[data-quest-filter]','[data-quest-category]','[data-quest-branch]','[data-drop-mode]'];
   let visitedSub=new Set();
   for(const selector of selectors){
    const items=await page.locator(selector).evaluateAll(els=>els.map(e=>({
-    key:e.getAttribute('data-sub')||e.getAttribute('data-character-tab')||
-    e.getAttribute('data-account-tab')||e.getAttribute('data-wiki-tab')||
-    e.getAttribute('data-daily-tab')||e.getAttribute('data-quest-tab')||
-    e.getAttribute('data-equip-tab')||e.getAttribute('data-drop-mode')||
-    e.getAttribute('data-quest-view'),label:e.textContent.trim().slice(0,40)
+    key:Array.from(e.attributes).find(a=>a.name.startsWith('data-')&&a.name!=='data-theme')?.value,
+    label:e.textContent.trim().slice(0,40)
    }))).catch(()=>[]);
    for(const item of items.slice(0,12)){
     if(!item.key||visitedSub.has(selector+item.key)||visitedSub.size>=44)continue;
@@ -72,6 +69,41 @@ async function ready(){for(let i=0;i<60;i++){try{
     }catch(e){errors.push('subnav: '+tab+'/'+item.key+' '+String(e.message).slice(0,100))}
    }
   }
+ }
+ // Test with a fully synthetic minimal Korean-shaped save. Never embed
+ // user-uploaded save files, account identifiers or actual RNG states.
+ const synthetic={BaseSID:4,CenterID:12345,MainRole:{
+  ID:10044,Name:'검증용 인물',Level:90,Lv:90,Sex:1, ZiZhi:150,
+  BornTalent:{ID:178,S:123456789,RC:0},LuckTalent:{S:987654321},
+  Str:100,Con:100,Dex:100,Int:100,BornStr:10,BornCon:10,BornDex:10,BornInt:10,
+  StrGift:150,ConGift:150,DexGift:150,IntGift:150,
+  Talents:[],Equips:[],Equip:[],Dantian:[],Kongfu:[]},
+  Roles:[],Leavers:[],Items:[],Rnds:{Sds:{},Eds:{}},globalVariable:{},
+  RandShop:{Counts:[],Items:[],Buy:0,Fresh:0,Lucky:0,Time:0}};
+ await page.locator('#file').setInputFiles({name:'synthetic-release-check.json',
+  mimeType:'application/json',buffer:Buffer.from(JSON.stringify(synthetic))});
+ await rest(850);
+ const imported=await page.locator('#topSaveStatus').innerText().catch(()=>'<missing>');
+ if(!imported.includes('연결'))errors.push('Synthetic save import did not connect: '+imported);
+ for(const tab of tabs){
+  try{
+   await page.locator('[data-view="'+tab+'"]').first().click({timeout:6500});
+   await rest(300);
+   await scan('synthetic/'+tab);
+   for(const selector of ['[data-sub]','[data-module-tab]','[data-equipment-tab]',
+    '[data-account-tab]','[data-account-growth]','[data-wiki-cat]','[data-market-tab]',
+    '[data-market-panel]','[data-drop-mode]','[data-quest-filter]','[data-quest-category]']){
+    const list=await page.locator(selector).evaluateAll(els=>els.slice(0,6).map(e=>({
+     label:e.textContent.trim(),visible:e.offsetWidth>0&&e.offsetHeight>0,
+     type:e.getAttribute('type')||''}))).catch(()=>[]);
+    for(const info of list.filter(x=>x.visible).slice(0,5)){
+     try{
+      await page.locator(selector).filter({hasText:info.label}).first().click({timeout:1600});
+      await scan('synthetic/'+tab+'/'+info.label.slice(0,30));
+     }catch(e){errors.push('synthetic-subnav '+tab+': '+String(e.message).slice(0,85))}
+    }
+   }
+  }catch(e){errors.push('synthetic-tab '+tab+': '+String(e.message).slice(0,100))}
  }
  await page.locator('#ink').click().catch(()=>{});
  const theme=await page.evaluate(()=>({theme:document.documentElement.dataset.theme,
