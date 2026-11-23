@@ -6114,8 +6114,6 @@ function isDummyPaperId(id){return DUMMY_PAPER_IDS.has(Number(id));}
 
 const SPECIAL_MATERIAL_PART_OVERRIDES = Object.freeze({
     6884: Object.freeze([7]),
-    8825: Object.freeze([8]), // 적석수 · 반지 · 내기
-    8826: Object.freeze([5]), // 석순심 · 허리띠 · 강기
 });
 const JIANWANG_SWORD_IDS = new Set([5707, 5708, 5709, 5710, 5711, 5712, 5713, 5714, 5715, 5716, 5717]);
 const JIANWANG_LEVEL_100_IDS = new Set([5714, 5715, 5716, 5717]);
@@ -8257,11 +8255,11 @@ function specialAttachEquipLabel(equip) {
 
 function specialMaterialDisplayName361(material) {
  const id=Number(material?.id);
- return String(material?.name||id)+(id===8825?' (내기)':id===8826?' (강기)':'');
+ return String(material?.name||id);
 }
 function specialMaterialsForEquip(equip) {
     return Object.values(EQUIP_DATA.special)
-        .filter(material => specialMaterialSupportsEquip(material, equip))
+        .filter(material => ![8825, 8826].includes(Number(material.id)) && specialMaterialSupportsEquip(material, equip))
         .sort((left, right) => left.id - right.id);
 }
 
