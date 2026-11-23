@@ -101,4 +101,20 @@ for(const candidate of colorCandidates.slice(1)){
   'remaining candidate orders must stay observationally equivalent through 500');
 }
 
+// Regression: UI allowed 2000 but the actual Diling engine previously
+// rejected everything above 500. Validate full calculation, not merely
+// changing the HTML max attribute.
+const full2000=tomb.predict(open,{count:2000,order:'verified'});
+assert.equal(full2000.length,2000,'all 2000 field calls must be computed');
+assert.equal(full2000[1999].serial,2000);
+assert.equal(tomb.predict(open,{pad:1000,count:1000}).length,2000,
+ 'combined padding and projected calls can reach 2000');
+assert.equal(tomb.predict(open,{pad:1999,count:1}).length,2000);
+assert.throws(()=>tomb.predict(open,{count:2001}),/2000/);
+assert.throws(()=>tomb.predict(open,{pad:1,count:2000}),/2000/);
+const traced2000=tomb.traceEncounterCalls(open,2000);
+assert.equal(traced2000.encounters.length,2000);
+assert.equal(traced2000.encounters.at(-1).call,2000);
+assert.equal(JSON.stringify(save),before,'2000 field projections must preserve saved RNG state');
+
 console.log('PASS: Diling 100 encounter / NPC 35256 / original 90-equipment pool / guarded hypotheses / UI');
