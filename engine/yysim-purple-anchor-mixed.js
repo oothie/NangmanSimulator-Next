@@ -136,22 +136,22 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
  function openNativeSlot(action){
   const note=String(action?.note||'');
   const match=note.match(/15[1-4]/);
-  if(!match)throw Error('원본 슬롯 개방의 자질 조건을 확인할 수 없습니다: '+note);
+  if(!match)throw Error('원본 재능 칸 개방 조건을 확인할 수 없습니다: '+note);
   const required=Number(match[0]);
   let state=getState();
   const z=Number(state?.zizhi);
   if(!Number.isInteger(z)||z<150||z>154)
-   throw Error('원본 WASM 슬롯 개방 자질 상태가 올바르지 않습니다');
+   throw Error('원본 WASM 개방 칸 수 상태가 올바르지 않습니다');
   while(Number(state.zizhi)<required){
    const next={...state,zizhi:Number(state.zizhi)+1,
     str_gift:count(state,'str_gift')+100,
     con_gift:count(state,'con_gift')+100};
-   if(!setState(next))throw Error('원본 WASM 슬롯 개방 실패: 자질 '+next.zizhi);
+   if(!setState(next))throw Error('원본 WASM 재능 칸 개방 실패: '+(next.zizhi-150)+'칸');
    state=getState();
    if(Number(state.zizhi)!==next.zizhi||
       count(state,'str_gift')!==next.str_gift||
       count(state,'con_gift')!==next.con_gift)
-    throw Error('원본 WASM 슬롯 개방 후 자질 수치 불일치');
+    throw Error('원본 WASM 슬롯 개방 후 개방 칸 수 불일치');
   }
  }
  function replay(route,anchorProgress){
@@ -906,7 +906,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     }
     const opened=getState();
     if(number(opened.zizhi)!==154){
-     diagnostics.failures.push('네 번째 재능 칸 개방 후 자질 154가 확인되지 않았습니다');
+     diagnostics.failures.push('네 번째 재능 칸 개방 후 4칸이 확인되지 않았습니다');
      continue;
     }
     diagnostics.fourthSlotOpened=(diagnostics.fourthSlotOpened||0)+1;
