@@ -4915,7 +4915,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v1.1.5',source:'yy-sim-wasm',verifiedInGame:false,events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='Nangman_Wash_Experiment_Log.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v1.1.5',events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='낭만강호_세수기록.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;equipmentLastOriginalTab=null;render();restoreEquipmentReturn()}});
@@ -5036,7 +5036,7 @@ function updateDropVisibility(){
   dropFrame=document.createElement('iframe');
   dropFrame.id='dropEngineFrame';dropFrame.title='낭만강호 드랍 계산 엔진';
   dropFrame.loading='eager';dropFrame.referrerPolicy='same-origin';
-  dropFrame.src='./vendor/sanbujin/drops/index.html?rev=1.1.4';
+  dropFrame.src='./vendor/sanbujin/drops/index.html?rev=1.1.5';
   dropFrame.addEventListener('load',()=>{dropSentVersion=-1;sendThemeToDrop();dropStatus='드랍 엔진 초기화 확인 중';updateDropRuntimeStatus()});
   host.appendChild(dropFrame);
  }
