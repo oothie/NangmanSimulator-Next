@@ -1,0 +1,26 @@
+name: Public release localization and privacy audit
+on:
+  push:
+    branches:
+      - release/v1.1.4-public-audit
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  release-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Release source and privacy scan
+        run: node scripts/release-audit-v114.cjs
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-release-qa-report
+          path: release-reports/qa-v1.1.4.json
+          if-no-files-found: warn
