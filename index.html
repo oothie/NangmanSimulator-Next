@@ -5023,7 +5023,11 @@ function sendDropMode(force=false){
 function updateDropVisibility(){
  const host=$('dropWorkspace');if(!host)return;
  host.hidden=v!=='drop'||dropSelectedMode==='dungeon';
- if(v!=='drop'||dropSelectedMode==='dungeon')return;
+ if(v!=='drop'||dropSelectedMode==='dungeon'){
+  // Keep the existing wild iframe synchronized when the other drop mode
+  // is active; hidden calculators must not retain a prior user's save.
+  sendSaveToDrop();return;
+ }
  if(!dropFrame){
   dropFrame=document.createElement('iframe');
   dropFrame.id='dropEngineFrame';dropFrame.title='낭만강호 드랍 계산 엔진';
