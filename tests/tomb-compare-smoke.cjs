@@ -28,7 +28,11 @@ assert(result.cases.some(c=>c.order==='descending'&&c.mismatches===0&&c.missing=
 assert.equal(result.cases.find(c=>c.order==='descending').checks.length,3);
 assert.equal(JSON.stringify(before),snapshot,'comparison never modifies saved before state');
 assert.equal(JSON.stringify(after),snapshotAfter,'after-save JSON preserved');
-assert.throws(()=>compare.reconcile(before,after,501),/1~500/);
+assert.equal(compare.preview(before,2000).length,2000,
+ 'two-save preview must accept the advertised 2000 field events');
+assert.equal(compare.reconcile(before,after,2000).count,2000,
+ 'two-save comparison must accept the advertised 2000 field events');
+assert.throws(()=>compare.reconcile(before,after,2001),/1~2000/);
 const noSeed={Rnds:{Sds:{}},globalVariable:before.globalVariable};
 assert(compare.reconcile(noSeed,after,2).cases.length===0,'missing before RNG blocks candidate ordering');
 assert(compare.diff(before,noSeed).seeds.every(x=>x.status==='데이터 누락'));
