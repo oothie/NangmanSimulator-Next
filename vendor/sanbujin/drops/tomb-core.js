@@ -37,8 +37,8 @@ function ready(input){
 function simulate(input,options={}){
  if(!ready(input))throw Error('제릉의 등장/보상 시드 및 필수 세이브 변수가 필요합니다.');
  const pad=options.pad??0,count=options.count??30,order=options.order??'verified';
- if(!Number.isInteger(pad)||pad<0||pad>500||!Number.isInteger(count)||count<1||count>500)
-  throw Error('선행 사냥 0~500회, 예측 1~500회로 입력하세요.');
+ if(!Number.isInteger(pad)||pad<0||pad>2000||!Number.isInteger(count)||count<1||count>2000||pad+count>2000)
+  throw Error('선행 사냥과 예측 횟수의 합계는 1~2000회로 입력하세요.');
  const orderNames=['verified','descending','ascending','candidateC','candidateD'];
  if(!orderNames.includes(order)&&!options.rewardOrder&&!options.colorOrder)
   throw Error('제릉 분기 순서가 올바르지 않습니다.');
@@ -177,13 +177,13 @@ function fitObservations(input,observations,options={}){
   spawn:row.spawn==null?null:Boolean(row.spawn),
   noGearBefore:row.noGearBefore===true
  }));
- if(tests.some(x=>!Number.isInteger(x.serial)||x.serial<1||x.serial>500||
+ if(tests.some(x=>!Number.isInteger(x.serial)||x.serial<1||x.serial>2000||
    x.itemId!=null&&!Number.isInteger(x.itemId)||
    x.color!=null&&![1,2,3,4].includes(x.color)))
   throw Error('관측 회차와 장비 ID·색상을 확인하세요.');
  const horizon=Math.max(Number(options.count)||0,...tests.map(x=>x.serial));
- if(!Number.isInteger(horizon)||horizon<1||horizon>500)
-  throw Error('탐색 범위는 1~500회입니다.');
+ if(!Number.isInteger(horizon)||horizon<1||horizon>2000)
+  throw Error('탐색 범위는 1~2000회입니다.');
  const matches=[],all=[];
  for(const rewardOrder of permutations(source.reward.map(x=>x.kind))){
   for(const colorOrder of permutations(source.color.map(x=>x.color))){
@@ -209,8 +209,8 @@ function fitObservations(input,observations,options={}){
 // It does not alter seeds or infer an offset from observations.
 function traceEncounterCalls(input,count=50){
  if(!ready(input))throw Error('제릉 조우 진단용 원본 시드와 변수 누락');
- if(!Number.isInteger(count)||count<1||count>500)
-  throw Error('원본 제릉 조우 호출 진단은 1~500회까지 가능합니다.');
+ if(!Number.isInteger(count)||count<1||count>2000)
+  throw Error('원본 제릉 조우 호출 진단은 1~2000회까지 가능합니다.');
  // Event-gate only: no seed_35256, reward, color, equipment or unrelated
  // progression variables are read/advanced. Pure call sequence diagnostic.
  const flags=new Map(input.flags);
