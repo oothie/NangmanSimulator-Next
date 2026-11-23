@@ -30,7 +30,7 @@ for(const item of files){
  if(!fs.existsSync(target)){output.push({...item,status:'MISSING'});continue}
  const r=cp.spawnSync(process.execPath,[target],{cwd:root,encoding:'utf8',timeout:30000,maxBuffer:128*1024});
  output.push({...item,status:r.error?.code==='ETIMEDOUT'?'TIMEOUT':r.status===0?'PASS':'FAIL',
-  details:r.status===0?'':String((r.stderr||r.stdout||'').slice(-600)).replace(/[0-9]{8,}/g,'[number]').slice(0,360)});
+  details:r.status===0?'':String((r.stderr||r.stdout||'').slice(0,2700)).replace(/[0-9]{8,}/g,'[number]').slice(0,1400)});
  console.log('QA_TEST '+item.group+' '+item.name+' '+output.at(-1).status);
 }
 const total={checked:output.length,pass:output.filter(x=>x.status==='PASS').length,
