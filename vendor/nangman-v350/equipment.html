@@ -11694,9 +11694,11 @@ function rkPaintCl237(h,o,e,cfg){
      body=`<div class="scroll218"><table class="tbl218 detail-table218"><thead><tr><th>몇 번째</th><th>단계</th><th>품질</th><th>용화제</th><th>촉련도 / 실제 가산</th><th>비용</th></tr></thead><tbody>${rows}</tbody></table></div><div class="rk237-total"><b>합계</b> · 시도 ${p.rolls}회 / 수락 ${accepted.length}회 · 최종 촉련도 <b>${finalPct.toFixed(1).replace(/\.0$/,'')}%</b> (이번 경로 +${addPct.toFixed(1).replace(/\.0$/,'')}%) · 실제 스펙 가산 <b>${finalStat.toFixed(1).replace(/\.0$/,'')}%</b> (이번 경로 +${addStat.toFixed(1).replace(/\.0$/,'')}%) · 촉련석 ${Object.entries(p.stones||{}).map(([id,n])=>`${esc(EQUIP_DATA.itemNames?.[String(id)]||id)} ${n}개`).join(' · ')||'0개'} · 용화제 ${p.rong}개 · 은전 ${moneyText271(p.silver)}</div>`;
    }
  }
- const currentPct=(Number(e.lv_prop||0)/2).toFixed(1).replace(/\.0$/,''), currentStat=(Number(e.lv_prop||0)/10).toFixed(1).replace(/\.0$/,'');
+ const currentPct=(Number(e.lv_prop||0)/2).toFixed(1).replace(/\\.0$/,''), currentStat=(Number(e.lv_prop||0)/10).toFixed(1).replace(/\\.0$/,'');
+ const origin=o?.make?.pity?Number(o.make.pity_order||1)+'천장':o?.make?.index?'일반 제작 '+Number(o.make.index)+'회차':'보유 장비';
+ const checkText='<p class="note218">촉련 계산 기준 · '+esc(origin)+' · '+Number(cfg.lv||e.need_lv||0)+'급 · 제작 원본 시드 '+Number(e.S||0).toLocaleString('ko-KR')+'</p>';
  h.innerHTML=`<div class="rk237-groups"><div class="picker237"><b>찾기 기준</b><div class="chips" id="dclmode"></div></div><label class="picker237"><b>앞 몇 회</b><input class="rinput" id="dclscan" type="number" min="${remain}" max="1000" value="${RK237.clScan}"></label><div class="picker237"><b>완벽 최적화</b><button type="button" class="rbtn${RK237.clCostMode?' primary':''}" id="dclmin259">최소 소모</button></div>${RK237.clMode==='percent'&&!RK237.clCostMode?`<label class="picker237"><b>목표 최종 촉련도</b><input class="rinput" id="dclpct" type="number" min="${currentPct}" max="100" step="0.5" value="${RK237.clTargetPct}"><span>%</span></label>`:''}</div>
- ${body}`;
+ ${body}${checkText}`;
  const modes=[{v:'q1',n:'보통 이상'},{v:'q2',n:'양호 이상'},{v:'q3',n:'우수 이상'},{v:'q4',n:'완벽'},{v:'percent',n:'목표 %'},{v:'all',n:'전체 시퀀스'}];
  chips(h.querySelector('#dclmode'),modes,v=>v==='all'?RK237.clMode==='all':v==='percent'?RK237.clMode==='percent':RK237.clMode==='quality'&&RK237.clMinGrade===Number(v.slice(1)),v=>{RK237.clCostMode=false;if(v==='all')RK237.clMode='all';else if(v==='percent')RK237.clMode='percent';else{RK237.clMode='quality';RK237.clMinGrade=Number(v.slice(1));RK237.clTargetPct=wikiTotals[RK237.clMinGrade]}rkPaintCl237(h,o,e,cfg)});
  const minBtn=h.querySelector('#dclmin259');if(minBtn)minBtn.onclick=()=>{RK237.clCostMode=!RK237.clCostMode;if(RK237.clCostMode){RK237.clMode='quality';RK237.clMinGrade=4;RK237.clTargetPct=100}rkPaintCl237(h,o,e,cfg)};
