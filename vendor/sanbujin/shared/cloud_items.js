@@ -23,6 +23,7 @@ async function request(action,data={}){
   const id='cloud_'+Date.now()+'_'+(++counter)+'_'+key().slice(0,10),timer=setTimeout(()=>{pending.delete(id);reject(Error('연결 시간이 초과됐습니다. 다시 시도하세요.'));},timeout);
   pending.set(id,{resolve,reject,timer});try{native.cloudRequest(id,action,JSON.stringify(data));}catch(error){pending.delete(id);clearTimeout(timer);reject(Error('연결이 완료되지 않았습니다. 다시 시도하세요.'));}
  }).then(result=>{if(stale())throw changed();if(state?.receive(action,result,token)===false)throw changed();clearCollectionPages(action,data);return result;},error=>{if(stale())throw changed();if(error.code==='cloud_login_required')state?.clear(token);throw error;});
+ if (typeof location !== 'undefined' && /(^|\.)(pages\.dev|github\.io)$/.test(location.hostname)) throw Error('공개 시뮬레이터에서는 클라우드 저장·전송 기능을 사용할 수 없습니다. 데이터는 브라우저에만 보관하세요.');
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);let r,value;
  try{r=await fetch(PREFIX+action,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),cache:'no-store',signal:controller.signal});value=await r.json();}
  catch(error){if(stale())throw changed();throw Error(error.name==='AbortError'?'연결 시간이 초과됐습니다. 다시 시도하세요.':'클라우드에 연결할 수 없습니다. 다시 시도하세요.');}finally{clearTimeout(timer);}
