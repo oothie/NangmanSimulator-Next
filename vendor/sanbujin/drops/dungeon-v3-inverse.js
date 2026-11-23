@@ -100,9 +100,23 @@ function rebuild(before,after,plan,catalog,measured,options={}){
   next:'실측 이후 세이브의 Sds 변화와 원본 분기 호출 검증 전에는 두 모델을 확정 예측으로 사용하지 않습니다'};
 }
 function measurement(rows,fixture){
- const byId=new Map((fixture||[]).map(x=>[Number(x.npc),x]));
- const checks=(rows||[]).filter(x=>byId.has(Number(x.npcId))).map(row=>{
-  const expected=byId.get(Number(row.npcId));
+ // Match each boss occurrence in order. Repeated dungeon clears must not
+ // overwrite earlier observations with the final occurrence of the same NPC.
+ const byId=new Map();
+ for(const entry of fixture||[]){
+  const id=Number(entry.npc);
+  if(!byId.has(id))byId.set(id,[]);
+  byId.get(id).push(entry);
+ }
+ const seen=new Map();
+ const checks=(rows||[]).filter(row=>{
+  const id=Number(row.npcId),index=seen.get(id)||0;
+  seen.set(id,index+1);
+  return index<(byId.get(id)?.length||0);
+ }).map(row=>{
+  const id=Number(row.npcId),index=(seen.get('checked:'+id)||0);
+  seen.set('checked:'+id,index+1);
+  const expected=byId.get(id)[index];
   const pass=!!row.supported&&Number(row.item)===Number(expected.item)&&
    Number(row.color)===Number(expected.color);
   return {npc:Number(row.npcId),pass,expected:{item:expected.item,color:expected.color},
