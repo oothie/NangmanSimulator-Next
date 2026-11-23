@@ -1,0 +1,27 @@
+name: Icon resilience regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'tests/wiki-icon-mapping-smoke.cjs'
+      - 'tests/html-inline-syntax.cjs'
+      - 'tools/mirror-wiki-icons.cjs'
+      - '.github/workflows/icon-resilience-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate inline HTML scripts
+        run: node tests/html-inline-syntax.cjs
+      - name: Validate first-party/remote icon selection
+        run: node tests/wiki-icon-mapping-smoke.cjs
+      - name: Validate icon-mirror script syntax
+        run: node --check tools/mirror-wiki-icons.cjs
