@@ -184,15 +184,28 @@ const fixture=Object.freeze({
   {npc:35268,item:4209,color:2}]
 });
 function compareMeasured(rows,expected){
- const actual=new Map((expected||[]).map(x=>[num(x.npc),x]));
- return rows.filter(r=>actual.has(r.npcId)).map(r=>{
-  const check=actual.get(r.npcId);
-  return {npcId:r.npcId,expected:check,observed:{item:r.item,color:r.color},
-    itemMatch:r.supported&&num(r.item)===check.item,
-    colorMatch:r.supported&&num(r.color)===check.color,
-    exact:r.supported&&num(r.item)===check.item&&num(r.color)===check.color,
-    supported:r.supported,reason:r.reason||''};
- });
+ // Observations are ordered by actual dungeon-clear occurrence. Never collapse
+ // three observations for one boss into a single last-seen fixture entry.
+ const byNpc=new Map();
+ for(const entry of expected||[]){
+  const id=num(entry.npc);
+  if(!byNpc.has(id))byNpc.set(id,[]);
+  byNpc.get(id).push(entry);
+ }
+ const seen=new Map();
+ const checks=[];
+ for(const row of rows||[]){
+  const id=num(row.npcId),offset=seen.get(id)||0;
+  seen.set(id,offset+1);
+  const check=byNpc.get(id)?.[offset];
+  if(!check)continue; // A future unmeasured clear is not a comparison failure.
+  const valid=!!row.supported, itemMatch=valid&&num(row.item)===num(check.item);
+  const colorMatch=valid&&num(row.color)===num(check.color);
+  checks.push({npcId:id,occurrence:offset+1,expected:check,
+   observed:{item:row.item,color:row.color},itemMatch,colorMatch,
+   exact:itemMatch&&colorMatch,supported:row.supported,reason:row.reason||''});
+ }
+ return checks;
 }
 function planDungeons(ids){
  const dungeons=root.DAILY_DATA?.dungeons||[];
