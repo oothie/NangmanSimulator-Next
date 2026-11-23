@@ -7082,7 +7082,7 @@ function fillSpecialSelect() {
     for (const sp of materials) {
         const opt = document.createElement('option');
         opt.value = sp.id;
-        opt.textContent = sp.name || String(sp.id);
+        opt.textContent = specialMaterialDisplayName361(sp);
         sel.appendChild(opt);
     }
     if (previous && [...sel.options].some(option => option.value === previous)) {
@@ -8255,6 +8255,10 @@ function specialAttachEquipLabel(equip) {
     return `${source} · ${equip.name} · ${base} · ${current} · #${equip.only_id}`;
 }
 
+function specialMaterialDisplayName361(material) {
+ const id=Number(material?.id);
+ return String(material?.name||id)+(id===8825?' (내기)':id===8826?' (강기)':'');
+}
 function specialMaterialsForEquip(equip) {
     return Object.values(EQUIP_DATA.special)
         .filter(material => specialMaterialSupportsEquip(material, equip))
@@ -8276,7 +8280,7 @@ function fillSpecialAttachMaterialSelect(preserveSelection) {
     for (const material of materials) {
         const option = document.createElement('option');
         option.value = String(material.id);
-        option.textContent = material.name;
+        option.textContent = specialMaterialDisplayName361(material);
         materialSelect.appendChild(option);
     }
     if (previous && [...materialSelect.options].some(option => option.value === previous)) {
@@ -11197,7 +11201,7 @@ function refreshFindSpecial361(){
  const available=findSpecialMaterials361();
  if(!available.some(x=>Number(x.id)===Number(R.craftSpecialId)))R.craftSpecialId=0;
  node.innerHTML='<option value="" disabled'+(!R.craftSpecialId?' selected':'')+'>특수재료 선택</option>'+
- available.map(x=>'<option value="'+Number(x.id)+'"'+(Number(x.id)===Number(R.craftSpecialId)?' selected':'')+'>'+esc(x.name)+(Number(x.id)===8825?' (내기)':Number(x.id)===8826?' (강기)':'')+'</option>').join('');
+ available.map(x=>'<option value="'+Number(x.id)+'"'+(Number(x.id)===Number(R.craftSpecialId)?' selected':'')+'>'+esc(specialMaterialDisplayName361(x))+'</option>').join('');
 }
 function craftSpecialSelect361(currentCfg){
  const mats=currentCfg?specialMaterialsForEquip(currentCfg):findSpecialMaterials361();
@@ -11205,7 +11209,7 @@ function craftSpecialSelect361(currentCfg){
  const selected=options.some(x=>Number(x.id)===Number(R.craftSpecialId))?Number(R.craftSpecialId):0;
  return '<label class="region-special-select361"><b>최초 특수재료</b> <select class="rinput" id="craftSpecial361" required>'+
  '<option value=""'+(!selected?' selected':'')+' disabled>특수재료 선택</option>'+
- options.map(x=>'<option value="'+Number(x.id)+'"'+(selected===Number(x.id)?' selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select></label>';
+ options.map(x=>'<option value="'+Number(x.id)+'"'+(selected===Number(x.id)?' selected':'')+'>'+esc(specialMaterialDisplayName361(x))+'</option>').join('')+'</select></label>';
 }
 function craftSpecialFor361(cfg){
  const id=Number(R.craftSpecialId||0);
