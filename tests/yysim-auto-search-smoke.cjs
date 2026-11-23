@@ -78,7 +78,7 @@ assert.equal(route.globallyOptimal,false,'native false must not claim proven glo
 const names={'九阴鬼脉':248,'玄阳神脉':249,'天生神力':268};
 const translate=id=>'한국재능'+id;
 assert.equal(api.describeAction(sample.routes[0].actions[0],names,translate).detail,'한국재능248 (#248)');
-assert.match(api.describeAction(sample.routes[0].actions[1],names,translate).detail,/자질 154/);
+assert.match(api.describeAction(sample.routes[0].actions[1],names,translate).detail,/개방 칸 수 4칸/);
 assert.match(api.describeAction(sample.routes[0].actions[2],names,translate).detail,/3회차/);
 assert.match(api.describeAction(sample.routes[0].actions[3],names,translate).detail,/한국재능249/);
 assert.match(api.describeAction(sample.routes[0].actions[3],names,translate).detail,/한국재능268/);
