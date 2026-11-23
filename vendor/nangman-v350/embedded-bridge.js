@@ -70,6 +70,32 @@ html[data-nangman-theme="light"] body #rk218 .unique-pick247{
  border:1px solid var(--host-border)!important
 }
 `;
+/* Small-screen detail content must be scrollable within the iframe, never clipped. */
+themeStyle.textContent += `
+@media(max-width:760px){
+  body #rk218,body #rk218 #rmain,body #rk218 #dtop233,body #rk218 #dpanel,
+  body #rk218 .rb-detail233,body #rk218 .rk-detail-head233,body #rk218 .box218,
+  body #rk218 .bbody,body #rk218 .mini,body #rk218 .rk237-total{
+    box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important
+  }
+  body #rk218 .rk-detail-head233{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+  body #rk218 .rk-detail-head233>*{min-width:0!important;max-width:100%!important}
+  body #rk218 :is(.scroll218,.regionScroll225,.unique-seq-scroll227,.detail-scroll,.table-scroll,.rrows233){
+    display:block!important;box-sizing:border-box!important;width:100%!important;max-width:100%!important;
+    min-width:0!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;
+  }
+  body #rk218 .scroll218 :is(table,.detail-table218){
+    width:max-content!important;min-width:100%!important;table-layout:auto!important
+  }
+  body #rk218 .detail-table218 :is(th,td){white-space:nowrap!important}
+  body #rk218 .auto345-optionrow{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+  body #rk218 .auto345-optionblock,body #rk218 .auto346-main{min-width:0!important;max-width:100%!important}
+  body #rk218 .tabs218{width:100%!important;max-width:100%!important;min-width:0!important}
+  body #rk218 .props{display:flex!important;flex-wrap:wrap!important;min-width:0!important}
+  body #rk218 .props .tag{max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  body #rk218 input,body #rk218 select{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+}
+`;
 function setHostTheme(theme){
  document.documentElement.dataset.nangmanTheme=theme==='dark'?'dark':'light';
 }
