@@ -30,12 +30,19 @@ for(const p of ['vendor/yysim/wasm_data.js','vendor/yysim/core_glue.js',
   search:wasmSearchWashRoutes,doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
   guard:emptyAnchorGuard
  });
- assert.equal(emptyNativeAttempts,12,'All six purple orders must check both original WASM padding modes');
+ assert.equal(emptyNativeAttempts,18,'All six purple orders must check three native padding modes before declaring no route');
  assert.equal(unavailable.routes.length,0);
  assert.equal(unavailable.diagnostics.purpleNoRoute,true);
  assert.equal(unavailable.diagnostics.scannedWashes,0);
  assert.match(unavailable.error,/자맥.*0개/);
  assert.equal(YYWashNativeSearchGuard.canonicalJson(wasmGetState()),base);
+ // Korean in-game regression: 3 purple (환생금선/귀연정천/현양신맥)
+ // plus green (친구의리) belongs to four distinct native talent families.
+ const requested=[271,272,249,234];
+ const shape=YYWashPurpleAnchorMixed.requestShape(requested,TALENT_DATA);
+ assert.deepEqual(Array.from(shape.purple),[271,272,249]);
+ assert.deepEqual(Array.from(shape.colors),[234]);
+ assert.equal(new Set(requested.map(id=>TALENT_DATA[String(id)].type)).size,4);
  const talentIds=new Map(Object.entries(TALENT_DATA).map(([id,t])=>
   [String(t.name),Number(id)]));
  function replayReturnedRoute(route,origin=source){
