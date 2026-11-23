@@ -128,8 +128,8 @@ html[data-theme=ink] #wildDrop .nm-field-grade-4 .nm-field-quality{color:#dab6ff
     <p>현재 세이브에서 <strong>35255 조건부 조우 이벤트가 연속 호출될 때</strong>의 특수몹·장비 후보를 계산합니다. <strong>일반 필드 사냥 횟수와 이벤트 호출 횟수의 대응은 아직 미확정</strong>입니다.</p>
   </div><span class="tomb-forecast-tag">NPC 35256 · 일반 필드</span></div>
   <div class="tomb-forecast-actions">
-   <label>앞으로의 이벤트 호출<input id="tombForecastCount" type="number" min="1" max="500" value="30"></label>
-   <label>앞선 이벤트 호출 건너뛰기<input id="tombForecastPad" type="number" min="0" max="500" value="0"></label>
+   <label>앞으로의 이벤트 호출<input id="tombForecastCount" type="number" min="1" max="2000" value="30"></label>
+   <label>앞선 이벤트 호출 건너뛰기<input id="tombForecastPad" type="number" min="0" max="2000" value="0"></label>
    <button type="button" id="tombForecastRun">조건부 조우 계산</button>
    <button type="button" id="tombForecastCsv" disabled>결과 CSV</button>
   </div>
@@ -179,7 +179,7 @@ html[data-theme=ink] #wildDrop .nm-field-grade-4 .nm-field-quality{color:#dab6ff
   <label>사냥 전 세이브 JSON<input type="file" id="tombBefore" accept=".json,application/json"></label>
   <label>사냥 후 세이브 JSON<input type="file" id="tombAfter" accept=".json,application/json"></label>
  </div>
- <label>두 세이브 사이 제릉 사냥 횟수<input type="number" id="tombCompareCount" min="1" max="500" value="1"></label>
+ <label>두 세이브 사이 제릉 사냥 횟수<input type="number" id="tombCompareCount" min="1" max="2000" value="1"></label>
  <button type="button" id="tombCompareRun">변화·계산 방식 비교</button>
  <p id="tombCompareStatus" role="status"></p>
  <div id="tombCompareResults"></div>
