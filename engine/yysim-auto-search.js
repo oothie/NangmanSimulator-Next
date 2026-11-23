@@ -140,7 +140,7 @@ function describeAction(action,nameIds={},nameFor=()=>null){
   case 'open_slot':{
    label='재능 슬롯 개방';
    const hint=String(action?.note||'').match(/15[0-4]/);
-   detail=hint?'자질 '+hint[0]+' · 슬롯 '+(Number(hint[0])-150)+'칸':'자질·재료 조건을 게임에서 확인';
+   detail=hint?'개방 칸 수 '+(Number(hint[0])-150)+'칸':'재능 칸 개방 조건·재료를 게임에서 확인';
    break;
   }
   case 'wash_to':label='모의 세수';detail=wash==null?'원본 지정 회차':wash+'회차까지';break;
