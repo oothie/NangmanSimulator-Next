@@ -10411,7 +10411,7 @@ function craftRoutesForEquip218(id){
  const cfg=EQUIP_DATA.equipment[String(id)],paper=realPaperForEquip218(id);
  if(!cfg||!paper)return [];
  const line=craftLine218(cfg.type);
- return sortedCraftsmen().filter(n=>n.zhi===line&&(n.pf||[]).length>0).map(npc=>({npc,p:{
+ return sortedCraftsmen().filter(n=>n.zhi===line&&(n.pf||[]).some(pid=>Number(pid)===Number(paper.id))).map(npc=>({npc,p:{
    selectId:paper.id,equipId:cfg.id,label:`${ename(cfg)} (${KO_PAPER_NAMES[String(paper.id)]||'도면'} · Lv${cfg.lv})`,paper,equip:cfg
  }}));
 }
@@ -11174,7 +11174,17 @@ function paintRegionSeq(h,id){
  hd.innerHTML=`<tr><th class="sticky225">#</th>${routes.map(rt=>`<th>${esc(regionRouteLabel226(rt))}</th>`).join('')}</tr>`;
  // 한 번에 모든 제작처를 계산하지 않고, 대표 제작처만 순차 계산한다.
  const columns=[]; let ri=0;
- const cacheKey=`${Number(id)}:${count}:${routes.map(regionStaticSig226).join('~')}`;
+ // A regional crafting row is a save-specific RNG forecast, not static equipment data.
+ // Include the live maker seed, pity state, paper and craftsman IDs so that
+ // predictions from a previous save cannot be silently reused.
+ const maker=makeRndSnapshot||extractMakeRnd(window.__EQUIP_SAVE_ROOT__)||{};
+ const cacheKey=JSON.stringify([
+   Number(id),count,
+   maker.Seeds?.[String(cfg.type)]?.[String(Math.floor(Number(cfg.lv)/10))],
+   maker.IDSeeds?.[String(id)],maker.LuckySeeds?.[String(id)],
+   maker.MakeLucky?.[String(id)],
+   routes.map(rt=>[Number(rt.npc.id),Number(rt.p.selectId),regionStaticSig226(rt)])
+ ]);
  const cached=S.cache.get(cacheKey);
  if(cached){
    for(const c of cached) columns.push(c);
@@ -11202,7 +11212,14 @@ function paintRegionSeq(h,id){
      for(let i=pos;i<end;i++)html+=`<tr><td class="sticky225">${i+1}</td>${columns.map((x,ci)=>`<td class="region-click231" data-region-at="${i+1}" data-region-col="${ci}">${regionCell226(x.items[i])}</td>`).join('')}</tr>`;
      bd.insertAdjacentHTML('beforeend',html);pos=end;
      if(pos<count)setTimeout(draw,0);
-     else qa('#regionBody225 .region-click231').forEach(td=>td.onclick=()=>{const at=Number(td.dataset.regionAt),ci=Number(td.dataset.regionCol),col=columns[ci],z=col&&col.items[at-1];if(z){const eq=virtualFromMake(z,col.rt.p.selectId);showDetailTop233({equip:eq,make:z,rt:col.rt},'region')}});
+     else qa('#regionBody225 .region-click231').forEach(td=>td.onclick=()=>{const at=Number(td.dataset.regionAt),ci=Number(td.dataset.regionCol),col=columns[ci],z=col&&col.items[at-1];if(z){// Always reopen from the current save; never trust an old cached cell
+    // when handing an individual crafting result to the shared detail view.
+    const req={npc_id:col.rt.npc.id,select_id:col.rt.p.selectId,equip_id:id,
+      special_id:0,min_color:col.rt.p.paper?.min_color||1,max_color:col.rt.p.paper?.max_color||4};
+    const current=rkMakePreviewNative233(req,at).items?.[at-1];
+    if(!current){alert('현재 세이브의 해당 제작 결과를 계산하지 못했습니다.');return}
+    const eq=virtualFromMake(current,col.rt.p.selectId);
+    showDetailTop233({equip:eq,make:current,rt:col.rt},'region')}});
    };
    draw();
  }
