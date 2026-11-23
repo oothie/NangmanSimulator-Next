@@ -1,0 +1,31 @@
+name: Field 2000-hunt boundary regression
+
+on:
+  push:
+    paths:
+      - 'vendor/sanbujin/drops/tomb-core.js'
+      - 'vendor/sanbujin/drops/wild-core.js'
+      - 'vendor/sanbujin/drops/wild.js'
+      - 'vendor/sanbujin/drops/index.html'
+      - 'tests/tomb-field-smoke.cjs'
+      - '.github/workflows/field-2000-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  field-2000:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Diling source and UI syntax
+        run: |
+          node --check vendor/sanbujin/drops/tomb-core.js
+          node --check vendor/sanbujin/drops/wild.js
+      - name: Verify 2000 hunting calls on actual independent field model
+        run: node tests/tomb-field-smoke.cjs
