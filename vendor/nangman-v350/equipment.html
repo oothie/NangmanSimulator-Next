@@ -11985,12 +11985,9 @@ function paintOwnedDetailPage(m,e){showDetailTop233(e,'owned')}
  }
  function autoCostAside346(o){
    const c=autoCostSummary346(o);
-   const ascend=c.ascend;
-   const ascendRow=ascend.applied?'<div class="auto346-costtitle">승련 소모 재화 (합계 포함)</div>'+
-    '<div><b>은화</b><span>'+esc339(moneyText271(ascend.silver))+'</span></div>'+
-    '<div><b>'+esc339(ascend.matName||'승련 재료')+'</b><span>'+Number(ascend.mat).toLocaleString('ko-KR')+'</span></div>'+
-    '<div><b>연금니</b><span>'+Number(ascend.mud).toLocaleString('ko-KR')+'</span></div>':'';
-   return '<aside class="auto346-costside"><div class="auto346-costtitle">총 소모 재화량 (승련 포함)</div><div><b>은화</b><span>'+esc339(moneyText271(c.silver))+'</span></div><div><b>'+esc339(c.matName)+'</b><span>'+Number(c.mat).toLocaleString('ko-KR')+'</span></div><div><b>연금니</b><span>'+Number(c.mud).toLocaleString('ko-KR')+'</span></div>'+ascendRow+'</aside>';
+   // 자동 시뮬레이션 목록에는 합산 금액만 표시한다.
+   // 승련 재료별 내역은 장비 상세의 기존 경로에서 확인한다.
+   return '<aside class="auto346-costside"><div class="auto346-costtitle">총 소모 재화량 (승련 포함)</div><div><b>은화</b><span>'+esc339(moneyText271(c.silver))+'</span></div><div><b>'+esc339(c.matName)+'</b><span>'+Number(c.mat).toLocaleString('ko-KR')+'</span></div><div><b>연금니</b><span>'+Number(c.mud).toLocaleString('ko-KR')+'</span></div></aside>';
  }
  function resultCard339(o,i){
    const z=o.make,e=o.equip,cfg=EQUIP_DATA.equipment[String(e.id)]||{};
@@ -12249,5 +12246,42 @@ html[data-nangman-theme="dark"]{color-scheme:dark}
 html[data-nangman-theme="dark"] body{--rbg:#171c23;--rc:#252c35;--rl:#47515d;--rt:#eef2f5;--rm:#b2bcc6;--ra:#97badc;--ra2:#35485a;background:#171c23!important;color:#eef2f5!important}
 html[data-nangman-theme="dark"] #rk218{background:#171c23!important;color:#eef2f5!important}
 @media(max-width:700px){#rk218{padding:0!important}#rk218 .rsel{min-width:0}}
+</style>
+<style id="nangman-mobile-detail-overflow-fix">
+/* Responsive containment for nested v350 detail screens; never clip table data. */
+@media(max-width:760px){
+  html,body{width:100%!important;max-width:100%!important;margin:0!important}
+  #rk218,#rk218 #rmain,#rk218 #dtop233,#rk218 #dpanel,#rk218 .rb-detail233,
+  #rk218 .box218,#rk218 .bbody,#rk218 .mini,#rk218 .rb-card233,#rk218 .rk-detail-head233,
+  #rk218 .rk237-total,#rk218 .rk237-groups,#rk218 .picker237,#rk218 .grid218{
+    box-sizing:border-box!important;min-width:0!important;max-width:100%!important
+  }
+  #rk218 #rmain,#rk218 #dtop233,#rk218 #dpanel,#rk218 .rb-detail233{width:100%!important}
+  #rk218 .rk-detail-head233{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;padding:10px!important}
+  #rk218 .rk-detail-head233>*{min-width:0!important;max-width:100%!important}
+  #rk218 .props,#rk218 .rk237-groups,#rk218 .rb-controls233,#rk218 .detail-controls218,
+  #rk218 .search-detail-budget264{min-width:0!important;max-width:100%!important;flex-wrap:wrap!important}
+  #rk218 .props .tag{white-space:normal!important;overflow-wrap:anywhere!important;max-width:100%!important}
+  #rk218 .tabs218{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+  #rk218 .tabs218 button{flex:0 0 auto!important}
+  #rk218 .scroll218,#rk218 .regionScroll225,#rk218 .unique-seq-scroll227,
+  #rk218 .detail-scroll,#rk218 .table-scroll,#rk218 .rrows233,
+  #rk218 .rk237-table-wrap{
+    display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
+    box-sizing:border-box!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important
+  }
+  #rk218 .scroll218 table,#rk218 .detail-table218{width:max-content!important;min-width:100%!important;table-layout:auto!important}
+  #rk218 .detail-table218 th,#rk218 .detail-table218 td{white-space:nowrap!important}
+  #rk218 .auto339-result,#rk218 .auto346-result,#rk218 .auto346-main,
+  #rk218 .auto345-optionrow,#rk218 .auto345-optionblock{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+  #rk218 .auto345-optionrow{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+  #rk218 .auto339-title{align-items:flex-start!important}
+  #rk218 input,#rk218 select{max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+}
+@media(max-width:420px){
+  #rk218 .rb-detail233{padding:6px!important}
+  #rk218 .rk-detail-head233{padding:8px!important}
+  #rk218 .rb-controls233 label,#rk218 .detail-controls218 label{max-width:100%!important;min-width:0!important}
+}
 </style>
 <script defer src="./embedded-bridge.js?rev=0.10.61"></script>
