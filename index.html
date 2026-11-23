@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v1.1.6</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v1.1.7</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -1646,7 +1646,7 @@ function equipDetailView(){
  '<p class="equipment-runtime-status" id="equipDetailStatus" role="status">선택한 장비의 계산 결과를 불러오는 중입니다.</p></section>';
 }
 function equipView(){
- if(equipDetail)return '<div class="module-wrap">'+equipDetailView()+'</div>';
+ if(equipDetail)return ''; // The embedded equipment result is the single detail view.
  return '<div class="module-wrap">'+moduleHero('장비','')+
  '<nav class="simple-tabs equip-primary-tabs" role="tablist">'+
  equipmentTabs.map(([id,label])=>'<button role="tab" aria-selected="'+(equipTab===id)+'" data-module-tab="equip:'+id+'" class="'+(equipTab===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+
@@ -2098,6 +2098,17 @@ function marketStrategyMarkup(state,ko){
     ' · '+escape(x.totalAcquired)+' / '+escape(goal.quantity)+'개</b>'+
     '<small>'+escape(marketDate(x.time))+'</small></div></li>').join('');
   const steps=(result.steps||[]).filter(x=>x.kind==='paid'||x.kind==='auto'||x.kind==='current');
+  const byDay=new Map();
+  for(const x of steps){
+   const key=new Date(Number(x.time)*1000).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'});
+   if(!byDay.has(key))byDay.set(key,{date:key,paid:0,auto:0,bought:0,paidDetails:[]});
+   const day=byDay.get(key);
+   if(x.kind==='paid'){day.paid++;day.paidDetails.push({time:x.time,index:x.index,bought:x.acquired||0})}
+   if(x.kind==='auto')day.auto++;
+   day.bought+=Number(x.acquired||0);
+  }
+  const dayRoute=[...byDay.values()].map(day=>'<li><div><b>'+escape(day.date)+' · 원보 갱신 '+day.paid+'회 · 무료 교체 '+day.auto+'회</b>'+
+   '<small>목표 상품 구매 '+day.bought+'개'+(day.paidDetails.length?' · 원보 갱신 시각: '+day.paidDetails.map(x=>marketDate(x.time)+(x.index?' ('+x.index+'번째)':'')).join(', '):'')+'</small></div></li>').join('');
   const stepList=steps.map((x,i)=>'<li><span class="market-route-number">'+(i+1)+'</span>'+
    '<div><b>'+escape(x.kind==='paid'?'원보 갱신 1회':
     x.kind==='auto'?'무료 자동 교체':'현재 판매 목록')+
@@ -2113,6 +2124,8 @@ function marketStrategyMarkup(state,ko){
    '<details class="market-plan-route" '+(mode==='free'?'open':'')+'><summary>구매 시점 <b>'+
     purchases.length+'회</b></summary><ol class="market-route-list">'+
     (purchaseList||'<li>예측 기간 중 목표 상품 구매 기록 없음</li>')+'</ol></details>'+
+   '<details class="market-plan-route" open><summary>날짜별 갱신 횟수 및 구매 <b>'+byDay.size+
+    '일</b></summary><ol class="market-route-list">'+(dayRoute||'<li>경로 없음</li>')+'</ol></details>'+
    '<details class="market-plan-route"><summary>전체 교체·갱신 경로 <b>'+steps.length+
     '단계</b></summary><ol class="market-route-list">'+stepList+'</ol></details>'+
    '<p class="micro">원보 금액은 갱신비입니다. 상품 자체의 은화·원보 가격은 별도입니다.'+
@@ -2161,7 +2174,7 @@ function marketStrategyMarkup(state,ko){
 function dailyMarketView(){
  if(!save)return '<p class="role-status-note">암시장은 불러온 계정의 서버·시드·구매 이력을 사용해 계산합니다. 계산하려면 해당 계정의 세이브 파일을 불러와 주세요.</p>';
  if(!window.NangmanMarket||!window.DAILY_DATA?.shops?.guishi)
-  return '<p class="role-status-note">귀시 예측 데이터를 불러오지 못했습니다.</p>';
+  return '<p class="role-status-note">암시장 예측 데이터를 불러오지 못했습니다.</p>';
  const ko=wikiKoMap(),state=window.NangmanMarket.predict(save,window.DAILY_DATA,Math.floor(Date.now()/1000),{slots:marketSlotsOverride}),
   vipChoice=marketVipOverride,
   allowance=state.paidAllowance(vipChoice),
@@ -2183,8 +2196,8 @@ function dailyMarketView(){
  const targetIds=marketQuery.trim()&&state.seedOk?lookup.map(x=>x.id).slice(0,25):[];
  const timedTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'timed-only'}):[];
  const paidTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'paid-now',vip:vipChoice}):[];
- const status=state.historyBlocked?'세이브의 귀시 기록이 너무 오래되어 '+state.missed+'회 변경을 안전하게 복원할 수 없습니다. 부정확한 예측을 방지하기 위해 현재 저장 상품만 표시합니다. 최신 세이브를 다시 불러와 주세요.':!state.seedOk?'귀시 RNG 시드 guishishop이 없어 향후 판매를 예측할 수 없습니다. 현재 저장 상품만 표시합니다.':
-  state.stale?'세이브 귀시 시간에서 '+state.missed+'회 정시 변경을 복원했습니다. 이는 원본 RNG 계산에 근거한 모의 예측이며 현재 게임과 비교 검증이 필요합니다.':
+ const status=state.historyBlocked?'세이브의 암시장 기록이 너무 오래되어 '+state.missed+'회 변경을 안전하게 복원할 수 없습니다. 부정확한 예측을 방지하기 위해 현재 저장 상품만 표시합니다. 최신 세이브를 다시 불러와 주세요.':!state.seedOk?'암시장 RNG 시드가 없어 향후 판매를 예측할 수 없습니다. 현재 저장 상품만 표시합니다.':
+  state.stale?'세이브 암시장 시간에서 '+state.missed+'회 정시 변경을 복원했습니다. 이는 원본 RNG 계산에 근거한 모의 예측이며 현재 게임과 비교 검증이 필요합니다.':
   '세이브에 저장된 상품 목록을 현재 판매 목록으로 표시합니다.';
  return '<div class="market-stats">'+[
   ['예측 슬롯',state.slots+'칸'],['저장 슬롯',state.saveSlots+'칸'],
@@ -2244,15 +2257,15 @@ function dailyMarketView(){
  '<p class="micro">선택 VIP의 모의 원보 갱신이 먼저 RNG를 소비했다고 가정한 별도 경로입니다. 위의 원보 미사용 예측은 변경되지 않습니다.</p>'+
  timedWithPaid.map(x=>'<details class="market-prediction"><summary>'+escape(marketDate(x.time))+' · '+x.items.length+'종</summary>'+
  marketItemTable(x.items,ko)+'</details>').join('')+'</section>':''):'')+
- '<section class="market-section" data-market-panel="search"><h4>귀시 전체 상품 후보</h4>'+
+ '<section class="market-section" data-market-panel="search"><h4>암시장 전체 상품 후보</h4>'+
  '<p class="micro">미출시·제한 상품이 포함될 수 있습니다. 개별 상품의 가중치는 구매 확률을 직접 의미하지 않습니다.</p>'+
  '<details><summary>현재 구매 가능한 후보 '+state.available.length+'종 · 품절 '+state.soldOut.length+'종</summary>'+
  marketItemTable(lookup.slice(0,100),ko)+'</details></section>';
 }
 function dailyView(){
  if(dailyTab==='drop')dailyTab='ghost';
- const opts=[['ghost','귀시'],['merchant','행상']];
- const title={ghost:'암시장(귀시) 예측',merchant:'행상인'}[dailyTab];
+ const opts=[['ghost','암시장'],['merchant','행상']];
+ const title={ghost:'암시장 예측',merchant:'행상인'}[dailyTab];
  const body=dailyTab==='ghost'?dailyMarketView():
  '<p class="role-status-note">행상인 예측 기능은 준비 중입니다.</p>';
  return '<div class="module-wrap">'+moduleHero('일일 콘텐츠','')+
@@ -4509,7 +4522,7 @@ function others(){
  if(v==='drop')return '<div class="module-wrap">'+moduleHero('드랍','')+
  '<nav class="simple-tabs" aria-label="드랍 종류">'+[['wild','필드 사냥 · 제릉 포함'],['dungeon','전체 관문 드랍'],['treasure','비단/경문/책장']].map(([key,label])=>
  '<button type="button" data-drop-mode="'+key+'" class="'+(dropSelectedMode===key?'active':'')+'">'+label+'</button>').join('')+'</nav>'+
- (dropSelectedMode==='dungeon'?'<div class="module-panel drop-coming-soon">준비중</div>':
+ (dropSelectedMode!=='wild'?'<div class="module-panel drop-coming-soon">준비중</div>':
  '<div class="equipment-runtime-status"><span id="dropRuntimeStatus"></span><button class="equipment-retry" id="dropRetrySave" type="button">다시 연결</button></div>')+
  '</div>';
  const info={sect:['항산파','한국판 미출시 — 메뉴만 유지하며 계산은 구현하지 않습니다.'],battle:['전투 시뮬레이션','미구현 — 전투 자동 시뮬레이션은 개발 대상에서 제외했습니다.'],drop:['드랍 예측','필드 특수몹·90레벨 관문 장비 드랍 예측'],quest:['임무 검색','한국판 임무·NPC·지역·좌표']};
@@ -4984,7 +4997,7 @@ function updateEquipmentVisibility(){
   host.dataset.equipmentTab=frameKey;
   const frame=document.createElement('iframe');
   frame.title=tab[1]+' 엔진';frame.loading='eager';frame.referrerPolicy='same-origin';
-  frame.src=original?'./vendor/nangman-v350/equipment.html?rev=1.1.6':
+  frame.src=original?'./vendor/nangman-v350/equipment.html?rev=1.1.7':
    './vendor/sanbujin/'+tab[2]+'/index.html?rev=v097';
   frame.addEventListener('load',()=>{
    sendThemeToEquipment(frame);sendSaveToEquipment(frame);
@@ -5036,8 +5049,8 @@ function sendDropMode(force=false){
 }
 function updateDropVisibility(){
  const host=$('dropWorkspace');if(!host)return;
- host.hidden=v!=='drop'||dropSelectedMode==='dungeon';
- if(v!=='drop'||dropSelectedMode==='dungeon'){
+ host.hidden=v!=='drop'||dropSelectedMode!=='wild';
+ if(v!=='drop'||dropSelectedMode!=='wild'){
   // Keep the existing wild iframe synchronized when the other drop mode
   // is active; hidden calculators must not retain a prior user's save.
   sendSaveToDrop();return;
@@ -5046,7 +5059,7 @@ function updateDropVisibility(){
   dropFrame=document.createElement('iframe');
   dropFrame.id='dropEngineFrame';dropFrame.title='낭만강호 드랍 계산 엔진';
   dropFrame.loading='eager';dropFrame.referrerPolicy='same-origin';
-  dropFrame.src='./vendor/sanbujin/drops/index.html?rev=1.1.6';
+  dropFrame.src='./vendor/sanbujin/drops/index.html?rev=1.1.7';
   dropFrame.addEventListener('load',()=>{dropSentVersion=-1;sendThemeToDrop();dropStatus='드랍 엔진 초기화 확인 중';updateDropRuntimeStatus()});
   host.appendChild(dropFrame);
  }
@@ -5124,12 +5137,12 @@ window.addEventListener('message',event=>{
  if(!allowed)return;
  const target=String(event.data.target||'manual');
  if(!equipmentTabs.some(x=>x[0]===target))return;
- equipTab=target;v='equip';location.hash='equip';render();
+ equipDetail=null;equipmentLastOriginalTab=null;equipTab=target;v='equip';history.replaceState(null,'','#equip');render();
 });
 document.addEventListener('nangman-equip-navigate',event=>{
  const target=String(event.detail?.target||'manual');
  if(!equipmentTabs.some(x=>x[0]===target))return;
- equipTab=target;v='equip';location.hash='equip';render();
+ equipDetail=null;equipmentLastOriginalTab=null;equipTab=target;v='equip';history.replaceState(null,'','#equip');render();
 });
 window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));});window.addEventListener('nangman-equip-update',()=>{if(v==='equip'){const p=$('equipPaper')?.value,n=$('equipNpc')?.value,c=$('equipPreviewCount')?.value;render();if(p&&$('equipPaper'))$('equipPaper').value=p;if(n&&$('equipNpc'))$('equipNpc').value=n;if(c&&$('equipPreviewCount'))$('equipPreviewCount').value=c;}});window.addEventListener('nangman-wash-updated',()=>{if(v==='wash')render()});window.__nangmanForwardSave=frame=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};$('saveLink').onclick=()=>$('file').click();$('clearTopSave').onclick=async()=>{if(!confirm('이 브라우저에 저장된 세이브를 삭제할까요?'))return;try{await Promise.all([window.NangmanPrivateSave?.clear(),window.NangmanSearchCache?.clear()])}catch(e){console.warn('로컬 세이브 삭제 실패',e)}save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch(e){}render()};$('file').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{if(f.size>50e6)throw Error('파일 용량 50MB 초과');let obj=JSON.parse(await f.text());let root=obj?.data?.MainRole?obj.data:obj?.save?.MainRole?obj.save:obj;if(Array.isArray(root))root=root.find(x=>x&&typeof x==='object'&&!Array.isArray(x))||null;if(!root||typeof root!=='object'||Array.isArray(root))throw Error('한국판 세이브 객체를 찾지 못했습니다');save=root;filename=f.name;roles=getRoles(root);marketSimStep=0;marketAutoStep=0;marketStrategyResults=null;invalidateWashLink();broadcastEquipmentSave();dropSaveVersion++;sendSaveToDrop();try{await window.NangmanPrivateSave.store(root,f.name);sessionStorage.removeItem('nangman_shared_save_v1')}catch(err){console.warn('브라우저 로컬 세이브 저장 실패',err)}const embedded=$('nativeEngineFrame');if(embedded?.contentWindow)embedded.contentWindow.postMessage({kind:'nangman-save',save:root},location.origin);window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:root}));selected=0;render()}catch(err){alert('불러오기 실패: '+err.message)}};function theme(t){document.documentElement.dataset.theme=t;$('paper').classList.toggle('on',t==='paper');$('ink').classList.toggle('on',t==='ink');for(const frame of equipmentFrames.values())sendThemeToEquipment(frame,t);sendThemeToDrop(t);const washFrame=document.getElementById('washV350Frame');if(washFrame?.contentWindow)try{washFrame.contentWindow.postMessage({kind:'nangman-v350-theme',theme:t},location.origin)}catch(error){console.warn('세수 테마 전달 오류',error)}try{localStorage.setItem('nangman-theme',t)}catch{}}$('paper').onclick=()=>theme('paper');$('ink').onclick=()=>theme('ink');try{theme(localStorage.getItem('nangman-theme')==='ink'?'ink':'paper')}catch{theme('paper')}render();
 // Personal browser saves remain private per visitor; the v1.1.6 bundle
