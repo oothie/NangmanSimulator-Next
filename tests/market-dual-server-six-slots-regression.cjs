@@ -1,46 +1,36 @@
 'use strict';
-// Privacy-safe second/fourth-server market fixtures; no character metadata.
+// Synthetic-only 3/6-slot regression. Historical real-user server snapshots
+// must never be committed, bundled, or required for release verification.
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const root=path.resolve(__dirname,'..'),context={window:{}};
-vm.createContext(context);
-for(const file of ['engine/daily-market.js','vendor/yysim/daily_data.js','data/market-reference-saves.js']){
- vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
+const root=path.resolve(__dirname,'..'),ctx={window:{}};vm.createContext(ctx);
+for(const file of ['engine/daily-market.js','vendor/yysim/daily_data.js'])
+ vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file});
+const {NangmanMarket:m,DAILY_DATA:d}=ctx.window,ts=1795260046;
+function fake(seed,slots,counts){return {RandShop:{
+ Time:ts,Buy:slots===6?186:0,Counts:counts,Fresh:0,Lucky:0,
+ Items:[22,21,101,13,24,19].slice(0,slots).map(ID=>({ID,Buyed:0}))
+ },Rnds:{Sds:{guishishop:seed}}}}
+const a=fake(1349140356,6,[{One:223,Two:3},{One:224,Two:3},{One:222,Two:5}]);
+const b=fake(978587497,3,{223:0,224:0,222:0});
+const originals=[JSON.stringify(a),JSON.stringify(b)];
+const A=m.predict(a,d,ts,{slots:6}),B=m.predict(b,d,ts);
+assert.equal(A.slots,6);assert.equal(A.saveSlots,6);
+assert.equal(B.slots,3);assert.equal(B.saveSlots,3);
+assert(A.soldOut.some(x=>x.id===222),'exhausted special goods are not offered');
+assert(B.available.some(x=>x.id===222),'unbought special goods remain available');
+const rowA=A.getPaid(1,{vip:0})[0].items.map(x=>x.id);
+const rowB=B.getPaid(1,{vip:0})[0].items.map(x=>x.id);
+assert.equal(rowA.length,6);assert.equal(rowB.length,3);
+assert.notDeepEqual(rowA,rowB,'independent synthetic seeds produce independent market draws');
+assert.equal(m.countsMap(a.RandShop.Counts)[223],3);
+assert.equal(m.countsMap(a.RandShop.Counts)[224],3);
+assert.equal(m.countsMap(a.RandShop.Counts)[222],5);
+for(let vip=0;vip<=5;vip++){
+ assert.equal(A.paidAllowance(vip).max,m.VIP_REFRESH[vip]);
+ assert.equal(B.paidAllowance(vip).max,m.VIP_REFRESH[vip]);
 }
-const {NangmanMarket:market,DAILY_DATA:data,NANGMAN_MARKET_REFERENCES:refs}=context.window;
-const snapshot=JSON.stringify(refs);
-const main=market.predict(refs.server4,data,refs.server4.RandShop.Time,{slots:6});
-assert.equal(main.saveSlots,6);
-assert.equal(main.slots,6);
-assert.deepEqual([...main.today.map(x=>x.id)],[22,21,101,13,24,19]);
-const fourCount=market.countsMap(refs.server4.RandShop.Counts);
-assert.equal(fourCount[223],3); // 벽파신공
-assert.equal(fourCount[224],3); // 쇄성보
-assert.equal(fourCount[222],5); // 독벽도객 completed
-assert(main.available.some(x=>x.id===223));
-assert(main.available.some(x=>x.id===224));
-assert(main.soldOut.some(x=>x.id===222));
-assert.equal(main.getPaid(1,{vip:0})[0].items.length,6);
-const second3=market.predict(refs.server2,data,refs.server2.RandShop.Time);
-const second6=market.predict(refs.server2,data,refs.server2.RandShop.Time,{slots:6});
-assert.equal(second3.saveSlots,3);
-assert.equal(second3.slots,3);
-assert.equal(second6.saveSlots,3);
-assert.equal(second6.slots,6);
-assert.equal(second3.getPaid(1,{vip:0})[0].items.length,3);
-assert.equal(second6.getPaid(1,{vip:0})[0].items.length,6);
-assert(second6.available.some(x=>x.id===222),'second-server du-bi must be eligible');
-const cases=[
- [main,223,0,'cheapest',2,1795431600],
- [main,224,0,'cheapest',0,1795345200],
- [main,225,0,'fastest',3,1795260046],
- [second6,222,0,'cheapest',1,1795734000],
- [second6,222,5,'fastest',16,1795259703]
-];
-for(const [state,id,vip,mode,paid,when] of cases){
- const got=state.searchStrategy([id],{vip,mode,periods:12,maxStates:18000});
- assert.equal(got.found,true,'found '+id+' vip '+vip+' '+mode);
- assert.equal(got.paid,paid,'paid count '+id+' vip '+vip+' '+mode);
- assert.equal(got.when,when,'found time '+id+' vip '+vip+' '+mode);
-}
-assert.equal(JSON.stringify(refs),snapshot,'no mutations to reference states');
-console.log('PASS: 4-server six slots, three owned fragments, du-bi second-server fallback, slot override, VIP0/VIP5 strategies');
+assert.equal(A.searchStrategy([222],{vip:0,mode:'cheapest',periods:4,maxStates:300}).unavailable,true);
+const found=B.searchStrategy([222],{vip:0,mode:'cheapest',periods:9,maxStates:18000});
+assert.equal(found.found,true);
+assert.equal(JSON.stringify(a),originals[0]);assert.equal(JSON.stringify(b),originals[1]);
+console.log('PASS: private-save-free synthetic 3/6-slot market states, sold-out fragments, strategies and VIP limits');
