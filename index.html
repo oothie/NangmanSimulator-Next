@@ -881,6 +881,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 <script src="./vendor/yysim/life_hedao_data.js"></script>
 <script src="./vendor/yysim/daily_data.js"></script>
 <script src="./data/market-item-ko.js?rev=20261121a"></script>
+<script src="./data/item-icon-manifest.js?rev=1.1.4"></script>
 <script src="./engine/daily-market.js?rev=0.10.66"></script>
 <script src="./engine/quest-branch.js?rev=v0101"></script>
 <script src="./engine/wash-path-model.js"></script>
@@ -1988,7 +1989,11 @@ function marketCatalogName(row,ko){
 function marketImage(item){
  const id=Number(item?.item);
  if(!Number.isInteger(id)||id<=0)return '';
- const paths=['./icons/item/'+id+'.png','https://yy-sim.pages.dev/icons/item/'+id+'.png'];
+ // Public pack is optional. Do not request non-existent icon paths for
+ // hundreds of items; the local manifest is updated when originals arrive.
+ if(!window.NANGMAN_HOSTED_ITEM_ICONS?.has(id))
+  return '<span class="market-icon market-icon-unavailable" role="img" aria-label="아이콘 자료 없음">◇</span>';
+ const paths=['./icons/item/'+id+'.png'];
  return '<img class="market-icon" loading="lazy" decoding="async" alt="상품 아이콘" src="'+
   escape(paths.shift())+'" data-market-icon-fallbacks="'+escape(JSON.stringify(paths))+
   '" onerror="window.nangmanMarketIconFallback&&window.nangmanMarketIconFallback(this)" />';
