@@ -1,0 +1,30 @@
+name: Public browser eight-tab Korean localization regression
+on:
+  push:
+    branches:
+      - release/v1.1.4-public-audit
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install exact browser runtime
+        run: npm install --no-save --ignore-scripts playwright@1.57.0
+      - name: Run public-visitor browser scan (no actual saves)
+        run: node tests/public-browser-v114.cjs
+      - name: Save eight-tab audit output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v114-public-browser-audit
+          path: release-reports/public-browser-v114.json
+          if-no-files-found: warn
