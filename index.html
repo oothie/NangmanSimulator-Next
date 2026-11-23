@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v1.2.1</title>
+<!doctype html><html lang="ko" data-theme="paper"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>낭만강호 통합 시뮬레이터 v1.2.2</title>
 <style>
 :root{--bg:#f3eee3;--paper:#f8f4eb;--panel:#fffdf7;--text:#231e17;--sub:#776e60;--border:#d6caba;--gold:#9c7941;--green:#336f52;--purple:#865b96;font-family:system-ui,"Malgun Gothic",sans-serif}
 [data-theme=ink]{--bg:#131419;--paper:#1d2027;--panel:#252830;--text:#e9e3d9;--sub:#aba59c;--border:#44454d;--gold:#cca76b;--green:#76bb8c;--purple:#be99d1}
@@ -800,10 +800,10 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .wash-guide-slot{padding:10px 13px;border:1px solid var(--border);background:var(--paper);border-radius:8px;font-weight:700;font-size:15px}
 .wash-guide-alternative>summary{font-size:16px;padding:12px 0;cursor:pointer;font-weight:700}
 @media(max-width:640px){.wash-guide-route{padding:14px}.wash-guide-heading h4{font-size:29px}.wash-guide-step{padding:12px;grid-template-columns:36px minmax(0,1fr);gap:8px}.wash-guide-number{width:30px;height:30px}.wash-guide-step-body strong{font-size:16px}.wash-guide-step-detail{font-size:15px}}
-/* v1.2.1: embed regular wash using active site theme, never a fixed light iframe. */
+/* v1.2.2: embed regular wash using active site theme, never a fixed light iframe. */
 [data-theme=ink] #washV350Frame{background:#252830!important;color-scheme:dark!important}
 [data-theme=paper] #washV350Frame{background:#fffdf7!important;color-scheme:light!important}
-/* v1.2.1: hide all experimental appearance previews until original sprite mapping is verified. */
+/* v1.2.2: hide all experimental appearance previews until original sprite mapping is verified. */
 .appearance-section,[data-appearance-role],.appearance-stage{display:none!important}
 
 /* Account: paginated person-left / records-right tables. No nested scrolling. */
@@ -870,12 +870,12 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 </style><style id="nangman-drop-simplify-v108">
 .drop-coming-soon{font-size:17px;font-weight:700;text-align:center;min-height:200px;display:grid;place-items:center;color:var(--text);background:transparent;border:0;box-shadow:none}
 </style>
-<style>.market-icon-unavailable{display:inline-grid;place-items:center;flex-shrink:0;opacity:.65;color:var(--sub);font-size:23px}.wiki-art-placeholder{display:inline-grid;place-items:center;color:var(--sub);opacity:.55}/* v1.2.1: show full product/version at the true left edge of the top bar. */
+<style>.market-icon-unavailable{display:inline-grid;place-items:center;flex-shrink:0;opacity:.65;color:var(--sub);font-size:23px}.wiki-art-placeholder{display:inline-grid;place-items:center;color:var(--sub);opacity:.55}/* v1.2.2: show full product/version at the true left edge of the top bar. */
 body .top{padding-left:0!important}
 body .top .brand{white-space:nowrap;letter-spacing:0;font-size:16px;line-height:1.3;flex-shrink:0}
 @media(max-width:700px){body .top .brand{font-size:14px}}
 </style></head>
-<body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호 통합 시뮬레이터 v1.2.1</div><nav class="nav" id="nav"></nav><div class="tools"><span id="topSaveStatus" class="micro">세이브 미연결</span><button id="saveLink" class="save-link">세이브 불러오기</button><button type="button" id="clearTopSave" class="save-link" title="이 브라우저의 세이브 삭제">해제</button><input id="file" type="file" accept=".json,application/json" hidden><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
+<body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호 통합 시뮬레이터 v1.2.2</div><nav class="nav" id="nav"></nav><div class="tools"><span id="topSaveStatus" class="micro">세이브 미연결</span><button id="saveLink" class="save-link">세이브 불러오기</button><button type="button" id="clearTopSave" class="save-link" title="이 브라우저의 세이브 삭제">해제</button><input id="file" type="file" accept=".json,application/json" hidden><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
 <main class="page"><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="장비 계산 영역"></section><section id="dropWorkspace" class="drop-workspace" hidden aria-label="드랍 계산 영역"></section></main></div>
 <script src="./shared/private-save-cache.js?rev=v083"></script><script src="./vendor/sanbujin/shared/equip_data.js"></script>
 <script src="./vendor/yysim/char_data.js"></script>
@@ -1532,7 +1532,7 @@ function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
 }
 function moduleHero(name,lead){
-return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v1.2.1</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
+return '<div class="module-head"><div><h2>'+name+'</h2></div><span class="micro">v1.2.2</span></div>'+(lead?'<p class="module-lead">'+lead+'</p>':'')
 }
 
 function embeddedEngine(url,label,caption){
@@ -2061,12 +2061,15 @@ function marketDate(ts){
  return new Date(ts*1000).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
 }
 function marketStrategyGoal(target,root){
- if(!target)return {quantity:0,purchased:0,remaining:0,limited:false};
+ if(!target)return {quantity:0,purchased:0,remaining:0,limited:false,fragment:false};
  const purchased=Number(window.NangmanMarket.countsMap(root?.RandShop?.Counts)[target.id]||0);
  const limited=[223,224,222,225].includes(Number(target.id))&&target.stock!=null;
+ const fragment=[223,224,222].includes(Number(target.id))&&limited;
  const remaining=limited?Math.max(0,Number(target.stock)-purchased):null;
- const quantity=limited?remaining:Math.max(1,Math.min(1000,Math.floor(Number(marketStrategyQuantity)||1)));
- return {quantity,purchased,remaining,limited};
+ // 한정 잔편은 남은 수량 전부가 아닌 사용자가 지정한 1~3장만 탐색한다.
+ const wanted=Math.max(1,Math.min(fragment?3:1000,Math.floor(Number(marketStrategyQuantity)||1)));
+ const quantity=fragment?Math.min(remaining,wanted):limited?remaining:wanted;
+ return {quantity,purchased,remaining,limited,fragment};
 }
 function stopMarketStrategy(){
  if(marketStrategyWorker){marketStrategyWorker.terminate();marketStrategyWorker=null}
@@ -2140,28 +2143,33 @@ function marketStrategyMarkup(state,ko){
  if(!periodChoices.includes(marketStrategyPeriods))periodChoices.push(marketStrategyPeriods);
  return '<div class="market-strategy-dashboard">'+
   '<div class="market-goal-top"><div><h4>목표 수량 전체 획득 전략</h4>'+
-   '<p class="micro">첫 등장 시점이 아닌 남은 잔편 전부를 구매하는 시점으로 계산합니다.</p></div>'+
+   '<p class="micro">한정 잔편은 1~3장 중 선택한 수량을 목표로 계산합니다. 선천단은 남은 수량, 일반 상품은 지정 수량을 사용합니다.</p></div>'+
    '<span class="market-goal-state">VIP '+marketVipOverride+' · '+state.slots+'칸</span></div>'+
   '<div class="market-goal-controls">'+
    '<label>VIP 등급<select id="marketStrategyVipSelect">'+[0,1,2,3,4,5].map(level=>
      '<option value="'+level+'" '+(marketVipOverride===level?'selected':'')+'>VIP '+level+' · 하루 '+window.NangmanMarket.VIP_REFRESH[level]+'회</option>').join('')+'</select></label>'+
    '<label>목표 상품<select id="marketStrategyTarget">'+
     '<optgroup label="한정 상품">'+featured.map(x=>'<option value="'+x.id+'" '+(x.id===marketStrategyTarget?'selected':'')+'>'+escape(productText(x))+(soldSet.has(x.id)?' · 구매 완료':'')+'</option>').join('')+'</optgroup>'+
-    '<optgroup label="일반 상품">'+rest.map(x=>'<option value="'+x.id+'" '+(x.id===marketStrategyTarget?'selected':'')+'>'+escape(productText(x))+'</option>').join('')+'</optgroup></select></label>'+   (goal.limited?'<label>목표 수량<input type="text" readonly value="남은 '+goal.quantity+'개 전부"></label>':
+    '<optgroup label="일반 상품">'+rest.map(x=>'<option value="'+x.id+'" '+(x.id===marketStrategyTarget?'selected':'')+'>'+escape(productText(x))+'</option>').join('')+'</optgroup></select></label>'+   (goal.fragment?
+    '<label>획득할 잔편<select id="marketStrategyQuantity" '+(!goal.remaining?'disabled':'')+'>'+
+     Array.from({length:Math.min(3,goal.remaining||0)},(_,i)=>i+1).map(n=>'<option value="'+n+'" '+(n===goal.quantity?'selected':'')+'>'+n+'장</option>').join('')+
+     (!goal.remaining?'<option value="0">남은 잔편 없음</option>':'')+'</select></label>':
+    goal.limited?'<label>목표 수량<input type="text" readonly value="남은 '+goal.quantity+'개 전부"></label>':
     '<label>획득 수량<input id="marketStrategyQuantity" type="number" min="1" max="1000" step="1" value="'+
       escape(goal.quantity)+'"></label>')+
    '<label>예측 기간<select id="marketStrategyPeriods">'+periodChoices.sort((a,b)=>a-b).map(x=>
       '<option value="'+x+'" '+(x===marketStrategyPeriods?'selected':'')+'>'+x+'회 무료 자동 교체</option>').join('')+'</select></label>'+
    '<button class="btn primary" id="marketStrategyRun" '+
-    (!state.seedOk||!target||exhausted||marketStrategyWorker?'disabled':'')+'>'+(marketStrategyWorker?'계산 중':'2가지 전체 획득 전략 계산')+'</button>'+ 
+    (!state.seedOk||!target||exhausted||marketStrategyWorker?'disabled':'')+'>'+(marketStrategyWorker?'계산 중':'선택 수량 구매 전략 계산')+'</button>'+ 
    (marketStrategyWorker?'<button type="button" class="btn" id="marketStrategyCancel">계산 취소</button>':'')+'</div>'+
    '<p class="micro" id="marketStrategyStatus" aria-live="polite">'+escape(marketStrategyProgress)+'</p>'+
   (target?'<div class="market-target-summary">'+marketImage(target)+'<div><b>'+
     escape(label(target.id))+'</b><small>1회 구매 '+escape(Number(target.count)||1)+'개 · '+escape(target.price==null?'가격 미확인':Number(target.money)===1?marketSilverPrice(target.price):Number(target.money)===2?Number(target.price).toLocaleString('ko-KR')+'원보':'가격 미확인')+' · 상품 #'+target.id+' · '+
-    (goal.limited?'총 '+target.stock+'개 중 구매 '+goal.purchased+'개 · 남은 '+goal.quantity+'개 전부':
+    (goal.fragment?'총 '+target.stock+'장 중 구매 '+goal.purchased+'장 · 남은 '+goal.remaining+'장 · 목표 '+goal.quantity+'장':
+     goal.limited?'총 '+target.stock+'개 중 구매 '+goal.purchased+'개 · 남은 '+goal.quantity+'개 전부':
      '지정 수량 '+goal.quantity+'개 구매')+'</small></div></div>':'')+
   (exhausted?'<p class="market-limit-note">이 세이브에서 해당 상품을 모두 구매했습니다. 추가 구매 경로는 없습니다.</p>':'')+
-  (!views&&!exhausted?'<p class="market-plan-hint">계산을 누르면 무료 갱신·최단 기간 경로에서 목표 전체 수량의 완료 시점을 비교합니다.</p>':'')+
+  (!views&&!exhausted?'<p class="market-plan-hint">계산을 누르면 무료 갱신·최단 기간 경로에서 선택 수량의 완료 시점을 비교합니다.</p>':'')+
   (views?'<div class="market-plan-summary"><div><span>목표 수량</span><b>'+goal.quantity+'개</b></div>'+
    '<div><span>계산 VIP</span><b>VIP '+marketVipOverride+'</b></div>'+
    '<div><span>예측 시작</span><b>'+escape(marketDate(views.anchor))+'</b></div></div>'+
@@ -4627,7 +4635,7 @@ if($('questBranchExport'))$('questBranchExport').onclick=()=>{
  link.download='Nangman_Quest_Branches_'+new Date().toISOString().slice(0,10)+'.csv';
  document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questRegion='all';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v1.2.1',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{rememberWikiList();wikiOffsetByCategory[wikiSelectedCategory]=wikiOffset;wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=wikiOffsetByCategory[wikiSelectedCategory]||0;wikiDetail=null;wikiSkipCapture=true;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{rememberWikiList();wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiOffsetByCategory[wikiSelectedCategory]=wikiOffset;wikiListScrollByCategory[wikiSelectedCategory]=0;wikiDetail=null;wikiSkipCapture=true;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
+document.querySelectorAll('[data-module-tab]').forEach(el=>el.onclick=()=>{const [key,id]=el.dataset.moduleTab.split(':');if(key==='equip'){equipTab=id;equipDetail=null;}if(key==='wiki')wikiTab=id;if(key==='daily')dailyTab=id;if(key==='quest'){questTab=id;questSearch='';questFocusedId=null;questRegion='all';questVisibleLimit=200;questCatalogLimit=150}if(key==='character')characterTab=id;render()});if($('downloadRole'))$('downloadRole').onclick=()=>{const r=roles[selected];if(!r)return;const url=URL.createObjectURL(new Blob([JSON.stringify(r.raw,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_role_'+r.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('exportWashDiagnostic'))$('exportWashDiagnostic').onclick=()=>{const data={version:'v1.2.2',mode:'diagnostic-only',character:roles[selected]?.name??null,roleId:roles[selected]?.id??null,candidates:washCandidates(roles[selected],save)};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='nangman_wash_field_diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};if($('wikiSearch'))$('wikiSearch').oninput=e=>{wikiQuery=e.target.value;wikiOffset=0;wikiDetail=null;const pos=e.target.selectionStart;render();const el=$('wikiSearch');el.focus();el.setSelectionRange(pos,pos)};document.querySelectorAll('[data-wiki-cat]').forEach(el=>el.onclick=()=>{rememberWikiList();wikiOffsetByCategory[wikiSelectedCategory]=wikiOffset;wikiSelectedCategory=el.dataset.wikiCat;wikiOffset=wikiOffsetByCategory[wikiSelectedCategory]||0;wikiDetail=null;wikiSkipCapture=true;render()});document.querySelectorAll('[data-wiki-detail]').forEach(el=>el.onclick=()=>{rememberWikiList();wikiDetail=el.dataset.wikiDetail;render()});document.querySelectorAll('[data-wiki-paging]').forEach(el=>el.onclick=()=>{wikiOffset=Math.max(0,wikiOffset+(el.dataset.wikiPaging==='next'?120:-120));wikiOffsetByCategory[wikiSelectedCategory]=wikiOffset;wikiListScrollByCategory[wikiSelectedCategory]=0;wikiDetail=null;wikiSkipCapture=true;render()});if($('closeWikiDetail'))$('closeWikiDetail').onclick=()=>{wikiDetail=null;render()};if($('initSanEquip'))$('initSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-init'));if($('previewSanEquip'))$('previewSanEquip').onclick=()=>window.dispatchEvent(new CustomEvent('nangman-equip-preview',{detail:{paperId:$('equipPaper').value,npcId:$('equipNpc').value,count:Number($('equipPreviewCount').value)}}));
 
 if($('equipSearch'))$('equipSearch').oninput=e=>{equipSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipSearch');x.focus();x.setSelectionRange(p,p)};
 if($('equipOwnSearch'))$('equipOwnSearch').oninput=e=>{equipOwnSearch=e.target.value;const p=e.target.selectionStart;render();const x=$('equipOwnSearch');x.focus();x.setSelectionRange(p,p)};
@@ -4942,7 +4950,7 @@ if($('washHistoryExport'))$('washHistoryExport').onclick=()=>{
  const el=document.createElement('a');el.href=url;el.download='낭만강호_모의세수_기록.tsv';
  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
 };
-if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v1.2.1',events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='낭만강호_세수기록.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+if($('washDownloadLog'))$('washDownloadLog').onclick=()=>{const runtime=window.__washRuntime||{};const log=(runtime.log||[]).slice(runtime.historyHiddenBefore||0);const url=URL.createObjectURL(new Blob([JSON.stringify({version:'v1.2.2',events:log},null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='낭만강호_세수기록.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 if($('loadHere'))$('loadHere').onclick=()=>$('file').click();if($('clear'))$('clear').onclick=()=>$('clearTopSave').click();window.__nangmanWashTabActive=v==='wash'&&sub==='sim';if(window.__nangmanWashTabActive)window.dispatchEvent(new Event('nangman-wash-view-ready'))}
 
 window.addEventListener('popstate',()=>{if(equipDetail&&location.hash!=='#equip-detail'){equipDetail=null;equipTab=equipPrevious;v=equipPreviousView;equipmentLastOriginalTab=null;render();restoreEquipmentReturn()}});
@@ -5162,7 +5170,7 @@ document.addEventListener('nangman-equip-navigate',event=>{
  equipDetail=null;equipmentLastOriginalTab=null;equipTab=target;v='equip';history.replaceState(null,'','#equip');render();
 });
 window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));});window.addEventListener('nangman-equip-update',()=>{if(v==='equip'){const p=$('equipPaper')?.value,n=$('equipNpc')?.value,c=$('equipPreviewCount')?.value;render();if(p&&$('equipPaper'))$('equipPaper').value=p;if(n&&$('equipNpc'))$('equipNpc').value=n;if(c&&$('equipPreviewCount'))$('equipPreviewCount').value=c;}});window.addEventListener('nangman-wash-updated',()=>{if(v==='wash')render()});window.__nangmanForwardSave=frame=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};$('saveLink').onclick=()=>$('file').click();$('clearTopSave').onclick=async()=>{if(!confirm('이 브라우저에 저장된 세이브를 삭제할까요?'))return;try{await Promise.all([window.NangmanPrivateSave?.clear(),window.NangmanSearchCache?.clear()])}catch(e){console.warn('로컬 세이브 삭제 실패',e)}save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch(e){}render()};$('file').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{if(f.size>50e6)throw Error('파일 용량 50MB 초과');let obj=JSON.parse(await f.text());let root=obj?.data?.MainRole?obj.data:obj?.save?.MainRole?obj.save:obj;if(Array.isArray(root))root=root.find(x=>x&&typeof x==='object'&&!Array.isArray(x))||null;if(!root||typeof root!=='object'||Array.isArray(root))throw Error('한국판 세이브 객체를 찾지 못했습니다');save=root;filename=f.name;roles=getRoles(root);marketSimStep=0;marketAutoStep=0;marketStrategyResults=null;invalidateWashLink();broadcastEquipmentSave();dropSaveVersion++;sendSaveToDrop();try{await window.NangmanPrivateSave.store(root,f.name);sessionStorage.removeItem('nangman_shared_save_v1')}catch(err){console.warn('브라우저 로컬 세이브 저장 실패',err)}const embedded=$('nativeEngineFrame');if(embedded?.contentWindow)embedded.contentWindow.postMessage({kind:'nangman-save',save:root},location.origin);window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:root}));selected=0;render()}catch(err){alert('불러오기 실패: '+err.message)}};function theme(t){document.documentElement.dataset.theme=t;$('paper').classList.toggle('on',t==='paper');$('ink').classList.toggle('on',t==='ink');for(const frame of equipmentFrames.values())sendThemeToEquipment(frame,t);sendThemeToDrop(t);const washFrame=document.getElementById('washV350Frame');if(washFrame?.contentWindow)try{washFrame.contentWindow.postMessage({kind:'nangman-v350-theme',theme:t},location.origin)}catch(error){console.warn('세수 테마 전달 오류',error)}try{localStorage.setItem('nangman-theme',t)}catch{}}$('paper').onclick=()=>theme('paper');$('ink').onclick=()=>theme('ink');try{theme(localStorage.getItem('nangman-theme')==='ink'?'ink':'paper')}catch{theme('paper')}render();
-// Personal browser saves remain private per visitor; the v1.2.1 bundle
+// Personal browser saves remain private per visitor; the v1.2.2 bundle
 // contains no preloaded example saves and must not delete visitor data.
 window.NangmanPrivateSave?.read().then(record=>{if(record?.data&&!save){save=record.data;roles=getRoles(save);filename=record.filename||'최근 세이브';selected=0;invalidateWashLink();broadcastEquipmentSave();dropSaveVersion++;sendSaveToDrop();window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));render()}}).catch(err=>console.warn('로컬 세이브 복구 실패',err))
 })();
