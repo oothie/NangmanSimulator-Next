@@ -10361,7 +10361,7 @@ body>.app-container.equip-app{display:none!important}
 </style>
 <script id="roboking-equipment-v219">
 (()=>{'use strict';
-const R={ownedExpandedGroup:null,view:'find',recipes:[],draft:null,pick:null,use:[],bud:{crafts:100,mud:1000,mj:20},results:[],sel:null,detailTab:'route',owned:[],region:{lv:null,line:null,part:null,eq:null,count:100,cache:new Map(),renderToken:0},searchToken:0};
+const R={craftSpecialId:0,ownedExpandedGroup:null,view:'find',recipes:[],draft:null,pick:null,use:[],bud:{crafts:100,mud:1000,mj:20},results:[],sel:null,detailTab:'route',owned:[],region:{lv:null,line:null,part:null,eq:null,count:100,cache:new Map(),renderToken:0},searchToken:0};
 const FIND_PRESET_KEY259='nangman.equipment.find.presets.v1';
 function presetStore259(){try{return window.top?.localStorage||window.localStorage}catch(_){try{return window.localStorage}catch(__){return null}}}
 function loadPresets259(){try{const raw=presetStore259()?.getItem(FIND_PRESET_KEY259),a=raw?JSON.parse(raw):[];return Array.isArray(a)?a.filter(x=>x&&x.id):[]}catch(_){return []}}
@@ -11179,14 +11179,28 @@ function regionSplitPity352(req, normalLimit){
  }
  return{normal,pity};
 }
+function craftSpecialSelect361(currentCfg){
+ const mats=currentCfg?specialMaterialsForEquip(currentCfg):Object.values(EQUIP_DATA.special||{}).sort((a,b)=>a.id-b.id);
+ const options=[{id:0,name:'재료 없음'},...mats];
+ const selected=options.some(x=>Number(x.id)===Number(R.craftSpecialId))?Number(R.craftSpecialId):0;
+ return '<label class="region-special-select361"><b>최초 특수재료 (촉련 시드 반영)</b> <select class="rinput" id="craftSpecial361">'+
+ options.map(x=>'<option value="'+Number(x.id)+'"'+(selected===Number(x.id)?' selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select></label>';
+}
+function craftSpecialFor361(cfg){
+ const id=Number(R.craftSpecialId||0);
+ if(!id)return 0;
+ const mat=EQUIP_DATA.special?.[String(id)];
+ return mat&&specialMaterialSupportsEquip(mat,cfg)?id:0;
+}
 function paintRegionSeq(h,id){
  const S=R.region,cfg=EQUIP_DATA.equipment[String(id)];
  if(!ensureRngLoaded()){h.innerHTML='<div class="box218"><div class="bbody"><p class="bad218">save.json을 불러오세요.</p></div></div>';return}
  const count=Math.max(20,Math.min(1000,Number(S.count)||100));
  const token=++S.renderToken;
  const routes=representativeRoutes226(id);
- h.innerHTML=`<details class="box218" open><summary>지역별 제작 시퀀스 · ${esc(ename(cfg))}</summary><div class="bbody"><div class="regionbar225"><label>일반 제작 표시 개수 <select class="rinput" id="regionCount225">${[20,50,100,200,500,1000].map(n=>`<option value="${n}"${n===count?' selected':''}>${n}개</option>`).join('')}</select></label><span class="note218" id="regionInfo225">제작처별 일반 시드와 천장 시드를 분리 계산 중…</span></div><div class="region-group352"><h3>천장 전용 제작 결과</h3><p class="note218">천장 전용 시드로 제작한 장비입니다. 일반 제작 회차에 포함되지 않습니다.</p><div class="regionScroll225"><table class="tbl218 regionTbl225"><thead id="regionPityHead352"></thead><tbody id="regionPityBody352"></tbody></table></div></div><div class="region-group352"><h3>일반 제작 결과</h3><p class="note218">일반 시드로 제작한 순서입니다. 천장 제작 후에도 다음 일반 시드부터 이어집니다.</p><div class="regionScroll225"><table class="tbl218 regionTbl225"><thead id="regionHead225"></thead><tbody id="regionBody225"></tbody></table></div></div><div id="regionDetail231"></div></div></details>`;
+ h.innerHTML=`<details class="box218" open><summary>지역별 제작 시퀀스 · ${esc(ename(cfg))}</summary><div class="bbody"><div class="regionbar225"><label>일반 제작 표시 개수 <select class="rinput" id="regionCount225">${[20,50,100,200,500,1000].map(n=>`<option value="${n}"${n===count?' selected':''}>${n}개</option>`).join('')}</select></label>${craftSpecialSelect361(cfg)}<span class="note218" id="regionInfo225">제작처별 일반 시드와 천장 시드를 분리 계산 중…</span></div><div class="region-group352"><h3>천장 전용 제작 결과</h3><p class="note218">천장 전용 시드로 제작한 장비입니다. 일반 제작 회차에 포함되지 않습니다.</p><div class="regionScroll225"><table class="tbl218 regionTbl225"><thead id="regionPityHead352"></thead><tbody id="regionPityBody352"></tbody></table></div></div><div class="region-group352"><h3>일반 제작 결과</h3><p class="note218">일반 시드로 제작한 순서입니다. 천장 제작 후에도 다음 일반 시드부터 이어집니다.</p><div class="regionScroll225"><table class="tbl218 regionTbl225"><thead id="regionHead225"></thead><tbody id="regionBody225"></tbody></table></div></div><div id="regionDetail231"></div></div></details>`;
  q('#regionCount225').onchange=e=>{S.count=Number(e.target.value)||100;paintRegionSeq(h,id)};
+ q('#craftSpecial361').onchange=e=>{R.craftSpecialId=Number(e.target.value)||0;S.cache.clear();paintRegionSeq(h,id)};
  const hd=q('#regionHead225'),bd=q('#regionBody225'),ph=q('#regionPityHead352'),pb=q('#regionPityBody352'),info=q('#regionInfo225');
  if(!hd||!bd||!ph||!pb)return;
  const header=`<tr><th class="sticky225">#</th>${routes.map(rt=>`<th>${esc(regionRouteLabel226(rt))}</th>`).join('')}</tr>`;
@@ -11194,7 +11208,7 @@ function paintRegionSeq(h,id){
  const columns=[];let ri=0;
  const maker=makeRndSnapshot||extractMakeRnd(window.__EQUIP_SAVE_ROOT__)||{};
  const cacheKey=JSON.stringify([
-  'region-split-pity-v352',Number(id),count,
+  'region-split-pity-v361',Number(id),count,craftSpecialFor361(cfg),
   maker.Seeds?.[String(cfg.type)]?.[String(Math.floor(Number(cfg.lv)/10))],
   maker.IDSeeds?.[String(id)],maker.LuckySeeds?.[String(id)],
   maker.MakeLucky?.[String(id)],
@@ -11209,7 +11223,7 @@ function paintRegionSeq(h,id){
   if(info)info.textContent=`제작처 ${ri}/${routes.length}곳 계산 중…`;
   setTimeout(()=>{
    if(token!==S.renderToken)return;
-   const req={npc_id:rt.npc.id,select_id:rt.p.selectId,equip_id:id,special_id:0,min_color:rt.p.paper?.min_color||1,max_color:rt.p.paper?.max_color||4};
+   const req={npc_id:rt.npc.id,select_id:rt.p.selectId,equip_id:id,special_id:craftSpecialFor361(cfg),min_color:rt.p.paper?.min_color||1,max_color:rt.p.paper?.max_color||4};
    let seq={normal:[],pity:[]};try{seq=regionSplitPity352(req,count)}catch(error){console.warn('지역 제작 시드 계산 오류',error)}
    columns.push({rt,...seq});calcNext();
   },0);
@@ -11237,7 +11251,7 @@ function paintRegionSeq(h,id){
    // Never reinterpret the display ordinal as the production RNG ordinal.
    // This makes the first pity item distinct from the eleventh normal item.
    const rawIndex=Number(chosen.index);
-   const req={npc_id:col.rt.npc.id,select_id:col.rt.p.selectId,equip_id:id,special_id:0,
+   const req={npc_id:col.rt.npc.id,select_id:col.rt.p.selectId,equip_id:id,special_id:craftSpecialFor361(cfg),
      min_color:col.rt.p.paper?.min_color||1,max_color:col.rt.p.paper?.max_color||4};
    const actual=rkMakePreviewNative233(req,rawIndex).items?.[rawIndex-1];
    if(!actual||Boolean(actual.pity)!==(kind==='pity')||
