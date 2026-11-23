@@ -6,7 +6,6 @@ on:
       - 'index.html'
       - 'tests/wiki-icon-mapping-smoke.cjs'
       - 'tests/html-inline-syntax.cjs'
-      - 'tools/mirror-wiki-icons.cjs'
       - '.github/workflows/icon-resilience-smoke.yml'
   workflow_dispatch:
 permissions:
@@ -23,5 +22,3 @@ jobs:
         run: node tests/html-inline-syntax.cjs
       - name: Validate first-party/remote icon selection
         run: node tests/wiki-icon-mapping-smoke.cjs
-      - name: Validate icon-mirror script syntax
-        run: node --check tools/mirror-wiki-icons.cjs
