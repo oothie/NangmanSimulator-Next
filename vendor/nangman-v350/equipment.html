@@ -11707,21 +11707,34 @@ window.rkMakePreviewNative233=rkMakePreviewNative233;window.rkXilianPlanNative23
 /* result/owned/region all enter the same top detail page */
 function paintResults(){const h=q('#rresults');if(!h)return;if(!R.results.length){h.innerHTML='';return}h.innerHTML=`<details class="box218" open><summary>검색 결과</summary><div class="bbody results">${R.results.map((x,i)=>resultHtml(x,i)).join('')}</div></details>`;qa('[data-ri]').forEach(x=>x.onclick=()=>showDetailTop233(R.results[+x.dataset.ri],'find'))}
 function paintLinghuFirstCraft360(h){
- const cfg=EQUIP_DATA.equipment['5021'];
- if(!cfg){h.innerHTML='<p class="note218">영호아대 데이터가 없습니다.</p>';return}
+ const cfg=EQUIP_DATA.equipment['5021'],internal=EQUIP_DATA.papers['9243'];
+ if(!cfg||!internal){h.innerHTML='<p class="note218">영호아대 제작 자료가 없습니다.</p>';return}
  const craftsmen=sortedCraftsmen().filter(n=>n.zhi===craftLine218(cfg.type)&&(n.tx||n.tx2));
- const entries=craftsmen.map(npc=>{
-  const possible=[];
+ const ready=ensureRngLoaded(),entries=craftsmen.map(npc=>{
+  const candidates=[];
   for(const field of ['tx','tx2']){
-   if(!npc[field])continue;
-   const arr=Array.isArray(npc[field][0])?npc[field]:[npc[field]];
-   for(const x of arr)if(Number(x[x.length-1])>0)possible.push(propLabel218(x[0])+' '+formatPropValue(x[0],x.length>=4?Number(x[1])+Number(x[2])*10:Number(x[1])));
+   const raw=npc[field];if(!raw)continue;
+   const arr=Array.isArray(raw[0])?raw:[raw];
+   for(const x of arr)if(Number(x[x.length-1])>0)candidates.push(propLabel218(x[0])+' '+formatPropValue(x[0],x.length>=4?Number(x[1])+Number(x[2])*10:Number(x[1])));
   }
-  return {npc,possible};
+  let predicted=null;
+  if(ready)try{
+   const opts={npc_id:Number(npc.id),select_id:9243,equip_id:5021,special_id:0,min_color:5,max_color:5};
+   const item=rkMakePreviewNative233(opts,1).items?.[0];
+   if(item)predicted=Array.isArray(item.region)?item.region:[];
+  }catch(_){}
+  return {npc,candidates,predicted};
  });
- h.innerHTML='<details class="box218" open><summary>영호아대 · 최초 제작 지역</summary><div class="bbody"><p class="note218">100급 도면 없이 최초 1회 제작하는 장비입니다. 지역별 추가 옵션 발생 가능 여부만 표시합니다.</p><div class="ownedlist">'+
-  entries.map(x=>'<div class="res"><div class="resname">'+esc(routeDisplayName({npc:x.npc}))+'</div><div class="meta">'+(x.possible.length?'지역 추가 옵션 가능':'지역 추가 옵션 없음')+'</div>'+(x.possible.length?'<div class="props">'+x.possible.map(esc).join(' · ')+'</div>':'')+'</div>').join('')+
-  '</div></div></details>';
+ h.innerHTML='<details class="box218" open><summary>영호아대 · 최초 제작 지역별 추가 옵션</summary><div class="bbody">'+
+  '<p class="note218">100급 영호아대는 최초 제작 1회만 조회합니다. 게임에서 사용할 도면 아이템은 없으며, 내부 제작 규칙으로 지역 추가 옵션만 계산합니다.</p>'+
+  '<div class="ownedlist">'+entries.map(x=>{
+   const status=x.predicted===null?'세이브를 불러와야 판정 가능':x.predicted.length?'지역 옵션 발생':'지역 옵션 없음';
+   const props=x.predicted===null?x.candidates:x.predicted.map(z=>propLabel218(z.prop)+' '+formatPropValue(z.prop,z.value));
+   return '<div class="res"><div class="resname">'+esc(routeDisplayName({npc:x.npc}))+'</div><div class="meta">'+status+'</div>'+
+    (props.length?'<div class="props">'+props.map(esc).join(' · ')+'</div>':'')+'</div>';
+  }).join('')+'</div></div></details>';
+ const owned=R.owned.find(x=>Number(x.id??x.equip?.id)===5021);
+ if(owned){const btn=E('button','rbtn','보유 영호아대 상세 · 망정');btn.type='button';btn.onclick=()=>showDetailTop233(owned,'unique','mj');h.append(btn)}
 }
 function paintOwnedDetailPage(m,e){showDetailTop233(e,'owned')}
 
