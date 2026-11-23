@@ -11506,6 +11506,7 @@ function rkPaintXl237(h,o,e,cfg){
  if(o._rkXlProp!==null&&o._rkXlProp!==undefined&&!props.includes(o._rkXlProp))o._rkXlProp=null;
  const prop=o._rkXlProp??null;
  const review=rkXlReview360(baseEq,o._rkXlChosen360||[]);
+ const priorSearchCost=h?.previousElementSibling;if(priorSearchCost?.classList?.contains('search-path271'))priorSearchCost.hidden=review.selected>0;
  let rows=[];
  if(RK237.mode==='all') rows=rkXlPlanRows237(baseEq,prop);
  else if(prop) rows=rkXlPlanRows237(baseEq,prop);
