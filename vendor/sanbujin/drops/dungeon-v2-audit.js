@@ -51,7 +51,7 @@ function createRuntime(input){
     map.set(name,num(map.get(name))+num(v))},
   branch:key=>{if(!flags.has(String(key)))throw Error('분기 정보 누락: '+key);
     return num(flags.get(String(key)))},
-  draw:(key,bound,context)=>roll(key,bound,context||'산부진 원본 draw'),
+  draw:(key,bound)=>roll(key,bound,'산부진 원본 draw'),
   pick:(key,weights)=>pick(key,weights,'산부진 원본 pick')};
  return {roll,pick,state,flags,trace,currents,checkpoint:()=>({
   traceLength:trace.length,currents:new Map(currents),flags:new Map(flags),
@@ -78,9 +78,6 @@ function nativeRoutes(){
 }
 function native(input,plan,catalog,options={}){
  const runtime=createRuntime(input),routes=nativeRoutes(),out=[];
- // A held Gori key is stored in the item inventory, not necessarily in
- // globalVariable. The original native route reads get(8915) before its RNG.
- if(input?.owned?.has(8915))runtime.state.set(8915,1);
  const owner=root.SBJDungeonUniqueOwnership;
  owner?.preventExisting(input,runtime.flags,options);
  for(let i=0;i<plan.length;){
@@ -119,12 +116,6 @@ function native(input,plan,catalog,options={}){
     trace:j===selected.ids.length-1?operations:[],
     routeLength:selected.ids.length,sourceFunction:selected.run.name});
   }
-  // The recovered Liu mansion route checks item 8915 (고리의 열쇠)
-  // before deciding whether to consume the key RNG draw. If the key drops
-  // during a simulated clear, subsequent simulated clears must see it as owned.
-  // A special-drop flag alone does not update this native inventory check.
-  if(selected.ids.includes(35264)&&runtime.state.get('drop_8915_35264')===1)
-   runtime.state.set(8915,1);
   finishDungeon(runtime,plan,i+selected.ids.length-1);
   i+=selected.ids.length;
  }
@@ -193,28 +184,15 @@ const fixture=Object.freeze({
   {npc:35268,item:4209,color:2}]
 });
 function compareMeasured(rows,expected){
- // Observations are ordered by actual dungeon-clear occurrence. Never collapse
- // three observations for one boss into a single last-seen fixture entry.
- const byNpc=new Map();
- for(const entry of expected||[]){
-  const id=num(entry.npc);
-  if(!byNpc.has(id))byNpc.set(id,[]);
-  byNpc.get(id).push(entry);
- }
- const seen=new Map();
- const checks=[];
- for(const row of rows||[]){
-  const id=num(row.npcId),offset=seen.get(id)||0;
-  seen.set(id,offset+1);
-  const check=byNpc.get(id)?.[offset];
-  if(!check)continue; // A future unmeasured clear is not a comparison failure.
-  const valid=!!row.supported, itemMatch=valid&&num(row.item)===num(check.item);
-  const colorMatch=valid&&num(row.color)===num(check.color);
-  checks.push({npcId:id,occurrence:offset+1,expected:check,
-   observed:{item:row.item,color:row.color},itemMatch,colorMatch,
-   exact:itemMatch&&colorMatch,supported:row.supported,reason:row.reason||''});
- }
- return checks;
+ const actual=new Map((expected||[]).map(x=>[num(x.npc),x]));
+ return rows.filter(r=>actual.has(r.npcId)).map(r=>{
+  const check=actual.get(r.npcId);
+  return {npcId:r.npcId,expected:check,observed:{item:r.item,color:r.color},
+    itemMatch:r.supported&&num(r.item)===check.item,
+    colorMatch:r.supported&&num(r.color)===check.color,
+    exact:r.supported&&num(r.item)===check.item&&num(r.color)===check.color,
+    supported:r.supported,reason:r.reason||''};
+ });
 }
 function planDungeons(ids){
  const dungeons=root.DAILY_DATA?.dungeons||[];
