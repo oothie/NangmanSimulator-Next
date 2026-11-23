@@ -45,7 +45,7 @@ assert(allViews.includes('용호단'),'paged list includes individual pills');
 assert(allViews.includes('5 / 5')&&allViews.includes('4 / 5'),'real pill counts side by side on a single role row');
 assert(allViews.includes('66')&&!allViews.includes('66 / ?'),'uncapped pills display current only');
 assert(!allViews.includes('완료1 진행1'),'no abstract group counts');
-assert(allViews.includes('data-account-page'),'next-table controls exist');
+assert(allViews.includes('account-growth-fold')&&allViews.includes('account-paged-table'),'all growth metric tables appear in expandable sections');
 const trainingView=account.render(roster,'training');
 assert(trainingView.includes('수련 기록')&&trainingView.includes('인물'),'training table has names at left');
 account.setPage(0);
