@@ -38,6 +38,13 @@ jobs:
               count+=1
           print('Original icon files imported:',count)
           if count==0:raise SystemExit('Archive contains no valid game icons')
+          from pathlib import Path
+          ids=sorted(int(x.stem) for x in Path('icons/item').glob('*.png') if x.stem.isdecimal())
+          Path('data/item-icon-manifest.js').write_text(
+            '/* Verified hosted original item PNG IDs */\\n'
+            +'window.NANGMAN_HOSTED_ITEM_ICONS=new Set('+str(ids)+');\\n',
+            encoding='utf-8'
+          )
           PY
       - name: Publish originals to the simulator
         run: |
@@ -55,7 +62,7 @@ jobs:
           if '현재 통합 사이트 버전: **v1.1.0**' in documentation:
             readme.write_text(documentation.replace('현재 통합 사이트 버전: **v1.1.0**','현재 통합 사이트 버전: **v1.1.1**'),encoding='utf-8')
           PY
-          git add icons index.html README.md
+          git add icons data/item-icon-manifest.js index.html README.md
           git rm -f NangmanSimulator_Original_Icons_60014.zip
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "Install first-party 60014 Korean original icon assets"
