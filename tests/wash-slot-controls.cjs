@@ -13,7 +13,7 @@ let state={role_id:10,seed:111,talents:[
 const original=JSON.stringify(state),posted=[];let listener;
 const parent={postMessage(m){posted.push(m)}};
 const ctx={window:{addEventListener(key,cb){if(key==='message')listener=cb}},parent,location:{origin:'https://example.test'},
- TALENT_DATA:{},ZZ_DATA:{},initWasm:async()=>true,wasmInitEngine:()=>true,
+ TALENT_DATA:{},ZZ_DATA:{},EMBEDDED_WASM_B64:'fixture-mock-nonempty',initWasm:async()=>true,wasmInitEngine:()=>true,
  wasmGetState(){native.get++;return JSON.parse(JSON.stringify(state))},
  wasmSetState(next){native.set++;state=JSON.parse(JSON.stringify(next));return true},
  wasmExchangeTalent(index){native.exchange++;state.talents[index].id=270;state.seed+=1;return index===3?null:native.shouldReject?{success:false,error:'native rejected'}:{success:true,changed:index}}
