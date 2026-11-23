@@ -78,6 +78,9 @@ function nativeRoutes(){
 }
 function native(input,plan,catalog,options={}){
  const runtime=createRuntime(input),routes=nativeRoutes(),out=[];
+ // A held Gori key is stored in the item inventory, not necessarily in
+ // globalVariable. The original native route reads get(8915) before its RNG.
+ if(input?.owned?.has(8915))runtime.state.set(8915,1);
  const owner=root.SBJDungeonUniqueOwnership;
  owner?.preventExisting(input,runtime.flags,options);
  for(let i=0;i<plan.length;){
