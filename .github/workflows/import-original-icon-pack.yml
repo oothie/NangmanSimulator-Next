@@ -41,8 +41,8 @@ jobs:
           from pathlib import Path
           ids=sorted(int(x.stem) for x in Path('icons/item').glob('*.png') if x.stem.isdecimal())
           Path('data/item-icon-manifest.js').write_text(
-            '/* Verified hosted original item PNG IDs */\\n'
-            +'window.NANGMAN_HOSTED_ITEM_ICONS=new Set('+str(ids)+');\\n',
+            '/* Verified hosted original item PNG IDs */\n'
+            +'window.NANGMAN_HOSTED_ITEM_ICONS=new Set('+str(ids)+');\n',
             encoding='utf-8'
           )
           PY
