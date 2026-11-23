@@ -7,7 +7,7 @@
 'use strict';
 self.window=self;
 importScripts('./wasm_data.js?rev=0.10.30','./core_glue.js?rev=0.10.30',
- './data.js?rev=0.10.30','../../engine/yysim-native-search-guard.js?rev=0.10.30',
+ './data.js?rev=0.10.30','../../engine/yysim-native-search-guard.js?rev=0.10.61',
  '../../engine/yysim-purple-anchor-mixed.js?rev=20261123-anchor-v19');
 let initialized=null;
 const canonical=()=>self.YYWashNativeSearchGuard;
