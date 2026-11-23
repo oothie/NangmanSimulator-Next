@@ -1624,7 +1624,7 @@ function equipDetailView(){
  const orange=Number(cfg.weapon_color)===5||Number(equipment.Color??equipment.color)===5;
  const weapon=[1,2,3,4].includes(Number(cfg.type));
  const orangeRecipe=Object.values(window.EQUIP_DATA?.papers||{}).some(p=>Number(p.dz_equip)===id&&Number(p.min_color)===5&&Number(p.max_color)===5);
- const allowMangjing=!orange||(Number(equipment.MJSeed??equipment.mj_seed??0)>0&&(id===5021||orangeRecipe)&&!/관문|임무|퀘스트|드랍/.test(String(x.source||'')));
+ const allowMangjing=!orange||((Number(equipment.MJSeed||equipment.mj_seed||0)>0||Number(equipment.Specials?.[0]?.S||equipment.specials?.[0]?.S||0)>0)&&(id===5021||orangeRecipe)&&!/관문|임무|퀘스트|드랍/.test(String(x.source||'')));
  const active=x.mode||'route';
  const makeButton=(mode,label,meta,cls,disabled,reason)=>
   '<button type="button" class="equip-detail-choice '+cls+(active===mode?' is-active':'')+
