@@ -8,13 +8,26 @@
       "getRandsPc": 29,
       "getRandBetweenPc": 32
     },
-    "roll": {
+    "seedKeyRollCheckMode": {
       "prototype": 3,
+      "method": "executeCheckMode",
       "getStoryRndPc": 19,
       "intRandPc": 22
     },
-    "seedStreamsIdentical": false,
-    "storyRndStateOriginKnown": false
+    "normalRoll": {
+      "module": "JHTaskStatementsRoll.lua",
+      "dispatcherPrototype": 862,
+      "requirePc": 1176,
+      "originalBodyRecovered": false,
+      "rngSourceConfirmed": false
+    },
+    "normalSeedKeyRoll": {
+      "dispatcherRequirePc": 1204,
+      "method": "execute",
+      "prototype": 1
+    },
+    "storyRndSExistsInSavedGame": true,
+    "storyRndUsedByNormalRollProven": false
   },
   "equivalentRescueScripts": [
     {
@@ -249,7 +262,7 @@
       12
     ]
   },
-  "limitation": "The exact StoryRnd.intRand native RNG stream and actual runtime pairs order are not proven; never synthesize a game result.",
+  "limitation": "Normal rescue roll dispatches to separate JHTaskStatementsRoll; its original implementation remains unrecovered. StoryRnd call belongs to SeedKeyRoll.executeCheckMode, NOT proof of rescue roll RNG. Never synthesize a game result.",
   "sourceSaveShape": {
     "snapshotsChecked": 4,
     "storyRndSExists": 4,
