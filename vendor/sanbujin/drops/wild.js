@@ -40,9 +40,8 @@
       (!normalHunts || engine.usable(input.encounterSeed) &&
         Number.isFinite(input.encounterScore) && Number.isFinite(input.encounterBoost));
     $('wildRun').disabled = !ready;
-    const label = normalHunts ? (target.encounter.verified ?
-      '일반 사냥별 특수몹 등장 판정 후 해당 보스의 장비 보상만 계산합니다. 일반 재료는 장비 목록에서 제외합니다.' :
-      '일반 사냥별 특수몹 출현을 연결한 잠정 모델입니다. 십방집 조우 수치와 색상 순서는 실측 검증 전이므로 회차·등급이 다를 수 있습니다.') :
+    const label = normalHunts ?
+      '일반 사냥 횟수에 따라 특수몹 등장과 장비 드랍을 순서대로 계산합니다.' :
       isTomb ? '제릉 · 거령 병용 출현과 90레벨 장비 및 기타 보상을 함께 계산합니다. 장비별 옵션 상태도 함께 추적합니다.' : tiger
       ? '원본 실행 순서에 따라 호랑이 종류와 호골 천장을 예측합니다. 현재 호골 연속 미획득 ' + input.drought + '회.'
       : timed ? '드랍 여부와 품질은 세이브 순서로 예측합니다. 장비 옵션은 입력한 판정 시각에 따라 달라집니다.'
@@ -71,7 +70,7 @@
     configure();
   }
 
-  // Site v1.0.8: show only the forecast hunting round, Korean equipment name/ID and grade.
+  // Show only equipment rewards, never material receipts. Preserve true battle numbering.
   // Preserve raw rows, seed progression and filtering data for the original engine.
   function render() {
     const host=$('wildResults');
@@ -80,7 +79,7 @@
     host.replaceChildren(...shown.map(row=>{
       const item=node('li','', 'nm-field-drop nm-field-grade-'+Number(row.color));
       const name=ko(EQUIP_DATA.equipment?.[row.itemId]?.koName || row.itemName || '장비');
-      item.append(node('span',String(row.serial)+(targets[Number(picker.value)].encounter?'회 사냥':'회 호출'),'nm-field-round'));
+      item.append(node('span',String(row.serial)+(targets[Number(picker.value)].kind==='story'&&!targets[Number(picker.value)].encounter?'회 호출':'회 사냥'),'nm-field-round'));
       item.append(node('strong',name,'nm-field-name'));
       item.append(node('span',labels[Number(row.color)],'nm-field-quality'));
       return item;
@@ -91,7 +90,7 @@
       const played=rows.filter(row=>!row.padding);
       const found=played.filter(row=>row.spawn).length;
       $('wildStatus').textContent=played.length+'회 일반 사냥 · 특수몹 '+found+'회 · 장비 '+shown.length+'개'+
-        (target.encounter.verified?'':' · 십방집 조우 계산은 잠정 검증 중');
+        '';
     }else $('wildStatus').textContent=target.kind==='story'?
       '이 결과는 특수몹 보상 함수 호출 번호이며 일반 사냥 횟수가 아닙니다.':'';
     $('wildExport').disabled=true;
