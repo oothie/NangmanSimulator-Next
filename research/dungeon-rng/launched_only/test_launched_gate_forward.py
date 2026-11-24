@@ -46,6 +46,20 @@ class LaunchedOnly(unittest.TestCase):
   matches=[i for i in range(len(actual)-len(target)+1) if actual[i:i+len(target)]==target]
   self.assertEqual(matches,[0])
   self.assertTrue(all(new[i]['OnlyID']+1==new[i+1]['OnlyID'] for i in range(12)))
+ def test_two_sequential_dcy_clears(self):
+  out=replay(self.a,SRC,REG,1,1,dcy_clears=2)
+  dcy=[run for run in out['runs'] if run['gate']=='창옥']
+  self.assertEqual(len(dcy),2)
+  self.assertEqual([r['draws'] for r in dcy],[19,23])
+  self.assertEqual([r['clear'] for r in dcy],[1,2])
+  for result in dcy:
+   self.assertEqual(len(result['equipment']),3)
+   self.assertEqual(list(result['seedAfter']),['seed_dcy_40372','seed_dcy_40373','seed_dcy_40374'])
+  for key,value in dcy[0]['seedAfter'].items():
+   self.assertEqual(value,self.b['Rnds']['Sds'][key])
+ def test_dcy_clear_count_invalid(self):
+  for n in (0,21):
+   with self.subTest(n=n),self.assertRaises(ValueError):replay(self.a,SRC,REG,1,1,dcy_clears=n)
  def test_no_unreleased_gate_output(self):
   self.assertFalse(set(r['gate'] for r in self.f['runs']) & set(FROZEN))
  def test_optional_special_consumer_summary(self):
