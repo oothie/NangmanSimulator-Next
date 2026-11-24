@@ -55,13 +55,48 @@ def validate_schedule(schedule: list[str]) -> None:
         raise ValueError('Only the four released gates may be sealed')
 
 
+GATE_BOSS_COUNTS = {'연왕부': 4, '창옥': 3, '벽유교': 3, '유씨별원': 3}
+GRADE_NAMES = {1: '백색', 2: '녹색', 3: '청색', 4: '자색'}
+
+
+def validate_forecast_runs(runs: list[dict], schedule: list[str]) -> None:
+    """Refuse to seal malformed/incomplete boss or localized equipment outputs."""
+    validate_schedule(schedule)
+    if not isinstance(runs, list) or len(runs) != len(schedule):
+        raise ValueError('Incomplete ordered released-gate forecast')
+    for index, (run, gate) in enumerate(zip(runs, schedule), 1):
+        if run.get('order') != index or run.get('gate') != gate:
+            raise ValueError('Forecast gate order differs from requested order')
+        equipment = run.get('equipment')
+        if not isinstance(equipment, list) or len(equipment) != GATE_BOSS_COUNTS[gate]:
+            raise ValueError('Forecast missing source boss entries for ' + gate)
+        seen = set()
+        for item in equipment:
+            boss = item.get('boss')
+            if not isinstance(boss, str) or not boss or boss in seen:
+                raise ValueError('Missing or duplicated Korean boss name')
+            seen.add(boss)
+            eid = item.get('equipmentId')
+            if eid is None:
+                if item.get('equipmentName') is not None or item.get('grade') is not None:
+                    raise ValueError('No-drop source contains inconsistent equipment')
+            else:
+                code = item.get('gradeCode')
+                if not isinstance(eid, int) or isinstance(eid, bool) or eid not in ID_SET:
+                    raise ValueError('Unrecognized 90-grade general equipment ID')
+                if not isinstance(code, int) or isinstance(code, bool) or code not in GRADE_NAMES:
+                    raise ValueError('Invalid equipment color code')
+                if item.get('grade') != GRADE_NAMES[code]:
+                    raise ValueError('Color code and Korean grade disagree')
+                if not isinstance(item.get('equipmentName'), str) or not item['equipmentName'].strip():
+                    raise ValueError('Korean equipment name missing; cannot seal numeric-only item')
+
 def seal(before: dict, source_root: Path, registry: Path,
          schedule: list[str], *, nonce: str|None=None) -> tuple[dict, dict]:
     validate_schedule(schedule)
     from mixed_gate_schedule import run_order
     after_model, result = run_order(before, source_root, registry, schedule)
-    if len(result['runs']) != len(schedule):
-        raise AssertionError('Incomplete model run')
+    validate_forecast_runs(result['runs'], schedule)
     expected = []
     boss_forecast = []
     for run in result['runs']:
