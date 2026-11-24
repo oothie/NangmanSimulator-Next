@@ -26,7 +26,7 @@ function checkRegister(db){
    }else if(t.typedWrites.length||t.modelPairsOrder.length||t.sourceTdupPc!==null)throw Error('Unverified source promoted to runtime table: '+key);
   }
  }
- if(total!==60||verified!==34)throw Error('Source count mismatch: '+total+'/'+verified);
+ if(total!==60||verified!==60)throw Error('Source count mismatch: '+total+'/'+verified);
  return {consumers:entries.length,totalTables:total,sourceTyped:verified,awaitingOriginalBytecode:total-verified};
 }
 function tableOrder(t){
