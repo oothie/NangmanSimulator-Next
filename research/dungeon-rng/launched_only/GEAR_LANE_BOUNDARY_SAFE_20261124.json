@@ -1,0 +1,53 @@
+{
+  "schedule": [
+    {
+      "gate": "벽유교",
+      "clear": 1
+    },
+    {
+      "gate": "창옥",
+      "clear": 1
+    },
+    {
+      "gate": "연왕부",
+      "clear": 1
+    },
+    {
+      "gate": "유씨별원",
+      "clear": 3
+    }
+  ],
+  "changedEquipmentSeedTypes": 9,
+  "changedEquipmentIdNames": [
+    4009,
+    4209,
+    4409,
+    4609,
+    4809,
+    5009,
+    5209,
+    5409,
+    5609
+  ],
+  "reportedEquipmentIdsAndGrade": 13,
+  "new90EquipmentInAfterSave": 16,
+  "matchingContiguousPredictedPrefix": true,
+  "reportedOriginalGateLaneCount": 9,
+  "reportedGateLanesOnly": true,
+  "postEdsUnchanged": true,
+  "otherChangedSaveSdsCount": 96,
+  "fieldDropSdsLaneCount": 22,
+  "fieldDropSdsChangedBetweenSavePair": 0,
+  "fieldMonsterNpcSeedsChanged": {
+    "seed_32299": false,
+    "seed_35256": true
+  },
+  "globalStoryRandChanged": true,
+  "limits": [
+    "Historical before/after inventory sequence does not prove individual boss attribution",
+    "Equipment Eds is not advanced by this four-gate equipment ID/grade forecast",
+    "Other save activities cannot be attributed to these gates from only a two-save diff",
+    "Even when field aidrop/mdrop seeds are unchanged, an NPC-specific spawn seed or global RNG may change",
+    "Prospective field->dungeon equipment affix/option RNG remains unverified"
+  ]
+}
