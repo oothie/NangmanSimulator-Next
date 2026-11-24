@@ -65,6 +65,6 @@ python launched_gate_forward.py --save /private/MY_SAVE.json \
 
 [신규 원본 3단계 재료 지급 연구](BYJ_MATERIAL_FULL_LIFECYCLE_20261124.md): 입장 10~23단계 → 원본 인간정로 구출 함수(36274/36275)에서 13개 동적 가중치 지급 규칙 → 출구 이벤트의 빈 보상 그룹 대체 지급 3025/3035를 근거로 연결. 원본 24단계는 NPC 35214 등장이며 재료 지급이 아님. 2개의 원본 구출 스크립트는 지급 결과·누적 카운터가 동일하고, 2605·2606 계열은 실제 지급 2개/누적 카운터 +5 차이가 있음. 원본 동적 가중치 선택의 내부 난수 방식이 **미검증**이므로 자동 추첨 대신 후보 및 조건부 결과만 계산. 출시 관문 전체 로컬 회귀 **59/59 통과**. 선택 입력 인수 `--byj-material-rescue-registry`로 통합 가상 재생 보고에 포함. 실제 미획득 계정의 신규 실측 검증은 아직 없음.
 
-## 벽유교 인간정로 `roll` 디스패처·키 순서 원본 감사 (2026-11-24)
+## 벽유교 인간정로 실제 `roll` 함수 복구 (2026-11-24)
 
-[원본 Roll 디스패처 및 분기 복원 보고서](BYJ_STORY_ROLL_60014_REPORT_20261124.md): 최초 `getStoryRnd().intRand` 해석은 **SeedKeyRoll의 `executeCheckMode` 전용 경로**로 판명되어 철회. 실제 `roll`은 별도 `JHTaskStatementsRoll` 모듈의 실행 함수로 디스패치되며 그 원본 모듈은 아직 미확보. 두 인간정로 이벤트의 문자열 키 13개는 원본 PC로 검증했고, LuaJIT beta3 해시 **모델** 후보 순회는 그룹1 3,4,1,6,2,5 / 그룹2 7,8,10,9,13,11,12. [조건부 매핑 코드](byj_story_roll_conditional.py)는 외부에서 제공된 난수값에만 반응하며, 아직 미확정인 RNG의 시드나 반환 범위를 자동 추측하지 않는다. 신규 11개 + 기존 관련 34개, **45/45 회귀 통과**. 미출시 관문 동결 유지.
+[60014 버전 동일성 및 실제 난수 호출 조사](BYJ_STORY_ROLL_60014_REPORT_20261124.md): 사용자 보관 한국판 게임 APK에서 기존 미확보였던 `JHTaskStatementsRoll.lua`와 전역 `JHRandom` 정의가 있는 `JHExtern.lua`를 선택 복호화. **두 파일의 개별 매니페스트 `v`와 암호화 길이가 현재 보존된 60014 매니페스트와 각각 일치**. 일반 `roll`의 실행 소스는 `JHTaskStatementsRoll.execute` → 전역 `JHRandom` (PC25). 글로벌은 `JHExtern`의 `math.jhrandom`·`math.random`을 참조한다. 과거 `getStoryRnd().intRand` 연결은 `SeedKeyRoll.executeCheckMode` 전용으로 정정. 실제 `JHRandom` 분기 조건/시드/반환 범위가 미확정이므로 보상 자동 산출은 차단. 2개 구출 이벤트의 13 문자열 키·삽입 PC와 LuaJIT beta3 **모델** 순회 후보를 검증했으며 60014 소스 일치·가중치 및 기존 관련 회귀 **50/50 통과**. 미출시 관문은 동결 유지, 공개 사이트/V82 미변경.
