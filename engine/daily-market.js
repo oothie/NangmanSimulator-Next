@@ -242,6 +242,61 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    }
    return events;
   },
+  // Validate strategy paths by replaying every refresh independently from
+  // the imported seed. This checks model consistency, not live-server accuracy.
+  auditStrategy(plan,options={}){
+   if(!plan?.found)return plan;
+   const id=Number(options.target),goal=Math.trunc(n(options.quantity,1));
+   const allowance=this.paidAllowance(options.vip),rr=rng.clone();
+   let luck=lucky,used=allowance.used,paid=0,got=0;
+   let t=now,auto=nextHalfDay(now),daily=(resetDay(now)+1)*86400-14400;
+   const fail=reason=>({mode:plan.mode,found:false,proven:false,modelReplayChecked:false,
+    required:goal,error:'암시장 경로 재검증 실패: '+reason+' · 제시된 갱신 경로를 사용하지 마세요.'});
+   if(!Number.isSafeInteger(id)||goal<1||!Array.isArray(plan.steps))return fail('목표·경로 누락');
+   const current=(today||[]).find(x=>x.id===id&&n(x.buyed)!==1);
+   for(const step of plan.steps){
+    if(!step||!['current','paid','auto','reset'].includes(step.kind)||
+       !Number.isFinite(step.time)||step.time<t)return fail('시각·실행 순서');
+    let items=null,rare=null;
+    if(step.kind==='current'){
+     if(step.time!==now||got!==0)return fail('현재 진열 목록 중복');
+     items=today;
+     if(step.acquired!==(current?1:0))return fail('이미 구매한 현재 상품 재구매');
+    }else if(step.kind==='reset'){
+     if(step.time!==daily||step.time>=auto)return fail('05시 한도 초기화 시점');
+     used=0;daily=(resetDay(step.time)+1)*86400-14400;
+     if(step.acquired!==0)return fail('한도 초기화 구매 수량');
+    }else if(step.kind==='paid'){
+     if(step.time>=daily||step.time>=auto)return fail('05시 또는 무료 교체 선행 누락');
+     if(used>=allowance.max)return fail('VIP 일일 갱신 한도');
+     const threshold=16.666666666666668+luck;
+     rare=rr.chance('guishishop',threshold);
+     luck=rare?threshold-100:threshold;
+     items=draw(rr,available,true,rare,slots);
+     used++;paid++;
+     if(step.index!=null&&step.index!==used)return fail('원보 갱신 번호');
+     if(step.rareHit!=null&&step.rareHit!==rare)return fail('특별상품 추첨');
+    }else{
+     if(step.time!==auto||(plan.mode!=='free'&&step.time>=daily))
+      return fail('08시·20시 자동 교체 누락');
+     items=draw(rr,available,false,false,slots);
+     auto+=43200;
+    }
+    let acquired=0;
+    if(items){
+     if(!Array.isArray(step.items)||step.items.map(x=>x?.id).join(',')!==items.map(x=>x.id).join(','))
+      return fail('시드 기반 판매 상품 순서');
+     acquired=items.some(x=>x.id===id)&&got<goal?1:0;
+     got+=acquired;
+    }
+    if(step.acquired!==acquired||step.totalAcquired!==got)
+     return fail('목표 구매 수량');
+    t=step.time;
+   }
+   if(got!==goal||plan.acquired!==goal||plan.when!==t||
+      plan.paid!==paid||plan.cost!==paid*20)return fail('최종 구매 수량·일시·갱신비');
+   return {...plan,modelReplayChecked:true};
+  },
   // Find feasible purchase routes before attempting shortest-time proof.
   // These are deterministic policy replays of the SAME guishishop stream.
   // A candidate is never labelled as globally optimal.
@@ -269,7 +324,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
     const r=rng.clone(),steps=[],purchases=[];
     let luck=lucky,used=allowance.used,paid=0,got=current?1:0,
       time=now,auto=nextHalfDay(now),daily=nextDaily(now),tick=0;
-    if(current){const e={kind:'current',time,acquired:1,totalAcquired:1};
+    if(current){const e={kind:'current',time,items:today,acquired:1,totalAcquired:1};
       steps.push(e);purchases.push(e)}
     const paidOnce=()=>{
      const chance=16.666666666666668+luck,rare=r.chance('guishishop',chance);
@@ -277,7 +332,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      const items=draw(r,available,true,rare,slots);
      const acquired=items.some(x=>ids.has(x.id))?1:0;
      got+=acquired;used++;paid++;
-     const e={kind:'paid',time,index:used,rareHit:rare,acquired,totalAcquired:got};
+     const e={kind:'paid',time,index:used,rareHit:rare,items,acquired,totalAcquired:got};
      steps.push(e);if(acquired)purchases.push(e);
     };
     const spend=fraction=>{
@@ -297,7 +352,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      const items=draw(r,available,false,false,slots);
      const acquired=items.some(x=>ids.has(x.id))?1:0;
      got+=acquired;
-     const e={kind:'auto',time,acquired,totalAcquired:got};
+     const e={kind:'auto',time,items,acquired,totalAcquired:got};
      steps.push(e);if(acquired)purchases.push(e);
      auto+=43200;
      if(got>=goal)break;
