@@ -1,0 +1,2982 @@
+{
+  "dataVersion": "source-audit-2026-11-24",
+  "source": "60014 original SBC and decoded-event archive; compact derivatives only",
+  "assertedRuntimePerfect": false,
+  "counts": {
+    "consumers": 30,
+    "producerTables": 60,
+    "typedBytecodeTables": 34,
+    "unverifiedTypedTables": 26,
+    "bytecodeBranchKeyEffects": 102,
+    "bytecodeBranchEffectAmbiguities": 0
+  },
+  "equipmentNames": {
+    "4009": "수라장갑",
+    "4209": "지수검",
+    "4409": "천운도",
+    "4609": "흑살곤",
+    "4809": "옥형 허리띠",
+    "5009": "자미아대",
+    "5209": "오잠보갑",
+    "5409": "청운반지",
+    "5609": "청운추"
+  },
+  "consumers": [
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "grantNpc": 40374,
+      "rngNpc": 40374,
+      "sourceTier": "direct_60014_SBC_const_string",
+      "equipmentIds": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_dcy_40374",
+          "sourcePath": "/3/35/2",
+          "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_dcy_40374",
+          "sourcePath": "/3/35/2/50 /2/2",
+          "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "grantNpc": 35219,
+      "rngNpc": 35219,
+      "sourceTier": "direct_60014_SBC_const_string",
+      "equipmentIds": [
+        4409,
+        4209,
+        4009,
+        4609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_byj",
+          "sourcePath": "/3/27/2",
+          "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 371,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 375
+            },
+            {
+              "key": "s:50 ",
+              "pc": 379
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35219_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35219_equip', SeedRandom('seed_byj',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35219
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35219,
+              "slotSeed": "seed_byj",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "379b030246450d9870e7bec7630a7a9291eef6e01a707364eae99d1600bbd24f"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_byj",
+          "sourcePath": "/3/28/2",
+          "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 383,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 387
+            },
+            {
+              "key": "n:30",
+              "pc": 391
+            },
+            {
+              "key": "n:15",
+              "pc": 395
+            },
+            {
+              "key": "n:5",
+              "pc": 399
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "SetP('drop_35219_color', 1)"
+            ],
+            "n:30": [
+              "SetP('drop_35219_color', 2)"
+            ],
+            "n:15": [
+              "SetP('drop_35219_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35219_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 35219,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 35219,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 35219,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35219,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "379b030246450d9870e7bec7630a7a9291eef6e01a707364eae99d1600bbd24f"
+        }
+      ]
+    },
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "grantNpc": 35214,
+      "rngNpc": 35214,
+      "sourceTier": "direct_60014_SBC_const_string",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_byj",
+          "sourcePath": "/3/32/2",
+          "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 445,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 449
+            },
+            {
+              "key": "s:50 ",
+              "pc": 453
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35214_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35214_equip', SeedRandom('seed_byj',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35214
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35214,
+              "slotSeed": "seed_byj",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "379b030246450d9870e7bec7630a7a9291eef6e01a707364eae99d1600bbd24f"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_byj",
+          "sourcePath": "/3/33/2",
+          "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 457,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 461
+            },
+            {
+              "key": "n:30",
+              "pc": 465
+            },
+            {
+              "key": "n:15",
+              "pc": 469
+            },
+            {
+              "key": "n:5",
+              "pc": 473
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "SetP('drop_35214_color', 1)"
+            ],
+            "n:30": [
+              "SetP('drop_35214_color', 2)"
+            ],
+            "n:15": [
+              "SetP('drop_35214_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35214_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 35214,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 35214,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 35214,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35214,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "379b030246450d9870e7bec7630a7a9291eef6e01a707364eae99d1600bbd24f"
+        }
+      ]
+    },
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "grantNpc": 35221,
+      "rngNpc": 35221,
+      "sourceTier": "direct_60014_SBC_const_string",
+      "equipmentIds": [
+        4009,
+        4209,
+        4409,
+        4609,
+        4809,
+        5009,
+        5209,
+        5409,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_byj",
+          "sourcePath": "/3/38/2",
+          "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 541,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 545
+            },
+            {
+              "key": "s:50 ",
+              "pc": 549
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35221_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35221_equip', SeedRandom('seed_byj',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35221
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35221,
+              "slotSeed": "seed_byj",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "379b030246450d9870e7bec7630a7a9291eef6e01a707364eae99d1600bbd24f"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_byj",
+          "sourcePath": "/3/39/2",
+          "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 553,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 557
+            },
+            {
+              "key": "n:30",
+              "pc": 561
+            },
+            {
+              "key": "n:15",
+              "pc": 565
+            },
+            {
+              "key": "n:5",
+              "pc": 569
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "SetP('drop_35221_color', 1)"
+            ],
+            "n:30": [
+              "SetP('drop_35221_color', 2)"
+            ],
+            "n:15": [
+              "SetP('drop_35221_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35221_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 35221,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 35221,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 35221,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35221,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "379b030246450d9870e7bec7630a7a9291eef6e01a707364eae99d1600bbd24f"
+        }
+      ]
+    },
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "grantNpc": 40372,
+      "rngNpc": 40372,
+      "sourceTier": "direct_60014_SBC_const_string",
+      "equipmentIds": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_dcy_40372",
+          "sourcePath": "/3/18/2",
+          "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_dcy_40372",
+          "sourcePath": "/3/18/2/50 /2/2",
+          "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "grantNpc": 40373,
+      "rngNpc": 40373,
+      "sourceTier": "direct_60014_SBC_const_string",
+      "equipmentIds": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_dcy_40373",
+          "sourcePath": "/3/29/2",
+          "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_dcy_40373",
+          "sourcePath": "/3/29/2/50 /2/2",
+          "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33654,
+      "rngNpc": 33654,
+      "sourceTier": "direct_60014_SBC_const_string",
+      "equipmentIds": [
+        4209,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_33654",
+          "sourcePath": "/3/17/2",
+          "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_33654",
+          "sourcePath": "/3/17/2/50 /2/2",
+          "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33653,
+      "rngNpc": 33653,
+      "sourceTier": "direct_60014_SBC_const_string",
+      "equipmentIds": [
+        4409,
+        4809,
+        5009,
+        5209,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_33653",
+          "sourcePath": "/3/21/2",
+          "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_33653",
+          "sourcePath": "/3/21/2/50 /2/2",
+          "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33652,
+      "rngNpc": 33652,
+      "sourceTier": "direct_60014_SBC_const_string",
+      "equipmentIds": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_33652",
+          "sourcePath": "/3/25/2",
+          "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "40",
+            "10",
+            "50"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_33652",
+          "sourcePath": "/3/25/2/50/2/2",
+          "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",      "grantNpc": 33650,
+      "rngNpc": 33650,
+      "sourceTier": "direct_60014_SBC_const_string",
+      "equipmentIds": [
+        4009,
+        4209,
+        4409,
+        4609,
+        4809,
+        5009,
+        5209,
+        5409,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_33650",
+          "sourcePath": "/3/30/2",
+          "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_33650",
+          "sourcePath": "/3/30/2/50 /2/2",
+          "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "44",
+            "45",
+            "16",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "grantNpc": 50883,
+      "rngNpc": 50883,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_byjzt",
+          "sourcePath": "/8/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_byjzt",
+          "sourcePath": "/9/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "grantNpc": 50910,
+      "rngNpc": 50910,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_byjzt",
+          "sourcePath": "/13/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_byjzt",
+          "sourcePath": "/14/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "grantNpc": 44122,
+      "rngNpc": 44122,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_byjzt",
+          "sourcePath": "/19/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_byjzt",
+          "sourcePath": "/20/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 35324,
+      "rngNpc": 35324,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/29/2",
+          "sourceFile": "event__enter_wsd.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 243,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 247
+            },
+            {
+              "key": "s:50 ",
+              "pc": 251
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35324_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35324_equip', SeedRandom('seed_wsd',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35324
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35324,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/30/2",
+          "sourceFile": "event__enter_wsd.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 255,
+          "typedWrites": [
+            {
+              "key": "n:40",
+              "pc": 259
+            },
+            {
+              "key": "n:35",
+              "pc": 263
+            },
+            {
+              "key": "n:20",
+              "pc": 267
+            },
+            {
+              "key": "n:5",
+              "pc": 271
+            }
+          ],
+          "modelPairsOrder": [
+            "n:35",
+            "n:20",
+            "n:5",
+            "n:40"
+          ],
+          "sourceWeightLiterals": [
+            "40",
+            "35",
+            "20",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:40": [
+              "SetP('drop_35324_color', 1)"
+            ],
+            "n:35": [
+              "SetP('drop_35324_color', 2)"
+            ],
+            "n:20": [
+              "SetP('drop_35324_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35324_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:40": {
+              "effect": "color",
+              "stateNpc": 35324,
+              "grade": 1
+            },
+            "n:35": {
+              "effect": "color",
+              "stateNpc": 35324,
+              "grade": 2
+            },
+            "n:20": {
+              "effect": "color",
+              "stateNpc": 35324,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35324,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b"
+        }
+      ]
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 50611,
+      "rngNpc": 50611,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/33/2",
+          "sourceFile": "event__enter_wsd.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 303,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 307
+            },
+            {
+              "key": "s:50 ",
+              "pc": 311
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_50611_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_50611_equip', SeedRandom('seed_wsd',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 50611
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 50611,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/34/2",
+          "sourceFile": "event__enter_wsd.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 315,
+          "typedWrites": [
+            {
+              "key": "n:40",
+              "pc": 319
+            },
+            {
+              "key": "n:35",
+              "pc": 323
+            },
+            {
+              "key": "n:20",
+              "pc": 327
+            },
+            {
+              "key": "n:5",
+              "pc": 331
+            }
+          ],
+          "modelPairsOrder": [
+            "n:35",
+            "n:20",
+            "n:5",
+            "n:40"
+          ],
+          "sourceWeightLiterals": [
+            "40",
+            "35",
+            "20",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:40": [
+              "SetP('drop_50611_color', 1)"
+            ],
+            "n:35": [
+              "SetP('drop_50611_color', 2)"
+            ],
+            "n:20": [
+              "SetP('drop_50611_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_50611_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:40": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 1
+            },
+            "n:35": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 2
+            },
+            "n:20": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b"
+        }
+      ]
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 35306,
+      "rngNpc": 35306,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/38/2",
+          "sourceFile": "event__enter_wsd.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 589,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 593
+            },
+            {
+              "key": "s:50 ",
+              "pc": 597
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35306_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35306_equip', SeedRandom('seed_wsd',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35306
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35306,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/39/2",
+          "sourceFile": "event__enter_wsd.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 601,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 605
+            },
+            {
+              "key": "n:30",
+              "pc": 609
+            },
+            {
+              "key": "n:15",
+              "pc": 613
+            },
+            {
+              "key": "n:5",
+              "pc": 617
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "SetP('drop_35306_color', 1)"
+            ],
+            "n:30": [
+              "SetP('drop_35306_color', 2)"
+            ],
+            "n:15": [
+              "SetP('drop_35306_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35306_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 35306,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 35306,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 35306,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35306,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b"
+        }
+      ]
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 35310,
+      "rngNpc": 35310,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/44/2",
+          "sourceFile": "event__enter_wsd.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 677,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 681
+            },
+            {
+              "key": "s:50 ",
+              "pc": 685
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35310_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35310_equip', SeedRandom('seed_wsd',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35310
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35310,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/45/2",
+          "sourceFile": "event__enter_wsd.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 689,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 693
+            },
+            {
+              "key": "n:30",
+              "pc": 697
+            },
+            {
+              "key": "n:15",
+              "pc": 701
+            },
+            {
+              "key": "n:5",
+              "pc": 705
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "SetP('drop_35310_color', 1)"
+            ],
+            "n:30": [
+              "SetP('drop_35310_color', 2)"
+            ],
+            "n:15": [
+              "SetP('drop_35310_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35310_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 35310,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 35310,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 35310,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35310,
+              "grade": 4
+            }
+          },          "bytecodeSha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b"
+        }
+      ]
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 35600,
+      "rngNpc": 35603,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/30/2",
+          "sourceFile": "event__enter_wsdex.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 271,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 275
+            },
+            {
+              "key": "s:50 ",
+              "pc": 279
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35603_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35603_equip', SeedRandom('seed_wsd',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35603
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35603,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/31/2",
+          "sourceFile": "event__enter_wsdex.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 283,
+          "typedWrites": [
+            {
+              "key": "n:40",
+              "pc": 287
+            },
+            {
+              "key": "n:30",
+              "pc": 291
+            },
+            {
+              "key": "n:25",
+              "pc": 295
+            },
+            {
+              "key": "n:5",
+              "pc": 299
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:40",
+            "n:25"
+          ],
+          "sourceWeightLiterals": [
+            "40",
+            "30",
+            "25",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:40": [
+              "SetP('drop_35603_color', 1)"
+            ],
+            "n:30": [
+              "SetP('drop_35603_color', 2)"
+            ],
+            "n:25": [
+              "SetP('drop_35603_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35603_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:40": {
+              "effect": "color",
+              "stateNpc": 35603,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 35603,
+              "grade": 2
+            },
+            "n:25": {
+              "effect": "color",
+              "stateNpc": 35603,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35603,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8"
+        }
+      ]
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 50611,
+      "rngNpc": 50611,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/36/2",
+          "sourceFile": "event__enter_wsdex.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 391,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 395
+            },
+            {
+              "key": "s:50 ",
+              "pc": 399
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_50611_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_50611_equip', SeedRandom('seed_wsd',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 50611
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 50611,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/37/2",
+          "sourceFile": "event__enter_wsdex.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 403,
+          "typedWrites": [
+            {
+              "key": "n:20",
+              "pc": 407
+            },
+            {
+              "key": "n:45",
+              "pc": 411
+            },
+            {
+              "key": "n:30",
+              "pc": 415
+            },
+            {
+              "key": "n:5",
+              "pc": 419
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:45",
+            "n:5",
+            "n:20"
+          ],
+          "sourceWeightLiterals": [
+            "20",
+            "45",
+            "30",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:20": [
+              "SetP('drop_50611_color', 1)"
+            ],
+            "n:45": [
+              "SetP('drop_50611_color', 2)"
+            ],
+            "n:30": [
+              "SetP('drop_50611_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_50611_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:20": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 1
+            },
+            "n:45": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 2
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8"
+        }
+      ]
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 35413,
+      "rngNpc": 35413,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/43/2",
+          "sourceFile": "event__enter_wsdex.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 746,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 750
+            },
+            {
+              "key": "s:50 ",
+              "pc": 754
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35413_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35413_equip', SeedRandom('seed_wsd',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35413
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35413,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/44/2",
+          "sourceFile": "event__enter_wsdex.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 758,
+          "typedWrites": [
+            {
+              "key": "n:20",
+              "pc": 762
+            },
+            {
+              "key": "n:40",
+              "pc": 766
+            },
+            {
+              "key": "n:35",
+              "pc": 770
+            },
+            {
+              "key": "n:5",
+              "pc": 774
+            }
+          ],
+          "modelPairsOrder": [
+            "n:35",
+            "n:20",
+            "n:5",
+            "n:40"
+          ],
+          "sourceWeightLiterals": [
+            "20",
+            "40",
+            "35",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:20": [
+              "SetP('drop_35413_color', 1)"
+            ],
+            "n:40": [
+              "SetP('drop_35413_color', 2)"
+            ],
+            "n:35": [
+              "SetP('drop_35413_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35413_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:20": {
+              "effect": "color",
+              "stateNpc": 35413,
+              "grade": 1
+            },
+            "n:40": {
+              "effect": "color",
+              "stateNpc": 35413,
+              "grade": 2
+            },
+            "n:35": {
+              "effect": "color",
+              "stateNpc": 35413,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35413,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8"
+        }
+      ]
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 35420,
+      "rngNpc": 35420,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/51/2",
+          "sourceFile": "event__enter_wsdex.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 860,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 864
+            },
+            {
+              "key": "s:50 ",
+              "pc": 868
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35420_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35420_equip', SeedRandom('seed_wsd',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35420
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35420,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wsd",
+          "sourcePath": "/3/52/2",
+          "sourceFile": "event__enter_wsdex.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 872,
+          "typedWrites": [
+            {
+              "key": "n:15",
+              "pc": 876
+            },
+            {
+              "key": "n:40",
+              "pc": 880
+            },
+            {
+              "key": "s:40 ",
+              "pc": 885
+            },
+            {
+              "key": "n:5",
+              "pc": 889
+            }
+          ],
+          "modelPairsOrder": [
+            "s:40 ",
+            "n:5",
+            "n:15",
+            "n:40"
+          ],
+          "sourceWeightLiterals": [
+            "15",
+            "40",
+            "40 ",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:15": [
+              "SetP('drop_35420_color', 1)"
+            ],
+            "n:40": [
+              "SetP('drop_35420_color', 2)"
+            ],
+            "s:40 ": [
+              "SetP('drop_35420_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35420_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 35420,
+              "grade": 1
+            },
+            "n:40": {
+              "effect": "color",
+              "stateNpc": 35420,
+              "grade": 2
+            },
+            "s:40 ": {
+              "effect": "color",
+              "stateNpc": 35420,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35420,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8"
+        }
+      ]
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "grantNpc": 50101,
+      "rngNpc": 50100,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_wxj_50100",
+          "sourcePath": "/3/15/2",
+          "sourceFile": "dungeon_v114/wxj_provenance.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 439,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 443
+            },
+            {
+              "key": "s:50 ",
+              "pc": 467
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 50100
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 50100,
+              "slotSeed": "seed_wxj_50100",
+              "maxSlot": 5
+            }
+          },
+          "bytecodeSha256": "f5060e88a0356224c09a134d461bbd2eaafa25256cdc58c7640163f1d44e38d4"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wxj_50100",
+          "sourcePath": "/3/15/2/50 /2/2",
+          "sourceFile": "dungeon_v114/wxj_provenance.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 448,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 452
+            },
+            {
+              "key": "n:30",
+              "pc": 456
+            },
+            {
+              "key": "n:15",
+              "pc": 460
+            },
+            {
+              "key": "n:5",
+              "pc": 464
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 50100,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 50100,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 50100,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 50100,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "f5060e88a0356224c09a134d461bbd2eaafa25256cdc58c7640163f1d44e38d4"
+        }
+      ]
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "grantNpc": 50106,
+      "rngNpc": 50106,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_wxj_50106",
+          "sourcePath": "/3/27/2",
+          "sourceFile": "dungeon_v114/wxj_provenance.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 631,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 635
+            },
+            {
+              "key": "s:50 ",
+              "pc": 659
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 50106
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 50106,
+              "slotSeed": "seed_wxj_50106",
+              "maxSlot": 5
+            }
+          },
+          "bytecodeSha256": "f5060e88a0356224c09a134d461bbd2eaafa25256cdc58c7640163f1d44e38d4"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wxj_50106",
+          "sourcePath": "/3/27/2/50 /2/2",
+          "sourceFile": "dungeon_v114/wxj_provenance.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 640,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 644
+            },
+            {
+              "key": "n:30",
+              "pc": 648            },
+            {
+              "key": "n:15",
+              "pc": 652
+            },
+            {
+              "key": "n:5",
+              "pc": 656
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 50106,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 50106,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 50106,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 50106,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "f5060e88a0356224c09a134d461bbd2eaafa25256cdc58c7640163f1d44e38d4"
+        }
+      ]
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "grantNpc": 50111,
+      "rngNpc": 50111,
+      "sourceTier": "direct_60014_streamdec_SBC_constant",
+      "equipmentIds": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_dcy_50111",
+          "sourcePath": "/3/33/2",
+          "sourceFile": "dungeon_v114/wxj_provenance.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 733,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 737
+            },
+            {
+              "key": "s:50 ",
+              "pc": 761
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 50111
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 50111,
+              "slotSeed": "seed_wxj_50111",
+              "maxSlot": 5
+            }
+          },
+          "bytecodeSha256": "f5060e88a0356224c09a134d461bbd2eaafa25256cdc58c7640163f1d44e38d4"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_wxj_50111",
+          "sourcePath": "/3/33/2/50 /2/2",
+          "sourceFile": "dungeon_v114/wxj_provenance.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 742,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 746
+            },
+            {
+              "key": "n:30",
+              "pc": 750
+            },
+            {
+              "key": "n:15",
+              "pc": 754
+            },
+            {
+              "key": "n:5",
+              "pc": 758
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 50111,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 50111,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 50111,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 50111,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "f5060e88a0356224c09a134d461bbd2eaafa25256cdc58c7640163f1d44e38d4"
+        }
+      ]
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "grantNpc": 50941,
+      "rngNpc": 50941,
+      "sourceTier": "60014_decrypted_original_event_raw_record_v18",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_byjzt",
+          "sourcePath": "/9/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_byjzt",
+          "sourcePath": "/10/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "grantNpc": 50950,
+      "rngNpc": 50950,
+      "sourceTier": "60014_decrypted_original_event_raw_record_v18",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_byjzt",
+          "sourcePath": "/15/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_byjzt",
+          "sourcePath": "/16/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "grantNpc": 44138,
+      "rngNpc": 44138,
+      "sourceTier": "60014_decrypted_original_event_raw_record_v18",
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_byjzt",
+          "sourcePath": "/22/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        },
+        {
+          "kind": "color",
+          "seed": "seed_byjzt",
+          "sourcePath": "/23/2",
+          "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+          "keyTypesVerified": false,
+          "sourceTdupPc": null,
+          "typedWrites": [],
+          "modelPairsOrder": [],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {},
+          "runtimePairsObserved": false
+        }
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "grantNpc": 35260,
+      "rngNpc": 35260,
+      "sourceTier": "60014_decrypted_original_event_raw_record_v18",
+      "equipmentIds": [
+        5609,
+        5409,
+        5009
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_lsby",
+          "sourcePath": "/3/7/2",
+          "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 195,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 199
+            },
+            {
+              "key": "s:50 ",
+              "pc": 203
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35260_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35260_equip', SeedRandom('seed_lsby',1, 3)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35260
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35260,
+              "slotSeed": "seed_lsby",
+              "maxSlot": 3
+            }
+          },
+          "bytecodeSha256": "4fba968b558c2eaf3f231c7e3b04eeb74f8aec907a2f5e8fa46b4e4441b9fa66"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_lsby",
+          "sourcePath": "/3/8/2",
+          "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 207,
+          "typedWrites": [
+            {
+              "key": "n:40",
+              "pc": 211
+            },
+            {
+              "key": "s:40 ",
+              "pc": 215
+            },
+            {
+              "key": "n:15",
+              "pc": 219
+            },
+            {
+              "key": "n:5",
+              "pc": 223
+            }
+          ],
+          "modelPairsOrder": [
+            "s:40 ",
+            "n:5",
+            "n:40",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "40",
+            "40 ",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:40": [
+              "SetP('drop_35260_color', 1)"
+            ],
+            "s:40 ": [
+              "SetP('drop_35260_color', 2)"
+            ],
+            "n:15": [
+              "SetP('drop_35260_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35260_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:40": {
+              "effect": "color",
+              "stateNpc": 35260,
+              "grade": 1
+            },
+            "s:40 ": {
+              "effect": "color",
+              "stateNpc": 35260,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 35260,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35260,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "4fba968b558c2eaf3f231c7e3b04eeb74f8aec907a2f5e8fa46b4e4441b9fa66"
+        }
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "grantNpc": 35264,
+      "rngNpc": 35264,
+      "sourceTier": "60014_decrypted_original_event_raw_record_v18",
+      "equipmentIds": [
+        4809,
+        5209,
+        5609,
+        5409
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_lsby",
+          "sourcePath": "/3/27/2",
+          "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 529,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 533
+            },
+            {
+              "key": "s:50 ",
+              "pc": 537
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35264_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35264_equip', SeedRandom('seed_lsby',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35264
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35264,
+              "slotSeed": "seed_lsby",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "4fba968b558c2eaf3f231c7e3b04eeb74f8aec907a2f5e8fa46b4e4441b9fa66"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_lsby",
+          "sourcePath": "/3/28/2",
+          "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 541,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 545
+            },
+            {
+              "key": "n:30",
+              "pc": 549
+            },
+            {
+              "key": "n:15",
+              "pc": 553
+            },
+            {
+              "key": "n:5",
+              "pc": 557
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "SetP('drop_35264_color', 1)"
+            ],
+            "n:30": [
+              "SetP('drop_35264_color', 2)"
+            ],
+            "n:15": [
+              "SetP('drop_35264_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35264_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 35264,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 35264,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 35264,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35264,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "4fba968b558c2eaf3f231c7e3b04eeb74f8aec907a2f5e8fa46b4e4441b9fa66"
+        }
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "grantNpc": 35268,
+      "rngNpc": 35268,
+      "sourceTier": "60014_decrypted_original_event_raw_record_v18",
+      "equipmentIds": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "tables": [
+        {
+          "kind": "equip",
+          "seed": "seed_lsby",
+          "sourcePath": "/3/32/2",
+          "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 613,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 617
+            },
+            {
+              "key": "s:50 ",
+              "pc": 621
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "50 "
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "RmP('drop_35268_equip')"
+            ],
+            "s:50 ": [
+              "SetP('drop_35268_equip', SeedRandom('seed_lsby',1, 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 35268
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 35268,
+              "slotSeed": "seed_lsby",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "4fba968b558c2eaf3f231c7e3b04eeb74f8aec907a2f5e8fa46b4e4441b9fa66"
+        },
+        {
+          "kind": "color",
+          "seed": "seed_lsby",
+          "sourcePath": "/3/33/2",
+          "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+          "keyTypesVerified": true,
+          "sourceTdupPc": 625,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 629
+            },
+            {
+              "key": "n:30",
+              "pc": 633
+            },
+            {
+              "key": "n:15",
+              "pc": 637
+            },
+            {
+              "key": "n:5",
+              "pc": 641
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "sourceWeightLiterals": [
+            "50",
+            "30",
+            "15",
+            "5"
+          ],
+          "sourceBranches": {
+            "n:50": [
+              "SetP('drop_35268_color', 1)"
+            ],
+            "n:30": [
+              "SetP('drop_35268_color', 2)"
+            ],
+            "n:15": [
+              "SetP('drop_35268_color', 3)"
+            ],
+            "n:5": [
+              "SetP('drop_35268_color', 4)"
+            ]
+          },
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 35268,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 35268,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 35268,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 35268,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "4fba968b558c2eaf3f231c7e3b04eeb74f8aec907a2f5e8fa46b4e4441b9fa66"
+        }
+      ]
+    }
+  ]
+}
