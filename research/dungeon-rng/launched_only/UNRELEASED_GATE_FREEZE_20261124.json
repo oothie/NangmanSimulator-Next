@@ -1,0 +1,41 @@
+{
+  "freezeVersion": "2026-11-24",
+  "policy": "immutable research snapshots until Korean server releases these gates",
+  "frozenGates": [
+    "문향교",
+    "무신전",
+    "벽유교 본단"
+  ],
+  "releasedGates": [
+    "연왕부",
+    "창옥",
+    "벽유교",
+    "유씨별원"
+  ],
+  "artifacts": [
+    {
+      "group": "문향교",
+      "filename": "Nangman_Wenxiang_Original_8_Tables_20261124.zip",
+      "sha256": "d5a17819f19841807a9adb55d6246b419b5f5063114e7d26df22277c387f4abd",
+      "bytes": 9531
+    },
+    {
+      "group": "무신전 숙명·절세",
+      "filename": "Nangman_Wushinjeon_Original_29_Tables_20261124.zip",
+      "sha256": "1da4ef029f9d42c8af453d5339e4e14724bf22dcf541b53c79d62eb14309a590",
+      "bytes": 98588
+    },
+    {
+      "group": "벽유교 본단 기본·추혼",
+      "filename": "Nangman_Byjzt_Original_12_Tables_20261124.zip",
+      "sha256": "3f0c1a22a9d279a1c8c8753390c65703b4e6437366a10c8997cde323277e4709",
+      "bytes": 15995
+    },
+    {
+      "group": "100급 5모드 통합",
+      "filename": "Nangman_100Gate_5Modes_Original_RNG_20261124.zip",
+      "sha256": "c11c7bce929e949b5707993421a587ecd3478af914184a19e3edddffb5a8bfd4",
+      "bytes": 125322
+    }
+  ]
+}
