@@ -2,7 +2,7 @@ import copy,json,sys,unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent
 sys.path[:0]=[str(ROOT),str(ROOT.parent/'v140/v30'),str(ROOT.parent/'v140/v30/models/liu'),str(ROOT.parent/'v140/v30/models/ywf'),str(ROOT.parent/'v140/v30/models/byj'),str(ROOT.parent/'v140/v30/models/dcy')]
-from special_award_consumer import extract,whatif,eligible
+from special_award_consumer import extract,whatif,eligible,apply_original_rollbacks
 from ywf_33381_replay_v29 import replay as replay_ywf
 from experimental_four_gate_engine import report_liu
 V177=Path('/mnt/data/files/60014_GATE_9MODES_PRIOR_RECOVERY_V177_20261012.zip')
@@ -15,6 +15,7 @@ class SpecialConsumerTest(unittest.TestCase):
  def test_all_released_awards_source(self):
   self.assertEqual(len(self.db['sources']),15)
   self.assertEqual(len(self.db['awards']),40)
+  self.assertEqual(sum(r['rollback'] is not None for r in self.db['awards']),37)
   self.assertEqual({gate:sum(r['gate']==gate for r in self.db['awards']) for gate in ['연왕부','창옥','벽유교','유씨별원']}, {'연왕부':12,'창옥':12,'벽유교':9,'유씨별원':7})
   self.assertTrue(all(r['name'].lower().endswith('.sbc') for r in self.db['sources']))
  def test_counterfactual_claimed_state(self):
@@ -48,6 +49,25 @@ class SpecialConsumerTest(unittest.TestCase):
   self.assertNotEqual([(k,v['slot'],v['grade']) for k,v in a['bosses'].items()],[(k,v['slot'],v['grade']) for k,v in b['bosses'].items()])
   self.assertTrue(any(x['name']=='고리 전용 8915' for x in a['trace']))
   self.assertFalse(any(x['name']=='고리 전용 8915' for x in b['trace']))
+ def test_original_consumer_rollback_before_award(self):
+  by={(r['npc'],r['item']):r for r in self.db['awards']}
+  fragment=by[35214,2922]
+  pre={fragment['flag']:2,'get_2922':15}
+  rolled,applied=apply_original_rollbacks([fragment],pre)
+  self.assertEqual(rolled['get_2922'],14)
+  self.assertEqual(rolled[fragment['flag']],1)
+  self.assertEqual(applied,[fragment['flag']])
+  self.assertFalse(eligible(fragment,pre))
+  self.assertTrue(eligible(fragment,rolled))
+  unique=by[35260,5020]
+  alt,applied=apply_original_rollbacks([unique],{unique['flag']:2,'get_5020':1})
+  self.assertEqual(alt['get_5020'],0)
+  self.assertTrue(eligible(unique,alt))
+  fixed=by[33654,2364]
+  self.assertIsNone(fixed['rollback'])
+  same,applied=apply_original_rollbacks([fixed],{fixed['flag']:2,'get_2364_33654':1})
+  self.assertEqual(applied,[])
+  self.assertFalse(eligible(fixed,same))
  def test_no_unreleased_gate_contamination(self):
   self.assertEqual({r['gate'] for r in self.db['awards']},{'연왕부','창옥','벽유교','유씨별원'})
 if __name__=='__main__':unittest.main(verbosity=2)
