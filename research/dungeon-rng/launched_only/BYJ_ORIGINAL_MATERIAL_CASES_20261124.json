@@ -1,0 +1,361 @@
+{
+  "provenance": {
+    "whale": "user-local wapp__story__fun.whale; original raw bytes not distributed",
+    "consumerRecordIndices": [
+      1777,
+      2150
+    ],
+    "decodedSha256": [
+      "f46ad6d401da2788f796759fe74b2718fc0b89eac810e4ac03cded9461f287b2",
+      "51e119fc78895401667e3779bbac80c36f53ecb0ffb899556fc44273de22e7da"
+    ],
+    "namedScriptIdRecord2150": "36274_1.lua (unique encrypted-size match)",
+    "record1777": "NPC 36275 rescue script (two size candidates, identified by inner text)"
+  },
+  "original": {
+    "guard": "GetP('glm_reward') == 0",
+    "guardType": "pre-rescue",
+    "randomMechanism": "event-weighted-choice (native RNG not yet established)",
+    "setsGlmRewardTo": 1,
+    "cases": [
+      {
+        "index": 1,
+        "weightProperty": "drop_byj_1",
+        "rewardGroup": 1,
+        "itemId": 2601,
+        "actualRewardQuantity": 10,
+        "counter": "num_2601_byj",
+        "counterIncrement": 10,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2601_byj",
+            "amount": 10
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1",
+            "amount": 2601
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1_num",
+            "amount": 10
+          }
+        ]
+      },
+      {
+        "index": 2,
+        "weightProperty": "drop_byj_2",
+        "rewardGroup": 1,
+        "itemId": 2602,
+        "actualRewardQuantity": 5,
+        "counter": "num_2602_byj",
+        "counterIncrement": 5,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2602_byj",
+            "amount": 5
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1",
+            "amount": 2602
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1_num",
+            "amount": 5
+          }
+        ]
+      },
+      {
+        "index": 3,
+        "weightProperty": "drop_byj_3",
+        "rewardGroup": 1,
+        "itemId": 2603,
+        "actualRewardQuantity": 2,
+        "counter": "num_2603_byj",
+        "counterIncrement": 2,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2603_byj",
+            "amount": 2
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1",
+            "amount": 2603
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1_num",
+            "amount": 2
+          }
+        ]
+      },
+      {
+        "index": 4,
+        "weightProperty": "drop_byj_4",
+        "rewardGroup": 1,
+        "itemId": 2604,
+        "actualRewardQuantity": 2,
+        "counter": "num_2604_byj",
+        "counterIncrement": 2,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2604_byj",
+            "amount": 2
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1",
+            "amount": 2604
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1_num",
+            "amount": 2
+          }
+        ]
+      },
+      {
+        "index": 5,
+        "weightProperty": "drop_byj_5",
+        "rewardGroup": 1,
+        "itemId": 2605,
+        "actualRewardQuantity": 2,
+        "counter": "num_2605_byj",
+        "counterIncrement": 5,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2605_byj",
+            "amount": 5
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1",
+            "amount": 2605
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1_num",
+            "amount": 2
+          }
+        ]
+      },
+      {
+        "index": 6,
+        "weightProperty": "drop_byj_6",
+        "rewardGroup": 1,
+        "itemId": 2606,
+        "actualRewardQuantity": 2,
+        "counter": "num_2606_byj",
+        "counterIncrement": 5,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2606_byj",
+            "amount": 5
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1",
+            "amount": 2606
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward1_num",
+            "amount": 2
+          }
+        ]
+      },
+      {
+        "index": 7,
+        "weightProperty": "drop_byj_7",
+        "rewardGroup": 2,
+        "itemId": 3736,
+        "actualRewardQuantity": 1,
+        "counter": "num_3736_byj",
+        "counterIncrement": 1,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_3736_byj",
+            "amount": 1
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2",
+            "amount": 3736
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2_num",
+            "amount": 1
+          }
+        ]
+      },
+      {
+        "index": 8,
+        "weightProperty": "drop_byj_8",
+        "rewardGroup": 2,
+        "itemId": 2020,
+        "actualRewardQuantity": 1,
+        "counter": "num_2020_byj",
+        "counterIncrement": 1,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2020_byj",
+            "amount": 1
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2",
+            "amount": 2020
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2_num",
+            "amount": 1
+          }
+        ]
+      },
+      {
+        "index": 9,
+        "weightProperty": "drop_byj_9",
+        "rewardGroup": 2,
+        "itemId": 2021,
+        "actualRewardQuantity": 1,
+        "counter": "num_2021_byj",
+        "counterIncrement": 1,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2021_byj",
+            "amount": 1
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2",
+            "amount": 2021
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2_num",
+            "amount": 1
+          }
+        ]
+      },
+      {
+        "index": 10,
+        "weightProperty": "drop_byj_10",
+        "rewardGroup": 2,
+        "itemId": 2022,
+        "actualRewardQuantity": 1,
+        "counter": "num_2022_byj",
+        "counterIncrement": 1,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2022_byj",
+            "amount": 1
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2",
+            "amount": 2022
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2_num",
+            "amount": 1
+          }
+        ]
+      },
+      {
+        "index": 11,
+        "weightProperty": "drop_byj_11",
+        "rewardGroup": 2,
+        "itemId": 2023,
+        "actualRewardQuantity": 1,
+        "counter": "num_2023_byj",
+        "counterIncrement": 1,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2023_byj",
+            "amount": 1
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2",
+            "amount": 2023
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2_num",
+            "amount": 1
+          }
+        ]
+      },
+      {
+        "index": 12,
+        "weightProperty": "drop_byj_12",
+        "rewardGroup": 2,
+        "itemId": 2024,
+        "actualRewardQuantity": 1,
+        "counter": "num_2024_byj",
+        "counterIncrement": 1,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2024_byj",
+            "amount": 1
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2",
+            "amount": 2024
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2_num",
+            "amount": 1
+          }
+        ]
+      },
+      {
+        "index": 13,
+        "weightProperty": "drop_byj_13",
+        "rewardGroup": 2,
+        "itemId": 2025,
+        "actualRewardQuantity": 1,
+        "counter": "num_2025_byj",
+        "counterIncrement": 1,
+        "sourceEffects": [
+          {
+            "op": "AddP",
+            "key": "num_2025_byj",
+            "amount": 1
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2",
+            "amount": 2025
+          },
+          {
+            "op": "SetP",
+            "key": "rd_reward2_num",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  }
+}
