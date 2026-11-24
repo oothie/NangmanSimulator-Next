@@ -1,0 +1,251 @@
+{
+  "originalSha256": "f5060e88a0356224c09a134d461bbd2eaafa25256cdc58c7640163f1d44e38d4",
+  "sourceOpcodeCount": 776,
+  "originalTables": {
+    "14": {
+      "path": "/3/14/2",
+      "sourceTdupPc": 403,
+      "typedWrites": [
+        [
+          "n:200",
+          407
+        ],
+        [
+          "s:GetP('drop_50100_1')",
+          411
+        ],
+        [
+          "s:GetP('drop_50100_2')",
+          415
+        ],
+        [
+          "s:GetP('drop_50100_3')",
+          419
+        ],
+        [
+          "s:GetP('drop_50100_4')",
+          423
+        ],
+        [
+          "s:GetP('drop_50100_5')",
+          427
+        ],
+        [
+          "s:GetP('drop_50100_6')",
+          431
+        ],
+        [
+          "s:GetP('drop_50100_7')",
+          435
+        ]
+      ],
+      "modelPairs": [
+        "s:GetP('drop_50100_5')",
+        "s:GetP('drop_50100_2')",
+        "s:GetP('drop_50100_7')",
+        "s:GetP('drop_50100_4')",
+        "s:GetP('drop_50100_1')",
+        "s:GetP('drop_50100_6')",
+        "n:200",
+        "s:GetP('drop_50100_3')"
+      ],
+      "nativeGamePairsObserved": false,
+      "seed": "seed_wxj_50100"
+    },
+    "15": {
+      "path": "/3/15/2",
+      "sourceTdupPc": 439,
+      "typedWrites": [
+        [
+          "n:50",
+          443
+        ],
+        [
+          "s:50 ",
+          467
+        ]
+      ],
+      "modelPairs": [
+        "s:50 ",
+        "n:50"
+      ],
+      "nativeGamePairsObserved": false,
+      "seed": "seed_wxj_50100"
+    },
+    "15/color": {
+      "path": "/3/15/2/50 /2/2",
+      "sourceTdupPc": 448,
+      "typedWrites": [
+        [
+          "n:50",
+          452
+        ],
+        [
+          "n:30",
+          456
+        ],
+        [
+          "n:15",
+          460
+        ],
+        [
+          "n:5",
+          464
+        ]
+      ],
+      "modelPairs": [
+        "n:30",
+        "n:5",
+        "n:50",
+        "n:15"
+      ],
+      "nativeGamePairsObserved": false,
+      "seed": "seed_wxj_50100"
+    },
+    "26": {
+      "path": "/3/26/2",
+      "sourceTdupPc": 599,
+      "typedWrites": [
+        [
+          "n:200",
+          603
+        ],
+        [
+          "s:GetP('drop_50106_1')",
+          607
+        ],
+        [
+          "s:GetP('drop_50106_2')",
+          611
+        ],
+        [
+          "s:GetP('drop_50106_3')",
+          615
+        ],
+        [
+          "s:GetP('drop_50106_4')",
+          619
+        ],
+        [
+          "s:GetP('drop_50106_5')",
+          623
+        ],
+        [
+          "s:GetP('drop_50106_6')",
+          627
+        ]
+      ],
+      "modelPairs": [
+        "s:GetP('drop_50106_4')",
+        "s:GetP('drop_50106_6')",
+        "s:GetP('drop_50106_1')",
+        "s:GetP('drop_50106_5')",
+        "s:GetP('drop_50106_2')",
+        "s:GetP('drop_50106_3')",
+        "n:200"
+      ],
+      "nativeGamePairsObserved": false,
+      "seed": "seed_wxj_50106"
+    },
+    "27": {
+      "path": "/3/27/2",
+      "sourceTdupPc": 631,
+      "typedWrites": [
+        [
+          "n:50",
+          635
+        ],
+        [
+          "s:50 ",
+          659
+        ]
+      ],
+      "modelPairs": [
+        "s:50 ",
+        "n:50"
+      ],
+      "nativeGamePairsObserved": false,
+      "seed": "seed_wxj_50106"
+    },
+    "27/color": {
+      "path": "/3/27/2/50 /2/2",
+      "sourceTdupPc": 640,
+      "typedWrites": [
+        [
+          "n:50",
+          644
+        ],
+        [
+          "n:30",
+          648
+        ],
+        [
+          "n:15",
+          652
+        ],
+        [
+          "n:5",
+          656
+        ]
+      ],
+      "modelPairs": [
+        "n:30",
+        "n:5",
+        "n:50",
+        "n:15"
+      ],
+      "nativeGamePairsObserved": false,
+      "seed": "seed_wxj_50106"
+    },
+    "33": {
+      "path": "/3/33/2",
+      "sourceTdupPc": 733,
+      "typedWrites": [
+        [
+          "n:50",
+          737
+        ],
+        [
+          "s:50 ",
+          761
+        ]
+      ],
+      "modelPairs": [
+        "s:50 ",
+        "n:50"
+      ],
+      "nativeGamePairsObserved": false,
+      "seed": "seed_dcy_50111"
+    },
+    "33/color": {
+      "path": "/3/33/2/50 /2/2",
+      "sourceTdupPc": 742,
+      "typedWrites": [
+        [
+          "n:50",
+          746
+        ],
+        [
+          "n:30",
+          750
+        ],
+        [
+          "n:15",
+          754
+        ],
+        [
+          "n:5",
+          758
+        ]
+      ],
+      "modelPairs": [
+        "n:30",
+        "n:5",
+        "n:50",
+        "n:15"
+      ],
+      "nativeGamePairsObserved": false,
+      "seed": "seed_wxj_50111"
+    }
+  }
+}
