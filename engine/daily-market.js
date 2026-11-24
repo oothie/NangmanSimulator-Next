@@ -245,6 +245,8 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
   // Validate strategy paths by replaying every refresh independently from
   // the imported seed. This checks model consistency, not live-server accuracy.
   auditStrategy(plan,options={}){
+   if(stale)return {mode:plan?.mode||'audit',found:false,proven:false,
+    modelReplayChecked:false,error:'세이브 이후의 자동 교체 및 원보 갱신 이력 미확인 · 최신 세이브로 다시 계산하세요.'};
    if(!plan?.found)return plan;
    const id=Number(options.target),goal=Math.trunc(n(options.quantity,1));
    const allowance=this.paidAllowance(options.vip),rr=rng.clone();
@@ -301,6 +303,8 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
   // These are deterministic policy replays of the SAME guishishop stream.
   // A candidate is never labelled as globally optimal.
   findFeasibleStrategy(shopIds,options={}){
+    if(stale)return {mode:'candidate',found:false,proven:false,
+     error:'세이브 이후 자동 교체·원보 갱신 내역 미확인 · 최신 세이브가 필요합니다.'};
    if(!forecastOk)return {mode:'candidate',found:false,proven:false,
     error:'암시장 시드를 복원할 수 없습니다.'};
    const ids=new Set((shopIds||[]).map(Number));
@@ -381,6 +385,8 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
   // explored horizon for the selected objective. State-cap failures are
   // explicit: never present them as a proved unreachable item.
   searchStrategy(shopIds,options={}){
+    if(stale)return {found:false,proven:false,
+     error:'저장 시각 이후 자동 교체·원보 갱신 기록이 확인되지 않아 최단 구매 경로를 확정할 수 없습니다. 최신 세이브를 불러오세요.'};
    if(!forecastOk)return {found:false,error:historyBlocked?'기록이 오래되어 시드를 복원할 수 없습니다.':'암시장 시드가 없습니다.'};
    const ids=new Set((shopIds||[]).map(Number).filter(Number.isFinite));
    if(!ids.size)return {found:false,error:'목표 상품을 선택하세요.'};
