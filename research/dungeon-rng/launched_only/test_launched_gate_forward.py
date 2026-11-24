@@ -48,5 +48,20 @@ class LaunchedOnly(unittest.TestCase):
   self.assertTrue(all(new[i]['OnlyID']+1==new[i+1]['OnlyID'] for i in range(12)))
  def test_no_unreleased_gate_output(self):
   self.assertFalse(set(r['gate'] for r in self.f['runs']) & set(FROZEN))
+ def test_two_sequential_ywf_clears(self):
+  first=json.loads((SAVES/'1122v3.json').read_text())
+  mid=json.loads((SAVES/'1123(입장전).json').read_text())
+  two=replay(first,SRC,REG,1,2)['runs'][:2]
+  expected_ends=[mid,self.b]
+  self.assertEqual([x['draws'] for x in two],[24,22])
+  for i,(run,target) in enumerate(zip(two,expected_ends)):
+   self.assertEqual(run['gate'],'연왕부')
+   for key,value in run['seedAfter'].items():self.assertEqual(value,target['Rnds']['Sds'][key],(i,key))
+   for e in run['equipment']:
+    npc=e['npc'];slot=target['globalVariable'].get(f'drop_{npc}_equip')
+    self.assertEqual(e.get('slot'),slot,(i,npc,'slot'))
+    if slot is not None:
+     self.assertEqual(e['gradeCode'],target['globalVariable'][f'drop_{npc}_color'],(i,npc,'grade'))
+  with self.assertRaises(ValueError):replay(first,SRC,REG,1,0)
 
 if __name__=='__main__':unittest.main()
