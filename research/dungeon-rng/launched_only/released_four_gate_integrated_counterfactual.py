@@ -12,6 +12,7 @@ from launched_gate_forward import replay,GATES
 from released_special_state_compare import compare
 from material_weight_counterfactual import simulate
 from byj_original_material_prestage import apply as byj_prestage
+from byj_material_lifecycle import trace_lifecycle
 
 
 def make_scenarios(save:dict,awards:dict,materials:dict):
@@ -54,7 +55,7 @@ def summary_scenario(save,source_root,registry,awards,materials):
     return gates,guards,byj_stage
 
 
-def analyze(save,source_root,registry,awards,materials):
+def analyze(save,source_root,registry,awards,materials,byj_material_registry=None):
     cases=make_scenarios(save,awards,materials)
     baseline,baseguard,baseprestage=summary_scenario(cases['completed'],source_root,registry,awards,materials)
     output={'scope':list(GATES),'status':'CONDITIONAL source-backed sensitivity; NOT an independently observed never-claimed account',
@@ -82,10 +83,26 @@ def analyze(save,source_root,registry,awards,materials):
                 'branch37Changed':b['branch37']!=x['branch37'],
                 'fullOriginalSpecialEventCovered':False,
                 'producerStagesCovered':'boss-only 25+; material consumer 24 excluded' if gate=='벽유교' else 'producer modeled, reward post-award ownership not fully executed'}
+        byj_rescue=None
+        if byj_material_registry is not None:
+            # Hypothesis only: force the *temporary rescue guard* to zero.
+            # This does NOT claim the user actually visited the hostage or
+            # that an event-weighted result has been selected.
+            rescue_assumption=copy.deepcopy(case)
+            rescue_assumption['globalVariable']['glm_reward']=0
+            byj_rescue=trace_lifecycle(rescue_assumption,byj_material_registry['original'],
+                rescue_executed=True,exit_completed=None)
         output['scenarios'][label]={
             'gates':bygate,
             'payoutIfSpecialRollSucceeds':guards['totals']['payoutBlockCount'],
             'materialWeightChanges':guards['totals']['changedMaterialFresh'],
+            'byjRescueHypothetical':None if byj_rescue is None else {
+                'status':byj_rescue['rescue']['status'],
+                'weightGroups':[{'group':g['group'],'weightSum':g['weightSum'],
+                                 'candidateCount':len(g['candidates'])}
+                        for g in byj_rescue['rescue']['groups']],
+                'outcome':byj_rescue['exit']['status'],
+                'actualAwardUnknown':True},
             'byjMaterialPrestage':{'initialized':prestage['initialized'],
                  'activeKeys':prestage['entriesActive'],
                  'totalWeight':prestage['materialWeightTotal'],
@@ -100,7 +117,10 @@ def public_summary(result:dict):
        'scenarios':{name:{gate:{key:value for key,value in row.items() if key in
             ('drawsChanged','seedChanged','equipmentChanged','branch37Changed')}
           for gate,row in scenario['gates'].items()}
-         for name,scenario in result['scenarios'].items()}}
+         for name,scenario in result['scenarios'].items()},
+       'byjRescueHypothetical':{name:scenario['byjRescueHypothetical']
+          for name,scenario in result['scenarios'].items()
+          if scenario.get('byjRescueHypothetical') is not None}}
 
 
 def main():
@@ -110,11 +130,13 @@ def main():
     p.add_argument('--registry',required=True,type=Path)
     p.add_argument('--special-award-registry',required=True,type=Path)
     p.add_argument('--special-material-registry',required=True,type=Path)
+    p.add_argument('--byj-material-rescue-registry',type=Path,help='Optional original 13-case rescue consumer registry; non-deterministic chooser is never guessed')
     p.add_argument('--local-output',type=Path,help='Private output: includes observed seeds; never publish.')
     a=p.parse_args()
     result=analyze(json.loads(a.save.read_text()),a.v30_root,a.registry,
       json.loads(a.special_award_registry.read_text()),
-      json.loads(a.special_material_registry.read_text()))
+      json.loads(a.special_material_registry.read_text()),
+      json.loads(a.byj_material_rescue_registry.read_text()) if a.byj_material_rescue_registry else None)
     if a.local_output:a.local_output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(public_summary(result),ensure_ascii=False,indent=2))
 
