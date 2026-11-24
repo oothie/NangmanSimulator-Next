@@ -45,7 +45,10 @@ def present(gate,npc,slot,grade,pools,names,roll_meta=None):
     return {'npc':npc,'status':'조건부 예측','equipmentId':equipment,'equipmentName':names[equipment],
             'grade':GRADES[grade], 'slot':slot, 'gradeCode':grade}
 
-def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1,ywf_clears:int=1):
+def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1,ywf_clears:int=1,
+           special_award_registry:Path|None=None,special_material_registry:Path|None=None):
+    if (special_award_registry is None)!=(special_material_registry is None):
+        raise ValueError('Both special award and material original registries are required')
     if not isinstance(liu_clears,int) or not 1<=liu_clears<=20:raise ValueError('Liu clears 1..20')
     if not isinstance(ywf_clears,int) or not 1<=ywf_clears<=20:raise ValueError('YWF clears 1..20')
     source_root=source_root.resolve()
@@ -107,15 +110,24 @@ def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1,ywf_cle
             eq.append({'boss':b,**present('유씨별원',npc,rec['slot'],rec.get('grade'),pools,names)})
         results.append({'gate':'유씨별원','clear':i,'draws':li['call_count'],'seedAfter':{'seed_lsby':li['seed_after']},
                         'equipment':eq,'source':'35271_1.lua'})
-    return {'status':'research-only—not site verified','releasedGates':list(GATES),'frozenUnreleasedGates':list(FROZEN),
+    result={'status':'research-only—not site verified','releasedGates':list(GATES),'frozenUnreleasedGates':list(FROZEN),
             'basis':'Source-grounded forecast. Not independently validated in future gameplay.', 'runs':results}
+    if special_award_registry is not None:
+        from released_special_state_compare import compare
+        awards=json.loads(special_award_registry.read_text())
+        materials=json.loads(special_material_registry.read_text())
+        result['specialRewardCounterfactual']=compare(preentry,awards,materials)
+    return result
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--save',required=True,type=Path);p.add_argument('--v30-root',required=True,type=Path)
     p.add_argument('--registry',required=True,type=Path);p.add_argument('--liu-clears',type=int,default=1);p.add_argument('--ywf-clears',type=int,default=1)
     p.add_argument('--output',type=Path,help='Local private output (may contain RNG seed values)')
+    p.add_argument('--special-award-registry',type=Path,help='Source-derived 40 original special consumer rules')
+    p.add_argument('--special-material-registry',type=Path,help='Source-derived 46 original material weight caps')
     a=p.parse_args()
-    result=replay(json.loads(a.save.read_text()),a.v30_root,a.registry,a.liu_clears,a.ywf_clears)
+    result=replay(json.loads(a.save.read_text()),a.v30_root,a.registry,a.liu_clears,a.ywf_clears,
+                  a.special_award_registry,a.special_material_registry)
     payload=json.dumps(result,ensure_ascii=False,indent=2)+'\n'
     if a.output:a.output.write_text(payload,encoding='utf-8')
     else:print(payload)
