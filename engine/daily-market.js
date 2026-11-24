@@ -564,6 +564,75 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
   }
  };
 }
-root.NangmanMarket={predict,vipLevel,halfDay,nextHalfDay,resetDay,orderPool,countsMap,VIP_REFRESH,
+
+/**
+ * Korean client 60014 native event-order reconstruction.
+ * Verified source functions: JHDataCenter.getRandShop/freshRandShop,
+ * JHCheckShopClock, JHRandShopData, JHRandShopUtils.
+ * Events MUST reflect actual client calls. Never turn elapsed 12h buckets
+ * into unconditional draws; missing client-session history is unknowable.
+ * Does not mutate the supplied save or production forecasts.
+ */
+function replayKoreanClientEvents(save,source,events,options={}){
+ const shop=save?.RandShop||{};
+ const rawSeed=save?.Rnds?.Sds?.guishishop;
+ if(!Number.isSafeInteger(Number(rawSeed))||Number(rawSeed)<=0)
+  throw Error('암시장 RNG 시드가 없습니다.');
+ const slotsOverride=options?.slots;
+ const slots=Number.isInteger(slotsOverride)&&slotsOverride>=3&&slotsOverride<=6?
+  slotsOverride:n(shop.Buy)<10?3:n(shop.Buy)<30?4:n(shop.Buy)<60?5:6;
+ const rng=new KeyRng({guishishop:Number(rawSeed)});
+ const state={time:n(shop.Time),fresh:n(shop.Fresh),lucky:n(shop.Lucky),
+  items:currentShelf(shop.Items,source?.shops?.guishi||[]),seed:Number(rawSeed)};
+ const out=[];let lastEventTime=state.time;
+ const poolAt=when=>marketPool(source?.shops?.guishi||[],shop,save,when).available;
+ const newShelf=(paid,rare,when)=>{
+  const pool=poolAt(when),used=new Set,result=[];
+  let pendingRare=rare,attempts=0;
+  while(result.length<slots&&attempts++<8000){
+   const eligible=pendingRare?pool.filter(x=>x.rare===1):pool;
+   if(!eligible.length)throw Error('암시장 후보 상품이 비어 있습니다.');
+   const weights=eligible.map(x=>n(pendingRare?x.weightGold:(paid?x.weightGold:x.weight)));
+   if(weights.reduce((a,b)=>a+b,0)<=0)throw Error('암시장 추첨 가중치가 없습니다.');
+   const item=eligible[rng.weighted('guishishop',weights)-1];
+   if(!item||used.has(item.id))continue;
+   used.add(item.id);result.push(item);pendingRare=false;
+  }
+  if(result.length!==slots)throw Error('암시장 상품 슬롯 구성에 실패했습니다.');
+  return result;
+ };
+ const checkAuto=when=>{
+  if(when>state.time&&halfDay(when)!==halfDay(state.time)){
+   // JHDataCenter.getRandShop invokes one freshRandShop(false), not N overdue calls.
+   state.items=newShelf(false,false,when);
+   state.time=when;
+   return true;
+  }
+  return false;
+ };
+ for(const entry of events||[]){
+  const at=Number(entry?.at),kind=entry?.kind;
+  if(!Number.isSafeInteger(at)||at<lastEventTime)throw Error('암시장 이벤트 시각 순서가 잘못되었습니다.');
+  lastEventTime=at;
+  if(!['open','daily-reset','paid'].includes(kind))throw Error('알 수 없는 암시장 이벤트 종류입니다.');
+  const auto=checkAuto(at);let rare=false;
+  if(kind==='daily-reset'){state.fresh=0;}
+  if(kind==='paid'){
+   state.fresh++;
+   const chance=100/6+state.lucky;
+   rare=rng.chance('guishishop',chance);
+   state.lucky=rare?chance-100:chance;
+   state.items=newShelf(true,rare,at);
+   // Paid refresh deliberately does not overwrite RandShop.Time in 60014.
+  }
+  state.seed=rng.seeds.guishishop;
+  out.push({kind,at,auto,rare,seed:state.seed,lucky:state.lucky,
+    fresh:state.fresh,shopTime:state.time,items:state.items.map(x=>x.id)});
+ }
+ return {seed:state.seed,lucky:state.lucky,fresh:state.fresh,
+  shopTime:state.time,items:state.items.map(x=>x.id),events:out};
+}
+
+root.NangmanMarket={predict,replayKoreanClientEvents,vipLevel,halfDay,nextHalfDay,resetDay,orderPool,countsMap,VIP_REFRESH,
  __test:{nextSeed,KeyRng,draw}};
 })(typeof window!=='undefined'?window:globalThis);
