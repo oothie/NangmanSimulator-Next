@@ -1,0 +1,43 @@
+{
+  "source": "Owned APK original SBv3 + separately retained 60014 manifest v fingerprints",
+  "modules": [
+    {
+      "module": "src/app/task/statements/JHTaskStatementsRoll.lua",
+      "sourceVersionV": "bf5f480ac923cef585301d3e1dd8eae0",
+      "bytesEncrypted": 1289,
+      "whaleRecord": 98,
+      "bytecodeSha256": "2fae3854234924f9967c5758adedc07adb6f03f2811732d74113ff4df61119b9",
+      "prototypes": 5,
+      "instructions": 163
+    },
+    {
+      "module": "src/app/core/JHExtern.lua",
+      "sourceVersionV": "1649ba9a014593d771560bcc4f25ab6f",
+      "bytesEncrypted": 14401,
+      "whaleRecord": 13,
+      "bytecodeSha256": "12906de159ffb7441e8651ae4dec5e610a9943dd8cf67680f421980905c4038e",
+      "prototypes": 80,
+      "instructions": 2589
+    }
+  ],
+  "normalRoll": {
+    "sourceModule": "src/app/task/statements/JHTaskStatementsRoll.lua",
+    "executePrototype": 1,
+    "JHRandomGlobalReadPC": 25,
+    "firstWeightScanPairsPC": 11,
+    "secondWeightScanPairsPC": 29,
+    "doesNotDirectlyCallStoryRnd": true
+  },
+  "JHRandom": {
+    "sourceModule": "src/app/core/JHExtern.lua",
+    "globalAssignmentPrototype": 79,
+    "globalAssignmentPC": 19,
+    "functionPrototype": 8,
+    "references": [
+      "math.jhrandom",
+      "math.random"
+    ],
+    "whichPathExecutedNotYetVerified": true
+  },
+  "remaining": "Recover exact JHRandom control-flow and math.jhrandom RNG implementation/seed and verify LuaJIT runtime table order"
+}
