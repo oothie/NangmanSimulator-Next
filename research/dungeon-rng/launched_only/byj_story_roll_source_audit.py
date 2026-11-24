@@ -56,12 +56,23 @@ def inspect_dispatch():
     assert source_at(story,'intRand')==[22]
     assert source_at(seed,'getRands')==[29]
     assert source_at(seed,'getRandBetween')==[32]
+    top=protos[4]
+    assert top['gc'][decode(top['instructions'][23])['C']]=='executeCheckMode'
+    assert top['gc'][decode(top['instructions'][19])['C']]=='execute'
+    dispatcher=Path('/mnt/data/dungeon_rng_work/v187/V174/original_60014/JHTaskStatements_60014.sb3')
+    dp=parse_all(dispatcher)[862]
+    assert all(name in dp['gc'] for name in ['roll','app/task/statements/JHTaskStatementsRoll','seedkeyroll','app/task/statements/JHTaskStatementsSeedKeyRoll'])
+    assert dp['gc'][decode(dp['instructions'][1176])['C']]=='app/task/statements/JHTaskStatementsRoll'
+    assert dp['gc'][decode(dp['instructions'][1204])['C']]=='app/task/statements/JHTaskStatementsSeedKeyRoll'
     return {'originalModule':'JHTaskStatementsSeedKeyRoll.sb3',
             'sha256':hashlib.sha256(f.read_bytes()).hexdigest(),
             'seedkeyroll':{'prototype':1,'getRandsPc':29,'getRandBetweenPc':32},
-            'roll':{'prototype':3,'getStoryRndPc':19,'intRandPc':22},
-            'seedStreamsIdentical':False,
-            'storyRndStateOriginKnown':False}
+            'seedKeyRollCheckMode':{'prototype':3,'method':'executeCheckMode','getStoryRndPc':19,'intRandPc':22},
+            'normalRoll':{'module':'JHTaskStatementsRoll.lua','dispatcherPrototype':862,'requirePc':1176,
+                          'originalBodyRecovered':False,'rngSourceConfirmed':False},
+            'normalSeedKeyRoll':{'dispatcherRequirePc':1204,'method':'execute','prototype':1},
+            'storyRndSExistsInSavedGame':True,
+            'storyRndUsedByNormalRollProven':False}
 
 def build():
     rows=[extract_source(i) for i in [1777,2150]]
@@ -71,7 +82,7 @@ def build():
             'statementDispatch':inspect_dispatch(),
             'equivalentRescueScripts':rows,
             'candidateOrders':{str(g['step']):g['modelOrder'] for g in rows[0]['rolls']},
-            'limitation':'The exact StoryRnd.intRand native RNG stream and actual runtime pairs order are not proven; never synthesize a game result.'}
+            'limitation':'Normal rescue roll dispatches to separate JHTaskStatementsRoll; its original implementation remains unrecovered. StoryRnd call belongs to SeedKeyRoll.executeCheckMode, NOT proof of rescue roll RNG. Never synthesize a game result.'}
 
 if __name__=='__main__':
     result=build()
