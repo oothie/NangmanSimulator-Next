@@ -30,7 +30,7 @@ def run_order(before:dict,source_root:Path,registry:Path,schedule:list[str]):
     records=[]
     counts=dict.fromkeys(GATES,0)
     for gate in schedule:
-        prior_state=state
+        prior_state=copy.deepcopy(state)
         counts[gate]+=1
         eq=[]
         if gate=='연왕부':
