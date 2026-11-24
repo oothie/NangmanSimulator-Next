@@ -10,6 +10,7 @@ from pathlib import Path
 from launched_gate_forward import BOSSES,GATES,load_registry,present
 from gate_seed_boundary import audit_gate_seed_transition
 from liu_key_timeline import validate_key_timeline,set_key_before_liu,parse_cli_timeline
+from liu_key_evidence_ledger import ownership_timeline
 
 MAX_EVENTS=40
 
@@ -84,10 +85,18 @@ if __name__=='__main__':
     p.add_argument('--registry',type=Path,required=True)
     p.add_argument('--schedule',required=True,help='Comma-separated: 벽유교,창옥,연왕부,유씨별원')
     p.add_argument('--liu-key-ownership',help='Explicit 8915 status per Liu clear: held,unheld,held; no automatic inference')
+    p.add_argument('--liu-key-evidence',type=Path,help='Local verified inventory/reward ledger JSON; cannot combine with --liu-key-ownership')
     p.add_argument('--output-private',type=Path,help='PRIVATE output includes RNG seeds; do not share')
     a=p.parse_args()
-    _,out=run_order(json.loads(a.save.read_text()),a.source_root,a.registry,a.schedule.split(','),
-                    liu_key_ownership=parse_cli_timeline(a.liu_key_ownership))
+    if a.liu_key_ownership is not None and a.liu_key_evidence is not None:
+        p.error('--liu-key-ownership and --liu-key-evidence cannot be combined')
+    schedule=a.schedule.split(',')
+    timeline=parse_cli_timeline(a.liu_key_ownership)
+    if a.liu_key_evidence is not None:
+        evidence=json.loads(a.liu_key_evidence.read_text(encoding='utf-8'))
+        timeline,_=ownership_timeline(schedule,evidence)
+    _,out=run_order(json.loads(a.save.read_text()),a.source_root,a.registry,schedule,
+                    liu_key_ownership=timeline)
     if a.output_private:a.output_private.write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
     else:
         for r in out['runs']:
