@@ -1,6 +1,6 @@
 import copy,json,unittest
 from pathlib import Path
-from liu_key_conditional_histories import enumerate_key_histories,compare_possible_equipment
+from liu_key_conditional_histories import enumerate_key_histories,compare_possible_equipment,constrain_histories
 
 class Histories(unittest.TestCase):
  def test_one_award_one_use_three_clears(self):
@@ -41,6 +41,20 @@ class Histories(unittest.TestCase):
   self.assertEqual(result['uniqueEntryTimelines'],4)
   self.assertEqual(len(seen),4)
   self.assertNotIn('9999',json.dumps(result))
+ def test_confirmed_second_receipt_and_third_held_narrow_to_one(self):
+  histories=enumerate_key_histories(start_qty=0,end_qty=0,liu_clears=3,assumed_receipts=1,assumed_consumptions=1)
+  filtered=constrain_histories(histories,confirmed_received_after={2},confirmed_held_at_entry={3})
+  self.assertEqual(len(filtered),1)
+  self.assertEqual(filtered[0]['atEntryHeld'],[False,False,True])
+  self.assertEqual(filtered[0]['usedBeforeEndpoint'],1)
+ def test_second_receipt_alone_does_not_conclude_consumption_timing(self):
+  histories=enumerate_key_histories(start_qty=0,end_qty=0,liu_clears=3,assumed_receipts=1,assumed_consumptions=1)
+  filtered=constrain_histories(histories,confirmed_received_after={2})
+  self.assertEqual(len(filtered),2)
+ def test_invalid_clear_numbers_rejected(self):
+  histories=enumerate_key_histories(start_qty=0,end_qty=0,liu_clears=3,assumed_receipts=1,assumed_consumptions=1)
+  with self.assertRaisesRegex(ValueError,'exceeds'):
+   constrain_histories(histories,confirmed_held_at_entry={4})
  def test_missing_model_run_rejected(self):
   history=[{'atEntryHeld':[False]}]
   def fake(*args,**kwargs):return {},{'runs':[]}
