@@ -1,0 +1,15 @@
+name: Wash mixed-goal regression
+on:
+  push:
+    paths:
+      - "engine/yysim-purple-anchor-mixed.js"
+      - "tests/wash-one-purple.test.cjs"
+      - ".github/workflows/test-wash-one-purple.yml"
+  workflow_dispatch:
+jobs:
+  wash-mixed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run mixed goal regression
+        run: node --test tests/wash-one-purple.test.cjs
