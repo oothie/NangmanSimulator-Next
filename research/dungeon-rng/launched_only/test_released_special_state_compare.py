@@ -11,6 +11,7 @@ class ReleasedSpecialComparisonTest(unittest.TestCase):
  def test_original_scope_and_counts(self):
   self.assertEqual(list(self.res['gates']),['연왕부','창옥','벽유교','유씨별원'])
   self.assertEqual(self.res['totals']['payoutRules'],40)
+  self.assertEqual(self.res['totals']['originalRollbackRules'],37)
   self.assertEqual(self.res['totals']['materialEntries'],46)
   self.assertEqual(self.res['totals']['payoutBlockCount'],35)
   self.assertEqual(self.res['totals']['changedMaterialCountOnly'],16)
