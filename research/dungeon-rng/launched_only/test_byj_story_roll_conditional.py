@@ -11,8 +11,8 @@ class TestByjStoryRoll(unittest.TestCase):
   for c in registry['cases']:self.gv[c['weightProperty']]=c['index']*10
  def test_original_60014_two_prototypes(self):
   d=build();a=d['statementDispatch']
-  self.assertEqual(a['roll']['getStoryRndPc'],19)
-  self.assertEqual(a['roll']['intRandPc'],22)
+  self.assertEqual(a['seedKeyRollCheckMode']['getStoryRndPc'],19)
+  self.assertEqual(a['seedKeyRollCheckMode']['intRandPc'],22)
   self.assertEqual(a['seedkeyroll']['getRandsPc'],29)
   self.assertEqual(a['seedkeyroll']['getRandBetweenPc'],32)
  def test_13_key_types_two_original_scripts(self):
@@ -50,12 +50,12 @@ class TestByjStoryRoll(unittest.TestCase):
  def test_empty_roll_requires_zero(self):
   for c in registry['cases']:
    if c['rewardGroup']==1:self.gv[c['weightProperty']]=0
-  with self.assertRaisesRegex(ValueError,r'intRand\(0\)'):
+  with self.assertRaisesRegex(ValueError,'zero-weight'):
    apply_observed_story_rolls(self.gv,registry,{1:0,2:1})
   with self.assertRaises(ValueError):apply_observed_story_rolls(self.gv,registry,{1:1,2:1})
  def test_no_synthesized_seed(self):
   v=intervals(self.gv,registry)
-  self.assertEqual(v['unknownRngState'],'getStoryRnd, NOT seed_byj')
+  self.assertEqual(v['unknownRngState'],'JHTaskStatementsRoll.lua original implementation not recovered')
   self.assertNotIn('generatedSeed',v)
   self.assertEqual(v['gameRuntimeOrderVerified'],False)
  def test_invalid_rolls(self):
