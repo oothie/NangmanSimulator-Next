@@ -52,3 +52,30 @@ def evaluate_key_consumer(registry:dict, *, current_flag:int,
             'status':status,
             'creditedInventoryCount':rule['quantityPerDelivery'] if status=='CONFIRMED_DELIVERY' else 0,
             'note':'Flag 1 and fresh roll do not establish receipt without consumer delivery evidence'}
+
+
+def audit_confirmed_key_ledger(schedule:list[str], evidence:dict, registry:dict,
+                               consumer_trace:list[dict]) -> tuple[list[bool],list[dict]]:
+    """Cross-check confirmed receipt events against recovered consumer script.
+
+    consumer_trace records values AT the consumer (not stale post-battle
+    flags). A missing trace is an uncertainty, never an inferred zero award.
+    """
+    from liu_key_evidence_ledger import ownership_timeline
+    timeline, history=ownership_timeline(schedule,evidence)
+    if not isinstance(consumer_trace,list) or len(consumer_trace)!=len(timeline):
+        raise ValueError('One confirmed 8915 consumer trace per Liu clear required')
+    original_key_rule(registry)
+    for i,(event, observed) in enumerate(zip(evidence['afterLiu'],consumer_trace),1):
+        if not isinstance(observed,dict) or set(observed)!={'freshRollObserved','flagAtConsumer','deliveryObserved'}:
+            raise ValueError('Consumer trace must include complete verified fields')
+        if type(observed['deliveryObserved']) is not bool:
+            raise ValueError('Unknown reward delivery cannot be converted into zero')
+        result=evaluate_key_consumer(
+            registry,current_flag=observed['flagAtConsumer'],
+            new_roll_confirmed=observed['freshRollObserved'],
+            consumer_delivered=observed['deliveryObserved'])
+        if event['received']!=result['creditedInventoryCount']:
+            raise ValueError('Recorded 8915 inventory receipt disagrees with verified consumer delivery at Liu clear '+str(i))
+        history[i-1]['consumerStatus']=result['status']
+    return timeline,history
