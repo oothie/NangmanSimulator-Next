@@ -52,6 +52,29 @@ def enumerate_key_histories(*, start_qty:int, end_qty:int, liu_clears:int,
     return histories
 
 
+def constrain_histories(histories:list[dict], *,
+                        confirmed_received_after:set[int]|None=None,
+                        confirmed_held_at_entry:set[int]|None=None) -> list[dict]:
+    """Narrow hypothetical paths using separately confirmed observations only.
+
+    Clearing a condition is not proof of others; the caller must know that
+    the specified observations were made independently of these predictions.
+    """
+    if not isinstance(histories,list):
+        raise ValueError('Histories must be a list')
+    received=confirmed_received_after or set()
+    held=confirmed_held_at_entry or set()
+    if any(type(n) is not int or n<1 for n in received|held):
+        raise ValueError('Observed clear numbers must be positive integers')
+    if histories:
+        size=len(histories[0]['atEntryHeld'])
+        if any(n>size for n in received|held):
+            raise ValueError('Observed clear number exceeds Liu clear count')
+    return [h for h in histories
+            if all(h['receivedAfterClear'][i-1] == 1 for i in received)
+            and all(h['atEntryHeld'][i-1] is True for i in held)]
+
+
 def compare_possible_equipment(before:dict,source_root:Path,registry:Path,
                                schedule:list[str],histories:list[dict],
                                replay:Callable|None=None)->dict:
@@ -93,6 +116,8 @@ def main() -> None:
     parser.add_argument('--schedule',required=True,help='e.g. 유씨별원,창옥,유씨별원,유씨별원')
     parser.add_argument('--assumed-receipts',type=int,required=True)
     parser.add_argument('--assumed-consumptions',type=int,required=True)
+    parser.add_argument('--confirmed-receipt-clears',help='Comma-separated 1-based Liu clear numbers with independently observed receipt')
+    parser.add_argument('--confirmed-held-entry-clears',help='Comma-separated 1-based Liu clear numbers with independently observed held status')
     parser.add_argument('--source-root',type=Path)
     parser.add_argument('--registry',type=Path)
     args=parser.parse_args()
@@ -108,9 +133,22 @@ def main() -> None:
         start_qty=comparison['startHeldQuantity'],end_qty=comparison['endHeldQuantity'],
         liu_clears=schedule.count('유씨별원'),assumed_receipts=args.assumed_receipts,
         assumed_consumptions=args.assumed_consumptions)
+    def known_clears(value):
+        if value is None:return set()
+        values=value.split(',')
+        if any(not token.isdigit() or int(token)<1 for token in values):
+            raise ValueError('Confirmed clear numbers must be 1-based positive integers')
+        return {int(token) for token in values}
+    received=known_clears(args.confirmed_receipt_clears)
+    held=known_clears(args.confirmed_held_entry_clears)
+    all_histories_count=len(histories)
+    histories=constrain_histories(histories,confirmed_received_after=received,confirmed_held_at_entry=held)
     out={'status':'EXPLICIT_HYPOTHETICAL_RECEIPT_USE_ASSUMPTION',
          'assumptions':{'received':args.assumed_receipts,'consumed':args.assumed_consumptions},
-         'endpointAudit':comparison, 'hypotheticalHistoryCount':len(histories),
+         'endpointAudit':comparison, 'beforeObservationFilterCount':all_histories_count,
+         'appliedIndependentEvidence':{'confirmedReceivedAfter':sorted(received),
+                                       'confirmedHeldAtEntry':sorted(held)},
+         'hypotheticalHistoryCount':len(histories),
          'hypotheticalHistories':histories}
     if args.source_root is not None:
         out['conditionalEquipment']=compare_possible_equipment(before,args.source_root,args.registry,schedule,histories)
