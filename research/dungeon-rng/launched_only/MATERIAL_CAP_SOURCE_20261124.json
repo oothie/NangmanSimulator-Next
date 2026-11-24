@@ -1,0 +1,435 @@
+{
+  "schema": "original-material-weight-v1",
+  "producerCaps": [
+    {
+      "gate": "연왕부",
+      "step": 7,
+      "counter": "num_2601_33654",
+      "cap": 1000,
+      "weightKey": "drop_33654_1",
+      "originalWeight": 300,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "연왕부",
+      "step": 8,
+      "counter": "num_2602_33654",
+      "cap": 100,
+      "weightKey": "drop_33654_2",
+      "originalWeight": 150,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "연왕부",
+      "step": 9,
+      "counter": "num_2603_33654",
+      "cap": 5,
+      "weightKey": "drop_33654_3",
+      "originalWeight": 25,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "연왕부",
+      "step": 10,
+      "counter": "num_2604_33654",
+      "cap": 5,
+      "weightKey": "drop_33654_4",
+      "originalWeight": 25,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "연왕부",
+      "step": 11,
+      "counter": "num_2605_33654",
+      "cap": 5,
+      "weightKey": "drop_33654_5",
+      "originalWeight": 25,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "연왕부",
+      "step": 12,
+      "counter": "num_2606_33654",
+      "cap": 5,
+      "weightKey": "drop_33654_6",
+      "originalWeight": 25,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "연왕부",
+      "step": 13,
+      "counter": "num_2628_33654",
+      "cap": 100,
+      "weightKey": "drop_33654_7",
+      "originalWeight": 100,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "연왕부",
+      "step": 14,
+      "counter": "num_3735_33654",
+      "cap": 5,
+      "weightKey": "drop_33654_8",
+      "originalWeight": 120,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "연왕부",
+      "step": 15,
+      "counter": "num_3736_33654",
+      "cap": 1,
+      "weightKey": "drop_33654_9",
+      "originalWeight": 30,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 10,
+      "counter": "num_2601_40372",
+      "cap": 1000,
+      "weightKey": "drop_40372_1",
+      "originalWeight": 1000,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 11,
+      "counter": "num_2603_40372",
+      "cap": 6,
+      "weightKey": "drop_40372_2",
+      "originalWeight": 25,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 12,
+      "counter": "num_2604_40372",
+      "cap": 6,
+      "weightKey": "drop_40372_3",
+      "originalWeight": 25,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 13,
+      "counter": "num_2605_40372",
+      "cap": 6,
+      "weightKey": "drop_40372_4",
+      "originalWeight": 25,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 14,
+      "counter": "num_2606_40372",
+      "cap": 6,
+      "weightKey": "drop_40372_5",
+      "originalWeight": 25,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 15,
+      "counter": "num_2607_40372",
+      "cap": 1000,
+      "weightKey": "drop_40372_6",
+      "originalWeight": 1000,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 16,
+      "counter": "num_2641_40372",
+      "cap": 100,
+      "weightKey": "drop_40372_7",
+      "originalWeight": 80,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 22,
+      "counter": "num_3025_40373",
+      "cap": 1500,
+      "weightKey": "drop_40373_1",
+      "originalWeight": 1000,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 23,
+      "counter": "num_3029_40373",
+      "cap": 500,
+      "weightKey": "drop_40373_2",
+      "originalWeight": 500,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 24,
+      "counter": "num_3030_40373",
+      "cap": 500,
+      "weightKey": "drop_40373_3",
+      "originalWeight": 500,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 25,
+      "counter": "num_2000_40373",
+      "cap": 100,
+      "weightKey": "drop_40373_4",
+      "originalWeight": 50,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 26,
+      "counter": "num_2001_40373",
+      "cap": 100,
+      "weightKey": "drop_40373_5",
+      "originalWeight": 50,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "창옥",
+      "step": 27,
+      "counter": "num_2002_40373",
+      "cap": 100,
+      "weightKey": "drop_40373_6",
+      "originalWeight": 50,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "벽유교",
+      "step": 11,
+      "counter": "num_2601_byj",
+      "cap": 1000,
+      "weightKey": "drop_byj_1",
+      "originalWeight": 2001,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 12,
+      "counter": "num_2602_byj",
+      "cap": 100,
+      "weightKey": "drop_byj_2",
+      "originalWeight": 1500,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 13,
+      "counter": "num_2603_byj",
+      "cap": 10,
+      "weightKey": "drop_byj_3",
+      "originalWeight": 500,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 14,
+      "counter": "num_2604_byj",
+      "cap": 10,
+      "weightKey": "drop_byj_4",
+      "originalWeight": 501,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 15,
+      "counter": "num_2605_byj",
+      "cap": 10,
+      "weightKey": "drop_byj_5",
+      "originalWeight": 502,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 16,
+      "counter": "num_2606_byj",
+      "cap": 10,
+      "weightKey": "drop_byj_6",
+      "originalWeight": 503,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 17,
+      "counter": "num_3736_byj",
+      "cap": 3,
+      "weightKey": "drop_byj_7",
+      "originalWeight": 300,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 18,
+      "counter": "num_2020_byj",
+      "cap": 5,
+      "weightKey": "drop_byj_8",
+      "originalWeight": 1008,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 19,
+      "counter": "num_2021_byj",
+      "cap": 5,
+      "weightKey": "drop_byj_9",
+      "originalWeight": 1009,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 20,
+      "counter": "num_2022_byj",
+      "cap": 5,
+      "weightKey": "drop_byj_10",
+      "originalWeight": 1010,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 21,
+      "counter": "num_2023_byj",
+      "cap": 5,
+      "weightKey": "drop_byj_11",
+      "originalWeight": 1011,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 22,
+      "counter": "num_2024_byj",
+      "cap": 5,
+      "weightKey": "drop_byj_12",
+      "originalWeight": 1012,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "벽유교",
+      "step": 23,
+      "counter": "num_2025_byj",
+      "cap": 5,
+      "weightKey": "drop_byj_13",
+      "originalWeight": 1013,
+      "initialization": "first_rdward==0"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 12,
+      "counter": "num_2601_lsby",
+      "cap": 800,
+      "weightKey": "drop_lsby_1",
+      "originalWeight": 300,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 13,
+      "counter": "num_2602_lsby",
+      "cap": 150,
+      "weightKey": "drop_lsby_2",
+      "originalWeight": 150,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 14,
+      "counter": "num_2603_lsby",
+      "cap": 4,
+      "weightKey": "drop_lsby_3",
+      "originalWeight": 30,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 15,
+      "counter": "num_2604_lsby",
+      "cap": 4,
+      "weightKey": "drop_lsby_4",
+      "originalWeight": 30,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 16,
+      "counter": "num_2605_lsby",
+      "cap": 4,
+      "weightKey": "drop_lsby_5",
+      "originalWeight": 30,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 17,
+      "counter": "num_2606_lsby",
+      "cap": 4,
+      "weightKey": "drop_lsby_6",
+      "originalWeight": 30,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 18,
+      "counter": "num_2617_lsby",
+      "cap": 3,
+      "weightKey": "drop_lsby_7",
+      "originalWeight": 30,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 19,
+      "counter": "num_2618_lsby",
+      "cap": 3,
+      "weightKey": "drop_lsby_8",
+      "originalWeight": 30,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 20,
+      "counter": "num_2619_lsby",
+      "cap": 3,
+      "weightKey": "drop_lsby_9",
+      "originalWeight": 30,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 21,
+      "counter": "num_2620_lsby",
+      "cap": 3,
+      "weightKey": "drop_lsby_10",
+      "originalWeight": 30,
+      "initialization": "always recalculated per entry"
+    },
+    {
+      "gate": "유씨별원",
+      "step": 22,
+      "counter": "num_2627_lsby",
+      "cap": 2,
+      "weightKey": "drop_lsby_11",
+      "originalWeight": 80,
+      "initialization": "always recalculated per entry"
+    }
+  ],
+  "sourceRule": "num_ITEM >= cap removes material weight; BYJ initialization is conditional on first_rdward==0",
+  "byjInitialWeights": {
+    "drop_byj_1": 2001,
+    "drop_byj_2": 1500,
+    "drop_byj_3": 500,
+    "drop_byj_4": 501,
+    "drop_byj_5": 502,
+    "drop_byj_6": 503,
+    "drop_byj_7": 300,
+    "drop_byj_8": 1008,
+    "drop_byj_9": 1009,
+    "drop_byj_10": 1010,
+    "drop_byj_11": 1011,
+    "drop_byj_12": 1012,
+    "drop_byj_13": 1013
+  }
+}
