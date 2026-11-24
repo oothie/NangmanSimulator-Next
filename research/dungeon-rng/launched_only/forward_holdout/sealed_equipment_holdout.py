@@ -93,13 +93,23 @@ def validate_forecast_runs(runs: list[dict], schedule: list[str]) -> None:
 
 def seal(before: dict, source_root: Path, registry: Path,
          schedule: list[str], *, nonce: str|None=None,
-         liu_key_evidence:dict|None=None) -> tuple[dict, dict]:
+         liu_key_evidence:dict|None=None,
+         liu_consumer_registry:dict|None=None,
+         liu_consumer_trace:list[dict]|None=None) -> tuple[dict, dict]:
     validate_schedule(schedule)
     from mixed_gate_schedule import run_order
     from liu_key_evidence_ledger import ownership_timeline
     timeline = None
+    source_audit=(liu_consumer_registry is not None or liu_consumer_trace is not None)
+    if source_audit and (liu_key_evidence is None or liu_consumer_registry is None or liu_consumer_trace is None):
+        raise ValueError('Complete original consumer registry, confirmed trace, and evidence ledger required')
     if liu_key_evidence is not None:
-        timeline, _ = ownership_timeline(schedule, liu_key_evidence)
+        if source_audit:
+            from liu_key_consumer_contract import audit_confirmed_key_ledger
+            timeline, _ = audit_confirmed_key_ledger(schedule,liu_key_evidence,
+                                                      liu_consumer_registry,liu_consumer_trace)
+        else:
+            timeline, _ = ownership_timeline(schedule, liu_key_evidence)
     after_model, result = run_order(before, source_root, registry, schedule,
                                     **({'liu_key_ownership':timeline} if timeline is not None else {}))
     validate_forecast_runs(result['runs'], schedule)
@@ -127,6 +137,8 @@ def seal(before: dict, source_root: Path, registry: Path,
         'expected_equipment': expected,
         'expected_boss_equipment': boss_forecast,
         'liu_key_evidence_digest': sha(liu_key_evidence) if liu_key_evidence is not None else None,
+        'liu_key_consumer_trace_digest': sha(liu_consumer_trace) if source_audit else None,
+        'liu_key_consumer_registry_digest': sha(liu_consumer_registry) if source_audit else None,
         'liu_key_ownership_timeline': timeline,
         'expected_end_seeds': expected_seeds,
         'expected_win_counters': wins,
@@ -227,6 +239,8 @@ def main() -> None:
     create.add_argument('--public-commitment',type=Path,required=True)
     create.add_argument('--show-forecast',action='store_true',help='Print local boss names/equipment/colors, never RNG seeds')
     create.add_argument('--liu-key-evidence',type=Path,help='Private JSON of confirmed key inventory receipt/use events')
+    create.add_argument('--liu-key-consumer-trace',type=Path,help='Private original-consumer delivery observation trace')
+    create.add_argument('--liu-key-consumer-registry',type=Path,help='Recovered original source consumer registry')
     verify=sub.add_parser('verify');verify.add_argument('--after',type=Path,required=True)
     verify.add_argument('--private-record',type=Path,required=True)
     verify.add_argument('--public-commitment',type=Path,required=True)
@@ -237,10 +251,16 @@ def main() -> None:
         baseline=json.loads(a.before.read_text())
         evidence=(json.loads(a.liu_key_evidence.read_text(encoding='utf-8'))
                   if a.liu_key_evidence is not None else None)
+        trace=(json.loads(a.liu_key_consumer_trace.read_text(encoding='utf-8'))
+               if a.liu_key_consumer_trace is not None else None)
+        consumer_registry=(json.loads(a.liu_key_consumer_registry.read_text(encoding='utf-8'))
+                           if a.liu_key_consumer_registry is not None else None)
         record,public=seal(baseline,a.source_root,a.registry,a.schedule.split(','),
-                           liu_key_evidence=evidence)
+                           liu_key_evidence=evidence,liu_consumer_registry=consumer_registry,
+                           liu_consumer_trace=trace)
         assert_output_paths_safe([a.private_record,a.public_commitment],
-                                 [a.before,a.registry,a.source_root,a.liu_key_evidence])
+                                 [a.before,a.registry,a.source_root,a.liu_key_evidence,
+                                  a.liu_key_consumer_trace,a.liu_key_consumer_registry])
         a.private_record.write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n')
         a.public_commitment.write_text(json.dumps(public,ensure_ascii=False,indent=2)+'\n')
         print('SEALED',public['sealed_sha256'],'gates',public['gate_count'],'gear',public['equipment_count'])
