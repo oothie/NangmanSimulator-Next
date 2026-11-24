@@ -2231,8 +2231,9 @@ function dailyMarketView(){
  const targetIds=marketQuery.trim()&&state.seedOk?lookup.map(x=>x.id).slice(0,25):[];
  const timedTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'timed-only'}):[];
  const paidTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'paid-now',vip:vipChoice}):[];
- const status=state.historyBlocked?'세이브의 암시장 기록이 너무 오래되어 '+state.missed+'회 변경을 안전하게 복원할 수 없습니다. 부정확한 예측을 방지하기 위해 현재 저장 상품만 표시합니다. 최신 세이브를 다시 불러와 주세요.':!state.seedOk?'암시장 RNG 시드가 없어 향후 판매를 예측할 수 없습니다. 현재 저장 상품만 표시합니다.':
-  state.stale?'세이브 암시장 시간에서 '+state.missed+'회 정시 변경을 복원했습니다. 이는 원본 RNG 계산에 근거한 모의 예측이며 현재 게임과 비교 검증이 필요합니다.':
+ const status=state.historyBlocked?'세이브의 암시장 기록이 너무 오래되어 '+state.missed+'회 변경을 안전하게 복원할 수 없습니다. 부정확한 예측을 방지하기 위해 현재 저장 상품만 표시합니다. 최신 세이브를 다시 불러와 주세요.':
+  state.stale?'저장 시점 이후 '+state.missed+'회 정시 변경 구간의 원보 갱신 여부가 세이브로 확인되지 않습니다. 부정확한 구매 경로 예측을 방지하기 위해 저장된 상품만 표시합니다. 최신 세이브로 다시 계산하세요.':
+  !state.seedOk?'암시장 RNG 시드가 없어 향후 판매를 예측할 수 없습니다. 현재 저장 상품만 표시합니다.':
   '세이브에 저장된 상품 목록을 현재 판매 목록으로 표시합니다.';
  return '<div class="market-stats">'+[
   ['예측 슬롯',state.slots+'칸'],['저장 슬롯',state.saveSlots+'칸'],
@@ -2257,7 +2258,7 @@ function dailyMarketView(){
    marketItemTable(simulated.items,ko):
   '<h5>갱신 전 현재 상품</h5>'+marketItemTable(state.today,ko,'current'))+
  '</section>'+
- '<section class="market-section" data-market-panel="current"><h4>세이브 기준 암시장 판매 상품'+(state.stale?' · 경과 시드 복원':'')+'</h4>'+
+ '<section class="market-section" data-market-panel="current"><h4>세이브 기준 암시장 판매 상품'+(state.stale?' · 저장 시점 상품':'')+'</h4>'+
  marketItemTable(state.today,ko,'current')+
  '<div class="actions market-sim-controls"><button id="marketAutoNext" class="btn primary" '+(!state.seedOk||autoStep>=timed.length?'disabled':'')+'>다음 무료 자동 갱신</button>'+ 
  '<button id="marketAutoReset" class="btn" '+(!autoStep?'disabled':'')+'>현재 상품으로</button></div>'+ 
