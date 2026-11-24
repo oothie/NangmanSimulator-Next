@@ -9,14 +9,17 @@ import argparse,copy,json,sys
 from pathlib import Path
 from launched_gate_forward import BOSSES,GATES,load_registry,present
 from gate_seed_boundary import audit_gate_seed_transition
+from liu_key_timeline import validate_key_timeline,set_key_before_liu,parse_cli_timeline
 
 MAX_EVENTS=40
 
-def run_order(before:dict,source_root:Path,registry:Path,schedule:list[str]):
+def run_order(before:dict,source_root:Path,registry:Path,schedule:list[str], *,
+              liu_key_ownership:list[bool]|None=None):
     if not isinstance(schedule,list) or not schedule or len(schedule)>MAX_EVENTS:
         raise ValueError('Schedule must have between 1 and 40 gate clears')
     if any(g not in GATES for g in schedule):
         raise ValueError('Only released gates supported: '+','.join(GATES))
+    validate_key_timeline(schedule,liu_key_ownership)
     source_root=source_root.resolve()
     for sub in ('models/liu','models/ywf','models/dcy','models/byj','.'):
         p=str((source_root/sub).resolve())
@@ -30,8 +33,10 @@ def run_order(before:dict,source_root:Path,registry:Path,schedule:list[str]):
     records=[]
     counts=dict.fromkeys(GATES,0)
     for gate in schedule:
-        prior_state=copy.deepcopy(state)
         counts[gate]+=1
+        assumed_key_status=(set_key_before_liu(state,liu_key_ownership,counts[gate])
+                            if gate=='유씨별원' else None)
+        prior_state=copy.deepcopy(state)
         eq=[]
         if gate=='연왕부':
             r=yan_replay(state);draws=r['counts'];seeds=r['seeds']
@@ -67,7 +72,8 @@ def run_order(before:dict,source_root:Path,registry:Path,schedule:list[str]):
         else:raise AssertionError(gate)
         seed_boundary=audit_gate_seed_transition(prior_state,state,gate,seeds)
         records.append({'order':len(records)+1,'gate':gate,'clear':counts[gate],'draws':draws,
-                        'seedAfter':seeds,'equipment':eq,'seedBoundary':seed_boundary})
+                        'seedAfter':seeds,'equipment':eq,'seedBoundary':seed_boundary,
+                        'key8915AssumedHeld':assumed_key_status})
     return state,{'runs':records,'counts':counts,
                   'status':'source-modeled; prior save holdouts only; not independently verified future output'}
 
@@ -77,11 +83,15 @@ if __name__=='__main__':
     p.add_argument('--source-root',type=Path,required=True)
     p.add_argument('--registry',type=Path,required=True)
     p.add_argument('--schedule',required=True,help='Comma-separated: 벽유교,창옥,연왕부,유씨별원')
+    p.add_argument('--liu-key-ownership',help='Explicit 8915 status per Liu clear: held,unheld,held; no automatic inference')
     p.add_argument('--output-private',type=Path,help='PRIVATE output includes RNG seeds; do not share')
     a=p.parse_args()
-    _,out=run_order(json.loads(a.save.read_text()),a.source_root,a.registry,a.schedule.split(','))
+    _,out=run_order(json.loads(a.save.read_text()),a.source_root,a.registry,a.schedule.split(','),
+                    liu_key_ownership=parse_cli_timeline(a.liu_key_ownership))
     if a.output_private:a.output_private.write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
     else:
         for r in out['runs']:
             print(r['order'],r['gate'],r['clear'],'난수 호출',r['draws'])
             print(' / '.join(f"{x['boss']} {x['equipmentName'] or '미드랍'} {x['grade'] or ''}" for x in r['equipment']))
+            if r['key8915AssumedHeld'] is not None:
+                print('고리의 열쇠 가정:', '보유' if r['key8915AssumedHeld'] else '미보유')
