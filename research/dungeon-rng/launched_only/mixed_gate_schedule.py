@@ -11,6 +11,7 @@ from launched_gate_forward import BOSSES,GATES,load_registry,present
 from gate_seed_boundary import audit_gate_seed_transition
 from liu_key_timeline import validate_key_timeline,set_key_before_liu,parse_cli_timeline
 from liu_key_evidence_ledger import ownership_timeline
+from private_file_guard import assert_output_paths_safe
 
 MAX_EVENTS=40
 
@@ -97,7 +98,9 @@ if __name__=='__main__':
         timeline,_=ownership_timeline(schedule,evidence)
     _,out=run_order(json.loads(a.save.read_text()),a.source_root,a.registry,schedule,
                     liu_key_ownership=timeline)
-    if a.output_private:a.output_private.write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
+    if a.output_private:
+        assert_output_paths_safe([a.output_private],[a.save,a.liu_key_evidence,a.registry,a.source_root])
+        a.output_private.write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
     else:
         for r in out['runs']:
             print(r['order'],r['gate'],r['clear'],'난수 호출',r['draws'])
