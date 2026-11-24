@@ -69,7 +69,7 @@ def seal(before: dict, source_root: Path, registry: Path,
             boss_forecast.append({'order':run['order'], 'gate':run['gate'],
                                   'boss':item['boss'], 'equipmentName':item['equipmentName'],
                                   'grade':item['grade'], 'equipmentId':item['equipmentId'],
-                                  'gradeCode':item['gradeCode']})
+                                  'gradeCode':item.get('gradeCode')})
             if item['equipmentId'] is not None:
                 expected.append([int(item['equipmentId']), int(item['gradeCode'])])
     seed_keys = sorted({k for gate in schedule for k in SEEDS[gate]})
