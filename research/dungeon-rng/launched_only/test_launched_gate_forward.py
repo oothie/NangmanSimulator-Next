@@ -48,6 +48,16 @@ class LaunchedOnly(unittest.TestCase):
   self.assertTrue(all(new[i]['OnlyID']+1==new[i+1]['OnlyID'] for i in range(12)))
  def test_no_unreleased_gate_output(self):
   self.assertFalse(set(r['gate'] for r in self.f['runs']) & set(FROZEN))
+ def test_optional_special_consumer_summary(self):
+  d=replay(self.a,SRC,REG,1,1,
+      BASE/'launched_only/SPECIAL_AWARD_CONSUMER_SOURCE_20261124.json',
+      BASE/'launched_only/MATERIAL_CAP_SOURCE_20261124.json')
+  special=d['specialRewardCounterfactual']
+  self.assertEqual(special['totals']['payoutRules'],40)
+  self.assertEqual(special['totals']['materialEntries'],46)
+  self.assertEqual(special['totals']['changedMaterialFresh'],22)
+  self.assertNotIn('specialRewardCounterfactual',self.f)
+  with self.assertRaises(ValueError):replay(self.a,SRC,REG,1,1,BASE/'launched_only/SPECIAL_AWARD_CONSUMER_SOURCE_20261124.json')
  def test_two_sequential_ywf_clears(self):
   first=json.loads((SAVES/'1122v3.json').read_text())
   mid=json.loads((SAVES/'1123(입장전).json').read_text())
