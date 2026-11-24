@@ -74,6 +74,21 @@
   // Preserve raw rows, seed progression and filtering data for the original engine.
   function render() {
     const host=$('wildResults');
+    if (targets[Number(picker.value)].kind === 'tigerbone') {
+      const played = rows.filter(row => !row.padding);
+      const bones = played.filter(row => Number(row.itemId) === 3065);
+      host.replaceChildren(...bones.map(row => {
+        const item = node('li', '', 'nm-field-drop');
+        item.append(node('span', String(row.serial)+'회 사냥', 'nm-field-round'));
+        item.append(node('strong', '호골', 'nm-field-name'));
+        item.append(node('span', row.tiger || '', 'nm-field-quality'));
+        return item;
+      }));
+      if (!bones.length) host.append(node('li', '호골 드랍 없음', 'nm-field-empty'));
+      $('wildStatus').textContent = played.length+'회 사냥 · 호골 '+bones.length+'개';
+      $('wildExport').disabled = true;
+      return;
+    }
     const shown=rows.filter(row=>!row.padding && row.itemId && Number(row.color)>=1 && Number(row.color)<=4);
     const labels=['','백색','녹색','청색','자색'];
     host.replaceChildren(...shown.map(row=>{
