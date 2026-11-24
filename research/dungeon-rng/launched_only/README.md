@@ -29,3 +29,21 @@ NANGMAN_RESEARCH_ROOT=/path/to/dungeon_native python test_launched_gate_forward.
 3. 신규 미사용 세이브·실제 클리어를 통한 보스별 장비명·색상·미드랍 성공률 검증.
 
 공개 사이트/버전, 기존 V82 및 100급 관문 연구 코드 변경 없음.
+
+## 특수 드랍 획득 전/후 연구 (2026-11-24)
+
+원본 소비자 이벤트 15개에서 **40개 특수 보상 지급 조건** (`get_` 획득량 상한·1회 제한 등), 원본 진입 스크립트에서 **46개 동적 재료 가중치** (`num_` 누적 상한) 추출 완료. 조건/가중치별 가상 비교 결과는 `RELEASED_4_GATES_SPECIAL_BEFORE_AFTER_AUDIT_20261124.md` 참조.
+
+`launched_gate_forward.py` 실행 시 아래 선택 인자를 **둘 다** 전달하면 기존 출시 관문 장비 예측 결과에 `specialRewardCounterfactual` 요약을 추가한다.
+
+```bash
+python launched_gate_forward.py --save /private/MY_SAVE.json \
+ --v30-root /local/v30 --registry /local/gate-60-source-registry.json \
+ --special-award-registry SPECIAL_AWARD_CONSUMER_SOURCE_20261124.json \
+ --special-material-registry MATERIAL_CAP_SOURCE_20261124.json \
+ --output /private/RELEASED_GATE_PREDICTIONS.json
+```
+
+`specialRewardCounterfactual`은 **특수 보상에 이미 당첨됐을 경우 실제 지급 가능 여부**와 **획득 누적 수치를 0으로 가정한 재료 선택 가중치 차이**만 출력한다. 가상 카운터 0을 실제 미획득 세이브라고 가정하지 않고, 임시 카운터/첫 실행 초기화/특수 numeric `GetP(8915)` 조건은 별도로 보존한다. 아직 실제 미획득 상태의 소비자 재입장 후처리/개별 특수 지급 이력의 미래 정확도는 미검증이다.
+
+테스트: 기존 출시간 7개 + 특수 지급 7개 + 재료 가중치 6개 + 결합 4개 = **24/24 통과**.
