@@ -12,14 +12,14 @@ const hasAll=(state,ids)=>ids.every(id=>idsOf(state).includes(id));
 const grade=(talents,id)=>number(talents[String(id)]?.pinzhi);
 const count=(state,key)=>number(state?.[key]??0);
 function requestShape(ids,talents){
- if(!Array.isArray(ids)||ids.length!==4||new Set(ids).size!==4)return null;
+ if(!Array.isArray(ids)||ids.length<2||ids.length>4||new Set(ids).size!==ids.length)return null;
  const purple=ids.filter(id=>grade(talents,id)===4);
  const colors=ids.filter(id=>[2,3].includes(grade(talents,id)));
- if(!((purple.length===3&&colors.length===1)||
-   (purple.length===2&&colors.length===2)))return null;
+ if(purple.length<1||purple.length>3||colors.length<1||
+    purple.length+colors.length!==ids.length)return null;
  const families=ids.map(id=>number(talents[String(id)]?.type));
  if(families.some(x=>!Number.isInteger(x)||x<=0)||
-    new Set(families).size!==4)return null;
+    new Set(families).size!==ids.length)return null;
  return {purple,colors};
 }
 // Bounded native event selection: prefer cheaper early events while retaining
@@ -87,7 +87,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
  talents,getState,setState,search,doWash,exchangeTalent,
  guard,progress=()=>{},expanded=false}={}){
  const shape=requestShape(desiredIds,talents);
- if(!shape)throw Error('자맥 3개+녹·파맥 1개 또는 자맥 2개+녹·파맥 2개를 선택하세요');
+ if(!shape)throw Error('자맥 1~3개와 녹맥·파맥 1~3개를 합쳐 서로 다른 목표 2~4개를 선택하세요');
  if([getState,setState,search,doWash,exchangeTalent].some(x=>typeof x!=='function')||
     !guard?.run||!guard?.statesEqual)
   throw Error('원본 WASM 세수·잠금·치환 함수가 준비되지 않았습니다');
@@ -804,8 +804,15 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     const matching=[];
     for(const pad of paddingModes){
      restore(initial);
-     const attempt=guard.run({getState,setState,search},
-      {desired_ids:order,max_pad:pad,horizon,top_n:topN});
+     let attempt;
+     try{
+      attempt=guard.run({getState,setState,search},
+       {desired_ids:order,max_pad:pad,horizon,top_n:topN});
+     }catch(error){
+      if(shape.purple.length!==1)throw error;
+      attempt={routes:[],scanned:0,error:String(error?.message||error)};
+      diagnostics.singlePurpleNativeError=attempt.error;
+     }
      diagnostics.purpleNativeCalls++;
      diagnostics.purpleAttemptResults.push({
       order,maxPad:pad,returned:attempt?.routes?.length||0,
@@ -855,6 +862,56 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
      if(!twoPurple&&!expanded)break;
     }
    }
+   // Single-purple native searches can return no anchor despite a real next
+   // purple in the WASM wash stream. Fall back to an independently replayed
+   // bounded native wash path; never invent an RNG event or a target.
+   if(shape.purple.length===1&&!allMatching.length){
+    try{
+     restore(initial);
+     const anchorId=shape.purple[0],actions=[];
+     const startWash=count(initial,'total_wash');
+     if(number(getState().zizhi)<151){
+      openNativeSlot({kind:'open_slot',note:'자질 151'});
+      actions.push({kind:'open_slot',note:'자질 151',wash_no:startWash,
+       pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
+     }
+     const beforeUnlock=getState();
+     for(const t of beforeUnlock.talents.filter(t=>t.locked&&
+      number(t.id)!==anchorId)){
+      lockId(number(t.id),false);
+      actions.push({kind:'unlock',talent:talents[String(t.id)]?.name||String(t.id),
+       wash_no:startWash,pills_after:0});
+     }
+     for(let i=0;i<=horizon;i++){
+      if(idsOf(getState()).includes(anchorId)){
+       const endWash=count(getState(),'total_wash');
+       if(endWash>startWash)actions.push({kind:'wash_to',wash_no:endWash,
+        pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
+       lockId(anchorId,true);
+       actions.push({kind:'lock',talent:talents[String(anchorId)]?.name||String(anchorId),
+        wash_no:endWash,pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
+       const candidate={actions,pills:count(getState(),'total_pills')-
+        count(initial,'total_pills'),pad:0,order_ids:[anchorId],
+        anchorVariant:'single-purple-native-wash'};
+       replay(candidate);
+       allMatching.push({...candidate,purplePad:0,
+        purpleMeasuredPills:candidate.pills});
+       diagnostics.singlePurpleFallback=true;
+       break;
+      }
+      if(i===horizon)break;
+      const at=count(getState(),'total_wash'),ret=doWash();
+      if(!ret||ret.error||count(getState(),'total_wash')!==at+1)break;
+      if(i%100===99){
+       progress({phase:'anchor-single-purple',scannedWashes:i+1,
+        candidateRoutes:0});
+       await new Promise(resolve=>setTimeout(resolve,0));
+      }
+     }
+    }catch(error){
+     diagnostics.singlePurpleFallbackError=String(error?.message||error);
+    }finally{restore(initial)}
+   }
    if(allMatching.length){
     allMatching.sort((a,b)=>a.purpleMeasuredPills-b.purpleMeasuredPills);
     // Each is independently replayed against the original native WASM;
@@ -894,23 +951,22 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    // Upgrade through the SAME native WASM state API as an 'open_slot'
    // route action, before asking the original doWash for green/blue.
    // Never invent a talent slot or advance an unrecorded RNG roll.
-   if(shape.purple.length===3&&shape.colors.length===1&&
-      number(getState().zizhi)<154){
+   if(number(getState().zizhi)<150+desiredIds.length){
     const beforeOpen=getState(),at=count(beforeOpen,'total_wash');
     try{
-     openNativeSlot({kind:'open_slot',note:'자질 154'});
+     openNativeSlot({kind:'open_slot',note:'자질 '+(150+desiredIds.length)});
     }catch(error){
-     diagnostics.failures.push('네 번째 재능 칸 개방 실패: '+
+     diagnostics.failures.push('목표 재능 칸 개방 실패: '+
       String(error?.message||error));
      continue;
     }
     const opened=getState();
-    if(number(opened.zizhi)!==154){
-     diagnostics.failures.push('네 번째 재능 칸 개방 후 4칸이 확인되지 않았습니다');
+    if(number(opened.zizhi)!==150+desiredIds.length){
+     diagnostics.failures.push('목표 재능 칸 개방 후 개방 칸 수를 확인하지 못했습니다');
      continue;
     }
     diagnostics.fourthSlotOpened=(diagnostics.fourthSlotOpened||0)+1;
-    tailActions.push({kind:'open_slot',note:'자질 154 · 네 번째 재능 칸 개방',
+    tailActions.push({kind:'open_slot',note:'자질 '+(150+desiredIds.length)+' · 목표 재능 칸 개방',
      wash_no:at,pills_after:count(opened,'total_pills')-count(initial,'total_pills')});
    }
    // Freeze all purple anchors. Free only nonselected, replaceable slots.
