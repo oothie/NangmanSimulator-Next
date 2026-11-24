@@ -2129,7 +2129,8 @@ function marketStrategyMarkup(state,ko){
   const steps=(result.steps||[]).filter(x=>x.kind==='paid'||x.kind==='auto'||x.kind==='current');
   const byDay=new Map();
   for(const x of steps){
-   const key=new Date(Number(x.time)*1000).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'});
+   // Paid-refresh allowance day begins at 05:00 KST, not civil midnight.
+    const key=new Date((Number(x.time)+14400)*1000).toLocaleDateString('ko-KR',{timeZone:'UTC'});
    if(!byDay.has(key))byDay.set(key,{date:key,paid:0,auto:0,bought:0,paidDetails:[]});
    const day=byDay.get(key);
    if(x.kind==='paid'){day.paid++;day.paidDetails.push({time:x.time,index:x.index,bought:x.acquired||0})}
@@ -2153,7 +2154,7 @@ function marketStrategyMarkup(state,ko){
    '<details class="market-plan-route" '+(mode==='free'?'open':'')+'><summary>구매 시점 <b>'+
     purchases.length+'회</b></summary><ol class="market-route-list">'+
     (purchaseList||'<li>예측 기간 중 목표 상품 구매 기록 없음</li>')+'</ol></details>'+
-   '<details class="market-plan-route" open><summary>날짜별 갱신 횟수 및 구매 <b>'+byDay.size+
+   '<details class="market-plan-route" open><summary>갱신일별 횟수 및 구매 (05시 기준) <b>'+byDay.size+
     '일</b></summary><ol class="market-route-list">'+(dayRoute||'<li>경로 없음</li>')+'</ol></details>'+
    '<details class="market-plan-route"><summary>전체 교체·갱신 경로 <b>'+steps.length+
     '단계</b></summary><ol class="market-route-list">'+stepList+'</ol></details>'+
