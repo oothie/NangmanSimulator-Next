@@ -58,3 +58,19 @@ class IntegratedSpecialRNG(unittest.TestCase):
  def test_structural_counterfactual_not_fresh_account_claim(self):
   self.assertIn('NOT an independently observed',self.result['status'])
 if __name__=='__main__':unittest.main()
+
+class BYJOriginalConsumerIntegrated(unittest.TestCase):
+ def test_optional_original_rescue_candidate_output_without_rng_guess(self):
+  from released_four_gate_integrated_counterfactual import analyze,public_summary
+  save=json.loads((ROOT/'private_saves/1124.json').read_text())
+  a=json.loads((BASE/'SPECIAL_AWARD_CONSUMER_SOURCE_20261124.json').read_text())
+  m=json.loads((BASE/'MATERIAL_CAP_SOURCE_20261124.json').read_text())
+  consumer=json.loads((BASE/'BYJ_ORIGINAL_MATERIAL_CASES_20261124.json').read_text())
+  report=analyze(save,ROOT/'v140/v30',ROOT/'next/gate-60-source-registry.json',a,m,consumer)
+  current=report['scenarios']['completed']['byjRescueHypothetical'];fresh=report['scenarios']['both_counters_zero_fresh_byj']['byjRescueHypothetical']
+  self.assertEqual(current['weightGroups'][0]['group'],1)
+  self.assertEqual(len(current['weightGroups']),2)
+  self.assertTrue(current['actualAwardUnknown'])
+  self.assertEqual(current['outcome'],'blocked-pending-unknown-rescue-selection')
+  self.assertGreater(fresh['weightGroups'][0]['weightSum'],0)
+  self.assertNotIn('seedAfter',json.dumps(public_summary(report)))
