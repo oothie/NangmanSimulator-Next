@@ -1,0 +1,399 @@
+{
+  "scope": "60014 original 90-grade normal equipment reward pools for 9 gate modes",
+  "policy": "source only; does NOT certify future RNG grade prediction",
+  "equipmentNames": {
+    "4009": "수라장갑",
+    "4209": "지수검",
+    "4409": "천운도",
+    "4609": "흑살곤",
+    "4809": "옥형 허리띠",
+    "5009": "자미아대",
+    "5209": "오잠보갑",
+    "5409": "청운반지",
+    "5609": "청운추"
+  },
+  "specialRngStateNpcs": {
+    "무신전/절세/35600": 35603,
+    "문향교/일반/50101": 50100
+  },
+  "consumers": [
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33654,
+      "ids": [
+        4209,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33653,
+      "ids": [
+        4409,
+        4809,
+        5009,
+        5209,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33652,
+      "ids": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33650,
+      "ids": [
+        4009,
+        4209,
+        4409,
+        4609,
+        4809,
+        5009,
+        5209,
+        5409,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "grantNpc": 40372,
+      "ids": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "grantNpc": 40373,
+      "ids": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "grantNpc": 40374,
+      "ids": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "grantNpc": 35219,
+      "ids": [
+        4409,
+        4209,
+        4009,
+        4609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "grantNpc": 35214,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "grantNpc": 35221,
+      "ids": [
+        4009,
+        4209,
+        4409,
+        4609,
+        4809,
+        5009,
+        5209,
+        5409,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "grantNpc": 35260,
+      "ids": [
+        5609,
+        5409,
+        5009
+      ],
+      "sourceStatus": "decoded-event-validated"
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "grantNpc": 35264,
+      "ids": [
+        4809,
+        5209,
+        5609,
+        5409
+      ],
+      "sourceStatus": "decoded-event-validated"
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "grantNpc": 35268,
+      "ids": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "sourceStatus": "decoded-event-validated"
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "grantNpc": 50101,
+      "ids": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "grantNpc": 50106,
+      "ids": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "grantNpc": 50111,
+      "ids": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 35324,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 50611,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 35306,
+      "ids": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 35310,
+      "ids": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 35600,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 50611,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 35413,
+      "ids": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 35420,
+      "ids": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "grantNpc": 50883,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "grantNpc": 50910,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "grantNpc": 44122,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "direct-sbc"
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "grantNpc": 50941,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "decoded-event-validated"
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "grantNpc": 50950,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "decoded-event-validated"
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "grantNpc": 44138,
+      "ids": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "sourceStatus": "decoded-event-validated"
+    }
+  ]
+}
