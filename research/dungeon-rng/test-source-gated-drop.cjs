@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict');
 const {checkRegister,loadDefault,tableOrder,staticWeights,selectVerifiedEffect,evaluateBossWithRolls,lookupAward}=require('./source-gated-drop.cjs');
 const db=loadDefault();
-assert.deepEqual(checkRegister(db),{consumers:30,totalTables:60,sourceTyped:34,awaitingOriginalBytecode:26});
+assert.deepEqual(checkRegister(db),{consumers:30,totalTables:60,sourceTyped:60,awaitingOriginalBytecode:0});
 let effects=0,eligible=0,blocked=0,slotLimited=0,seedExceptions=0;
 for(const c of db.consumers){
  const [eq,color]=['equip','color'].map(x=>c.tables.find(t=>t.kind===x));
@@ -47,14 +47,18 @@ for(const c of db.consumers){
  assert.equal(colored.originalSlotUpperBound,effect.maxSlot);
  assert.ok(colored.grade>=1&&colored.grade<=4);
  assert.equal(colored.rngNpc,c.rngNpc);
- const missing=selectVerifiedEffect(eq,eweights,max);
- assert.equal(missing.effect.effect,'no-drop');
- assert.equal(evaluateBossWithRolls(db,c.gate,c.mode,c.grantNpc,{equipRoll:max,slotRoll:1,colorRoll:1}).status,'conditional-no-drop');
+ let absent=null;
+ for(let v=1;v<=max;v++){
+  const r=selectVerifiedEffect(eq,eweights,v);
+  if(r.effect.effect==='no-drop'){absent=v;break}
+ }
+ assert.ok(absent!==null,'original producer must have a no-drop branch');
+ assert.equal(evaluateBossWithRolls(db,c.gate,c.mode,c.grantNpc,{equipRoll:absent,slotRoll:1,colorRoll:1}).status,'conditional-no-drop');
 }
-assert.equal(eligible,17);assert.equal(blocked,13);assert.equal(effects,102);assert.equal(slotLimited,1);assert.equal(seedExceptions,1);
+assert.equal(eligible,30);assert.equal(blocked,0);assert.equal(effects,181);assert.equal(slotLimited,1);assert.equal(seedExceptions,1);
 const exception=db.consumers.find(c=>c.grantNpc===35221);
 assert.equal(exception.equipmentIds.length,9);
 assert.equal(exception.tables[0].originalBytecodeBranchEffects['s:50 '].maxSlot,4);
 assert.equal(lookupAward(db,'무신전','절세',35600,2,3).rngNpc,35603);
 assert.equal(lookupAward(db,'문향교','일반',50101,1,1).rngNpc,50100);
-console.log(JSON.stringify({originalConsumerPools:30,typedBranchTables:34,verifiedActions:effects,modelExecutableBosses:eligible,blockedUnverifiedBosses:blocked,provenSlotRangeLimitExceptions:slotLimited,originalSeedMismatchExceptions:seedExceptions,tests:'PASS'},null,2));
+console.log(JSON.stringify({originalConsumerPools:30,typedBranchTables:60,verifiedActions:effects,modelExecutableBosses:eligible,blockedUnverifiedBosses:blocked,provenSlotRangeLimitExceptions:slotLimited,originalSeedMismatchExceptions:seedExceptions,tests:'PASS'},null,2));
