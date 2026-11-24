@@ -33,3 +33,11 @@
 3. 출시 관문 4개의 미획득 실측 세이브와 독립 클리어 결과로 실제 지급·일반 장비·종료 시드 동시 검증.
 
 문향교·무신전·벽유교 본단은 동결 유지. 공개 사이트·V82·출시 버전 변경 없음. 원본 SBC, 개인 저장 데이터, 계정 ID를 공개 GitHub/ZIP에 포함하지 않음.
+
+## 기존 출시 4관문 전방 가상 재생기에 선택 연결
+
+`released_four_gate_integrated_counterfactual.py`에 선택 인수 `--byj-material-rescue-registry BYJ_ORIGINAL_MATERIAL_CASES_20261124.json`을 추가했다. 현재 세이브의 `glm_reward`를 미구출 가상 상태인 0으로 명시적으로 가정하고, 입장 13가중치·상한 제거를 거친 뒤 인간정로 구출 시 **각 그룹의 유효 후보 수와 가중치 합**을 계산한다. 실제 뽑힌 재료를 임의 생성하지 않고 `blocked-pending-unknown-rescue-selection`으로 표시하며, `public_summary`에는 계정별 난수 seed를 표시하지 않는다. 로컬 회귀 **59/59 통과**.
+
+- 원본 데이터: `BYJ_ORIGINAL_MATERIAL_CASES_20261124.json` (두 이벤트 decoded SHA-256, 가중치 13개, 아이템/지급수량/누적상한 갱신)
+- `36274_1.lua`: 유일 크기 매칭으로 원본 파일 식별, 원본 바이트코드 동작 근거.
+- `36275` 인간정로 이벤트: 내부 NPC와 전체 분기 동일성을 확인했으나 컨테이너 크기 후보는 2개여서 정확한 파일명 식별에는 주의.
