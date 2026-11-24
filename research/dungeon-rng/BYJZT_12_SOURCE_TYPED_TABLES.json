@@ -1,0 +1,242 @@
+{
+  "기본": {
+    "source_sha256": "39c914aa5a0e10e4ea2e1f85afabdac01c9b421fba0a541a796955885b14ba57",
+    "source_instructions": 480,
+    "tables": {
+      "8": {
+        "td_up_pc": 215,
+        "source_typed_writes": [
+          "n:50",
+          "s:50 "
+        ],
+        "source_write_pc": [
+          219,
+          223
+        ],
+        "model_pairs_order": [
+          "s:50 ",
+          "n:50"
+        ],
+        "game_native_pairs_verified": false
+      },
+      "9": {
+        "td_up_pc": 227,
+        "source_typed_writes": [
+          "n:50",
+          "n:30",
+          "n:15",
+          "n:5"
+        ],
+        "source_write_pc": [
+          231,
+          235,
+          239,
+          243
+        ],
+        "model_pairs_order": [
+          "n:30",
+          "n:5",
+          "n:50",
+          "n:15"
+        ],
+        "game_native_pairs_verified": false
+      },
+      "13": {
+        "td_up_pc": 277,
+        "source_typed_writes": [
+          "n:50",
+          "s:50 "
+        ],
+        "source_write_pc": [
+          281,
+          285
+        ],
+        "model_pairs_order": [
+          "s:50 ",
+          "n:50"
+        ],
+        "game_native_pairs_verified": false
+      },
+      "14": {
+        "td_up_pc": 289,
+        "source_typed_writes": [
+          "n:50",
+          "n:30",
+          "n:15",
+          "n:5"
+        ],
+        "source_write_pc": [
+          293,
+          297,
+          301,
+          305
+        ],
+        "model_pairs_order": [
+          "n:30",
+          "n:5",
+          "n:50",
+          "n:15"
+        ],
+        "game_native_pairs_verified": false
+      },
+      "19": {
+        "td_up_pc": 365,
+        "source_typed_writes": [
+          "n:50",
+          "s:50 "
+        ],
+        "source_write_pc": [
+          369,
+          373
+        ],
+        "model_pairs_order": [
+          "s:50 ",
+          "n:50"
+        ],
+        "game_native_pairs_verified": false
+      },
+      "20": {
+        "td_up_pc": 377,
+        "source_typed_writes": [
+          "n:50",
+          "n:30",
+          "n:15",
+          "n:5"
+        ],
+        "source_write_pc": [
+          381,
+          385,
+          389,
+          393
+        ],
+        "model_pairs_order": [
+          "n:30",
+          "n:5",
+          "n:50",
+          "n:15"
+        ],
+        "game_native_pairs_verified": false
+      }
+    }
+  },
+  "추혼": {
+    "source_sha256": "a95e36d22868f7fae17efa00595bb09563f46d9232375a8cf58b06ad130a6fb0",
+    "source_instructions": 548,
+    "tables": {
+      "9": {
+        "td_up_pc": 229,
+        "source_typed_writes": [
+          "n:50",
+          "s:50 "
+        ],
+        "source_write_pc": [
+          233,
+          237
+        ],
+        "model_pairs_order": [
+          "s:50 ",
+          "n:50"
+        ],
+        "game_native_pairs_verified": false
+      },
+      "10": {
+        "td_up_pc": 241,
+        "source_typed_writes": [
+          "n:50",
+          "n:30",
+          "n:15",
+          "n:5"
+        ],
+        "source_write_pc": [
+          245,
+          249,
+          253,
+          257
+        ],
+        "model_pairs_order": [
+          "n:30",
+          "n:5",
+          "n:50",
+          "n:15"
+        ],
+        "game_native_pairs_verified": false
+      },
+      "15": {
+        "td_up_pc": 317,
+        "source_typed_writes": [
+          "n:50",
+          "s:50 "
+        ],
+        "source_write_pc": [
+          321,
+          325
+        ],
+        "model_pairs_order": [
+          "s:50 ",
+          "n:50"
+        ],
+        "game_native_pairs_verified": false
+      },
+      "16": {
+        "td_up_pc": 329,
+        "source_typed_writes": [
+          "n:50",
+          "n:30",
+          "n:15",
+          "n:5"
+        ],
+        "source_write_pc": [
+          333,
+          337,
+          341,
+          345
+        ],
+        "model_pairs_order": [
+          "n:30",
+          "n:5",
+          "n:50",
+          "n:15"
+        ],
+        "game_native_pairs_verified": false
+      },
+      "22": {
+        "td_up_pc": 419,
+        "source_typed_writes": [
+          "n:50",
+          "s:50 "
+        ],
+        "source_write_pc": [
+          423,
+          427
+        ],
+        "model_pairs_order": [
+          "s:50 ",
+          "n:50"
+        ],
+        "game_native_pairs_verified": false
+      },
+      "23": {
+        "td_up_pc": 431,
+        "source_typed_writes": [
+          "n:50",
+          "n:30",
+          "n:15",
+          "n:5"
+        ],
+        "source_write_pc": [
+          435,
+          439,
+          443,
+          447
+        ],
+        "model_pairs_order": [
+          "n:30",
+          "n:5",
+          "n:50",
+          "n:15"
+        ],
+        "game_native_pairs_verified": false
+      }
+    }
+  }
+}
