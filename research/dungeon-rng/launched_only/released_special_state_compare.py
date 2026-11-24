@@ -24,6 +24,8 @@ def compare(save,award_db,material_db):
    'awardCountLimitCurrentlyBlockedIfRollSucceeds':sum(r['claimCountCurrentEligible'] is False for r in awards),
    'unclaimedCountCouldChangePayout':sum(r['doesChangingClaimCountAffectConsumer'] for r in awards),
    'unknownTempScope':sum(r['claimCountCurrentEligible'] is None for r in awards),
+   'originalPreAwardRollbackRules':sum(r.get('rollback') is not None for r in award_db['awards'] if r['gate']==gate),
+   'preAwardRollbackApplied':sum(r['originalRollbackApplied'] for r in awards),
    'materialWeightEntries':len(weights_gate),
    'materialWeightCurrent':mat['actualDynamicSum'],
    'materialWeightUnclaimedSameInitialization':mat['zeroCountSameInitializationSum'],
@@ -39,7 +41,7 @@ def compare(save,award_db,material_db):
    'freshInitialization':'add BYJ first_rdward=0 reinitialization; other state held constant',
    'payout':'only indicates eligibility IF original special-roll flag is true',
    'temporaryScope':'unresolved properties such as get_8801 temp are not equated to global counters',
-   'sourceLimits':'does not replay consumer rollback/re-entry or stage-specific inventory additions',
+   'sourceLimits':'replays 37 source-attested flag==2 pre-award rollbacks, not the entire consumer event tree or stage-specific inventory additions',
    'numericGuard':'GetP(8915) is separate from get_8915; do not infer or reset it',
    'otherState':'win counters, branches and actual item ownership unchanged; not a true fresh-account simulation',
    'noPredictedDrops':'condition tables and reward guards only; no novel RNG sampled in this comparison'
@@ -48,6 +50,8 @@ def compare(save,award_db,material_db):
   'totals':{
    'payoutRules':len(payout),'materialEntries':len(weights),
    'payoutBlockCount':sum(g['awardCountLimitCurrentlyBlockedIfRollSucceeds'] for g in bygate.values()),
+   'originalRollbackRules':sum(g['originalPreAwardRollbackRules'] for g in bygate.values()),
+   'currentRollbackApplications':sum(g['preAwardRollbackApplied'] for g in bygate.values()),
    'changedMaterialCountOnly':sum(g['changedWeightsOnCountOnlyReset'] for g in bygate.values()),
    'changedMaterialFresh':sum(g['changedWeightsOnFreshInitialization'] for g in bygate.values())}}
 
