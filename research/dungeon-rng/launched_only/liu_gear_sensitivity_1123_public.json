@@ -1,0 +1,128 @@
+{
+  "gate": "유씨별원",
+  "clears": 3,
+  "source": "original-sourced v30 simulator; private hypothetical states",
+  "notVerifiedNeverClaimed": true,
+  "results": {
+    "completed": [
+      {
+        "clear": 1,
+        "equipmentChanged": false,
+        "drawCountChanged": false,
+        "seedChanged": false
+      },
+      {
+        "clear": 2,
+        "equipmentChanged": false,
+        "drawCountChanged": false,
+        "seedChanged": false
+      },
+      {
+        "clear": 3,
+        "equipmentChanged": false,
+        "drawCountChanged": false,
+        "seedChanged": false
+      }
+    ],
+    "payout_counters_zero_only": [
+      {
+        "clear": 1,
+        "equipmentChanged": false,
+        "drawCountChanged": false,
+        "seedChanged": false
+      },
+      {
+        "clear": 2,
+        "equipmentChanged": false,
+        "drawCountChanged": false,
+        "seedChanged": false
+      },
+      {
+        "clear": 3,
+        "equipmentChanged": false,
+        "drawCountChanged": false,
+        "seedChanged": false
+      }
+    ],
+    "material_counters_zero_only": [
+      {
+        "clear": 1,
+        "equipmentChanged": false,
+        "drawCountChanged": false,
+        "seedChanged": true
+      },
+      {
+        "clear": 2,
+        "equipmentChanged": true,
+        "drawCountChanged": false,
+        "seedChanged": true
+      },
+      {
+        "clear": 3,
+        "equipmentChanged": true,
+        "drawCountChanged": true,
+        "seedChanged": true
+      }
+    ],
+    "both_counters_zero_same_initialization": [
+      {
+        "clear": 1,
+        "equipmentChanged": false,
+        "drawCountChanged": false,
+        "seedChanged": true
+      },
+      {
+        "clear": 2,
+        "equipmentChanged": true,
+        "drawCountChanged": false,
+        "seedChanged": true
+      },
+      {
+        "clear": 3,
+        "equipmentChanged": true,
+        "drawCountChanged": true,
+        "seedChanged": true
+      }
+    ],
+    "both_counters_zero_fresh_byj": [
+      {
+        "clear": 1,
+        "equipmentChanged": false,
+        "drawCountChanged": false,
+        "seedChanged": true
+      },
+      {
+        "clear": 2,
+        "equipmentChanged": true,
+        "drawCountChanged": false,
+        "seedChanged": true
+      },
+      {
+        "clear": 3,
+        "equipmentChanged": true,
+        "drawCountChanged": true,
+        "seedChanged": true
+      }
+    ],
+    "liu_numeric_8915_enabled_only": [
+      {
+        "clear": 1,
+        "equipmentChanged": true,
+        "drawCountChanged": false,
+        "seedChanged": true
+      },
+      {
+        "clear": 2,
+        "equipmentChanged": true,
+        "drawCountChanged": true,
+        "seedChanged": true
+      },
+      {
+        "clear": 3,
+        "equipmentChanged": true,
+        "drawCountChanged": true,
+        "seedChanged": true
+      }
+    ]
+  }
+}
