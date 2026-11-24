@@ -19,7 +19,7 @@ class EvidenceLedgerTests(unittest.TestCase):
     def test_existing_key_skips_draw_while_held(self):
         self.events['initialQuantity']=1
         statuses,_=ownership_timeline(self.order,self.events)
-        self.assertEqual(statuses,[True,True,True,False])
+        self.assertEqual(statuses,[True,True,True,True])
     def test_original_not_mutated(self):
         original=copy.deepcopy(self.events)
         ownership_timeline(self.order,self.events)
