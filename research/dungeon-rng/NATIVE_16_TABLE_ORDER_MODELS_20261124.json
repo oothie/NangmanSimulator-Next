@@ -15,6 +15,10 @@
       "model_pairs_order": [
         "s:50 ",
         "n:50"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "s:50 "
       ]
     },
     {
@@ -26,6 +30,12 @@
         "n:5",
         "n:40",
         "n:15"
+      ],
+      "source_insertion_order": [
+        "n:40",
+        "s:40 ",
+        "n:15",
+        "n:5"
       ]
     },
     {
@@ -44,6 +54,19 @@
         "s:GetP('drop_lsby_4')",
         "s:GetP('drop_lsby_9')",
         "s:GetP('drop_lsby_10')"
+      ],
+      "source_insertion_order": [
+        "s:GetP('drop_lsby_1')",
+        "s:GetP('drop_lsby_2')",
+        "s:GetP('drop_lsby_3')",
+        "s:GetP('drop_lsby_4')",
+        "s:GetP('drop_lsby_5')",
+        "s:GetP('drop_lsby_6')",
+        "s:GetP('drop_lsby_7')",
+        "s:GetP('drop_lsby_8')",
+        "s:GetP('drop_lsby_9')",
+        "s:GetP('drop_lsby_10')",
+        "s:GetP('drop_lsby_11')"
       ]
     },
     {
@@ -55,6 +78,12 @@
         "n:303",
         "n:302",
         "n:301"
+      ],
+      "source_insertion_order": [
+        "n:301",
+        "n:302",
+        "n:303",
+        "n:304"
       ]
     },
     {
@@ -67,6 +96,13 @@
         "n:201",
         "s:200  ",
         "s:200   "
+      ],
+      "source_insertion_order": [
+        "n:201",
+        "s:200  ",
+        "s:200   ",
+        "s:200    ",
+        "s:200     "
       ]
     },
     {
@@ -76,6 +112,10 @@
       "model_pairs_order": [
         "s:50 ",
         "n:50"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "s:50 "
       ]
     },
     {
@@ -87,6 +127,12 @@
         "n:5",
         "n:50",
         "n:15"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "n:30",
+        "n:15",
+        "n:5"
       ]
     },
     {
@@ -96,6 +142,10 @@
       "model_pairs_order": [
         "s:GetP('roll_35268')",
         "s:120 - GetP('roll_35268')"
+      ],
+      "source_insertion_order": [
+        "s:120 - GetP('roll_35268')",
+        "s:GetP('roll_35268')"
       ]
     },
     {
@@ -105,6 +155,10 @@
       "model_pairs_order": [
         "s:50 ",
         "n:50"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "s:50 "
       ]
     },
     {
@@ -116,6 +170,12 @@
         "n:5",
         "n:50",
         "n:15"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "n:30",
+        "n:15",
+        "n:5"
       ]
     },
     {
@@ -125,6 +185,10 @@
       "model_pairs_order": [
         "s:50 ",
         "n:50"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "s:50 "
       ]
     },
     {
@@ -136,6 +200,12 @@
         "n:5",
         "n:50",
         "n:15"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "n:30",
+        "n:15",
+        "n:5"
       ]
     },
     {
@@ -145,6 +215,10 @@
       "model_pairs_order": [
         "s:50 ",
         "n:50"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "s:50 "
       ]
     },
     {
@@ -156,6 +230,12 @@
         "n:5",
         "n:50",
         "n:15"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "n:30",
+        "n:15",
+        "n:5"
       ]
     },
     {
@@ -165,6 +245,10 @@
       "model_pairs_order": [
         "s:50 ",
         "n:50"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "s:50 "
       ]
     },
     {
@@ -176,6 +260,12 @@
         "n:5",
         "n:50",
         "n:15"
+      ],
+      "source_insertion_order": [
+        "n:50",
+        "n:30",
+        "n:15",
+        "n:5"
       ]
     }
   ]
