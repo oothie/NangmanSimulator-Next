@@ -86,7 +86,7 @@ function marketPool(source,shop,save,now){
 }
 function draw(rng,pool,gold,rare,slots){
  const used=new Set,result=[];let attempts=0,i=0;
- for(let rareNext=rare;i<6&&attempts++<8000&&pool.length&&used.size<pool.length;){
+ for(let rareNext=rare;i<slots&&attempts++<8000&&pool.length&&used.size<pool.length;){
   if(rareNext){
    const rarePool=pool.filter(x=>x.rare===1);
    if(!rarePool.length){rareNext=false;continue}
