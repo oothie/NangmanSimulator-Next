@@ -46,11 +46,12 @@ def present(gate,npc,slot,grade,pools,names,roll_meta=None):
             'grade':GRADES[grade], 'slot':slot, 'gradeCode':grade}
 
 def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1,ywf_clears:int=1,
-           special_award_registry:Path|None=None,special_material_registry:Path|None=None):
+           special_award_registry:Path|None=None,special_material_registry:Path|None=None,dcy_clears:int=1):
     if (special_award_registry is None)!=(special_material_registry is None):
         raise ValueError('Both special award and material original registries are required')
     if not isinstance(liu_clears,int) or not 1<=liu_clears<=20:raise ValueError('Liu clears 1..20')
     if not isinstance(ywf_clears,int) or not 1<=ywf_clears<=20:raise ValueError('YWF clears 1..20')
+    if not isinstance(dcy_clears,int) or not 1<=dcy_clears<=20:raise ValueError('DCY clears 1..20')
     source_root=source_root.resolve()
     if not (source_root/'ywf_33381_replay_v29.py').exists():
         raise FileNotFoundError('Required original 33381 model not found at '+str(source_root))
@@ -58,7 +59,7 @@ def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1,ywf_cle
         sp=str((source_root/sub).resolve())
         if sp not in sys.path:sys.path.insert(0,sp)
     from ywf_33381_replay_v29 import replay as yan_replay
-    from experimental_four_gate_engine import report_byj,report_dcy,report_liu
+    from experimental_four_gate_engine import report_byj,report_liu
     pools,names=load_registry(registry)
     results=[]
     # YWF source 33381 has a recoverable mutable per-boss seed and reward state.
@@ -85,12 +86,16 @@ def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1,ywf_cle
             if rec['quality'] is not None:nxt['globalVariable'][color_key]=rec['quality']
         ywf_state=nxt
     # DCY/BYJ remain one-clear only: their full mutable-state carry-over is not yet audited.
-    dc=report_dcy(preentry)
-    eq=[]
-    for b,npc in BOSSES['창옥']:
-        rec=dc['bosses'][str(npc)]
-        eq.append({'boss':b,**present('창옥',npc,rec['slot'],rec.get('grade'),pools,names)})
-    results.append({'gate':'창옥','clear':1,'draws':dc['call_count'],'seedAfter':dc['seed_after'],'equipment':eq,'source':'40389_1.lua'})
+    from dcy_stateful.dcy_stateful_forward import replay_many as replay_dcy_stateful
+    _,dc_runs=replay_dcy_stateful(preentry,source_root,dcy_clears)
+    for dc in dc_runs:
+        eq=[]
+        for b,npc in BOSSES['창옥']:
+            rec=dc['equipmentSlotGrade'][str(npc)]
+            eq.append({'boss':b,**present('창옥',npc,rec[0],rec[1],pools,names)})
+        results.append({'gate':'창옥','clear':dc['clear'],'draws':dc['drawCount'],
+                        'seedAfter':dc['seedAfter'],'equipment':eq,'source':'40389_1.lua',
+                        'validation':'first clear: archived historical seeds match; later clears: modeled carry-over only'})
     by=report_byj(preentry)
     if by['selected'] is None:
         # Never silently select branch 37 from an unobserved state.
@@ -121,13 +126,13 @@ def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1,ywf_cle
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--save',required=True,type=Path);p.add_argument('--v30-root',required=True,type=Path)
-    p.add_argument('--registry',required=True,type=Path);p.add_argument('--liu-clears',type=int,default=1);p.add_argument('--ywf-clears',type=int,default=1)
+    p.add_argument('--registry',required=True,type=Path);p.add_argument('--liu-clears',type=int,default=1);p.add_argument('--ywf-clears',type=int,default=1);p.add_argument('--dcy-clears',type=int,default=1)
     p.add_argument('--output',type=Path,help='Local private output (may contain RNG seed values)')
     p.add_argument('--special-award-registry',type=Path,help='Source-derived 40 original special consumer rules')
     p.add_argument('--special-material-registry',type=Path,help='Source-derived 46 original material weight caps')
     a=p.parse_args()
     result=replay(json.loads(a.save.read_text()),a.v30_root,a.registry,a.liu_clears,a.ywf_clears,
-                  a.special_award_registry,a.special_material_registry)
+                  a.special_award_registry,a.special_material_registry,a.dcy_clears)
     payload=json.dumps(result,ensure_ascii=False,indent=2)+'\n'
     if a.output:a.output.write_text(payload,encoding='utf-8')
     else:print(payload)
