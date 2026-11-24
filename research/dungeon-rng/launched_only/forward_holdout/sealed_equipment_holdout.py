@@ -63,8 +63,13 @@ def seal(before: dict, source_root: Path, registry: Path,
     if len(result['runs']) != len(schedule):
         raise AssertionError('Incomplete model run')
     expected = []
+    boss_forecast = []
     for run in result['runs']:
         for item in run['equipment']:
+            boss_forecast.append({'order':run['order'], 'gate':run['gate'],
+                                  'boss':item['boss'], 'equipmentName':item['equipmentName'],
+                                  'grade':item['grade'], 'equipmentId':item['equipmentId'],
+                                  'gradeCode':item['gradeCode']})
             if item['equipmentId'] is not None:
                 expected.append([int(item['equipmentId']), int(item['gradeCode'])])
     seed_keys = sorted({k for gate in schedule for k in SEEDS[gate]})
@@ -79,6 +84,7 @@ def seal(before: dict, source_root: Path, registry: Path,
         'start_inventory_ids': sorted(start_items),
         'start_inventory_fingerprint': sha(start_items),
         'expected_equipment': expected,
+        'expected_boss_equipment': boss_forecast,
         'expected_end_seeds': expected_seeds,
         'expected_win_counters': wins,
         'starting_save_digest': hashlib.sha256(canonical(before)).hexdigest(),
@@ -100,6 +106,15 @@ def seal(before: dict, source_root: Path, registry: Path,
     }
     return record, public
 
+
+def render_private_forecast(record: dict) -> str:
+    """Local Korean-language per-boss forecast, with no seed or account data."""
+    rows = []
+    for item in record.get('expected_boss_equipment', []):
+        name = item.get('equipmentName') or '미드랍'
+        grade = item.get('grade') or ''
+        rows.append(f"{item['order']}회차 · {item['gate']} · {item['boss']} — {name} {grade}".rstrip())
+    return '\n'.join(rows)
 
 def check(after: dict, record: dict, public: dict, *, accept_extra: bool=False) -> dict:
     """Never recompute or refit the recorded forecast using after-state."""
@@ -164,6 +179,7 @@ def main() -> None:
     create.add_argument('--schedule',required=True)
     create.add_argument('--private-record',type=Path,required=True)
     create.add_argument('--public-commitment',type=Path,required=True)
+    create.add_argument('--show-forecast',action='store_true',help='Print local boss names/equipment/colors, never RNG seeds')
     verify=sub.add_parser('verify');verify.add_argument('--after',type=Path,required=True)
     verify.add_argument('--private-record',type=Path,required=True)
     verify.add_argument('--public-commitment',type=Path,required=True)
@@ -177,6 +193,7 @@ def main() -> None:
         a.private_record.write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n')
         a.public_commitment.write_text(json.dumps(public,ensure_ascii=False,indent=2)+'\n')
         print('SEALED',public['sealed_sha256'],'gates',public['gate_count'],'gear',public['equipment_count'])
+        if a.show_forecast: print(render_private_forecast(record))
     else:
         record=json.loads(a.private_record.read_text());public=json.loads(a.public_commitment.read_text());after=json.loads(a.after.read_text())
         result=check(after,record,public,accept_extra=a.diagnose_extra)
