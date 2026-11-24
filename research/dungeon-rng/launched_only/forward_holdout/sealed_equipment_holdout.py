@@ -92,10 +92,16 @@ def validate_forecast_runs(runs: list[dict], schedule: list[str]) -> None:
                     raise ValueError('Korean equipment name missing; cannot seal numeric-only item')
 
 def seal(before: dict, source_root: Path, registry: Path,
-         schedule: list[str], *, nonce: str|None=None) -> tuple[dict, dict]:
+         schedule: list[str], *, nonce: str|None=None,
+         liu_key_evidence:dict|None=None) -> tuple[dict, dict]:
     validate_schedule(schedule)
     from mixed_gate_schedule import run_order
-    after_model, result = run_order(before, source_root, registry, schedule)
+    from liu_key_evidence_ledger import ownership_timeline
+    timeline = None
+    if liu_key_evidence is not None:
+        timeline, _ = ownership_timeline(schedule, liu_key_evidence)
+    after_model, result = run_order(before, source_root, registry, schedule,
+                                    **({'liu_key_ownership':timeline} if timeline is not None else {}))
     validate_forecast_runs(result['runs'], schedule)
     expected = []
     boss_forecast = []
@@ -120,6 +126,8 @@ def seal(before: dict, source_root: Path, registry: Path,
         'start_inventory_fingerprint': sha(start_items),
         'expected_equipment': expected,
         'expected_boss_equipment': boss_forecast,
+        'liu_key_evidence_digest': sha(liu_key_evidence) if liu_key_evidence is not None else None,
+        'liu_key_ownership_timeline': timeline,
         'expected_end_seeds': expected_seeds,
         'expected_win_counters': wins,
         'starting_save_digest': hashlib.sha256(canonical(before)).hexdigest(),
@@ -215,6 +223,7 @@ def main() -> None:
     create.add_argument('--private-record',type=Path,required=True)
     create.add_argument('--public-commitment',type=Path,required=True)
     create.add_argument('--show-forecast',action='store_true',help='Print local boss names/equipment/colors, never RNG seeds')
+    create.add_argument('--liu-key-evidence',type=Path,help='Private JSON of confirmed key inventory receipt/use events')
     verify=sub.add_parser('verify');verify.add_argument('--after',type=Path,required=True)
     verify.add_argument('--private-record',type=Path,required=True)
     verify.add_argument('--public-commitment',type=Path,required=True)
@@ -223,7 +232,10 @@ def main() -> None:
     a=p.parse_args()
     if a.mode=='seal':
         baseline=json.loads(a.before.read_text())
-        record,public=seal(baseline,a.source_root,a.registry,a.schedule.split(','))
+        evidence=(json.loads(a.liu_key_evidence.read_text(encoding='utf-8'))
+                  if a.liu_key_evidence is not None else None)
+        record,public=seal(baseline,a.source_root,a.registry,a.schedule.split(','),
+                           liu_key_evidence=evidence)
         if a.private_record.resolve()==a.public_commitment.resolve():raise ValueError('Private and public destination cannot coincide')
         a.private_record.write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n')
         a.public_commitment.write_text(json.dumps(public,ensure_ascii=False,indent=2)+'\n')
