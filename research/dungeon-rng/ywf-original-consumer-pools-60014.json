@@ -1,0 +1,79 @@
+{
+  "source": "60014_FIELD_GATE_FUNCTION_CACHE_V174_20261012.zip (inside V177 original archive), V174/ywf_boss{1..4}.lua.sbc; exact AddBattleDrop(_var[GetP(drop_..._equip)]) text",
+  "note": "Source-grounded slot-to-item mapping, not a future game runtime guarantee; no save file included",
+  "pools": [
+    {
+      "boss": "이총관",
+      "npc": 33654,
+      "source": "ywf_boss1.lua.sbc",
+      "sha256": "7cec3e67bd1b805c7ee6941c25991aab6d0789116b25fec790b61b6c6d04eeec",
+      "ids": [
+        4209,
+        4809,
+        5009,
+        5409,
+        5609
+      ]
+    },
+    {
+      "boss": "하상",
+      "npc": 33653,
+      "source": "ywf_boss2.lua.sbc",
+      "sha256": "e8bc648df1983cb890888c169da6004a4efaea50a83d8492ec68c000b14c1b5e",
+      "ids": [
+        4409,
+        4809,
+        5009,
+        5209,
+        5609
+      ]
+    },
+    {
+      "boss": "엽내관",
+      "npc": 33652,
+      "source": "ywf_boss3.lua.sbc",
+      "sha256": "7704f4bdb6e24342a64fc727fe3e1af179fc83626ba0dab748344a3e972d1753",
+      "ids": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ]
+    },
+    {
+      "boss": "연왕",
+      "npc": 33650,
+      "source": "ywf_boss4.lua.sbc",
+      "sha256": "5e3001d7d5ae97ea30b5ff3f69bea7aab283db197e72b2fd259829b9a7bc61de",
+      "ids": [
+        4009,
+        4209,
+        4409,
+        4609,
+        4809,
+        5009,
+        5209,
+        5409,
+        5609
+      ]
+    }
+  ],
+  "names": {
+    "4009": "수라장갑",
+    "4209": "지수검",
+    "4409": "천운도",
+    "4609": "흑살곤",
+    "4809": "옥형 허리띠",
+    "5009": "자미아대",
+    "5209": "오잠보갑",
+    "5409": "청운반지",
+    "5609": "청운추"
+  },
+  "colorCodes": {
+    "1": "백색",
+    "2": "녹색",
+    "3": "청색",
+    "4": "자색"
+  }
+}
