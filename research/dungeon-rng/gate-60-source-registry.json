@@ -5,9 +5,9 @@
   "counts": {
     "consumers": 30,
     "producerTables": 60,
-    "typedBytecodeTables": 34,
-    "unverifiedTypedTables": 26,
-    "bytecodeBranchKeyEffects": 102,
+    "typedBytecodeTables": 60,
+    "unverifiedTypedTables": 0,
+    "bytecodeBranchKeyEffects": 181,
     "bytecodeBranchEffectAmbiguities": 0
   },
   "equipmentNames": {
@@ -41,26 +41,73 @@
           "seed": "seed_dcy_40374",
           "sourcePath": "/3/35/2",
           "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 799,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 803
+            },
+            {
+              "key": "s:50 ",
+              "pc": 827
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 40374
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 40374,
+              "slotSeed": "seed_dcy_40374",
+              "maxSlot": 5
+            }
+          },
+          "bytecodeSha256": "96f55ec5dd8d52f6c3c2d56aeb282140fecf0bf26c5e9541b42af6f1cfac057b"
         },
         {
           "kind": "color",
           "seed": "seed_dcy_40374",
           "sourcePath": "/3/35/2/50 /2/2",
           "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 808,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 812
+            },
+            {
+              "key": "n:30",
+              "pc": 816
+            },
+            {
+              "key": "n:15",
+              "pc": 820
+            },
+            {
+              "key": "n:5",
+              "pc": 824
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -68,7 +115,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 40374,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 40374,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 40374,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 40374,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "96f55ec5dd8d52f6c3c2d56aeb282140fecf0bf26c5e9541b42af6f1cfac057b"
         }
       ]
     },
@@ -513,26 +583,73 @@
           "seed": "seed_dcy_40372",
           "sourcePath": "/3/18/2",
           "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 501,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 505
+            },
+            {
+              "key": "s:50 ",
+              "pc": 529
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 40372
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 40372,
+              "slotSeed": "seed_dcy_40372",
+              "maxSlot": 5
+            }
+          },
+          "bytecodeSha256": "96f55ec5dd8d52f6c3c2d56aeb282140fecf0bf26c5e9541b42af6f1cfac057b"
         },
         {
           "kind": "color",
           "seed": "seed_dcy_40372",
           "sourcePath": "/3/18/2/50 /2/2",
           "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 510,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 514
+            },
+            {
+              "key": "n:30",
+              "pc": 518
+            },
+            {
+              "key": "n:15",
+              "pc": 522
+            },
+            {
+              "key": "n:5",
+              "pc": 526
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -540,7 +657,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 40372,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 40372,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 40372,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 40372,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "96f55ec5dd8d52f6c3c2d56aeb282140fecf0bf26c5e9541b42af6f1cfac057b"
         }
       ]
     },
@@ -557,32 +697,78 @@
         5409,
         5609
       ],
-      "tables": [
-        {
+      "tables": [        {
           "kind": "equip",
           "seed": "seed_dcy_40373",
           "sourcePath": "/3/29/2",
           "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 697,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 701
+            },
+            {
+              "key": "s:50 ",
+              "pc": 725
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 40373
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 40373,
+              "slotSeed": "seed_dcy_40373",
+              "maxSlot": 5
+            }
+          },
+          "bytecodeSha256": "96f55ec5dd8d52f6c3c2d56aeb282140fecf0bf26c5e9541b42af6f1cfac057b"
         },
         {
           "kind": "color",
           "seed": "seed_dcy_40373",
           "sourcePath": "/3/29/2/50 /2/2",
           "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 706,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 710
+            },
+            {
+              "key": "n:30",
+              "pc": 714
+            },
+            {
+              "key": "n:15",
+              "pc": 718
+            },
+            {
+              "key": "n:5",
+              "pc": 722
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -590,7 +776,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 40373,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 40373,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 40373,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 40373,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "96f55ec5dd8d52f6c3c2d56aeb282140fecf0bf26c5e9541b42af6f1cfac057b"
         }
       ]
     },
@@ -613,26 +822,73 @@
           "seed": "seed_33654",
           "sourcePath": "/3/17/2",
           "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 485,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 489
+            },
+            {
+              "key": "s:50 ",
+              "pc": 513
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 33654
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 33654,
+              "slotSeed": "seed_33654",
+              "maxSlot": 5
+            }
+          },
+          "bytecodeSha256": "8dad4c3f56cd8a3aecf953b58066cd030e3887c5ac98c6c85cb172272314be40"
         },
         {
           "kind": "color",
           "seed": "seed_33654",
           "sourcePath": "/3/17/2/50 /2/2",
           "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 494,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 498
+            },
+            {
+              "key": "n:30",
+              "pc": 502
+            },
+            {
+              "key": "n:15",
+              "pc": 506
+            },
+            {
+              "key": "n:5",
+              "pc": 510
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -640,7 +896,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 33654,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 33654,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 33654,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 33654,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "8dad4c3f56cd8a3aecf953b58066cd030e3887c5ac98c6c85cb172272314be40"
         }
       ]
     },
@@ -663,26 +942,73 @@
           "seed": "seed_33653",
           "sourcePath": "/3/21/2",
           "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 559,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 563
+            },
+            {
+              "key": "s:50 ",
+              "pc": 587
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 33653
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 33653,
+              "slotSeed": "seed_33653",
+              "maxSlot": 5
+            }
+          },
+          "bytecodeSha256": "8dad4c3f56cd8a3aecf953b58066cd030e3887c5ac98c6c85cb172272314be40"
         },
         {
           "kind": "color",
           "seed": "seed_33653",
           "sourcePath": "/3/21/2/50 /2/2",
           "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 568,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 572
+            },
+            {
+              "key": "n:30",
+              "pc": 576
+            },
+            {
+              "key": "n:15",
+              "pc": 580
+            },
+            {
+              "key": "n:5",
+              "pc": 584
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -690,7 +1016,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 33653,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 33653,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 33653,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 33653,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "8dad4c3f56cd8a3aecf953b58066cd030e3887c5ac98c6c85cb172272314be40"
         }
       ]
     },
@@ -713,27 +1062,83 @@
           "seed": "seed_33652",
           "sourcePath": "/3/25/2",
           "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 633,
+          "typedWrites": [
+            {
+              "key": "n:40",
+              "pc": 637
+            },
+            {
+              "key": "n:10",
+              "pc": 641
+            },
+            {
+              "key": "n:50",
+              "pc": 665
+            }
+          ],
+          "modelPairsOrder": [
+            "n:50",
+            "n:10",
+            "n:40"
+          ],
           "sourceWeightLiterals": [
             "40",
             "10",
             "50"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:40": {
+              "effect": "no-drop",
+              "stateNpc": 33652
+            },
+            "n:10": {
+              "effect": "no-drop",
+              "stateNpc": 33652
+            },
+            "n:50": {
+              "effect": "equip-slot",
+              "stateNpc": 33652,
+              "slotSeed": "seed_33652",
+              "maxSlot": 5
+            }
+          },
+          "bytecodeSha256": "8dad4c3f56cd8a3aecf953b58066cd030e3887c5ac98c6c85cb172272314be40"
         },
         {
           "kind": "color",
           "seed": "seed_33652",
           "sourcePath": "/3/25/2/50/2/2",
           "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 646,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 650
+            },
+            {
+              "key": "n:30",
+              "pc": 654
+            },
+            {
+              "key": "n:15",
+              "pc": 658
+            },
+            {
+              "key": "n:5",
+              "pc": 662
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -741,13 +1146,37 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 33652,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 33652,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 33652,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 33652,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "8dad4c3f56cd8a3aecf953b58066cd030e3887c5ac98c6c85cb172272314be40"
         }
       ]
     },
     {
       "gate": "연왕부",
-      "mode": "일반",      "grantNpc": 33650,
+      "mode": "일반",
+      "grantNpc": 33650,
       "rngNpc": 33650,
       "sourceTier": "direct_60014_SBC_const_string",
       "equipmentIds": [
@@ -767,26 +1196,73 @@
           "seed": "seed_33650",
           "sourcePath": "/3/30/2",
           "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 725,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 729
+            },
+            {
+              "key": "s:50 ",
+              "pc": 753
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 33650
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 33650,
+              "slotSeed": "seed_33650",
+              "maxSlot": 9
+            }
+          },
+          "bytecodeSha256": "8dad4c3f56cd8a3aecf953b58066cd030e3887c5ac98c6c85cb172272314be40"
         },
         {
           "kind": "color",
           "seed": "seed_33650",
           "sourcePath": "/3/30/2/50 /2/2",
           "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 734,
+          "typedWrites": [
+            {
+              "key": "n:44",
+              "pc": 738
+            },
+            {
+              "key": "n:45",
+              "pc": 742
+            },
+            {
+              "key": "n:16",
+              "pc": 746
+            },
+            {
+              "key": "n:5",
+              "pc": 750
+            }
+          ],
+          "modelPairsOrder": [
+            "n:5",
+            "n:44",
+            "n:16",
+            "n:45"
+          ],
           "sourceWeightLiterals": [
             "44",
             "45",
@@ -794,7 +1270,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:44": {
+              "effect": "color",
+              "stateNpc": 33650,
+              "grade": 1
+            },
+            "n:45": {
+              "effect": "color",
+              "stateNpc": 33650,
+              "grade": 2
+            },
+            "n:16": {
+              "effect": "color",
+              "stateNpc": 33650,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 33650,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "8dad4c3f56cd8a3aecf953b58066cd030e3887c5ac98c6c85cb172272314be40"
         }
       ]
     },
@@ -816,26 +1315,73 @@
           "seed": "seed_byjzt",
           "sourcePath": "/8/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 215,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 219
+            },
+            {
+              "key": "s:50 ",
+              "pc": 223
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 50883
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 50883,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "39c914aa5a0e10e4ea2e1f85afabdac01c9b421fba0a541a796955885b14ba57"
         },
         {
           "kind": "color",
           "seed": "seed_byjzt",
           "sourcePath": "/9/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 227,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 231
+            },
+            {
+              "key": "n:30",
+              "pc": 235
+            },
+            {
+              "key": "n:15",
+              "pc": 239
+            },
+            {
+              "key": "n:5",
+              "pc": 243
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -843,7 +1389,29 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 50883,
+              "grade": 1
+            },
+            "n:30": {              "effect": "color",
+              "stateNpc": 50883,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 50883,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 50883,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "39c914aa5a0e10e4ea2e1f85afabdac01c9b421fba0a541a796955885b14ba57"
         }
       ]
     },
@@ -865,26 +1433,73 @@
           "seed": "seed_byjzt",
           "sourcePath": "/13/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 277,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 281
+            },
+            {
+              "key": "s:50 ",
+              "pc": 285
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 50910
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 50910,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "39c914aa5a0e10e4ea2e1f85afabdac01c9b421fba0a541a796955885b14ba57"
         },
         {
           "kind": "color",
           "seed": "seed_byjzt",
           "sourcePath": "/14/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 289,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 293
+            },
+            {
+              "key": "n:30",
+              "pc": 297
+            },
+            {
+              "key": "n:15",
+              "pc": 301
+            },
+            {
+              "key": "n:5",
+              "pc": 305
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -892,7 +1507,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 50910,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 50910,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 50910,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 50910,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "39c914aa5a0e10e4ea2e1f85afabdac01c9b421fba0a541a796955885b14ba57"
         }
       ]
     },
@@ -914,26 +1552,73 @@
           "seed": "seed_byjzt",
           "sourcePath": "/19/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 365,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 369
+            },
+            {
+              "key": "s:50 ",
+              "pc": 373
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 44122
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 44122,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "39c914aa5a0e10e4ea2e1f85afabdac01c9b421fba0a541a796955885b14ba57"
         },
         {
           "kind": "color",
           "seed": "seed_byjzt",
           "sourcePath": "/20/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 377,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 381
+            },
+            {
+              "key": "n:30",
+              "pc": 385
+            },
+            {
+              "key": "n:15",
+              "pc": 389
+            },
+            {
+              "key": "n:5",
+              "pc": 393
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -941,7 +1626,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 44122,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 44122,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 44122,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 44122,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "39c914aa5a0e10e4ea2e1f85afabdac01c9b421fba0a541a796955885b14ba57"
         }
       ]
     },
@@ -1387,8 +2095,7 @@
               "key": "n:50",
               "pc": 681
             },
-            {
-              "key": "s:50 ",
+            {              "key": "s:50 ",
               "pc": 685
             }
           ],
@@ -1496,7 +2203,8 @@
               "stateNpc": 35310,
               "grade": 4
             }
-          },          "bytecodeSha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b"
+          },
+          "bytecodeSha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b"
         }
       ]
     },
@@ -2086,8 +2794,7 @@
               "key": "s:50 ",
               "pc": 467
             }
-          ],
-          "modelPairsOrder": [
+          ],          "modelPairsOrder": [
             "s:50 ",
             "n:50"
           ],
@@ -2245,7 +2952,8 @@
             },
             {
               "key": "n:30",
-              "pc": 648            },
+              "pc": 648
+            },
             {
               "key": "n:15",
               "pc": 652
@@ -2433,26 +3141,73 @@
           "seed": "seed_byjzt",
           "sourcePath": "/9/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 229,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 233
+            },
+            {
+              "key": "s:50 ",
+              "pc": 237
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 50941
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 50941,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "a95e36d22868f7fae17efa00595bb09563f46d9232375a8cf58b06ad130a6fb0"
         },
         {
           "kind": "color",
           "seed": "seed_byjzt",
           "sourcePath": "/10/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 241,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 245
+            },
+            {
+              "key": "n:30",
+              "pc": 249
+            },
+            {
+              "key": "n:15",
+              "pc": 253
+            },
+            {
+              "key": "n:5",
+              "pc": 257
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -2460,7 +3215,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 50941,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 50941,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 50941,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 50941,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "a95e36d22868f7fae17efa00595bb09563f46d9232375a8cf58b06ad130a6fb0"
         }
       ]
     },
@@ -2482,26 +3260,73 @@
           "seed": "seed_byjzt",
           "sourcePath": "/15/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 317,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 321
+            },
+            {
+              "key": "s:50 ",
+              "pc": 325
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 50950
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 50950,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "a95e36d22868f7fae17efa00595bb09563f46d9232375a8cf58b06ad130a6fb0"
         },
         {
           "kind": "color",
           "seed": "seed_byjzt",
           "sourcePath": "/16/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 329,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 333
+            },
+            {
+              "key": "n:30",
+              "pc": 337
+            },
+            {
+              "key": "n:15",
+              "pc": 341
+            },
+            {
+              "key": "n:5",
+              "pc": 345
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -2509,7 +3334,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 50950,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 50950,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 50950,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 50950,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "a95e36d22868f7fae17efa00595bb09563f46d9232375a8cf58b06ad130a6fb0"
         }
       ]
     },
@@ -2531,26 +3379,73 @@
           "seed": "seed_byjzt",
           "sourcePath": "/22/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 419,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 423
+            },
+            {
+              "key": "s:50 ",
+              "pc": 427
+            }
+          ],
+          "modelPairsOrder": [
+            "s:50 ",
+            "n:50"
+          ],
           "sourceWeightLiterals": [
             "50",
             "50 "
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "no-drop",
+              "stateNpc": 44138
+            },
+            "s:50 ": {
+              "effect": "equip-slot",
+              "stateNpc": 44138,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          "bytecodeSha256": "a95e36d22868f7fae17efa00595bb09563f46d9232375a8cf58b06ad130a6fb0"
         },
         {
           "kind": "color",
           "seed": "seed_byjzt",
           "sourcePath": "/23/2",
           "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
-          "keyTypesVerified": false,
-          "sourceTdupPc": null,
-          "typedWrites": [],
-          "modelPairsOrder": [],
+          "keyTypesVerified": true,
+          "sourceTdupPc": 431,
+          "typedWrites": [
+            {
+              "key": "n:50",
+              "pc": 435
+            },
+            {
+              "key": "n:30",
+              "pc": 439
+            },
+            {
+              "key": "n:15",
+              "pc": 443
+            },
+            {
+              "key": "n:5",
+              "pc": 447
+            }
+          ],
+          "modelPairsOrder": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
           "sourceWeightLiterals": [
             "50",
             "30",
@@ -2558,7 +3453,30 @@
             "5"
           ],
           "sourceBranches": {},
-          "runtimePairsObserved": false
+          "runtimePairsObserved": false,
+          "originalBytecodeBranchEffects": {
+            "n:50": {
+              "effect": "color",
+              "stateNpc": 44138,
+              "grade": 1
+            },
+            "n:30": {
+              "effect": "color",
+              "stateNpc": 44138,
+              "grade": 2
+            },
+            "n:15": {
+              "effect": "color",
+              "stateNpc": 44138,
+              "grade": 3
+            },
+            "n:5": {
+              "effect": "color",
+              "stateNpc": 44138,
+              "grade": 4
+            }
+          },
+          "bytecodeSha256": "a95e36d22868f7fae17efa00595bb09563f46d9232375a8cf58b06ad130a6fb0"
         }
       ]
     },
@@ -2575,8 +3493,7 @@
       ],
       "tables": [
         {
-          "kind": "equip",
-          "seed": "seed_lsby",
+          "kind": "equip",          "seed": "seed_lsby",
           "sourcePath": "/3/7/2",
           "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
           "keyTypesVerified": true,
@@ -2977,6 +3894,101 @@
           "bytecodeSha256": "4fba968b558c2eaf3f231c7e3b04eeb74f8aec907a2f5e8fa46b4e4441b9fa66"
         }
       ]
+    }
+  ],
+  "verifiedBytecodeFiles": [
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "file": "v140/dungeon_v139/35227_1.lua.0.efkiu.streamdec.sbc",
+      "sha256": "379b030246450d9870e7bec7630a7a9291eef6e01a707364eae99d1600bbd24f",
+      "instructions": 584,
+      "logicalSource": "v140/dungeon_v139/35227_1.lua.0.efkiu.streamdec.sbc",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "file": "v140/v30/models/liu/35271_1.lua.multidec.sbc",
+      "sha256": "4fba968b558c2eaf3f231c7e3b04eeb74f8aec907a2f5e8fa46b4e4441b9fa66",
+      "instructions": 666,
+      "logicalSource": "v140/v30/models/liu/35271_1.lua.multidec.sbc",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "file": "v140/dungeon_v114/source/50300_1.efkiu.streamdec.sbc",
+      "sha256": "f5060e88a0356224c09a134d461bbd2eaafa25256cdc58c7640163f1d44e38d4",
+      "instructions": 776,
+      "logicalSource": "v140/dungeon_v114/source/50300_1.efkiu.streamdec.sbc",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "file": "v140/dungeon_v106/source/event__enter_wsd.sbc",
+      "sha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b",
+      "instructions": 724,
+      "logicalSource": "v140/dungeon_v106/source/event__enter_wsd.sbc",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "file": "v140/dungeon_v106/source/event__enter_wsdex.sbc",
+      "sha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8",
+      "instructions": 934,
+      "logicalSource": "v140/dungeon_v106/source/event__enter_wsdex.sbc",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "file": "source_original/33381_1.lua.recovered.sbc",
+      "sha256": "8dad4c3f56cd8a3aecf953b58066cd030e3887c5ac98c6c85cb172272314be40",
+      "instructions": 768,
+      "logicalSource": "src/app/story/fun/33381_1.lua",
+      "whaleContainer": "story/fun",
+      "whaleRecordZeroBased": 1910,
+      "whaleRecordMatchByEncryptedSize": "unique",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "file": "source_original/40389_1.lua.recovered.sbc",
+      "sha256": "96f55ec5dd8d52f6c3c2d56aeb282140fecf0bf26c5e9541b42af6f1cfac057b",
+      "instructions": 842,
+      "logicalSource": "src/app/story/fun/40389_1.lua",
+      "whaleContainer": "story/fun",
+      "whaleRecordZeroBased": 1991,
+      "whaleRecordMatchByEncryptedSize": "unique",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "file": "source_original/byjzt_normal.recovered.sbc",
+      "sha256": "39c914aa5a0e10e4ea2e1f85afabdac01c9b421fba0a541a796955885b14ba57",
+      "instructions": 480,
+      "logicalSource": "src/app/story/fun/37567_1.lua",
+      "whaleContainer": "story/fun",
+      "whaleRecordZeroBased": 1562,
+      "whaleRecordMatchByEncryptedSize": "unique",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "file": "source_original/byjzt_advanced.recovered.sbc",
+      "sha256": "a95e36d22868f7fae17efa00595bb09563f46d9232375a8cf58b06ad130a6fb0",
+      "instructions": 548,
+      "logicalSource": "src/app/story/fun/37567_3.lua",
+      "whaleContainer": "story/fun",
+      "whaleRecordZeroBased": 1764,
+      "whaleRecordMatchByEncryptedSize": "unique",
+      "treeMatchesPreviouslyRecovered60014": true
     }
   ]
 }
