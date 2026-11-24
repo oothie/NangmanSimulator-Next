@@ -116,6 +116,8 @@ def check(after: dict, record: dict, public: dict, *, accept_extra: bool=False) 
     # No inference from new equipment ID alone: only true OnlyID additions.
     added = [v for key,v in sorted(now.items(),key=lambda x:int(x[0])) if key not in prior]
     deleted_baseline = sum(k not in now for k in old_ids)
+    baseline_changed = (deleted_baseline == 0 and
+                        sha({k:now[k] for k in old_ids}) != record['start_inventory_fingerprint'])
     expected = [tuple(x) for x in record['expected_equipment']]
     rng_actual = after.get('Rnds',{}).get('Sds',{})
     seed_results = {k:(rng_actual.get(k)==v) for k,v in record['expected_end_seeds'].items()}
@@ -131,6 +133,8 @@ def check(after: dict, record: dict, public: dict, *, accept_extra: bool=False) 
     result = {
         'status': ('INCONCLUSIVE_EXTRA_EQUIPMENT' if accept_extra and len(added)!=len(expected)
                    else 'INCONCLUSIVE_MISSING_BASELINE' if missing
+                   else 'INCONCLUSIVE_BASELINE_CHANGED' if baseline_changed
+                   else 'INCONCLUSIVE_DIAGNOSTIC_MODE' if accept_extra
                    else 'PASS' if equip_match and all(seed_results.values()) and all(win_results.values())
                    else 'FAIL'),
         'strict_equipment_match': added == expected,
@@ -138,6 +142,7 @@ def check(after: dict, record: dict, public: dict, *, accept_extra: bool=False) 
         'predicted_count': len(expected),
         'observed_new_90_gear_count': len(added),
         'missing_baseline_items': deleted_baseline,
+        'baseline_equipment_changed': baseline_changed,
         'seed_lanes_matched': sum(seed_results.values()),
         'seed_lanes_checked': len(seed_results),
         'win_counters_matched': sum(win_results.values()),
