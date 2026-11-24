@@ -45,8 +45,9 @@ def present(gate,npc,slot,grade,pools,names,roll_meta=None):
     return {'npc':npc,'status':'조건부 예측','equipmentId':equipment,'equipmentName':names[equipment],
             'grade':GRADES[grade], 'slot':slot, 'gradeCode':grade}
 
-def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1):
+def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1,ywf_clears:int=1):
     if not isinstance(liu_clears,int) or not 1<=liu_clears<=20:raise ValueError('Liu clears 1..20')
+    if not isinstance(ywf_clears,int) or not 1<=ywf_clears<=20:raise ValueError('YWF clears 1..20')
     source_root=source_root.resolve()
     if not (source_root/'ywf_33381_replay_v29.py').exists():
         raise FileNotFoundError('Required original 33381 model not found at '+str(source_root))
@@ -57,14 +58,30 @@ def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1):
     from experimental_four_gate_engine import report_byj,report_dcy,report_liu
     pools,names=load_registry(registry)
     results=[]
-    # Released-only one-clear replay for YWF, DCY, BYJ. Repeating a clear without
-    # incrementing every original mutable state would produce fabricated predictions.
-    yr=yan_replay(preentry)
-    eq=[]
-    for b,npc in BOSSES['연왕부']:
-        rec=yr['bosses'][str(npc)]
-        eq.append({'boss':b,**present('연왕부',npc,rec['index'],rec['quality'],pools,names)})
-    results.append({'gate':'연왕부','clear':1,'draws':yr['counts'],'seedAfter':yr['seeds'],'equipment':eq,'source':'33381_1.lua'})
+    # YWF source 33381 has a recoverable mutable per-boss seed and reward state.
+    # Persist its verified changes between clears; reset no-drop equipment slots but
+    # preserve the previous color for a no-drop branch (original SetP semantics).
+    ywf_state=copy.deepcopy(preentry)
+    for ywf_i in range(1,ywf_clears+1):
+        yr=yan_replay(ywf_state)
+        eq=[]
+        for b,npc in BOSSES['연왕부']:
+            rec=yr['bosses'][str(npc)]
+            eq.append({'boss':b,**present('연왕부',npc,rec['index'],rec['quality'],pools,names)})
+        results.append({'gate':'연왕부','clear':ywf_i,'draws':yr['counts'],
+                        'seedAfter':yr['seeds'],'equipment':eq,'source':'33381_1.lua'})
+        nxt=copy.deepcopy(ywf_state)
+        nxt['globalVariable']=copy.deepcopy(yr['global_state'])
+        nxt['Rnds']['Sds'].update(yr['seeds'])
+        nxt['globalVariable']['win_ywf']=ywf_state['globalVariable'].get('win_ywf',0)+1
+        for _name,npc in BOSSES['연왕부']:
+            rec=yr['bosses'][str(npc)]
+            slot_key=f'drop_{npc}_equip';color_key=f'drop_{npc}_color'
+            if rec['index'] is None:nxt['globalVariable'].pop(slot_key,None)
+            else:nxt['globalVariable'][slot_key]=rec['index']
+            if rec['quality'] is not None:nxt['globalVariable'][color_key]=rec['quality']
+        ywf_state=nxt
+    # DCY/BYJ remain one-clear only: their full mutable-state carry-over is not yet audited.
     dc=report_dcy(preentry)
     eq=[]
     for b,npc in BOSSES['창옥']:
@@ -95,10 +112,10 @@ def replay(preentry:dict,source_root:Path,registry:Path,liu_clears:int=1):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--save',required=True,type=Path);p.add_argument('--v30-root',required=True,type=Path)
-    p.add_argument('--registry',required=True,type=Path);p.add_argument('--liu-clears',type=int,default=1)
+    p.add_argument('--registry',required=True,type=Path);p.add_argument('--liu-clears',type=int,default=1);p.add_argument('--ywf-clears',type=int,default=1)
     p.add_argument('--output',type=Path,help='Local private output (may contain RNG seed values)')
     a=p.parse_args()
-    result=replay(json.loads(a.save.read_text()),a.v30_root,a.registry,a.liu_clears)
+    result=replay(json.loads(a.save.read_text()),a.v30_root,a.registry,a.liu_clears,a.ywf_clears)
     payload=json.dumps(result,ensure_ascii=False,indent=2)+'\n'
     if a.output:a.output.write_text(payload,encoding='utf-8')
     else:print(payload)
