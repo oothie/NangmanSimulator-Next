@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse,copy,json,sys
 from pathlib import Path
 from launched_gate_forward import BOSSES,GATES,load_registry,present
+from gate_seed_boundary import audit_gate_seed_transition
 
 MAX_EVENTS=40
 
@@ -29,6 +30,7 @@ def run_order(before:dict,source_root:Path,registry:Path,schedule:list[str]):
     records=[]
     counts=dict.fromkeys(GATES,0)
     for gate in schedule:
+        prior_state=state
         counts[gate]+=1
         eq=[]
         if gate=='연왕부':
@@ -63,8 +65,9 @@ def run_order(before:dict,source_root:Path,registry:Path,schedule:list[str]):
                 rec=r['bosses'][name]
                 eq.append({'boss':name,**present(gate,npc,rec['slot'],rec['grade'],pools,names)})
         else:raise AssertionError(gate)
+        seed_boundary=audit_gate_seed_transition(prior_state,state,gate,seeds)
         records.append({'order':len(records)+1,'gate':gate,'clear':counts[gate],'draws':draws,
-                        'seedAfter':seeds,'equipment':eq})
+                        'seedAfter':seeds,'equipment':eq,'seedBoundary':seed_boundary})
     return state,{'runs':records,'counts':counts,
                   'status':'source-modeled; prior save holdouts only; not independently verified future output'}
 
