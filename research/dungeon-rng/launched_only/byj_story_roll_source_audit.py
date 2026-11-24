@@ -69,7 +69,7 @@ def inspect_dispatch():
             'seedkeyroll':{'prototype':1,'getRandsPc':29,'getRandBetweenPc':32},
             'seedKeyRollCheckMode':{'prototype':3,'method':'executeCheckMode','getStoryRndPc':19,'intRandPc':22},
             'normalRoll':{'module':'JHTaskStatementsRoll.lua','dispatcherPrototype':862,'requirePc':1176,
-                          'originalBodyRecovered':False,'rngSourceConfirmed':False},
+                          'originalBodyRecoveredViaMatchingVersionApk':True, 'rngSourceConfirmed':'global JHRandom (math.jhrandom/math.random)' },
             'normalSeedKeyRoll':{'dispatcherRequirePc':1204,'method':'execute','prototype':1},
             'storyRndSExistsInSavedGame':True,
             'storyRndUsedByNormalRollProven':False}
@@ -82,7 +82,7 @@ def build():
             'statementDispatch':inspect_dispatch(),
             'equivalentRescueScripts':rows,
             'candidateOrders':{str(g['step']):g['modelOrder'] for g in rows[0]['rolls']},
-            'limitation':'Normal rescue roll dispatches to separate JHTaskStatementsRoll; its original implementation remains unrecovered. StoryRnd call belongs to SeedKeyRoll.executeCheckMode, NOT proof of rescue roll RNG. Never synthesize a game result.'}
+            'limitation':'Normal rescue roll calls global JHRandom via separately verified version-matching APK; exact RNG branch, seed and runtime table traversal remain unverified. StoryRnd call belongs only to SeedKeyRoll.executeCheckMode. Never synthesize a game result.'}
 
 if __name__=='__main__':
     result=build()
