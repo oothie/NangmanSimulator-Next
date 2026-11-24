@@ -91,7 +91,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_7265_35219') == 1 and GetP('get_7265') == 0"
+      "consumerCondition": "GetP('drop_7265_35219') == 1 and GetP('get_7265') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_7265",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "벽유교",
@@ -105,7 +114,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_7264_35219') == 1 and GetP('get_7264') == 0"
+      "consumerCondition": "GetP('drop_7264_35219') == 1 and GetP('get_7264') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_7264",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "벽유교",
@@ -119,7 +137,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 15,
-      "consumerCondition": "GetP('drop_2922_35214') == 1 and GetP('get_2922') < 15"
+      "consumerCondition": "GetP('drop_2922_35214') == 1 and GetP('get_2922') < 15",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2922",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "벽유교",
@@ -133,7 +160,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_7262_35214') == 1 and GetP('get_7262') == 0"
+      "consumerCondition": "GetP('drop_7262_35214') == 1 and GetP('get_7262') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_7262",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "벽유교",
@@ -147,7 +183,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_7263_35214') == 1 and GetP('get_7263') == 0"
+      "consumerCondition": "GetP('drop_7263_35214') == 1 and GetP('get_7263') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_7263",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "벽유교",
@@ -161,7 +206,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 15,
-      "consumerCondition": "GetP('drop_2923_35221') == 1 and GetP('get_2923') < 15"
+      "consumerCondition": "GetP('drop_2923_35221') == 1 and GetP('get_2923') < 15",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2923",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "벽유교",
@@ -175,7 +229,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_7266_35221') == 1 and GetP('get_7266') == 0"
+      "consumerCondition": "GetP('drop_7266_35221') == 1 and GetP('get_7266') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_7266",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "벽유교",
@@ -189,7 +252,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_7267_35221') == 1 and GetP('get_7267') == 0"
+      "consumerCondition": "GetP('drop_7267_35221') == 1 and GetP('get_7267') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_7267",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "벽유교",
@@ -203,7 +275,16 @@
       "countScope": null,
       "operator": null,
       "cap": null,
-      "consumerCondition": "GetP('drop_3970_35221') == 1"
+      "consumerCondition": "GetP('drop_3970_35221') == 1",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_3970",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -217,7 +298,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 15,
-      "consumerCondition": "GetP('drop_2924_40372') == 1 and GetP('get_2924') < 15"
+      "consumerCondition": "GetP('drop_2924_40372') == 1 and GetP('get_2924') < 15",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2924",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -232,6 +322,7 @@
       "operator": null,
       "cap": null,
       "consumerCondition": "GetP('drop_3523_40372') == 1",
+      "rollback": null,
       "requiresIndependentReview": true
     },
     {
@@ -246,7 +337,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_9072_40372') == 1 and GetP('get_9072_40372') == 0"
+      "consumerCondition": "GetP('drop_9072_40372') == 1 and GetP('get_9072_40372') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_9072_40372",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -260,7 +360,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_4634_40372') == 1 and GetP('get_4634_40372') == 0"
+      "consumerCondition": "GetP('drop_4634_40372') == 1 and GetP('get_4634_40372') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_4634_40372",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -274,7 +383,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 10,
-      "consumerCondition": "GetP('drop_2926_40373') == 1 and GetP('get_2926') < 10"
+      "consumerCondition": "GetP('drop_2926_40373') == 1 and GetP('get_2926') < 10",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2926",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -288,7 +406,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_9072_40373') == 1 and GetP('get_9072_40373') == 0"
+      "consumerCondition": "GetP('drop_9072_40373') == 1 and GetP('get_9072_40373') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_9072_40373",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -302,7 +429,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_4820_40373') == 1 and GetP('get_4820_40373') == 0"
+      "consumerCondition": "GetP('drop_4820_40373') == 1 and GetP('get_4820_40373') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_4820_40373",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -316,7 +452,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 15,
-      "consumerCondition": "GetP('drop_2925_40374') == 1 and GetP('get_2925') < 15"
+      "consumerCondition": "GetP('drop_2925_40374') == 1 and GetP('get_2925') < 15",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2925",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -330,7 +475,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_7165_40374') == 1 and GetP('get_7165_40374') == 0"
+      "consumerCondition": "GetP('drop_7165_40374') == 1 and GetP('get_7165_40374') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_7165_40374",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -344,7 +498,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_8295_40374') == 1 and GetP('get_8295_40374') == 0"
+      "consumerCondition": "GetP('drop_8295_40374') == 1 and GetP('get_8295_40374') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_8295_40374",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -358,7 +521,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_9072_40374') == 1 and GetP('get_9072_40374') == 0"
+      "consumerCondition": "GetP('drop_9072_40374') == 1 and GetP('get_9072_40374') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_9072_40374",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "창옥",
@@ -372,7 +544,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_5218_40374') == 1 and GetP('get_5218_40374') == 0"
+      "consumerCondition": "GetP('drop_5218_40374') == 1 and GetP('get_5218_40374') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_5218_40374",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "연왕부",
@@ -386,7 +567,8 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_2364_33654') == 1 and GetP('get_2364_33654') == 0"
+      "consumerCondition": "GetP('drop_2364_33654') == 1 and GetP('get_2364_33654') == 0",
+      "rollback": null
     },
     {
       "gate": "연왕부",
@@ -400,7 +582,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_4422_33653') == 1 and GetP('get_4422') == 0"
+      "consumerCondition": "GetP('drop_4422_33653') == 1 and GetP('get_4422') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_4422",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "연왕부",
@@ -414,7 +605,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 15,
-      "consumerCondition": "GetP('drop_2921_33653') == 1 and GetP('get_2921') < 15"
+      "consumerCondition": "GetP('drop_2921_33653') == 1 and GetP('get_2921') < 15",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2921",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "연왕부",
@@ -428,7 +628,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_2364_33653') == 1 and GetP('get_2364_33653') == 0"
+      "consumerCondition": "GetP('drop_2364_33653') == 1 and GetP('get_2364_33653') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2364_33653",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "연왕부",
@@ -442,7 +651,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 15,
-      "consumerCondition": "GetP('drop_2918_33652') == 1 and GetP('get_2918') < 15"
+      "consumerCondition": "GetP('drop_2918_33652') == 1 and GetP('get_2918') < 15",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2918",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "연왕부",
@@ -456,7 +674,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_5618_33652') == 1 and GetP('get_5618') == 0"
+      "consumerCondition": "GetP('drop_5618_33652') == 1 and GetP('get_5618') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_5618",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "연왕부",
@@ -470,7 +697,12 @@
       "countScope": null,
       "operator": null,
       "cap": null,
-      "consumerCondition": "GetP('drop_3505_33652') == 1"
+      "consumerCondition": "GetP('drop_3505_33652') == 1",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": null
+      }
     },
     {
       "gate": "연왕부",
@@ -484,7 +716,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_2364_33652') == 1 and GetP('get_2364_33652') == 0"
+      "consumerCondition": "GetP('drop_2364_33652') == 1 and GetP('get_2364_33652') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2364_33652",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "연왕부",
@@ -498,7 +739,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_5422_33650') == 1 and GetP('get_5422') == 0"
+      "consumerCondition": "GetP('drop_5422_33650') == 1 and GetP('get_5422') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_5422",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "연왕부",
@@ -512,7 +762,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 15,
-      "consumerCondition": "GetP('drop_2920_33650') == 1 and GetP('get_2920') < 15"
+      "consumerCondition": "GetP('drop_2920_33650') == 1 and GetP('get_2920') < 15",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2920",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "연왕부",
@@ -526,7 +785,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_7081_33650') == 1 and GetP('get_7081') == 0"
+      "consumerCondition": "GetP('drop_7081_33650') == 1 and GetP('get_7081') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_7081",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "연왕부",
@@ -540,7 +808,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_2364_33650') == 1 and GetP('get_2364_33650') == 0"
+      "consumerCondition": "GetP('drop_2364_33650') == 1 and GetP('get_2364_33650') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_2364_33650",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "유씨별원",
@@ -554,7 +831,8 @@
       "countScope": "temp",
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_35260_rarematerial') ~= 0 and GetP('get_8801','temp') == 0"
+      "consumerCondition": "GetP('drop_35260_rarematerial') ~= 0 and GetP('get_8801','temp') == 0",
+      "rollback": null
     },
     {
       "gate": "유씨별원",
@@ -568,7 +846,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_5020_35260') == 1 and GetP('get_5020') == 0"
+      "consumerCondition": "GetP('drop_5020_35260') == 1 and GetP('get_5020') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "SetP",
+          "key": "get_5020",
+          "value": 0
+        }
+      }
     },
     {
       "gate": "유씨별원",
@@ -582,7 +869,16 @@
       "countScope": null,
       "operator": null,
       "cap": null,
-      "consumerCondition": "GetP('drop_8915_35264') == 1"
+      "consumerCondition": "GetP('drop_8915_35264') == 1",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_8915",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "유씨별원",
@@ -596,7 +892,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 15,
-      "consumerCondition": "GetP('drop_8913_35264') == 1 and GetP('get_8913') < 15"
+      "consumerCondition": "GetP('drop_8913_35264') == 1 and GetP('get_8913') < 15",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_8913",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "유씨별원",
@@ -610,7 +915,16 @@
       "countScope": null,
       "operator": "==",
       "cap": 0,
-      "consumerCondition": "GetP('drop_5628_35264') == 1 and GetP('get_5628') == 0"
+      "consumerCondition": "GetP('drop_5628_35264') == 1 and GetP('get_5628') == 0",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "SetP",
+          "key": "get_5628",
+          "value": 0
+        }
+      }
     },
     {
       "gate": "유씨별원",
@@ -624,7 +938,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 10,
-      "consumerCondition": "GetP('drop_8917_35268') == 1 and GetP('get_8917') < 10"
+      "consumerCondition": "GetP('drop_8917_35268') == 1 and GetP('get_8917') < 10",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_8917",
+          "value": -1
+        }
+      }
     },
     {
       "gate": "유씨별원",
@@ -638,7 +961,16 @@
       "countScope": null,
       "operator": "<",
       "cap": 15,
-      "consumerCondition": "GetP('drop_8914_35268') == 1 and GetP('get_8914') < 15"
+      "consumerCondition": "GetP('drop_8914_35268') == 1 and GetP('get_8914') < 15",
+      "rollback": {
+        "ifFlagEquals": 2,
+        "resetFlagTo": 1,
+        "counterUpdate": {
+          "operation": "AddP",
+          "key": "get_8914",
+          "value": -1
+        }
+      }
     }
   ],
   "skipped": []
