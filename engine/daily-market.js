@@ -135,7 +135,8 @@ function vipLevel(save){
 const GUISHI_ROTATION_SHIFT=3600;
 function halfDay(t){return Math.floor(Math.max(t+GUISHI_ROTATION_SHIFT,0)/43200)}
 function nextHalfDay(t){return (halfDay(t)+1)*43200-GUISHI_ROTATION_SHIFT}
-function resetDay(t){return Math.floor(Math.max(t+10800,0)/86400)}
+// Korean server paid-refresh allowance resets at 05:00 KST (20:00 UTC prior day).
+ function resetDay(t){return Math.floor(Math.max(t+14400,0)/86400)}
 function currentShelf(saved,catalog){
  return (saved||[]).map(x=>catalog.find(y=>y.id===n(x?.ID??x?.id))||
   {id:n(x?.ID??x?.id),item:0,name:'',price:0,money:0,count:1,unmapped:true,
@@ -254,7 +255,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    const goal=Math.max(1,Math.min(1000,Math.trunc(n(options.quantity,1))));
    const allowance=this.paidAllowance(options.vip);
    const horizon=Math.max(1,Math.min(720,Math.trunc(n(options.periods,120))));
-   const nextDaily=t=>(resetDay(t)+1)*86400-10800;
+   const nextDaily=t=>(resetDay(t)+1)*86400-14400;
    const deadline=nextHalfDay(now)+(horizon-1)*43200;
    const current=(today||[]).find(x=>ids.has(x.id)&&n(x.buyed)!==1);
    const candidates=[],policies=[];
@@ -354,7 +355,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    // Current-shelf purchase needs no new RNG roll. Never count a previously
    // purchased entry twice or count a mere appearance as an acquisition.
    const initialQty=currentAvailable?1:0;
-   const nextDaily=t=>(resetDay(t)+1)*86400-10800;
+   const nextDaily=t=>(resetDay(t)+1)*86400-14400;
    const nextAuto=nextHalfDay(now),deadline=nextAuto+(periodLimit-1)*43200;
    const initial={seed:n(rng.seeds.guishishop),lucky,time:now,
      nextAuto,nextDaily:nextDaily(now),period:0,used:vipAllowance.used,
