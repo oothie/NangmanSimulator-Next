@@ -633,6 +633,49 @@ function replayKoreanClientEvents(save,source,events,options={}){
   shopTime:state.time,items:state.items.map(x=>x.id),events:out};
 }
 
-root.NangmanMarket={predict,replayKoreanClientEvents,vipLevel,halfDay,nextHalfDay,resetDay,orderPool,countsMap,VIP_REFRESH,
+
+/**
+ * Evidence-based comparison of observed Korean ghost-market endpoints.
+ * The saved RandShop.Time is the last FREE redraw, not the number of missed
+ * 08:00/20:00 boundaries. An endpoint alone cannot reveal intermediate visits.
+ * Try each feasible count using the unmodified native event replayer.
+ * No guesses are treated as confirmed matches; no save data is persisted.
+ */
+function verifyKoreanMarketContinuity(before,after,config,options={}){
+ const first=Number(before?.RandShop?.Time||0),last=Number(after?.RandShop?.Time||0);
+ const actualSeed=Number(after?.Rnds?.Sds?.guishishop);
+ const actualLucky=Number(after?.RandShop?.Lucky);
+ const actualItems=(after?.RandShop?.Items||[]).map(x=>Number(x?.ID??x?.id));
+ const paid=Number(options?.paidCount??0);
+ if(!Number.isSafeInteger(first)||!Number.isSafeInteger(last)||first<=0||last<first)
+  throw Error('암시장 세이브 시각이 올바르지 않습니다.');
+ if(!Number.isSafeInteger(paid)||paid<0||paid>50)
+  throw Error('암시장 원보 갱신 횟수를 확인할 수 없습니다.');
+ const boundaries=[];for(let t=nextHalfDay(first);t<=last&&boundaries.length<48;t+=43200)
+  boundaries.push(t);
+ const total=boundaries.length;
+ const maxCount=Math.min(total,Math.max(0,Number(options.maxAutomatic??total)));
+ const results=[];
+ for(let n=total===0?0:1;n<=maxCount;n++){
+  const times=n?boundaries.slice(-n).map((t,i,a)=>i===a.length-1?last:t+1):[];
+  // Auto execution requires the actual shop entry, not merely wall-clock time.
+  const events=times.map(at=>({kind:'open',at}));
+  for(let j=0;j<paid;j++)events.push({kind:'paid',at:last+1+j});
+  const replay=replayKoreanClientEvents(before,config,events,{slots:options.slots});
+  const seedMatch=replay.seed===actualSeed;
+  const shelfMatch=replay.items.length===actualItems.length&&
+   replay.items.every((id,i)=>id===actualItems[i]);
+  const luckyMatch=Number.isFinite(actualLucky)&&
+   Math.abs(replay.lucky-actualLucky)<1e-6;
+  results.push({automatic:n,paid,seedMatch,shelfMatch,luckyMatch,
+   exact:seedMatch&&shelfMatch&&luckyMatch,
+   predictedSeed:replay.seed,predictedItems:replay.items,predictedLucky:replay.lucky});
+ }
+ return {boundaries:total,paid,exact:results.filter(x=>x.exact),
+  tested:results.length,results,
+  assumptions:'구매·기타 암시장 RNG 호출 없음, 동일 상품 후보와 가중치, 각 시각 구간당 무료 갱신 최대 1회'};
+}
+
+root.NangmanMarket={predict,replayKoreanClientEvents,verifyKoreanMarketContinuity,vipLevel,halfDay,nextHalfDay,resetDay,orderPool,countsMap,VIP_REFRESH,
  __test:{nextSeed,KeyRng,draw}};
 })(typeof window!=='undefined'?window:globalThis);
