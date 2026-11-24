@@ -26,3 +26,16 @@
 새 테스트 10개: 봉인 변경 감지, 공개 파일 개인정보 최소화, 4관문 외 차단, 보유 장비 삭제·추가 장비 감지, 장비 색상 및 시드 불일치 탐지, synthetic strict PASS/FAIL, 과거 1123→1124 자료의 불완전 판정 등.
 
 연구 브랜치에 코드와 문서만 포함합니다. **사용자의 실제 세이브, 시작/종료 난수값, 비공개 봉인 파일은 GitHub에 넣지 않습니다.** 현 사이트, V82 및 미출시 관문은 변경하지 않습니다.
+## 한국판 장비명·색상 사전 확인 (2026-11-25)
+
+사전 봉인 명령에 `--show-forecast` 옵션을 추가하면 봉인된 **보스별 한국판 장비명·색상·미드랍**을 로컬 터미널에서 확인할 수 있다. 예측 원문과 순서별 보스 구분은 **비공개 `PRIVATE_SEAL.json`** 안의 `expected_boss_equipment`에 함께 기록된다. 별도 파일 생성이나 사이트 반영이 아니라, 이미 예측한 관문 일반 장비의 표시만 추가한다.
+
+```bash
+python sealed_equipment_holdout.py seal --before PRE.json \
+  --source-root /private/v30 --registry /private/gate-60-source-registry.json \
+  --schedule 벽유교,창옥,연왕부,유씨별원 \
+  --private-record PRIVATE_SEAL.json --public-commitment PUBLIC_COMMIT.json \
+  --show-forecast
+```
+
+공개 커밋에는 **장비명·시드·보스 목록·세이브 내용**을 추가하지 않는다. 기존 형식으로 봉인한 예전 비공개 기록도 `verify`에서 계속 지원한다. 합성 검증 4/4 통과. 이 기능 자체는 미래 RNG 정확도를 검증하거나 높인다는 의미가 아니다.
