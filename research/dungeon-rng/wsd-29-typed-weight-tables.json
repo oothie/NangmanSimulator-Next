@@ -1,0 +1,620 @@
+{
+  "qualification": "Source TDUP/TSET proven; LuaJIT pairs model, not native runtime observation",
+  "modes": {
+    "wsd": {
+      "file_sha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b",
+      "original_bytecode_instructions": 724,
+      "weighted_tables": {
+        "3/29/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 243,
+          "source_write_keys": [
+            "n:50",
+            "s:50 "
+          ],
+          "source_write_pcs": [
+            247,
+            251
+          ],
+          "model_pairs_keys": [
+            "s:50 ",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/30/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 255,
+          "source_write_keys": [
+            "n:40",
+            "n:35",
+            "n:20",
+            "n:5"
+          ],
+          "source_write_pcs": [
+            259,
+            263,
+            267,
+            271
+          ],
+          "model_pairs_keys": [
+            "n:35",
+            "n:20",
+            "n:5",
+            "n:40"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/33/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 303,
+          "source_write_keys": [
+            "n:50",
+            "s:50 "
+          ],
+          "source_write_pcs": [
+            307,
+            311
+          ],
+          "model_pairs_keys": [
+            "s:50 ",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/34/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 315,
+          "source_write_keys": [
+            "n:40",
+            "n:35",
+            "n:20",
+            "n:5"
+          ],
+          "source_write_pcs": [
+            319,
+            323,
+            327,
+            331
+          ],
+          "model_pairs_keys": [
+            "n:35",
+            "n:20",
+            "n:5",
+            "n:40"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/35/2/imp_yes/14/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 506,
+          "source_write_keys": [
+            "s:GetP('drop_zgck1_1')",
+            "s:GetP('drop_zgck1_2')",
+            "s:GetP('drop_zgck1_3')",
+            "s:GetP('drop_zgck1_4')",
+            "s:GetP('drop_zgck1_5')",
+            "s:GetP('drop_zgck1_6')",
+            "s:GetP('drop_zgck1_7')",
+            "s:GetP('drop_zgck1_8')",
+            "s:GetP('drop_zgck1_9')",
+            "s:GetP('drop_zgck1_10')",
+            "s:GetP('drop_zgck1_11')"
+          ],
+          "source_write_pcs": [
+            510,
+            514,
+            518,
+            522,
+            526,
+            530,
+            534,
+            538,
+            542,
+            546,
+            550
+          ],
+          "model_pairs_keys": [
+            "s:GetP('drop_zgck1_4')",
+            "s:GetP('drop_zgck1_5')",
+            "s:GetP('drop_zgck1_6')",
+            "s:GetP('drop_zgck1_7')",
+            "s:GetP('drop_zgck1_10')",
+            "s:GetP('drop_zgck1_8')",
+            "s:GetP('drop_zgck1_11')",
+            "s:GetP('drop_zgck1_9')",
+            "s:GetP('drop_zgck1_1')",
+            "s:GetP('drop_zgck1_2')",
+            "s:GetP('drop_zgck1_3')"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/38/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 589,
+          "source_write_keys": [
+            "n:50",
+            "s:50 "
+          ],
+          "source_write_pcs": [
+            593,
+            597
+          ],
+          "model_pairs_keys": [
+            "s:50 ",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/39/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 601,
+          "source_write_keys": [
+            "n:50",
+            "n:30",
+            "n:15",
+            "n:5"
+          ],
+          "source_write_pcs": [
+            605,
+            609,
+            613,
+            617
+          ],
+          "model_pairs_keys": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/44/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 677,
+          "source_write_keys": [
+            "n:50",
+            "s:50 "
+          ],
+          "source_write_pcs": [
+            681,
+            685
+          ],
+          "model_pairs_keys": [
+            "s:50 ",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/45/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 689,
+          "source_write_keys": [
+            "n:50",
+            "n:30",
+            "n:15",
+            "n:5"
+          ],
+          "source_write_pcs": [
+            693,
+            697,
+            701,
+            705
+          ],
+          "model_pairs_keys": [
+            "n:30",
+            "n:5",
+            "n:50",
+            "n:15"
+          ],
+          "actual_native_pairs_observed": false
+        }
+      }
+    },
+    "wsdex": {
+      "file_sha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8",
+      "original_bytecode_instructions": 934,
+      "weighted_tables": {
+        "3/27/2/imp_yes/2/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 216,
+          "source_write_keys": [
+            "n:10",
+            "s:10 ",
+            "s:10  ",
+            "s:10   ",
+            "s:10    "
+          ],
+          "source_write_pcs": [
+            220,
+            224,
+            228,
+            232,
+            236
+          ],
+          "model_pairs_keys": [
+            "s:10  ",
+            "n:10",
+            "s:10    ",
+            "s:10 ",
+            "s:10   "
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/30/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 271,
+          "source_write_keys": [
+            "n:50",
+            "s:50 "
+          ],
+          "source_write_pcs": [
+            275,
+            279
+          ],
+          "model_pairs_keys": [
+            "s:50 ",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/31/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 283,
+          "source_write_keys": [
+            "n:40",
+            "n:30",
+            "n:25",
+            "n:5"
+          ],
+          "source_write_pcs": [
+            287,
+            291,
+            295,
+            299
+          ],
+          "model_pairs_keys": [
+            "n:30",
+            "n:5",
+            "n:40",
+            "n:25"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/32/2/imp_no/1/2/imp_yes/1/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 317,
+          "source_write_keys": [
+            "n:250",
+            "s:750 "
+          ],
+          "source_write_pcs": [
+            321,
+            325
+          ],
+          "model_pairs_keys": [
+            "s:750 ",
+            "n:250"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/32/2/imp_no/1/2/imp_no/1/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 331,
+          "source_write_keys": [
+            "n:50",
+            "n:950"
+          ],
+          "source_write_pcs": [
+            335,
+            340
+          ],
+          "model_pairs_keys": [
+            "n:950",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/33/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 350,
+          "source_write_keys": [
+            "n:50",
+            "n:950"
+          ],
+          "source_write_pcs": [
+            354,
+            359
+          ],
+          "model_pairs_keys": [
+            "n:950",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/36/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 391,
+          "source_write_keys": [
+            "n:50",
+            "s:50 "
+          ],
+          "source_write_pcs": [
+            395,
+            399
+          ],
+          "model_pairs_keys": [
+            "s:50 ",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/37/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 403,
+          "source_write_keys": [
+            "n:20",
+            "n:45",
+            "n:30",
+            "n:5"
+          ],
+          "source_write_pcs": [
+            407,
+            411,
+            415,
+            419
+          ],
+          "model_pairs_keys": [
+            "n:30",
+            "n:45",
+            "n:5",
+            "n:20"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/38/2/imp_no/1/2/imp_yes/1/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 437,
+          "source_write_keys": [
+            "n:250",
+            "s:750 "
+          ],
+          "source_write_pcs": [
+            441,
+            445
+          ],
+          "model_pairs_keys": [
+            "s:750 ",
+            "n:250"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/38/2/imp_no/1/2/imp_no/1/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 451,
+          "source_write_keys": [
+            "n:50",
+            "n:950"
+          ],
+          "source_write_pcs": [
+            455,
+            460
+          ],
+          "model_pairs_keys": [
+            "n:950",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/39/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 470,
+          "source_write_keys": [
+            "n:70",
+            "n:930"
+          ],
+          "source_write_pcs": [
+            474,
+            479
+          ],
+          "model_pairs_keys": [
+            "n:70",
+            "n:930"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/40/2/imp_yes/14/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 654,
+          "source_write_keys": [
+            "s:GetP('drop_zgck1_1')",
+            "s:GetP('drop_zgck1_2')",
+            "s:GetP('drop_zgck1_3')",
+            "s:GetP('drop_zgck1_4')",
+            "s:GetP('drop_zgck1_5')",
+            "s:GetP('drop_zgck1_6')",
+            "s:GetP('drop_zgck1_7')",
+            "s:GetP('drop_zgck1_8')",
+            "s:GetP('drop_zgck1_9')",
+            "s:GetP('drop_zgck1_10')",
+            "s:GetP('drop_zgck1_11')"
+          ],
+          "source_write_pcs": [
+            658,
+            662,
+            667,
+            672,
+            677,
+            682,
+            687,
+            692,
+            697,
+            702,
+            707
+          ],
+          "model_pairs_keys": [
+            "s:GetP('drop_zgck1_4')",
+            "s:GetP('drop_zgck1_5')",
+            "s:GetP('drop_zgck1_6')",
+            "s:GetP('drop_zgck1_7')",
+            "s:GetP('drop_zgck1_10')",
+            "s:GetP('drop_zgck1_8')",
+            "s:GetP('drop_zgck1_11')",
+            "s:GetP('drop_zgck1_9')",
+            "s:GetP('drop_zgck1_1')",
+            "s:GetP('drop_zgck1_2')",
+            "s:GetP('drop_zgck1_3')"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/43/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 746,
+          "source_write_keys": [
+            "n:50",
+            "s:50 "
+          ],
+          "source_write_pcs": [
+            750,
+            754
+          ],
+          "model_pairs_keys": [
+            "s:50 ",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/44/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 758,
+          "source_write_keys": [
+            "n:20",
+            "n:40",
+            "n:35",
+            "n:5"
+          ],
+          "source_write_pcs": [
+            762,
+            766,
+            770,
+            774
+          ],
+          "model_pairs_keys": [
+            "n:35",
+            "n:20",
+            "n:5",
+            "n:40"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/45/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 778,
+          "source_write_keys": [
+            "n:50",
+            "n:950"
+          ],
+          "source_write_pcs": [
+            782,
+            787
+          ],
+          "model_pairs_keys": [
+            "n:950",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/46/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 791,
+          "source_write_keys": [
+            "n:100",
+            "n:900"
+          ],
+          "source_write_pcs": [
+            795,
+            800
+          ],
+          "model_pairs_keys": [
+            "n:900",
+            "n:100"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/51/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 860,
+          "source_write_keys": [
+            "n:50",
+            "s:50 "
+          ],
+          "source_write_pcs": [
+            864,
+            868
+          ],
+          "model_pairs_keys": [
+            "s:50 ",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/52/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 872,
+          "source_write_keys": [
+            "n:15",
+            "n:40",
+            "s:40 ",
+            "n:5"
+          ],
+          "source_write_pcs": [
+            876,
+            880,
+            885,
+            889
+          ],
+          "model_pairs_keys": [
+            "s:40 ",
+            "n:5",
+            "n:15",
+            "n:40"
+          ],
+          "actual_native_pairs_observed": false
+        },
+        "3/53/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 893,
+          "source_write_keys": [
+            "n:50",
+            "n:950"
+          ],
+          "source_write_pcs": [
+            897,
+            902
+          ],
+          "model_pairs_keys": [
+            "n:950",
+            "n:50"
+          ],
+          "actual_native_pairs_observed": false
+        },        "3/54/2": {
+          "seed": "seed_wsd",
+          "source_tdup_pc": 906,
+          "source_write_keys": [
+            "n:150",
+            "n:850"
+          ],
+          "source_write_pcs": [
+            910,
+            915
+          ],
+          "model_pairs_keys": [
+            "n:850",
+            "n:150"
+          ],
+          "actual_native_pairs_observed": false
+        }
+      }
+    }
+  }
+}
