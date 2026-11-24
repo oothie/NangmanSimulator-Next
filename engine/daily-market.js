@@ -86,7 +86,7 @@ function marketPool(source,shop,save,now){
 }
 function draw(rng,pool,gold,rare,slots){
  const used=new Set,result=[];let attempts=0,i=0;
- for(let rareNext=rare;i<slots&&attempts++<8000&&pool.length&&used.size<pool.length;){
+ for(let rareNext=rare;i<6&&attempts++<8000&&pool.length&&used.size<pool.length;){
   if(rareNext){
    const rarePool=pool.filter(x=>x.rare===1);
    if(!rarePool.length){rareNext=false;continue}
@@ -588,15 +588,16 @@ function replayKoreanClientEvents(save,source,events,options={}){
  const poolAt=when=>marketPool(source?.shops?.guishi||[],shop,save,when).available;
  const newShelf=(paid,rare,when)=>{
   const pool=poolAt(when),used=new Set,result=[];
-  let pendingRare=rare,attempts=0;
-  while(result.length<slots&&attempts++<8000){
+  let pendingRare=rare,attempts=0,drawn=0;
+  while(drawn<6&&attempts++<8000){
    const eligible=pendingRare?pool.filter(x=>x.rare===1):pool;
    if(!eligible.length)throw Error('암시장 후보 상품이 비어 있습니다.');
    const weights=eligible.map(x=>n(pendingRare?x.weightGold:(paid?x.weightGold:x.weight)));
    if(weights.reduce((a,b)=>a+b,0)<=0)throw Error('암시장 추첨 가중치가 없습니다.');
    const item=eligible[rng.weighted('guishishop',weights)-1];
    if(!item||used.has(item.id))continue;
-   used.add(item.id);result.push(item);pendingRare=false;
+   if(drawn<slots){used.add(item.id);result.push(item)}
+   drawn++;pendingRare=false;
   }
   if(result.length!==slots)throw Error('암시장 상품 슬롯 구성에 실패했습니다.');
   return result;
