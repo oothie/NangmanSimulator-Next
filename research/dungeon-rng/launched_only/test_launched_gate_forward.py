@@ -60,6 +60,19 @@ class LaunchedOnly(unittest.TestCase):
  def test_dcy_clear_count_invalid(self):
   for n in (0,21):
    with self.subTest(n=n),self.assertRaises(ValueError):replay(self.a,SRC,REG,1,1,dcy_clears=n)
+ def test_two_sequential_byj_clears(self):
+  before=json.loads((SAVES/'1122.json').read_text())
+  out=replay(before,SRC,REG,1,1,byj_clears=2)
+  runs=[r for r in out['runs'] if r['gate']=='벽유교']
+  self.assertEqual([r['draws'] for r in runs],[18,17])
+  targets=[json.loads((SAVES/name).read_text()) for name in ('1122v3.json','1124.json')]
+  for row,expected in zip(runs,targets):
+   self.assertEqual(row['seedAfter']['seed_byj'],expected['Rnds']['Sds']['seed_byj'])
+   for equip in row['equipment']:
+    self.assertEqual(equip.get('slot'),expected['globalVariable'].get(f"drop_{equip['npc']}_equip"))
+ def test_byj_invalid_clear_count(self):
+  for n in (0,21):
+   with self.subTest(n=n),self.assertRaises(ValueError):replay(self.a,SRC,REG,1,1,byj_clears=n)
  def test_no_unreleased_gate_output(self):
   self.assertFalse(set(r['gate'] for r in self.f['runs']) & set(FROZEN))
  def test_optional_special_consumer_summary(self):
