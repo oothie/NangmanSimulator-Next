@@ -52,8 +52,8 @@
 - `test_special_award_consumer.py`: 7/7 통과
 - `test_material_weight_counterfactual.py`: 6/6 통과
 - `test_released_special_state_compare.py`: 4/4 통과
-- 기존 출시 4관문 `test_launched_gate_forward.py`: 6/6 통과
-- **총 23/23** 회귀 통과
+- 기존 출시 4관문 및 특수 지급 요약 통합 `test_launched_gate_forward.py`: 7/7 통과
+- **총 24/24** 회귀 통과
 
 ### 아직 검증하지 못한 부분
 
@@ -70,3 +70,7 @@
 - 관련 테스트 3개. 원본 Whale·SBC 바이트, 실제 세이브, 사적인 시드/획득량은 공개 배포에서 제외.
 
 **배포 사이트/버전·V82/미출시 모드 변경 없음.** 연구 브랜치에서만 별도 유지.
+
+## 출시 관문 전방 예측과 연결
+
+`launched_gate_forward.py`에 원본 특수 보상 지급/재료 가중치 두 JSON을 모두 추가 인자로 전달하면 기존 일반 장비 예측과 함께 **조건부 특수 보상 지급 비교**를 `specialRewardCounterfactual`에 추가한다. 사용자가 아직 획득하지 않은 보상의 실제 지급자가 확정된다는 뜻이 아니라 **당첨된 경우의 지급 가능성과 원본 가중치의 상태별 차이**를 출력한다.
