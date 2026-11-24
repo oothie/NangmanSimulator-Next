@@ -1,0 +1,259 @@
+{
+  "source": "60014 Whale source original source bytecode; no original game files published",
+  "statementDispatch": {
+    "originalModule": "JHTaskStatementsSeedKeyRoll.sb3",
+    "sha256": "2b9c7561394f3ba1bd6a91d17de8a29f3044844d1afdb7872828fdf8cfe109af",
+    "seedkeyroll": {
+      "prototype": 1,
+      "getRandsPc": 29,
+      "getRandBetweenPc": 32
+    },
+    "roll": {
+      "prototype": 3,
+      "getStoryRndPc": 19,
+      "intRandPc": 22
+    },
+    "seedStreamsIdentical": false,
+    "storyRndStateOriginKnown": false
+  },
+  "equivalentRescueScripts": [
+    {
+      "funWhaleRecord": 1777,
+      "sourceSha256": "f46ad6d401da2788f796759fe74b2718fc0b89eac810e4ac03cded9461f287b2",
+      "rolls": [
+        {
+          "step": 8,
+          "opcode": "roll",
+          "tdUpPc": 32,
+          "typedInsertion": [
+            {
+              "pc": 37,
+              "key": "GetP('drop_byj_1')",
+              "index": 1
+            },
+            {
+              "pc": 41,
+              "key": "GetP('drop_byj_2')",
+              "index": 2
+            },
+            {
+              "pc": 45,
+              "key": "GetP('drop_byj_3')",
+              "index": 3
+            },
+            {
+              "pc": 49,
+              "key": "GetP('drop_byj_4')",
+              "index": 4
+            },
+            {
+              "pc": 53,
+              "key": "GetP('drop_byj_5')",
+              "index": 5
+            },
+            {
+              "pc": 57,
+              "key": "GetP('drop_byj_6')",
+              "index": 6
+            }
+          ],
+          "modelOrder": [
+            3,
+            4,
+            1,
+            6,
+            2,
+            5
+          ],
+          "sourceModel": "LuaJIT-2.1-beta3-content-hash",
+          "runtimeOrderVerified": false
+        },
+        {
+          "step": 9,
+          "opcode": "roll",
+          "tdUpPc": 60,
+          "typedInsertion": [
+            {
+              "pc": 65,
+              "key": "GetP('drop_byj_7')",
+              "index": 7
+            },
+            {
+              "pc": 69,
+              "key": "GetP('drop_byj_8')",
+              "index": 8
+            },
+            {
+              "pc": 73,
+              "key": "GetP('drop_byj_9')",
+              "index": 9
+            },
+            {
+              "pc": 77,
+              "key": "GetP('drop_byj_10')",
+              "index": 10
+            },
+            {
+              "pc": 81,
+              "key": "GetP('drop_byj_11')",
+              "index": 11
+            },
+            {
+              "pc": 85,
+              "key": "GetP('drop_byj_12')",
+              "index": 12
+            },
+            {
+              "pc": 89,
+              "key": "GetP('drop_byj_13')",
+              "index": 13
+            }
+          ],
+          "modelOrder": [
+            7,
+            8,
+            10,
+            9,
+            13,
+            11,
+            12
+          ],
+          "sourceModel": "LuaJIT-2.1-beta3-content-hash",
+          "runtimeOrderVerified": false
+        }
+      ]
+    },
+    {
+      "funWhaleRecord": 2150,
+      "sourceSha256": "51e119fc78895401667e3779bbac80c36f53ecb0ffb899556fc44273de22e7da",
+      "rolls": [
+        {
+          "step": 8,
+          "opcode": "roll",
+          "tdUpPc": 32,
+          "typedInsertion": [
+            {
+              "pc": 37,
+              "key": "GetP('drop_byj_1')",
+              "index": 1
+            },
+            {
+              "pc": 41,
+              "key": "GetP('drop_byj_2')",
+              "index": 2
+            },
+            {
+              "pc": 45,
+              "key": "GetP('drop_byj_3')",
+              "index": 3
+            },
+            {
+              "pc": 49,
+              "key": "GetP('drop_byj_4')",
+              "index": 4
+            },
+            {
+              "pc": 53,
+              "key": "GetP('drop_byj_5')",
+              "index": 5
+            },
+            {
+              "pc": 57,
+              "key": "GetP('drop_byj_6')",
+              "index": 6
+            }
+          ],
+          "modelOrder": [
+            3,
+            4,
+            1,
+            6,
+            2,
+            5
+          ],
+          "sourceModel": "LuaJIT-2.1-beta3-content-hash",
+          "runtimeOrderVerified": false
+        },
+        {
+          "step": 9,
+          "opcode": "roll",
+          "tdUpPc": 60,
+          "typedInsertion": [
+            {
+              "pc": 65,
+              "key": "GetP('drop_byj_7')",
+              "index": 7
+            },
+            {
+              "pc": 69,
+              "key": "GetP('drop_byj_8')",
+              "index": 8
+            },
+            {
+              "pc": 73,
+              "key": "GetP('drop_byj_9')",
+              "index": 9
+            },
+            {
+              "pc": 77,
+              "key": "GetP('drop_byj_10')",
+              "index": 10
+            },
+            {
+              "pc": 81,
+              "key": "GetP('drop_byj_11')",
+              "index": 11
+            },
+            {
+              "pc": 85,
+              "key": "GetP('drop_byj_12')",
+              "index": 12
+            },
+            {
+              "pc": 89,
+              "key": "GetP('drop_byj_13')",
+              "index": 13
+            }
+          ],
+          "modelOrder": [
+            7,
+            8,
+            10,
+            9,
+            13,
+            11,
+            12
+          ],
+          "sourceModel": "LuaJIT-2.1-beta3-content-hash",
+          "runtimeOrderVerified": false
+        }
+      ]
+    }
+  ],
+  "candidateOrders": {
+    "8": [
+      3,
+      4,
+      1,
+      6,
+      2,
+      5
+    ],
+    "9": [
+      7,
+      8,
+      10,
+      9,
+      13,
+      11,
+      12
+    ]
+  },
+  "limitation": "The exact StoryRnd.intRand native RNG stream and actual runtime pairs order are not proven; never synthesize a game result.",
+  "sourceSaveShape": {
+    "snapshotsChecked": 4,
+    "storyRndSExists": 4,
+    "storyRngSeparateFromBossSeed": 4,
+    "actualValuesRedacted": true
+  }
+}
