@@ -30,7 +30,12 @@
     const drought = Array.isArray(counters)
       ? counters.find(entry => (entry?.Key ?? entry?.key ?? entry?.Name ?? entry?.name) === 'no_drop_3065')
       : counters.no_drop_3065;
+    const flags = Array.isArray(counters) ? Object.fromEntries(counters.map(x => [x?.Key ?? x?.key, asNumber(x)])) : counters;
+    const encounter = target.encounter;
     return {seed: asNumber(sds[target.seedKey]), tigerSeed: asNumber(sds[target.tigerTypeSeedKey]),
+      encounterSeed: encounter ? asNumber(sds[encounter.seedKey]) : null,
+      encounterScore: encounter ? asNumber(flags?.[encounter.counterKey]) : null,
+      encounterBoost: encounter ? asNumber(flags?.eat_2659) : null,
       drought: Math.max(0, Math.floor(asNumber(drought) || 0)), sds, eds};
   }
 
@@ -70,6 +75,23 @@
     const equip = draw(quality.seed, branch.equipIds.length);
     state.seed = equip.seed;
     return {itemId: branch.equipIds[equip.value - 1], color: branch.colors[quality.index][0]};
+  }
+
+  // A normal field battle is NOT a special-NPC reward invocation.
+  // Only a successful encounter advances the special NPC's seed lane.
+  // The Mobei route comes from the preserved V160 normal-hunt replay.
+  // The Shifang encounter formula is provisional until source holdout verifies it.
+  function encounterRoll(state, target) {
+    const rule = target.encounter;
+    if (!rule || !usable(state.encounterSeed) ||
+      !Number.isFinite(state.encounterScore) || !Number.isFinite(state.encounterBoost))
+      throw Error('일반 사냥 조우 시드 또는 누적 판정값이 없습니다.');
+    const rolled = draw(state.encounterSeed, 1000);
+    state.encounterSeed = rolled.seed;
+    const encounter = rolled.value - state.encounterBoost * 10 <= state.encounterScore;
+    const scoreBefore = state.encounterScore;
+    state.encounterScore += encounter ? -750 : 250;
+    return {encounter, encounterRoll: rolled.value, scoreBefore, scoreAfter: state.encounterScore};
   }
 
   function equipmentSeed(state, cfg, id, unix, persistent) {
@@ -112,11 +134,20 @@
   }
 
   function predictWithState(input, target, options, equipment) {
-    if (!usable(input.seed) || target.kind === 'tigerbone' && !usable(input.tigerSeed)) throw Error('현재 세이브에 해당 대상의 드랍 순서가 없습니다');
+    if (!usable(input.seed) || target.kind === 'tigerbone' && !usable(input.tigerSeed) ||
+      target.encounter && (!usable(input.encounterSeed) || !Number.isFinite(input.encounterScore) ||
+        !Number.isFinite(input.encounterBoost)))
+      throw Error('현재 세이브에 해당 대상의 드랍 또는 특수몹 조우 순서가 없습니다');
     const state = {...input, sds: {...input.sds}, eds: {...input.eds}};
     const rows = [];
     for (let index = 0; index < options.pad + options.count; index++) {
-      const row = target.kind === 'tigerbone' ? tiger(state, options.bait) : loot(state, target);
+      let encounterInfo = null;
+      if (target.kind === 'story' && target.encounter) encounterInfo = encounterRoll(state, target);
+      const row = encounterInfo && !encounterInfo.encounter ? {} :
+        target.kind === 'tigerbone' ? tiger(state, options.bait) : loot(state, target);
+      if (encounterInfo) Object.assign(row, {spawn: encounterInfo.encounter,
+        encounterRoll: encounterInfo.encounterRoll, encounterScoreBefore: encounterInfo.scoreBefore,
+        encounterScoreAfter: encounterInfo.scoreAfter});
       // Game table equipment[7200] has appearance data and no combat affixes.
       const cfg = equipment[String(row.itemId)] || (row.itemId === 7200 ? {} : null);
       if (row.color) {
@@ -133,7 +164,8 @@
     return {rows,final:{
       seed:state.seed,tigerSeed:state.tigerSeed,drought:state.drought,
       // Return copied streams only for verification; never mutate archive.
-      sds:{...state.sds},eds:{...state.eds}
+      sds:{...state.sds, ...(target.encounter ? {[target.encounter.seedKey]:state.encounterSeed}: {})},
+      encounterScore:state.encounterScore,eds:{...state.eds}
     }};
   }
   function predict(input,target,options,equipment){
