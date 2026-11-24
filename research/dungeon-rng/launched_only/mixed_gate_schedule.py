@@ -12,6 +12,7 @@ from gate_seed_boundary import audit_gate_seed_transition
 from liu_key_timeline import validate_key_timeline,set_key_before_liu,parse_cli_timeline
 from liu_key_evidence_ledger import ownership_timeline
 from private_file_guard import assert_output_paths_safe
+from liu_key_consumer_contract import audit_confirmed_key_ledger
 
 MAX_EVENTS=40
 
@@ -87,19 +88,30 @@ if __name__=='__main__':
     p.add_argument('--schedule',required=True,help='Comma-separated: 벽유교,창옥,연왕부,유씨별원')
     p.add_argument('--liu-key-ownership',help='Explicit 8915 status per Liu clear: held,unheld,held; no automatic inference')
     p.add_argument('--liu-key-evidence',type=Path,help='Local verified inventory/reward ledger JSON; cannot combine with --liu-key-ownership')
+    p.add_argument('--liu-key-consumer-trace',type=Path,help='Local verified fresh-roll and actual consumer delivery trace JSON')
+    p.add_argument('--liu-key-consumer-registry',type=Path,help='Recovered original special-consumer registry for 8915 contract audit')
     p.add_argument('--output-private',type=Path,help='PRIVATE output includes RNG seeds; do not share')
     a=p.parse_args()
     if a.liu_key_ownership is not None and a.liu_key_evidence is not None:
         p.error('--liu-key-ownership and --liu-key-evidence cannot be combined')
     schedule=a.schedule.split(',')
     timeline=parse_cli_timeline(a.liu_key_ownership)
+    consumer_args=(a.liu_key_consumer_trace,a.liu_key_consumer_registry)
+    if any(v is not None for v in consumer_args) and (a.liu_key_evidence is None or not all(v is not None for v in consumer_args)):
+        p.error('Consumer trace and source registry must be provided together with --liu-key-evidence')
     if a.liu_key_evidence is not None:
         evidence=json.loads(a.liu_key_evidence.read_text(encoding='utf-8'))
-        timeline,_=ownership_timeline(schedule,evidence)
+        if all(v is not None for v in consumer_args):
+            source=json.loads(a.liu_key_consumer_registry.read_text(encoding='utf-8'))
+            trace=json.loads(a.liu_key_consumer_trace.read_text(encoding='utf-8'))
+            timeline,_=audit_confirmed_key_ledger(schedule,evidence,source,trace)
+        else:
+            timeline,_=ownership_timeline(schedule,evidence)
     _,out=run_order(json.loads(a.save.read_text()),a.source_root,a.registry,schedule,
                     liu_key_ownership=timeline)
     if a.output_private:
-        assert_output_paths_safe([a.output_private],[a.save,a.liu_key_evidence,a.registry,a.source_root])
+        assert_output_paths_safe([a.output_private],[a.save,a.liu_key_evidence,a.registry,a.source_root,
+                                                   a.liu_key_consumer_trace,a.liu_key_consumer_registry])
         a.output_private.write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
     else:
         for r in out['runs']:
