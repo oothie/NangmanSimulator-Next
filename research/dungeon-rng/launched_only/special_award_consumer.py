@@ -14,6 +14,7 @@ AWARD=re.compile(rb"AddBattleDrop\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\s*(?:Se
 CONDITION=re.compile(rb"GetP\(\s*'(?P<flag>drop_\d+_\d+|drop_35260_rarematerial)'\s*\)\s*(?P<fop>==|~=)\s*(?P<fvalue>\d+)(?:\s+and\s+GetP\(\s*'(?P<count>get_\d+(?:_\d+)?)'\s*(?:,\s*'(?P<scope>temp)'\s*)?\)\s*(?P<cmp><=|<|==)\s*(?P<cap>\d+))?")
 COUNT_WRITE=re.compile(rb"(?:AddP|SetP)\(\s*'(?P<key>get_\d+(?:_\d+)?)'\s*,\s*(?P<value>-?\d+)\s*\)")
 OTHER_SPECIAL=re.compile(rb"GetP\(\s*'(?P<key>get_\d+(?:_\d+)?)'\s*\)\s*(?P<op>==|<=|<)\s*(?P<value>\d+)")
+ROLLBACK_COUNT=re.compile(rb"(?P<op>AddP|SetP)\(\s*'(?P<key>get_\d+(?:_\d+)?)'\s*,\s*(?P<amount>-?\d+)\s*\)")
 
 def source_blobs(v177:Path, liu_dir:Path):
     with zipfile.ZipFile(v177) as archive:
@@ -26,6 +27,44 @@ def source_blobs(v177:Path, liu_dir:Path):
         p=liu_dir/f'lsby_boss{boss}.recovered.sbc'
         if not p.is_file():raise FileNotFoundError(f'Original decoded Liu consumer not present: {p}')
         yield p.name,p.read_bytes(),'Whale event unique-sized record, outer+inner decrypted'
+
+def find_rollback(blob:bytes,flag:str):
+    # Original event serialization places the prior-award recovery action just
+    # before its `GetP(drop_...) == 2` condition. Only certify a unique match.
+    target=("GetP('"+flag+"') == 2").encode()
+    positions=[m.start() for m in re.finditer(re.escape(target),blob)]
+    if not positions:return None
+    if len(positions)!=1:raise AssertionError(('ambiguous original rollback condition',flag))
+    prefix=blob[max(0,positions[0]-180):positions[0]]
+    setflag=re.compile(rb"SetP\(\s*'"+re.escape(flag.encode())+rb"'\s*,\s*1\s*\)")
+    matches=list(setflag.finditer(prefix))
+    if len(matches)!=1:raise AssertionError(('ambiguous original rollback flag reset',flag))
+    tail=prefix[matches[-1].end():]
+    count=list(ROLLBACK_COUNT.finditer(tail))
+    if len(count)>1:raise AssertionError(('multiple rollback count updates',flag))
+    update=None
+    if count:
+        c=count[0]
+        update={'operation':c.group('op').decode(),'key':c.group('key').decode(),'value':int(c.group('amount'))}
+    return {'ifFlagEquals':2,'resetFlagTo':1,'counterUpdate':update}
+
+def apply_original_rollbacks(awards:list[dict],variables:dict):
+    # The original consumer's pre-reward `flag==2` recovery is applied before
+    # evaluating grant eligibility. Never mutate caller save or fake RNG draws.
+    state=variables.copy()
+    applied=[]
+    for row in awards:
+        rule=row.get('rollback')
+        if rule is None or state.get(row['flag'],0)!=rule['ifFlagEquals']:continue
+        state[row['flag']]=rule['resetFlagTo']
+        update=rule['counterUpdate']
+        if update:
+            key=update['key'];value=update['value']
+            if update['operation']=='AddP':state[key]=state.get(key,0)+value
+            elif update['operation']=='SetP':state[key]=value
+            else:raise ValueError('Unknown original rollback operation')
+        applied.append(row['flag'])
+    return state,applied
 
 def extract(v177:Path,liu_dir:Path):
     output=[];sources=[];skipped=[]
@@ -50,6 +89,7 @@ def extract(v177:Path,liu_dir:Path):
                  'operator':(cond.group('cmp') or b'').decode() or None,
                  'cap':int(cond.group('cap')) if cond.group('cap') is not None else None,
                  'consumerCondition':cond.group(0).decode()}
+            row['rollback']=find_rollback(blob,conditionflag)
             if row['countKey'] is None and item not in (3505,3970,8915):
                 # Guard may not be bound or data is incomplete. Do not invent quantity limits.
                 row['requiresIndependentReview']=True
@@ -76,14 +116,17 @@ def eligible(row,variables:dict,assume_flag:bool=False,override_count:int|None=N
 
 def whatif(registry:dict, save:dict):
     global_vars=save['globalVariable'];rows=[]
+    prepared,rolled_back=apply_original_rollbacks(registry['awards'],global_vars)
     for row in registry['awards']:
-        current=eligible(row,global_vars,assume_flag=True)
-        zero=eligible(row,global_vars,assume_flag=True,override_count=0)
+        current=eligible(row,prepared,assume_flag=True)
+        zero=eligible(row,prepared,assume_flag=True,override_count=0)
         rows.append({'gate':row['gate'],'npc':row['npc'],'item':row['item'],'cap':row['cap'],
                      'claimedCount':global_vars.get(row['countKey'],None) if row['countKey'] else None,
+                     'claimedCountAfterRollback':prepared.get(row['countKey'],None) if row['countKey'] else None,
                      'claimCountCurrentEligible':current,'claimCountZeroEligible':zero,
                      'doesChangingClaimCountAffectConsumer':current!=zero,
-                     'sourceFlagAlreadyRaised':global_vars.get(row['flag'])==1})
+                     'sourceFlagAlreadyRaised':global_vars.get(row['flag'])==1,
+                     'originalRollbackApplied':row['flag'] in rolled_back})
     return rows
 
 def main():
@@ -94,7 +137,8 @@ def main():
     summary={'sourceScripts':len(registry['sources']),'specialAwardRules':len(registry['awards']),
       'byGate':{gate:sum(x['gate']==gate for x in registry['awards']) for gate in ['연왕부','창옥','벽유교','유씨별원']},
       'counted':sum(x['countKey'] is not None for x in registry['awards']),
-      'noCountLimit':sum(x['countKey'] is None for x in registry['awards'])}
+      'noCountLimit':sum(x['countKey'] is None for x in registry['awards']),
+      'originalRollbackBranches':sum(x['rollback'] is not None for x in registry['awards'])}
     if a.save:
         save=json.loads(a.save.read_text());rows=whatif(registry,save)
         summary['alreadyClaimedCounterfactual']={'currentCountDisallowed':sum(x['claimCountCurrentEligible'] is False for x in rows),
