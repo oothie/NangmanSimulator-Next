@@ -16,19 +16,19 @@ self.onmessage=event=>{
   for(const periods of [...new Set([options.periods,240,360,720])].sort((a,b)=>a-b)){
    if(periods<options.periods)continue;
    forecastPeriods=periods;
-   candidate=state.findFeasibleStrategy([m.target],{...options,periods});
+   candidate=state.auditStrategy(state.findFeasibleStrategy([m.target],{...options,periods}),{target:m.target,quantity:m.quantity,vip:m.vip});
    if(candidate.found)break;
    self.postMessage({type:'progress',requestId:m.requestId,expanded:0,
     limit:options.maxStates,stage:'구매 경로 탐색 범위 확대 · '+periods+'회 확인'});
   }
   const expanded={...options,periods:forecastPeriods};
-  const free=state.searchStrategy([m.target],{...expanded,mode:'free'});
+  const free=state.auditStrategy(state.searchStrategy([m.target],{...expanded,mode:'free'}),{target:m.target,quantity:m.quantity,vip:m.vip});
   self.postMessage({type:'candidate',requestId:m.requestId,
    plans:{free,candidate},forecastPeriods});
-  const fastest=state.searchStrategy([m.target],{...expanded,mode:'fastest',
+  const fastest=state.auditStrategy(state.searchStrategy([m.target],{...expanded,mode:'fastest',
    bestCandidate:candidate.found?candidate:null,
    onProgress:p=>self.postMessage({type:'progress',requestId:m.requestId,...p,
-    stage:'최단 기간 증명 탐색 중'})});
+    stage:'최단 기간 증명 탐색 중'})}),{target:m.target,quantity:m.quantity,vip:m.vip});
   self.postMessage({type:'result',requestId:m.requestId,
    plans:{free,candidate,fastest},forecastPeriods});
  }catch(error){
