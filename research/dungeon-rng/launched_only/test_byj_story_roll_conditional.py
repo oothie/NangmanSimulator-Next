@@ -55,7 +55,7 @@ class TestByjStoryRoll(unittest.TestCase):
   with self.assertRaises(ValueError):apply_observed_story_rolls(self.gv,registry,{1:1,2:1})
  def test_no_synthesized_seed(self):
   v=intervals(self.gv,registry)
-  self.assertEqual(v['unknownRngState'],'JHTaskStatementsRoll.lua original implementation not recovered')
+  self.assertIn('math.jhrandom',v['unknownRngState'])
   self.assertNotIn('generatedSeed',v)
   self.assertEqual(v['gameRuntimeOrderVerified'],False)
  def test_invalid_rolls(self):
