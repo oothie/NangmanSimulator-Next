@@ -214,6 +214,9 @@ def check(after: dict, record: dict, public: dict, *, accept_extra: bool=False) 
 
 
 def main() -> None:
+    import sys
+    sys.path.insert(0,str(Path(__file__).resolve().parent.parent))
+    from private_file_guard import assert_output_paths_safe
     p=argparse.ArgumentParser(description='Seal before gameplay, verify after gameplay; private saves never uploaded')
     sub=p.add_subparsers(dest='mode',required=True)
     create=sub.add_parser('seal'); create.add_argument('--before',type=Path,required=True)
@@ -236,7 +239,8 @@ def main() -> None:
                   if a.liu_key_evidence is not None else None)
         record,public=seal(baseline,a.source_root,a.registry,a.schedule.split(','),
                            liu_key_evidence=evidence)
-        if a.private_record.resolve()==a.public_commitment.resolve():raise ValueError('Private and public destination cannot coincide')
+        assert_output_paths_safe([a.private_record,a.public_commitment],
+                                 [a.before,a.registry,a.source_root,a.liu_key_evidence])
         a.private_record.write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n')
         a.public_commitment.write_text(json.dumps(public,ensure_ascii=False,indent=2)+'\n')
         print('SEALED',public['sealed_sha256'],'gates',public['gate_count'],'gear',public['equipment_count'])
@@ -244,6 +248,7 @@ def main() -> None:
     else:
         record=json.loads(a.private_record.read_text());public=json.loads(a.public_commitment.read_text());after=json.loads(a.after.read_text())
         result=check(after,record,public,accept_extra=a.diagnose_extra)
+        assert_output_paths_safe([a.out],[a.after,a.private_record,a.public_commitment])
         a.out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
         print(result['status'],'equipment',result['strict_equipment_match'],'seeds',result['seed_lanes_matched'],'/',result['seed_lanes_checked'])
 
