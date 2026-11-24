@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {stringHash,numericHash,rollByNativeOrder}=require('./luajit-beta3-hash.cjs');
+assert.notEqual(stringHash('201'),numericHash(201));
+assert.notEqual(stringHash('200  '),stringHash('200   '));
+const C=[[201,201],['200  ',200],['200   ',200],['200    ',200],['200     ',200]];
+const c=rollByNativeOrder(C,820,1);
+assert.equal(c.key,'200   ');
+assert.deepEqual(c.order,['200    ','200     ',201,'200  ','key','200   ']);
+assert.equal(rollByNativeOrder([[301,301],[302,302],[303,303],[304,304]],635,1).key,302);
+assert.equal(rollByNativeOrder([[50,50],[30,30],[15,15],[5,5]],24,1).key,30);
+assert.equal(rollByNativeOrder([[40,40],['40 ',40],[15,15],[5,5]],39,1).key,'40 ');
+assert.equal(rollByNativeOrder([[50,50],[30,30],[15,15],[5,5]],13,1).key,30);
+console.log('PASS: source-keyed LuaJIT beta3 fixture');
