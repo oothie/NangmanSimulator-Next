@@ -140,6 +140,8 @@ def seal(before: dict, source_root: Path, registry: Path,
         'liu_key_consumer_trace_digest': sha(liu_consumer_trace) if source_audit else None,
         'liu_key_consumer_registry_digest': sha(liu_consumer_registry) if source_audit else None,
         'liu_key_ownership_timeline': timeline,
+        'evidence_temporality': ('RETROSPECTIVE_CONFIRMED_AFTER_CLEAR' if liu_key_evidence is not None
+                                 else 'NO_POST_CLEAR_EVIDENCE_USED'),
         'expected_end_seeds': expected_seeds,
         'expected_win_counters': wins,
         'starting_save_digest': hashlib.sha256(canonical(before)).hexdigest(),
@@ -157,7 +159,9 @@ def seal(before: dict, source_root: Path, registry: Path,
         'gate_count': len(schedule),
         'equipment_count': len(expected),
         'sealed_sha256': sha(record),
-        'status': 'COMMITTED_BEFORE_PLAY — no gameplay observation included',
+        'status': ('RETROSPECTIVE_CONDITIONAL — verified after-clear receipts are used'
+                   if liu_key_evidence is not None else
+                   'COMMITTED_BEFORE_PLAY — no gameplay observation included'),
     }
     return record, public
 
@@ -178,6 +182,9 @@ def check(after: dict, record: dict, public: dict, *, accept_extra: bool=False) 
     validate_schedule(record['schedule'])
     if sha(record) != public.get('sealed_sha256'):
         raise ValueError('Sealed forecast was modified after commitment')
+    retrospective=(record.get('evidence_temporality')=='RETROSPECTIVE_CONFIRMED_AFTER_CLEAR'
+                   or (record.get('evidence_temporality') is None and
+                       record.get('liu_key_evidence_digest') is not None))
     old_ids = record['start_inventory_ids']
     if len(set(old_ids)) != len(old_ids):
         raise ValueError('Baseline inventory identifiers must be unique')
@@ -205,6 +212,7 @@ def check(after: dict, record: dict, public: dict, *, accept_extra: bool=False) 
                    else 'INCONCLUSIVE_MISSING_BASELINE' if missing
                    else 'INCONCLUSIVE_BASELINE_CHANGED' if baseline_changed
                    else 'INCONCLUSIVE_DIAGNOSTIC_MODE' if accept_extra
+                   else 'INCONCLUSIVE_RETROSPECTIVE_EVIDENCE' if retrospective
                    else 'PASS' if equip_match and all(seed_results.values()) and all(win_results.values())
                    else 'FAIL'),
         'strict_equipment_match': added == expected,
