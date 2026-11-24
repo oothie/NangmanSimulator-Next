@@ -99,3 +99,27 @@ python -m unittest test_liu_key_8915_branch_compare -v
 **주의:** 사용자 실측의 실제 소지·사용 기록을 명시한 조건부 실험용이다. `get_8915` 누적 지급 횟수, `drop_8915_35264` 당첨 플래그, 지난 클리어 결과만으로 인벤토리 소유를 추론하거나 다음 회차의 열쇠 상태를 자동으로 갱신하지 않는다. 숫자키와 실제 한국 서버 소지품의 연결을 독립 검증한 것이 아니다. 옵션 미지정 시 기존 재생 동작 그대로. 상태 하나라도 누락되거나 `unknown`이면 거짓 0으로 대체하지 않고 오류를 반환한다.
 
 연구 전용 검사 `python -m unittest test_liu_key_timeline test_gate_seed_boundary test_liu_key_8915_branch_compare`: **30/30 로컬 통과**, 그중 이번 회차 타임라인 전용 12개. 원본 세이브/추출 엔진이 이 실행 환경에 존재하지 않아, 실제 한국판 신규 미래 드랍 통합 회귀는 실행하지 못했다. 공개 사이트·V82·미출시 관문은 변경하지 않음.
+
+## 2026-11-25 — v78 선행 복원 재확인 및 열쇠 소지 이력 기반 연속 재생
+
+**중복 재구현 방지:** 과거 연구 체크포인트 `README_V78.md`와 `README_V79.md`에 이미 유씨별원 **고리의 열쇠 8915의 `Items` 시작 수량 확인, 신규 당첨 때만 수량 +1, 3회차 보유 상태 승계 및 실측 장비 3/3**이 기록되어 있음을 재확인했다. 이번 변경은 그 결과를 새 발견으로 주장하지 않는다. 해당 과거 엔진의 온전한 원본을 새 코드에 무단 치환하지 않고, 현재 출시 4관문 혼합 예측기 및 사전 봉인 기능에 **확인된 지급·사용 이력만 입력할 수 있는 안전한 인터페이스**를 추가했다.
+
+- `liu_key_evidence_ledger.py`: 첫 실제 열쇠 수량 `initialQuantity`, 각 유씨별원 클리어 뒤 확인된 `received`/ `consumed`, 관찰되지 않은 추가 활동이 없다는 `confirmedNoOtherChange` 조건으로 **다음 유씨별원 직전 보유 여부를 자동 이월**한다.
+- `mixed_gate_schedule.py --liu-key-evidence PRIVATE_EVIDENCE.json`: 중간 창옥·벽유교·연왕부가 있어도 유씨별원 회차만 따로 세며 위 보유 이력을 각 회차 원본 재생에 넘긴다. 수동 `--liu-key-ownership`과 동시 지정은 오류다.
+- `forward_holdout/sealed_equipment_holdout.py seal --liu-key-evidence PRIVATE_EVIDENCE.json`: 해당 보유 이력을 반영한 원본 장비명·색상 예측을 개인 전용으로 봉인하고 기록에 증거 JSON의 SHA-256 해시와 회차별 보유 가정을 남긴다. **공개 SHA-256 커밋에는 실제 보유량·장비 예측·시드·사용자 ID를 싣지 않는다.**
+
+`PRIVATE_EVIDENCE.json` 예시 (**실제 저장본이 아닌 검사 예시**):
+```json
+{
+  "initialQuantity": 0,
+  "afterLiu": [
+    {"received": 0, "consumed": 0, "confirmedNoOtherChange": true},
+    {"received": 1, "consumed": 0, "confirmedNoOtherChange": true},
+    {"received": 0, "consumed": 1, "confirmedNoOtherChange": true}
+  ]
+}
+```
+
+위 경우 유씨별원 1·2·3회 입장 전 상태는 각각 **미보유·미보유·보유**다. 회차 종료 뒤 변화가 다음 회차에 적용된다. 과거에 남은 `drop_8915_35264=1` 플래그나 누적 지급 횟수 `get_8915`만으로 열쇠 지급을 반복 계산하지 않는다. 지급 여부, 소비 시점 또는 다른 활동의 영향이 불명확하면 자동 추정을 하지 않고 실행을 중단한다. 현재는 **외부에서 확인한 이벤트를 입력하는 모델**이며 게임 원본 네이티브 `GetP` ↔ `Items` 연결 및 완전한 지급/사용 consumer의 독립 복원은 아직 미완료다.
+
+로컬 재현: `python -m unittest test_liu_key_evidence_ledger test_liu_key_timeline test_gate_seed_boundary test_liu_key_8915_branch_compare forward_holdout.test_sealed_key_evidence -q` → **48/48 통과**. 이는 합성 입력과 봉인 인터페이스 단위검사이며, 신규 실제 게임 보스 드랍의 예측 성공을 뜻하지 않는다. 개인 세이브·비공개 실제 이력은 배포 저장소에 보관하지 않는다. V82/사이트 버전 및 미출시 관문 동결 유지.
