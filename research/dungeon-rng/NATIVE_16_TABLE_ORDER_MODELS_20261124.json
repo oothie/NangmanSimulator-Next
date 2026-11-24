@@ -1,0 +1,182 @@
+{
+  "date": "2026-11-24",
+  "scope": "Sixteen original 35271_1/35227_1 SBv3 source tables",
+  "source_original_bytecode_write_order_verified": true,
+  "native_60014_content_hash_and_two_lookup_sites_verified": true,
+  "native_60014_actual_rehash_and_pairs_order_verified": false,
+  "game_future_drop_id_color_verified": false,
+  "initial_hash_slots": 2,
+  "method": "v16 SourceTable β3 source-guided array/hash/rehash candidate applied to v139/v140 TDUP/TSET typed insertion orders",
+  "rows": [
+    {
+      "gate": "유씨별원",
+      "path": "3/7/2",
+      "rng_key": "seed_lsby",
+      "model_pairs_order": [
+        "s:50 ",
+        "n:50"
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "path": "3/8/2",
+      "rng_key": "seed_lsby",
+      "model_pairs_order": [
+        "s:40 ",
+        "n:5",
+        "n:40",
+        "n:15"
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "path": "3/23/2",
+      "rng_key": "seed_lsby",
+      "model_pairs_order": [
+        "s:GetP('drop_lsby_6')",
+        "s:GetP('drop_lsby_3')",
+        "s:GetP('drop_lsby_8')",
+        "s:GetP('drop_lsby_5')",
+        "s:GetP('drop_lsby_2')",
+        "s:GetP('drop_lsby_11')",
+        "s:GetP('drop_lsby_1')",
+        "s:GetP('drop_lsby_7')",
+        "s:GetP('drop_lsby_4')",
+        "s:GetP('drop_lsby_9')",
+        "s:GetP('drop_lsby_10')"
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "path": "3/24/2",
+      "rng_key": "seed_lsby",
+      "model_pairs_order": [
+        "n:304",
+        "n:303",
+        "n:302",
+        "n:301"
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "path": "3/25/2",
+      "rng_key": "seed_lsby",
+      "model_pairs_order": [
+        "s:200    ",
+        "s:200     ",
+        "n:201",
+        "s:200  ",
+        "s:200   "
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "path": "3/27/2",
+      "rng_key": "seed_lsby",
+      "model_pairs_order": [
+        "s:50 ",
+        "n:50"
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "path": "3/28/2",
+      "rng_key": "seed_lsby",
+      "model_pairs_order": [
+        "n:30",
+        "n:5",
+        "n:50",
+        "n:15"
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "path": "3/31/2",
+      "rng_key": "seed_lsby",
+      "model_pairs_order": [
+        "s:GetP('roll_35268')",
+        "s:120 - GetP('roll_35268')"
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "path": "3/32/2",
+      "rng_key": "seed_lsby",
+      "model_pairs_order": [
+        "s:50 ",
+        "n:50"
+      ]
+    },
+    {
+      "gate": "유씨별원",
+      "path": "3/33/2",
+      "rng_key": "seed_lsby",
+      "model_pairs_order": [
+        "n:30",
+        "n:5",
+        "n:50",
+        "n:15"
+      ]
+    },
+    {
+      "gate": "벽유교",
+      "path": "3/27/2",
+      "rng_key": "seed_byj",
+      "model_pairs_order": [
+        "s:50 ",
+        "n:50"
+      ]
+    },
+    {
+      "gate": "벽유교",
+      "path": "3/28/2",
+      "rng_key": "seed_byj",
+      "model_pairs_order": [
+        "n:30",
+        "n:5",
+        "n:50",
+        "n:15"
+      ]
+    },
+    {
+      "gate": "벽유교",
+      "path": "3/32/2",
+      "rng_key": "seed_byj",
+      "model_pairs_order": [
+        "s:50 ",
+        "n:50"
+      ]
+    },
+    {
+      "gate": "벽유교",
+      "path": "3/33/2",
+      "rng_key": "seed_byj",
+      "model_pairs_order": [
+        "n:30",
+        "n:5",
+        "n:50",
+        "n:15"
+      ]
+    },
+    {
+      "gate": "벽유교",
+      "path": "3/38/2",
+      "rng_key": "seed_byj",
+      "model_pairs_order": [
+        "s:50 ",
+        "n:50"
+      ]
+    },
+    {
+      "gate": "벽유교",
+      "path": "3/39/2",
+      "rng_key": "seed_byj",
+      "model_pairs_order": [
+        "n:30",
+        "n:5",
+        "n:50",
+        "n:15"
+      ]
+    }
+  ]
+}
