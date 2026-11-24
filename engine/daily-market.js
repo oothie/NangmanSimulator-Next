@@ -159,11 +159,10 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    requestedSlots:saveSlots;
  const missed=clock>0?Math.max(0,halfDay(now)-halfDay(clock)):0,stale=missed>=1;
  // A years-old save can require thousands of 12h rerolls; never silently truncate a RNG chain.
- const historyBlocked=missed>730,forecastOk=hasSeed&&!historyBlocked;
- const original=saved=>draw(rng,available,false,false,slots);
- let today=forecastOk?(stale?null:currentShelf(shop.Items,src)):currentShelf(shop.Items,src);
- if(forecastOk&&stale){for(let i=0;i<missed;i++)today=original()}
- today=today||[];
+ // Historical saves cannot account for intervening paid refreshes.
+ // Keep their observed shelf, never silently derive a "current" future shelf.
+ const historyBlocked=missed>730,forecastOk=hasSeed&&!historyBlocked&&!stale;
+ let today=currentShelf(shop.Items,src);
  const fresh=clock>0&&resetDay(clock)<resetDay(now)?0:n(shop.Fresh);
  const paidMax=VIP_REFRESH[vip.vip]??3,paidLeft=Math.max(0,paidMax-fresh),lucky=n(shop.Lucky);
  return {sourceVersion:source?.ver??null,seedOk:forecastOk,seedPresent:hasSeed,historyBlocked,seed:hasSeed?n(save.Rnds.Sds.guishishop):null,
