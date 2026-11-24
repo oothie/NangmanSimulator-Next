@@ -1,0 +1,103 @@
+{
+  "version": "2026-11-24-60-native-source",
+  "sourceWhaleVersionCaution": "Uploaded fun Whale has 2354 records, older 60014 catalog has 1780; exact client build compatibility beyond matching source tree is not presumed.",
+  "allWeightedSourceTables": 67,
+  "equipmentColorTables": 60,
+  "otherWeightedTables": 7,
+  "nativeVerifiedModelOnly": true,
+  "bytecodeSources": [
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "file": "v140/dungeon_v139/35227_1.lua.0.efkiu.streamdec.sbc",
+      "sha256": "379b030246450d9870e7bec7630a7a9291eef6e01a707364eae99d1600bbd24f",
+      "instructions": 584,
+      "logicalSource": "v140/dungeon_v139/35227_1.lua.0.efkiu.streamdec.sbc",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "file": "v140/v30/models/liu/35271_1.lua.multidec.sbc",
+      "sha256": "4fba968b558c2eaf3f231c7e3b04eeb74f8aec907a2f5e8fa46b4e4441b9fa66",
+      "instructions": 666,
+      "logicalSource": "v140/v30/models/liu/35271_1.lua.multidec.sbc",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "file": "v140/dungeon_v114/source/50300_1.efkiu.streamdec.sbc",
+      "sha256": "f5060e88a0356224c09a134d461bbd2eaafa25256cdc58c7640163f1d44e38d4",
+      "instructions": 776,
+      "logicalSource": "v140/dungeon_v114/source/50300_1.efkiu.streamdec.sbc",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "file": "v140/dungeon_v106/source/event__enter_wsd.sbc",
+      "sha256": "b0fbc434023e907e7656e1c8009c7bb556cb64f44dac081ebc6bbbd8e586080b",
+      "instructions": 724,
+      "logicalSource": "v140/dungeon_v106/source/event__enter_wsd.sbc",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "file": "v140/dungeon_v106/source/event__enter_wsdex.sbc",
+      "sha256": "11b2c3f1b5aa60aead421a6d1cd779d4a0dbe8c671e091d6f47783faf6da7ec8",
+      "instructions": 934,
+      "logicalSource": "v140/dungeon_v106/source/event__enter_wsdex.sbc",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "file": "source_original/33381_1.lua.recovered.sbc",
+      "sha256": "8dad4c3f56cd8a3aecf953b58066cd030e3887c5ac98c6c85cb172272314be40",
+      "instructions": 768,
+      "logicalSource": "src/app/story/fun/33381_1.lua",
+      "whaleContainer": "story/fun",
+      "whaleRecordZeroBased": 1910,
+      "whaleRecordMatchByEncryptedSize": "unique",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "file": "source_original/40389_1.lua.recovered.sbc",
+      "sha256": "96f55ec5dd8d52f6c3c2d56aeb282140fecf0bf26c5e9541b42af6f1cfac057b",
+      "instructions": 842,
+      "logicalSource": "src/app/story/fun/40389_1.lua",
+      "whaleContainer": "story/fun",
+      "whaleRecordZeroBased": 1991,
+      "whaleRecordMatchByEncryptedSize": "unique",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "file": "source_original/byjzt_normal.recovered.sbc",
+      "sha256": "39c914aa5a0e10e4ea2e1f85afabdac01c9b421fba0a541a796955885b14ba57",
+      "instructions": 480,
+      "logicalSource": "src/app/story/fun/37567_1.lua",
+      "whaleContainer": "story/fun",
+      "whaleRecordZeroBased": 1562,
+      "whaleRecordMatchByEncryptedSize": "unique",
+      "treeMatchesPreviouslyRecovered60014": true
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "file": "source_original/byjzt_advanced.recovered.sbc",
+      "sha256": "a95e36d22868f7fae17efa00595bb09563f46d9232375a8cf58b06ad130a6fb0",
+      "instructions": 548,
+      "logicalSource": "src/app/story/fun/37567_3.lua",
+      "whaleContainer": "story/fun",
+      "whaleRecordZeroBased": 1764,
+      "whaleRecordMatchByEncryptedSize": "unique",
+      "treeMatchesPreviouslyRecovered60014": true
+    }
+  ]
+}
