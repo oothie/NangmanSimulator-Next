@@ -1,0 +1,3042 @@
+{
+  "metadata": "60014 original typed source, LuaJIT beta3 source-guided pairs MODEL, do not confuse with native runtime observation",
+  "dataVerified": "9 mode original TDUP/TSET and branch actions",
+  "nativePairsObserved": false,
+  "independentFutureValidated": false,
+  "modeCount": 9,
+  "grants": 30,
+  "producerTables": 60,
+  "colorCodeMap": {
+    "1": "백색",
+    "2": "녹색",
+    "3": "청색",
+    "4": "자색"
+  },
+  "bosses": [
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "grantNpc": 40374,
+      "rngNpc": 40374,
+      "equipmentIds": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_dcy_40374",
+        "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+        "sourceTdupPc": 799,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 40374,
+              "slotSeed": "seed_dcy_40374",
+              "maxSlot": 5
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 40374
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_dcy_40374",
+        "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+        "sourceTdupPc": 808,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40374,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40374,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40374,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40374,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "grantNpc": 35219,
+      "rngNpc": 35219,
+      "equipmentIds": [
+        4409,
+        4209,
+        4009,
+        4609
+      ],
+      "equip": {
+        "seedKey": "seed_byj",
+        "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+        "sourceTdupPc": 371,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35219,
+              "slotSeed": "seed_byj",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35219
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_byj",
+        "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+        "sourceTdupPc": 383,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35219,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35219,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35219,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35219,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "grantNpc": 35214,
+      "rngNpc": 35214,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_byj",
+        "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+        "sourceTdupPc": 445,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35214,
+              "slotSeed": "seed_byj",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35214
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_byj",
+        "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+        "sourceTdupPc": 457,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35214,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35214,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35214,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35214,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "벽유교",
+      "mode": "일반",
+      "grantNpc": 35221,
+      "rngNpc": 35221,
+      "equipmentIds": [
+        4009,
+        4209,
+        4409,
+        4609,
+        4809,
+        5009,
+        5209,
+        5409,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_byj",
+        "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+        "sourceTdupPc": 541,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35221,
+              "slotSeed": "seed_byj",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35221
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_byj",
+        "sourceFile": "v140/v30/models/byj/35227_1.lua.reconstructed.json",
+        "sourceTdupPc": 553,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35221,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35221,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35221,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35221,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "grantNpc": 40372,
+      "rngNpc": 40372,
+      "equipmentIds": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_dcy_40372",
+        "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+        "sourceTdupPc": 501,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 40372,
+              "slotSeed": "seed_dcy_40372",
+              "maxSlot": 5
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 40372
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_dcy_40372",
+        "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+        "sourceTdupPc": 510,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40372,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40372,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40372,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40372,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "창옥",
+      "mode": "일반",
+      "grantNpc": 40373,
+      "rngNpc": 40373,
+      "equipmentIds": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_dcy_40373",
+        "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+        "sourceTdupPc": 697,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 40373,
+              "slotSeed": "seed_dcy_40373",
+              "maxSlot": 5
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 40373
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_dcy_40373",
+        "sourceFile": "v140/v30/models/dcy/40389_1.lua.reconstructed.json",
+        "sourceTdupPc": 706,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40373,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40373,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40373,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 40373,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33654,
+      "rngNpc": 33654,
+      "equipmentIds": [
+        4209,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_33654",
+        "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+        "sourceTdupPc": 485,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 33654,
+              "slotSeed": "seed_33654",
+              "maxSlot": 5
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 33654
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_33654",
+        "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+        "sourceTdupPc": 494,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33654,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33654,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33654,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33654,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33653,
+      "rngNpc": 33653,
+      "equipmentIds": [
+        4409,
+        4809,
+        5009,
+        5209,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_33653",
+        "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+        "sourceTdupPc": 559,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 33653,
+              "slotSeed": "seed_33653",
+              "maxSlot": 5
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 33653
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_33653",
+        "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+        "sourceTdupPc": 568,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33653,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33653,
+              "grade": 4
+            }
+          },          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33653,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33653,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33652,
+      "rngNpc": 33652,
+      "equipmentIds": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_33652",
+        "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+        "sourceTdupPc": 633,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 33652,
+              "slotSeed": "seed_33652",
+              "maxSlot": 5
+            }
+          },
+          {
+            "key": "n:10",
+            "weight": 10,
+            "from": 51,
+            "to": 60,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 33652
+            }
+          },
+          {
+            "key": "n:40",
+            "weight": 40,
+            "from": 61,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 33652
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_33652",
+        "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+        "sourceTdupPc": 646,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33652,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33652,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33652,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33652,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "연왕부",
+      "mode": "일반",
+      "grantNpc": 33650,
+      "rngNpc": 33650,
+      "equipmentIds": [
+        4009,
+        4209,
+        4409,
+        4609,
+        4809,
+        5009,
+        5209,
+        5409,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_33650",
+        "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+        "sourceTdupPc": 725,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 33650,
+              "slotSeed": "seed_33650",
+              "maxSlot": 9
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 33650
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_33650",
+        "sourceFile": "v140/v30/33381_1_record1910.reconstructed.json",
+        "sourceTdupPc": 734,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 110,
+        "intervals": [
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 1,
+            "to": 5,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33650,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:44",
+            "weight": 44,
+            "from": 6,
+            "to": 49,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33650,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:16",
+            "weight": 16,
+            "from": 50,
+            "to": 65,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33650,
+              "grade": 3
+            }
+          },
+          {
+            "key": "n:45",
+            "weight": 45,
+            "from": 66,
+            "to": 110,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 33650,
+              "grade": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "grantNpc": 50883,
+      "rngNpc": 50883,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 215,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 50883,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 50883
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 227,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50883,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50883,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50883,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50883,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "grantNpc": 50910,
+      "rngNpc": 50910,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 277,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 50910,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 50910
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 289,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50910,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50910,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50910,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50910,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "기본",
+      "grantNpc": 44122,
+      "rngNpc": 44122,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 365,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 44122,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 44122
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 377,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 44122,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 44122,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 44122,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 44122,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 35324,
+      "rngNpc": 35324,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsd.json",
+        "sourceTdupPc": 243,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35324,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35324
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsd.json",
+        "sourceTdupPc": 255,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:35",
+            "weight": 35,
+            "from": 1,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35324,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:20",
+            "weight": 20,
+            "from": 36,
+            "to": 55,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35324,
+              "grade": 3
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 56,
+            "to": 60,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35324,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:40",
+            "weight": 40,
+            "from": 61,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35324,
+              "grade": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 50611,
+      "rngNpc": 50611,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsd.json",
+        "sourceTdupPc": 303,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 50611,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 50611
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsd.json",
+        "sourceTdupPc": 315,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:35",
+            "weight": 35,
+            "from": 1,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:20",
+            "weight": 20,
+            "from": 36,
+            "to": 55,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 3
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 56,
+            "to": 60,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:40",
+            "weight": 40,
+            "from": 61,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 35306,
+      "rngNpc": 35306,
+      "equipmentIds": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "equip": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsd.json",
+        "sourceTdupPc": 589,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35306,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35306
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsd.json",
+        "sourceTdupPc": 601,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {              "effect": "color",
+              "stateNpc": 35306,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35306,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35306,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35306,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "무신전",
+      "mode": "숙명",
+      "grantNpc": 35310,
+      "rngNpc": 35310,
+      "equipmentIds": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "equip": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsd.json",
+        "sourceTdupPc": 677,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35310,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35310
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsd.json",
+        "sourceTdupPc": 689,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35310,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35310,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35310,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35310,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 35600,
+      "rngNpc": 35603,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsdex.json",
+        "sourceTdupPc": 271,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35603,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35603
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsdex.json",
+        "sourceTdupPc": 283,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35603,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35603,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:40",
+            "weight": 40,
+            "from": 36,
+            "to": 75,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35603,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:25",
+            "weight": 25,
+            "from": 76,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35603,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 50611,
+      "rngNpc": 50611,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsdex.json",
+        "sourceTdupPc": 391,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 50611,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 50611
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsdex.json",
+        "sourceTdupPc": 403,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 3
+            }
+          },
+          {
+            "key": "n:45",
+            "weight": 45,
+            "from": 31,
+            "to": 75,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 76,
+            "to": 80,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:20",
+            "weight": 20,
+            "from": 81,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50611,
+              "grade": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 35413,
+      "rngNpc": 35413,
+      "equipmentIds": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "equip": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsdex.json",
+        "sourceTdupPc": 746,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35413,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35413
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsdex.json",
+        "sourceTdupPc": 758,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:35",
+            "weight": 35,
+            "from": 1,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35413,
+              "grade": 3
+            }
+          },
+          {
+            "key": "n:20",
+            "weight": 20,
+            "from": 36,
+            "to": 55,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35413,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 56,
+            "to": 60,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35413,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:40",
+            "weight": 40,
+            "from": 61,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35413,
+              "grade": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "무신전",
+      "mode": "절세",
+      "grantNpc": 35420,
+      "rngNpc": 35420,
+      "equipmentIds": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "equip": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsdex.json",
+        "sourceTdupPc": 860,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35420,
+              "slotSeed": "seed_wsd",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35420
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wsd",
+        "sourceFile": "event__enter_wsdex.json",
+        "sourceTdupPc": 872,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:40 ",
+            "weight": 40,
+            "from": 1,
+            "to": 40,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35420,
+              "grade": 3
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 41,
+            "to": 45,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35420,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 46,
+            "to": 60,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35420,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:40",
+            "weight": 40,
+            "from": 61,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35420,
+              "grade": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "grantNpc": 50101,
+      "rngNpc": 50100,
+      "equipmentIds": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_wxj_50100",
+        "sourceFile": "dungeon_v114/wxj_provenance.json",
+        "sourceTdupPc": 439,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 50100,
+              "slotSeed": "seed_wxj_50100",
+              "maxSlot": 5
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 50100
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wxj_50100",
+        "sourceFile": "dungeon_v114/wxj_provenance.json",
+        "sourceTdupPc": 448,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50100,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50100,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50100,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50100,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "grantNpc": 50106,
+      "rngNpc": 50106,
+      "equipmentIds": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_wxj_50106",
+        "sourceFile": "dungeon_v114/wxj_provenance.json",
+        "sourceTdupPc": 631,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 50106,
+              "slotSeed": "seed_wxj_50106",
+              "maxSlot": 5
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 50106
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wxj_50106",
+        "sourceFile": "dungeon_v114/wxj_provenance.json",
+        "sourceTdupPc": 640,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50106,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50106,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50106,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50106,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "문향교",
+      "mode": "일반",
+      "grantNpc": 50111,
+      "rngNpc": 50111,
+      "equipmentIds": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "equip": {
+        "seedKey": "seed_dcy_50111",
+        "sourceFile": "dungeon_v114/wxj_provenance.json",
+        "sourceTdupPc": 733,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 50111,
+              "slotSeed": "seed_wxj_50111",
+              "maxSlot": 5
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 50111
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_wxj_50111",
+        "sourceFile": "dungeon_v114/wxj_provenance.json",
+        "sourceTdupPc": 742,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50111,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50111,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50111,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50111,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "grantNpc": 50941,
+      "rngNpc": 50941,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 229,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 50941,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 50941
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 241,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50941,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50941,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50941,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50941,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "grantNpc": 50950,
+      "rngNpc": 50950,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 317,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 50950,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 50950
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 329,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50950,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50950,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50950,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 50950,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "벽유교 본단",
+      "mode": "추혼",
+      "grantNpc": 44138,
+      "rngNpc": 44138,
+      "equipmentIds": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 419,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 44138,
+              "slotSeed": "seed_byjzt",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 44138
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_byjzt",
+        "sourceFile": "V177_BYJZT_60014_ENTRY_SOURCE_V48.json",
+        "sourceTdupPc": 431,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 44138,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 44138,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 44138,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 44138,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "grantNpc": 35260,
+      "rngNpc": 35260,
+      "equipmentIds": [
+        5609,
+        5409,
+        5009
+      ],
+      "equip": {
+        "seedKey": "seed_lsby",
+        "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+        "sourceTdupPc": 195,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35260,
+              "slotSeed": "seed_lsby",
+              "maxSlot": 3
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35260
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_lsby",
+        "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+        "sourceTdupPc": 207,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:40 ",
+            "weight": 40,
+            "from": 1,
+            "to": 40,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35260,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 41,
+            "to": 45,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35260,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:40",
+            "weight": 40,
+            "from": 46,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35260,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35260,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "grantNpc": 35264,
+      "rngNpc": 35264,
+      "equipmentIds": [
+        4809,
+        5209,
+        5609,
+        5409
+      ],
+      "equip": {
+        "seedKey": "seed_lsby",
+        "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+        "sourceTdupPc": 529,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35264,
+              "slotSeed": "seed_lsby",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35264
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_lsby",
+        "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+        "sourceTdupPc": 541,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35264,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35264,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35264,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35264,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "gate": "유씨별원",
+      "mode": "일반",
+      "grantNpc": 35268,
+      "rngNpc": 35268,
+      "equipmentIds": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "equip": {
+        "seedKey": "seed_lsby",
+        "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+        "sourceTdupPc": 613,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "s:50 ",
+            "weight": 50,
+            "from": 1,
+            "to": 50,
+            "effect": {
+              "effect": "equip-slot",
+              "stateNpc": 35268,
+              "slotSeed": "seed_lsby",
+              "maxSlot": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 51,
+            "to": 100,
+            "effect": {
+              "effect": "no-drop",
+              "stateNpc": 35268
+            }
+          }
+        ]
+      },
+      "color": {
+        "seedKey": "seed_lsby",
+        "sourceFile": "v140/v30/models/liu/35271_1.lua.reconstructed.json",
+        "sourceTdupPc": 625,
+        "verifiedTypedKeyOrder": true,
+        "gameNativePairsObserved": false,
+        "modelOrderOnly": true,
+        "maxRoll": 100,
+        "intervals": [
+          {
+            "key": "n:30",
+            "weight": 30,
+            "from": 1,
+            "to": 30,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35268,
+              "grade": 2
+            }
+          },
+          {
+            "key": "n:5",
+            "weight": 5,
+            "from": 31,
+            "to": 35,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35268,
+              "grade": 4
+            }
+          },
+          {
+            "key": "n:50",
+            "weight": 50,
+            "from": 36,
+            "to": 85,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35268,
+              "grade": 1
+            }
+          },
+          {
+            "key": "n:15",
+            "weight": 15,
+            "from": 86,
+            "to": 100,
+            "effect": {
+              "effect": "color",
+              "stateNpc": 35268,
+              "grade": 3
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
