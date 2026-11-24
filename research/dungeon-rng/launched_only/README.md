@@ -129,3 +129,23 @@ python -m unittest test_liu_key_8915_branch_compare -v
 `private_file_guard.py`를 혼합 관문 CLI와 사전 봉인/사후 검증 CLI에 연결하여 예측 출력이 **원본 세이브, 열쇠 이력 JSON, 원본 레지스트리, 봉인 원문 및 공개 커밋을 덮어쓰지 않도록** 경로 충돌을 차단한다. 같은 경로를 상대/절대 표기로 중복 선택해도 오류 처리한다. 출력 대상이 디렉터리이면 중단한다. 보호 기능 전용 검사 **7/7** 추가.
 
 현재 검증 환경의 합성 검사는 전용 열쇠 이력 12 + 기존 열쇠 타임라인 12 + 관문 시드 경계 10 + 열쇠 조건부 8 + 비공개 봉인 6 + 경로 보호 7 = **55/55 통과**. 원본 한국 서버 신규 관문 클리어 실측을 새로 확보한 것은 아니므로, 종전 역사적 재현 수치를 신규 미래 적중으로 승격하지 않는다.
+
+## 2026-11-25 — 고리의 열쇠 원본 지급 소비자 조건 검증
+
+추출 원본 레지스트리 `SPECIAL_AWARD_CONSUMER_SOURCE_20261124.json`의 **유씨별원 고리(NPC 35264) 아이템 8915**를 정확히 한 개 선택하여 소비자 조건을 검증하는 `liu_key_consumer_contract.py` 추가. 원본 `lsby_boss3.recovered.sbc`에는 `GetP('drop_8915_35264') == 1`일 때 열쇠 1개 지급을 시도하는 규칙이 확인되어 있다. 소비자 허용 조건은 실제 획득 증명과 다르며, 원본 레지스트리는 **과거 60014와 버전이 반드시 동일하다고 입증되지 않은 Whale 복호화본**이라는 제약을 유지한다.
+
+추가 관측 자료가 있을 경우 유씨별원 각 클리어의 `freshRollObserved`, **소비자 실행 직전** `flagAtConsumer`, 실제 지급 확인 `deliveryObserved`를 명시해 `liu_key_evidence_ledger.py`의 확인된 `received` 수와 대조할 수 있다. `drop_8915_35264 == 1`의 오래 남은 플래그만으로 지급 카운트를 증가시키지 않으며, 지급 여부 불명·신규 추첨 여부 불명·모순된 전달 기록에서는 결론을 내지 않는다.
+
+CLI 선택 인자:
+```bash
+python mixed_gate_schedule.py --save PRIVATE_SAVE.json \
+  --source-root /private/v30 --registry /private/gate-60-source-registry.json \
+  --schedule 유씨별원,창옥,유씨별원,유씨별원 \
+  --liu-key-evidence PRIVATE_EVIDENCE.json \
+  --liu-key-consumer-trace PRIVATE_CONSUMER_TRACE.json \
+  --liu-key-consumer-registry SPECIAL_AWARD_CONSUMER_SOURCE_20261124.json
+```
+
+**중요한 판정 수정:** `PRIVATE_EVIDENCE.json`의 회차 **종료 후** 확인된 열쇠 수령/사용 기록을 이용해 생성한 봉인 예측은 미래 사전 예측이 아니다. 새 `evidence_temporality=RETROSPECTIVE_CONFIRMED_AFTER_CLEAR`로 표기하고, 사후 검증에서 일치하더라도 `PASS` 대신 `INCONCLUSIVE_RETROSPECTIVE_EVIDENCE`로 분류한다. 기존 봉인 레코드에 사후 이력 해시가 남아 있어도 같은 기준으로 처리. 실제 미래 사전 예측에는 결과를 보기 **전에** 확정한 시작 상태 및 가설만 사용할 것.
+
+원본 지급 소비자 레지스트리의 정합성에 대한 로컬 독립 예제와 기존 원본 없는 합성 회귀를 합쳐 **65/65 테스트 성공**(연구 환경, 소유권/상태 전달 기능 대상). 새 소비자 기능 단독 GitHub 테스트 14개와 실제 소스 레지스트리 2개, 사후 증거 누수 방지 테스트 5개를 연구 브랜치에 추가했다. 전체 네이티브 런타임 및 새로운 전투 데이터에서의 미래 정확도 검증은 아직 수행되지 않았다. 공개 사이트/버전·V82·미출시 관문 로직 불변.
