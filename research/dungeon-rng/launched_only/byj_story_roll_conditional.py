@@ -27,9 +27,9 @@ def intervals(global_vars:dict,registry:dict,assume_rescue=True)->dict:
             start+=value
         assert start-1==group['weightSum'],(start,group['weightSum'])
         res.append({'group':n,'total':start-1,'intervals':rows,'sourceOrder':list(ORDERS[n]),
-                    'rollFrom':'JHTaskStatementsRoll original RNG method not recovered; integer roll assumed as caller-supplied'})
+                    'rollFrom':'JHTaskStatementsRoll calls global JHRandom; actual math.jhrandom/math.random choice and bounds not yet verified'})
     return {'status':'source-model-conditional','groups':res,'gameRuntimeOrderVerified':False,
-            'unknownRngState':'JHTaskStatementsRoll.lua original implementation not recovered'}
+            'unknownRngState':'JHRandom uses math.jhrandom/math.random; exact runtime route and state not yet verified'}
 
 def apply_observed_story_rolls(global_vars,registry,rolls:dict[int,int],assume_rescue=True):
     """Resolve observed one-based rolls to source-ordered branches.
@@ -46,7 +46,7 @@ def apply_observed_story_rolls(global_vars,registry,rolls:dict[int,int],assume_r
         g=group['group'];roll=rolls[g]
         if not isinstance(roll,int) or isinstance(roll,bool):raise TypeError('integer roll required')
         if group['total']==0:
-            raise ValueError('Original JHTaskStatementsRoll zero-weight behavior unverified; cannot select empty group')
+            raise ValueError('Original JHRandom zero-weight behavior unverified; cannot select empty group')
         if roll<1 or roll>group['total']:raise ValueError(f'roll {roll} outside 1..{group["total"]}')
         opts=[v for v in group['intervals'] if v['start']<=roll<=v['end']]
         assert len(opts)==1
@@ -54,4 +54,4 @@ def apply_observed_story_rolls(global_vars,registry,rolls:dict[int,int],assume_r
     new,effects=apply_known_selected_outcomes(global_vars,registry,chosen,True)
     return {'sourceOrderAssumption':True,'givenRolls':dict(rolls),'selected':chosen,
             'changes':effects,'globalVariables':new,
-            'warning':'Game runtime Roll RNG method and bounds, underlying RNG state and actual pairs order not yet verified'}
+            'warning':'Game runtime JHRandom branch and bounds, underlying RNG state and actual pairs order not yet verified'}
