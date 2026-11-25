@@ -86,6 +86,14 @@ async function smoke(){
   const changeText=await page.locator('#dungeonTestResults').innerText();
   assert.match(changeText,/무준신/);
   assert.match(changeText,/(미드랍|수라장갑|자미아대|흑살곤|옥형 허리띠|청운추)/);
+  await page.locator('#dungeonTestGate').selectOption({label:'연왕부'});
+  await page.locator('#dungeonTestRun').click();
+  assert.match(await page.locator('#dungeonTestResults').innerText(),/이총관/);
+  assert.match(await page.locator('#dungeonTestResults').innerText(),/연왕/);
+  await page.locator('#dungeonTestGate').selectOption({label:'벽유교'});
+  await page.locator('#dungeonTestRun').click();
+  assert.match(await page.locator('#dungeonTestResults').innerText(),/독선생/);
+  assert.match(await page.locator('#dungeonTestResults').innerText(),/불로선인/);
   await page.locator('#dungeonTestGate').selectOption({label:'유씨별원'});
   await page.locator('#dungeonTestKey').selectOption('owned');
   await page.locator('#dungeonTestRun').click();
