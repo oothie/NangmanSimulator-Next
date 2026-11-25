@@ -187,4 +187,24 @@ test('source lost branch restores temporary-free key receipt count only',()=>{
  assert.equal(loss.nextState.globalVariable.get_3970,0);
  assert.equal(src.globalVariable.get_3970,1);
 });
+test('numeric key ownership becomes unresolved after its first award by default',()=>{
+ const s={globalVariable:{get_3970:0}};
+ const clears=[
+  [{npc:35221,specialIds:[3970]}],
+  [{npc:35221,specialIds:[3970]}]
+ ];
+ const out=forecastSpecialAwards(s,clears,{numericState:{3970:0}});
+ assert.equal(out.clears[0][0].predicted,true);
+ assert.equal(out.clears[1][0].predicted,false);
+ assert.equal(out.clears[1][0].unresolved,true);
+ assert.equal(out.numericState[3970],null);
+ assert.equal(s.globalVariable.get_3970,0);
+ const kept=forecastSpecialAwards(s,clears,{
+  numericState:{3970:0},numericAfterGrant:'retained'
+ });
+ assert.equal(kept.clears[0][0].predicted,true);
+ assert.equal(kept.clears[1][0].predicted,false);
+ assert.equal(kept.clears[1][0].unresolved,false);
+ assert.equal(kept.numericState[3970],1);
+});
 console.log('PASS',testCount,'synthetic original consumer regressions');
