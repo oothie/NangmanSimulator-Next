@@ -128,4 +128,27 @@ test('completed fragment unlock does not advance for an ineligible reward',()=>{
  assert.equal(r.events[0].predicted,false);
  assert.equal(r.counters.buyshop_1333,2);
 });
+test('original numeric GetP(3970) key guard blocks key when ineligible',()=>{
+ const producer=[{npc:35221,specialIds:[3970]}];
+ const source={globalVariable:{get_3970:7}};
+ const unknown=evaluateSpecialAwards(source,producer);
+ assert.equal(unknown.unresolved,1);
+ assert.equal(unknown.events[0].predicted,false);
+ const held=evaluateSpecialAwards(source,producer,{numericState:{3970:1}});
+ assert.equal(held.unresolved,0);
+ assert.equal(held.events[0].predicted,false);
+ const eligible=evaluateSpecialAwards(source,producer,{numericState:{3970:0}});
+ assert.equal(eligible.events[0].predicted,true);
+ assert.equal(eligible.counters.get_3970,8);
+ assert.equal(eligible.counters.drop_3970_35221,2);
+ assert.equal(source.globalVariable.get_3970,7);
+});
+test('one-time source SetP and AddP counter paths are distinct',()=>{
+ const once=evaluateSpecialAwards({globalVariable:{get_7265:0}},
+  [{npc:35219,specialIds:[7265]}]);
+ assert.equal(once.counters.get_7265,1);
+ const fragment=evaluateSpecialAwards({globalVariable:{get_2926:3}},
+  [{npc:40373,specialIds:[2926]}]);
+ assert.equal(fragment.counters.get_2926,4);
+});
 console.log('PASS',testCount,'synthetic original consumer regressions');
