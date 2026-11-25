@@ -2234,7 +2234,6 @@ function marketStrategyMarkup(state,ko){
    (Number(views.forecastPeriods)>marketStrategyPeriods?'<p class="micro">목표 전량 구매 경로를 찾기 위해 예측 범위를 '+marketStrategyPeriods+'회에서 '+views.forecastPeriods+'회 무료 교체까지 자동 확장했습니다.</p>':'')+
    '<div class="market-plan-grid">'+
     plan('free','무료 갱신만 사용','원보 갱신 0회 · 08시·20시 자동 교체')+
-    (display?.candidate?plan('candidate','실행 가능한 구매 경로','실제 시드 순서 재현 · 최단 여부 미확정'):'')+
     plan('fastest','최단 기간','목표 전량 구매 완료 시점 최소')+'</div>':'')+
   (state.slots>state.saveSlots?'<p class="micro">주의: 세이브 실제 슬롯은 '+state.saveSlots+
    '칸입니다. '+state.slots+'칸 전략은 슬롯 개방을 가정합니다.</p>':'')+
@@ -4668,7 +4667,7 @@ if($('marketStrategyRun'))$('marketStrategyRun').onclick=()=>{
    }else if(message.type==='candidate'){
     marketStrategyResults={plans:message.plans,anchor,target:shopId,quantity,
       vip,periods,forecastPeriods:message.forecastPeriods,save:sourceSave,slots};
-    marketStrategyProgress=message.plans?.candidate?.found?'전량 구매 후보 경로 확보 · 더 빠른 경로 검증 중':'구매 후보 경로 미발견 · 최단 기간 탐색 중';
+    marketStrategyProgress='최단 기간 탐색 중';
     render();
    }else if(message.type==='result'){
     marketStrategyResults={plans:message.plans,anchor,target:shopId,quantity,
