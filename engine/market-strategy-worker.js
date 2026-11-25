@@ -25,12 +25,17 @@ self.onmessage=event=>{
   const free=state.auditStrategy(state.searchStrategy([m.target],{...expanded,mode:'free'}),{target:m.target,quantity:m.quantity,vip:m.vip});
   self.postMessage({type:'candidate',requestId:m.requestId,
    plans:{free,candidate},forecastPeriods});
+  self.postMessage({type:'progress',requestId:m.requestId,expanded:0,
+   limit:options.maxStates,stage:'최소 원보 소비 경로 탐색 중'});
+  const cheapest=state.auditStrategy(state.searchStrategy([m.target],{...expanded,mode:'cheapest',
+   onProgress:p=>self.postMessage({type:'progress',requestId:m.requestId,...p,
+    stage:'최소 원보 경로 검증 중'})}),{target:m.target,quantity:m.quantity,vip:m.vip});
   const fastest=state.auditStrategy(state.searchStrategy([m.target],{...expanded,mode:'fastest',
    bestCandidate:candidate.found?candidate:null,
    onProgress:p=>self.postMessage({type:'progress',requestId:m.requestId,...p,
     stage:'최단 기간 증명 탐색 중'})}),{target:m.target,quantity:m.quantity,vip:m.vip});
   self.postMessage({type:'result',requestId:m.requestId,
-   plans:{free,candidate,fastest},forecastPeriods});
+   plans:{free,candidate,cheapest,fastest},forecastPeriods});
  }catch(error){
   self.postMessage({type:'error',requestId:m.requestId,
    message:String(error?.message||error||'계산에 실패했습니다.')});
