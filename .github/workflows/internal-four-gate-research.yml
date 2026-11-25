@@ -24,5 +24,7 @@ jobs:
         run: node research/mask-drop/test-conditional-forecast.cjs
       - name: Verify level-70 before/after RNG lane observer (synthetic)
         run: node research/mask-drop/test-compare-battle-lane.cjs
+      - name: Verify level-70 continuous battle timeline and private-safe output
+        run: node research/mask-drop/test-calibrate-level70.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
