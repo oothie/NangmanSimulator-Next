@@ -37,7 +37,9 @@ export function predictGate(save,gate,clears=1,keyMode='auto',claimMode='current
   return {clear:played.clear,drawCount:clear.drawCount,
    keyState:clear.keyState,keyHit:clear.keyHit,
    results:clear.results.map(boss=>{
-    const npc=NPC[gate][boss.boss],grants=played.grants.filter(x=>x.npc===npc);
+    // 윤무의 연금니는 확정드랍이므로 특수보상 목록에 표시하지 않음.
+    const npc=NPC[gate][boss.boss],grants=played.grants.filter(x=>
+     x.npc===npc&&!(gate==='유씨별원'&&npc===35260&&x.itemId===8801));
     const special=grants.filter(x=>x.predicted).map(x=>({
      name:x.name,gradeCode:x.gradeCode,quantity:x.quantity,
      kind:'지급 조건 충족'
