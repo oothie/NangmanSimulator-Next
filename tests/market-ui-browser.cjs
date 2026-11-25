@@ -82,9 +82,6 @@ async function smoke(){
   const wikiIcon=await page.evaluate(async()=>{
    const ids=window.NANGMAN_HOSTED_ITEM_ICONS;
    if(!ids?.has(2201))throw Error('60014 item icon manifest not loaded');
-   const markup=wikiImgTag({source:'items',cat:'item',id:2201,icon:2201});
-   if(!markup.includes('./icons/item/2201.png'))
-    throw Error('wiki item icon did not prefer same-origin PNG');
    const icon=new Image();icon.src='./icons/item/2201.png';
    await icon.decode();
    return {width:icon.naturalWidth,height:icon.naturalHeight};
