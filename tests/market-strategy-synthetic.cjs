@@ -56,6 +56,39 @@ const lateOpen=api.replayKoreanClientEvents(fixture,catalog,
 assert.equal(lateOpen.events.length,1);
 assert.equal(lateOpen.events[0].auto,true);
 assert.deepEqual(Array.from(lateOpen.items),Array.from(nativeAuto.items));
+// Regression for the exact *shape* of the historical stale-save failure:
+// five elapsed 08:00/20:00 boundaries are not five native draws. This uses
+// only an invented seed and invented event times, never account fixtures.
+const fiveSlotsLater=now+5*43200;
+const fiveStale=api.predict(fixture,catalog,fiveSlotsLater,{slots:6});
+assert.equal(fiveStale.missed,5);
+assert.equal(fiveStale.seedOk,false);
+assert.equal(fiveStale.searchStrategy([target],{
+ mode:'fastest',vip:1,quantity:1,periods:12
+}).found,false);
+const oneEntry=[{kind:'open',at:fiveSlotsLater}];
+const fiveEntries=[];
+for(let t=api.nextHalfDay(now)+1;t<=fiveSlotsLater;t+=43200)
+ fiveEntries.push({kind:'open',at:t});
+assert.equal(fiveEntries.length,5);
+const onePaid=[...oneEntry];
+const fivePaid=[...fiveEntries];
+for(let index=0;index<4;index++){
+ onePaid.push({kind:'paid',at:fiveSlotsLater+index});
+ fivePaid.push({kind:'paid',at:fiveSlotsLater+index});
+}
+const nextAfterPaid=api.nextHalfDay(fiveSlotsLater)+1;
+onePaid.push({kind:'open',at:nextAfterPaid});
+fivePaid.push({kind:'open',at:nextAfterPaid});
+const actualMissed=api.replayKoreanClientEvents(fixture,catalog,onePaid,{slots:6});
+const imaginaryAlwaysOnline=api.replayKoreanClientEvents(fixture,catalog,fivePaid,{slots:6});
+assert.equal(actualMissed.events.filter(x=>x.auto).length,2);
+assert.equal(imaginaryAlwaysOnline.events.filter(x=>x.auto).length,6);
+assert.notEqual(actualMissed.seed,imaginaryAlwaysOnline.seed,
+ 'always-online assumption must not replace a real missed-session history');
+const pageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');
+assert(pageSource.includes('이는 실제 무료 갱신 횟수가 아닙니다'),
+ 'stale-save warning should explain elapsed boundaries are not draws');
 // Multiple generated (never player-derived) seeds exercise consecutive paid
 // refreshes followed by the scheduled free replacement on one shared RNG.
 for(let i=1;i<=24;i++){
