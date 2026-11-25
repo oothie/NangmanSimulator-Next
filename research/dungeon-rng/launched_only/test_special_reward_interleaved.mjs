@@ -218,4 +218,30 @@ test('never-claimed numeric guard is a marked hypothetical, not stock evidence',
  assert.equal(r.rows[0].grants[0].numericGuardSource,'미획득 가상 보유량');
  assert.equal(save.Items[0].Num,1);
 });
+test('original Liu entry steps reset battle flags and spend dungeon entry without RNG draw',()=>{
+ const base={Rnds:{Sds:{seed_lsby:11}},globalVariable:{
+  win_lsby:30,roll_35268:0,roll_8915_35264:0,
+  num_fuben:7,lsby_boss1:2,lsby_boss2:3,lsby_boss3:4,
+  quick_fuben:1,round_lsby:5,ambush_lsby:2,
+  open_mishilsby:9,lsby_2001:8,lsby_2002:9,lsby_2003:10,
+  search_lsby:3
+ },Items:[]};
+ const before=JSON.stringify(base);
+ const r=replayLiuManor(base,2,'auto');
+ assert.equal(r.nextState.globalVariable.num_fuben,5);
+ assert.equal(r.nextState.globalVariable.fuben_lsby,1);
+ for(const key of ['search_lsby','open_mishilsby','lsby_2001',
+  'lsby_2002','lsby_2003'])assert.equal(r.nextState.globalVariable[key],0);
+ for(const key of ['lsby_boss1','lsby_boss2','lsby_boss3',
+  'round_lsby','quick_fuben','ambush_lsby'])
+  assert.equal(r.nextState.globalVariable[key],undefined);
+ const withoutEntryExtras={...base,globalVariable:{
+  win_lsby:30,roll_35268:0,roll_8915_35264:0
+ }};
+ const contrast=replayLiuManor(withoutEntryExtras,2,'auto');
+ assert.equal(r.nextState.Rnds.Sds.seed_lsby,contrast.nextState.Rnds.Sds.seed_lsby);
+ assert.deepEqual(r.output.map(x=>x.drawCount),
+  contrast.output.map(x=>x.drawCount));
+ assert.equal(JSON.stringify(base),before);
+});
 console.log('PASS',passes,'interleaved source-model checks');
