@@ -16,3 +16,7 @@ jobs:
         run: node scripts/check-public-privacy.cjs
       - name: Verify synthetic ghost-market RNG
         run: node tests/market-strategy-synthetic.cjs
+      - name: Verify old-save assumed automatic refreshes
+        run: node tests/market-assumed-free-synthetic.cjs
+      - name: Verify dungeon source-derived success-only consumer
+        run: node tests/dungeon-success-synthetic.cjs
