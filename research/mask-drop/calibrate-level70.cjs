@@ -51,6 +51,16 @@ function calibrate(events,{bounds=[100],maxCalls=3}={}){
   throw RangeError('Invalid numeric calibration window');
  const cleanBounds=[...new Set(bounds)];
  const observations=events.map(e=>inferEvent(e,{bounds:cleanBounds,maxCalls}));
+ // A continuous controlled schedule requires the post-battle state to be the
+ // next event's pre-battle state. Equality compares internally only.
+ let contiguousPairs=0,brokenPairs=0,unusablePairs=0;
+ for(let i=1;i<events.length;i++){
+  const previous=seedFrom(events[i-1].after);
+  const current=seedFrom(events[i].before);
+  if(previous===null||current===null)unusablePairs++;
+  else if(previous===current)contiguousPairs++;
+  else brokenPairs++;
+ }
  const perNPC=[NPC.mask,NPC.bandit].map(npc=>{
   const relevant=observations.filter(x=>x.npc===npc);
   const usable=relevant.filter(x=>x.usable);
@@ -73,11 +83,12 @@ function calibrate(events,{bounds=[100],maxCalls=3}={}){
  const mask=perNPC[0],bandit=perNPC[1];
  return {
   item:'수라가면',sourceNPC:NPC.mask,candidateLane:'aidrop70',
-  events:events.length,perNPC,
+  events:events.length,perNPC,sequenceContinuity:{contiguousPairs,brokenPairs,unusablePairs},
   sharedLaneEvidence:mask.laneChanged>0&&bandit.laneChanged>0?
    '두 NPC 모두 70레벨 후보 난수 상태가 변함 — 공유 가능성 지지, 직접 원본 호출 증명은 아님':
    '두 NPC의 후보 난수 소비가 모두 관측되지 않아 공유 미확정',
   exactFirstDropPredictionAllowed:false,
+  continuousScheduleProven:events.length>1&&brokenPairs===0&&unusablePairs===0,
   nativeWeightTableVerified:false,
   privateInputsReported:false,
   note:'단일 NPC 전투 직전/직후 세이브만 사용. 전투 사이 다른 행동이 있으면 해석 불가'
