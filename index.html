@@ -2311,12 +2311,10 @@ function marketSimulatedTimeline(context,vipChoice,periods){
    actions.push({kind:'auto',at,eventIndex:events.length-1});
    time=at;autoCount++;
   }else if(action==='reset'){
-   // This is an explicitly requested visit to the NEXT 05:00 boundary,
-   // possible only while the current shelf is the 20:00 FREE redraw.
-   // Do not roll a new shelf or consume any guishishop RNG.
-   const prior=actions[actions.length-1];
+   // From 20:00 through 04:59, including any paid redraws since the
+   // 20:00 shelf. Neither the reset nor moving the clock consumes RNG.
    const minute=((Math.floor(time/60)+540)%1440+1440)%1440;
-   if(prior?.kind!=='auto'||minute!==1200)break;
+   if(!(minute>=1200||minute<300))break;
    const at=nextReset;
    insertResets(at);
    actions.push({kind:'reset',at,eventIndex:events.length-1});
@@ -2324,9 +2322,8 @@ function marketSimulatedTimeline(context,vipChoice,periods){
   }
  }
  const paidUsedAtCursor=used;
- const cursorLast=actions[actions.length-1];
  const cursorMinute=((Math.floor(time/60)+540)%1440+1440)%1440;
- const canResetAtFive=cursorLast?.kind==='auto'&&cursorMinute===1200;
+ const canResetAtFive=cursorMinute>=1200||cursorMinute<300;
  const preview=[];
  let next=api.nextHalfDay(time);
  for(let i=0;i<periods;i++,next+=43200){
