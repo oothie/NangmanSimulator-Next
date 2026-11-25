@@ -87,7 +87,8 @@ function specialsFor(npc,gv,rolled){
     kind:eligible?'추첨 당첨 · 지급 조건 충족':'추첨 당첨 · 지급 상한 도달'});
   }
  }
- return {results,candidateCount:available.length,totalCount:group.length};
+ return {results,candidateCount:available.length,totalCount:group.length,
+  candidates:available.map(item=>specialName(item))};
 }
 function createState(save){
  if(!save||typeof save!=='object')throw Error('세이브를 먼저 불러와 주세요.');
@@ -190,7 +191,8 @@ function buildBoss(state,save,gate,boss,keyOwned){
  }
  return {boss:name,name:slot===null?'미드랍':NAMES[pool[slot-1]],
    grade:slot===null?'':GRADE[grade],special:special.results,
-   specialCandidates:special.candidateCount,specialTotal:special.totalCount,warnings};
+   specialCandidates:special.candidateCount,specialTotal:special.totalCount,
+   specialCandidateNames:special.candidates,warnings};
 }
 export function predictGate(save,gate,clears=1,keyMode='auto'){
  if(!GATES.includes(gate))throw Error('현재 출시된 4관문만 지원합니다.');
@@ -240,7 +242,9 @@ export function mountDungeon(host,save){
      const gradeColor={백색:'#a2a2a2',녹색:'#259b61',청색:'#397db3',자색:'#9052c4'}[row.grade]||'';
      const specials=row.special.map(s=>esc(s.name)+' · '+esc(s.kind)).join(', ');
      const extra=row.warnings.map(esc).join(' · ');
-     const detail=[specials,extra,'특수 보상 지급 후보 '+row.specialCandidates+'종 (별도 추첨 조건)'].filter(Boolean).join(' / ');
+     const candidateList=row.specialCandidateNames||[];
+     const detail=[specials,extra,
+      candidateList.length?'특수 보상 후보: '+candidateList.map(esc).join(', ')+' (미당첨·지급 불확정)':'특수 보상 후보 없음'].filter(Boolean).join(' / ');
      html+='<tr><td>'+esc(row.boss)+'</td><td>'+esc(row.name)+'</td><td>'+
      (row.grade?'<b style="color:'+gradeColor+'">'+esc(row.grade)+'</b>':'—')+
      '</td><td>'+detail+'</td></tr>';
