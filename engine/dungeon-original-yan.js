@@ -54,10 +54,14 @@ export function replayYanwangfu(save,clears=1){
    gv[counter]=prior+(yes?onYes:onNo);flag(boss,id,yes,flagName);
   };
   const equipment=(boss,npc,king=false)=>{
-   const hit=npc===33652?
-    weighted(npc,[[50,true],[10,false],[40,false]]):
-    weighted(npc,[[50,true],[50,false]]);
-   if(npc===33652){if(!hit&&n(gv.drop_3505_33652)===1)delete gv.drop_3505_33652;}
+   const pick=npc===33652?
+    weighted(npc,[[50,'equipment'],[10,'special'],[40,'none']]):
+    weighted(npc,[[50,'equipment'],[50,'none']]);
+   const hit=pick==='equipment';
+   if(npc===33652){
+    if(pick==='special'){gv.drop_3505_33652=1;specials['엽내관'].push(3505);}
+    else delete gv.drop_3505_33652;
+   }
    const slot=hit?r(npc,EQUIP[boss].length):null;
    const color=slot===null?0:weighted(npc,king?KING_GRADE:GRADE_ORDER);
    const item=slot===null?null:EQUIP[boss][slot-1];
