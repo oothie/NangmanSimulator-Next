@@ -8,7 +8,9 @@ import {replayYanwangfu} from './replay_original_yan.mjs';
 import {replayChangok} from './replay_original_dcy.mjs';
 import {replayByeokyu} from './replay_original_byj.mjs';
 import {replayLiuManor} from './replay_original_liu.mjs';
-import {forecastInterleavedSpecials} from './special_reward_source_engine.mjs';
+import {
+ forecastInterleavedSpecials,compareSpecialClaimHistories,specialRewardName
+} from './special_reward_source_engine.mjs';
 
 const producer={'연왕부':replayYanwangfu,'창옥':replayChangok,
  '벽유교':replayByeokyu,'유씨별원':replayLiuManor};
@@ -28,6 +30,7 @@ function main(args){
  const tempText=option(args,'--temp-get-8801',null);
  const tempState=tempText==null?null:{get_8801:Number(tempText)};
  const tempLifetime=option(args,'--temp-lifetime','unknown');
+ const compareClaims=args.includes('--compare-claims');
  if(!['unknown','persist','reset'].includes(tempLifetime))
   throw Error('원본 임시 변수 수명 가정: unknown, persist, reset 중 선택');
  if(keyGuardText!=null&&(!Number.isSafeInteger(numericState[3970])||
@@ -39,6 +42,27 @@ function main(args){
  if(!Number.isInteger(clears)||clears<1||clears>2000)
   throw Error('원본 관문 재생 범위: 1~2000회');
  const save=JSON.parse(readFileSync(saveFile,'utf8'));
+ if(compareClaims){
+  const comparison=compareSpecialClaimHistories(save,gate,producer[gate],clears,{
+   keyMode,firstItemId,numericState,tempState,tempLifetime
+  });
+  console.log('관문:',gate,'· 특수보상 최초 획득 비교 · 최대',clears+'회');
+  console.log('가정: 현재 / 지급 횟수만 초기화 / 지급 횟수+기존 특수 플래그 초기화');
+  for(const difference of comparison.differences){
+   const itemId=Number(difference.rule.split(':')[1]);
+   const format=n=>n==null?'미발견 또는 조건 미확정':n+'회차';
+   console.log(specialRewardName(itemId),
+    '· 현재:',format(difference.current),
+    '· 횟수 초기화:',format(difference.unclaimedCountOnly),
+    '· 미획득 가정:',format(difference.neverClaimedWithFlagsReset));
+  }
+  for(const [name,data] of Object.entries(comparison.byMode)){
+   if(data.incomplete||data.unresolved)
+    console.log(name,'· 계산',data.searchedClears+'회',
+     '· 중단:',data.incomplete,'· 미확정 지급 판정:',data.unresolved);
+  }
+  return;
+ }
  const result=forecastInterleavedSpecials(save,gate,producer[gate],clears,{
   mode,keyMode,firstItemId,numericState,tempState,tempLifetime
  });
