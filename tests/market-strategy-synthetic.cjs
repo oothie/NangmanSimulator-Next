@@ -301,6 +301,34 @@ for(const syntheticSeed of [13579,13581,13583,13585]){
   }).nativeReplayChecked);
  }
 }
+// A small search-state budget can find a real route without proving that it
+// is globally earliest. Such a route must remain explicitly unproven.
+const boundedSave={
+ RandShop:{Time:now,Fresh:0,Lucky:0,Buy:60,Counts:[],Items:[]},
+ Rnds:{Sds:{guishishop:12345}}
+};
+const boundedState=api.predict(boundedSave,catalog,now,{slots:6});
+const candidateBounded=boundedState.findFeasibleStrategy([223],{
+ quantity:2,vip:1,periods:12
+});
+assert(candidateBounded.found,'synthetic route should exist for capped search');
+const limitedBounded=boundedState.searchStrategy([223],{
+ mode:'fastest',quantity:2,vip:1,periods:12,maxStates:2000,
+ bestCandidate:candidateBounded
+});
+assert(limitedBounded.found,'bounded search should preserve a feasible route');
+assert.equal(limitedBounded.proven,false,
+ 'a capped search must never falsely certify global optimality');
+assert.equal(limitedBounded.limited,true,
+ 'a capped search must indicate that states remain unexplored');
+const boundedAudit=boundedState.auditStrategy(limitedBounded,{
+ target:223,quantity:2,vip:1
+});
+assert(boundedAudit.nativeReplayChecked,
+ 'unproved earliest route must still pass exact native replay');
+const markup=fs.readFileSync(path.join(root,'index.html'),'utf8');
+assert(markup.includes('최단 미확정')&&markup.includes('최단 경로임은 증명되지'),
+ 'the UI must explain the difference between valid and optimal');
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
