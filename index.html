@@ -2101,12 +2101,15 @@ function stopMarketStrategy(){
  marketStrategyJob++;
  marketStrategyProgress='';
 }
-// Korean server's 05:00 paid quota reset precedes the 08:00 free redraw.
-// The 05:00-07:59 paid sequence consumes RNG before that free redraw.
-// A 00:00-04:59 refresh still belongs to the previous 05:00 allowance day.
-function marketBeforeMorningFree(at){
- const koreanMinutes=((Math.floor(Number(at)/60)+9*60)%(24*60)+(24*60))%(24*60);
- return koreanMinutes>=5*60&&koreanMinutes<8*60;
+// The 20:00 free replacement advances RNG before the evening paid sequence.
+// 20:00–04:59 remains in the previous 05:00 paid quota day.
+function marketPaidRefreshWindow(at){
+ return window.NangmanMarket.paidRefreshPhase(at);
+}
+function marketPaidRefreshLabel(phase){
+ return phase==='before-08-free'?'05~08시 무료 교체 전':
+  phase==='after-08-before-20'?'08~20시 무료 교체 전':
+  '20시 무료 교체 후~다음날 05시 전';
 }
 // A save recorded before the most recent 08:00/20:00 KST free refresh
 // cannot prove what the user actually checked or purchased afterward.
@@ -2154,21 +2157,23 @@ function marketStrategyMarkup(state,ko){
   for(const x of steps){
    // Paid-refresh allowance day begins at 05:00 KST, not civil midnight.
     const key=new Date((Number(x.time)+14400)*1000).toLocaleDateString('ko-KR',{timeZone:'UTC'});
-   if(!byDay.has(key))byDay.set(key,{date:key,paid:0,preMorning:0,afterMorning:0,auto:0,bought:0,paidDetails:[]});
+   if(!byDay.has(key))byDay.set(key,{date:key,paid:0,preMorning:0,afterMorning:0,afterEvening:0,auto:0,bought:0,paidDetails:[]});
    const day=byDay.get(key);
    if(x.kind==='paid'){
     day.paid++;
-    const pre=marketBeforeMorningFree(x.time);
-    if(pre)day.preMorning++;else day.afterMorning++;
-    day.paidDetails.push({time:x.time,index:x.index,bought:x.acquired||0,pre});
+    const phase=marketPaidRefreshWindow(x.time);
+    if(phase==='before-08-free')day.preMorning++;
+    else if(phase==='after-08-before-20')day.afterMorning++;
+    else day.afterEvening++;
+    day.paidDetails.push({time:x.time,index:x.index,bought:x.acquired||0,phase});
    }
    if(x.kind==='auto')day.auto++;
    day.bought+=Number(x.acquired||0);
   }
-  const dayRoute=[...byDay.values()].map(day=>'<li><div><b>'+escape(day.date)+' · 원보 '+day.paid+'회 (05~08시 전 '+day.preMorning+'회 / 08시 이후 '+day.afterMorning+'회) · 무료 교체 '+day.auto+'회</b>'+
-   '<small>목표 상품 구매 '+day.bought+'개'+(day.paidDetails.length?' · 원보 갱신 시각: '+day.paidDetails.map(x=>marketDate(x.time)+(x.pre?' [08시 무료 갱신 전]':' [08시 이후]')+(x.index?' ('+x.index+'번째)':'')).join(', '):'')+'</small></div></li>').join('');
+  const dayRoute=[...byDay.values()].map(day=>'<li><div><b>'+escape(day.date)+' · 원보 '+day.paid+'회 (05~08시 전 '+day.preMorning+'회 / 08~20시 전 '+day.afterMorning+'회 / 20시 이후~익일05시 전 '+day.afterEvening+'회) · 무료 교체 '+day.auto+'회</b>'+
+   '<small>목표 상품 구매 '+day.bought+'개'+(day.paidDetails.length?' · 원보 갱신 시각: '+day.paidDetails.map(x=>marketDate(x.time)+' ['+marketPaidRefreshLabel(x.phase)+']'+(x.index?' ('+x.index+'번째)':'')).join(', '):'')+'</small></div></li>').join('');
   const stepList=steps.map((x,i)=>'<li><span class="market-route-number">'+(i+1)+'</span>'+
-   '<div><b>'+escape(x.kind==='paid'?(marketBeforeMorningFree(x.time)?'원보 갱신 1회 · 05~08시 무료 갱신 전':'원보 갱신 1회 · 08시 이후'):
+   '<div><b>'+escape(x.kind==='paid'?('원보 갱신 1회 · '+marketPaidRefreshLabel(marketPaidRefreshWindow(x.time))):
     x.kind==='auto'?'정시 암시장 입장 · 무료 갱신':
     x.kind==='reset'?'05시 원보 갱신 한도 초기화':'현재 판매 목록')+
     (x.kind==='reset'?' · 오전 5시 기준':x.acquired?' · 목표 상품 '+x.acquired+'개 구매':' · 구매 없음')+'</b>'+
@@ -2191,7 +2196,7 @@ function marketStrategyMarkup(state,ko){
     '일</b></summary><ol class="market-route-list">'+(dayRoute||'<li>경로 없음</li>')+'</ol></details>'+
    '<details class="market-plan-route"><summary>전체 교체·갱신 경로 <b>'+steps.length+
     '단계</b></summary><ol class="market-route-list">'+stepList+'</ol></details>'+
-   '<p class="micro">05시 한도 초기화 이후 08시 무료 갱신 전 원보 갱신은 별도 단계입니다. 08시 이후 갱신과 순서가 바뀌면 상품도 달라집니다. 원보 금액은 갱신비이며 상품 가격은 별도입니다.'+
+   '<p class="micro">원보 갱신은 05~08시 전, 08~20시 전, 20시 무료 교체 이후로 구분합니다. 20시 무료 교체도 난수를 진행시키므로 원보 갱신 순서가 바뀌면 상품도 달라질 수 있습니다. 갱신 한도는 05시에 초기화되며, 원보 금액은 갱신비이고 상품 가격은 별도입니다.'+
     (!result.found?' 해당 기간 또는 탐색 상태 한도 내의 부분 경로이며 완료 전략으로 확정하지 않습니다.':
      mode==='fastest'&&result.proven===false?' 현재 경로는 실제 RNG로 재검증됐지만 최단 경로임은 증명되지 않았습니다.':'')+
     '</p></article>';
