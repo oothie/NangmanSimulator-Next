@@ -3,6 +3,7 @@
  * 13 launched-boss source pools / typed branch order, not a certified future oracle.
  */
 import {draw} from './dungeon.js';
+import {replayLiuManor} from './dungeon-original-liu.js';
 import {loadV620KoreanReference} from '../data/v620-korean-reference.js';
 export const GATES=['연왕부','창옥','벽유교','유씨별원'];
 const GRADE=['','백색','녹색','청색','자색'];
@@ -197,6 +198,35 @@ function buildBoss(state,save,gate,boss,keyOwned){
 export function predictGate(save,gate,clears=1,keyMode='auto'){
  if(!GATES.includes(gate))throw Error('현재 출시된 4관문만 지원합니다.');
  if(!Number.isInteger(clears)||clears<1||clears>10)throw Error('1~10회 범위를 선택해 주세요.');
+ if(gate==='유씨별원'){
+  const replay=replayLiuManor(save,clears,keyMode);
+  const output=replay.output.map(clear=>({
+   clear:clear.clear,
+   drawCount:clear.drawCount,
+   keyHit:clear.keyHit,
+   results:clear.results.map(row=>{
+    const npc=POOLS['유씨별원'].find(b=>b[0]===row.boss)?.[1];
+    const listed=SPECIAL[npc]||[];
+    const special=(row.specialIds||[]).map(item=>({
+     name:specialName(item),
+     kind:item===8915?'당첨 · 열쇠 지급 시 사용 가능':'추첨 당첨 · 실제 지급 조건 확인 필요'
+    }));
+    const specialCandidateNames=listed.filter(([item,flag,counter,cap])=>
+     !counter||(cap===0?number(save?.globalVariable?.[counter])===0:
+      number(save?.globalVariable?.[counter])<cap)).map(([item])=>specialName(item));
+    const warnings=row.boss==='고리'?
+     [(replay.keys[clear.clear-1].heldAtStart?'열쇠 보유':'열쇠 미보유')+
+      ' · 원본 고리 열쇠 추첨 '+(replay.keys[clear.clear-1].heldAtStart?'생략':'실행')+
+      (clear.keyHit?' · 고리의 열쇠 추첨 적중':'')]:[];
+    return {boss:row.boss,name:row.name,grade:row.grade,special,
+     specialCandidates:specialCandidateNames.length,specialTotal:listed.length,
+     specialCandidateNames,warnings};
+   })
+  }));
+  return {gate,output,conditional:true,keyHeld:replay.keys[0]?.heldAtStart,
+   caution:'유씨별원: 과거 실측 재현 v85 원본 35271_1 재생 경로를 사용합니다. 1125 세이브의 1·2회차 실측과 일치하며, 3회차는 아직 인게임 미검증 예측입니다. 특수 보상 당첨과 실제 지급은 별개입니다.',
+   keyNote:'열쇠 보유량은 세이브의 실제 소지 아이템으로 판단하며, 누적 get_8915 기록은 사용하지 않습니다. 세이브 보유 기준의 연속 클리어는 고리 열쇠 획득 후 즉시 사용을 가정합니다.'};
+ }
  const state=createState(save),output=[],owned=countItem(save,8915)>0;
  const held=keyMode==='owned'?true:keyMode==='absent'?false:owned; // Only actual inventory is ownership; get_8915 is historical, not currently held.
  for(let i=1;i<=clears;i++){
