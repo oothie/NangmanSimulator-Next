@@ -8,18 +8,19 @@ export const SPECIAL_CONSUMER_RULES = Object.freeze([{"g":"벽유교","n":35219,
 export const SPECIAL_KOREAN_NAMES = Object.freeze({"2364":"열쇠 부품","2918":"유행보 잔편","2920":"능상창술 잔편","2921":"파봉팔참 잔편","2922":"대분뢰수 잔편","2923":"추혼보 잔편","2924":"팔보간선 잔편","2925":"천잠신공 잔편","2926":"횡련강경 잔편","3505":"매화침","3523":"몰우전","3970":"귀용문 열쇠","4422":"적혈날","4634":"수룡곤","4820":"구고 허리띠","5020":"무궁","5218":"금사갑옷","5422":"성화반지","5618":"대내요패","5628":"고목패","7081":"현우전포","7165":"투우복","7262":"안의 가면","7263":"개의 가면","7264":"천예지호","7265":"벽월패","7266":"역골","7267":"여천동수","8295":"칠색유리 도면","8801":"연금니","8913":"강기 요략·잔편","8914":"무기 경략·잔편","8915":"고리의 열쇠","8917":"인형도 잔편","9072":"수옥 열쇠"});
 /* 8 follow-up reward unlock actions recovered from the 60014 V174 SBC
  * consumer tree (checked directly against all 12 launched-gate scripts).
- * condition GetP(get_item)==priorCount is nested in the award branch.
+ * The nested shop condition GetP(get_item)==14/9 follows the award's AddP,
+ * so it checks the counter AFTER the successful fragment award.
  * We record the resulting downstream shop state as a source-modeled effect.
  */
 export const ORIGINAL_FRAGMENT_MILESTONES = Object.freeze([
- {npc:35214,item:2922,count:'get_2922',before:14,shop:'buyshop_1817'},
- {npc:35221,item:2923,count:'get_2923',before:14,shop:'buyshop_1421'},
- {npc:40372,item:2924,count:'get_2924',before:14,shop:'buyshop_1422'},
- {npc:40373,item:2926,count:'get_2926',before:9,shop:'buyshop_2823'},
- {npc:40374,item:2925,count:'get_2925',before:14,shop:'buyshop_1333'},
- {npc:33653,item:2921,count:'get_2921',before:14,shop:'buyshop_1810'},
- {npc:33652,item:2918,count:'get_2918',before:14,shop:'buyshop_1811'},
- {npc:33650,item:2920,count:'get_2920',before:14,shop:'buyshop_1812'}
+ {npc:35214,item:2922,count:'get_2922',after:14,shop:'buyshop_1817'},
+ {npc:35221,item:2923,count:'get_2923',after:14,shop:'buyshop_1421'},
+ {npc:40372,item:2924,count:'get_2924',after:14,shop:'buyshop_1422'},
+ {npc:40373,item:2926,count:'get_2926',after:9,shop:'buyshop_2823'},
+ {npc:40374,item:2925,count:'get_2925',after:14,shop:'buyshop_1333'},
+ {npc:33653,item:2921,count:'get_2921',after:14,shop:'buyshop_1810'},
+ {npc:33652,item:2918,count:'get_2918',after:14,shop:'buyshop_1811'},
+ {npc:33650,item:2920,count:'get_2920',after:14,shop:'buyshop_1812'}
 ]);
 /* Source-audited exceptional consumer: V174/dcy_boss01.lua.sbc contains
  * AddBattleDrop(40372,3523,1) SetP('drop_3523_40372',0).
@@ -179,10 +180,15 @@ export function evaluateSpecialAwards(save,producers,{
     if(rule.k&&rule.s!=='temp'){
      const countBefore=known(counters[rule.k]);
      // The original get_* value counts completed grants, not items in stock.
-     counters[rule.k]=SOURCE_CONFIRMED_SET_COUNTERS.includes(ruleKey(rule))?
+     const countAfter=SOURCE_CONFIRMED_SET_COUNTERS.includes(ruleKey(rule))?
       1:countBefore+1;
+     counters[rule.k]=countAfter;
+     // Source's nested GetP(get_fragment)==14/9 is evaluated after the
+     // preceding AddBattleDrop(...); AddP(get_fragment,1) statement.
+     // This unlocks the completion shop upon reaching 14 or 9 fragments,
+     // not on the subsequent 15th or 10th grant.
      const milestone=ORIGINAL_FRAGMENT_MILESTONES.find(row=>
-      row.npc===npc&&row.item===id&&row.count===rule.k&&row.before===countBefore);
+      row.npc===npc&&row.item===id&&row.count===rule.k&&row.after===countAfter);
      if(milestone){
       counters[milestone.shop]=known(counters[milestone.shop])+1;
       effects.push({kind:'잔편 완성 후속 해금',key:milestone.shop,value:counters[milestone.shop]});
