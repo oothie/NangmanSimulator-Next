@@ -196,6 +196,16 @@ function buildBoss(state,save,gate,boss,keyOwned){
    specialCandidates:special.candidateCount,specialTotal:special.totalCount,
    specialCandidateNames:special.candidates,warnings};
 }
+function freshReplaySpecials(listed,items,save){
+ return (items||[]).map(item=>{
+  const entry=listed.find(e=>e[0]===item);
+  const counter=entry?.[2],cap=entry?.[3];
+  const consumed=counter?number(save?.globalVariable?.[counter]):0;
+  const eligible=!counter||(cap===0?consumed===0:consumed<cap);
+  return {name:specialName(item),kind:eligible?
+   '추첨 당첨 · 지급 조건 충족':'추첨 당첨 · 지급 상한 도달'};
+ });
+}
 export function predictGate(save,gate,clears=1,keyMode='auto'){
  if(!GATES.includes(gate))throw Error('현재 출시된 4관문만 지원합니다.');
  if(!Number.isInteger(clears)||clears<1||clears>10)throw Error('1~10회 범위를 선택해 주세요.');
@@ -206,9 +216,7 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
    results:clear.results.map(row=>{
     const npc=POOLS['연왕부'].find(b=>b[0]===row.boss)?.[1];
     const listed=SPECIAL[npc]||[];
-    const special=(row.specialIds||[]).map(item=>({
-     name:specialName(item),kind:'추첨 당첨 · 실제 지급 조건 확인 필요'
-    }));
+    const special=freshReplaySpecials(listed,row.specialIds,save);
     const specialCandidateNames=listed.filter(([item,flag,counter,cap])=>
      !counter||(cap===0?number(save?.globalVariable?.[counter])===0:
       number(save?.globalVariable?.[counter])<cap)).map(([item])=>specialName(item));
@@ -229,10 +237,7 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
    results:clear.results.map(row=>{
     const npc=POOLS['유씨별원'].find(b=>b[0]===row.boss)?.[1];
     const listed=SPECIAL[npc]||[];
-    const special=(row.specialIds||[]).map(item=>({
-     name:specialName(item),
-     kind:item===8915?'당첨 · 열쇠 지급 시 사용 가능':'추첨 당첨 · 실제 지급 조건 확인 필요'
-    }));
+    const special=freshReplaySpecials(listed,row.specialIds,save);
     const specialCandidateNames=listed.filter(([item,flag,counter,cap])=>
      !counter||(cap===0?number(save?.globalVariable?.[counter])===0:
       number(save?.globalVariable?.[counter])<cap)).map(([item])=>specialName(item));
