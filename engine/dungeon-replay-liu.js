@@ -168,7 +168,9 @@ export function replayLiuManor(save,clears=1,keyMode='auto'){
   const keyState={clear,heldAtStart:keyHeld,quantityAtStart:keyQtyAtStart,
    newKey,received,consumedByAssumption,quantityAfter:keyQty,
    heldAfter:keyMode==='owned'?true:keyQty>0,drawCount:trace.length};
-  output.push({clear,results:rows,drawCount:trace.length,materials:{a,b:b.id,c:c.id},
+  output.push({clear,results:rows,drawCount:trace.length,
+   rngTrace:trace.map(({name,bound,value})=>({key:'seed_lsby',name,bound,value})),
+   materials:{a,b:b.id,c:c.id},
    keyHit:newKey,keyAwarded:received===1,keyState});
   keyTimeline.push(keyState);
  }
