@@ -27,7 +27,7 @@ function walk(dir){
   // Keep personal replay evidence out of the deployable dungeon engines.
   // Test saves and observed drops belong to local/off-repository validation only.
   if(/^engine\/dungeon(?:-test|-original-[a-z]+)?\.js$/i.test(rel) &&
-      /(?:11[0-3][0-9]|20[0-9]{2}[.\/-]?11[.\/-]?[0-9]{2})\s*(?:세이브|실측)|(?:세이브|실측)\s*(?:11[0-3][0-9]|20[0-9]{2}[.\/-]?11[.\/-]?[0-9]{2})/i.test(fs.readFileSync(full,'utf8')))
+      /(?:11[0-3][0-9]|20[0-9]{2}[.\/-]?11[.\/-]?[0-9]{2})\s*(?:세이브|실측)|(?:세이브|실측)\s*(?:11[0-3][0-9]|20[0-9]{2}[.\/-]?11[.\/-]?[0-9]{2})/i.test(source))
     findings.push(rel+': dated personal save validation text must stay outside the public engine');
   // Serialized save snapshots: multiple independent account-specific roots.
   if(/\.(?:json|jsonl|csv|md|txt)$/i.test(name)&&
