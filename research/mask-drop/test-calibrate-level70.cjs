@@ -12,6 +12,8 @@ const events=[
 ];
 const result=calibrate(events);
 assert.equal(result.events,3);
+assert.deepEqual(result.sequenceContinuity,{contiguousPairs:2,brokenPairs:0,unusablePairs:0});
+assert.equal(result.continuousScheduleProven,true);
 assert.equal(result.perNPC[0].laneChanged,1);
 assert.equal(result.perNPC[0].laneUnchanged,1);
 assert.equal(result.perNPC[1].laneChanged,1);
@@ -21,6 +23,18 @@ assert.equal(result.nativeWeightTableVerified,false);
 assert.equal(result.privateInputsReported,false);
 assert(!JSON.stringify(result).includes(String(a)));
 assert(!JSON.stringify(result).includes(String(b)));
+const broken=calibrate([
+ {npc:NPC.mask,before:f(a),after:f(b)},
+ {npc:NPC.bandit,before:f(a),after:f(c)}
+]);
+assert.equal(broken.sequenceContinuity.brokenPairs,1);
+assert.equal(broken.continuousScheduleProven,false);
+const missing=calibrate([
+ {npc:NPC.mask,before:f(a),after:{Rnds:{Sds:{}}}},
+ {npc:NPC.bandit,before:f(b),after:f(c)}
+]);
+assert.equal(missing.sequenceContinuity.unusablePairs,1);
+assert.equal(missing.continuousScheduleProven,false);
 const gap=inferEvent({npc:NPC.mask,before:f(a),after:f(c)},{bounds:[100],maxCalls:3});
 assert(gap.matchingModels.some(x=>x.calls===2&&x.bound===100));
 const altered=calibrate([{npc:NPC.bandit,before:f(a),after:f(a,11)}]);
