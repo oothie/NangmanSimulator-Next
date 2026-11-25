@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'NangmanSimulator_Original_Icons_60014.zip'
+      - 'icon-packs/source-60014-*.zip'
       - '.github/workflows/import-original-icon-pack.yml'
   workflow_dispatch:
 permissions:
@@ -43,8 +44,12 @@ jobs:
                       target.parent.mkdir(parents=True,exist_ok=True)
                       if not target.exists() or target.read_bytes()!=payload:target.write_bytes(payload)
                       installed+=1
-          archive=Path('NangmanSimulator_Original_Icons_60014.zip')
-          if archive.exists():
+          archives=[Path('NangmanSimulator_Original_Icons_60014.zip')]
+          archives+=sorted(Path('icon-packs').glob('source-60014-*.zip'))
+          archive_count=0
+          for archive in archives:
+              if not archive.exists():continue
+              archive_count+=1
               with zipfile.ZipFile(archive) as z:
                   for entry in z.infolist():
                       name=entry.filename
@@ -55,7 +60,18 @@ jobs:
                       target.parent.mkdir(parents=True,exist_ok=True)
                       target.write_bytes(payload)
                       installed+=1
+          print('Archives read:',archive_count)
           if installed==0:raise SystemExit('No valid original icon files found')
+          if archive_count:
+              # The 60014 source is a single HTML bundle; the archive ZIP
+              # shards contain its verified PNGs and are never deployed.
+              item_count=len(list(Path('icons/item').glob('*.png')))
+              equip_count=len(list(Path('icons/equip').glob('*.png')))
+              martial_count=len(list(Path('icons/martial').glob('*.png')))
+              print('Korean client item/equip/martial PNGs:',
+                    item_count,equip_count,martial_count)
+              if item_count<1422 or equip_count<823 or martial_count<1028:
+                  raise SystemExit('Incomplete extracted 60014 icon pack')
           lines=['/* Existing first-party Korean game PNG icons */']
           for group,label in [('item','ITEM'),('buff','BUFF'),('skill','SKILL'),('equip','EQUIP'),('martial','MARTIAL')]:
               ids=[]
@@ -74,6 +90,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add icons data/item-icon-manifest.js
           if [ -f NangmanSimulator_Original_Icons_60014.zip ]; then git rm -f NangmanSimulator_Original_Icons_60014.zip; fi
+          if compgen -G 'icon-packs/source-60014-*.zip' > /dev/null; then git rm -f icon-packs/source-60014-*.zip; fi
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "Install bundled Korean status and skill sprite PNGs"
           git push
