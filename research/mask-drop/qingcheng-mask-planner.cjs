@@ -15,6 +15,7 @@
 const {draw,NPC}=require('../dungeon-lab/mask-7209-conditional.cjs');
 const NPC_ID=Object.freeze({bandit:32950,mask:NPC.mask});
 const MAP=require('./60014-qingcheng-map-spawns.json');
+const {forecastBanditHunts}=require('./qingcheng-enemy-formation.cjs');
 const OBJECTS=new Map(MAP.fixedBanditObjects.map(x=>[x.objectId,x]));
 function sourceMapObject(objectId){
  if(objectId===undefined||objectId===null)return null;
@@ -73,17 +74,20 @@ function plan(save,{observed=[],maxDraws=2000,hitSlot=1}={}){
   candidateSuccessesWithinObserved:ahead===null?null:past,
   nextCandidateAidrop70Index:next,
   level70DrawsBeforeNextCandidate:ahead,
+  sourceBasedFieldBattleEstimate:ahead!==null&&ahead>=1&&ahead<=500?forecastBanditHunts(ahead):null,
   maskPlanWhenNoOtherConsumption: ahead===null?null:
    (ahead===0?'만호강 즉시 1회':('산적 등 70레벨 드랍 난수 '+ahead+'회 소비 후 만호강 1회')),
   firstFiveCandidateDraws:future.slice(0,5),
   futureBattleBanditCounts:null,
   futureBattleScheduleKnown:false,
+  nativeFirstEnemyFormationSourceVerified:true,
+  nativeJHRandomSeedReconstructionVerified:false,
   nativeFormationGeneratorVerified:false,
   stageTwoAwardVerified:false,
   exactMaskDropGuaranteed:false,
   privateInputsReported:false,
   limitations:[
-   '청성산 일반 전투 번호별 산적 인원은 원본 적 편성 함수 없이는 자동 확정할 수 없음',
+   '원본 qc_enemy.lua에서 1번 슬롯 산적 확률 1/3을 복원했으나 JHRandom의 세이브 외부 난수 상태를 복원하지 못해 정확한 다음 등장 회차는 계산 불가',
    '원본 지도에서 산적 표시 위치 6곳이 확인되었지만 전투별 등장 인원·재등장 순서가 결정되는 규칙은 별개',
    'BattleRnd 상태 변화와 적 출현 인원 사이의 대응은 아직 복원되지 않음',
    '산적 1명당 aidrop70 추첨 1회라는 실측 지지 모델; 보상 분기 조건 미완전',
