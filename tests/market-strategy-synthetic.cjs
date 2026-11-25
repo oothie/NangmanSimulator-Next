@@ -582,19 +582,48 @@ assert.equal(paidBeforeFree.events[2].auto,true,
 assert.notDeepEqual(paidBeforeFree.items,paidAfterFree.items,
  '05:00-before-08:00 and after-08:00 paid orders must stay distinct');
 const pageForPhases=fs.readFileSync(path.join(root,'index.html'),'utf8');
-const phaseStart=pageForPhases.indexOf('function marketBeforeMorningFree(at){');
+const phaseStart=pageForPhases.indexOf('function marketPaidRefreshWindow(at){');
 const phaseEnd=pageForPhases.indexOf('function marketStrategyMarkup',phaseStart);
-assert(phaseStart>0&&phaseEnd>phaseStart,'morning paid phase classifier is required');
-const classifyMorning=new Function(pageForPhases.slice(phaseStart,phaseEnd)+
- '\nreturn marketBeforeMorningFree;')();
-assert.equal(classifyMorning(morningTime('04:59')),false);
-assert.equal(classifyMorning(resetMorning),true);
-assert.equal(classifyMorning(morningTime('07:59')),true);
-assert.equal(classifyMorning(freeMorning),false);
-assert.equal(api.paidRefreshPhase(morningTime('04:59')),'after-08-free');
-assert.equal(api.paidRefreshPhase(resetMorning),'before-08-free');
-assert.equal(api.paidRefreshPhase(morningTime('07:59')),'before-08-free');
-assert.equal(api.paidRefreshPhase(freeMorning),'after-08-free');
+assert(phaseStart>0&&phaseEnd>phaseStart,'three-way paid refresh classifier is required');
+const classifyPhase=new Function('window',pageForPhases.slice(phaseStart,phaseEnd)+
+ '\nreturn {phase:marketPaidRefreshWindow,label:marketPaidRefreshLabel};')({NangmanMarket:api});
+const phaseCases=[
+ ['04:59','after-20-free'],['05:00','before-08-free'],
+ ['07:59','before-08-free'],['08:00','after-08-before-20'],
+ ['19:59','after-08-before-20'],['20:00','after-20-free'],
+ ['23:59','after-20-free']
+];
+for(const [clock,expected] of phaseCases){
+ assert.equal(api.paidRefreshPhase(morningTime(clock)),expected);
+ assert.equal(classifyPhase.phase(morningTime(clock)),expected);
+}
+assert.match(classifyPhase.label('after-20-free'),/20시 무료 교체 후/);
+assert(pageForPhases.includes('afterEvening')&&
+ pageForPhases.includes('08~20시 전')&&
+ pageForPhases.includes('20시 이후~익일05시 전'),
+ 'strategy daily totals must show each of the three paid-refresh intervals');
+// 19:59 refresh happens before the 20:00 free draw; 20:00 refresh after
+// the automatic draw is a different RNG event order and must be preserved.
+const beforeEvening=morningTime('19:59'),eveningFree=morningTime('20:00');
+const eveningPrior=api.replayKoreanClientEvents(morningSave,catalog,[
+ {kind:'daily-reset',at:resetMorning},
+ {kind:'open',at:freeMorning},
+ {kind:'paid',at:beforeEvening},
+ {kind:'open',at:eveningFree}
+],{slots:6});
+const eveningAfter=api.replayKoreanClientEvents(morningSave,catalog,[
+ {kind:'daily-reset',at:resetMorning},
+ {kind:'open',at:freeMorning},
+ {kind:'open',at:eveningFree},
+ {kind:'paid',at:eveningFree}
+],{slots:6});
+assert.equal(eveningPrior.events[3].auto,true);
+assert.equal(eveningAfter.events[2].auto,true);
+assert.equal(eveningAfter.events[3].auto,false);
+assert.notDeepEqual(eveningPrior.items,eveningAfter.items,
+ 'paid refresh before and after 20:00 free draw must remain separate');
+assert.equal(api.resetDay(eveningFree),api.resetDay(morningTime('23:59')));
+assert.notEqual(api.resetDay(eveningFree),api.resetDay(morningTime('05:00')+86400));
 // An exhausted 04:45 allowance must reset at 05:00 and permit a paid
 // refresh before the 08:00 free shop redraw, including its RNG order.
 const morningSearch=api.predict(morningSave,catalog,beforeMorning,{slots:6});
