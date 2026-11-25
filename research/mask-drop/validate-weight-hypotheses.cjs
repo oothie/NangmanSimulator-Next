@@ -33,8 +33,9 @@ function checkModel(m){
  if(!m||!Number.isSafeInteger(m.calls)||m.calls<0||m.calls>2||
   !Array.isArray(weights(m))||weights(m).length!==m.calls||
   weights(m).some(v=>!Number.isSafeInteger(v)||v<1||v>1000000)||
+  (m.calls===0&&(!Number.isSafeInteger(m.bound)||m.bound<1||m.bound>1000000))||
   !Number.isInteger(m.hitFrom)||m.hitFrom<1||
-  !Number.isInteger(m.hitTo)||m.hitTo<m.hitFrom||m.hitTo>(weights(m)[m.rewardDraw-1]||0)||
+  !Number.isInteger(m.hitTo)||m.hitTo<m.hitFrom||m.hitTo>(m.calls===0?m.bound:(weights(m)[m.rewardDraw-1]||0))||
   !Number.isInteger(m.rewardDraw)||m.rewardDraw<1||m.rewardDraw>Math.max(1,m.calls))
   throw RangeError('Explicit valid bound/calls/hit window/reward draw required');
 }
