@@ -1,5 +1,7 @@
 'use strict';
 // Exact Korean 60014 qc_enemy.lua enemy slots; no private seed handling.
+const SOURCE=require('./60014-qingcheng-enemy-formation-source.json');
+const RNG_SOURCE=Object.freeze({aliasVerified:!!SOURCE.jhConfig&&SOURCE.jhConfig.nativeAliasRandom.assignment==='math.jhrandom=math.random',source:'original Lua math.random aliased as math.jhrandom, initialized by os.time()',nativeRngStateInSaveVerified:false});
 const FIRST=Object.freeze([32950,32951,32952]);
 const SECOND=Object.freeze([32951,32952,32953]);
 const THIRD=Object.freeze([32951,32952,32953]);
@@ -14,7 +16,7 @@ function fromRolls({first,second,third=null,boss=false}={}){
  return {npcIds:ids,names:ids.map(id=>NPCS[id]),
   bandits:ids.filter(id=>id===32950).length,
   jhRandomCalls:boss?2:3,bossRollUsesIndependentSeed:true,
-  exactFutureFormationKnown:false};
+  exactFutureFormationKnown:false,rngSource:RNG_SOURCE.source};
 }
 function bossRoll({enabled,roll,food=0,bonus=0}={}){
  if(typeof enabled!=='boolean')throw TypeError('GetP(3007)>=6 must be supplied');
@@ -42,6 +44,7 @@ function forecastBanditHunts(k){
   percentile90:[negBinomQuantile(k,.05),negBinomQuantile(k,.95)],
   percentile95:[negBinomQuantile(k,.025),negBinomQuantile(k,.975)],
   assumesIndependentUniformJHRandom:true,actualFutureBanditSchedule:null,
-  jhRandomRuntimeSeedVerified:false,exact7209AwardConfirmed:false};
+  jhRandomRuntimeSeedVerified:false,sourceAliasVerified:RNG_SOURCE.aliasVerified,
+  sourceRng:RNG_SOURCE.source,exact7209AwardConfirmed:false};
 }
-module.exports={FIRST,SECOND,THIRD,NPCS,fromRolls,bossRoll,negBinomQuantile,forecastBanditHunts};
+module.exports={FIRST,SECOND,THIRD,NPCS,RNG_SOURCE,fromRolls,bossRoll,negBinomQuantile,forecastBanditHunts};
