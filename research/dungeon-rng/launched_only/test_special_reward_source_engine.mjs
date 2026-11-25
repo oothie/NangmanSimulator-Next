@@ -93,4 +93,16 @@ test('producer integration returns hypothetical first appearance',()=>{
  assert.equal(hypothetical.firstPredicted.find(x=>x.itemId===8295)?.clear,3);
  assert.equal(JSON.stringify(source),before);
 });
+test('unclaimed ownership scenario uses key-absent branch by default',()=>{
+ const s=scenario();
+ const modes=[];
+ const make=(input,count,keyMode)=>{
+  modes.push(keyMode);
+  return {output:[{clear:1,results:[{boss:'고리',specialIds:[]}]}]};
+ };
+ forecastSpecialsFromProducer(s,'유씨별원',make,1);
+ forecastSpecialsFromProducer(s,'유씨별원',make,1,{mode:'unclaimed'});
+ forecastSpecialsFromProducer(s,'유씨별원',make,1,{mode:'unclaimed',keyMode:'retain'});
+ assert.deepEqual(modes,['auto','absent','retain']);
+});
 console.log('PASS',testCount,'synthetic original consumer regressions');
