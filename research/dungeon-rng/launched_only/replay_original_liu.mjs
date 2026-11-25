@@ -41,6 +41,18 @@ export function replayLiuManor(save,clears=1,keyMode='auto'){
   keyMode==='absent'?0:initialQuantity;
  const output=[],keyTimeline=[];
  for(let clear=1;clear<=clears;clear++){
+  // Source 35271_1 command 1: original entry state transition.
+  // This consumes no seed_lsby RNG and does not touch the external save.
+  gv.fuben_lsby=1;
+  gv.num_fuben=number(gv.num_fuben)-1;
+  gv.search_lsby=0;
+  gv.open_mishilsby=0;
+  gv.lsby_2001=0;
+  gv.lsby_2002=0;
+  gv.lsby_2003=0;
+  // Source command 2, RmManyP, clears prior battle state each entry.
+  for(const key of ['lsby_boss1','lsby_boss2','lsby_boss3',
+   'round_lsby','quick_fuben','ambush_lsby'])delete gv[key];
   const keyHeld=keyMode==='owned'?true:keyMode==='absent'?false:keyQty>0;
   const keyQtyAtStart=keyQty;
   const specials={윤무:[],고리:[],이뢰운:[]};
