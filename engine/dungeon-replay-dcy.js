@@ -27,11 +27,13 @@ export function replayChangok(save,clears=1){
  for(let clear=1;clear<=clears;clear++){
   const win=n(gv.win_dcy),specials={40372:[],40373:[],40374:[]},results=[];
   let calls=0;
+  const rngTrace=[];
   const roll=(npc,bound)=>{
    const key='seed_dcy_'+npc,seed=n(seeds[key]);
    if(!Number.isSafeInteger(seed)||seed<1||!Number.isSafeInteger(bound)||bound<1)
     throw Error('창옥 원본 시드·가중치를 확인할 수 없습니다.');
-   const next=draw(seed,bound);seeds[key]=next.seed;calls++;return next.value;
+   const next=draw(seed,bound);seeds[key]=next.seed;
+   rngTrace.push({key,bound,value:next.value});calls++;return next.value;
   };
   const choose=(npc,entries)=>{
    const total=entries.reduce((sum,e)=>sum+e[0],0);
@@ -96,7 +98,7 @@ export function replayChangok(save,clears=1){
   // Original consumer clears the awarded 몰우전 flag after production.
   if(n(gv.drop_3523_40372)===1)gv.drop_3523_40372=0;
   gv.win_dcy=win+1;
-  output.push({clear,results,drawCount:calls});
+  output.push({clear,results,drawCount:calls,rngTrace});
  }
  return {gate:'창옥',output,nextState:{...save,Rnds:{...(save.Rnds||{}),Sds:seeds},globalVariable:gv},source:'40389_1',
   warning:'원본 계산에 따른 조건부 결과이며 장비 및 특수 보상의 미래 적중을 보장하지 않습니다.'};
