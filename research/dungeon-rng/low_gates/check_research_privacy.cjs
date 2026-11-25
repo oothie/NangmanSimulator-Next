@@ -27,7 +27,9 @@ const allow=new Set([
  'README.md',
  'HASH_ORDER_AND_EFFECT_AUDIT_20261126.md',
  'discriminate_table_orders.cjs',
- 'test_discriminate_table_orders.cjs'
+ 'test_discriminate_table_orders.cjs',
+ 'gate_order_sensitivity.cjs',
+ 'test_gate_order_sensitivity.cjs'
 ]);
 const files=fs.readdirSync(dir);
 for(const name of files){
