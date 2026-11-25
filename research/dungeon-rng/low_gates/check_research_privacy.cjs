@@ -20,6 +20,8 @@ const allow=new Set([
  'test_audit_40_table_metadata_positions.cjs',
  'audit_40_table_equipment_effects.cjs',
  'test_audit_40_table_equipment_effects.cjs',
+ 'gate_table_order_preflight.cjs',
+ 'test_gate_table_order_preflight.cjs',
  'test_after_save_equipment_evidence.cjs',
  'check_research_privacy.cjs',
  'README.md'
