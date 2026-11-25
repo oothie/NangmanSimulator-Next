@@ -112,3 +112,14 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 - Node.js 22에서 **39/39개 .cjs 테스트 파일 통과**. 실제 게임 독립 미래 홀드아웃은 미실시. 공개 사이트·버전/90급 관문 코드 변경 없음.
 
 다음 연구: 한국판 `getLuaJsonFile`의 실제 테이블 구성/메타 키 삽입 근거, 묵문유적 일반 장비 함수 역추적, 별도 사전·사후 플레이 세이브 대조.
+
+## 2026-11-26 후속 v4 — 한국판 원본 SeedKeyRoll 함수 2회 순회 복원
+
+보존된 60014 `JHTaskStatementsSeedKeyRoll.sb3`에서 추출된 PC11~13 첫 `pairs(m_json)`, PC29/32/37의 난수 호출, PC39~41 두 번째 `pairs(m_json)` 구성을 근거로 독립 실행 패키지 `Low_Gates_Original_Function_Replay_20261126_v4.zip`을 만들었다.
+
+- `engine/native_seedkeyroll_two_pass.cjs`: 가중치 합산 순회 → 범위 난수 한 번 → 누적 선택 순회를 구현. Lua 동일 타입/동일 키 중복 대입 시 마지막 값 선택, 정수 키와 문자열 키 분리.
+- `engine/source_order_forward.cjs`: 기존 6관문 `table`/`gear-table` 이벤트를 신규 2회 순회 함수에 연결. 기존 RNG/보상 조건을 임의로 변경하지 않음.
+- `engine/test_native_seedkeyroll_two_pass.cjs`: 3모델 × 100 추첨값 조합, 난수 호출 횟수, 키 유형 및 입력 오류 확인. **전체 40/40개 Node 테스트 통과**.
+- **실제 네이티브 확정은 아님:** 원본 `getLuaJsonFile`의 리턴 테이블 키 삽입/순서와 LuaJIT `pairs()` 해시 순회, 원본 게임 시드 등가 및 묵문유적 일반 장비 소비자는 여전히 미확정.
+
+코드와 검증은 대화 산출물 ZIP에 보존했으며, 이 커밋에는 **개인 세이브/원시 시드/원본 게임 바이너리 없이 연구 경과만** 남겼다. 공개 사이트·버전/기존 90급 엔진 미수정.
