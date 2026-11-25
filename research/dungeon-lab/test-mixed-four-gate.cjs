@@ -21,8 +21,10 @@ const run=createMixedRunner(producers,forecast);
 const keys=['seed_lsby','seed_byj','seed_33654','seed_33653','seed_33652',
  'seed_33650','seed_dcy_40372','seed_dcy_40373','seed_dcy_40374'];
 function fakeSave(i){
- return {Rnds:{Sds:Object.fromEntries(keys.map((key,index)=>
-   [key,101001+((i*23917+index*50051)%1600000000)]))},
+ return {Rnds:{Sds:{...Object.fromEntries(keys.map((key,index)=>
+   [key,101001+((i*23917+index*50051)%1600000000)])),
+   aidrop1:1001,mdrop:1003,seed_32299:1005,rollenemy_mobei:1009,
+   guishishop:11},Eds:{5009:1023,4209:1031}},
   globalVariable:{
    win_lsby:12+i%35,win_ywf:12+i%35,win_dcy:12+i%35,win_byj:12+i%35,
    roll_35268:0,roll_2924_40372:0,roll_2925_40374:0,roll_2926_40373:0
@@ -38,6 +40,11 @@ for(let i=0;i<100;i++)for(const schedule of schedules)for(const mode of ['curren
  const save=fakeSave(i),snapshot=JSON.stringify(save);
  const first=run(save,schedule,{claimMode:mode,includePrivateState:true});
  assert.equal(JSON.stringify(save),snapshot,'save must stay immutable');
+ for(const lane of ['aidrop1','mdrop','seed_32299','rollenemy_mobei','guishishop'])
+  assert.equal(first.privateNextState.Rnds.Sds[lane],save.Rnds.Sds[lane],
+   'gate replay must not consume unrelated RNG lane: '+lane);
+ assert.deepEqual(first.privateNextState.Rnds.Eds,save.Rnds.Eds,
+  'gate equipment ID prediction must not silently advance per-item option seeds');
  assert.equal(first.runs.length,schedule.length);
  const counts={};
  for(const event of first.runs){
