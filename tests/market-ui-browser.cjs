@@ -39,7 +39,7 @@ async function smoke(){
   console.log('Browser HTTP',first?.status(),'URL',page.url());
   try{
    await page.waitForFunction(()=>typeof window.NangmanMarket?.predict==='function'&&
-    typeof render==='function',null,{timeout:15000});
+    Boolean(document.querySelector('[data-view="daily"]')),null,{timeout:15000});
   }catch(error){
    const state=await page.evaluate(()=>({
     market:typeof window.NangmanMarket,render:typeof render,
@@ -49,17 +49,16 @@ async function smoke(){
    console.log('Page faults',JSON.stringify(faults.slice(0,25)));
    throw error;
   }
-  // A day-old synthetic seed must remain usable for historical preview.
-  await page.evaluate(()=>{
-   const old=Math.floor(Date.now()/1000)-86400;
-   // Evaluated in the original page global lexical environment.
-   save={RandShop:{Time:old,Fresh:0,Lucky:0,Buy:60,Counts:[],Items:[]},
-    Rnds:{Sds:{guishishop:12345}}};
-   roles=[];v='daily';dailyTab='ghost';marketPanel='refresh';
-   marketSimStep=0;marketAutoStep=0;marketVipOverride=0;
-   marketStrategyTarget=223;marketStrategyQuantity=1;marketStrategyPeriods=12;
-   render();
-  });
+  // A day-old synthetic seed remains usable for historic replay. Use the
+  // actual file input and tab clicks, not internal app variables.
+  const old=Math.floor(Date.now()/1000)-86400;
+  const testSave={RandShop:{Time:old,Fresh:0,Lucky:0,Buy:60,Counts:[],Items:[]},
+   Rnds:{Sds:{guishishop:12345}}};
+  page.on('dialog',dialog=>{faults.push('Dialog: '+dialog.message());dialog.dismiss()});
+  await page.locator('#file').setInputFiles({name:'artificial-market.json',
+   mimeType:'application/json',buffer:Buffer.from(JSON.stringify(testSave))});
+  await page.locator('[data-view="daily"]').click();
+  await page.locator('[data-market-tab="refresh"]').click();
   await assertButton(page,'#marketSimNext');
   await page.locator('#marketSimNext').click();
   assert.match(await page.locator('[data-market-panel="refresh"]').innerText(),/원보 갱신 1회차/);
@@ -71,7 +70,7 @@ async function smoke(){
   await assertButton(page,'#marketStrategyRun');
   await page.locator('#marketStrategyRun').click();
   await page.waitForFunction(()=>document.querySelector('#marketStrategyStatus')?.textContent
-    ?.includes('탐색 완료'),{timeout:60000});
+    ?.includes('탐색 완료'),null,{timeout:60000});
   assert.match(await page.locator('[data-market-panel="strategy"]').innerText(),/최단 기간/);
   assert.equal(faults.filter(e=>/ReferenceError|SyntaxError/.test(e)).length,0,
    'browser encountered script errors: '+faults.join(' | '));
