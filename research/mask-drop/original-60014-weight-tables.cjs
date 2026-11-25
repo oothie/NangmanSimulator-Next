@@ -35,21 +35,24 @@ function ipairsEntryCount(slots) {
  }
  return count;
 }
-function conditionalNpcStages(npc,{explicitEncryptedWeightRows=null}={}){
+function conditionalNpcStages(npc,{runtimeCfgRows=null,runtimeEncryptedRows=null}={}){
  if(!Object.hasOwn(SOURCE_NPCS,String(npc)))throw RangeError('Unsupported original 70-level NPC');
  const source=SOURCE_NPCS[npc];
  const count=ipairsEntryCount(source.rawLuaSlots);
  const base={npc,rawCfgSlots:[...source.rawLuaSlots],
-  cfgIpairsEntryCount:count,
-  cfgDirectPairDoesNotProveArrayRows:true,
+  cfgIpairsEntryCount:count,cfgDirectPairDoesNotProveArrayRows:true,
   second:{verifiedLiteral:true,bound:1111,weights:[...SECOND.positiveLuaSlots]},
   firstAndSecondSamePool:false,firstDropPredictionVerified:false};
- if(explicitEncryptedWeightRows===null)return {...base,
-  first:{verified:false,bound:null,reason:'Lua cfg ipairs row shape and encrypted row values not resolved'}};
- // Explicit hypothetical rows for research comparisons ONLY: not inferred
- // from the NPC pair [itemId, numeric attribute].
- return {...base,first:{verified:false,conditionalOnRuntimeRowNormalization:true,
-  bound:100,weights:dynamicFirstWeights(explicitEncryptedWeightRows)}};
+ if(runtimeCfgRows===null&&runtimeEncryptedRows===null)return {...base,
+  first:{verified:false,bound:null,reason:'Runtime cfg and encrypted row arrays unverified'}};
+ if(!Array.isArray(runtimeCfgRows)||!Array.isArray(runtimeEncryptedRows)||
+  runtimeCfgRows.length===0||runtimeCfgRows.length!==runtimeEncryptedRows.length||
+  runtimeCfgRows.some(row=>!Number.isSafeInteger(row)||row<1)||
+  runtimeEncryptedRows.some(row=>!Number.isSafeInteger(row)||row<0))
+  throw new RangeError('Both aligned runtime cfg IDs and encrypted weights required');
+ const dynamicWeights=dynamicFirstWeights(runtimeEncryptedRows);
+ return {...base,first:{verified:false,conditionalOnRuntimeRowEquivalence:true,
+  bound:100,weights:dynamicWeights,observedRuntimeRows:runtimeCfgRows.length}};
 }
 module.exports={FIRST,SECOND,SOURCE_NPCS,dynamicFirstWeights,ipairsEntryCount,conditionalNpcStages};
 if(require.main===module){
