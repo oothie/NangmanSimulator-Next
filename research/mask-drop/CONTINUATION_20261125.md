@@ -173,3 +173,39 @@ Library의 원본 `char_data_60014.sb3`를 `sbreader.parse + emulate`로
 로드·복호화·런타임 정규화의 누락이 가장 먼저 의심된다.
 첫 획득 회차는 여전히 미확정이다.
 
+
+## 원본 함수 추가 추적과 실행 조건 강화
+
+- `JHCharUtils_13.sb3`를 직접 확인했다. 원본 getEncrypt 관련
+  프로토타입에는 `getConfig('char_data')`, `ngx.clone`,
+  `ngx.encrytTable` 호출이 있다. 이 정규화/복호화 경로를
+  실제 런타임과 동일하게 재현하기 전에는 정적 `drop`을
+  `weightRand`의 가중치 배열로 취급하지 않는다.
+- 원본 `JHAIClient.getDropByID` PC38–50은
+  `getCfgByNpc.drop`에 대해 `ipairs`를 실행한 뒤,
+  현재 인덱스를 기준으로 `getEncryptByNpc.drop`의 값을
+  참조하고 가중치를 누적한다. **정적 `drop` 저장 형태의
+  첫 번째 슬롯이 비어 있는 문제**가 해결되어야 한다.
+- `JHTaskStatements_60014.sb3`(887개 프로토타입),
+  `JHNetServer_60014.sb3`(37개),
+  `JHDataCenter_60014.sb3`(677개)의 상수 테이블을
+  직접 스캔했지만, 대상 NPC 30681/32950와 아이템 7209가
+  숫자/문자열 리터럴로 나타나지는 않았다. **스캔한 이
+  세 모듈에 한정된 부정 결과**이며, 외부 전투 이벤트나
+  설정에서 값을 전달하는 경로는 아직 배제하지 못한다.
+- `conditionalNpcStages`는 첫 추첨 범위를 계산하려면
+  `runtimeCfgRows`(실제 NPC 드랍 행 ID)와
+  `runtimeEncryptedRows`(같은 행에 대응하는 복호화 가중치)를
+  **동시에 명시**하도록 수정했다. 행 정렬이 다르거나
+  한쪽만 존재하면 오류로 처리한다.
+- 합성 단위 테스트와 연구 브랜치 CI가 최종 커밋
+  `78564fe`에서 **성공**했다. 이는 원본 런타임
+  예측 적중 검증이 아니라 회귀 테스트 성공이다.
+
+### 여전히 필요한 단 하나의 핵심 연결
+
+동일한 NPC의 런타임 `getCfgByNpc.drop`과
+`getEncryptByNpc.drop` 구조를 원본 60014 함수로 획득하고,
+`getClass(7209)`가 PC84 뒤의 두 번째 추첨을
+실제 실행하는지 확인해야 한다. 그 전에는 수라가면
+첫 획득 회차나 같은 필드의 실전 공유 여부를 확정하지 않는다.
