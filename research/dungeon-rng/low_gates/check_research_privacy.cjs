@@ -24,7 +24,8 @@ const allow=new Set([
  'test_gate_table_order_preflight.cjs',
  'test_after_save_equipment_evidence.cjs',
  'check_research_privacy.cjs',
- 'README.md'
+ 'README.md',
+ 'HASH_ORDER_AND_EFFECT_AUDIT_20261126.md'
 ]);
 const files=fs.readdirSync(dir);
 for(const name of files){
