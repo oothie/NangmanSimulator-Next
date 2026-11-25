@@ -139,3 +139,51 @@ export function forecastSpecialAwards(save,clears,{mode='current',tempState=null
  }
  return {mode,clears:result,counters:state,unresolved:result.flat().filter(e=>e.unresolved).length};
 }
+
+const NPC_BY_GATE=Object.freeze({
+ '연왕부':{'이총관':33654,'하상':33653,'엽내관':33652,'연왕':33650},
+ '창옥':{'무준신':40372,'이장':40373,'장정':40374},
+ '벽유교':{'독선생':35219,'미':35214,'불로선인':35221},
+ '유씨별원':{'윤무':35260,'고리':35264,'이뢰운':35268}
+});
+/* Adapter for the four original entry producer replay functions. A caller
+ * supplies the producer engine (not a fixed list of known outcomes), allowing
+ * the two ownership scenarios to be calculated from the same native game data.
+ * The adapter never modifies a deployed engine, a source save or a seed.
+ */
+export function forecastSpecialsFromProducer(save,gate,producer,clears,{
+ mode='current',keyMode='auto',tempState=null
+}={}){
+ if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
+ const bosses=NPC_BY_GATE[gate];
+ if(!bosses)throw Error('출시된 4개 관문만 지원합니다.');
+ const scenario=specialScenario(save,mode);
+ const replay=producer(scenario,clears,keyMode);
+ if(!Array.isArray(replay?.output))throw Error('원본 관문 재생 결과가 없습니다.');
+ const trace=replay.output.map(clear=>{
+  if(!Array.isArray(clear?.results))throw Error('원본 보스별 추첨 정보 누락');
+  return clear.results.map(row=>{
+   const npc=bosses[row.boss];
+   if(!npc)throw Error('원본 보스 정보 누락');
+   if(!Array.isArray(row.specialIds))throw Error('원본 특수 추첨 기록 누락');
+   return {npc,specialIds:row.specialIds};
+  });
+ });
+ const grants=forecastSpecialAwards(scenario,trace,{mode:'current',tempState});
+ const first=new Map();
+ for(let i=0;i<grants.clears.length;i++){
+  for(const event of grants.clears[i]){
+   if(!event.predicted)continue;
+   const key=event.npc+':'+event.itemId;
+   if(!first.has(key))first.set(key,{
+    npc:event.npc,itemId:event.itemId,name:event.name,
+    clear:replay.output[i]?.clear??i+1,quantity:event.quantity
+   });
+  }
+ }
+ return {gate,mode,output:replay.output,
+  grants:grants.clears,firstPredicted:[...first.values()],
+  unresolved:grants.unresolved,
+  // Preserve native-producer uncertainty rather than calling this verified.
+  conditional:true};
+}
