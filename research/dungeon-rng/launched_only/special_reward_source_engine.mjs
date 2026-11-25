@@ -53,6 +53,15 @@ export const SOURCE_EXTRA_COUNTER_ACTIONS = Object.freeze({
 export const SOURCE_NUMERIC_GUARDS = Object.freeze({
  '35221:3970':{key:3970,operator:'==',value:0}
 });
+/* The Whale-recovered rollback for Gao Li's key decrements get_8915, but
+ * the award registry confirms no get_8915 ELIGIBILITY guard and does not
+ * preserve a uniquely verified forward AddP command. Keep its probable
+ * receipt counter as an explicit hypothesis, never a silent state mutation.
+ */
+export const UNVERIFIED_WHALE_FORWARD_RECEIPTS = Object.freeze({
+ '35264:8915':{key:'get_8915',operation:'AddP',delta:1,
+  evidence:'reverse rollback AddP(get_8915,-1); forward command not independently extracted'}
+});
 const known = value => {
  if(value==null)return 0;
  if(typeof value==='object')return known(value.Value??value.value??value.Val??value.val??value.N??value.n);
@@ -177,7 +186,8 @@ function consumerGuard(rule,state,tempState,numericState){
  * producer: {npc, specialIds:[...]} for each boss in actual in-game order.
  */
 export function evaluateSpecialAwards(save,producers,{
- mode='current',tempState=null,numericState=null
+ mode='current',tempState=null,numericState=null,
+ applyUnverifiedWhaleForwardReceipts=false
 }={}){
  const state=specialScenario(save,mode).globalVariable;
  const counters={...state};
@@ -197,7 +207,13 @@ export function evaluateSpecialAwards(save,producers,{
    counters[rule.f]=1;
    const check=consumerGuard(rule,counters,temp,numericState);
    const awarded=check.eligible===true;
-   const effects=[];
+   const effects=[],pendingHypotheses=[];
+   const unverifiedReceipt=UNVERIFIED_WHALE_FORWARD_RECEIPTS[ruleKey(rule)];
+   if(awarded&&unverifiedReceipt&&!applyUnverifiedWhaleForwardReceipts)
+    pendingHypotheses.push({
+     kind:'원본 지급 후 영수증 카운터 추정',
+     key:unverifiedReceipt.key,status:'미검증 · 카운터는 변경하지 않음'
+    });
    if(awarded){
     if(rule.k&&rule.s!=='temp'){
      const countBefore=known(counters[rule.k]);
@@ -218,6 +234,13 @@ export function evaluateSpecialAwards(save,producers,{
     }else if(rule.k&&temp)temp[rule.k]=known(temp[rule.k])+1;
     const name=ruleKey(rule);
     const extra=SOURCE_EXTRA_COUNTER_ACTIONS[name];
+    const hypothetical=UNVERIFIED_WHALE_FORWARD_RECEIPTS[name];
+    if(hypothetical&&applyUnverifiedWhaleForwardReceipts){
+     counters[hypothetical.key]=known(counters[hypothetical.key])+hypothetical.delta;
+     effects.push({kind:'가정한 Whale 지급 후 영수증 카운터',
+      key:hypothetical.key,value:counters[hypothetical.key],
+      sourceVerified:false});
+    }
     if(extra){
      if(extra.operator==='AddP')counters[extra.key]=known(counters[extra.key])+extra.delta;
      else if(extra.operator==='SetP')counters[extra.key]=extra.delta;
@@ -231,7 +254,7 @@ export function evaluateSpecialAwards(save,producers,{
    // A fixed grade 5 (orange) is never a grant of five item copies.
    events.push({npc,itemId:id,name:rewardLabel(id),predicted:awarded,
     status:check.reason,quantity:awarded?1:0,
-    gradeCode:awarded?rule.q:null,sourceArgument3:rule.q,effects,
+    gradeCode:awarded?rule.q:null,sourceArgument3:rule.q,effects,pendingHypotheses,
     postAwardFlag:awarded?counters[rule.f]:null,
     countKey:rule.k||null,unresolved:check.eligible===null});
   }
@@ -339,7 +362,8 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
  */
 export function forecastInterleavedSpecials(save,gate,producer,clears,{
  mode='current',keyMode=null,tempState=null,numericState=null,
- numericAfterGrant='unknown',firstItemId=null
+ numericAfterGrant='unknown',firstItemId=null,
+ applyUnverifiedWhaleForwardReceipts=false
 }={}){
  if(!['unknown','retained'].includes(numericAfterGrant))
   throw Error('원본 숫자형 GetP 보유 변화 가정이 올바르지 않습니다.');
@@ -378,7 +402,8 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
    return {npc,specialIds:boss.specialIds};
   });
   const evaluated=evaluateSpecialAwards(producerResult.nextState,outcomes,{
-   tempState:temp,numericState:numeric
+   tempState:temp,numericState:numeric,
+   applyUnverifiedWhaleForwardReceipts
   });
   state={...producerResult.nextState,globalVariable:evaluated.counters};
   temp=evaluated.tempCounters;
