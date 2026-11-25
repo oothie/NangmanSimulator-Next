@@ -209,3 +209,15 @@ Library의 원본 `char_data_60014.sb3`를 `sbreader.parse + emulate`로
 `getClass(7209)`가 PC84 뒤의 두 번째 추첨을
 실제 실행하는지 확인해야 한다. 그 전에는 수라가면
 첫 획득 회차나 같은 필드의 실전 공유 여부를 확정하지 않는다.
+
+### 네이티브 원본 비교 (V182)
+
+Library `60014_DROP_NATIVE_ARM64_RUNTIME_V182_20261012.zip`에 보존된
+한국판 60014 AArch64 `libcocos2dlua.so`를 확인했다.
+이 파일은 원본 60014 split의 19,480,304-byte native 라이브러리이며
+기존 검증된 LuaJIT 2.1.0-beta3 정보가 있다. 그러나 평문 심볼 스캔으로
+`encrytTable` 또는 `getEncryptByNpc` 구현을 식별하지 못했다.
+**해당 함수가 없다는 의미는 아니며**, stripped/obfuscated native
+진입점의 실제 구현 분석은 아직 완료되지 않았다. 네이티브 복호화
+규칙을 추측해서 강제로 [1,99] 또는 다른 드랍 회차를 만들지 않는다.
+
