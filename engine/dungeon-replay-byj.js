@@ -24,10 +24,10 @@ export function replayByeokyu(save,clears=1){
   const win=n(gv.win_byj),specials={35219:[],35214:[],35221:[]},results=[];
   let calls=0;
   const rngTrace=[];
-  const roll=bound=>{const result=draw(seed,bound);seed=result.seed;
-   rngTrace.push({key:'seed_byj',bound,value:result.value});calls++;return result.value;};
-  const choose=entries=>{
-   let x=roll(entries.reduce((sum,e)=>sum+e[0],0));
+  const roll=(bound,name)=>{const result=draw(seed,bound);seed=result.seed;
+   rngTrace.push({key:'seed_byj',name,bound,value:result.value});calls++;return result.value;};
+  const choose=(entries,name)=>{
+   let x=roll(entries.reduce((sum,e)=>sum+e[0],0),name);
    for(const [weight,value] of entries){x-=weight;if(x<=0)return value;}
    throw Error('벽유교 원본 가중치 계산 오류');
   };
@@ -36,21 +36,21 @@ export function replayByeokyu(save,clears=1){
   };
   const unique=(npc,id,threshold,gate=true)=>{
    if(!gate)return;
-   const flag='drop_'+id+'_'+npc, x=roll(1000);
+   const flag='drop_'+id+'_'+npc, x=roll(1000,'특수 '+npc+' '+id);
    special(npc,id,flag,x-win<=threshold&&!n(gv[flag]));
   };
   const accumulated=(npc,id,limit,onHit,onMiss)=>{
    const flag='drop_'+id+'_'+npc,counter='roll_'+id+'_'+npc,old=n(gv[counter]);
-   const hit=roll(100)-old<limit;
+   const hit=roll(100,'누적 '+npc+' '+id)-old<limit;
    gv[counter]=old+(hit?onHit:onMiss);
    special(npc,id,flag,hit);
    return hit;
   };
   const equipment=(npc,boss)=>{
-   const hit=choose([[50,true],[50,false]]);
-   const slot=hit?roll(4):null;
+   const hit=choose([[50,true],[50,false]],boss+' 장비 여부');
+   const slot=hit?roll(4,boss+' 장비 슬롯'):null;
    // Unlike Changok, Byeokyu always draws and stores a colour.
-   const grade=choose(COLOR);
+   const grade=choose(COLOR,boss+' 장비 등급');
    if(slot===null)delete gv['drop_'+npc+'_equip'];
    else gv['drop_'+npc+'_equip']=slot;
    gv['drop_'+npc+'_color']=grade;
@@ -76,7 +76,7 @@ export function replayByeokyu(save,clears=1){
   let keyHit=false;
   if(keyEnabled){
    const flag='drop_3970_35221',counter='roll_3970_35221',previous=n(gv[counter]);
-   keyHit=roll(100)-previous<10;
+   keyHit=roll(100,'귀용문 열쇠')-previous<10;
    gv[counter]=previous+(keyHit?-50:10);
    special(35221,3970,flag,keyHit);
   }
