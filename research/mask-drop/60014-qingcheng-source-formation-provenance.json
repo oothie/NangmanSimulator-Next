@@ -1,0 +1,63 @@
+{
+  "evidenceVersion": "60014",
+  "scope": "internal static provenance only — no save/seed/account IDs",
+  "sources": {
+    "JHTmxMap": {
+      "sourcePath": "src/app/module/main/JHTmxMap.lua",
+      "sha256": "062c78fc313663f272f14918f4b9ea924d487ce68e2ac6a5681813570656e0c9",
+      "compiledBytes": 179868,
+      "prototypes": 286,
+      "methods": [
+        {
+          "prototype": 99,
+          "instructions": 36,
+          "purpose": "reads m_mapNpcs and s_jhData.isNpcExist",
+          "directRandomTokensPresent": false
+        },
+        {
+          "prototype": 126,
+          "instructions": 370,
+          "purpose": "reads TiledMap RootNode.getObjectGroup('npc').getObjects and updates m_mapNpcs",
+          "directRandomTokensPresent": false
+        },
+        {
+          "prototype": 202,
+          "instructions": 465,
+          "purpose": "getNpcs -> getCfgByNpc, compare team, table.insert combat NPC entries",
+          "directRandomTokensPresent": false
+        }
+      ]
+    },
+    "JHNetServer": {
+      "sourcePath": "src/app/net/JHNetServer.lua",
+      "sha256": "1c31863113280f64f1bd8ebb9dd9f5146070cfee8b7d05e24bd2847f2a2430e4",
+      "compiledBytes": 23354,
+      "prototype": 23,
+      "instructions": 1655,
+      "purpose": "startBattle consumes an npcs list; not proof of who creates it"
+    },
+    "QingchengTmx": {
+      "asset": "map_qc.tmx",
+      "storedBytes": 44345,
+      "sha256": "3ac7a5978c6bd6ac346c76359aa54ce43686323a11525d9e268d977f593eb726",
+      "prefix": "DADDY",
+      "decrypted": false
+    }
+  },
+  "facts": [
+    "User's confirmed initial encounters: Qingcheng ordinary battles 1=>0 bandits, 2=>1 bandit",
+    "The observed 70-level drop-lane transition matches one 32950 bandit",
+    "Another controlled Manhogang kill advances the same lane by one",
+    "The map grouping function does not itself perform a direct random roll, based on recovered opcode constants and callsites"
+  ],
+  "unknowns": [
+    "Encrypted map_qc.tmx NPC placement/object group",
+    "Whether field target selection follows deterministic path, user movement or an external randomized generator",
+    "Respawn or travel route between ordinary battles",
+    "Whether every spawned 32950 unconditionally advances aidrop70 under all combat conditions",
+    "Actual native 7209 award condition after first weighted draw"
+  ],
+  "futureBanditAppearances": null,
+  "originalRuntimeNextSpawnVerified": false,
+  "exact7209AwardPredictionAllowed": false
+}
