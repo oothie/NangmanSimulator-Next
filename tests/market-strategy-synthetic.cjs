@@ -146,6 +146,27 @@ for(let vip=0;vip<api.VIP_REFRESH.length;vip++){
  assert.equal(api.resetDay(nextReset-1),api.resetDay(now));
  assert.equal(api.resetDay(nextReset),api.resetDay(now)+1);
 }
+// 720-period search must keep a real, native-verified candidate even when
+// a bounded fastest proof cannot finish. A free route also proves zero jade.
+workerMessages.length=0;
+const longHorizonSave={RandShop:{Time:now,Fresh:0,Lucky:0,Buy:60,
+ Items:[],Counts:[]},Rnds:{Sds:{guishishop:12345}}};
+workerContext.self.onmessage({data:{type:'calculate',requestId:'long-synthetic',
+ save:longHorizonSave,anchor:now,slots:6,vip:1,target:223,
+ quantity:3,periods:720,maxStates:1500}});
+const longError=workerMessages.find(x=>x.type==='error');
+assert.equal(longError,undefined,longError?.message);
+const longResponse=workerMessages.find(x=>x.type==='result');
+assert(longResponse,'720-period calculation must return a response');
+assert(longResponse.plans.free.found);
+assert.equal(longResponse.plans.cheapest.cost,0);
+assert.equal(longResponse.plans.cheapest.verifiedMinimumCost,true);
+assert.equal(longResponse.plans.fastest.found,true,
+ 'an audited feasible route must survive a capped optimality search');
+assert.equal(longResponse.plans.fastest.proven,false,
+ 'bounded fastest candidate must not be labeled globally optimal');
+assert.equal(longResponse.plans.fastest.limited,true);
+assert.equal(longResponse.plans.fastest.nativeReplayChecked,true);
 // Synthetic stock-cap regression. No account values or player-derived seeds.
 const targetTemplate=catalog.shops.guishi.find(x=>x.rare===1&&x.weight>0)
  ||catalog.shops.guishi[0];
