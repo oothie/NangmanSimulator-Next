@@ -35,7 +35,9 @@
     return {seed: asNumber(sds[target.seedKey]), tigerSeed: asNumber(sds[target.tigerTypeSeedKey]),
       encounterSeed: encounter ? asNumber(sds[encounter.seedKey]) : null,
       encounterScore: encounter ? asNumber(flags?.[encounter.counterKey]) : null,
-      encounterBoost: encounter ? asNumber(flags?.eat_2659) : null,
+      // An absent eat_2659 flag means no encounter-boost medicine was used.
+      // Only the optional boost defaults to zero; encounter RNG and score must exist.
+      encounterBoost: encounter ? (flags?.eat_2659 == null ? 0 : asNumber(flags.eat_2659)) : null,
       drought: Math.max(0, Math.floor(asNumber(drought) || 0)), sds, eds};
   }
 
