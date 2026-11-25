@@ -198,12 +198,16 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
  * returned result retains a conditional status until native validation.
  */
 export function forecastInterleavedSpecials(save,gate,producer,clears,{
- mode='current',keyMode=null,tempState=null
+ mode='current',keyMode=null,tempState=null,firstItemId=null
 }={}){
  if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
- if(!Number.isInteger(clears)||clears<1||clears>10)throw Error('1~10회 범위를 입력하세요.');
+ if(!Number.isInteger(clears)||clears<1||clears>2000)
+  throw Error('1~2000회 범위를 입력하세요.');
  const bosses=NPC_BY_GATE[gate];
  if(!bosses)throw Error('출시된 4개 관문만 지원합니다.');
+ if(firstItemId!=null&&!SPECIAL_CONSUMER_RULES.some(r=>
+  r.g===gate&&r.i===Number(firstItemId)))
+  throw Error('해당 관문에서 추첨하는 원본 특수 보상이 아닙니다.');
  let state=specialScenario(save,mode);
  const ownershipMode=keyMode??(mode==='current'?'auto':'absent');
  let temp=tempState==null?null:{...tempState};
@@ -233,8 +237,12 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
   }
   rows.push({clear:i+1,producer:one,grants:evaluated.events,
    unresolved:evaluated.unresolved});
+  if(firstItemId!=null&&evaluated.events.some(event=>
+   event.itemId===Number(firstItemId)&&event.predicted))break;
  }
  return {gate,mode,ownershipMode,rows,firstPredicted:[...first.values()],
+  searchedClears:rows.length,firstItemId,foundTarget:firstItemId==null?null:
+   rows.some(row=>row.grants.some(event=>event.itemId===Number(firstItemId)&&event.predicted)),
   // Deliberately separate the battle entry and conditional consumer from
   // actual final inventory transaction and quest-state transitions.
   conditional:true,questHistoryAssumedUnchanged:mode!=='current',
