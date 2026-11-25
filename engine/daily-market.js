@@ -715,6 +715,36 @@ function replayKoreanClientEvents(save,source,events,options={}){
 }
 
 
+
+/**
+ * Local-only strategy starting state after N consecutive paid refreshes.
+ * Do not mutate or persist the uploaded save. Next searches begin after these
+ * events, with updated RNG seed, Lucky, daily used count and current shelf.
+ */
+function afterPaidRefreshes(save,source,number,options={}){
+ const steps=Number(number),at=Number(options.at);
+ if(!Number.isInteger(steps)||steps<0||steps>27)
+  throw Error('선행 원보 갱신 회수가 올바르지 않습니다.');
+ if(!Number.isSafeInteger(at)||at<0)
+  throw Error('선행 원보 갱신 기준 시각이 올바르지 않습니다.');
+ if(!steps)return save;
+ const status=predict(save,source,at,{slots:options.slots});
+ if(!status.seedOk)
+  throw Error('저장 시점 이후 무료 갱신 이력이 확인되지 않아 선행 원보 갱신을 계산할 수 없습니다.');
+ const allowance=status.paidAllowance(options.vip);
+ if(steps>allowance.left)
+  throw Error('선행 원보 갱신이 현재 VIP의 남은 일일 갱신 한도를 초과했습니다.');
+ const events=Array.from({length:steps},()=>({kind:'paid',at}));
+ const outcome=replayKoreanClientEvents(save,source,events,{slots:options.slots});
+ return {
+  ...save,
+  RandShop:{...save.RandShop,Fresh:outcome.fresh,Lucky:outcome.lucky,
+   Time:outcome.shopTime,Items:outcome.items.map(ID=>({ID,Buyed:0}))},
+  Rnds:{...save.Rnds,Sds:{...save.Rnds.Sds,guishishop:outcome.seed}}
+ };
+}
+
+
 /**
  * Evidence-based comparison of observed Korean ghost-market endpoints.
  * The saved RandShop.Time is the last FREE redraw, not the number of missed
@@ -757,6 +787,6 @@ function verifyKoreanMarketContinuity(before,after,config,options={}){
   assumptions:'구매·기타 암시장 RNG 호출 없음, 동일 상품 후보와 가중치, 각 시각 구간당 무료 갱신 최대 1회'};
 }
 
-root.NangmanMarket={predict,replayKoreanClientEvents,verifyKoreanMarketContinuity,vipLevel,halfDay,nextHalfDay,resetDay,orderPool,countsMap,VIP_REFRESH,
+root.NangmanMarket={predict,replayKoreanClientEvents,afterPaidRefreshes,verifyKoreanMarketContinuity,vipLevel,halfDay,nextHalfDay,resetDay,orderPool,countsMap,VIP_REFRESH,
  __test:{nextSeed,KeyRng,draw}};
 })(typeof window!=='undefined'?window:globalThis);
