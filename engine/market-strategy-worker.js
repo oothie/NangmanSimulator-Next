@@ -25,11 +25,20 @@ self.onmessage=event=>{
   const free=state.auditStrategy(state.searchStrategy([m.target],{...expanded,mode:'free'}),{target:m.target,quantity:m.quantity,vip:m.vip});
   self.postMessage({type:'candidate',requestId:m.requestId,
    plans:{free,candidate},forecastPeriods});
-  self.postMessage({type:'progress',requestId:m.requestId,expanded:0,
-   limit:options.maxStates,stage:'최소 원보 소비 경로 탐색 중'});
-  const cheapest=state.auditStrategy(state.searchStrategy([m.target],{...expanded,mode:'cheapest',
-   onProgress:p=>self.postMessage({type:'progress',requestId:m.requestId,...p,
-    stage:'최소 원보 경로 검증 중'})}),{target:m.target,quantity:m.quantity,vip:m.vip});
+  // A verified free-only route spends zero jade; no paid route can improve
+  // its cost. Keep its original 'free' mode for faithful native event auditing.
+  let cheapest;
+  if(free.found&&free.nativeReplayChecked&&Number(free.cost)===0){
+   cheapest={...free,verifiedMinimumCost:true};
+   self.postMessage({type:'progress',requestId:m.requestId,expanded:0,
+    limit:options.maxStates,stage:'무료 갱신 경로로 최소 원보 0 확정'});
+  }else{
+   self.postMessage({type:'progress',requestId:m.requestId,expanded:0,
+    limit:options.maxStates,stage:'최소 원보 소비 경로 탐색 중'});
+   cheapest=state.auditStrategy(state.searchStrategy([m.target],{...expanded,mode:'cheapest',
+    onProgress:p=>self.postMessage({type:'progress',requestId:m.requestId,...p,
+     stage:'최소 원보 경로 검증 중'})}),{target:m.target,quantity:m.quantity,vip:m.vip});
+  }
   const fastest=state.auditStrategy(state.searchStrategy([m.target],{...expanded,mode:'fastest',
    bestCandidate:candidate.found?candidate:null,
    onProgress:p=>self.postMessage({type:'progress',requestId:m.requestId,...p,
