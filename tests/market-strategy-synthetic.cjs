@@ -56,4 +56,17 @@ const lateOpen=api.replayKoreanClientEvents(fixture,catalog,
 assert.equal(lateOpen.events.length,1);
 assert.equal(lateOpen.events[0].auto,true);
 assert.deepEqual(Array.from(lateOpen.items),Array.from(nativeAuto.items));
-console.log('PASS synthetic market RNG, stale-save safeguard, and strategy audit');
+// The page and strategy Worker must load the same revision of the RNG module.
+const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
+function revision(content,prefix){
+ const start=content.indexOf(prefix);
+ return start<0?null:content.slice(start+prefix.length).match(/^[a-zA-Z0-9_.-]+/)?.[0]||null;
+}
+const pageRef=revision(page,'engine/daily-market.js?rev=');
+const workerRef=revision(workerSource,'./daily-market.js?rev=');
+const entryRef=revision(page,'new Worker(\'engine/market-strategy-worker.js?rev=');
+assert(pageRef&&workerRef&&entryRef,'market modules must use explicit cache revisions');
+assert.equal(pageRef,workerRef,'page and Worker must use the same RNG revision');
+assert.equal(pageRef,entryRef,'Worker entrypoint must share the RNG cache revision');
+console.log('PASS synthetic market RNG, stale-save safeguards, and aligned cache keys');
