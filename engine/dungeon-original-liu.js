@@ -23,7 +23,8 @@ const POOLS = {
 const GRADES = {1:'백색',2:'녹색',3:'청색',4:'자색'};
 const number = v => {const n=Number(v??0);return Number.isFinite(n)?n:0;};
 const quantity = (save,id) => (Array.isArray(save?.Items)?save.Items:[])
- .reduce((n,x)=>n+(number(x?.ID)===id?Math.max(0,number(x?.Num??x?.Count??1)):0),0);
+ .reduce((sum,item)=>sum+(number(item?.ID??item?.id)===id?
+  Math.max(0,number(item?.Num??item?.num??item?.Count??item?.count??1)):0),0);
 
 export function replayLiuManor(save,clears=1,keyMode='auto'){
  if(!Number.isInteger(clears)||clears<1||clears>10)throw Error('유씨별원은 1~10회만 계산할 수 있습니다.');
@@ -32,9 +33,16 @@ export function replayLiuManor(save,clears=1,keyMode='auto'){
  const gv={...(save.globalVariable||{})};
  let seed=sourceSeed;
  const initialQuantity=quantity(save,8915);
- let keyHeld=keyMode==='owned'?true:keyMode==='absent'?false:initialQuantity>0;
+ if(!['auto','retain','owned','absent'].includes(keyMode))
+  throw Error('고리의 열쇠 보유 조건이 올바르지 않습니다.');
+ // The numeric GetP(8915) branch is supplied from inventory, never from get_8915.
+ // Awarded keys enter a local replay inventory; no input save object is mutated.
+ let keyQty=keyMode==='owned'?Math.max(1,initialQuantity):
+  keyMode==='absent'?0:initialQuantity;
  const output=[],keyTimeline=[];
  for(let clear=1;clear<=clears;clear++){
+  const keyHeld=keyMode==='owned'?true:keyMode==='absent'?false:keyQty>0;
+  const keyQtyAtStart=keyQty;
   const specials={윤무:[],고리:[],이뢰운:[]};
   const rows=[],trace=[];
   const win=number(gv.win_lsby);
@@ -115,12 +123,28 @@ export function replayLiuManor(save,clears=1,keyMode='auto'){
   // consume an invented seed_lsby roll for that table.
   equipment('이뢰운',POOLS['이뢰운'],OTHER_COLOR);
   gv.win_lsby=win+1;
-  output.push({clear,results:rows,drawCount:trace.length,materials:{a,b:b.id,c:c.id},keyHit:newKey});
-  keyTimeline.push({clear,heldAtStart:keyHeld,newKey,drawCount:trace.length});
-  // 'auto' uses the current site's documented immediate-key-use assumption.
-  // Explicit owned/absent modes force their respective branch throughout.
-  if(keyMode==='auto')keyHeld=false;
+  // The restored award consumer grants one key only if this clear generated a
+  // fresh success flag. Historical drop_8915_35264 or get_8915 are not receipts.
+  // Unlike ordinary limited rewards, this consumer has no get_8915 purchase cap.
+  const received=newKey?1:0;
+  let consumedByAssumption=0;
+  if(keyMode==='auto'||keyMode==='absent'){
+   keyQty+=received;
+   // Scenario rule, not a claim that game used the key automatically.
+   consumedByAssumption=keyQty;
+   keyQty=0;
+  }else if(keyMode==='retain'){
+   keyQty+=received;
+  }else{
+   keyQty=keyQtyAtStart;
+  }
+  const keyState={clear,heldAtStart:keyHeld,quantityAtStart:keyQtyAtStart,
+   newKey,received,consumedByAssumption,quantityAfter:keyQty,
+   heldAfter:keyMode==='owned'?true:keyQty>0,drawCount:trace.length};
+  output.push({clear,results:rows,drawCount:trace.length,materials:{a,b:b.id,c:c.id},
+   keyHit:newKey,keyAwarded:received===1,keyState});
+  keyTimeline.push(keyState);
  }
  return {gate:'유씨별원',output,keys:keyTimeline,source:'35271_1-v85',initialKeyQty:initialQuantity,
-  warning:'과거 원본 재생 모델 기반 예측입니다. 실제 미래 드랍과 모든 네이티브 LuaJIT 분기를 보장하지 않습니다.'};
+  warning:'원본 재생 기반 조건부 예측입니다. 열쇠 획득 후 보유·사용은 선택한 시나리오로만 반영됩니다.'};
 }
