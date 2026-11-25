@@ -224,7 +224,7 @@ function consumerGuard(rule,state,tempState,numericState){
  */
 export function evaluateSpecialAwards(save,producers,{
  mode='current',tempState=null,numericState=null,
- applyUnverifiedWhaleForwardReceipts=false
+ numericGuardOrigin=null,applyUnverifiedWhaleForwardReceipts=false
 }={}){
  const state=specialScenario(save,mode).globalVariable;
  const counters={...state};
@@ -293,8 +293,8 @@ export function evaluateSpecialAwards(save,producers,{
    events.push({npc,itemId:id,name:rewardLabel(id),predicted:awarded,
     status:check.reason,
     numericGuardSource:SOURCE_NUMERIC_GUARDS[ruleKey(rule)]?
-     (numericState!=null?'명시적 숫자형 상태':
-      effectiveNumeric!=null?'세이브 인벤토리 기반 추정':'원본 상태 미확정'):null,
+     (numericGuardOrigin??(numericState!=null?'명시적 숫자형 상태':
+      effectiveNumeric!=null?'세이브 인벤토리 기반 추정':'원본 상태 미확정')):null,
     quantity:awarded?1:0,
     // A source-derived successful conditional payout is not a native-60014
     // observed grant. Keep the provenance attached through every UI adapter.
@@ -325,10 +325,15 @@ export function forecastSpecialAwards(save,clears,{
  const state={...base.globalVariable};
  let temp=tempState==null?null:{...tempState};
  const numeric=inferredNumeric(save,mode,numericState);
+ const numericGuardOrigin=numericState!=null?'명시적 숫자형 상태':
+  numeric==null?'원본 상태 미확정':
+  mode==='never_claimed'||mode==='fresh'?'미획득 가상 보유량':
+  '세이브 인벤토리 기반 추정';
  const result=[];
  for(const one of clears){
   const out=evaluateSpecialAwards({globalVariable:state},one,{
-   mode:'current',tempState:temp,numericState:numeric
+   mode:'current',tempState:temp,numericState:numeric,
+   numericGuardOrigin
   });
   Object.assign(state,out.counters);
   // Preserve the native temp-scoped payout state, not global get_* values.
@@ -440,6 +445,10 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
  const ownershipMode=keyMode??(mode==='current'?'auto':'absent');
  let temp=tempState==null?null:{...tempState};
  const numeric=inferredNumeric(save,mode,numericState);
+ const numericGuardOrigin=numericState!=null?'명시적 숫자형 상태':
+  numeric==null?'원본 상태 미확정':
+  mode==='never_claimed'||mode==='fresh'?'미획득 가상 보유량':
+  '세이브 인벤토리 기반 추정';
  const first=new Map(),rows=[];
  let stoppedReason=null,stoppedAt=null;
  for(let i=0;i<clears;i++){
@@ -463,7 +472,7 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
    return {npc,specialIds:boss.specialIds};
   });
   const evaluated=evaluateSpecialAwards(producerResult.nextState,outcomes,{
-   tempState:temp,numericState:numeric,
+   tempState:temp,numericState:numeric,numericGuardOrigin,
    applyUnverifiedWhaleForwardReceipts
   });
   state={...producerResult.nextState,globalVariable:evaluated.counters};
