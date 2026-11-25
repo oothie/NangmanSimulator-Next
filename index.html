@@ -1548,7 +1548,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero +tabbar+body+'</di
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='find',equipSearch='',equipFindLevel='all',equipFindType='all',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel',accountTab='summary',accountGrowthMode='consumable',accountMapSearch='',accountLootFilter='active',accountMapVisible=36;let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyQuantity=1,marketStrategyPeriods=120,marketStrategyResults=null,marketSlotsOverride=6,marketStrategyWorker=null,marketStrategyJob=0,marketStrategyProgress='';let questSourceError='';
+let equipTab='find',equipSearch='',equipFindLevel='all',equipFindType='all',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel',accountTab='summary',accountGrowthMode='consumable',accountMapSearch='',accountLootFilter='active',accountMapVisible=36;let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyQuantity=1,marketStrategyPeriods=120,marketStrategyResults=null,marketSlotsOverride=0,marketStrategyWorker=null,marketStrategyJob=0,marketStrategyProgress='';let questSourceError='';
 let questTab='current',questSearch='',questBranchFilter='active',questVisibleLimit=200,questCatalogLimit=150,questCategory='all',questFocusedId=null,questRegion='all';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
@@ -2131,7 +2131,7 @@ function marketStrategyMarkup(state,ko){
  const target=all.find(x=>x.id===marketStrategyTarget);
  const goal=marketStrategyGoal(target,save),exhausted=soldSet.has(Number(target?.id))||(goal.limited&&goal.quantity===0);
  const views=marketStrategyResults?.save===save&&
-  marketStrategyResults?.slots===marketSlotsOverride&&
+  marketStrategyResults?.slots===marketEffectiveSlots()&&
   marketStrategyResults?.target===marketStrategyTarget&&
   marketStrategyResults?.quantity===goal.quantity&&
   marketStrategyResults?.vip===marketVipOverride&&
@@ -2242,13 +2242,18 @@ function marketStrategyMarkup(state,ko){
 
 // Explicit virtual scenario: assume every 08:00/20:00 KST free redraw was
 // checked in the game since the saved time; never fabricate paid refreshes.
+function marketEffectiveSlots(){
+ const buy=Number(save?.RandShop?.Buy||0);
+ const detected=buy<10?3:buy<30?4:buy<60?5:6;
+ return marketSlotsOverride>=3&&marketSlotsOverride<=6?marketSlotsOverride:detected;
+}
 function marketForecastContext(){
  const now=Math.floor(Date.now()/1000);
  const virtual=window.NangmanMarket.assumeAllFreeVisits(
-  save,window.DAILY_DATA,now,{slots:marketSlotsOverride});
+  save,window.DAILY_DATA,now,{slots:marketEffectiveSlots()});
  const activeSave=virtual.applied?virtual.save:save;
  const state=window.NangmanMarket.predict(
-  activeSave,window.DAILY_DATA,now,{slots:marketSlotsOverride});
+  activeSave,window.DAILY_DATA,now,{slots:marketEffectiveSlots()});
  return {state,anchor:now,archived:false,missed:virtual.count||0,
   assumed:virtual.applied,assumptionError:virtual.reason||'',
   sourceSave:activeSave};
@@ -2294,7 +2299,7 @@ function dailyMarketView(){
  
  
  '<div class="market-slots-control">'+
- '<label>예측 슬롯 수 <select id="marketSlotsSelect">'+[3,4,5,6].map(x=>'<option value="'+x+'" '+(x===marketSlotsOverride?'selected':'')+'>'+x+'칸'+(x===6?' (기본)':'')+'</option>').join('')+'</select></label><span class="micro">원보·자동 갱신·한정 상품 탐색 모두 동일하게 적용 · 실제 세이브 슬롯 '+state.saveSlots+'칸</span></div>'+
+ '<label>예측 슬롯 수 <select id="marketSlotsSelect">'+[3,4,5,6].map(x=>'<option value="'+x+'" '+(x===marketEffectiveSlots()?'selected':'')+'>'+x+'칸'+(x===marketEffectiveSlots()?' (현재 설정)':'')+'</option>').join('')+'</select></label><span class="micro">원보·자동 갱신·한정 상품 탐색 모두 동일하게 적용 · 실제 세이브 슬롯 '+state.saveSlots+'칸</span></div>'+
  clockLine+
  '<nav class="market-nav" role="group" aria-label="암시장 기능">'+[['current','현재 상품 · 모의 갱신'],['strategy','한정 상품 전략'],['search','상품 검색']].map(([id,label])=>'<button type="button" data-market-tab="'+id+'" class="'+(marketPanel===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+ 
  '<section class="market-section" data-market-panel="current"><h4>암시장 상품 · 통합 모의 갱신</h4>'+
@@ -4646,7 +4651,7 @@ if($('marketStrategyRun'))$('marketStrategyRun').onclick=()=>{
  const quantity=marketStrategyGoal(target,save).quantity;
  if(quantity<=0)return;
  const requestId=marketStrategyJob,vip=marketVipOverride,periods=marketStrategyPeriods,
-   slots=marketSlotsOverride,shopId=marketStrategyTarget,sourceSave=context.sourceSave;
+   slots=marketEffectiveSlots(),shopId=marketStrategyTarget,sourceSave=context.sourceSave;
  marketStrategyResults=null;
  marketStrategyProgress='시드 분석 및 탐색 준비 중…';
  try{
