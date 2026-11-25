@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 'use strict';
 const assert=require('node:assert/strict');
-const {FIRST,SECOND,THIRD,fromRolls,bossRoll,negBinomQuantile,forecastBanditHunts}=require('./qingcheng-enemy-formation.cjs');
+const {FIRST,SECOND,THIRD,RNG_SOURCE,fromRolls,bossRoll,negBinomQuantile,forecastBanditHunts}=require('./qingcheng-enemy-formation.cjs');
+assert.equal(RNG_SOURCE.aliasVerified,true);
+assert.equal(RNG_SOURCE.nativeRngStateInSaveVerified,false);
 assert.deepEqual(FIRST,[32950,32951,32952]);
 assert.deepEqual(SECOND,[32951,32952,32953]);
 assert.deepEqual(THIRD,[32951,32952,32953]);
@@ -9,6 +11,7 @@ const a=fromRolls({first:1,second:2,third:3});
 assert.deepEqual(a.npcIds,[32950,32952,32953]);
 assert.deepEqual(a.names,['산적','유적','탈영병']);
 assert.equal(a.bandits,1);assert.equal(a.jhRandomCalls,3);
+assert.match(a.rngSource,/math.jhrandom/);
 const b=fromRolls({first:3,second:1,boss:true});
 assert.deepEqual(b.npcIds,[32952,32951,32954]);
 assert.equal(b.bandits,0);assert.equal(b.jhRandomCalls,2);
@@ -31,6 +34,8 @@ assert.equal(f.medianBattles,29);
 assert.deepEqual(f.percentile90,[19,44]);
 assert.deepEqual(f.percentile95,[17,47]);
 assert.equal(f.actualFutureBanditSchedule,null);
+assert.equal(f.sourceAliasVerified,true);
+assert.match(f.sourceRng,/os.time/);
 assert.equal(f.exact7209AwardConfirmed,false);
 assert.equal(negBinomQuantile(1,.5),2);
 console.log('PASS source three-slot Qingcheng roster, 1/3 bandit chance and exact negative-binomial quantiles');
