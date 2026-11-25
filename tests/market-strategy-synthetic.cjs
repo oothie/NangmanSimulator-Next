@@ -118,6 +118,44 @@ for(const objective of ['free','cheapest','fastest']){
   assert.equal(workerResult.plans[objective].nativeReplayChecked,true,
    objective+' route must pass native replay');
 }
+// Synthetic stock-cap regression. No account values or player-derived seeds.
+const targetTemplate=catalog.shops.guishi.find(x=>x.rare===1&&x.weight>0)
+ ||catalog.shops.guishi[0];
+const stockTarget={...targetTemplate,stock:2,weight:80,weightGold:80};
+const fillers=catalog.shops.guishi.filter(x=>x.id!==stockTarget.id).slice(0,15)
+ .map(item=>({...item,stock:null,weight:1,weightGold:1}));
+const stockCatalog={...catalog,shops:{...catalog.shops,
+ guishi:[stockTarget,...fillers]}};
+const stockSave={RandShop:{Time:now,Fresh:0,Lucky:0,Buy:60,Counts:[],
+ Items:[{ID:stockTarget.id,Buyed:0}]},
+ Rnds:{Sds:{guishishop:12345}}};
+const stockPlanner=api.predict(stockSave,stockCatalog,now,{slots:6});
+for(const quantity of [1,2,3]){
+ for(const mode of ['free','cheapest','fastest']){
+  const route=stockPlanner.searchStrategy([stockTarget.id],{
+   mode,vip:3,quantity,periods:3,maxStates:5500
+  });
+  if(quantity<=2){
+   assert(route.found,'the synthetic stock target must be reachable');
+   const audited=stockPlanner.auditStrategy(route,{
+    target:stockTarget.id,quantity,vip:3
+   });
+   assert(audited.nativeReplayChecked,
+    'limited stock must be verified against native purchase events');
+  }else assert.equal(route.found,false,'stock cap must reject 3rd purchase');
+ }
+}
+const catalogSnapshot=JSON.stringify(stockCatalog.shops.guishi);
+const stockEvents=api.replayKoreanClientEvents(stockSave,stockCatalog,[
+ {kind:'purchase',at:now,item:stockTarget.id},
+ {kind:'paid',at:now+1},
+ {kind:'purchase',at:now+1,item:stockTarget.id},
+ {kind:'paid',at:now+2}
+],{slots:6});
+assert(!stockEvents.items.includes(stockTarget.id),
+ 'purchased-out item must leave next rotation pool');
+assert.equal(JSON.stringify(stockCatalog.shops.guishi),catalogSnapshot,
+ 'native replay must not mutate shared catalog data');
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
