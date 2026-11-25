@@ -88,6 +88,36 @@ const freeOnly=market.searchStrategy([target],{
 });
 assert.equal(freeOnly.paid||0,0,'free route must spend no jade');
 if(freeOnly.found)assert.equal(cheapest.cost,0,'minimum-jade must use a free route when available');
+// Execute the real strategy Worker on synthetic input to verify it returns
+// all independent route objectives and their native event audit results.
+const workerMessages=[];
+const workerSandbox={
+ postMessage:msg=>workerMessages.push(msg),
+ importScripts:(...scripts)=>{
+  for(const ref of scripts){
+   const file=ref.split('?')[0].startsWith('./')?
+    'engine/'+ref.split('?')[0].slice(2):
+    ref.split('?')[0].replace(/^\.\.\//,'');
+   vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),workerContext,{filename:file});
+  }
+ }
+};
+workerSandbox.self=workerSandbox;
+const workerContext=vm.createContext(workerSandbox);
+vm.runInContext(fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8'),
+ workerContext,{filename:'engine/market-strategy-worker.js'});
+workerContext.self.onmessage({data:{type:'calculate',requestId:'synthetic',
+ save:fixture,anchor:now,slots:6,vip:0,target,quantity:1,periods:2,maxStates:15000}});
+const workerError=workerMessages.find(x=>x.type==='error');
+assert.equal(workerError,undefined,workerError?.message);
+const workerResult=workerMessages.find(x=>x.type==='result');
+assert(workerResult,'strategy Worker must emit a completed result');
+for(const objective of ['free','cheapest','fastest']){
+ assert(workerResult.plans[objective],objective+' route must be present');
+ if(workerResult.plans[objective].found)
+  assert.equal(workerResult.plans[objective].nativeReplayChecked,true,
+   objective+' route must pass native replay');
+}
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
