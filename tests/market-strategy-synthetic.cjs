@@ -232,6 +232,75 @@ for(let n=0;n<16;n++){
    'earliest finish time must match exhaustive event reference');
  }
 }
+// Independent reference across the 05:00 allowance reset, including
+// three-copy stock and the lowest jade cost among equally early completions.
+const resetItems=catalog.shops.guishi.slice(0,18).map((item,i)=>({
+ ...item,stock:i===1?3:null,weight:10,weightGold:10,rare:i===1?1:0
+}));
+const resetTarget=resetItems[1].id;
+const resetCatalog={...catalog,shops:{...catalog.shops,guishi:resetItems}};
+const resetFirst=api.nextHalfDay(now),resetSecond=resetFirst+43200,
+ resetThird=resetSecond+43200;
+const resetAt=(api.resetDay(now)+1)*86400-14400;
+function exhaustiveWithDailyReset(save,quantity){
+ let lowestCost=null,earliest=null;
+ for(let before=0;before<=3;before++)
+ for(let early=0;early<=3-before;early++)
+ for(let late=0;late<=3-before-early;late++)
+ for(let afterReset=0;afterReset<=3;afterReset++)
+ for(let afterThird=0;afterThird<=3-afterReset;afterThird++){
+  const events=[];let paidCount=0,obtained=0,complete=false;
+  function advance(kind,at){
+   if(complete)return;
+   events.push({kind,at});
+   const draw=api.replayKoreanClientEvents(save,resetCatalog,events,{slots:6});
+   if(kind!=='daily-reset'&&draw.items.includes(resetTarget)){
+    events.push({kind:'purchase',at,item:resetTarget});
+    if(++obtained===quantity){
+     complete=true;const entry={time:at,cost:paidCount*20};
+     if(!lowestCost||entry.cost<lowestCost.cost||
+        entry.cost===lowestCost.cost&&entry.time<lowestCost.time)lowestCost=entry;
+     if(!earliest||entry.time<earliest.time||
+        entry.time===earliest.time&&entry.cost<earliest.cost)earliest=entry;
+    }
+   }
+  }
+  for(let j=0;j<before;j++){paidCount++;advance('paid',now)}
+  advance('open',resetFirst);
+  for(let j=0;j<early;j++){paidCount++;advance('paid',resetFirst)}
+  advance('open',resetSecond);
+  for(let j=0;j<late;j++){paidCount++;advance('paid',resetSecond)}
+  advance('daily-reset',resetAt);
+  for(let j=0;j<afterReset;j++){paidCount++;advance('paid',resetAt)}
+  advance('open',resetThird);
+  for(let j=0;j<afterThird;j++){paidCount++;advance('paid',resetThird)}
+ }
+ return {lowestCost,earliest};
+}
+for(const syntheticSeed of [13579,13581,13583,13585]){
+ const input={RandShop:{Time:now,Fresh:0,Lucky:0,Buy:60,Counts:[],Items:[]},
+  Rnds:{Sds:{guishishop:syntheticSeed}}};
+ const predict=api.predict(input,resetCatalog,now,{slots:6});
+ for(const count of [1,2,3]){
+  const optimal=exhaustiveWithDailyReset(input,count);
+  const cheapest=predict.searchStrategy([resetTarget],{
+   mode:'cheapest',quantity:count,vip:0,periods:3,maxStates:120000
+  });
+  const fastest=predict.searchStrategy([resetTarget],{
+   mode:'fastest',quantity:count,vip:0,periods:3,maxStates:120000
+  });
+  assert.equal(cheapest.found?cheapest.cost:null,optimal.lowestCost?.cost??null,
+   'daily-reset minimum jade must match exhaustive reference');
+  assert.equal(fastest.found?fastest.when:null,optimal.earliest?.time??null,
+   'daily-reset earliest finish must match exhaustive reference');
+  if(optimal.earliest)
+   assert.equal(fastest.cost,optimal.earliest.cost,
+    'equally fast plans must choose the lowest jade cost');
+  if(fastest.found)assert(predict.auditStrategy(fastest,{
+   target:resetTarget,quantity:count,vip:0
+  }).nativeReplayChecked);
+ }
+}
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
