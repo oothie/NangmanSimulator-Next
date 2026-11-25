@@ -135,61 +135,6 @@ export function originalConsumerRule(npc,item){
 export function specialRewardName(itemId){
  return rewardLabel(itemId);
 }
-/* Original SBC contains a conditional recovery branch for the flag value 2.
- * This is exposed as an explicit event, never blindly repeated each clear:
- * triggering recovery on every following visit would fabricate cancellations.
- */
-export function restoreOriginalPendingAward(state, npc, item){
- const row=originalConsumerRule(npc,item);
- if(!row)return {applied:false,reason:'원본 지급 함수 미확인'};
- const action=row.rb;
- if(!action||known(state[row.f])!==action.ifFlagEquals)
-  return {applied:false,reason:'복구 분기 조건 불충족'};
- state[row.f]=action.resetFlagTo;
- const update=action.counterUpdate;
- if(update){
-  if(update.operation==='AddP')state[update.key]=known(state[update.key])+update.value;
-  else if(update.operation==='SetP')state[update.key]=update.value;
-  else throw Error('알 수 없는 원본 복구 연산');
- }
- return {applied:true,rule:ruleKey(row),counter:update?.key||null};
-}
-/* Battle-loss branch source contract. The 54506 V174 boss SBC places
- * rollback SetP/AddP under an explicit 'lost' event before general_win.
- * This function is never automatically called after a successful clear.
- * A caller must supply evidence that the battle-loss branch executed.
- * Unknown/unsupported consumer rollbacks are left untouched.
- */
-export function applyOriginalBattleLoss(save,npc,{
- includeUnverifiedWhaleRollback=false
-}={}){
- const boss=Number(npc);
- const draft=copySave(save);
- draft.globalVariable=draft.globalVariable||{};
- const effects=[],excluded=[];
- for(const rule of SPECIAL_CONSUMER_RULES.filter(r=>r.n===boss)){
-  if(!rule.rb)continue;
-  // In 54506 the rollback is inside the verified lost event. For the
-  // separately recovered Whale consumer only the rollback CONDITION was
-  // extracted, not the enclosing event's run-time trigger. Never silently
-  // classify it as a 60014 battle-loss action.
-  if(rule.originArchive!=='54506-original'&&!includeUnverifiedWhaleRollback){
-   if(known(draft.globalVariable[rule.f])===rule.rb.ifFlagEquals)
-    excluded.push({npc:boss,itemId:rule.i,
-     reason:'Whale 복구 실행 이벤트 확인 전'});
-   continue;
-  }
-  const applied=restoreOriginalPendingAward(draft.globalVariable,boss,rule.i);
-  if(applied.applied)effects.push({
-   npc:boss,itemId:rule.i,name:rewardLabel(rule.i),
-   flag:rule.f,rollback:rule.rb,counter:applied.counter,
-   sourceVerifiedLostBranch:rule.originArchive==='54506-original'
-  });
- }
- return {nextState:draft,lossEvent:true,npc:boss,effects,excluded,
-  changed:effects.length,unverified:excluded.length,
-  unsupported:!SPECIAL_CONSUMER_RULES.some(r=>r.n===boss)};
-}
 function consumerGuard(rule,state,tempState,numericState){
  const numeric=SOURCE_NUMERIC_GUARDS[ruleKey(rule)];
  if(numeric){
@@ -308,114 +253,12 @@ export function evaluateSpecialAwards(save,producers,{
  }
  return {mode,events,counters,tempCounters:temp,unresolved:events.filter(e=>e.unresolved).length};
 }
-/* Do NOT treat the actual save's previous drop_* values as fresh awards.
- * Only the supplied per-clear producer outcomes are consumed. The resulting
- * state continues across all clears with award counters carried forward.
- */
-export function forecastSpecialAwards(save,clears,{
- mode='current',tempState=null,numericState=null,numericAfterGrant='unknown',
- tempLifetime='unknown'
-}={}){
- if(!['unknown','retained'].includes(numericAfterGrant))
-  throw Error('원본 숫자형 GetP 보유 변화 가정이 올바르지 않습니다.');
- if(!['unknown','persist','reset'].includes(tempLifetime))
-  throw Error('원본 temp 변수 회차 간 유지 가정이 올바르지 않습니다.');
- if(!Array.isArray(clears))throw Error('관문 결과 배열이 필요합니다.');
- const base=specialScenario(save,mode);
- const state={...base.globalVariable};
- let temp=tempState==null?null:{...tempState};
- const numeric=inferredNumeric(save,mode,numericState);
- const numericGuardOrigin=numericState!=null?'명시적 숫자형 상태':
-  numeric==null?'원본 상태 미확정':
-  mode==='never_claimed'||mode==='fresh'?'미획득 가상 보유량':
-  '세이브 인벤토리 기반 추정';
- const result=[];
- for(const one of clears){
-  const out=evaluateSpecialAwards({globalVariable:state},one,{
-   mode:'current',tempState:temp,numericState:numeric,
-   numericGuardOrigin
-  });
-  Object.assign(state,out.counters);
-  // Preserve the native temp-scoped payout state, not global get_* values.
-  temp=out.tempCounters;
-  // Original GetP(...,'temp') is scoped, not a global persisted save.
-  // With no native proof of its lifetime, never propagate a known value to
-  // later gate clears. 'persist' and 'reset' are explicit counterfactuals.
-  if(tempLifetime==='unknown')temp=null;
-  else if(tempLifetime==='reset'&&temp)temp=Object.fromEntries(
-   Object.keys(temp).map(key=>[key,0]));
-  if(numeric&&out.events.some(event=>
-    event.npc===35221&&event.itemId===3970&&event.predicted)){
-   // Source confirmed a newly awarded key, but not how numeric GetP(3970)
-   // is mutated by the inventory/quest consumer. Do not invent its value.
-   numeric[3970]=numericAfterGrant==='retained'?1:null;
-  }
-  result.push(out.events);
- }
- return {mode,clears:result,counters:state,tempState:temp,numericState:numeric,
-  unresolved:result.flat().filter(e=>e.unresolved).length};
-}
-
 const NPC_BY_GATE=Object.freeze({
  '연왕부':{'이총관':33654,'하상':33653,'엽내관':33652,'연왕':33650},
  '창옥':{'무준신':40372,'이장':40373,'장정':40374},
  '벽유교':{'독선생':35219,'미':35214,'불로선인':35221},
  '유씨별원':{'윤무':35260,'고리':35264,'이뢰운':35268}
 });
-/* Adapter for the four original entry producer replay functions. A caller
- * supplies the producer engine (not a fixed list of known outcomes), allowing
- * the two ownership scenarios to be calculated from the same native game data.
- * The adapter never modifies a deployed engine, a source save or a seed.
- */
-export function forecastSpecialsFromProducer(save,gate,producer,clears,{
- mode='current',keyMode=null,tempState=null,numericState=null,
- numericAfterGrant='unknown',tempLifetime='unknown'
-}={}){
- if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
- const bosses=NPC_BY_GATE[gate];
- if(!bosses)throw Error('출시된 4개 관문만 지원합니다.');
- const scenario=specialScenario(save,mode);
- // Numeric GetP(8915) is an ownership guard, not a get_* claim counter.
- // In an all-unclaimed what-if the key is assumed absent by default, but a
- // caller can choose a specific keep/use scenario explicitly.
- const ownershipMode=keyMode??(mode==='current'?'auto':'absent');
- const replay=producer(scenario,clears,ownershipMode);
- if(!Array.isArray(replay?.output))throw Error('원본 관문 재생 결과가 없습니다.');
- const trace=replay.output.map(clear=>{
-  if(!Array.isArray(clear?.results))throw Error('원본 보스별 추첨 정보 누락');
-  return clear.results.map(row=>{
-   const npc=bosses[row.boss];
-   if(!npc)throw Error('원본 보스 정보 누락');
-   if(!Array.isArray(row.specialIds))throw Error('원본 특수 추첨 기록 누락');
-   return {npc,specialIds:row.specialIds};
-  });
- });
- const grants=forecastSpecialAwards(scenario,trace,{
-  mode:'current',tempState,
-  numericState:inferredNumeric(save,mode,numericState),
-  numericAfterGrant,tempLifetime
- });
- const first=new Map();
- for(let i=0;i<grants.clears.length;i++){
-  for(const event of grants.clears[i]){
-   if(!event.predicted)continue;
-   const key=event.npc+':'+event.itemId;
-   if(!first.has(key))first.set(key,{
-    npc:event.npc,itemId:event.itemId,name:event.name,
-    clear:replay.output[i]?.clear??i+1,quantity:event.quantity
-   });
-  }
- }
- return {gate,mode,output:replay.output,
-  grants:grants.clears,firstPredicted:[...first.values()],
-  unresolved:grants.unresolved,ownershipMode,
-  // Claim-count zeroing alone cannot reconstruct a different quest history:
-  // a future gate/key unlock may also depend on independent branch flags.
-  questHistoryAssumedUnchanged:mode!=='current',
-  // Preserve native-producer uncertainty rather than calling this verified.
-  conditional:true};
-}
-
 /* Integrated per-clear source replay. This is separate from the legacy
  * precomputed trace replay: the successful consumer's get_* updates and
  * original flag transitions are fed into the next producer invocation.
@@ -507,62 +350,4 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
   conditional:true,questHistoryAssumedUnchanged:mode!=='current',
   nextState:state,tempState:temp,numericState:numeric,
   unresolved:rows.reduce((sum,row)=>sum+row.unresolved,0)};
-}
-
-/* Compare source-preserving actual history with two distinct counterfactuals.
- * This deliberately returns earliest award in three scenarios, not an
- * assertion that the saved game's unknown earlier story state is recoverable.
- * The producer replays from its OWN clean clone in each scenario.
- */
-export function compareSpecialClaimHistories(save,gate,producer,clears,opts={}){
- const byMode={};
- for(const mode of ['current','unclaimed','never_claimed']){
-  const replay=forecastInterleavedSpecials(save,gate,producer,clears,{
-   ...opts,mode
-  });
-  const first=new Map(replay.firstPredicted.map(e=>[
-   e.npc+':'+e.itemId,e.clear]));
-  byMode[mode]={firstAwards:replay.firstPredicted,
-   firstByItem:Object.fromEntries(first),
-   searchedClears:replay.searchedClears,
-   incomplete:replay.incomplete,unresolved:replay.unresolved};
- }
- const keys=new Set(Object.values(byMode).flatMap(item=>
-  Object.keys(item.firstByItem)));
- const differences=[...keys].map(key=>({
-  rule:key,
-  current:byMode.current.firstByItem[key]??null,
-  unclaimedCountOnly:byMode.unclaimed.firstByItem[key]??null,
-  neverClaimedWithFlagsReset:byMode.never_claimed.firstByItem[key]??null
- }));
- return {gate,byMode,differences,
-  gameProgressPreserved:true,
-  counterfactualNotHistoricalProof:true};
-}
-
-/* Release gate: reject promotion of this laboratory model to a native 60014
- * guaranteed predictor while even one source or state transition lacks
- * cross-version evidence. It returns a machine-readable audit, not a
- * fabricated 'verified' status for a synthetically passing regression.
- */
-export function specialEngineReleaseReadiness(){
- const missingNative=SPECIAL_CONSUMER_RULES.filter(r=>
-  r.native60014Parity!=='verified').map(r=>({
-    npc:r.n,itemId:r.i,name:rewardLabel(r.i),source:r.origin,
-    reason:'한국판 60014 원본 지급 함수 동등성 미확인'
-   }));
- const unresolvedTransitions=[
-  {gate:'유씨별원',itemId:8801,reason:"get_8801 temp 변수 수명 미확정"},
-  {gate:'유씨별원',itemId:8915,reason:'get_8915 순방향 카운터 증감 미검증'},
-  {gate:'유씨별원',itemId:8915,reason:'Whale 복구 이벤트의 실행 조건 미검증'},
-  {gate:'벽유교',itemId:3970,reason:'숫자형 GetP(3970) 지급 이후 보유 변화 미검증'}
- ];
- return {
-  ready:missingNative.length===0&&unresolvedTransitions.length===0,
-  totalRules:SPECIAL_CONSUMER_RULES.length,
-  native60014Verified:SPECIAL_CONSUMER_RULES.length-missingNative.length,
-  native60014Unknown:missingNative,
-  transitionUnknown:unresolvedTransitions,
-  onlySyntheticRegressionsAreNotProof:true
- };
 }
