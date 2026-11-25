@@ -118,6 +118,31 @@ for(const objective of ['free','cheapest','fastest']){
   assert.equal(workerResult.plans[objective].nativeReplayChecked,true,
    objective+' route must pass native replay');
 }
+// If a synthetic free route exists, minimum paid-refresh cost is provably zero.
+// The Worker must reuse the audited route instead of searching a second time.
+workerMessages.length=0;
+const freeTarget=market.timed(1)[0].items[0].id;
+workerContext.self.onmessage({data:{type:'calculate',requestId:'free-shortcut',
+ save:fixture,anchor:now,slots:6,vip:0,target:freeTarget,quantity:1,
+ periods:2,maxStates:15000}});
+const freeError=workerMessages.find(x=>x.type==='error');
+assert.equal(freeError,undefined,freeError?.message);
+const freeResult=workerMessages.find(x=>x.type==='result');
+assert(freeResult,'free-target Worker must return all strategy objectives');
+assert.equal(freeResult.plans.free.found,true);
+assert.equal(freeResult.plans.cheapest.cost,0);
+assert.equal(freeResult.plans.cheapest.verifiedMinimumCost,true,
+ 'zero-cost audited free route must bypass paid search');
+assert.equal(freeResult.plans.cheapest.nativeReplayChecked,true);
+assert.equal(freeResult.plans.cheapest.mode,'free',
+ 'keep free-mode event timeline valid for audit');
+// Daily paid allowance is reset at 05:00 KST for every VIP level.
+for(let vip=0;vip<api.VIP_REFRESH.length;vip++){
+ const allowance=market.paidAllowance(vip);
+ assert.equal(allowance.max,api.VIP_REFRESH[vip]);
+ assert.equal(allowance.left,api.VIP_REFRESH[vip]);
+ assert.equal(api.resetDay(api.nextHalfDay(now)),api.resetDay(api.nextHalfDay(now)));
+}
 // Synthetic stock-cap regression. No account values or player-derived seeds.
 const targetTemplate=catalog.shops.guishi.find(x=>x.rare===1&&x.weight>0)
  ||catalog.shops.guishi[0];
