@@ -58,10 +58,53 @@
     "JHRandomBranches": "calls math.jhrandom when available, else math.random",
     "moduleInitializerPrototype": 79,
     "moduleInitializer": "math.randomseed(os.time())",
-    "mathJhrandomNativeRuntimeAndSeedPersistenceVerified": false
+    "mathJhrandomNativeRuntimeAndSeedPersistenceVerified": false,
+    "mathJhrandomIsAliasedOriginalMathRandomAfterJHConfig": true,
+    "nativeNamedJhrandomRegistrationRequired": false
   },
   "explicitBanditSlotChance": "1 / 3 under uniform JHRandom",
   "noBanditInExplicitSecondThirdChoices": true,
   "exactFutureSpawnScheduleVerified": false,
-  "gameSaveOrUserSeedIncluded": false
+  "gameSaveOrUserSeedIncluded": false,
+  "jhConfig": {
+    "sha256": "52a94fa94f3ee0f28911610c352c8ee3db76f7eaec0c47127459b4e8197dadb8",
+    "prototype": 20,
+    "nativeAliasRandomseed": {
+      "pc": [
+        865,
+        870
+      ],
+      "assignment": "math.jhrandomseed=math.randomseed"
+    },
+    "nativeAliasRandom": {
+      "pc": [
+        871,
+        876
+      ],
+      "assignment": "math.jhrandom=math.random"
+    },
+    "whaleSeedOverride": {
+      "pc": [
+        877,
+        880
+      ],
+      "assignment": "math.randomseed=JHCommonUtils.setWhaleSeed closure"
+    },
+    "whaleRandomOverride": {
+      "pc": [
+        881,
+        884
+      ],
+      "assignment": "math.random=JHCommonUtils.getWhaleRand closure"
+    },
+    "initialization": {
+      "pc": [
+        885,
+        900
+      ],
+      "semantics": "math.randomseed(os.time()); math.jhrandomseed(os.time())"
+    },
+    "serializedJHRandomGlobalStateProven": false
+  },
+  "exactFutureFormationRecoverableFromAidrop70": false
 }
