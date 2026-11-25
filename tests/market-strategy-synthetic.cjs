@@ -508,7 +508,7 @@ for(const stocklessSeed of [12345,13579,97531,24680,44444,78945,24681]){
 // Browser-facing recovery: stale but valid saves must simulate from their
 // actual saved shop timestamp, never by guessing missed client sessions.
 const indexSource=fs.readFileSync(path.join(root,'index.html'),'utf8');
-const forecastStart=indexSource.indexOf('function marketForecastContext(){');
+const forecastStart=indexSource.indexOf('function marketEffectiveSlots(){');
 const forecastEnd=indexSource.indexOf('function dailyMarketView(){',forecastStart);
 assert(forecastStart>=0&&forecastEnd>forecastStart,'site forecast context must exist');
 const contextSource=indexSource.slice(forecastStart,forecastEnd);
