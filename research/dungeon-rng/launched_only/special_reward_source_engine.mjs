@@ -152,13 +152,17 @@ const NPC_BY_GATE=Object.freeze({
  * The adapter never modifies a deployed engine, a source save or a seed.
  */
 export function forecastSpecialsFromProducer(save,gate,producer,clears,{
- mode='current',keyMode='auto',tempState=null
+ mode='current',keyMode=null,tempState=null
 }={}){
  if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
  const bosses=NPC_BY_GATE[gate];
  if(!bosses)throw Error('출시된 4개 관문만 지원합니다.');
  const scenario=specialScenario(save,mode);
- const replay=producer(scenario,clears,keyMode);
+ // Numeric GetP(8915) is an ownership guard, not a get_* claim counter.
+ // In an all-unclaimed what-if the key is assumed absent by default, but a
+ // caller can choose a specific keep/use scenario explicitly.
+ const ownershipMode=keyMode??(mode==='current'?'auto':'absent');
+ const replay=producer(scenario,clears,ownershipMode);
  if(!Array.isArray(replay?.output))throw Error('원본 관문 재생 결과가 없습니다.');
  const trace=replay.output.map(clear=>{
   if(!Array.isArray(clear?.results))throw Error('원본 보스별 추첨 정보 누락');
@@ -183,7 +187,10 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
  }
  return {gate,mode,output:replay.output,
   grants:grants.clears,firstPredicted:[...first.values()],
-  unresolved:grants.unresolved,
+  unresolved:grants.unresolved,ownershipMode,
+  // Claim-count zeroing alone cannot reconstruct a different quest history:
+  // a future gate/key unlock may also depend on independent branch flags.
+  questHistoryAssumedUnchanged:mode!=='current',
   // Preserve native-producer uncertainty rather than calling this verified.
   conditional:true};
 }
