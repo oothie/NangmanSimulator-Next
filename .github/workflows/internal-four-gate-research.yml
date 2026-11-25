@@ -30,5 +30,7 @@ jobs:
         run: node research/mask-drop/test-validate-weight-hypotheses.cjs
       - name: Verify original LuaJIT literal weight tables and dynamic-pool guards
         run: node research/mask-drop/test-original-60014-weight-tables.cjs
+      - name: Verify one-percent leading hypothesis with optional stage-two branch
+        run: node research/mask-drop/test-replay-one-percent-prior.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
