@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+'use strict';
+const assert=require('node:assert/strict');
+const {draw}=require('../dungeon-lab/mask-7209-conditional.cjs');
+const {firstHits,plan,verifyFutureFormationRows}=require('./qingcheng-mask-planner.cjs');
+const original={Rnds:{Sds:{aidrop70:173827}}};
+const hits=firstHits(173827,{maxDraws:500});
+assert(hits.length>0);
+const first=hits[0];
+const output=plan(original,{observed:[{bandits:0,otherEnemies:3},{bandits:1,otherEnemies:2}],maxDraws:500});
+assert.deepEqual(output.observedBanditCounts,[0,1]);
+assert.equal(output.observedLevel70Bandits,1);
+assert.equal(output.observedFights,2);
+assert.equal(output.nextCandidateAidrop70Index,first-1);
+assert.equal(output.level70DrawsBeforeNextCandidate,first-2);
+assert.equal(output.futureBattleBanditCounts,null);
+assert.equal(output.nativeFormationGeneratorVerified,false);
+assert.equal(output.stageTwoAwardVerified,false);
+assert.equal(output.exactMaskDropGuaranteed,false);
+assert.equal(output.privateInputsReported,false);
+assert(!JSON.stringify(output).includes('173827'));
+assert.deepEqual(original,{Rnds:{Sds:{aidrop70:173827}}});
+assert.throws(()=>plan(original,{observed:[{bandits:-1}]}),/battle/);
+assert.throws(()=>plan(original,{observed:[{bandits:21}]}),/battle/);
+assert.throws(()=>plan(original,{observed:[{bandits:2,otherEnemies:19}]}),/20 enemies/);
+assert.throws(()=>plan({Rnds:{Sds:{}}}),/aidrop70/);
+assert.deepEqual(verifyFutureFormationRows([{bandits:0},{bandits:2}]),[{bandits:0},{bandits:2}]);
+console.log('PASS source-aware 2-fight Qingcheng ledger and future unknown-spawn guard');
