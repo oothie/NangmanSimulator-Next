@@ -737,4 +737,49 @@ for(const buyAtMorning of [true,false]){
 assert(page.includes("const groupedSteps=[]")&&
  page.includes("'원보 갱신 '+x.repeat+'회"),
  'consecutive verified paid draws should be grouped in the UI');
+// Interactive preview: paid allowance must reset at 05:00 after advancing
+// to the next 08:00 free refresh; the future 60-step preview cannot change
+// the currently available allowance. All fixtures are synthetic.
+const timelineStart=page.indexOf('function marketSimulatedTimeline(');
+const timelineEnd=page.indexOf('function dailyMarketView()',timelineStart);
+assert(timelineStart>=0&&timelineEnd>timelineStart);
+const timelineScript=page.slice(timelineStart,timelineEnd)+
+ '\nreturn marketSimulatedTimeline(context,0,60);';
+const timelineFn=new Function('window','marketSimActions','context',timelineScript);
+const timelineNow=morningTime('21:50');
+const nextFive=timelineNow+7*3600+10*60;
+const nextEight=nextFive+3*3600;
+const syntheticFull={
+ RandShop:{Time:timelineNow,Fresh:3,Lucky:0,Buy:60,Counts:[],Items:[]},
+ Rnds:{Sds:{guishishop:12345}}
+};
+const fullState=api.predict(syntheticFull,catalog,timelineNow,{slots:6});
+const fullContext={state:fullState,anchor:timelineNow,sourceSave:syntheticFull};
+const simulate=actions=>timelineFn(sandbox.window,actions,fullContext);
+const beforeAdvance=simulate([]);
+assert.equal(beforeAdvance.paidLeft,0,'paid allowance exhausted before 05:00');
+const afterAdvance=simulate(['auto']);
+assert.equal(afterAdvance.paidLeft,3,'08:00 free refresh should reset VIP 0 quota at 05:00');
+assert.equal(afterAdvance.autoCount,1);
+assert.equal(afterAdvance.time,nextEight);
+const afterPaid=simulate(['auto','paid']);
+assert.equal(afterPaid.paidLeft,2,'newly refreshed allowance must decrease after paid draw');
+assert.equal(afterPaid.paidCount,1);
+const independentPaid=api.replayKoreanClientEvents(syntheticFull,catalog,[
+ {kind:'daily-reset',at:nextFive},
+ {kind:'open',at:nextEight},
+ {kind:'paid',at:nextEight}
+],{slots:6});
+assert.deepEqual(Array.from(afterPaid.items,x=>x.id),Array.from(independentPaid.items));
+const afterEvening=simulate(['auto','paid','auto']);
+assert.equal(afterEvening.paidLeft,2,'20:00 free refresh must not reset 05:00 quota');
+assert.equal(afterEvening.autoCount,2);
+const sixty=simulate(Array(60).fill('auto'));
+assert.equal(sixty.autoCount,60,'30 days of free redraws must be supported');
+assert.equal(sixty.preview.length,60,'60 more upcoming redraws must be previewable');
+assert.equal(sixty.paidLeft,3,'previewed future resets must not affect cursor allowance');
+const allActions=simulate(Array(61).fill('auto'));
+assert.equal(allActions.autoCount,60,'interactive free redraws cap at 60');
+assert(page.includes('[3,6,9,12,30,60].map(x=>'),
+ 'free-refresh forecast range must offer 30 and 60 entries');
 console.log('PASS synthetic market RNG, stale-save safeguards, and aligned cache keys');
