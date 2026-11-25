@@ -1,0 +1,545 @@
+{
+  "description": "Source TDUP/TSET modelPairsOrder: candidate LuaJIT 2.1 beta3 traversal, not native observed",
+  "nativePairsIndependentlyVerified": false,
+  "records": [
+    {
+      "gate": "연왕부",
+      "npc": 33650,
+      "items": [
+        4009,
+        4209,
+        4409,
+        4609,
+        4809,
+        5009,
+        5209,
+        5409,
+        5609
+      ],
+      "maxSlot": 9,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          5,
+          4
+        ],
+        [
+          44,
+          1
+        ],
+        [
+          16,
+          3
+        ],
+        [
+          45,
+          2
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "연왕부",
+      "npc": 33652,
+      "items": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "maxSlot": 5,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          10,
+          "miss"
+        ],
+        [
+          40,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "연왕부",
+      "npc": 33653,
+      "items": [
+        4409,
+        4809,
+        5009,
+        5209,
+        5609
+      ],
+      "maxSlot": 5,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "연왕부",
+      "npc": 33654,
+      "items": [
+        4209,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "maxSlot": 5,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "벽유교",
+      "npc": 35214,
+      "items": [
+        4809,
+        5009,
+        5209,
+        5409
+      ],
+      "maxSlot": 4,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "벽유교",
+      "npc": 35219,
+      "items": [
+        4409,
+        4209,
+        4009,
+        4609
+      ],
+      "maxSlot": 4,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "벽유교",
+      "npc": 35221,
+      "items": [
+        4009,
+        4209,
+        4409,
+        4609,
+        4809,
+        5009,
+        5209,
+        5409,
+        5609
+      ],
+      "maxSlot": 4,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "유씨별원",
+      "npc": 35260,
+      "items": [
+        5609,
+        5409,
+        5009
+      ],
+      "maxSlot": 3,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          40,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          40,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "유씨별원",
+      "npc": 35264,
+      "items": [
+        4809,
+        5209,
+        5609,
+        5409
+      ],
+      "maxSlot": 4,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "유씨별원",
+      "npc": 35268,
+      "items": [
+        4609,
+        4409,
+        4209,
+        4009
+      ],
+      "maxSlot": 4,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "창옥",
+      "npc": 40372,
+      "items": [
+        4609,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "maxSlot": 5,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "창옥",
+      "npc": 40373,
+      "items": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "maxSlot": 5,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    },
+    {
+      "gate": "창옥",
+      "npc": 40374,
+      "items": [
+        4009,
+        4809,
+        5009,
+        5409,
+        5609
+      ],
+      "maxSlot": 5,
+      "equipment": [
+        [
+          50,
+          "equipment"
+        ],
+        [
+          50,
+          "miss"
+        ]
+      ],
+      "color": [
+        [
+          30,
+          2
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          50,
+          1
+        ],
+        [
+          15,
+          3
+        ]
+      ],
+      "nativePairsObserved": false
+    }
+  ]
+}
