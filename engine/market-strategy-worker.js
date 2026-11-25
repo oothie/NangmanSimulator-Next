@@ -6,14 +6,7 @@ self.onmessage=event=>{
  const m=event.data||{};
  if(m.type!=='calculate')return;
  try{
-  const prefixPaid=Number(m.prefixPaid||0);
-  // The user can start after a confirmed 1st, 2nd, ... refresh without
-  // uploading a new save. Replay them privately inside this browser Worker.
-  const startingSave=self.NangmanMarket.afterPaidRefreshes(
-   m.save,self.DAILY_DATA,prefixPaid,
-   {at:m.anchor,slots:m.slots,vip:m.vip});
-  const state=self.NangmanMarket.predict(
-   startingSave,self.DAILY_DATA,m.anchor,{slots:m.slots});
+  const state=self.NangmanMarket.predict(m.save,self.DAILY_DATA,m.anchor,{slots:m.slots});
   const options={vip:m.vip,quantity:m.quantity,periods:m.periods,maxStates:m.maxStates||300000};
   self.postMessage({type:'progress',requestId:m.requestId,expanded:0,
    limit:options.maxStates,stage:'전체 수량 구매 경로 탐색 중'});
@@ -31,7 +24,7 @@ self.onmessage=event=>{
   const expanded={...options,periods:forecastPeriods};
   const free=state.auditStrategy(state.searchStrategy([m.target],{...expanded,mode:'free'}),{target:m.target,quantity:m.quantity,vip:m.vip});
   self.postMessage({type:'candidate',requestId:m.requestId,
-   plans:{free,candidate},forecastPeriods,prefixPaid});
+   plans:{free,candidate},forecastPeriods});
   // A verified free-only route spends zero jade; no paid route can improve
   // its cost. Keep its original 'free' mode for faithful native event auditing.
   let cheapest;
@@ -51,7 +44,7 @@ self.onmessage=event=>{
    onProgress:p=>self.postMessage({type:'progress',requestId:m.requestId,...p,
     stage:'최단 기간 증명 탐색 중'})}),{target:m.target,quantity:m.quantity,vip:m.vip});
   self.postMessage({type:'result',requestId:m.requestId,
-   plans:{free,candidate,cheapest,fastest},forecastPeriods,prefixPaid});
+   plans:{free,candidate,cheapest,fastest},forecastPeriods});
  }catch(error){
   self.postMessage({type:'error',requestId:m.requestId,
    message:String(error?.message||error||'계산에 실패했습니다.')});
