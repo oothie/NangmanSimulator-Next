@@ -81,6 +81,28 @@ for(let i=0;i<100;i++)for(const schedule of schedules)for(const mode of ['curren
  assert.deepEqual(first.privateNextState.globalVariable,prior.globalVariable);
  cases++;
 }
+// A six-clear BYJ source-model fixture proves why the special ownership
+// counterfactual must be initialized once, not reset at every clear.
+const repeated={Rnds:{Sds:{seed_byj:15807}},
+ globalVariable:{win_byj:29},Branch:{byj_bz:{step:-1}},Items:[]};
+const expectedSix=forecast(repeated,'벽유교',producers['벽유교'],6,{
+ mode:'never_claimed',tempLifetime:'unknown',numericAfterGrant:'unknown'});
+const actualSix=run(repeated,Array(6).fill('벽유교'),{
+ claimMode:'never_claimed',includePrivateState:true});
+const rewarded=rows=>rows.flatMap(row=>row.grants.filter(x=>x.predicted).map(x=>
+ x.npc+':'+x.itemId));
+assert.deepEqual(rewarded(actualSix.runs),rewarded(expectedSix.rows));
+assert.deepEqual(actualSix.privateNextState.Rnds.Sds,expectedSix.nextState.Rnds.Sds);
+let wrongState=repeated;
+const wronglyReset=[];
+for(let i=0;i<6;i++){
+ const one=forecast(wrongState,'벽유교',producers['벽유교'],1,{mode:'never_claimed'});
+ wronglyReset.push(...rewarded(one.rows));
+ wrongState=one.nextState;
+}
+assert.notDeepEqual(wronglyReset,rewarded(actualSix.runs),
+ 'repeatedly resetting awarded counters must be detected as an invalid model');
+
 // Source's numeric key guard must change how many seed_lsby draws occur.
 const keyCase=fakeSave(17);
 const unheld=run(keyCase,['유씨별원','유씨별원'],{
