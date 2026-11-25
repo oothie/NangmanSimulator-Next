@@ -78,15 +78,22 @@ const findRules = (npc,item) => SPECIAL_CONSUMER_RULES.filter(r=>r.n===npc&&r.i=
  * 'fresh' also clears pre-existing award flags and is a broader, explicitly
  * hypothetical new-account scenario (not validated as native game history).
  */
+/* 'unclaimed' resets only receipt counters, leaving historical producer
+ * drop flags untouched. This cannot answer "never obtained" when a producer
+ * checks its previous drop flag. 'never_claimed' resets source-derived
+ * SPECIAL receipt counters AND SPECIAL producer flags but preserves all
+ * non-award quest, seed, material and battle progress state. The original
+ * 'fresh' option is retained as an alias for prior research notebooks.
+ */
 export function specialScenario(save,mode='current'){
- if(!['current','unclaimed','fresh'].includes(mode))
+ if(!['current','unclaimed','fresh','never_claimed'].includes(mode))
   throw Error('미지원 특수보상 시나리오');
  const draft=copySave(save);
  draft.globalVariable=draft.globalVariable||{};
  if(mode!=='current'){
   for(const r of SPECIAL_CONSUMER_RULES){
    if(r.k&&r.s!=='temp')draft.globalVariable[r.k]=0;
-   if(mode==='fresh')delete draft.globalVariable[r.f];
+   if(mode==='fresh'||mode==='never_claimed')delete draft.globalVariable[r.f];
   }
  }
  return draft;
@@ -449,4 +456,35 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
   conditional:true,questHistoryAssumedUnchanged:mode!=='current',
   nextState:state,tempState:temp,numericState:numeric,
   unresolved:rows.reduce((sum,row)=>sum+row.unresolved,0)};
+}
+
+/* Compare source-preserving actual history with two distinct counterfactuals.
+ * This deliberately returns earliest award in three scenarios, not an
+ * assertion that the saved game's unknown earlier story state is recoverable.
+ * The producer replays from its OWN clean clone in each scenario.
+ */
+export function compareSpecialClaimHistories(save,gate,producer,clears,opts={}){
+ const byMode={};
+ for(const mode of ['current','unclaimed','never_claimed']){
+  const replay=forecastInterleavedSpecials(save,gate,producer,clears,{
+   ...opts,mode
+  });
+  const first=new Map(replay.firstPredicted.map(e=>[
+   e.npc+':'+e.itemId,e.clear]));
+  byMode[mode]={firstAwards:replay.firstPredicted,
+   firstByItem:Object.fromEntries(first),
+   searchedClears:replay.searchedClears,
+   incomplete:replay.incomplete,unresolved:replay.unresolved};
+ }
+ const keys=new Set(Object.values(byMode).flatMap(item=>
+  Object.keys(item.firstByItem)));
+ const differences=[...keys].map(key=>({
+  rule:key,
+  current:byMode.current.firstByItem[key]??null,
+  unclaimedCountOnly:byMode.unclaimed.firstByItem[key]??null,
+  neverClaimedWithFlagsReset:byMode.never_claimed.firstByItem[key]??null
+ }));
+ return {gate,byMode,differences,
+  gameProgressPreserved:true,
+  counterfactualNotHistoricalProof:true};
 }
