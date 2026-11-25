@@ -86,5 +86,5 @@ export function replayByeokyu(save,clears=1){
     sourceStep>=0?'벽유교 임무 단계 조건 미충족':
     keyHit?'귀용문 열쇠 추첨 성공':'귀용문 열쇠 추첨 실패'});
  }
- return {gate:'벽유교',output,source:'35227_1',warning:'귀용문 열쇠는 원본 추첨 조건 기반이며 실제 지급·퀘스트 진행 결과는 별개입니다.'};
+ return {gate:'벽유교',output,nextState:{...save,Rnds:{...(save.Rnds||{}),Sds:{...(save.Rnds?.Sds||{}),seed_byj:seed}},globalVariable:gv},source:'35227_1',warning:'귀용문 열쇠는 원본 추첨 조건 기반이며 실제 지급·퀘스트 진행 결과는 별개입니다.'};
 }
