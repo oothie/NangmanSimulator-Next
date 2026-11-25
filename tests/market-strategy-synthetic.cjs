@@ -329,6 +329,32 @@ assert(boundedAudit.nativeReplayChecked,
 const markup=fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(markup.includes('최단 미확정')&&markup.includes('최단 경로임은 증명되지'),
  'the UI must explain the difference between valid and optimal');
+// Cross-check bounded fastest-search pruning on 30 artificial cases.
+// A completed native-replay route is required even when optimality is unproved.
+let proofCount=0,checkedCount=0;
+for(const syntheticSeed of [12345,13579,97531,24680,44444]){
+ const caseSave={
+  RandShop:{Time:now,Fresh:0,Lucky:0,Buy:60,Items:[],Counts:[]},
+  Rnds:{Sds:{guishishop:syntheticSeed}}
+ };
+ const state=api.predict(caseSave,catalog,now,{slots:6});
+ for(const id of [223,224,222])for(const quantity of [1,2]){
+  const candidate=state.auditStrategy(state.findFeasibleStrategy([id],{
+   quantity,vip:1,periods:12
+  }),{target:id,quantity,vip:1});
+  const answer=state.searchStrategy([id],{
+   quantity,vip:1,mode:'fastest',periods:12,maxStates:2000,
+   bestCandidate:candidate.found?candidate:null
+  });
+  assert(answer.found,'bounded search must retain feasible native route');
+  const checked=state.auditStrategy(answer,{target:id,quantity,vip:1});
+  assert(checked.nativeReplayChecked,'every returned route must match native events');
+  proofCount+=Number(answer.proven===true);
+  checkedCount++;
+ }
+}
+assert.equal(checkedCount,30);
+assert(proofCount>=29,'dominance pruning should prove at least 29 / 30 routes');
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
