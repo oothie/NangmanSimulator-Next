@@ -13,6 +13,6 @@ jobs:
         with:
           node-version: '22'
       - name: Guard public repository privacy
-        run: node scripts/check-public-privacy.cjs
+        run: node research/dungeon-rng/low_gates/check_research_privacy.cjs
       - name: Source-confirmed six lower-gate equipment evidence without false attribution
         run: node research/dungeon-rng/low_gates/test_after_save_equipment_evidence.cjs
