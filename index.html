@@ -2172,8 +2172,21 @@ function marketStrategyMarkup(state,ko){
   }
   const dayRoute=[...byDay.values()].map(day=>'<li><div><b>'+escape(day.date)+' · 원보 '+day.paid+'회 (05~08시 전 '+day.preMorning+'회 / 08~20시 전 '+day.afterMorning+'회 / 20시 이후~익일05시 전 '+day.afterEvening+'회) · 무료 교체 '+day.auto+'회</b>'+
    '<small>목표 상품 구매 '+day.bought+'개'+(day.paidDetails.length?' · 원보 갱신 시각: '+day.paidDetails.map(x=>marketDate(x.time)+' ['+marketPaidRefreshLabel(x.phase)+']'+(x.index?' ('+x.index+'번째)':'')).join(', '):'')+'</small></div></li>').join('');
-  const stepList=steps.map((x,i)=>'<li><span class="market-route-number">'+(i+1)+'</span>'+
-   '<div><b>'+escape(x.kind==='paid'?('원보 갱신 1회 · '+marketPaidRefreshLabel(marketPaidRefreshWindow(x.time))):
+  // Present consecutive verified paid redraws as one instruction; do not
+  // alter the independently replayed RNG or the per-day quota counts.
+  const groupedSteps=[];
+  for(const step of steps){
+   const prior=groupedSteps[groupedSteps.length-1];
+   if(step.kind==='paid'&&prior?.kind==='paid'&&prior.time===step.time&&
+      marketPaidRefreshWindow(prior.time)===marketPaidRefreshWindow(step.time)){
+    prior.repeat=(prior.repeat||1)+1;
+    prior.acquired=(prior.acquired||0)+(step.acquired||0);
+    prior.totalAcquired=step.totalAcquired;
+    prior.index=step.index;
+   }else groupedSteps.push({...step,repeat:1});
+  }
+  const stepList=groupedSteps.map((x,i)=>'<li><span class="market-route-number">'+(i+1)+'</span>'+
+   '<div><b>'+escape(x.kind==='paid'?('원보 갱신 '+x.repeat+'회 · '+marketPaidRefreshLabel(marketPaidRefreshWindow(x.time))):
     x.kind==='auto'?'정시 암시장 입장 · 무료 갱신':
     x.kind==='reset'?'05시 원보 갱신 한도 초기화':'현재 판매 목록')+
     (x.kind==='reset'?' · 오전 5시 기준':x.acquired?' · 목표 상품 '+x.acquired+'개 구매':' · 구매 없음')+'</b>'+
@@ -2194,7 +2207,7 @@ function marketStrategyMarkup(state,ko){
     (purchaseList||'<li>예측 기간 중 목표 상품 구매 기록 없음</li>')+'</ol></details>'+
    '<details class="market-plan-route" open><summary>갱신일별 횟수 및 구매 (05시 기준) <b>'+byDay.size+
     '일</b></summary><ol class="market-route-list">'+(dayRoute||'<li>경로 없음</li>')+'</ol></details>'+
-   '<details class="market-plan-route"><summary>전체 교체·갱신 경로 <b>'+steps.length+
+   '<details class="market-plan-route"><summary>전체 교체·갱신 경로 <b>'+groupedSteps.length+
     '단계</b></summary><ol class="market-route-list">'+stepList+'</ol></details>'+
    '<p class="micro">원보 갱신은 05~08시 전, 08~20시 전, 20시 무료 교체 이후로 구분합니다. 20시 무료 교체도 난수를 진행시키므로 원보 갱신 순서가 바뀌면 상품도 달라질 수 있습니다. 갱신 한도는 05시에 초기화되며, 원보 금액은 갱신비이고 상품 가격은 별도입니다.'+
     (!result.found?' 해당 기간 또는 탐색 상태 한도 내의 부분 경로이며 완료 전략으로 확정하지 않습니다.':
