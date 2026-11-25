@@ -77,3 +77,14 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 해당 결과는 **원본 코드에서 재구성한 세 테이블 구성 가설의 민감도**이며 실제 플레이 드랍 예측 성공률이나 한국판 LuaJIT 순회 관측이 아니다. 특히 가설이 일치하는 추첨값도 이전 단계가 RNG를 더 소비하면 다음 단계의 추첨값 자체가 달라질 수 있다.
 
 신규 검사와 기존 정적 소스 3종 회귀 테스트를 JavaScript 실행 환경에서 실행하여 통과를 확인했다. 본 체크포인트는 네이티브 실행·실게임 홀드아웃 검증이 아니다.
+
+## 2026-11-26 — 원본 파생 6관문 엔진의 세 모델 전방 재생
+
+사용자의 라이브러리 보존 자료 `Low_Gates_Source_Lane_SavePair_Research_20261125.zip`에서 **원본 이벤트 실행기 전체**를 직접 회수해 수정했다. 수정된 별도 독립 패키지는 `Low_Gates_Original_Function_Replay_20261126.zip`으로 생성했다(이 패키지는 이 연구 브랜치에 원본 게임 파일이나 개인 세이브를 업로드하지 않음).
+
+- `engine/source_order_forward.cjs`: 전 테이블에 `orderMode=first|last|absent` 주입. 기존 모델은 `first`로 유지하며 `key` 메타 키의 존재/위치를 확정된 원본 사실로 간주하지 않음.
+- `engine/repeat_session.cjs`: 연속 클리어 재생 전체에 선택한 구성 모델을 전달.
+- `engine/original_constructor_ensemble.cjs`: **세 가설을 매번 독립 시드 상태에서 시작**해 전 관문/연속 클리어 장비 ID·색상·슬롯, 종료 시드 및 플래그의 일치 여부 비교. 응답에 개인 시드/계정 값 미출력.
+- `engine/test_original_constructor_ensemble.cjs`: 합성 90사례 중 86개에서 모델 간 장비 차이 확인, 2회 연속 클리어·누락조건·입력 상태불변 점검. 기존 32개 + 신규 1개 = **33개 Node 테스트 모두 통과**.
+
+주의: 여기의 86/90은 *합성 시드에서 세 모델끼리 예측이 달랐다*는 뜻이지 실제 게임 예측 실패율이 아니다. 원본 `getLuaJsonFile` 테이블 구성/네이티브 LuaJIT 순회, `JHRandom` 실제 경로, 묵문유적 일반 장비는 계속 미검증. yy-sim 보존된 `shared_simulator.js`에 관문용 원본 드랍 재생이 없어 직접 채택하지 않았으며, 산부진 관문 원본 소스도 아직 검증되지 않아 원본 60014 추출 코드가 우선이다. 공개 사이트/버전 수정 없음.
