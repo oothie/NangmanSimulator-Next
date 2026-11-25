@@ -60,3 +60,20 @@ node research/dungeon-rng/low_gates/run_lower_gate_save_pair.cjs PRIVATE_BEFORE.
 node research/dungeon-rng/low_gates/test_discriminate_table_orders.cjs
 node research/dungeon-rng/low_gates/check_research_privacy.cjs
 ```
+
+## 2026-11-26 추가 — 40개 테이블 전체 효과 민감도 검사
+
+`gate_order_sensitivity.cjs` / `test_gate_order_sensitivity.cjs`에서 6관문 정적 38개 테이블의 가능한 추첨값 **3,800개를 전수 검사**했다. 세 가설의 실제 보상 효과가 모두 같은 경우 1,240개, 하나라도 다른 경우 **2,560개**다. 취선채·추가성의 동적 가중치 2개는 값이 달라질 수 있어 이 합계에서 제외했다.
+
+| 관문 | 정적 추첨값(합계) | 가설 간 효과 차이 | 효과 동일 | 동적 테이블 |
+|---|---:|---:|---:|---:|
+| 취선채 | 600 | 300 | 300 | 1 |
+| 추가성 | 600 | 300 | 300 | 1 |
+| 혈의루 | 600 | 540 | 60 | 0 |
+| 철인문 | 600 | 540 | 60 | 0 |
+| 천일교 | 800 | 340 | 460 | 0 |
+| 고골문 | 600 | 540 | 60 | 0 |
+
+해당 결과는 **원본 코드에서 재구성한 세 테이블 구성 가설의 민감도**이며 실제 플레이 드랍 예측 성공률이나 한국판 LuaJIT 순회 관측이 아니다. 특히 가설이 일치하는 추첨값도 이전 단계가 RNG를 더 소비하면 다음 단계의 추첨값 자체가 달라질 수 있다.
+
+신규 검사와 기존 정적 소스 3종 회귀 테스트를 JavaScript 실행 환경에서 실행하여 통과를 확인했다. 본 체크포인트는 네이티브 실행·실게임 홀드아웃 검증이 아니다.
