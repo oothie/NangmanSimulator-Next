@@ -82,8 +82,11 @@ const held=run(keyCase,['유씨별원','유씨별원'],{
  liuKeyTimeline:[true,true],includePrivateState:true});
 assert.equal(unheld.runs[0].keyState.heldAtStart,false);
 assert.equal(held.runs[0].keyState.heldAtStart,true);
-assert.equal(unheld.runs[0].drawCount,held.runs[0].drawCount+1,
- 'source must skip the extra key draw when held');
+// The extra key draw can be offset by a later omitted equipment-slot draw.
+ // Total call counts can coincide; the resulting RNG states must still differ.
+assert.notEqual(unheld.privateNextState.Rnds.Sds.seed_lsby,
+ held.privateNextState.Rnds.Sds.seed_lsby,
+ 'key ownership must affect the subsequent source RNG stream');
 assert.equal(JSON.stringify(keyCase),JSON.stringify(fakeSave(17)),
  'key timeline must not alter input');
 const seed=fakeSave(3);
