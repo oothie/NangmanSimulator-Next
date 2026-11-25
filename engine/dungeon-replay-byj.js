@@ -23,7 +23,9 @@ export function replayByeokyu(save,clears=1){
  for(let clear=1;clear<=clears;clear++){
   const win=n(gv.win_byj),specials={35219:[],35214:[],35221:[]},results=[];
   let calls=0;
-  const roll=bound=>{const result=draw(seed,bound);seed=result.seed;calls++;return result.value;};
+  const rngTrace=[];
+  const roll=bound=>{const result=draw(seed,bound);seed=result.seed;
+   rngTrace.push({key:'seed_byj',bound,value:result.value});calls++;return result.value;};
   const choose=entries=>{
    let x=roll(entries.reduce((sum,e)=>sum+e[0],0));
    for(const [weight,value] of entries){x-=weight;if(x<=0)return value;}
@@ -80,7 +82,7 @@ export function replayByeokyu(save,clears=1){
   }
   equipment(35221,'불로선인');
   gv.win_byj=win+1;
-  output.push({clear,results,drawCount:calls,keyEnabled,keyHit,
+  output.push({clear,results,drawCount:calls,rngTrace,keyEnabled,keyHit,
    keyCondition:win<10?'벽유교 클리어 조건 미충족':
     n(gv.glm_open)?'귀용문 개방 완료':
     sourceStep>=0?'벽유교 임무 단계 조건 미충족':
