@@ -39,7 +39,7 @@ if(require.main===module){
   try {
    const max=process.argv[3]===undefined?2000:Number(process.argv[3]);
    console.log(JSON.stringify(reportLocal(parseLocalSave(file),{maskKills:max}),null,2));
-  } catch(err) {console.error('Local model failed: '+err.message);process.exitCode=1}
+  } catch(err) {console.error('Local model failed: invalid or inaccessible input; no paths or save data displayed');process.exitCode=1}
  }
 }
 module.exports={reportLocal,parseLocalSave};
