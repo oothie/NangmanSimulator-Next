@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+'use strict';
+const assert=require('node:assert/strict');
+const {seal,verify}=require('./sealed_low_gate_equipment.cjs');
+const mk=(id,color,only)=>({ID:id,Color:color,OnlyID:only});
+const before={Rnds:{Sds:{seed_jxz:111,seed_zjb:222,seed_33888:333,seed_xyl:444,seed_trm:555,seed_tyj:666,seed_kgm:777}},
+ globalVariable:{win_jxz:0,win_zjb:0,win_xyl:0,win_trm:0,win_tyj:0,win_kgm:0},
+ Equips:[mk(4803,2,991111)],accountToken:'PRIVATE_ACCOUNT_CANARY'};
+const after=structuredClone(before);
+after.Rnds.Sds.seed_jxz=112;after.globalVariable.win_jxz=1;
+after.Equips.push(mk(4002,3,991112));
+const prediction=[{npc:37002,itemId:4002,color:3},{npc:37003,itemId:null},{npc:37004,itemId:null}];
+const sealed=seal(before,'취선채',prediction);
+assert.equal(sealed.disclosures.containsPrivateSave,false);
+assert.equal(sealed.disclosures.requiresExternalPreClearTimestamp,true);
+assert(!JSON.stringify(sealed.publicCommitment).includes('4002'));
+assert(!JSON.stringify(sealed.publicCommitment).includes('PRIVATE_ACCOUNT_CANARY'));
+const result=verify(before,after,sealed.privateRecord,sealed.publicCommitment);
+assert.equal(result.status,'MATCHED_SOURCE_MODEL_NOT_NATIVE_PROOF');
+assert.equal(result.equipmentIdAndColorMultisetMatches,true);
+assert.equal(result.singleGateWinAndSeedEvidence,true);
+assert.equal(result.externallyTimestampedPrecommitmentVerified,false);
+assert.equal(result.actualGamePredictionCertified,false);
+assert(!JSON.stringify(result).includes('PRIVATE_ACCOUNT_CANARY'));
+assert(!JSON.stringify(result).includes('991111'));
+assert(!JSON.stringify(result).includes('991112'));
+const modified=structuredClone(sealed.privateRecord);modified.bossForecast[0].color=2;
+assert.equal(verify(before,after,modified,sealed.publicCommitment).status,'FAIL_TAMPERED_SEAL');
+assert.equal(verify(after,after,sealed.privateRecord,sealed.publicCommitment).status,'FAIL_BEFORE_SAVE_MISMATCH');
+const multi=structuredClone(after);multi.Rnds.Sds.seed_zjb++;multi.globalVariable.win_zjb++;
+assert.equal(verify(before,multi,sealed.privateRecord,sealed.publicCommitment).status,'INCONCLUSIVE_OR_MISMATCH');
+const deleted=structuredClone(after);deleted.Equips.shift();
+assert.equal(verify(before,deleted,sealed.privateRecord,sealed.publicCommitment).inventoryContinuity,false);
+const extra=structuredClone(after);extra.Equips.push(mk(5606,2,991113));
+assert.equal(verify(before,extra,sealed.privateRecord,sealed.publicCommitment).status,'INCONCLUSIVE_OR_MISMATCH');
+const falseColor=structuredClone(after);falseColor.Equips[1].Color=1;
+assert.equal(verify(before,falseColor,sealed.privateRecord,sealed.publicCommitment).equipmentIdAndColorMultisetMatches,false);
+assert.throws(()=>seal(before,'묵문유적',prediction),/six source-confirmed/);
+assert.throws(()=>seal(before,'취선채',[{npc:37002,itemId:999999,color:2},{npc:37003,itemId:null},{npc:37004,itemId:null}]),/source array/);
+assert.throws(()=>seal(before,'취선채',[{npc:37002,itemId:null,color:2},{npc:37003,itemId:null},{npc:37004,itemId:null}]),/No-drop/);
+assert.deepEqual(before.Equips,[mk(4803,2,991111)]);
+console.log('PASS sealed six-gate ID/color prediction, no-drop, tamper, side effects, and no false native prospective certificate');
