@@ -253,4 +253,21 @@ test('54506 loss recovery remains strict and verified by script provenance',()=>
  assert.equal(result.unverified,0);
  assert.equal(result.effects[0].sourceVerifiedLostBranch,true);
 });
+test('Whale Gao Li key receipt is a hypothesis, not a native proven mutation',()=>{
+ const source={globalVariable:{get_8915:4}};
+ const snapshot=JSON.stringify(source);
+ const winners=[{npc:35264,specialIds:[8915]}];
+ const conservative=evaluateSpecialAwards(source,winners);
+ assert.equal(conservative.events[0].predicted,true);
+ assert.equal(conservative.counters.get_8915,4);
+ assert.equal(conservative.events[0].pendingHypotheses.length,1);
+ assert.equal(conservative.events[0].pendingHypotheses[0].key,'get_8915');
+ const hypothetical=evaluateSpecialAwards(source,winners,{
+  applyUnverifiedWhaleForwardReceipts:true
+ });
+ assert.equal(hypothetical.counters.get_8915,5);
+ assert.equal(hypothetical.events[0].pendingHypotheses.length,0);
+ assert.equal(hypothetical.events[0].effects[0].sourceVerified,false);
+ assert.equal(JSON.stringify(source),snapshot);
+});
 console.log('PASS',testCount,'synthetic original consumer regressions');
