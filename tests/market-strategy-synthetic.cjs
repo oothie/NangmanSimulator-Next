@@ -87,9 +87,9 @@ assert.equal(imaginaryAlwaysOnline.events.filter(x=>x.auto).length,6);
 assert.notEqual(actualMissed.seed,imaginaryAlwaysOnline.seed,
  'always-online assumption must not replace a real missed-session history');
 const pageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert(pageSource.includes('저장 시점 기준 모의실행')&&
- pageSource.includes('지금의 실제 판매 목록이 아닌'),
- 'archived saves must be labeled historical, never current-day predictions');
+assert(pageSource.includes('모두 실제로 확인했다고 가정했습니다')&&
+ pageSource.includes('assumeAllFreeVisits('),
+ 'old saves must explicitly assume every scheduled free refresh was visited');
 // Multiple generated (never player-derived) seeds exercise consecutive paid
 // refreshes followed by the scheduled free replacement on one shared RNG.
 for(let i=1;i<=24;i++){
@@ -523,23 +523,34 @@ assert.equal(presentContext.archived,false);
 assert.equal(presentContext.anchor,now+60);
 assert.equal(presentContext.state.seedOk,true);
 const pastContext=marketContextAt(fixture,now+5*43200);
-assert.equal(pastContext.archived,true);
-assert.equal(pastContext.anchor,now);
+assert.equal(pastContext.archived,false);
+assert.equal(pastContext.assumed,true);
+assert.equal(pastContext.missed,5);
+assert.equal(pastContext.anchor,now+5*43200);
+assert.equal(pastContext.state.stale,false);
 assert.equal(pastContext.state.seedOk,true,
- 'buttons must remain usable at the archived shop timestamp');
+ 'all-visits assumption must yield a valid present-day RNG state');
 const stillStale=api.predict(fixture,catalog,now+5*43200,{slots:6});
 assert.equal(stillStale.seedOk,false,
- 'historic replay must not claim present-day RNG certainty');
-const archivedPaid=pastContext.state.getPaid(1,{vip:0})[0];
-assert(archivedPaid?.items?.length>0,
- 'archived refresh preview should produce concrete items');
-const archivedStrategy=pastContext.state.searchStrategy([target],{
+ 'the original imported save remains stale, only the simulated state advances');
+const manualAllVisits=api.replayKoreanClientEvents(fixture,catalog,fiveEntries,{slots:6});
+assert.deepEqual(Array.from(pastContext.state.today,x=>x.id),
+ Array.from(manualAllVisits.items),
+ 'present-day assumed shelf must match every client free event replay');
+assert.equal(pastContext.sourceSave.Rnds.Sds.guishishop,manualAllVisits.seed);
+assert.equal(fixture.RandShop.Time,now,
+ 'the imported save must not be mutated by the virtual current state');
+const assumedPaid=pastContext.state.getPaid(1,{vip:0})[0];
+assert(assumedPaid?.items?.length>0,
+ 'assumed-current refresh preview should produce concrete items');
+const currentTarget=pastContext.state.timed(1)[0].items[0].id;
+const assumedStrategy=pastContext.state.searchStrategy([currentTarget],{
  mode:'fastest',vip:0,quantity:1,periods:2,maxStates:10000
 });
-assert(archivedStrategy.found,'archived purchase strategy should run');
-assert(pastContext.state.auditStrategy(archivedStrategy,{
- target,quantity:1,vip:0
-}).nativeReplayChecked,'archived strategy must match native RNG');
+assert(assumedStrategy.found,'assumed-current purchase strategy should run');
+assert(pastContext.state.auditStrategy(assumedStrategy,{
+ target:currentTarget,quantity:1,vip:0
+}).nativeReplayChecked,'assumed-current strategy must match native RNG');
 assert(indexSource.includes("if($('marketSimNext'))$('marketSimNext').onclick"));
 assert(indexSource.includes("if($('marketAutoNext'))$('marketAutoNext').onclick"));
 assert(indexSource.includes("if($('marketStrategyRun'))$('marketStrategyRun').onclick"));
