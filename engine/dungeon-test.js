@@ -223,10 +223,15 @@ export function mountDungeon(host,save){
  GATES.map(g=>'<option>'+esc(g)+'</option>').join('')+'</select></label>'+
  '<label>연속 클리어 <select id="dungeonTestClears">'+
  [1,2,3,4,5,6,7,8,9,10].map(n=>'<option value="'+n+'">'+n+'회</option>').join('')+'</select></label>'+
- '<label>고리의 열쇠 (유씨별원)<select id="dungeonTestKey">'+
+ '<label id="dungeonTestKeyControl" hidden>고리의 열쇠 (유씨별원)<select id="dungeonTestKey">'+
  '<option value="auto">세이브 보유 기준</option><option value="owned">보유한 경우</option><option value="absent">미보유인 경우</option>'+
  '</select></label><button id="dungeonTestRun" type="button">관문 드랍 계산</button></div>'+
  '<div id="dungeonTestResults" aria-live="polite"></div></section>';
+ const gateControl=host.querySelector('#dungeonTestGate');
+ const keyControl=host.querySelector('#dungeonTestKeyControl');
+ const syncGateOptions=()=>{keyControl.hidden=gateControl.value!=='유씨별원'};
+ gateControl.addEventListener('change',()=>{syncGateOptions();run()});
+ syncGateOptions();
  const run=()=>{
   const out=host.querySelector('#dungeonTestResults');
   try{
@@ -237,7 +242,7 @@ export function mountDungeon(host,save){
    let html='<p class="micro">'+esc(result.caution)+'</p>';
    if(result.keyNote)html+='<p class="micro">'+esc(result.keyNote)+'</p>';
    for(const clear of result.output){
-    html+='<h4>'+clear.clear+'회차</h4><div class="table-scroll"><table><thead><tr><th>보스</th><th>장비</th><th>색상</th><th>특수 드랍·조건</th></tr></thead><tbody>';
+    html+='<h4>'+clear.clear+'회차</h4><div class="table-scroll"><table style="min-width:780px;table-layout:fixed;width:100%"><colgroup><col style="width:17%"><col style="width:29%"><col style="width:15%"><col style="width:39%"></colgroup><thead><tr><th>보스</th><th>장비</th><th>색상</th><th>특수 드랍·조건</th></tr></thead><tbody>';
     for(const row of clear.results){
      const gradeColor={백색:'#a2a2a2',녹색:'#259b61',청색:'#397db3',자색:'#9052c4'}[row.grade]||'';
      const specials=row.special.map(s=>esc(s.name)+' · '+esc(s.kind)).join(', ');
@@ -247,7 +252,7 @@ export function mountDungeon(host,save){
       candidateList.length?'특수 보상 후보: '+candidateList.map(esc).join(', ')+' (미당첨·지급 불확정)':'특수 보상 후보 없음'].filter(Boolean).join(' / ');
      html+='<tr><td>'+esc(row.boss)+'</td><td>'+esc(row.name)+'</td><td>'+
      (row.grade?'<b style="color:'+gradeColor+'">'+esc(row.grade)+'</b>':'—')+
-     '</td><td>'+detail+'</td></tr>';
+     '</td><td style="overflow-wrap:anywhere">'+detail+'</td></tr>';
     }
     html+='</tbody></table></div>';
    }
