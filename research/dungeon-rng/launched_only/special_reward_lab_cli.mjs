@@ -27,6 +27,9 @@ function main(args){
  const numericState=keyGuardText==null?null:{3970:Number(keyGuardText)};
  const tempText=option(args,'--temp-get-8801',null);
  const tempState=tempText==null?null:{get_8801:Number(tempText)};
+ const tempLifetime=option(args,'--temp-lifetime','unknown');
+ if(!['unknown','persist','reset'].includes(tempLifetime))
+  throw Error('원본 임시 변수 수명 가정: unknown, persist, reset 중 선택');
  if(keyGuardText!=null&&(!Number.isSafeInteger(numericState[3970])||
     numericState[3970]<0))throw Error('원본 숫자형 GetP(3970) 판정값 오류');
  if(tempText!=null&&(!Number.isSafeInteger(tempState.get_8801)||
@@ -37,7 +40,7 @@ function main(args){
   throw Error('원본 관문 재생 범위: 1~2000회');
  const save=JSON.parse(readFileSync(saveFile,'utf8'));
  const result=forecastInterleavedSpecials(save,gate,producer[gate],clears,{
-  mode,keyMode,firstItemId,numericState,tempState
+  mode,keyMode,firstItemId,numericState,tempState,tempLifetime
  });
  console.log('관문:',gate,'· 시나리오:',mode,'· 탐색 범위:',clears+'회');
  if(firstItemId==null)for(let i=0;i<result.rows.length;i++){
@@ -65,6 +68,9 @@ function main(args){
   console.log(' ',event.name+' · '+event.clear+'회차');
  if(!result.firstPredicted.length)console.log(' 범위 내 없음');
  if(result.unresolved)console.log('원본 지급 조건 미해결:',result.unresolved+'건');
+ if(gate==='유씨별원')
+  console.log('윤무 임시 GetP 상태 수명 가정:',tempLifetime,
+   '· 1회차 이후 temp 상태는 기본 미확정');
  if(result.questHistoryAssumedUnchanged)
   console.log('주의: 임무 해금 상태는 세이브 당시 상태로 유지한 가상 지급 시나리오입니다.');
 }
