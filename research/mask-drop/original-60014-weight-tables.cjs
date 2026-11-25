@@ -15,8 +15,8 @@ const SECOND=Object.freeze({callPc:96,constantRegister:18,constantId:17,
   positiveLuaSlots:Object.freeze([1000,100,10,1]),
   totalWeight:1111,method:'literal KGC table, Lua slots 1..4'});
 const SOURCE_NPCS=Object.freeze({
-  30681:Object.freeze({name:'만호강',level:70,drop:Object.freeze([7209,1]),rawLuaSlots:Object.freeze([null,7209,1]),equipmentTable:true}),
-  32950:Object.freeze({name:'산적',level:70,drop:Object.freeze([3031,1]),rawLuaSlots:Object.freeze([null,3031,1]),equipmentTable:false})
+  30681:Object.freeze({name:'만호강',level:70,drop:Object.freeze([7209,1]),rawLuaSlots:Object.freeze([null,null,7209,1]),equipmentTable:true}),
+  32950:Object.freeze({name:'산적',level:70,drop:Object.freeze([3031,1]),rawLuaSlots:Object.freeze([null,null,3031,1]),equipmentTable:false})
 });
 function dynamicFirstWeights(encryptedWeightRows) {
  if(!Array.isArray(encryptedWeightRows)||encryptedWeightRows.length===0||
