@@ -8,7 +8,7 @@ import {replayYanwangfu} from './replay_original_yan.mjs';
 import {replayChangok} from './replay_original_dcy.mjs';
 import {replayByeokyu} from './replay_original_byj.mjs';
 import {replayLiuManor} from './replay_original_liu.mjs';
-import {forecastSpecialsFromProducer} from './special_reward_source_engine.mjs';
+import {forecastInterleavedSpecials} from './special_reward_source_engine.mjs';
 
 const producer={'연왕부':replayYanwangfu,'창옥':replayChangok,
  '벽유교':replayByeokyu,'유씨별원':replayLiuManor};
@@ -21,15 +21,17 @@ function main(args){
  const clears=Number(option(args,'--clears','10'));
  const mode=option(args,'--mode','current');
  const keyMode=option(args,'--key-mode',null);
+ const firstItemText=option(args,'--first-item',null);
+ const firstItemId=firstItemText==null?null:Number(firstItemText);
  if(!saveFile)throw Error('--save 로 로컬 세이브 경로를 지정하세요.');
  if(!producer[gate])throw Error('출시된 4관문만 지원합니다.');
- if(!Number.isInteger(clears)||clears<1||clears>10)
-  throw Error('원본 관문 재생 범위: 1~10회');
+ if(!Number.isInteger(clears)||clears<1||clears>2000)
+  throw Error('원본 관문 재생 범위: 1~2000회');
  const save=JSON.parse(readFileSync(saveFile,'utf8'));
- const result=forecastSpecialsFromProducer(save,gate,producer[gate],clears,{mode,keyMode});
- console.log('관문:',gate,'· 시나리오:',mode,'· 클리어:',clears+'회');
- for(let i=0;i<result.output.length;i++){
-  const clear=result.output[i],grants=result.grants[i];
+ const result=forecastInterleavedSpecials(save,gate,producer[gate],clears,{mode,keyMode,firstItemId});
+ console.log('관문:',gate,'· 시나리오:',mode,'· 탐색 범위:',clears+'회');
+ for(let i=0;i<result.rows.length;i++){
+  const clear=result.rows[i].producer,grants=result.rows[i].grants;
   console.log(clear.clear+'회차');
   for(const row of clear.results){
    const relevant=grants.filter(event=>event.name&&event.predicted&&
@@ -41,6 +43,7 @@ function main(args){
     '· 특수:',relevant.length?relevant.map(x=>x.name+'×'+x.quantity).join(', '):'—');
   }
  }
+ console.log('실제 재생 횟수:',result.searchedClears+'회');
  console.log('예상 최초 획득 회차:');
  for(const event of result.firstPredicted)
   console.log(' ',event.name+' · '+event.clear+'회차');
