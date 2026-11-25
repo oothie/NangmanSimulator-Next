@@ -207,4 +207,21 @@ test('numeric key ownership becomes unresolved after its first award by default'
  assert.equal(kept.clears[1][0].unresolved,false);
  assert.equal(kept.numericState[3970],1);
 });
+test('original AddBattleDrop third argument is grade, never five copies',()=>{
+ const orange=evaluateSpecialAwards({globalVariable:{get_5020:0}},
+  [{npc:35260,specialIds:[5020]}]);
+ assert.equal(orange.events[0].predicted,true);
+ assert.equal(orange.events[0].name,'무궁');
+ assert.equal(orange.events[0].quantity,1);
+ assert.equal(orange.events[0].gradeCode,5);
+ assert.equal(orange.events[0].sourceArgument3,5);
+ const unique=evaluateSpecialAwards({globalVariable:{get_7265:0}},
+  [{npc:35219,specialIds:[7265]}]);
+ assert.equal(unique.events[0].quantity,1);
+ assert.equal(unique.events[0].gradeCode,5);
+ const fragment=evaluateSpecialAwards({globalVariable:{get_2926:1}},
+  [{npc:40373,specialIds:[2926]}]);
+ assert.equal(fragment.events[0].quantity,1);
+ assert.equal(fragment.events[0].gradeCode,1);
+});
 console.log('PASS',testCount,'synthetic original consumer regressions');
