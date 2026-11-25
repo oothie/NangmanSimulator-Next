@@ -18,6 +18,8 @@ const allow=new Set([
  'test_audit_40_table_synthetic_key.cjs',
  'audit_40_table_metadata_positions.cjs',
  'test_audit_40_table_metadata_positions.cjs',
+ 'audit_40_table_equipment_effects.cjs',
+ 'test_audit_40_table_equipment_effects.cjs',
  'test_after_save_equipment_evidence.cjs',
  'check_research_privacy.cjs',
  'README.md'
