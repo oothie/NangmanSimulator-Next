@@ -28,9 +28,11 @@ export function replayYanwangfu(save,clears=1){
   if(!Number.isSafeInteger(seed)||seed<1||!Number.isSafeInteger(bound)||bound<1)
    throw Error('연왕부 원본 시드·가중치를 확인할 수 없습니다.');
   const next=draw(seed,bound);seeds[key]=next.seed;
+  rngTrace.push({key,bound,value:next.value});
   count++;return next.value;
  };
  let count=0;
+ const rngTrace=[];
  const weighted=(npc,entries)=>{
   let roll=r(npc,entries.reduce((s,a)=>s+a[0],0));
   for(const [w,v] of entries){roll-=w;if(roll<=0)return v;}
@@ -95,7 +97,7 @@ export function replayYanwangfu(save,clears=1){
   rare('연왕',5422,33650,1000,win>=12,val=>val-win*2<=40);
   equipment('연왕',33650,true);
   gv.win_ywf=win+1;
-  output.push({clear,results,drawCount:count-before});
+  output.push({clear,results,drawCount:count-before,rngTrace:rngTrace.slice(before)});
  }
  return {gate:'연왕부',output,nextState:{...save,Rnds:{...(save.Rnds||{}),Sds:seeds},globalVariable:gv},source:'33381_1-v29',warning:'기존 원본 재생 기반 예측이며 미래 관문 실측과 일치함을 보장하지 않습니다.'};
 }
