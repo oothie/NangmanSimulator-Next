@@ -69,6 +69,36 @@ const known = value => {
 };
 const copySave = input => JSON.parse(JSON.stringify(input));
 const rewardLabel = id => SPECIAL_KOREAN_NAMES[id] || '아이템 '+id;
+/* Optional inference for numeric GetP(itemId): the 60014 save's Items
+ * inventory may be used as a *hypothesis*. The source consumer proves the
+ * numeric guard, but we have not proven native GetP(itemId)==Items[].Num in
+ * every story context. No Items array means UNKNOWN, not zero.
+ */
+export function inventoryNumericGuard(save,itemId){
+ const id=Number(itemId);
+ if(!Array.isArray(save?.Items))return null;
+ let total=0;
+ for(const item of save.Items){
+  if(!item||typeof item!=='object')continue;
+  if(known(item.ID??item.id)!==id)continue;
+  const value=known(item.Num??item.num??item.Count??item.count??1);
+  if(value<0||!Number.isSafeInteger(value))
+   throw Error('아이템 인벤토리 수량을 확인할 수 없습니다.');
+  total+=value;
+ }
+ if(!Number.isSafeInteger(total))throw Error('인벤토리 합계가 정수 범위를 초과했습니다.');
+ return total;
+}
+const inferredNumeric = (save,mode,numericState)=>{
+ if(numericState!=null)return {...numericState};
+ if(!Array.isArray(save?.Items))return null;
+ // In the complete never-claimed *counterfactual* the receipt item is
+ // assumed absent; current/count-only scenarios preserve inventory.
+ const amount=mode==='never_claimed'||mode==='fresh'?
+  0:inventoryNumericGuard(save,3970);
+ return {3970:amount};
+};
+
 const ruleKey = row => row.n+':'+row.i;
 const findRules = (npc,item) => SPECIAL_CONSUMER_RULES.filter(r=>r.n===npc&&r.i===item);
 
@@ -199,6 +229,7 @@ export function evaluateSpecialAwards(save,producers,{
  const state=specialScenario(save,mode).globalVariable;
  const counters={...state};
  const temp=tempState==null?null:{...tempState};
+ const effectiveNumeric=inferredNumeric(save,mode,numericState);
  const events=[];
  for(const producer of producers){
   const npc=Number(producer.npc);
@@ -212,7 +243,7 @@ export function evaluateSpecialAwards(save,producers,{
    // A matching producer set the drop flag for THIS clear. A lingering flag
    // in the old save is not evidence of a new drop.
    counters[rule.f]=1;
-   const check=consumerGuard(rule,counters,temp,numericState);
+   const check=consumerGuard(rule,counters,temp,effectiveNumeric);
    const awarded=check.eligible===true;
    const effects=[],pendingHypotheses=[];
    const unverifiedReceipt=UNVERIFIED_WHALE_FORWARD_RECEIPTS[ruleKey(rule)];
@@ -260,7 +291,11 @@ export function evaluateSpecialAwards(save,producers,{
    // normal equipment's GetP(drop_*_color) in the SAME parameter position.
    // A fixed grade 5 (orange) is never a grant of five item copies.
    events.push({npc,itemId:id,name:rewardLabel(id),predicted:awarded,
-    status:check.reason,quantity:awarded?1:0,
+    status:check.reason,
+    numericGuardSource:SOURCE_NUMERIC_GUARDS[ruleKey(rule)]?
+     (numericState!=null?'명시적 숫자형 상태':
+      effectiveNumeric!=null?'세이브 인벤토리 기반 추정':'원본 상태 미확정'):null,
+    quantity:awarded?1:0,
     // A source-derived successful conditional payout is not a native-60014
     // observed grant. Keep the provenance attached through every UI adapter.
     sourceOrigin:rule.origin,sourceArchive:rule.originArchive,
@@ -289,7 +324,7 @@ export function forecastSpecialAwards(save,clears,{
  const base=specialScenario(save,mode);
  const state={...base.globalVariable};
  let temp=tempState==null?null:{...tempState};
- const numeric=numericState==null?null:{...numericState};
+ const numeric=inferredNumeric(save,mode,numericState);
  const result=[];
  for(const one of clears){
   const out=evaluateSpecialAwards({globalVariable:state},one,{
@@ -351,7 +386,9 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
   });
  });
  const grants=forecastSpecialAwards(scenario,trace,{
-  mode:'current',tempState,numericState,numericAfterGrant,tempLifetime
+  mode:'current',tempState,
+  numericState:inferredNumeric(save,mode,numericState),
+  numericAfterGrant,tempLifetime
  });
  const first=new Map();
  for(let i=0;i<grants.clears.length;i++){
@@ -402,7 +439,7 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
  let state=specialScenario(save,mode);
  const ownershipMode=keyMode??(mode==='current'?'auto':'absent');
  let temp=tempState==null?null:{...tempState};
- const numeric=numericState==null?null:{...numericState};
+ const numeric=inferredNumeric(save,mode,numericState);
  const first=new Map(),rows=[];
  let stoppedReason=null,stoppedAt=null;
  for(let i=0;i<clears;i++){
