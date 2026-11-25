@@ -443,6 +443,24 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    const target=items=>(items||[]).find(x=>ids.has(x.id))||null;
    const poolFor=qty=>chosen.stock!=null&&bought+qty>=chosen.stock?
     available.filter(x=>x.id!==chosen.id):available;
+   // Cache deterministic next draws across equivalent search states only.
+   // No imported save data is persisted or exported.
+   const shelfMemo=new Map();
+   const nextShelf=(node,paid)=>{
+     const exhausted=chosen.stock!=null&&bought+node.purchased>=chosen.stock;
+     const key=[paid?1:0,node.seed,paid?node.lucky:0,exhausted?1:0].join('|');
+     let outcome=shelfMemo.get(key);
+     if(outcome)return outcome;
+     const rr=new KeyRng({guishishop:node.seed});
+     const threshold=paid?16.666666666666668+node.lucky:0;
+     const rareHit=paid?rr.chance('guishishop',threshold):false;
+     const nextLucky=paid?(rareHit?threshold-100:threshold):node.lucky;
+     const items=draw(rr,poolFor(node.purchased),paid,rareHit,slots);
+     outcome={seed:rr.seeds.guishishop,lucky:nextLucky,items,rareHit};
+     if(shelfMemo.size>=40000)shelfMemo.clear();
+     shelfMemo.set(key,outcome);
+     return outcome;
+   };
    const current=target(today);
    const currentAvailable=current&&Number(current.buyed||0)!==1?current:null;
    // Current-shelf purchase needs no new RNG roll. Never count a previously
@@ -572,23 +590,18 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
       continue;
      }
      if(node.used<vipAllowance.max){
-       const rr=new KeyRng({guishishop:node.seed});
-       const threshold=16.666666666666668+node.lucky;
-       const rareHit=rr.chance('guishishop',threshold);
-       const nextLucky=rareHit?threshold-100:threshold;
-       const items=draw(rr,poolFor(node.purchased),true,rareHit,slots);
-       push(withShelf(node,items,{kind:'paid',time:node.time,index:node.used+1,
-         rareHit},{seed:rr.seeds.guishishop,lucky:nextLucky,
+       const next=nextShelf(node,true);
+       push(withShelf(node,next.items,{kind:'paid',time:node.time,index:node.used+1,
+         rareHit:next.rareHit},{seed:next.seed,lucky:next.lucky,
          used:node.used+1,cost:node.cost+costPerRefresh,paid:node.paid+1}));
      }
      const autoFirst=node.nextAuto<=node.nextDaily;
      const t=autoFirst?node.nextAuto:node.nextDaily;
      if(t<=deadline){
        if(autoFirst){
-         const rr=new KeyRng({guishishop:node.seed});
-         const items=draw(rr,poolFor(node.purchased),false,false,slots);
-         push(withShelf(node,items,{kind:'auto',time:t},{
-           seed:rr.seeds.guishishop,time:t,nextAuto:t+43200,
+         const next=nextShelf(node,false);
+         push(withShelf(node,next.items,{kind:'auto',time:t},{
+           seed:next.seed,time:t,nextAuto:t+43200,
            nextDaily:node.nextDaily,period:node.period+1}));
        }else{
          push({...node,time:t,nextDaily:nextDaily(t),used:0,
