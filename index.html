@@ -2184,7 +2184,7 @@ function marketStrategyMarkup(state,ko){
  if(!periodChoices.includes(marketStrategyPeriods))periodChoices.push(marketStrategyPeriods);
  return '<div class="market-strategy-dashboard">'+
   '<div class="market-goal-top"><div><h4>목표 수량 전체 획득 전략</h4>'+
-   '<p class="micro">한정 잔편은 1~3장 중 선택한 수량을 목표로 계산합니다. 선천단은 남은 수량, 일반 상품은 지정 수량을 사용합니다.</p>'+   '<p class="micro">예측 전제: 표시된 모든 08시·20시마다 게임에 접속해 암시장을 열어 무료 갱신을 실행해야 합니다. 미접속 중 지나간 자동갱신은 나중에 소급 실행되지 않습니다. 원보 갱신은 안내된 날짜와 순서 그대로 실행해야 합니다.</p><p class="micro">원보 갱신 모의실행은 별도 결과 확인 기능입니다. 최단 구매 전략은 불러온 세이브의 원래 시드부터 독립적으로 계산하며, 모의실행 회차를 반영하지 않습니다. 오래된 세이브는 저장 당시 시점으로만 계산합니다.</p></div>'+
+   '<p class="micro">한정 잔편은 1~3장 중 선택한 수량을 목표로 계산합니다. 선천단은 남은 수량, 일반 상품은 지정 수량을 사용합니다.</p>'+   '<p class="micro">예측 전제: 표시된 모든 08시·20시마다 게임에 접속해 암시장을 열어 무료 갱신을 실행해야 합니다. 미접속 중 지나간 자동갱신은 나중에 소급 실행되지 않습니다. 원보 갱신은 안내된 날짜와 순서 그대로 실행해야 합니다.</p><p class="micro">원보 갱신 모의실행은 별도 결과 확인 기능입니다. 구매 전략은 현재 예상 상품과 시드에서 독립적으로 계산하며, 세이브 이후 정시 무료 갱신은 모두 확인했다고 가정합니다. 모의 원보 갱신은 반영하지 않습니다.</p></div>'+
    '<span class="market-goal-state">VIP '+marketVipOverride+' · '+state.slots+'칸</span></div>'+
   '<div class="market-goal-controls">'+
    '<label>VIP 등급<select id="marketStrategyVipSelect">'+[0,1,2,3,4,5].map(level=>
@@ -2210,7 +2210,7 @@ function marketStrategyMarkup(state,ko){
      goal.limited?'총 '+target.stock+'개 중 구매 '+goal.purchased+'개 · 남은 '+goal.quantity+'개 전부':
      '지정 수량 '+goal.quantity+'개 구매')+'</small></div></div>':'')+
   (exhausted?'<p class="market-limit-note">이 세이브에서 해당 상품을 모두 구매했습니다. 추가 구매 경로는 없습니다.</p>':'')+
-  (!views&&!exhausted?'<p class="market-plan-hint">계산하면 무료 갱신·최소 원보·최단기간의 구매 경로가 현재 세이브 기준으로 각각 표시됩니다.</p>':'')+
+  (!views&&!exhausted?'<p class="market-plan-hint">계산하면 무료 갱신만 사용하는 경로와 최단기간 구매 경로를 현재 예상 시점 기준으로 표시합니다.</p>':'')+
   (views?'<div class="market-plan-summary"><div><span>목표 수량</span><b>'+goal.quantity+'개</b></div>'+
    '<div><span>계산 VIP</span><b>VIP '+marketVipOverride+'</b></div>'+
    '<div><span>예측 시작</span><b>'+escape(marketDate(views.anchor))+'</b></div></div>'+
