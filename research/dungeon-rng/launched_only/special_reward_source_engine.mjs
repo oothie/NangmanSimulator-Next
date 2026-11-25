@@ -125,7 +125,8 @@ function consumerGuard(rule,state,tempState,numericState){
  const numeric=SOURCE_NUMERIC_GUARDS[ruleKey(rule)];
  if(numeric){
   if(numericState==null||
-      !Object.prototype.hasOwnProperty.call(numericState,String(numeric.key)))
+      !Object.prototype.hasOwnProperty.call(numericState,String(numeric.key))||
+      numericState[numeric.key]==null)
    return {eligible:null,reason:'숫자형 원본 GetP 조건 상태 미확인'};
   const current=known(numericState[numeric.key]);
   if(!(numeric.operator==='=='&&current===numeric.value))
@@ -210,23 +211,33 @@ export function evaluateSpecialAwards(save,producers,{
  * state continues across all clears with award counters carried forward.
  */
 export function forecastSpecialAwards(save,clears,{
- mode='current',tempState=null,numericState=null
+ mode='current',tempState=null,numericState=null,numericAfterGrant='unknown'
 }={}){
+ if(!['unknown','retained'].includes(numericAfterGrant))
+  throw Error('원본 숫자형 GetP 보유 변화 가정이 올바르지 않습니다.');
  if(!Array.isArray(clears))throw Error('관문 결과 배열이 필요합니다.');
  const base=specialScenario(save,mode);
  const state={...base.globalVariable};
  let temp=tempState==null?null:{...tempState};
+ const numeric=numericState==null?null:{...numericState};
  const result=[];
  for(const one of clears){
   const out=evaluateSpecialAwards({globalVariable:state},one,{
-   mode:'current',tempState:temp,numericState
+   mode:'current',tempState:temp,numericState:numeric
   });
   Object.assign(state,out.counters);
   // Preserve the native temp-scoped payout state, not global get_* values.
   temp=out.tempCounters;
+  if(numeric&&out.events.some(event=>
+    event.npc===35221&&event.itemId===3970&&event.predicted)){
+   // Source confirmed a newly awarded key, but not how numeric GetP(3970)
+   // is mutated by the inventory/quest consumer. Do not invent its value.
+   numeric[3970]=numericAfterGrant==='retained'?1:null;
+  }
   result.push(out.events);
  }
- return {mode,clears:result,counters:state,unresolved:result.flat().filter(e=>e.unresolved).length};
+ return {mode,clears:result,counters:state,tempState:temp,numericState:numeric,
+  unresolved:result.flat().filter(e=>e.unresolved).length};
 }
 
 const NPC_BY_GATE=Object.freeze({
@@ -241,7 +252,7 @@ const NPC_BY_GATE=Object.freeze({
  * The adapter never modifies a deployed engine, a source save or a seed.
  */
 export function forecastSpecialsFromProducer(save,gate,producer,clears,{
- mode='current',keyMode=null,tempState=null,numericState=null
+ mode='current',keyMode=null,tempState=null,numericState=null,numericAfterGrant='unknown'
 }={}){
  if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
  const bosses=NPC_BY_GATE[gate];
@@ -262,7 +273,9 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
    return {npc,specialIds:row.specialIds};
   });
  });
- const grants=forecastSpecialAwards(scenario,trace,{mode:'current',tempState,numericState});
+ const grants=forecastSpecialAwards(scenario,trace,{
+  mode:'current',tempState,numericState,numericAfterGrant
+ });
  const first=new Map();
  for(let i=0;i<grants.clears.length;i++){
   for(const event of grants.clears[i]){
@@ -293,8 +306,11 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
  * returned result retains a conditional status until native validation.
  */
 export function forecastInterleavedSpecials(save,gate,producer,clears,{
- mode='current',keyMode=null,tempState=null,numericState=null,firstItemId=null
+ mode='current',keyMode=null,tempState=null,numericState=null,
+ numericAfterGrant='unknown',firstItemId=null
 }={}){
+ if(!['unknown','retained'].includes(numericAfterGrant))
+  throw Error('원본 숫자형 GetP 보유 변화 가정이 올바르지 않습니다.');
  if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
  if(!Number.isInteger(clears)||clears<1||clears>2000)
   throw Error('1~2000회 범위를 입력하세요.');
@@ -306,6 +322,7 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
  let state=specialScenario(save,mode);
  const ownershipMode=keyMode??(mode==='current'?'auto':'absent');
  let temp=tempState==null?null:{...tempState};
+ const numeric=numericState==null?null:{...numericState};
  const first=new Map(),rows=[];
  for(let i=0;i<clears;i++){
   const producerResult=producer(state,1,ownershipMode);
@@ -319,10 +336,13 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
    return {npc,specialIds:boss.specialIds};
   });
   const evaluated=evaluateSpecialAwards(producerResult.nextState,outcomes,{
-   tempState:temp,numericState
+   tempState:temp,numericState:numeric
   });
   state={...producerResult.nextState,globalVariable:evaluated.counters};
   temp=evaluated.tempCounters;
+  if(numeric&&evaluated.events.some(event=>
+    event.npc===35221&&event.itemId===3970&&event.predicted))
+   numeric[3970]=numericAfterGrant==='retained'?1:null;
   for(const event of evaluated.events){
    if(event.predicted){
     const token=event.npc+':'+event.itemId;
@@ -343,6 +363,6 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
   // Deliberately separate the battle entry and conditional consumer from
   // actual final inventory transaction and quest-state transitions.
   conditional:true,questHistoryAssumedUnchanged:mode!=='current',
-  nextState:state,tempState:temp,
+  nextState:state,tempState:temp,numericState:numeric,
   unresolved:rows.reduce((sum,row)=>sum+row.unresolved,0)};
 }
