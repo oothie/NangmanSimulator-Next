@@ -1,7 +1,7 @@
 /* Synthetic-only regression: NO user save, seed, character or account data. */
 import assert from 'node:assert/strict';
 import {
- SPECIAL_CONSUMER_RULES,SPECIAL_KOREAN_NAMES,specialScenario,originalConsumerRule,
+ SPECIAL_CONSUMER_RULES,SPECIAL_KOREAN_NAMES,ORIGINAL_FRAGMENT_MILESTONES,specialScenario,originalConsumerRule,
  restoreOriginalPendingAward,evaluateSpecialAwards,forecastSpecialAwards,
  forecastSpecialsFromProducer
 } from './special_reward_source_engine.mjs';
@@ -104,5 +104,28 @@ test('unclaimed ownership scenario uses key-absent branch by default',()=>{
  forecastSpecialsFromProducer(s,'유씨별원',make,1,{mode:'unclaimed'});
  forecastSpecialsFromProducer(s,'유씨별원',make,1,{mode:'unclaimed',keyMode:'retain'});
  assert.deepEqual(modes,['auto','absent','retain']);
+});
+test('eight source fragment completion effects exactly follow original guard',()=>{
+ assert.equal(ORIGINAL_FRAGMENT_MILESTONES.length,8);
+ for(const entry of ORIGINAL_FRAGMENT_MILESTONES){
+  const base={globalVariable:{[entry.count]:entry.before,[entry.shop]:0}};
+  const done=evaluateSpecialAwards(base,[{npc:entry.npc,specialIds:[entry.item]}]);
+  assert.equal(done.events[0].predicted,true);
+  assert.equal(done.events[0].effects.length,1);
+  assert.equal(done.events[0].effects[0].key,entry.shop);
+  assert.equal(done.counters[entry.shop],1);
+  // The original input is read-only and no extra milestone runs on a
+  // second award after the recorded completion threshold.
+  assert.equal(base.globalVariable[entry.shop],0);
+  const prior=evaluateSpecialAwards({globalVariable:{[entry.count]:entry.before-1}},
+   [{npc:entry.npc,specialIds:[entry.item]}]);
+  assert.equal(prior.events[0].effects.length,0);
+ }
+});
+test('completed fragment unlock does not advance for an ineligible reward',()=>{
+ const r=evaluateSpecialAwards({globalVariable:{get_2925:15,buyshop_1333:2}},
+  [{npc:40374,specialIds:[2925]}]);
+ assert.equal(r.events[0].predicted,false);
+ assert.equal(r.counters.buyshop_1333,2);
 });
 console.log('PASS',testCount,'synthetic original consumer regressions');
