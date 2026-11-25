@@ -1,0 +1,63 @@
+{
+  "source": "Korean 60014 original map_qc.tmx",
+  "cipher": "Native JHTMXMapInfo prefix DADDY, XXTEA key derived from constructor; verified XML header",
+  "encryptedSha256": "3ac7a5978c6bd6ac346c76359aa54ce43686323a11525d9e268d977f593eb726",
+  "decodedSha256": "d2bfae0c16da3262816685d307e81520ff935b4d9aafb749cfb6d844b9300e87",
+  "mapSizeTiles": {
+    "width": 30,
+    "height": 25
+  },
+  "orientation": "isometric",
+  "npcObjectCount": 9,
+  "sourceBanditNpc": 32950,
+  "fixedBanditObjects": [
+    {
+      "objectId": 1331,
+      "x": 1200,
+      "y": 1136
+    },
+    {
+      "objectId": 1332,
+      "x": 1006.67,
+      "y": 1198.67
+    },
+    {
+      "objectId": 1333,
+      "x": 880,
+      "y": 816
+    },
+    {
+      "objectId": 1334,
+      "x": 109.333,
+      "y": 749.333
+    },
+    {
+      "objectId": 1335,
+      "x": 552.999,
+      "y": 749.666
+    },
+    {
+      "objectId": 1422,
+      "x": 688,
+      "y": 1008
+    }
+  ],
+  "otherNpcObjects": [
+    {
+      "npcId": 32945,
+      "objectId": 1330
+    },
+    {
+      "npcId": 32941,
+      "objectId": 1391
+    },
+    {
+      "npcId": 32941,
+      "objectId": 1392
+    }
+  ],
+  "fixedMapObjectCountDoesNotImplyBattleCount": true,
+  "nativeBattleLineupSourceRecovered": false,
+  "predictedFutureBanditCounts": null,
+  "privateUserDataIncluded": false
+}
