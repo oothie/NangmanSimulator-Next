@@ -372,6 +372,23 @@ for(const memoSeed of [12345,13579,97531,24680,44444]){
   }).nativeReplayChecked,'cached shelf must match independent native event replay');
  }
 }
+// Weight-array reuse must preserve all visible paid items and Lucky in 3–6
+// slot layouts; streams are artificial, never taken from real save files.
+for(const stocklessSeed of [12345,13579,97531,24680,44444,78945,24681]){
+ const input={RandShop:{Time:now,Fresh:0,Lucky:0,Buy:60,Items:[],Counts:[]},
+  Rnds:{Sds:{guishishop:stocklessSeed}}};
+ for(const slots of [3,4,5,6]){
+  const predicted=api.predict(input,catalog,now,{slots}).getPaid(4,{vip:5});
+  const events=[];
+  for(let index=0;index<4;index++){
+   events.push({kind:'paid',at:now+index});
+   const actual=api.replayKoreanClientEvents(input,catalog,events,{slots});
+   assert.deepEqual(Array.from(predicted[index].items,item=>item.id),
+    Array.from(actual.items),'weighted draw must match native stream');
+   assert(Math.abs(predicted[index].lucky-actual.lucky)<1e-8);
+  }
+ }
+}
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
