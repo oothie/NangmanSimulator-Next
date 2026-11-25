@@ -97,5 +97,5 @@ export function replayYanwangfu(save,clears=1){
   gv.win_ywf=win+1;
   output.push({clear,results,drawCount:count-before});
  }
- return {gate:'연왕부',output,source:'33381_1-v29',warning:'기존 원본 재생 기반 예측이며 미래 관문 실측과 일치함을 보장하지 않습니다.'};
+ return {gate:'연왕부',output,nextState:{...save,Rnds:{...(save.Rnds||{}),Sds:seeds},globalVariable:gv},source:'33381_1-v29',warning:'기존 원본 재생 기반 예측이며 미래 관문 실측과 일치함을 보장하지 않습니다.'};
 }
