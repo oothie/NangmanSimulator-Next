@@ -1548,7 +1548,7 @@ return '<div class="layout">'+aside+'<div class="work">'+hero +tabbar+body+'</di
 }
 function saveView(){return '<div class="cards">'+card('세이브 관리','<p class="muted">JSON 파일은 브라우저 내부에서만 처리합니다.</p><button id="loadHere" class="btn primary">JSON 불러오기</button><button id="clear" class="btn" '+(!save?'disabled':'')+'>세이브 해제</button>')+card('파일 정보',stats([[String(roles.length),'캐릭터'],[String(save?Object.keys(save).length:0),'최상위 필드']])+'<p class="micro">'+escape(filename||'세이브 없음')+'</p>')+'</div>'}
 
-let equipTab='find',equipSearch='',equipFindLevel='all',equipFindType='all',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel',accountTab='summary',accountGrowthMode='consumable',accountMapSearch='',accountLootFilter='active',accountMapVisible=36;let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketStrategyTarget=223,marketStrategyQuantity=1,marketStrategyPeriods=120,marketStrategyResults=null,marketSlotsOverride=0,marketStrategyWorker=null,marketStrategyJob=0,marketStrategyProgress='';let questSourceError='';
+let equipTab='find',equipSearch='',equipFindLevel='all',equipFindType='all',equipOwnSearch='',equipDetail=null,equipPrevious='find',equipPreviousView='equip',wikiTab='all',dailyTab='ghost',characterTab='panel',accountTab='summary',accountGrowthMode='consumable',accountMapSearch='',accountLootFilter='active',accountMapVisible=36;let marketQuery='',marketPeriods=6,marketVipOverride=0,marketSimStep=0,marketPanel='current',marketAutoStep=0,marketSimActions=[],marketStrategyTarget=223,marketStrategyQuantity=1,marketStrategyPeriods=120,marketStrategyResults=null,marketSlotsOverride=0,marketStrategyWorker=null,marketStrategyJob=0,marketStrategyProgress='';let questSourceError='';
 let questTab='current',questSearch='',questBranchFilter='active',questVisibleLimit=200,questCatalogLimit=150,questCategory='all',questFocusedId=null,questRegion='all';let characterFilter='';
 function tabRow(options,current,key){
 return '<nav class="simple-tabs">'+options.map(([id,name])=>'<button data-module-tab="'+key+':'+id+'" class="'+(current===id?'active':'')+'">'+name+'</button>').join('')+'</nav>'
@@ -2279,6 +2279,58 @@ function marketForecastContext(){
   assumed:virtual.applied,assumptionError:virtual.reason||'',
   sourceSave:activeSave};
 }
+// Read-only interactive ghost-market journey. The 05:00 daily quota reset
+// does not draw RNG; every 08:00/20:00 shop visit and each paid refresh does.
+// Events are replayed in the exact order selected, including paid refreshes
+// after a future automatic refresh. This is separate from purchase strategies.
+function marketSimulatedTimeline(context,vipChoice,periods){
+ const api=window.NangmanMarket,allowance=context.state.paidAllowance(vipChoice);
+ const catalog=window.DAILY_DATA?.shops?.guishi||[];
+ const catalogById=new Map(catalog.map(x=>[x.id,x]));
+ const itemRows=ids=>(ids||[]).map(id=>catalogById.get(id)).filter(Boolean);
+ let time=context.anchor,used=allowance.used,paidCount=0,autoCount=0;
+ let nextReset=(api.resetDay(time)+1)*86400-14400;
+ const events=[],actions=[];
+ const insertResets=until=>{
+  while(nextReset<=until){
+   events.push({kind:'daily-reset',at:nextReset});
+   used=0;
+   nextReset+=86400;
+  }
+ };
+ for(const action of marketSimActions){
+  if(action==='paid'){
+   if(used>=allowance.max)break;
+   events.push({kind:'paid',at:time});
+   actions.push({kind:'paid',at:time,eventIndex:events.length-1});
+   used++;paidCount++;
+  }else if(action==='auto'&&autoCount<60){
+   const at=api.nextHalfDay(time);
+   insertResets(at);
+   events.push({kind:'open',at});
+   actions.push({kind:'auto',at,eventIndex:events.length-1});
+   time=at;autoCount++;
+  }
+ }
+ const endCount=events.length;
+ const preview=[];
+ let next=api.nextHalfDay(time);
+ for(let i=0;i<periods;i++,next+=43200){
+  insertResets(next);
+  events.push({kind:'open',at:next});
+  preview.push({time:next,eventIndex:events.length-1});
+ }
+ const replay=api.replayKoreanClientEvents(context.sourceSave,
+  window.DAILY_DATA,events,{slots:context.state.slots});
+ const last=actions[actions.length-1];
+ const current=last?replay.events[last.eventIndex]:null;
+ return {paidCount,autoCount,used,max:allowance.max,time,
+  paidLeft:Math.max(0,allowance.max-used),last,
+  lastRare:current?.rare===true,
+  items:current?itemRows(current.items):context.state.today,
+  preview:preview.map(x=>({time:x.time,
+   items:itemRows(replay.events[x.eventIndex]?.items)}))};
+}
 function dailyMarketView(){
  if(!save)return '<p class="role-status-note">암시장은 불러온 계정의 서버·시드·구매 이력을 사용해 계산합니다. 계산하려면 해당 계정의 세이브 파일을 불러와 주세요.</p>';
  if(!window.NangmanMarket||!window.DAILY_DATA?.shops?.guishi)
@@ -2287,9 +2339,13 @@ function dailyMarketView(){
  const ko=wikiKoMap(),state=context.state,
   vipChoice=marketVipOverride,
   allowance=state.paidAllowance(vipChoice),
-  simSteps=Math.min(Math.max(0,Math.floor(marketSimStep)),allowance.left),
-  simSequence=state.seedOk&&simSteps?state.getPaid(simSteps,{vip:vipChoice}):[],
-  simulated=simSequence[simSequence.length-1]||null,
+  periods=Math.min(60,Math.max(1,Math.floor(Number(marketPeriods)||6))),
+  simulation=state.seedOk?marketSimulatedTimeline(context,vipChoice,periods):null,
+  simSteps=simulation?.paidCount||0,
+  autoStep=simulation?.autoCount||0,
+  simulated=simulation?.last?.kind==='paid'?simulation:null,
+  autoForecast=simulation?.last?.kind==='auto'?simulation:null,
+  timedWithPaid=simulation?.preview||[],
   lookup=[...state.available,...state.soldOut].filter(x=>(String(x.id)+' '+String(x.item)+' '+String(x.name)+' '+marketCatalogName(x,ko))
    .toLowerCase().includes(marketQuery.trim().toLowerCase()));
  const recordTime=Number(save?.UploadTime||save?.RealTime||save?.AutoSave||0);
@@ -2299,12 +2355,6 @@ function dailyMarketView(){
   ' · <b>암시장 계산 기준</b> '+escape(marketDate(context.anchor))+'</p>'+
   (context.assumed?'<p class="market-limit-note">현재 상품 예상 · 세이브 이후 08시·20시 무료 갱신 '+escape(context.missed)+'회를 모두 실제로 확인했다고 가정했습니다. 추가 원보 갱신·구매는 가정하지 않습니다.</p>':
    context.assumptionError?'<p class="market-limit-note">'+escape(context.assumptionError)+'</p>':'');
- const periods=Math.min(12,Math.max(1,Math.floor(Number(marketPeriods)||6)));
- const paid=state.seedOk?state.getPaid(allowance.left,{vip:vipChoice}):[];
- const timed=state.seedOk?state.timed(periods):[];
- const timedWithPaid=state.seedOk&&simSteps>0?state.timed(periods,{vip:vipChoice,paidSteps:simSteps}):timed;
- const autoStep=Math.min(timed.length,Math.max(0,Number(marketAutoStep)||0));
- const autoForecast=autoStep?timedWithPaid[autoStep-1]:null;
  const targetIds=marketQuery.trim()&&state.seedOk?lookup.map(x=>x.id).slice(0,25):[];
  const timedTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'timed-only'}):[];
  const paidTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'paid-now',vip:vipChoice}):[];
@@ -2327,26 +2377,26 @@ function dailyMarketView(){
  '<p class="micro">세이브에 기록된 상품에서 출발해 원보 갱신을 모의실행하고, 이어지는 08시·20시 무료 자동 갱신까지 같은 경로로 확인합니다. 실제 게임의 원보·세이브는 변경되지 않습니다.</p>'+
  '<div class="actions market-sim-controls">'+
  '<label>VIP 등급 <select id="marketVipSelect" aria-label="VIP 등급 수동 선택">'+[0,1,2,3,4,5].map(l=>'<option value="'+l+'" '+(vipChoice===l?'selected':'')+'>VIP '+l+' · 하루 '+window.NangmanMarket.VIP_REFRESH[l]+'회</option>').join('')+'</select></label>'+
- '<button id="marketSimNext" class="btn primary" '+(!state.seedOk||autoStep>0||simSteps>=allowance.left?'disabled':'')+'>모의 원보 갱신 +1회</button>'+
- '<button id="marketAutoNext" class="btn primary" '+(!state.seedOk||autoStep>=timedWithPaid.length?'disabled':'')+'>다음 무료 자동 갱신</button>'+
+ '<button id="marketSimNext" class="btn primary" '+(!state.seedOk||!simulation||simulation.paidLeft<=0?'disabled':'')+'>모의 원보 갱신 +1회</button>'+
+ '<button id="marketAutoNext" class="btn primary" '+(!state.seedOk||autoStep>=60?'disabled':'')+'>다음 무료 자동 갱신</button>'+
  '<button id="marketAutoReset" class="btn" '+(!autoStep?'disabled':'')+'>자동 갱신 전으로</button>'+
- '<button id="marketSimReset" class="btn" '+(!simSteps&&!autoStep?'disabled':'')+'>현재 예상으로 돌아가기</button></div>'+
- '<p class="micro">VIP '+vipChoice+' · 세이브상 원보 갱신 '+allowance.used+' / '+allowance.max+'회 · 모의 원보 '+simSteps+'회 / 잔여 '+allowance.left+'회 · 모의 자동 갱신 '+autoStep+'회</p>'+
- '<h5>'+(autoForecast?'무료 자동 갱신 '+autoStep+'회차 · '+escape(marketDate(autoForecast.time)):
- simulated?'원보 갱신 '+simulated.step+'회차 · '+(simulated.rareHit?'희귀 상품 판정':'일반 갱신'):
+ '<button id="marketSimReset" class="btn" '+(!marketSimActions.length?'disabled':'')+'>현재 예상으로 돌아가기</button></div>'+
+ '<p class="micro">VIP '+vipChoice+' · 세이브상 원보 갱신 '+allowance.used+' / '+allowance.max+'회 · 모의 원보 '+simSteps+'회 / 현재 잔여 '+(simulation?.paidLeft??allowance.left)+'회 · 모의 자동 갱신 '+autoStep+' / 60회</p>'+
+ '<h5>'+(autoForecast?'무료 자동 갱신 '+autoStep+'회차 · '+escape(marketDate(simulation.time)):
+ simulated?'원보 갱신 '+simSteps+'회차 · '+(simulation.lastRare?'희귀 상품 판정':'일반 갱신'):
  '현재 상품'+(context.assumed?' · 전회차 무료 갱신 가정':''))+'</h5>'+
- marketItemTable(autoForecast?autoForecast.items:simulated?simulated.items:state.today,ko,
-  !autoForecast&&!simulated?'current':undefined)+
- (autoStep>0?'<p class="micro">현재 상품은 모의 원보 갱신 '+simSteps+'회 이후 자동 갱신 '+autoStep+'회를 진행한 결과입니다. 다른 원보 갱신 경로를 보려면 「자동 갱신 전으로」를 선택하세요.</p>':
+ marketItemTable(simulation?.items||state.today,ko,
+  !simulation?.last?'current':undefined)+
+ (autoStep>0?'<p class="micro">무료 자동 갱신 이후에도 원보 갱신을 이어서 모의실행할 수 있습니다. 다음날 05시가 지나면 VIP별 갱신 횟수가 초기화됩니다.</p>':
   '<p class="micro">원보 갱신을 원하는 만큼 진행한 다음 「다음 무료 자동 갱신」을 누르면 해당 시드에서 이어서 계산합니다.</p>')+
  (state.seedOk?'<details class="market-prediction"><summary>현재 경로의 다음 정시 갱신 '+periods+'회 펼쳐보기</summary>'+
- timedWithPaid.map((x,i)=>'<details class="market-prediction"><summary>'+(i<autoStep?'진행한 갱신 · ':'예정 · ')+escape(marketDate(x.time))+'</summary>'+marketItemTable(x.items,ko)+'</details>').join('')+
+ timedWithPaid.map((x,i)=>'<details class="market-prediction"><summary>예정 · '+escape(marketDate(x.time))+'</summary>'+marketItemTable(x.items,ko)+'</details>').join('')+
  '</details>':'')+
  '</section>'+
  '<section class="market-section" data-market-panel="strategy">'+marketStrategyMarkup(state,ko)+'</section>'+
  '<section class="market-section" data-market-panel="search"><h4>상품 검색 · 향후 첫 등장 시점</h4>'+
   '<input id="marketQuery" type="search" placeholder="한국어 이름 / 아이템 ID / 상품 ID 검색" value="'+escape(marketQuery)+'" aria-label="암시장 상품 검색">'+
- '<label class="market-period-label">정시 교체 예측 범위 <select id="marketPeriods">'+[3,6,9,12].map(x=>
+ '<label class="market-period-label">정시 교체 예측 범위 <select id="marketPeriods">'+[3,6,9,12,30,60].map(x=>
  '<option value="'+x+'" '+(x===periods?'selected':'')+'>'+x+'회</option>').join('')+'</select></label>'+
  '<p class="micro">정시 변경만 기다리는 경우와 지금 원보를 갱신하는 경우는 RNG 시퀀스가 서로 다릅니다. 별개 시나리오로 계산하며, 실제 갱신하지 않은 가상의 원보 소비를 정시 변경 예측에 섞지 않습니다. 검색 대상 '+lookup.length+'종.</p>'+
  (marketQuery.trim()?'<div class="market-search-results">'+lookup.slice(0,35).map(item=>{
@@ -4651,9 +4701,9 @@ if(v==='drop'&&dropSelectedMode==='dungeon'&&$('dungeonTestHost')){
  });
 }if(v==='wiki')restoreWikiList();document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{v=b.dataset.view;location.hash=v;render()});document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;render()});document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.role);invalidateWashLink(roles[selected]?.id);render()});document.querySelectorAll('[data-character-role]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.characterRole);characterTab='panel';invalidateWashLink(roles[selected]?.id);render()});const accountAll=document.querySelector('[data-account-all]');if(accountAll)accountAll.onclick=()=>{v='account';accountTab='summary';location.hash=v;render()};if($('downloadAccountCultivation'))$('downloadAccountCultivation').onclick=yyDownloadAccountCultivation;document.querySelectorAll('[data-account-tab]').forEach(b=>b.onclick=()=>{accountTab=b.dataset.accountTab;render()});document.querySelectorAll('[data-account-growth]').forEach(b=>b.onclick=()=>{accountGrowthMode=b.dataset.accountGrowth;render()});document.querySelectorAll('[data-loot-filter]').forEach(b=>b.onclick=()=>{accountLootFilter=b.dataset.lootFilter;accountMapVisible=36;render()});if($('accountMapMore'))$('accountMapMore').onclick=()=>{accountMapVisible+=36;render()};if($('accountMapSearch'))$('accountMapSearch').oninput=e=>{accountMapSearch=e.target.value;accountMapVisible=36;const pos=e.target.selectionStart;render();const field=$('accountMapSearch');if(field){field.focus();field.setSelectionRange(pos,pos)}};document.querySelectorAll('[data-character-jump]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.characterJump);invalidateWashLink(roles[selected]?.id);v='character';location.hash=v;characterTab='training';render()});if($('characterSearch'))$('characterSearch').oninput=e=>{characterFilter=e.target.value;const caret=e.target.selectionStart;render();const field=$('characterSearch');if(field){field.focus();field.setSelectionRange(caret,caret)}};if($('search'))$('search').oninput=e=>{filter=e.target.value;const i=e.target.selectionStart;render();const s=$('search');s.focus();s.setSelectionRange(i,i)};if($('marketQuery'))$('marketQuery').oninput=e=>{marketPanel='search';marketQuery=e.target.value;const caret=e.target.selectionStart;render();const field=$('marketQuery');if(field){field.focus();field.setSelectionRange(caret,caret)}};
 if($('marketPeriods'))$('marketPeriods').onchange=e=>{marketPeriods=Number(e.target.value);render()};
-if($('marketVipSelect'))$('marketVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;marketAutoStep=0;render()};
-if($('marketSlotsSelect'))$('marketSlotsSelect').onchange=e=>{marketSlotsOverride=Number(e.target.value);marketSimStep=0;marketAutoStep=0;marketStrategyResults=null;render()};
-if($('marketStrategyVipSelect'))$('marketStrategyVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;marketAutoStep=0;marketStrategyResults=null;render()};
+if($('marketVipSelect'))$('marketVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;marketAutoStep=0;marketSimActions=[];render()};
+if($('marketSlotsSelect'))$('marketSlotsSelect').onchange=e=>{marketSlotsOverride=Number(e.target.value);marketSimStep=0;marketAutoStep=0;marketSimActions=[];marketStrategyResults=null;render()};
+if($('marketStrategyVipSelect'))$('marketStrategyVipSelect').onchange=e=>{marketVipOverride=Number(e.target.value);marketSimStep=0;marketAutoStep=0;marketSimActions=[];marketStrategyResults=null;render()};
 if($('marketStrategyTarget'))$('marketStrategyTarget').onchange=e=>{marketStrategyTarget=Number(e.target.value);marketStrategyResults=null;render()};
 if($('marketStrategyQuantity'))$('marketStrategyQuantity').onchange=e=>{marketStrategyQuantity=Math.max(1,Math.min(1000,Math.floor(Number(e.target.value)||1)));marketStrategyResults=null;render()};
 if($('marketStrategyPeriods'))$('marketStrategyPeriods').onchange=e=>{marketStrategyPeriods=Number(e.target.value);marketStrategyResults=null;render()};
@@ -4725,10 +4775,10 @@ if($('marketStrategyRun'))$('marketStrategyRun').onclick=()=>{
 document.querySelectorAll('[data-market-panel]').forEach(el=>{el.hidden=el.dataset.marketPanel!==marketPanel});
 document.querySelectorAll('[data-market-tab]').forEach(el=>el.onclick=()=>{marketPanel=el.dataset.marketTab;render()});
 
-if($('marketSimNext'))$('marketSimNext').onclick=()=>{marketSimStep++;render()};
-if($('marketAutoNext'))$('marketAutoNext').onclick=()=>{marketAutoStep++;render()};
-if($('marketAutoReset'))$('marketAutoReset').onclick=()=>{marketAutoStep=0;render()};
-if($('marketSimReset'))$('marketSimReset').onclick=()=>{marketSimStep=0;marketAutoStep=0;render()};
+if($('marketSimNext'))$('marketSimNext').onclick=()=>{marketSimActions.push('paid');render()};
+if($('marketAutoNext'))$('marketAutoNext').onclick=()=>{marketSimActions.push('auto');render()};
+if($('marketAutoReset'))$('marketAutoReset').onclick=()=>{const i=marketSimActions.indexOf('auto');if(i>=0)marketSimActions=marketSimActions.slice(0,i);render()};
+if($('marketSimReset'))$('marketSimReset').onclick=()=>{marketSimStep=0;marketAutoStep=0;marketSimActions=[];render()};
 
 if($('questSearch'))$('questSearch').oninput=e=>{questSearch=e.target.value;questFocusedId=null;questVisibleLimit=200;questCatalogLimit=150;const pos=e.target.selectionStart;render();const field=$('questSearch');if(field){field.focus();field.setSelectionRange(pos,pos)}};
 document.querySelectorAll('[data-quest-filter]').forEach(el=>el.onclick=()=>{questBranchFilter=el.dataset.questFilter;questVisibleLimit=200;render()});
@@ -5279,7 +5329,7 @@ document.addEventListener('nangman-equip-navigate',event=>{
  if(!equipmentTabs.some(x=>x[0]===target))return;
  equipDetail=null;equipmentLastOriginalTab=null;equipTab=target;v='equip';history.replaceState(null,'','#equip');render();
 });
-window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));});window.addEventListener('nangman-equip-update',()=>{if(v==='equip'){const p=$('equipPaper')?.value,n=$('equipNpc')?.value,c=$('equipPreviewCount')?.value;render();if(p&&$('equipPaper'))$('equipPaper').value=p;if(n&&$('equipNpc'))$('equipNpc').value=n;if(c&&$('equipPreviewCount'))$('equipPreviewCount').value=c;}});window.addEventListener('nangman-wash-updated',()=>{if(v==='wash')render()});window.__nangmanForwardSave=frame=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};$('saveLink').onclick=()=>$('file').click();$('clearTopSave').onclick=async()=>{if(!confirm('이 브라우저에 저장된 세이브를 삭제할까요?'))return;try{await Promise.all([window.NangmanPrivateSave?.clear(),window.NangmanSearchCache?.clear()])}catch(e){console.warn('로컬 세이브 삭제 실패',e)}save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch(e){}render()};$('file').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{if(f.size>50e6)throw Error('파일 용량 50MB 초과');let obj=JSON.parse(await f.text());let root=obj?.data?.MainRole?obj.data:obj?.save?.MainRole?obj.save:obj;if(Array.isArray(root))root=root.find(x=>x&&typeof x==='object'&&!Array.isArray(x))||null;if(!root||typeof root!=='object'||Array.isArray(root))throw Error('한국판 세이브 객체를 찾지 못했습니다');save=root;filename=f.name;roles=getRoles(root);marketSimStep=0;marketAutoStep=0;marketStrategyResults=null;invalidateWashLink();broadcastEquipmentSave();dropSaveVersion++;sendSaveToDrop();try{await window.NangmanPrivateSave.store(root,f.name);sessionStorage.removeItem('nangman_shared_save_v1')}catch(err){console.warn('브라우저 로컬 세이브 저장 실패',err)}const embedded=$('nativeEngineFrame');if(embedded?.contentWindow)embedded.contentWindow.postMessage({kind:'nangman-save',save:root},location.origin);window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:root}));selected=0;render()}catch(err){alert('불러오기 실패: '+err.message)}};function theme(t){document.documentElement.dataset.theme=t;$('paper').classList.toggle('on',t==='paper');$('ink').classList.toggle('on',t==='ink');for(const frame of equipmentFrames.values())sendThemeToEquipment(frame,t);sendThemeToDrop(t);const washFrame=document.getElementById('washV350Frame');if(washFrame?.contentWindow)try{washFrame.contentWindow.postMessage({kind:'nangman-v350-theme',theme:t},location.origin)}catch(error){console.warn('세수 테마 전달 오류',error)}try{localStorage.setItem('nangman-theme',t)}catch{}}$('paper').onclick=()=>theme('paper');$('ink').onclick=()=>theme('ink');try{theme(localStorage.getItem('nangman-theme')==='ink'?'ink':'paper')}catch{theme('paper')}render();
+window.addEventListener('nangman-equip-request-loaded-save',()=>{if(save)window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));});window.addEventListener('nangman-equip-update',()=>{if(v==='equip'){const p=$('equipPaper')?.value,n=$('equipNpc')?.value,c=$('equipPreviewCount')?.value;render();if(p&&$('equipPaper'))$('equipPaper').value=p;if(n&&$('equipNpc'))$('equipNpc').value=n;if(c&&$('equipPreviewCount'))$('equipPreviewCount').value=c;}});window.addEventListener('nangman-wash-updated',()=>{if(v==='wash')render()});window.__nangmanForwardSave=frame=>{if(save)frame.contentWindow.postMessage({kind:'nangman-save',save},location.origin)};$('saveLink').onclick=()=>$('file').click();$('clearTopSave').onclick=async()=>{if(!confirm('이 브라우저에 저장된 세이브를 삭제할까요?'))return;try{await Promise.all([window.NangmanPrivateSave?.clear(),window.NangmanSearchCache?.clear()])}catch(e){console.warn('로컬 세이브 삭제 실패',e)}save=null;filename='';roles=[];selected=0;invalidateWashLink();clearEquipmentSessions();dropSaveVersion++;sendSaveToDrop();try{sessionStorage.removeItem('nangman_shared_save_v1')}catch(e){}render()};$('file').onchange=async e=>{let f=e.target.files?.[0];if(!f)return;try{if(f.size>50e6)throw Error('파일 용량 50MB 초과');let obj=JSON.parse(await f.text());let root=obj?.data?.MainRole?obj.data:obj?.save?.MainRole?obj.save:obj;if(Array.isArray(root))root=root.find(x=>x&&typeof x==='object'&&!Array.isArray(x))||null;if(!root||typeof root!=='object'||Array.isArray(root))throw Error('한국판 세이브 객체를 찾지 못했습니다');save=root;filename=f.name;roles=getRoles(root);marketSimStep=0;marketAutoStep=0;marketSimActions=[];marketStrategyResults=null;invalidateWashLink();broadcastEquipmentSave();dropSaveVersion++;sendSaveToDrop();try{await window.NangmanPrivateSave.store(root,f.name);sessionStorage.removeItem('nangman_shared_save_v1')}catch(err){console.warn('브라우저 로컬 세이브 저장 실패',err)}const embedded=$('nativeEngineFrame');if(embedded?.contentWindow)embedded.contentWindow.postMessage({kind:'nangman-save',save:root},location.origin);window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:root}));selected=0;render()}catch(err){alert('불러오기 실패: '+err.message)}};function theme(t){document.documentElement.dataset.theme=t;$('paper').classList.toggle('on',t==='paper');$('ink').classList.toggle('on',t==='ink');for(const frame of equipmentFrames.values())sendThemeToEquipment(frame,t);sendThemeToDrop(t);const washFrame=document.getElementById('washV350Frame');if(washFrame?.contentWindow)try{washFrame.contentWindow.postMessage({kind:'nangman-v350-theme',theme:t},location.origin)}catch(error){console.warn('세수 테마 전달 오류',error)}try{localStorage.setItem('nangman-theme',t)}catch{}}$('paper').onclick=()=>theme('paper');$('ink').onclick=()=>theme('ink');try{theme(localStorage.getItem('nangman-theme')==='ink'?'ink':'paper')}catch{theme('paper')}render();
 // Personal browser saves remain private per visitor; the v1.3.0 bundle
 // contains no preloaded example saves and must not delete visitor data.
 window.NangmanPrivateSave?.read().then(record=>{if(record?.data&&!save){save=record.data;roles=getRoles(save);filename=record.filename||'최근 세이브';selected=0;invalidateWashLink();broadcastEquipmentSave();dropSaveVersion++;sendSaveToDrop();window.dispatchEvent(new CustomEvent('nangman-save-changed',{detail:save}));render()}}).catch(err=>console.warn('로컬 세이브 복구 실패',err))
