@@ -296,7 +296,27 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    }
    if(got!==goal||plan.acquired!==goal||plan.when!==t||
       plan.paid!==paid||plan.cost!==paid*20)return fail('최종 구매 수량·일시·갱신비');
-   return {...plan,modelReplayChecked:true};
+   // Independently replay the full plan using Korean-client event semantics.
+   // Agreement with the planner's draw() alone does not prove a valid schedule.
+   try{
+    const events=plan.steps.filter(step=>step.kind!=='current').map(step=>({
+     kind:step.kind==='auto'?'open':step.kind==='reset'?'daily-reset':'paid',
+     at:step.time
+    }));
+    const native=replayKoreanClientEvents(save,source,events,{slots});
+    let cursor=0;
+    for(const step of plan.steps){
+     if(step.kind==='current')continue;
+     const observed=native.events[cursor++];
+     if(!observed)return fail('원본 이벤트 재현 누락');
+     if(step.kind==='auto'&&!observed.auto)return fail('원본 자동갱신 실행 조건');
+     if(step.kind==='reset')continue;
+     if(step.kind==='paid'&&step.rareHit!==observed.rare)return fail('원본 특별상품 판정');
+     if(!Array.isArray(step.items)||step.items.map(x=>x?.id).join(',')!==observed.items.join(','))
+      return fail('원본 독립 호출 경로의 상품 불일치');
+    }
+   }catch(error){return fail('원본 이벤트 교차검증: '+String(error?.message||error))}
+   return {...plan,modelReplayChecked:true,nativeReplayChecked:true};
   },
   // Find feasible purchase routes before attempting shortest-time proof.
   // These are deterministic policy replays of the SAME guishishop stream.
