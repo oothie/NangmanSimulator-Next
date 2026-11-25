@@ -95,6 +95,10 @@ function sourceRoll(state,key,bound){
 function buildBoss(state,save,gate,boss,keyOwned){
  const [name,npc,pool]=boss,key=seedName(gate,npc);
  const rng=(k,b)=>sourceRoll(state,k,b);
+ // Original 35271 producer skips the dedicated 8915 roll if the key
+ // is held on entry. This changes subsequent equipment/colour RNG calls.
+ // The independent receipt/consumption timeline is not available in a save.
+ if(gate==='유씨별원'&&npc===35264&&!keyOwned)rng(key,1000);
  const gateHit=weighted(rng,key,equipmentBranch(npc));
  const slot=gateHit?rng(key,slotBounds(gate,npc,pool.length)):null;
  const alwaysColor=gate==='벽유교';
