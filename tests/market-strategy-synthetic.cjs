@@ -75,6 +75,19 @@ for(let i=1;i<=24;i++){
  assert.equal(events.events[2].auto,true);
  assert.deepEqual(Array.from(events.items),Array.from(autoAfterPaid.items,item=>item.id));
 }
+// All three planning objectives are tested on an artificial seed only.
+const cheapest=market.searchStrategy([target],{
+ mode:'cheapest',vip:0,quantity:1,periods:2,maxStates:25000
+});
+assert.equal(cheapest.found,true,'synthetic minimum-jade strategy should be reachable');
+const checkedCheapest=market.auditStrategy(cheapest,{target,quantity:1,vip:0});
+assert.equal(checkedCheapest.nativeReplayChecked,true);
+assert(cheapest.cost<=plan.cost,'minimum-jade cost must not exceed fastest cost');
+const freeOnly=market.searchStrategy([target],{
+ mode:'free',vip:0,quantity:1,periods:2
+});
+assert.equal(freeOnly.paid||0,0,'free route must spend no jade');
+if(freeOnly.found)assert.equal(cheapest.cost,0,'minimum-jade must use a free route when available');
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
