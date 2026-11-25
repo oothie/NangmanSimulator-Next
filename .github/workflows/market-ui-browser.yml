@@ -6,7 +6,14 @@ on:
       - engine/daily-market.js
       - engine/dungeon-test.js
       - engine/dungeon.js
+      - engine/dungeon-special.js
+      - engine/dungeon-replay-liu.js
+      - engine/dungeon-replay-yan.js
+      - engine/dungeon-replay-dcy.js
+      - engine/dungeon-replay-byj.js
       - engine/market-strategy-worker.js
+      - tests/market-assumed-free-synthetic.cjs
+      - tests/dungeon-success-synthetic.cjs
       - tests/market-ui-browser.cjs
       - .github/workflows/market-ui-browser.yml
   workflow_dispatch:
