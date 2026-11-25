@@ -68,15 +68,16 @@ function seedName(gate,npc){
  if(gate==='창옥')return 'seed_dcy_'+npc;
  return 'seed_'+npc;
 }
-function specialsFor(npc,gv){
+function specialsFor(npc,gv,rolled){
  const group=SPECIAL[npc]||[];
  const results=[],available=[];
  for(const [item,flag,counter,cap] of group){
   const count=counter?number(gv[counter]):0;
   const eligible=!counter||(cap===0?count===0:count<cap);
   if(eligible)available.push(item);
-  if(number(gv[flag])===1){
-   results.push({name:SPECIAL_KO[item]||'특수 보상',kind:eligible?'조건 충족':'지급 상한 도달'});
+  if(rolled.has(flag)&&number(gv[flag])===1){
+   results.push({name:SPECIAL_KO[item]||'특수 보상',
+    kind:eligible?'추첨 당첨 · 지급 조건 충족':'추첨 당첨 · 지급 상한 도달'});
   }
  }
  return {results,candidateCount:available.length,totalCount:group.length};
@@ -85,7 +86,7 @@ function createState(save){
  if(!save||typeof save!=='object')throw Error('세이브를 먼저 불러와 주세요.');
  const seeds=save?.Rnds?.Sds;
  if(!seeds||typeof seeds!=='object')throw Error('관문 시드가 저장된 세이브가 아닙니다.');
- return {seeds:{...seeds},gv:{...(save.globalVariable||{})}};
+ return {seeds:{...seeds},gv:{...(save.globalVariable||{})},rolled:new Set()};
 }
 function sourceRoll(state,key,bound){
  const seed=number(state.seeds[key]);
@@ -100,13 +101,14 @@ function beforeBoss(state,save,gate,npc){
  const gv=state.gv,key=seedName(gate,npc);
  const rng=bound=>sourceRoll(state,key,bound);
  const g=name=>number(gv[name]);
- const setIf=(flag,hit)=>{if(hit)gv[flag]=1;else delete gv[flag]};
+ const setIf=(flag,hit)=>{state.rolled.add(flag);if(hit)gv[flag]=1;else delete gv[flag]};
  const threshold=(flag,offset,limit,lower=1000)=>{
   const x=rng(lower);
   setIf(flag,x-offset<limit&&!g(flag));
  };
  const accumulating=(flag,counter,bound,limit,onHit,onMiss)=>{
   const x=rng(bound),offset=g(counter);
+  state.rolled.add(flag);
   if(x-offset<limit){gv[flag]=1;gv[counter]=offset+onHit}
   else{delete gv[flag];gv[counter]=offset+onMiss}
  };
@@ -174,7 +176,7 @@ function buildBoss(state,save,gate,boss,keyOwned){
  const slot=gateHit?rng(key,slotBounds(gate,npc,pool.length)):null;
  const alwaysColor=gate==='벽유교';
  const grade=(slot!==null||alwaysColor)?weighted(rng,key,colorTable(npc)):0;
- const special=specialsFor(npc,state.gv);
+ const special=specialsFor(npc,state.gv,state.rolled);
  const warnings=[];
  if(gate==='유씨별원'&&npc===35264){
   warnings.push(keyOwned?'고리의 열쇠 보유: 열쇠 추첨 호출 생략 조건':'고리의 열쇠 미보유: 특수 열쇠 추첨 분기 대상');
@@ -189,6 +191,7 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
  const state=createState(save),output=[],owned=countItem(save,8915)>0;
  const held=keyMode==='owned'?true:keyMode==='absent'?false:owned;
  for(let i=1;i<=clears;i++){
+  state.rolled=new Set();
   const group=[];
   // Source-gated trace uses typed LuaJIT weight/insertion order. Complete
   // pre-award material and special event RNG is not reconstructed for all
@@ -230,7 +233,7 @@ export function mountDungeon(host,save){
      const gradeColor={백색:'#a2a2a2',녹색:'#259b61',청색:'#397db3',자색:'#9052c4'}[row.grade]||'';
      const specials=row.special.map(s=>esc(s.name)+' · '+esc(s.kind)).join(', ');
      const extra=row.warnings.map(esc).join(' · ');
-     const detail=[specials,extra,'특수 보상 후보 '+row.specialCandidates+'종 (추첨 결과 미확정)'].filter(Boolean).join(' / ');
+     const detail=[specials,extra,'특수 보상 지급 후보 '+row.specialCandidates+'종 (별도 추첨 조건)'].filter(Boolean).join(' / ');
      html+='<tr><td>'+esc(row.boss)+'</td><td>'+esc(row.name)+'</td><td>'+
      (row.grade?'<b style="color:'+gradeColor+'">'+esc(row.grade)+'</b>':'—')+
      '</td><td>'+detail+'</td></tr>';
