@@ -2310,9 +2310,23 @@ function marketSimulatedTimeline(context,vipChoice,periods){
    events.push({kind:'open',at});
    actions.push({kind:'auto',at,eventIndex:events.length-1});
    time=at;autoCount++;
+  }else if(action==='reset'){
+   // This is an explicitly requested visit to the NEXT 05:00 boundary,
+   // possible only while the current shelf is the 20:00 FREE redraw.
+   // Do not roll a new shelf or consume any guishishop RNG.
+   const prior=actions[actions.length-1];
+   const minute=((Math.floor(time/60)+540)%1440+1440)%1440;
+   if(prior?.kind!=='auto'||minute!==1200)break;
+   const at=nextReset;
+   insertResets(at);
+   actions.push({kind:'reset',at,eventIndex:events.length-1});
+   time=at;
   }
  }
  const paidUsedAtCursor=used;
+ const cursorLast=actions[actions.length-1];
+ const cursorMinute=((Math.floor(time/60)+540)%1440+1440)%1440;
+ const canResetAtFive=cursorLast?.kind==='auto'&&cursorMinute===1200;
  const preview=[];
  let next=api.nextHalfDay(time);
  for(let i=0;i<periods;i++,next+=43200){
@@ -2325,7 +2339,8 @@ function marketSimulatedTimeline(context,vipChoice,periods){
  const last=actions[actions.length-1];
  const current=last?replay.events[last.eventIndex]:null;
  return {paidCount,autoCount,used:paidUsedAtCursor,max:allowance.max,time,
-  paidLeft:Math.max(0,allowance.max-paidUsedAtCursor),last,
+  paidLeft:Math.max(0,allowance.max-paidUsedAtCursor),
+  canResetAtFive,last,
   lastRare:current?.rare===true,
   items:current?itemRows(current.items):context.state.today,
   preview:preview.map(x=>({time:x.time,
@@ -2379,10 +2394,12 @@ function dailyMarketView(){
  '<label>VIP 등급 <select id="marketVipSelect" aria-label="VIP 등급 수동 선택">'+[0,1,2,3,4,5].map(l=>'<option value="'+l+'" '+(vipChoice===l?'selected':'')+'>VIP '+l+' · 하루 '+window.NangmanMarket.VIP_REFRESH[l]+'회</option>').join('')+'</select></label>'+
  '<button id="marketSimNext" class="btn primary" '+(!state.seedOk||!simulation||simulation.paidLeft<=0?'disabled':'')+'>모의 원보 갱신 +1회</button>'+
  '<button id="marketAutoNext" class="btn primary" '+(!state.seedOk||autoStep>=60?'disabled':'')+'>다음 무료 자동 갱신</button>'+
+ '<button id="marketSimFiveReset" class="btn" '+(!state.seedOk||!simulation?.canResetAtFive?'disabled':'')+'>다음 날 05시 원보 갱신 초기화</button>'+
  '<button id="marketAutoReset" class="btn" '+(!autoStep?'disabled':'')+'>자동 갱신 전으로</button>'+
  '<button id="marketSimReset" class="btn" '+(!marketSimActions.length?'disabled':'')+'>현재 예상으로 돌아가기</button></div>'+
  '<p class="micro">VIP '+vipChoice+' · 세이브상 원보 갱신 '+allowance.used+' / '+allowance.max+'회 · 모의 원보 '+simSteps+'회 / 현재 잔여 '+(simulation?.paidLeft??allowance.left)+'회 · 모의 자동 갱신 '+autoStep+' / 60회</p>'+
- '<h5>'+(autoForecast?'무료 자동 갱신 '+autoStep+'회차 · '+escape(marketDate(simulation.time)):
+ '<h5>'+(simulation?.last?.kind==='reset'?'05시 원보 갱신 한도 초기화 · '+escape(marketDate(simulation.time)):
+ autoForecast?'무료 자동 갱신 '+autoStep+'회차 · '+escape(marketDate(simulation.time)):
  simulated?'원보 갱신 '+simSteps+'회차 · '+(simulation.lastRare?'희귀 상품 판정':'일반 갱신'):
  '현재 상품'+(context.assumed?' · 전회차 무료 갱신 가정':''))+'</h5>'+
  marketItemTable(simulation?.items||state.today,ko,
@@ -4777,6 +4794,7 @@ document.querySelectorAll('[data-market-tab]').forEach(el=>el.onclick=()=>{marke
 
 if($('marketSimNext'))$('marketSimNext').onclick=()=>{marketSimActions.push('paid');render()};
 if($('marketAutoNext'))$('marketAutoNext').onclick=()=>{marketSimActions.push('auto');render()};
+ if($('marketSimFiveReset'))$('marketSimFiveReset').onclick=()=>{marketSimActions.push('reset');render()};
 if($('marketAutoReset'))$('marketAutoReset').onclick=()=>{const i=marketSimActions.indexOf('auto');if(i>=0)marketSimActions=marketSimActions.slice(0,i);render()};
 if($('marketSimReset'))$('marketSimReset').onclick=()=>{marketSimStep=0;marketAutoStep=0;marketSimActions=[];render()};
 
