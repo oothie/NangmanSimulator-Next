@@ -141,7 +141,10 @@ for(let vip=0;vip<api.VIP_REFRESH.length;vip++){
  const allowance=market.paidAllowance(vip);
  assert.equal(allowance.max,api.VIP_REFRESH[vip]);
  assert.equal(allowance.left,api.VIP_REFRESH[vip]);
- assert.equal(api.resetDay(api.nextHalfDay(now)),api.resetDay(api.nextHalfDay(now)));
+ // 05:00 KST is 20:00 UTC; reset day must change at that instant.
+ const nextReset=(api.resetDay(now)+1)*86400-14400;
+ assert.equal(api.resetDay(nextReset-1),api.resetDay(now));
+ assert.equal(api.resetDay(nextReset),api.resetDay(now)+1);
 }
 // Synthetic stock-cap regression. No account values or player-derived seeds.
 const targetTemplate=catalog.shops.guishi.find(x=>x.rare===1&&x.weight>0)
