@@ -28,6 +28,16 @@ assert.equal(res.exactDropPredictionAllowed,false);
 assert.equal(res.privateInputsReported,false);
 assert(!JSON.stringify(res).includes(String(a)));
 assert(!JSON.stringify(res).includes(String(b)));
+// Source calls 74 and 96 use independently supplied weighted tables.
+const twoFirst=draw(a,100),twoSecond=draw(twoFirst.seed,101);
+const twoStage={bound:100,bounds:[100,101],calls:2,
+ hitFrom:twoSecond.value,hitTo:twoSecond.value,rewardDraw:2};
+const twoStageWrong={...twoStage,bounds:[100,100]};
+const twoRecord={npc:NPC.mask,before:save(a),after:save(twoSecond.seed),outcome:'mask'};
+const twoResults=evaluate([twoRecord],[twoStage,twoStageWrong]);
+assert.equal(twoResults.compatibleCandidates.length,1);
+assert.match(twoResults.compatibleCandidates[0].model,/100,101/);
+assert.throws(()=>evaluate([twoRecord],[{...twoStage,bounds:[100]}]),/Explicit valid/);
 const negative=evaluate([{...mask,outcome:'none'}],[positive,wrong]);
 assert.equal(negative.compatibleCandidates.length,2,'absence is not a verified negative');
 const absent=evaluate([{...mask,before:{Rnds:{Sds:{}}}}],[positive]);
