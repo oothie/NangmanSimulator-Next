@@ -145,6 +145,12 @@ export function replayLiuManor(save,clears=1,keyMode='auto'){
    keyHit:newKey,keyAwarded:received===1,keyState});
   keyTimeline.push(keyState);
  }
- return {gate:'유씨별원',output,keys:keyTimeline,source:'35271_1-v85',initialKeyQty:initialQuantity,
+ const items=(Array.isArray(save.Items)?save.Items:[]).filter(item=>
+  number(item?.ID??item?.id)!==8915);
+ if(keyQty>0)items.push({ID:8915,Num:keyQty});
+ return {gate:'유씨별원',output,keys:keyTimeline,
+  nextState:{...save,Rnds:{...(save.Rnds||{}),Sds:{...(save.Rnds?.Sds||{}),seed_lsby:seed}},
+   globalVariable:gv,Items:items},
+  source:'35271_1-v85',initialKeyQty:initialQuantity,
   warning:'원본 재생 기반 조건부 예측입니다. 열쇠 획득 후 보유·사용은 선택한 시나리오로만 반영됩니다.'};
 }
