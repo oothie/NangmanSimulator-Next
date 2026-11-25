@@ -612,7 +612,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
        }
      }
    }
-   const completionProved=!heap.length||mode==='fastest'&&best&&heap[0].bound>best.time;
+   const completionProved=!heap.length||Boolean(mode==='fastest'&&best&&heap[0].bound>best.time);
    // Keep an independently replayed feasible candidate even if the A*
    // state cap prevents a proof of earliest completion. Preserve the route's
    // event mode: a free-only route need not contain daily-reset markers.
