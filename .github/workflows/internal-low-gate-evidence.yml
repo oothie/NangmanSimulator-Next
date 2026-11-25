@@ -19,3 +19,4 @@ jobs:
           node research/dungeon-rng/low_gates/test_after_save_equipment_evidence.cjs
           node research/dungeon-rng/low_gates/test_sealed_low_gate_equipment.cjs
           node research/dungeon-rng/low_gates/test_run_lower_gate_save_pair.cjs
+          node research/dungeon-rng/low_gates/test_audit_40_table_synthetic_key.cjs
