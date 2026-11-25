@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {verifyObservedPairs}=require('./native_pairs_observation.cjs');
+const typed=[{key:50},{key:10},{key:40}];
+assert.deepEqual(verifyObservedPairs(typed,['key',40,10,50],true),[40,10,50]);
+assert.deepEqual(verifyObservedPairs(typed,[10,50,40],false),[10,50,40]);
+assert.throws(()=>verifyObservedPairs(typed,[40,10],false),/Incomplete/);
+assert.throws(()=>verifyObservedPairs(typed,['key',40,10,'50'],true),/Missing or duplicated/);
+assert.throws(()=>verifyObservedPairs([{key:50},{key:'50 '}],['50 ',50],true),/Incomplete/);
+assert.deepEqual(verifyObservedPairs([{key:50},{key:'50 '}],['50 ',50],false),['50 ',50]);
+assert.throws(()=>verifyObservedPairs(typed,[50,10,40]),/Metadata presence/);
+console.log('PASS typed observed Lua pairs full-key validation; no native-order assumption');
