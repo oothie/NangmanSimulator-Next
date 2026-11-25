@@ -224,4 +224,33 @@ test('original AddBattleDrop third argument is grade, never five copies',()=>{
  assert.equal(fragment.events[0].quantity,1);
  assert.equal(fragment.events[0].gradeCode,1);
 });
+test('Liu Whale rollback is withheld until enclosing loss branch is proven',()=>{
+ const src={globalVariable:{
+  drop_8915_35264:2,get_8915:1,
+  drop_8913_35264:2,get_8913:9
+ }};
+ const original=JSON.stringify(src);
+ const conservative=applyOriginalBattleLoss(src,35264);
+ assert.equal(conservative.changed,0);
+ assert.equal(conservative.unverified,2);
+ assert.equal(conservative.nextState.globalVariable.drop_8915_35264,2);
+ assert.equal(conservative.nextState.globalVariable.get_8915,1);
+ assert.equal(JSON.stringify(src),original);
+ const hypothesis=applyOriginalBattleLoss(src,35264,{
+  includeUnverifiedWhaleRollback:true
+ });
+ assert.equal(hypothesis.changed,2);
+ assert.equal(hypothesis.unverified,0);
+ assert.equal(hypothesis.nextState.globalVariable.drop_8915_35264,1);
+ assert.equal(hypothesis.nextState.globalVariable.get_8915,0);
+ assert.equal(hypothesis.nextState.globalVariable.get_8913,8);
+ assert.ok(hypothesis.effects.every(x=>!x.sourceVerifiedLostBranch));
+});
+test('54506 loss recovery remains strict and verified by script provenance',()=>{
+ const src={globalVariable:{drop_8295_40374:2,get_8295_40374:1}};
+ const result=applyOriginalBattleLoss(src,40374);
+ assert.equal(result.changed,1);
+ assert.equal(result.unverified,0);
+ assert.equal(result.effects[0].sourceVerifiedLostBranch,true);
+});
 console.log('PASS',testCount,'synthetic original consumer regressions');
