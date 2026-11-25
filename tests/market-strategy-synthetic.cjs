@@ -774,6 +774,37 @@ assert.deepEqual(Array.from(afterPaid.items,x=>x.id),Array.from(independentPaid.
 const afterEvening=simulate(['auto','paid','auto']);
 assert.equal(afterEvening.paidLeft,2,'20:00 free refresh must not reset 05:00 quota');
 assert.equal(afterEvening.autoCount,2);
+assert.equal(afterEvening.canResetAtFive,true,
+ '05:00 reset must be available immediately after the 20:00 free shelf');
+const afterEveningPaid=simulate(['auto','paid','auto','paid']);
+assert.equal(afterEveningPaid.canResetAtFive,true,
+ '05:00 reset must remain available after paid redraws on the 20:00 shelf');
+assert.equal(afterEveningPaid.paidLeft,1);
+const beforeManualFive=Array.from(afterEveningPaid.items,x=>x.id);
+const manuallyReset=simulate(['auto','paid','auto','paid','reset']);
+assert.equal(manuallyReset.canResetAtFive,false,
+ '05:00 reset must be disabled after advancing to the 05:00 boundary');
+assert.equal(manuallyReset.paidLeft,3,
+ 'manual 05:00 transition must restore the full VIP 0 paid allowance');
+assert.deepEqual(Array.from(manuallyReset.items,x=>x.id),beforeManualFive,
+ '05:00 quota reset must not change the current paid-redraw shelf');
+assert.equal(manuallyReset.time,api.nextHalfDay(afterEveningPaid.time)-3*3600,
+ 'manual transition must stop at 05:00, not jump to 08:00');
+const afterManualEight=simulate(['auto','paid','auto','paid','reset','auto']);
+assert.equal(afterManualEight.time,manuallyReset.time+3*3600,
+ 'next free refresh from the manual reset must advance to 08:00');
+assert.equal(afterManualEight.canResetAtFive,false);
+assert.equal(afterManualEight.paidLeft,3);
+const resetFromCurrent=simulate(['reset']);
+assert.equal(resetFromCurrent.time,nextFive,
+ 'a saved current 20:00–04:59 shelf may also advance to the next 05:00');
+assert.equal(resetFromCurrent.canResetAtFive,false);
+assert.deepEqual(Array.from(resetFromCurrent.items,x=>x.id),
+ Array.from(fullState.today,x=>x.id),
+ 'the 05:00 reset must not alter the saved current shelf');
+const directMorning=simulate(['reset','auto']);
+assert.equal(directMorning.time,nextEight,
+ 'after resetting current evening shelf, the next free refresh is 08:00');
 const sixty=simulate(Array(60).fill('auto'));
 assert.equal(sixty.autoCount,60,'30 days of free redraws must be supported');
 assert.equal(sixty.preview.length,60,'60 more upcoming redraws must be previewable');
