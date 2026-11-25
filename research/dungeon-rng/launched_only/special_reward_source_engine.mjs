@@ -29,6 +29,21 @@ export const ORIGINAL_FRAGMENT_MILESTONES = Object.freeze([
 export const SOURCE_CONFIRMED_POST_AWARD_FLAGS = Object.freeze({
  '40372:3523':0
 });
+/* The 60014 V174 reward scripts use SetP for certain single-acquisition
+ * counters, AddP for others. All are explicit original-game commands.
+ * The numeric GetP(3970) guard and get_3970 receipt are distinct variables.
+ */
+export const SOURCE_CONFIRMED_SET_COUNTERS = Object.freeze([
+ '35219:7265','35219:7264','35214:7262','35214:7263',
+ '35221:7266','35221:7267','33653:4422','33652:5618',
+ '33650:5422','33650:7081'
+]);
+export const SOURCE_EXTRA_COUNTER_ACTIONS = Object.freeze({
+ '35221:3970':{operator:'AddP',key:'get_3970',delta:1}
+});
+export const SOURCE_NUMERIC_GUARDS = Object.freeze({
+ '35221:3970':{key:3970,operator:'==',value:0}
+});
 const known = value => {
  if(value==null)return 0;
  if(typeof value==='object')return known(value.Value??value.value??value.Val??value.val??value.N??value.n);
@@ -84,7 +99,16 @@ export function restoreOriginalPendingAward(state, npc, item){
  }
  return {applied:true,rule:ruleKey(row),counter:update?.key||null};
 }
-function consumerGuard(rule,state,tempState){
+function consumerGuard(rule,state,tempState,numericState){
+ const numeric=SOURCE_NUMERIC_GUARDS[ruleKey(rule)];
+ if(numeric){
+  if(numericState==null||
+      !Object.prototype.hasOwnProperty.call(numericState,String(numeric.key)))
+   return {eligible:null,reason:'숫자형 원본 GetP 조건 상태 미확인'};
+  const current=known(numericState[numeric.key]);
+  if(!(numeric.operator==='=='&&current===numeric.value))
+   return {eligible:false,reason:'숫자형 원본 GetP 지급 조건 불충족'};
+ }
  if(rule.review&&!(rule.n===40372&&rule.i===3523))
   return {eligible:null,reason:'원본 추가 지급 제한 독립 검증 필요'};
  const flagValue=known(state[rule.f]);
@@ -106,7 +130,9 @@ function consumerGuard(rule,state,tempState){
  * producer functions. Never decide a drop from a claimed counter alone.
  * producer: {npc, specialIds:[...]} for each boss in actual in-game order.
  */
-export function evaluateSpecialAwards(save,producers,{mode='current',tempState=null}={}){
+export function evaluateSpecialAwards(save,producers,{
+ mode='current',tempState=null,numericState=null
+}={}){
  const state=specialScenario(save,mode).globalVariable;
  const counters={...state};
  const temp=tempState==null?null:{...tempState};
@@ -123,14 +149,15 @@ export function evaluateSpecialAwards(save,producers,{mode='current',tempState=n
    // A matching producer set the drop flag for THIS clear. A lingering flag
    // in the old save is not evidence of a new drop.
    counters[rule.f]=1;
-   const check=consumerGuard(rule,counters,temp);
+   const check=consumerGuard(rule,counters,temp,numericState);
    const awarded=check.eligible===true;
    const effects=[];
    if(awarded){
     if(rule.k&&rule.s!=='temp'){
      const countBefore=known(counters[rule.k]);
      // The original get_* value counts completed grants, not items in stock.
-     counters[rule.k]=countBefore+1;
+     counters[rule.k]=SOURCE_CONFIRMED_SET_COUNTERS.includes(ruleKey(rule))?
+      1:countBefore+1;
      const milestone=ORIGINAL_FRAGMENT_MILESTONES.find(row=>
       row.npc===npc&&row.item===id&&row.count===rule.k&&row.before===countBefore);
      if(milestone){
@@ -139,6 +166,12 @@ export function evaluateSpecialAwards(save,producers,{mode='current',tempState=n
      }
     }else if(rule.k&&temp)temp[rule.k]=known(temp[rule.k])+1;
     const name=ruleKey(rule);
+    const extra=SOURCE_EXTRA_COUNTER_ACTIONS[name];
+    if(extra){
+     if(extra.operator==='AddP')counters[extra.key]=known(counters[extra.key])+extra.delta;
+     else if(extra.operator==='SetP')counters[extra.key]=extra.delta;
+     else throw Error('복원된 원본 보상 카운터 연산이 유효하지 않습니다.');
+    }
     counters[rule.f]=Object.prototype.hasOwnProperty.call(SOURCE_CONFIRMED_POST_AWARD_FLAGS,name)?
      SOURCE_CONFIRMED_POST_AWARD_FLAGS[name]:2;
    }
@@ -154,14 +187,18 @@ export function evaluateSpecialAwards(save,producers,{mode='current',tempState=n
  * Only the supplied per-clear producer outcomes are consumed. The resulting
  * state continues across all clears with award counters carried forward.
  */
-export function forecastSpecialAwards(save,clears,{mode='current',tempState=null}={}){
+export function forecastSpecialAwards(save,clears,{
+ mode='current',tempState=null,numericState=null
+}={}){
  if(!Array.isArray(clears))throw Error('관문 결과 배열이 필요합니다.');
  const base=specialScenario(save,mode);
  const state={...base.globalVariable};
  let temp=tempState==null?null:{...tempState};
  const result=[];
  for(const one of clears){
-  const out=evaluateSpecialAwards({globalVariable:state},one,{mode:'current',tempState:temp});
+  const out=evaluateSpecialAwards({globalVariable:state},one,{
+   mode:'current',tempState:temp,numericState
+  });
   Object.assign(state,out.counters);
   // Preserve the native temp-scoped payout state, not global get_* values.
   temp=out.tempCounters;
@@ -182,7 +219,7 @@ const NPC_BY_GATE=Object.freeze({
  * The adapter never modifies a deployed engine, a source save or a seed.
  */
 export function forecastSpecialsFromProducer(save,gate,producer,clears,{
- mode='current',keyMode=null,tempState=null
+ mode='current',keyMode=null,tempState=null,numericState=null
 }={}){
  if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
  const bosses=NPC_BY_GATE[gate];
@@ -203,7 +240,7 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
    return {npc,specialIds:row.specialIds};
   });
  });
- const grants=forecastSpecialAwards(scenario,trace,{mode:'current',tempState});
+ const grants=forecastSpecialAwards(scenario,trace,{mode:'current',tempState,numericState});
  const first=new Map();
  for(let i=0;i<grants.clears.length;i++){
   for(const event of grants.clears[i]){
@@ -234,7 +271,7 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
  * returned result retains a conditional status until native validation.
  */
 export function forecastInterleavedSpecials(save,gate,producer,clears,{
- mode='current',keyMode=null,tempState=null,firstItemId=null
+ mode='current',keyMode=null,tempState=null,numericState=null,firstItemId=null
 }={}){
  if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
  if(!Number.isInteger(clears)||clears<1||clears>2000)
@@ -259,7 +296,9 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
    if(!npc||!Array.isArray(boss.specialIds))throw Error('보스별 특수 추첨 기록이 없습니다.');
    return {npc,specialIds:boss.specialIds};
   });
-  const evaluated=evaluateSpecialAwards(producerResult.nextState,outcomes,{tempState:temp});
+  const evaluated=evaluateSpecialAwards(producerResult.nextState,outcomes,{
+   tempState:temp,numericState
+  });
   state={...producerResult.nextState,globalVariable:evaluated.counters};
   temp=evaluated.tempCounters;
   for(const event of evaluated.events){
