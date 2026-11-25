@@ -145,6 +145,23 @@ for(let vip=0;vip<api.VIP_REFRESH.length;vip++){
  const nextReset=(api.resetDay(now)+1)*86400-14400;
  assert.equal(api.resetDay(nextReset-1),api.resetDay(now));
  assert.equal(api.resetDay(nextReset),api.resetDay(now)+1);
+ const nearlyFull={...fixture,RandShop:{...fixture.RandShop,Fresh:allowance.max-1}};
+ const pre=api.predict(nearlyFull,catalog,now,{slots:6});
+ assert.equal(pre.paidAllowance(vip).left,1,
+  'only one paid refresh remains before daily reset');
+ assert.equal(pre.getPaid(2,{vip}).length,1,
+  'paid prediction must respect remaining VIP allowance');
+ const afterReset=api.replayKoreanClientEvents(nearlyFull,catalog,[
+  {kind:'daily-reset',at:nextReset}
+ ],{slots:6});
+ assert.equal(afterReset.fresh,0,'05:00 KST must reset the paid counter');
+ const postSave={RandShop:{...nearlyFull.RandShop,Fresh:afterReset.fresh,
+  Time:afterReset.shopTime,Lucky:afterReset.lucky,Items:[]},
+  Rnds:{Sds:{guishishop:afterReset.seed}}};
+ const post=api.predict(postSave,catalog,nextReset,{slots:6});
+ assert.equal(post.paidAllowance(vip).left,allowance.max,
+  'the full VIP allowance must become available after reset');
+ assert.equal(post.getPaid(allowance.max+1,{vip}).length,allowance.max);
 }
 // 720-period search must keep a real, native-verified candidate even when
 // a bounded fastest proof cannot finish. A free route also proves zero jade.
