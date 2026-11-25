@@ -19,6 +19,13 @@ function load(path){
  return Array.isArray(raw)?raw[0]:raw;
 }
 function modelKey(m){return [m.bound,m.calls,m.hitFrom,m.hitTo,m.rewardDraw].join(':')}
+function selectNpcModel(candidate,npc){
+ // Model candidates can supply two independent NPC-specific weight scenarios.
+ // The old single-model form remains a 30681-only shorthand and is REJECTED
+ // for mixed-NPC schedules, to prevent assuming identical weight pools.
+ if(candidate.mask&&candidate.bandit)return npc===NPC.mask?candidate.mask:candidate.bandit;
+ return npc===NPC.mask?candidate:null;
+}
 function checkModel(m){
  if(!m||!Number.isSafeInteger(m.bound)||m.bound<1||m.bound>1000000||
   !Number.isInteger(m.calls)||m.calls<0||m.calls>2||
@@ -37,7 +44,17 @@ function evaluate(events,models){
  if(!Array.isArray(events)||!events.length||events.length>5000||
   !Array.isArray(models)||!models.length||models.length>5000)
   throw RangeError('1..5000 events and explicit candidate models required');
- events.forEach(checkEvent);models.forEach(checkModel);
+ events.forEach(checkEvent);
+ const mixedNpc=events.some(e=>e.npc===NPC.bandit);
+ models.forEach(m=>{
+  if(m?.mask||m?.bandit){
+   if(!m.mask||!m.bandit)throw RangeError('Both NPC-specific models required');
+   checkModel(m.mask);checkModel(m.bandit);
+  }else{
+   checkModel(m);
+   if(mixedNpc)throw RangeError('Mixed-NPC schedule requires independent mask and bandit weight models');
+  }
+ });
  const observations=events.map(e=>({npc:e.npc,outcome:e.outcome,
   before:lane(e.before),after:lane(e.after)}));
  const candidates=[];
@@ -45,11 +62,12 @@ function evaluate(events,models){
   let transitions=0,awardChecks=0,compatible=true;
   for(const e of observations){
    if(e.before===null||e.after===null){compatible=false;break}
+   const active=selectNpcModel(model,e.npc);
    let state=e.before,roll=null;
-   for(let i=1;i<=model.calls;i++){
-    const d=draw(state,model.bound);
+   for(let i=1;i<=active.calls;i++){
+    const d=draw(state,active.bound);
     state=d.seed;
-    if(i===model.rewardDraw)roll=d.value;
+    if(i===active.rewardDraw)roll=d.value;
    }
    if(state!==e.after){compatible=false;break}
    transitions++;
@@ -58,12 +76,12 @@ function evaluate(events,models){
    // switches or another source may have intervened despite lane matching.
    if(e.npc===NPC.mask&&e.outcome==='mask'){
     awardChecks++;
-    if(roll===null||roll<model.hitFrom||roll>model.hitTo){
+    if(roll===null||roll<active.hitFrom||roll>active.hitTo){
      compatible=false;break;
     }
    }
   }
-  if(compatible)candidates.push({model:modelKey(model),
+  if(compatible)candidates.push({model:model.mask?('mask='+modelKey(model.mask)+';bandit='+modelKey(model.bandit)):modelKey(model),
    testedTransitions:transitions,positiveMaskChecks:awardChecks});
  }
  return {item:'수라가면',sourceNpc:NPC.mask,
@@ -73,6 +91,7 @@ function evaluate(events,models){
   exactDropPredictionAllowed:false,privateInputsReported:false,
   limitations:[
    '본 추첨의 전체 가중치와 실제 호출 횟수가 아직 원본 실행으로 검증되지 않음',
+   '만호강과 산적은 동일한 난수 경로 후보라도 서로 다른 NPC별 가중치 배열을 쓸 수 있음',
    '수라가면 미획득은 음성 판정에 사용하지 않음: 후처리·보상 조건 미확정',
    '동일한 난수 전이는 원본 weightRand 함수 호출을 증명하지 않음',
    '실제 획득 첫 회차를 확정하는 계산기가 아님'
