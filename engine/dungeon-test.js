@@ -50,12 +50,16 @@ function specialName(id){
  return SPECIAL_KO[id]||(clean&&!/[\u3400-\u9fff]/.test(clean)?clean:'특수 보상');
 }
 function number(x){let v=Number(x?.Value??x?.value??x);return Number.isFinite(v)?v:0}
-function freshReplaySpecials(listed,items,save){
+// Advance only hypothetical delivery counters of awards with a verified
+// consumer cap. This is an isolated forecast copy, never the visitor's save.
+// A missing counter or temp-only counter does not invent a new limit.
+function freshReplaySpecials(listed,items,counters){
  return (items||[]).map(item=>{
   const entry=listed.find(e=>e[0]===item);
   const counter=entry?.[2],cap=entry?.[3];
-  const consumed=counter?number(save?.globalVariable?.[counter]):0;
+  const consumed=counter?number(counters[counter]):0;
   const eligible=!counter||(cap===0?consumed===0:consumed<cap);
+  if(eligible&&counter&&item!==8801)counters[counter]=consumed+1;
   return {name:specialName(item),kind:eligible?
    '추첨 당첨 · 지급 조건 충족':'추첨 당첨 · 지급 상한 도달'};
  });
@@ -64,16 +68,17 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
  if(!GATES.includes(gate))throw Error('현재 출시된 4관문만 지원합니다.');
  if(!Number.isInteger(clears)||clears<1||clears>10)throw Error('1~10회 범위를 선택해 주세요.');
  if(gate==='연왕부'){
+  const awardCounters={...(save?.globalVariable||{})};
   const replay=replayYanwangfu(save,clears);
   return {gate,output:replay.output.map(clear=>({
    clear:clear.clear,drawCount:clear.drawCount,
    results:clear.results.map(row=>{
     const npc=POOLS['연왕부'].find(b=>b[0]===row.boss)?.[1];
     const listed=SPECIAL[npc]||[];
-    const special=freshReplaySpecials(listed,row.specialIds,save);
     const specialCandidateNames=listed.filter(([item,flag,counter,cap])=>
-     !counter||(cap===0?number(save?.globalVariable?.[counter])===0:
-      number(save?.globalVariable?.[counter])<cap)).map(([item])=>specialName(item));
+     !counter||(cap===0?number(awardCounters[counter])===0:
+      number(awardCounters[counter])<cap)).map(([item])=>specialName(item));
+    const special=freshReplaySpecials(listed,row.specialIds,awardCounters);
     return {boss:row.boss,name:row.name,grade:row.grade,special,
      specialCandidates:specialCandidateNames.length,specialTotal:listed.length,
      specialCandidateNames,warnings:[]};
@@ -83,6 +88,7 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
   keyNote:''};
  }
  if(gate==='유씨별원'){
+  const awardCounters={...(save?.globalVariable||{})};
   const replay=replayLiuManor(save,clears,keyMode);
   const output=replay.output.map(clear=>({
    clear:clear.clear,
@@ -91,12 +97,12 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
    results:clear.results.map(row=>{
     const npc=POOLS['유씨별원'].find(b=>b[0]===row.boss)?.[1];
     const listed=SPECIAL[npc]||[];
-    const special=freshReplaySpecials(listed,row.specialIds,save).map(item=>
+    const specialCandidateNames=listed.filter(([item,flag,counter,cap])=>
+     !counter||(cap===0?number(awardCounters[counter])===0:
+      number(awardCounters[counter])<cap)).map(([item])=>specialName(item));
+    const special=freshReplaySpecials(listed,row.specialIds,awardCounters).map(item=>
      clear.keyAwarded&&item.name==='고리의 열쇠'?
       {...item,kind:'드랍 예측 · 원본 지급 조건 충족'}:item);
-    const specialCandidateNames=listed.filter(([item,flag,counter,cap])=>
-     !counter||(cap===0?number(save?.globalVariable?.[counter])===0:
-      number(save?.globalVariable?.[counter])<cap)).map(([item])=>specialName(item));
     const state=clear.keyState;
     const warnings=row.boss==='고리'?
      [(state.heldAtStart?'열쇠 보유':'열쇠 미보유')+
@@ -114,18 +120,19 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
    keyNote:'고리의 열쇠는 실제 아이템 보유량과 해당 회차에 새로 성공한 특수 추첨으로 판정합니다. 누적 획득 기록은 보유량이 아닙니다. 기본은 획득 후 즉시 사용을 가정하며, 「획득 후 보유 유지」로 다음 회차 분기를 비교할 수 있습니다.'};
  }
  if(gate==='창옥'||gate==='벽유교'){
+  const awardCounters={...(save?.globalVariable||{})};
   const replay=gate==='창옥'?replayChangok(save,clears):replayByeokyu(save,clears);
   const output=replay.output.map(clear=>({
    clear:clear.clear,drawCount:clear.drawCount,
    results:clear.results.map(row=>{
     const npc=POOLS[gate].find(b=>b[0]===row.boss)?.[1];
     const listed=SPECIAL[npc]||[];
-    const special=freshReplaySpecials(listed,row.specialIds,save);
     const candidateList=listed.filter(([item,flag,counter,cap])=>{
      if(gate==='벽유교'&&item===3970&&!clear.keyEnabled)return false;
-     return !counter||(cap===0?number(save?.globalVariable?.[counter])===0:
-      number(save?.globalVariable?.[counter])<cap);
+     return !counter||(cap===0?number(awardCounters[counter])===0:
+      number(awardCounters[counter])<cap);
     });
+    const special=freshReplaySpecials(listed,row.specialIds,awardCounters);
     const warnings=gate==='벽유교'&&row.boss==='불로선인'?
      ['귀용문 열쇠: '+clear.keyCondition+
        (clear.keyEnabled?' · 추첨 실행':' · 추첨 생략')]:[];
