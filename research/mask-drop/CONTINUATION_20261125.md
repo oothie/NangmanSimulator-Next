@@ -40,3 +40,20 @@
 ## 기존 사이트 무수정
 - 메인 `main`과 v1.3.0 유지.
 - 이전 4관문 연구/테스트 변경 없음.
+
+## 2026-11-25 후속: 실제 원본 명령어 아카이브 재확인
+
+사용자 Library의 `60014_FIELD_GATE_SOURCE_INDEX_V175_20261012.zip`에서 보존된 `V174_60014_GETDROP_BY_ID_RAW_INSTRUCTIONS.json`을 다시 열어 확인했다. 이는 한국판 60014 `JHAIClient.getDropByID` proto9의 **215개 명령어**와 다음 PC를 포함한다.
+
+- PC2/3/4 `m_bEnergyEnough` 조건과 반환 방면 점프, PC5/6/7 `m_nFightType` 조건과 반환 방면 점프
+- PC8/9/10 `m_bHaveReward` 조건 및 PC12–21의 NPC 설정/드랍 조회
+- PC66/69/70/72/74 첫 `getRands → weightRand('aidrop' + level)` 경로
+- PC88/91/92/94/96 둘째 조건부 `getRands → weightRand('aidrop' + level)` 경로
+- PC114 이후 스토리드랍 후처리
+
+원본 V175의 보수적 CFG 실행 확인: 215개 PC가 정적 그래프에서 도달 가능하며, 74 없이 96에 도달하는 경로는 **해당 CFG에서 발견되지 않는다**. 74/96을 모두 피한 채 PC114에 이르는 정적 경로는 있다. 단, 이는 분기 조건의 런타임 참·거짓 여부나 native weightRand 호출 횟수를 증명하지 않는다. **출력 회차를 확정으로 격상하지 않는다.**
+
+기존 `calibrate-level70.cjs`는 연속 전투 관측의 종료/시작 난수값 일치를 내부에서 검사하고 `sequenceContinuity`를 민감정보 없이 요약한다. 한 구간이라도 불일치하거나 누락되면 `continuousScheduleProven:false`를 반환한다. `test-calibrate-level70.cjs`는 연속·단절·누락 합성 사례를 추가했고 연구 브랜치 CI 테스트 명령을 등록했다. 현재 GitHub Actions 실행 성공 여부는 별도로 확인되지 않았다.
+
+**차단 사항 유지:** 실제 native 호출 조건, `[7209,1]`이 들어가는 가중치 전체 배열, 실제 30681/32950 전후 단일 전투 데이터와 첫 드랍 실측이 없으므로 수라가면 첫 획득 회차는 아직 미확정이다. 일반 장비 `Rnds.Eds`와 `Rnds.Sds.aidrop70`은 별도 난수 경로이다.
+
