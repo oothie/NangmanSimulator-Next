@@ -2126,7 +2126,7 @@ function marketStrategyMarkup(state,ko){
     x.kind==='paid'?'원보 갱신 후 구매':'무료 자동 교체 후 구매')+
     ' · '+escape(x.totalAcquired)+' / '+escape(goal.quantity)+'개</b>'+
     '<small>'+escape(marketDate(x.time))+'</small></div></li>').join('');
-  const steps=(result.steps||[]).filter(x=>x.kind==='paid'||x.kind==='auto'||x.kind==='current');
+  const steps=(result.steps||[]).filter(x=>['paid','auto','current','reset'].includes(x.kind));
   const byDay=new Map();
   for(const x of steps){
    // Paid-refresh allowance day begins at 05:00 KST, not civil midnight.
@@ -2141,7 +2141,8 @@ function marketStrategyMarkup(state,ko){
    '<small>목표 상품 구매 '+day.bought+'개'+(day.paidDetails.length?' · 원보 갱신 시각: '+day.paidDetails.map(x=>marketDate(x.time)+(x.index?' ('+x.index+'번째)':'')).join(', '):'')+'</small></div></li>').join('');
   const stepList=steps.map((x,i)=>'<li><span class="market-route-number">'+(i+1)+'</span>'+
    '<div><b>'+escape(x.kind==='paid'?'원보 갱신 1회':
-    x.kind==='auto'?'정시 암시장 입장 · 무료 갱신':'현재 판매 목록')+
+    x.kind==='auto'?'정시 암시장 입장 · 무료 갱신':
+    x.kind==='reset'?'05시 원보 갱신 한도 초기화':'현재 판매 목록')+
     (x.acquired?' · 목표 상품 '+x.acquired+'개 구매':' · 구매 없음')+'</b>'+
     '<small>'+escape(marketDate(x.time))+' · 누적 '+escape(x.totalAcquired)+' / '+escape(goal.quantity)+'개</small></div></li>').join('');
   const status=result.found?'<div class="market-plan-date">'+(mode==='candidate'?'실행 가능한 전량 구매 시점: ':'전체 수량 획득: ')+escape(marketDate(result.when))+(result.proven===false?' · 최단 확정 전':'')+'</div>':
