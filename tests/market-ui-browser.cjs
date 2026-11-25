@@ -78,6 +78,19 @@ async function smoke(){
   await page.waitForFunction(()=>document.querySelector('#marketStrategyStatus')?.textContent
     ?.includes('탐색 완료'),null,{timeout:60000});
   assert.match(await page.locator('[data-market-panel="strategy"]').innerText(),/목표 수량 전체 획득 전략/);
+  // Original 60014 item PNG must be served locally, without yy-sim.
+  const wikiIcon=await page.evaluate(async()=>{
+   const ids=window.NANGMAN_HOSTED_ITEM_ICONS;
+   if(!ids?.has(2201))throw Error('60014 item icon manifest not loaded');
+   const markup=wikiImgTag({source:'items',cat:'item',id:2201,icon:2201});
+   if(!markup.includes('./icons/item/2201.png'))
+    throw Error('wiki item icon did not prefer same-origin PNG');
+   const icon=new Image();icon.src='./icons/item/2201.png';
+   await icon.decode();
+   return {width:icon.naturalWidth,height:icon.naturalHeight};
+  });
+  assert(wikiIcon.width>0&&wikiIcon.height>0,
+   'embedded Korean original PNG must decode in the browser');
   // Public dungeon engine must run from the same *artificial* uploaded save.
   await page.locator('[data-view="drop"]').click();
   await page.locator('[data-drop-mode="dungeon"]').click();
