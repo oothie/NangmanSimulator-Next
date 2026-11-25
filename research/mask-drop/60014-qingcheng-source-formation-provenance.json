@@ -49,6 +49,21 @@
       ],
       "banditMapObjects": 6,
       "nativeDecryptor": "JHTMXMapInfoC2Ev + parseXMLFile -> xxtea_decrypt; original DADDY prefix"
+    },
+    "JHParseBattleRoles": {
+      "sourcePath": "src/app/ai/JHParseBattleRoles.lua",
+      "sha256": "81cd8b995945b46637d5d691cfc5b4ebf8b95d3f872701abf3ec93dd254841da",
+      "prototypes": 2,
+      "instructions": 90,
+      "purpose": "parse existing combat actor role configurations via ipairs and initWithConver; not source-established field lineup RNG",
+      "nativeEnemyCompositionRandomVerified": false
+    },
+    "QingchengWalkEvent": {
+      "sourcePath": "src/app/story/event/walk_event_qc.lua",
+      "sourceSize": 11329,
+      "decryptedSha256": "5c9cb81cc8fe96ee20aca0c56d7a9718fa9c2fbe3d52e8078700e46464dd8d02",
+      "sourceMatchedUniquelyByWhaleLength": true,
+      "purpose": "scripted Qingcheng map-walk conditions; not independently proven to generate normal field combat lineup"
     }
   },
   "facts": [
@@ -63,7 +78,8 @@
     "Respawn or travel route between ordinary battles",
     "Whether every spawned 32950 unconditionally advances aidrop70 under all combat conditions",
     "Actual native 7209 award condition after first weighted draw",
-    "Which of six preplaced map NPC targets will be attacked next and the 70-75 battle enemy composition"
+    "Which of six preplaced map NPC targets will be attacked next and the 70-75 battle enemy composition",
+    "Candidate generic enemy formation might be produced before JHNetServer.startBattle or through event code; no verified RNG/initialization bridge yet"
   ],
   "futureBanditAppearances": null,
   "originalRuntimeNextSpawnVerified": false,
