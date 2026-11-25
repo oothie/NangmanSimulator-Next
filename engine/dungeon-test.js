@@ -87,18 +87,23 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
   const output=replay.output.map(clear=>({
    clear:clear.clear,
    drawCount:clear.drawCount,
-   keyHit:clear.keyHit,
+   keyHit:clear.keyHit,keyState:clear.keyState,
    results:clear.results.map(row=>{
     const npc=POOLS['유씨별원'].find(b=>b[0]===row.boss)?.[1];
     const listed=SPECIAL[npc]||[];
-    const special=freshReplaySpecials(listed,row.specialIds,save);
+    const special=freshReplaySpecials(listed,row.specialIds,save).map(item=>
+     clear.keyAwarded&&item.name==='고리의 열쇠'?
+      {...item,kind:'드랍 예측 · 원본 지급 조건 충족'}:item);
     const specialCandidateNames=listed.filter(([item,flag,counter,cap])=>
      !counter||(cap===0?number(save?.globalVariable?.[counter])===0:
       number(save?.globalVariable?.[counter])<cap)).map(([item])=>specialName(item));
+    const state=clear.keyState;
     const warnings=row.boss==='고리'?
-     [(replay.keys[clear.clear-1].heldAtStart?'열쇠 보유':'열쇠 미보유')+
-      ' · 원본 고리 열쇠 추첨 '+(replay.keys[clear.clear-1].heldAtStart?'생략':'실행')+
-      (clear.keyHit?' · 고리의 열쇠 추첨 적중':'')]:[];
+     [(state.heldAtStart?'열쇠 보유':'열쇠 미보유')+
+      ' · 열쇠 추첨 '+(state.heldAtStart?'생략':'실행')+
+      (state.received?' · 신규 열쇠 1개 지급 예상':'')+
+      (state.consumedByAssumption?' · 사용 가정 '+state.consumedByAssumption+'개':'')+
+      ' · 다음 회차 '+(state.heldAfter?'보유':'미보유')]:[];
     return {boss:row.boss,name:row.name,grade:row.grade,special,
      specialCandidates:specialCandidateNames.length,specialTotal:listed.length,
      specialCandidateNames,warnings};
@@ -106,7 +111,7 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
   }));
   return {gate,output,conditional:true,keyHeld:replay.keys[0]?.heldAtStart,
    caution:'유씨별원은 원본 관문 계산 흐름에 따른 조건부 결과입니다. 특수 보상의 추첨 당첨과 실제 지급은 별개이며, 미래 드랍의 일치를 보장하지 않습니다.',
-   keyNote:'열쇠 보유량은 세이브의 실제 소지 아이템으로 판단하며, 누적 get_8915 기록은 사용하지 않습니다. 세이브 보유 기준의 연속 클리어는 고리 열쇠 획득 후 즉시 사용을 가정합니다.'};
+   keyNote:'고리의 열쇠는 실제 아이템 보유량과 해당 회차에 새로 성공한 특수 추첨으로 판정합니다. 누적 획득 기록은 보유량이 아닙니다. 기본은 획득 후 즉시 사용을 가정하며, 「획득 후 보유 유지」로 다음 회차 분기를 비교할 수 있습니다.'};
  }
  if(gate==='창옥'||gate==='벽유교'){
   const replay=gate==='창옥'?replayChangok(save,clears):replayByeokyu(save,clears);
@@ -148,7 +153,7 @@ export function mountDungeon(host,save){
  '<label>연속 클리어 <select id="dungeonTestClears">'+
  [1,2,3,4,5,6,7,8,9,10].map(n=>'<option value="'+n+'">'+n+'회</option>').join('')+'</select></label>'+
  '<label id="dungeonTestKeyControl" hidden>고리의 열쇠 (유씨별원)<select id="dungeonTestKey">'+
- '<option value="auto">세이브 보유 기준</option><option value="owned">보유한 경우</option><option value="absent">미보유인 경우</option>'+
+ '<option value="auto">세이브 보유 기준 · 열쇠 즉시 사용 가정</option><option value="retain">세이브 보유 기준 · 획득 후 보유 유지</option><option value="owned">매 회차 보유 가정</option><option value="absent">매 회차 미보유 가정</option>'+
  '</select></label><button id="dungeonTestRun" type="button">관문 드랍 계산</button></div>'+
  '<div id="dungeonTestResults" aria-live="polite"></div></section>';
  const gateControl=host.querySelector('#dungeonTestGate');
