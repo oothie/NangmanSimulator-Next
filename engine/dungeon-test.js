@@ -92,9 +92,80 @@ function sourceRoll(state,key,bound){
  if(!Number.isSafeInteger(seed)||seed<1)throw Error('이 관문의 실행 시드가 세이브에 없습니다.');
  const rolled=draw(seed,bound);state.seeds[key]=rolled.seed;return rolled.value;
 }
+// Recovered 40389/35227 entry producer: special rolls occur BEFORE
+// equipment rolls and therefore affect equipment ID/grade. This is distinct
+// from the later consumer's get_* delivery cap.
+function beforeBoss(state,save,gate,npc){
+ if(gate!=='창옥'&&gate!=='벽유교')return;
+ const gv=state.gv,key=seedName(gate,npc);
+ const rng=bound=>sourceRoll(state,key,bound);
+ const g=name=>number(gv[name]);
+ const setIf=(flag,hit)=>{if(hit)gv[flag]=1;else delete gv[flag]};
+ const threshold=(flag,offset,limit,lower=1000)=>{
+  const x=rng(lower);
+  setIf(flag,x-offset<limit&&!g(flag));
+ };
+ const accumulating=(flag,counter,bound,limit,onHit,onMiss)=>{
+  const x=rng(bound),offset=g(counter);
+  if(x-offset<limit){gv[flag]=1;gv[counter]=offset+onHit}
+  else{delete gv[flag];gv[counter]=offset+onMiss}
+ };
+ const material=(caps)=>{
+  // Original material table has one fixed weight 200 plus dynamically active
+  // entries; later material selection changes future num_* counters and is
+  // intentionally not invented in this test-only simulator.
+  let total=200;
+  for(const [id,cap,weight] of caps)
+   if(g('num_'+id+'_'+npc)<cap)total+=weight;
+  rng(total);
+ };
+ const win=g('win_'+(gate==='창옥'?'dcy':'byj'));
+ if(gate==='창옥'){
+  if(npc===40372){
+   threshold('drop_4634_40372',win*2,51);
+   threshold('drop_9072_40372',win,41);
+   threshold('drop_3523_40372',win,201);
+   accumulating('drop_2924_40372','roll_2924_40372',1000,400,-600,400);
+   material([[2601,1000,1000],[2603,6,25],[2604,6,25],[2605,6,25],
+    [2606,6,25],[2607,1000,1000],[2641,100,80]]);
+  }else if(npc===40373){
+   threshold('drop_4820_40373',win*2,51);
+   threshold('drop_9072_40373',win,41);
+   accumulating('drop_2926_40373','roll_2926_40373',1000,300,-700,400);
+   material([[3025,1500,1000],[3029,500,500],[3030,500,500],
+    [2000,100,50],[2001,100,50],[2002,100,50]]);
+  }else if(npc===40374){
+   threshold('drop_5218_40374',win*2,51);
+   threshold('drop_9072_40374',win,41);
+   threshold('drop_8295_40374',win,41);
+   threshold('drop_7165_40374',win,21);
+   accumulating('drop_2925_40374','roll_2925_40374',1000,400,-600,400);
+  }
+ }else{
+  if(npc===35219){
+   if(win>2)threshold('drop_7264_35219',win,71);
+   threshold('drop_7265_35219',win,71);
+  }else if(npc===35214){
+   accumulating('drop_2922_35214','roll_2922_35214',100,45,-55,45);
+   if(win>10){
+    threshold('drop_7262_35214',win,51);
+    threshold('drop_7263_35214',win,51);
+   }
+  }else if(npc===35221){
+   accumulating('drop_2923_35221','roll_2923_35221',100,45,-55,45);
+   if(win>5)threshold('drop_7267_35221',win,51);
+   threshold('drop_7266_35221',win,101);
+   const branch=save?.Branch?.byj_bz;
+   const step=branch&&typeof branch==='object'?number(branch.step):null;
+   if(win>=10&&step!==null&&step<0&&!g('glm_open'))
+    accumulating('drop_3970_35221','roll_3970_35221',100,10,-50,10);
+  }
+ }
+}
 function buildBoss(state,save,gate,boss,keyOwned){
  const [name,npc,pool]=boss,key=seedName(gate,npc);
  const rng=(k,b)=>sourceRoll(state,k,b);
+ beforeBoss(state,save,gate,npc);
  // Original 35271 producer skips the dedicated 8915 roll if the key
  // is held on entry. This changes subsequent equipment/colour RNG calls.
  // The independent receipt/consumption timeline is not available in a save.
@@ -124,9 +195,11 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
   // gates, hence these results are deliberately marked as conditional.
   for(const b of POOLS[gate])group.push(buildBoss(state,save,gate,b,held));
   output.push({clear:i,results:group});
+  state.gv['win_'+({창옥:'dcy',벽유교:'byj',연왕부:'ywf',유씨별원:'lsby'}[gate])]=
+   number(state.gv['win_'+({창옥:'dcy',벽유교:'byj',연왕부:'ywf',유씨별원:'lsby'}[gate])])+1;
  }
  return {gate,output,conditional:true,keyHeld:held,
-  caution:'장비 지급 배열·색상 분기는 원본 기반입니다. 특수 재료 선행 추첨과 일부 관문 상태 전이의 RNG는 완전 검증 전이므로 실제 결과와 차이가 날 수 있습니다.',
+  caution:'장비 지급 배열과 창옥·벽유교 선행 특수 추첨은 원본 기반입니다. 연왕부·유씨별원의 일부 선행 호출, 재료 후처리 및 반복 클리어 상태 변경은 미완성이므로 장비 색상·특수 보상은 실측 확인이 필요한 조건부 결과입니다.',
   keyNote:gate==='유씨별원'?'고리의 열쇠 보유 시 원본에서 전용 추첨 호출이 생략됩니다. 세이브 보유 수량과 누적 지급 기록은 서로 다릅니다.':''};
 }
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
