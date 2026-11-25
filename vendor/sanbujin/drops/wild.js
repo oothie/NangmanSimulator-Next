@@ -21,6 +21,27 @@
     $('wildExport').disabled = true;
   }
 
+  function missingReason(target, saved) {
+    if (!archive) return '세이브 필요';
+    if (target.kind === 'tomb') {
+      const missing = [
+        !engine.usable(saved.encounterSeed) ? '조우 시드' : '',
+        !engine.usable(saved.equipmentSeed) ? '장비 드랍 시드' : '',
+        ...(saved.missingFlags || [])
+      ].filter(Boolean);
+      return missing.length ? missing.join('·') + ' 누락' : '';
+    }
+    const missing = [];
+    if (!engine.usable(saved.seed)) missing.push('드랍 시드');
+    if (target.kind === 'tigerbone' && !engine.usable(saved.tigerSeed)) missing.push('호랑이 종류 시드');
+    if (target.encounter) {
+      if (!engine.usable(saved.encounterSeed)) missing.push('특수몹 조우 시드');
+      if (!Number.isFinite(saved.encounterScore)) missing.push('조우 누적값');
+      if (!Number.isFinite(saved.encounterBoost)) missing.push('조우 보정값');
+    }
+    return missing.join('·') + (missing.length ? ' 누락' : '');
+  }
+
   function configure() {
     reset();
     const target = targets[Number(picker.value)], tiger = target.kind === 'tigerbone', timed = target.kind === 'aidrop', isTomb = target.kind === 'tomb';
@@ -47,7 +68,9 @@
       : timed ? '드랍 여부와 품질은 세이브 순서로 예측합니다. 장비 옵션은 입력한 판정 시각에 따라 달라집니다.'
         : '원본 보상 함수를 직접 호출하는 특수몹 드랍 시뮬레이션입니다. 표시 회차는 전체 일반 필드 사냥 횟수가 아닙니다. 별도 특수몹 출현 순서가 연결되기 전까지 일반 사냥 1회당 이 함수를 한 번 호출한다고 해석하면 안 됩니다.';
     const tombMissing = isTomb && archive ? [!engine.usable(input.encounterSeed) ? 'rollenemy_tomb' : '', !engine.usable(input.equipmentSeed) ? 'seed_35256' : '', ...input.missingFlags].filter(Boolean) : [];
-    $('wildHint').textContent = ready ? label : !archive ? '세이브를 불러오면 필드 드랍 순서를 읽을 수 있습니다.' : tombMissing.length ? '제릉 분석용 세이브 항목 누락: ' + tombMissing.join(', ') + '. 현재 상태에서는 예측하지 않습니다.' : '현재 세이브에 해당 대상의 전체 드랍 순서가 없습니다.';
+    $('wildHint').textContent = ready ? label : !archive ? '세이브를 불러오면 필드 드랍 순서를 읽을 수 있습니다.' :
+      '현재 세이브: ' + (missingReason(target, input) || tombMissing.join(', ') || '필요한 상태값') +
+      '. 해당 지역에서 실제 사냥·보상 판정을 진행한 후 최신 세이브로 다시 확인하세요. 시드가 없는 대상을 다른 시드로 임의 예측하지 않습니다.';
   }
 
   function refreshArchive() {
@@ -64,7 +87,7 @@
         (!target.encounter || engine.usable(saved.encounterSeed) &&
           Number.isFinite(saved.encounterScore) && Number.isFinite(saved.encounterBoost));
       if (ready && firstReady == null) firstReady = i;
-      picker.add(new Option(ko(target.location) + ' · ' + ko(target.name) + (ready ? '' : ' · 순서 없음'), i));
+      picker.add(new Option(ko(target.location) + ' · ' + ko(target.name) + (ready ? '' : ' · ' + (missingReason(target, saved) || '예측 데이터 누락')), i));
     });
     picker.value = previous || String(firstReady ?? 0);
     configure();
