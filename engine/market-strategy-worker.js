@@ -1,7 +1,7 @@
 /* Off-main-thread, cancelable ghost-market strategy runner. */
 'use strict';
 self.window=self;
-importScripts('./daily-market.js?rev=market-engine-20261125e','../vendor/yysim/daily_data.js');
+importScripts('./daily-market.js?rev=market-engine-20261125f','../vendor/yysim/daily_data.js');
 self.onmessage=event=>{
  const m=event.data||{};
  if(m.type!=='calculate')return;
