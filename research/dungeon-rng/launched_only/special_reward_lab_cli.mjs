@@ -47,22 +47,28 @@ function main(args){
   const clear=result.rows[i].producer,grants=result.rows[i].grants;
   console.log(clear.clear+'회차');
   for(const row of clear.results){
-   const relevant=grants.filter(event=>event.name&&event.predicted&&
-     (event.npc===({연왕부:{이총관:33654,하상:33653,엽내관:33652,연왕:33650},
-      창옥:{무준신:40372,이장:40373,장정:40374},
-      벽유교:{독선생:35219,미:35214,불로선인:35221},
-      유씨별원:{윤무:35260,고리:35264,이뢰운:35268}}[gate]?.[row.boss])));
+   const bossNpc=({연왕부:{이총관:33654,하상:33653,엽내관:33652,연왕:33650},
+    창옥:{무준신:40372,이장:40373,장정:40374},
+    벽유교:{독선생:35219,미:35214,불로선인:35221},
+    유씨별원:{윤무:35260,고리:35264,이뢰운:35268}}[gate]?.[row.boss]);
+   const relevant=grants.filter(event=>event.npc===bossNpc&&event.predicted);
+   const uncertain=grants.filter(event=>event.npc===bossNpc&&event.unresolved);
    console.log(' ',row.boss,'·',row.name||'미드랍',row.grade||'',
-    '· 특수:',relevant.length?relevant.map(x=>x.name+' ('+x.gradeCode+'등급)').join(', '):'—');
+    '· 특수:',relevant.length?relevant.map(x=>x.name+' ('+x.gradeCode+'등급)').join(', '):'—',
+    uncertain.length?'· 미확정: '+uncertain.map(x=>x.name).join(', '):'');
   }
  }
  console.log('원본 기반 계산 완료:',result.searchedClears+'회');
  if(result.incomplete)
   console.log('미확정:',result.stoppedAt+'회차부터 · '+result.stoppedReason);
- if(firstItemId!=null)
+ if(firstItemId!=null){
+  const unclear=result.rows.some(row=>
+   row.grants.some(event=>event.itemId===firstItemId&&event.unresolved));
   console.log('선택 특수보상 최초 지급:',result.foundTarget?
    result.firstPredicted.find(x=>x.itemId===firstItemId)?.clear+'회차':
+   unclear?'원본 임시·보유 조건 미확정: 최초 획득 회차를 확정할 수 없음':
    '검증 가능한 범위 내 미발견');
+ }
  console.log('예상 최초 획득 회차:');
  for(const event of result.firstPredicted)
   console.log(' ',event.name+' · '+event.clear+'회차');
