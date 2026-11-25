@@ -152,8 +152,7 @@ for(const objective of ['free','fastest']){
   assert.equal(workerResult.plans[objective].nativeReplayChecked,true,
    objective+' route must pass native replay');
 }
-// If a synthetic free route exists, minimum paid-refresh cost is provably zero.
-// The Worker must reuse the audited route instead of searching a second time.
+// The Worker exposes free-only and fastest routes without an extra cheapest card.
 workerMessages.length=0;
 const freeTarget=market.timed(1)[0].items[0].id;
 workerContext.self.onmessage({data:{type:'calculate',requestId:'free-shortcut',
@@ -581,6 +580,26 @@ assert.equal(classifyMorning(morningTime('04:59')),false);
 assert.equal(classifyMorning(resetMorning),true);
 assert.equal(classifyMorning(morningTime('07:59')),true);
 assert.equal(classifyMorning(freeMorning),false);
+assert.equal(api.paidRefreshPhase(morningTime('04:59')),'after-08-free');
+assert.equal(api.paidRefreshPhase(resetMorning),'before-08-free');
+assert.equal(api.paidRefreshPhase(morningTime('07:59')),'before-08-free');
+assert.equal(api.paidRefreshPhase(freeMorning),'after-08-free');
+// An exhausted 04:45 allowance must reset at 05:00 and permit a paid
+// refresh before the 08:00 free shop redraw, including its RNG order.
+const morningSearch=api.predict(morningSave,catalog,beforeMorning,{slots:6});
+const morningTarget=paidBeforeFree.events[1].items[0];
+const morningPlan=morningSearch.searchStrategy([morningTarget],{
+ mode:'fastest',vip:0,quantity:1,periods:3,maxStates:10000
+});
+assert(morningPlan.found,'05:00 pre-free paid strategy should be reachable');
+assert(morningPlan.steps.some(x=>x.kind==='reset'&&x.time===resetMorning),
+ 'the 05:00 quota reset must be a separate event');
+assert(morningPlan.steps.some(x=>x.kind==='paid'&&
+ x.time===resetMorning&&x.phase==='before-08-free'),
+ 'the morning paid branch must be classified before the 08:00 free redraw');
+assert(morningSearch.auditStrategy(morningPlan,{
+ target:morningTarget,quantity:1,vip:0
+}).nativeReplayChecked,'the morning paid strategy must match independent native RNG');
 assert(pageForPhases.includes('05~08시 무료 갱신 전')&&
  pageForPhases.includes('08시 이후'),'paid phase labels should be visible');
 assert(!pageForPhases.includes("plan('cheapest'"),
