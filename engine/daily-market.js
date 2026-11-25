@@ -337,6 +337,62 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    }catch(error){return fail('원본 이벤트 교차검증: '+String(error?.message||error))}
    return {...plan,modelReplayChecked:true,nativeReplayChecked:true};
   },
+  // Advance identical RNG draws from after 05:00 into the preceding evening
+  // only when the SAVED remaining paid quota makes those draws legal.
+  // This cannot cross a 20:00/08:00 free redraw or any other RNG event.
+  compactStrategy(plan,options={}){
+   if(!plan?.found||!Array.isArray(plan.steps))return plan;
+   const allowance=this.paidAllowance(options.vip);
+   const steps=plan.steps.map(x=>({...x}));
+   let changed=false;
+   for(let index=1;index<steps.length;index++){
+    if(steps[index].kind!=='reset')continue;
+    const before=steps[index-1];
+    if(paidRefreshPhase(before.time)!=='after-20-free'||
+       resetDay(before.time)===resetDay(steps[index].time))continue;
+    let lastReset=-1;
+    for(let p=index-1;p>=0;p--)if(steps[p].kind==='reset'){lastReset=p;break}
+    let used=lastReset<0?allowance.used:0;
+    for(let p=lastReset+1;p<index;p++)if(steps[p].kind==='paid')used++;
+    // Only the directly following paid sequence can be moved. No free
+    // replacement or other non-paid event may be crossed.
+    while(used<allowance.max&&steps[index+1]?.kind==='paid'&&
+          steps[index+1].time===steps[index].time){
+     const moved=steps.splice(index+1,1)[0];
+     moved.time=before.time;
+     moved.phase=paidRefreshPhase(moved.time);
+     steps.splice(index,0,moved);
+     changed=true;used++;index++;
+    }
+   }
+   if(!changed)return plan;
+   let used=allowance.used,acquired=0,completion=-1;
+   for(let i=0;i<steps.length;i++){
+    const step=steps[i];
+    if(step.kind==='reset')used=0;
+    if(step.kind==='paid'){
+     step.index=++used;
+     step.phase=paidRefreshPhase(step.time);
+    }
+    acquired+=Number(step.acquired)||0;
+    step.totalAcquired=acquired;
+    if(acquired>=plan.required&&completion<0)completion=i;
+   }
+   if(completion<0)return plan;
+   const finalSteps=steps.slice(0,completion+1);
+   const finalTime=finalSteps[finalSteps.length-1].time;
+   const paid=finalSteps.filter(x=>x.kind==='paid').length;
+   const updated={...plan,steps:finalSteps,when:finalTime,paid,cost:paid*20,
+    purchases:finalSteps.filter(x=>x.acquired>0).map(x=>({
+     kind:x.kind,time:x.time,acquired:x.acquired,
+     totalAcquired:x.totalAcquired,index:x.index??null
+    }))};
+   if(finalTime!==plan.when)updated.proven=false;
+   const verified=this.auditStrategy(updated,options);
+   // Do not expose a shortened route if the independent game-event replay
+   // disagrees or if daily quota / sold-out product checks fail.
+   return verified?.found&&verified.nativeReplayChecked?verified:plan;
+  },
   // Find feasible purchase routes before attempting shortest-time proof.
   // These are deterministic policy replays of the SAME guishishop stream.
   // A candidate is never labelled as globally optimal.
