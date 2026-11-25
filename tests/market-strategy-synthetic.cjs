@@ -176,6 +176,62 @@ assert(!stockEvents.items.includes(stockTarget.id),
  'purchased-out item must leave next rotation pool');
 assert.equal(JSON.stringify(stockCatalog.shops.guishi),catalogSnapshot,
  'native replay must not mutate shared catalog data');
+// Independent exhaustive reference for two automatic rotations and up to
+// three paid refreshes; not an invocation of the strategy search algorithm.
+const oracleItems=catalog.shops.guishi.slice(0,25).map((item,i)=>({
+ ...item,stock:null,weight:10,weightGold:10,rare:i===1?1:0
+}));
+const oracleTarget=oracleItems[1].id;
+const oracleCatalog={...catalog,shops:{...catalog.shops,guishi:oracleItems}};
+const firstRotation=api.nextHalfDay(now),secondRotation=firstRotation+43200;
+function referenceMinimums(save,goal){
+ let minimumCost=null,minimumTime=null;
+ for(let before=0;before<=3;before++)
+ for(let middle=0;middle<=3-before;middle++)
+ for(let after=0;after<=3-before-middle;after++){
+  const events=[];
+  let purchased=0,paidCount=0,finished=false;
+  function advance(kind,at){
+   if(finished)return;
+   events.push({kind,at});
+   const actual=api.replayKoreanClientEvents(save,oracleCatalog,events,{slots:6});
+   if(actual.items.includes(oracleTarget)){
+    events.push({kind:'purchase',at,item:oracleTarget});
+    purchased++;
+    if(purchased===goal){
+     finished=true;
+     const cost=paidCount*20;
+     minimumCost=minimumCost===null?cost:Math.min(minimumCost,cost);
+     minimumTime=minimumTime===null?at:Math.min(minimumTime,at);
+    }
+   }
+  }
+  for(let i=0;i<before;i++){paidCount++;advance('paid',now)}
+  advance('open',firstRotation);
+  for(let i=0;i<middle;i++){paidCount++;advance('paid',firstRotation)}
+  advance('open',secondRotation);
+  for(let i=0;i<after;i++){paidCount++;advance('paid',secondRotation)}
+ }
+ return {minimumCost,minimumTime};
+}
+for(let n=0;n<16;n++){
+ const testSave={RandShop:{Time:now,Fresh:0,Lucky:0,Buy:60,Counts:[],Items:[]},
+  Rnds:{Sds:{guishishop:13579+n*2}}};
+ const search=api.predict(testSave,oracleCatalog,now,{slots:6});
+ for(const goal of [1,2]){
+  const expected=referenceMinimums(testSave,goal);
+  const cheapest=search.searchStrategy([oracleTarget],{
+   mode:'cheapest',quantity:goal,vip:0,periods:2,maxStates:100000
+  });
+  const fastest=search.searchStrategy([oracleTarget],{
+   mode:'fastest',quantity:goal,vip:0,periods:2,maxStates:100000
+  });
+  assert.equal(cheapest.found?cheapest.cost:null,expected.minimumCost,
+   'minimum-jade outcome must match exhaustive event reference');
+  assert.equal(fastest.found?fastest.when:null,expected.minimumTime,
+   'earliest finish time must match exhaustive event reference');
+ }
+}
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
