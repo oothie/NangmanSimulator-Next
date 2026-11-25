@@ -4,6 +4,8 @@ on:
     paths:
       - index.html
       - engine/daily-market.js
+      - engine/dungeon-test.js
+      - engine/dungeon.js
       - engine/market-strategy-worker.js
       - tests/market-ui-browser.cjs
       - .github/workflows/market-ui-browser.yml
