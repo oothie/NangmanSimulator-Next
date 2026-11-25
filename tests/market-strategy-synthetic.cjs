@@ -640,8 +640,10 @@ assert(morningPlan.steps.some(x=>x.kind==='paid'&&
 assert(morningSearch.auditStrategy(morningPlan,{
  target:morningTarget,quantity:1,vip:0
 }).nativeReplayChecked,'the morning paid strategy must match independent native RNG');
-assert(pageForPhases.includes('05~08시 무료 갱신 전')&&
- pageForPhases.includes('08시 이후'),'paid phase labels should be visible');
+assert(pageForPhases.includes('05~08시 무료 교체 전')&&
+ pageForPhases.includes('08~20시 무료 교체 전')&&
+ pageForPhases.includes('20시 무료 교체 후~다음날 05시 전'),
+ 'all three paid refresh phases should be visible');
 assert(!pageForPhases.includes("plan('cheapest'"),
  'the limited-item strategy UI must not show minimum-jade strategy');
 // The page and strategy Worker must load the same revision of the RNG module.
