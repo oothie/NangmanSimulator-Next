@@ -22,5 +22,7 @@ jobs:
         run: node research/dungeon-lab/test-mask-7209-conditional.cjs
       - name: Cross-check alternative 7209-only draw model against field RNG implementation
         run: node research/mask-drop/test-conditional-forecast.cjs
+      - name: Verify level-70 before/after RNG lane observer (synthetic)
+        run: node research/mask-drop/test-compare-battle-lane.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
