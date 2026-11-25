@@ -99,6 +99,28 @@ export function restoreOriginalPendingAward(state, npc, item){
  }
  return {applied:true,rule:ruleKey(row),counter:update?.key||null};
 }
+/* Battle-loss branch source contract. The V174 original boss SBC places
+ * rollback SetP/AddP under an explicit 'lost' event before general_win.
+ * This function is never automatically called after a successful clear.
+ * A caller must supply evidence that the battle-loss branch executed.
+ * Unknown/unsupported consumer rollbacks are left untouched.
+ */
+export function applyOriginalBattleLoss(save,npc){
+ const boss=Number(npc);
+ const draft=copySave(save);
+ draft.globalVariable=draft.globalVariable||{};
+ const effects=[];
+ for(const rule of SPECIAL_CONSUMER_RULES.filter(r=>r.n===boss)){
+  if(!rule.rb)continue;
+  const applied=restoreOriginalPendingAward(draft.globalVariable,boss,rule.i);
+  if(applied.applied)effects.push({
+   npc:boss,itemId:rule.i,name:rewardLabel(rule.i),
+   flag:rule.f,rollback:rule.rb,counter:applied.counter
+  });
+ }
+ return {nextState:draft,lossEvent:true,npc:boss,effects,
+  changed:effects.length,unsupported:!SPECIAL_CONSUMER_RULES.some(r=>r.n===boss)};
+}
 function consumerGuard(rule,state,tempState,numericState){
  const numeric=SOURCE_NUMERIC_GUARDS[ruleKey(rule)];
  if(numeric){
