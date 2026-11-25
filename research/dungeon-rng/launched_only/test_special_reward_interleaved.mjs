@@ -51,12 +51,14 @@ test('the next producer sees the consumer award counter',()=>{
 test('unknown special reward item is not searched as fabricated gate loot',()=>{
  assert.throws(()=>forecastInterleavedSpecials(originalSave(),'창옥',statefulProducer,1,{firstItemId:3970}));
 });
-test('unknown additional source limit remains unresolved',()=>{
+test('original 3523 consumer resets its own flag to zero',()=>{
  const p=state=>({output:[{clear:1,results:[{boss:'무준신',specialIds:[3523]}]}],
   nextState:{...state,globalVariable:{...state.globalVariable}}});
  const result=forecastInterleavedSpecials(originalSave(),'창옥',p,1);
- assert.equal(result.unresolved,1);
- assert.equal(result.rows[0].grants[0].predicted,false);
+ assert.equal(result.unresolved,0);
+ assert.equal(result.rows[0].grants[0].predicted,true);
+ assert.equal(result.rows[0].grants[0].postAwardFlag,0);
+ assert.equal(result.nextState.globalVariable.drop_3523_40372,0);
 });
 test('Liu key hold scenario carries key into next source step',()=>{
  const s={Rnds:{Sds:{seed_lsby:11}},globalVariable:{win_lsby:30,
