@@ -61,7 +61,7 @@ async function smoke(){
   await page.locator('[data-market-tab="refresh"]').click();
   await assertButton(page,'#marketSimNext');
   await page.locator('#marketSimNext').click();
-  assert.match(await page.locator('[data-market-panel="refresh"]').innerText(),/원보 갱신 1회차/);
+  assert.match(await page.locator('[data-market-panel="refresh"]').first().innerText(),/원보 갱신 1회차/);
   await page.locator('[data-market-tab="current"]').click();
   await assertButton(page,'#marketAutoNext');
   await page.locator('#marketAutoNext').click();
