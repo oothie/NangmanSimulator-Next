@@ -21,6 +21,14 @@ export const ORIGINAL_FRAGMENT_MILESTONES = Object.freeze([
  {npc:33652,item:2918,count:'get_2918',before:14,shop:'buyshop_1811'},
  {npc:33650,item:2920,count:'get_2920',before:14,shop:'buyshop_1812'}
 ]);
+/* Source-audited exceptional consumer: V174/dcy_boss01.lua.sbc contains
+ * AddBattleDrop(40372,3523,1) SetP('drop_3523_40372',0).
+ * The count-free award guard is proven by GetP('drop_3523_40372') == 1.
+ * This is not the usual flag=2 unique-claim consumer.
+ */
+export const SOURCE_CONFIRMED_POST_AWARD_FLAGS = Object.freeze({
+ '40372:3523':0
+});
 const known = value => {
  if(value==null)return 0;
  if(typeof value==='object')return known(value.Value??value.value??value.Val??value.val??value.N??value.n);
@@ -77,7 +85,8 @@ export function restoreOriginalPendingAward(state, npc, item){
  return {applied:true,rule:ruleKey(row),counter:update?.key||null};
 }
 function consumerGuard(rule,state,tempState){
- if(rule.review)return {eligible:null,reason:'원본 추가 지급 제한 독립 검증 필요'};
+ if(rule.review&&!(rule.n===40372&&rule.i===3523))
+  return {eligible:null,reason:'원본 추가 지급 제한 독립 검증 필요'};
  const flagValue=known(state[rule.f]);
  if(rule.fc==='== 1'&&flagValue!==1)return {eligible:false,reason:'이번 회차 지급 플래그 없음'};
  if(rule.fc==='~= 0'&&flagValue===0)return {eligible:false,reason:'이번 회차 지급 플래그 없음'};
@@ -129,10 +138,13 @@ export function evaluateSpecialAwards(save,producers,{mode='current',tempState=n
       effects.push({kind:'잔편 완성 후속 해금',key:milestone.shop,value:counters[milestone.shop]});
      }
     }else if(rule.k&&temp)temp[rule.k]=known(temp[rule.k])+1;
-    counters[rule.f]=2;
+    const name=ruleKey(rule);
+    counters[rule.f]=Object.prototype.hasOwnProperty.call(SOURCE_CONFIRMED_POST_AWARD_FLAGS,name)?
+     SOURCE_CONFIRMED_POST_AWARD_FLAGS[name]:2;
    }
    events.push({npc,itemId:id,name:rewardLabel(id),predicted:awarded,
     status:check.reason,quantity:awarded?rule.q:0,effects,
+    postAwardFlag:awarded?counters[rule.f]:null,
     countKey:rule.k||null,unresolved:check.eligible===null});
   }
  }
