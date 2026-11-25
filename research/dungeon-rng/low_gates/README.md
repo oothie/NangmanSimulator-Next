@@ -100,3 +100,15 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 - Node.js **38개 테스트 파일 전부 통과**. 연속 추적 기본 비활성화/시드 비노출/실패 트랜잭션 보존 포함.
 
 **미검증:** 원본 `getLuaJsonFile`의 실제 메타 키 순서, 게임 LuaJIT `pairs()` 네이티브 추첨 순회, MMYJ 실제 시드 동등성, 한국판 미래 드랍 홀드아웃. 본 연구 결과를 실게임 확정 드랍으로 표시하지 않는다. 공개 사이트/버전 및 기존 90급 엔진은 불변.
+
+## 2026-11-26 후속 v3 — 독립 클리어 후 시드 기반 모델 역검증
+
+대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v3.zip`에 `engine/native_candidate_reconciliation.cjs`, `engine/test_native_candidate_reconciliation.cjs` 추가. 본 GitHub 변경은 **연구 체크포인트 문서 갱신이며 실행 코드 자체는 별도 ZIP에 저장**.
+
+- 7관문 원본 파생 `play` 실행기 기준, 별도로 관측한 클리어 종료 시드와 `first/last/absent` 세 모델의 종료 시드 1개 이상을 비교해 불일치 가설 제거.
+- **독립 보스별 지급 정보가 있는 경우에만** 장비 ID/색상 대조. 일반 보유 장비 증감에서 보스별 지급을 임의로 추론하지 않음.
+- 묵문유적 일반 장비 지급 원본 미복원으로 빈 관측 목록을 미드랍 증명에 사용하지 않음.
+- 개인 시드·계정 식별값·OnlyID 미출력. 한 모델만 남아도 원본 네이티브 LuaJIT 동등성의 입증은 아님.
+- Node.js 22에서 **39/39개 .cjs 테스트 파일 통과**. 실제 게임 독립 미래 홀드아웃은 미실시. 공개 사이트·버전/90급 관문 코드 변경 없음.
+
+다음 연구: 한국판 `getLuaJsonFile`의 실제 테이블 구성/메타 키 삽입 근거, 묵문유적 일반 장비 함수 역추적, 별도 사전·사후 플레이 세이브 대조.
