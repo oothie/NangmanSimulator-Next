@@ -10,6 +10,8 @@ const dir=__dirname;
 const allow=new Set([
  '60014_equipment_candidate_pools.json',
  'after_save_equipment_evidence.cjs',
+ 'sealed_low_gate_equipment.cjs',
+ 'test_sealed_low_gate_equipment.cjs',
  'test_after_save_equipment_evidence.cjs',
  'check_research_privacy.cjs',
  'README.md'
