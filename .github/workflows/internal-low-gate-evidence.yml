@@ -1,0 +1,18 @@
+name: Internal lower-gate equipment evidence regression
+on:
+  push:
+    branches:
+      - research/dungeon-rng-original
+  workflow_dispatch:
+jobs:
+  low-gate-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Guard public repository privacy
+        run: node scripts/check-public-privacy.cjs
+      - name: Source-confirmed six lower-gate equipment evidence without false attribution
+        run: node research/dungeon-rng/low_gates/test_after_save_equipment_evidence.cjs
