@@ -18,5 +18,7 @@ jobs:
         run: node research/dungeon-lab/test-mixed-four-gate.cjs
       - name: Verify all 26 extracted game source tables
         run: node research/dungeon-lab/test-source-26-tables.cjs
+      - name: Verify conditional level-70 7209 source hypothesis without user saves
+        run: node research/dungeon-lab/test-mask-7209-conditional.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
