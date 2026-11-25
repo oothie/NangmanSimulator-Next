@@ -29,7 +29,9 @@ const allow=new Set([
  'discriminate_table_orders.cjs',
  'test_discriminate_table_orders.cjs',
  'gate_order_sensitivity.cjs',
- 'test_gate_order_sensitivity.cjs'
+ 'test_gate_order_sensitivity.cjs',
+ 'native_pairs_observation.cjs',
+ 'test_native_pairs_observation.cjs'
 ]);
 const files=fs.readdirSync(dir);
 for(const name of files){
