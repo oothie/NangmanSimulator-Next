@@ -14,6 +14,15 @@
  */
 const {draw,NPC}=require('../dungeon-lab/mask-7209-conditional.cjs');
 const NPC_ID=Object.freeze({bandit:32950,mask:NPC.mask});
+const MAP=require('./60014-qingcheng-map-spawns.json');
+const OBJECTS=new Map(MAP.fixedBanditObjects.map(x=>[x.objectId,x]));
+function sourceMapObject(objectId){
+ if(objectId===undefined||objectId===null)return null;
+ if(!Number.isSafeInteger(objectId)||!OBJECTS.has(objectId))
+  throw new RangeError('Unknown original Korean 60014 Qingcheng bandit map object');
+ const o=OBJECTS.get(objectId);
+ return {objectId:o.objectId,x:o.x,y:o.y};
+}
 function getSeed(save) {
  const root=Array.isArray(save)?save[0]:save;
  const n=root?.Rnds?.Sds?.aidrop70;
@@ -27,6 +36,7 @@ function validateBattle(b,i) {
   throw new RangeError('Invalid observed other enemy count');
  if(b.otherEnemies!==undefined&&b.bandits+b.otherEnemies>20)
   throw new RangeError('More than 20 enemies per battle');
+ sourceMapObject(b.mapObjectId);
 }
 function firstHits(seed,{maxDraws=2000,hitSlot=1}={}) {
  if(!Number.isSafeInteger(maxDraws)||maxDraws<1||maxDraws>100000||
@@ -57,6 +67,8 @@ function plan(save,{observed=[],maxDraws=2000,hitSlot=1}={}){
   observedFights:observed.length,observedLevel70Bandits:total,
   observedFightsWithBandits:observed.filter(b=>b.bandits>0).length,
   observedBanditCounts:observed.map(b=>b.bandits),
+  verifiedMapSpawnObjects:MAP.fixedBanditObjects.length,
+  observedMapOrigins:observed.map(b=>sourceMapObject(b.mapObjectId)),
   prior1PercentHitSlot:hitSlot,
   candidateSuccessesWithinObserved:ahead===null?null:past,
   nextCandidateAidrop70Index:next,
@@ -72,6 +84,7 @@ function plan(save,{observed=[],maxDraws=2000,hitSlot=1}={}){
   privateInputsReported:false,
   limitations:[
    '청성산 일반 전투 번호별 산적 인원은 원본 적 편성 함수 없이는 자동 확정할 수 없음',
+   '원본 지도에서 산적 표시 위치 6곳이 확인되었지만 전투별 등장 인원·재등장 순서가 결정되는 규칙은 별개',
    'BattleRnd 상태 변화와 적 출현 인원 사이의 대응은 아직 복원되지 않음',
    '산적 1명당 aidrop70 추첨 1회라는 실측 지지 모델; 보상 분기 조건 미완전',
    '1/100 후보 당첨이 실제 수라가면 지급과 동일하다는 증거 없음'
@@ -83,4 +96,4 @@ function verifyFutureFormationRows(rows){
  rows.forEach(validateBattle);
  return rows;
 }
-module.exports={getSeed,firstHits,plan,verifyFutureFormationRows};
+module.exports={getSeed,firstHits,plan,verifyFutureFormationRows,sourceMapObject};
