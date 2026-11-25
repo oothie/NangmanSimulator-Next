@@ -225,7 +225,7 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
      specialCandidateNames,warnings:[]};
    })
   })),conditional:true,keyHeld:false,
-  caution:'연왕부: 과거 실측 재현 33381_1 원본 진입 경로를 사용합니다. 1125 세이브의 하상 천운도 백색·나머지 미드랍 실측과 일치하며, 특수 지급은 별도 검증이 필요합니다.',
+  caution:'연왕부는 원본 진입 경로 기반 조건부 계산입니다. 장비와 특수 보상의 실제 획득 여부는 게임 진행 상태에 따라 달라질 수 있습니다.',
   keyNote:''};
  }
  if(gate==='유씨별원'){
@@ -251,7 +251,7 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
    })
   }));
   return {gate,output,conditional:true,keyHeld:replay.keys[0]?.heldAtStart,
-   caution:'유씨별원: 과거 실측 재현 v85 원본 35271_1 재생 경로를 사용합니다. 1125 세이브의 1·2회차 실측과 일치하며, 3회차는 아직 인게임 미검증 예측입니다. 특수 보상 당첨과 실제 지급은 별개입니다.',
+   caution:'유씨별원은 원본 관문 계산 흐름에 따른 조건부 결과입니다. 특수 보상의 추첨 당첨과 실제 지급은 별개이며, 미래 드랍의 일치를 보장하지 않습니다.',
    keyNote:'열쇠 보유량은 세이브의 실제 소지 아이템으로 판단하며, 누적 get_8915 기록은 사용하지 않습니다. 세이브 보유 기준의 연속 클리어는 고리 열쇠 획득 후 즉시 사용을 가정합니다.'};
  }
  const state=createState(save),output=[],owned=countItem(save,8915)>0;
@@ -268,7 +268,7 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
    number(state.gv['win_'+({창옥:'dcy',벽유교:'byj',연왕부:'ywf',유씨별원:'lsby'}[gate])])+1;
  }
  return {gate,output,conditional:true,keyHeld:held,
-  caution:'장비 지급 배열과 창옥·벽유교 선행 특수 추첨은 원본 기반입니다. 연왕부·유씨별원은 선행 특수 추첨과 회차별 상태 변경이 미복구여서 일반 장비까지 예측 오차가 확인되었습니다. 표시되는 결과는 원본 엔진 확정 예측이 아니며 1125 세이브의 유씨별원 1·2회 실측과 불일치합니다.',
+  caution:'원본 기반 조건부 계산입니다. 미복구 분기가 남은 관문의 장비와 특수 보상은 실제 게임과 다를 수 있습니다.',
   keyNote:gate==='유씨별원'?'고리의 열쇠 보유 시 원본에서 전용 추첨 호출이 생략됩니다. 세이브 보유 수량과 누적 지급 기록은 서로 다릅니다.':''};
 }
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
