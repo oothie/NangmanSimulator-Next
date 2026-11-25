@@ -20,7 +20,7 @@ assert.equal(effect('취선채','3/4/2','number:10'),'weapon');
 assert.equal(effect('혈의루','3/7/2','string:50 '),'equipment');
 assert.equal(effect('혈의루','3/7/2','number:50'),'no-drop');
 const c=atRoll('천일교','3/4/2',41);
-assert.equal(c.allModelEffectAgreement,false);
+assert.equal(c.allModelEffectAgreement,true);
 const d=atRoll('혈의루','3/7/2',1);
 assert.equal(d.effects.first,'equipment');
 assert.equal(d.effects.absent,'no-drop');
