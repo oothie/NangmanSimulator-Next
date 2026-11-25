@@ -59,8 +59,10 @@ function createMixedRunner(producers,forecastInterleavedSpecials){
     throw new Error('Incomplete source boss outcomes at '+gate);
    const equipment=played.producer.results.map(row=>({
     boss:row.boss,itemId:row.itemId??null,
-    name:row.name,grade:row.grade??'',
-    gradeCode:row.itemId==null?0:row.gradeCode
+    name:row.name,grade:row.itemId==null?'':row.grade??'',
+    gradeCode:row.itemId==null?0:row.gradeCode,
+    // Raw grade draw is retained even for a miss (BYJ/LSBY consume it).
+    rolledGradeCode:row.gradeCode??null
    }));
    const grants=played.grants.map(x=>({
     npc:x.npc,itemId:x.itemId,name:x.name,
