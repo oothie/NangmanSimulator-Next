@@ -765,6 +765,46 @@ function verifyKoreanMarketContinuity(before,after,config,options={}){
   assumptions:'구매·기타 암시장 RNG 호출 없음, 동일 상품 후보와 가중치, 각 시각 구간당 무료 갱신 최대 1회'};
 }
 
-root.NangmanMarket={predict,replayKoreanClientEvents,verifyKoreanMarketContinuity,vipLevel,halfDay,nextHalfDay,resetDay,paidRefreshPhase,orderPool,countsMap,VIP_REFRESH,
+
+/**
+ * Explicit user-requested assumption for imported historical saves:
+ * every elapsed 08:00/20:00 KST bucket was actually opened and its free
+ * redraw confirmed. This does NOT describe game-client behavior when offline.
+ * Never add an unobserved paid refresh or purchase. Uses the original client
+ * event RNG replayer, not a naive multiply-the-intervals seed skip.
+ */
+function assumeAllFreeVisits(save,source,now=Math.floor(Date.now()/1000),options={}){
+ const shop=save?.RandShop||{},savedAt=n(shop.Time),target=Number(now);
+ const initial=save?.Rnds?.Sds?.guishishop;
+ if(!Number.isSafeInteger(savedAt)||savedAt<=0||
+    !Number.isSafeInteger(target)||target<savedAt||
+    !Number.isSafeInteger(Number(initial))||Number(initial)<=0)
+  return {save,applied:false,count:0,reason:'원본 세이브 시각 또는 암시장 시드 확인 필요'};
+ const count=Math.max(0,halfDay(target)-halfDay(savedAt));
+ if(!count)return {save,applied:false,count:0};
+ if(count>20000)return {save,applied:false,count:0,reason:'가상 갱신 20,000회 상한 초과'};
+ const steps=[];
+ for(let t=nextHalfDay(savedAt);t<=target;t+=43200)
+  steps.push({kind:'open',at:t});
+ if(steps.length!==count)
+  throw Error('무료 갱신 경계 계산이 일치하지 않습니다.');
+ const replay=replayKoreanClientEvents(save,source,steps,options);
+ if(replay.events.length!==count||replay.events.some(x=>x.auto!==true))
+  throw Error('무료 자동 갱신 순차 재생이 중단되었습니다.');
+ const next={...save,
+  RandShop:{...shop,Time:target,
+   Items:replay.items.map(id=>({ID:id,Buyed:0})),
+   // 05:00 KST is the quota reset; no assumed paid purchases.
+   Fresh:resetDay(savedAt)!==resetDay(target)?0:n(shop.Fresh),
+   Lucky:replay.lucky},
+  Rnds:{...(save?.Rnds||{}),Sds:{...(save?.Rnds?.Sds||{}),
+   guishishop:replay.seed}}
+ };
+ return {save:next,applied:true,count,
+  assumption:'모든 경과 정시마다 암시장을 열어 무료 갱신 확인 · 추가 원보 갱신과 구매 없음',
+  events:replay.events.map(x=>({at:x.at,auto:x.auto}))};
+}
+
+root.NangmanMarket={predict,assumeAllFreeVisits,replayKoreanClientEvents,verifyKoreanMarketContinuity,vipLevel,halfDay,nextHalfDay,resetDay,paidRefreshPhase,orderPool,countsMap,VIP_REFRESH,
  __test:{nextSeed,KeyRng,draw}};
 })(typeof window!=='undefined'?window:globalThis);
