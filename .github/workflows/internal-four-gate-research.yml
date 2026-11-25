@@ -28,5 +28,7 @@ jobs:
         run: node research/mask-drop/test-calibrate-level70.cjs
       - name: Verify source-conditional weight-model pruning (synthetic only)
         run: node research/mask-drop/test-validate-weight-hypotheses.cjs
+      - name: Verify original LuaJIT literal weight tables and dynamic-pool guards
+        run: node research/mask-drop/test-original-60014-weight-tables.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
