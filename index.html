@@ -2176,6 +2176,9 @@ function marketStrategyMarkup(state,ko){
   // alter the independently replayed RNG or the per-day quota counts.
   const groupedSteps=[];
   for(const step of steps){
+   // The 05:00 allowance reset is automatic, not an action the player
+   // must perform. Keep it in the verified model, omit it from instructions.
+   if(step.kind==='reset')continue;
    const prior=groupedSteps[groupedSteps.length-1];
    if(step.kind==='paid'&&prior?.kind==='paid'&&prior.time===step.time&&
       marketPaidRefreshWindow(prior.time)===marketPaidRefreshWindow(step.time)){
