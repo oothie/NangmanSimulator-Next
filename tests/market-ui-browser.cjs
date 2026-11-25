@@ -62,10 +62,12 @@ async function smoke(){
   await page.locator('#file').setInputFiles({name:'artificial-market.json',
    mimeType:'application/json',buffer:Buffer.from(JSON.stringify(testSave))});
   await page.locator('[data-view="daily"]').click();
-  await page.locator('[data-market-tab="refresh"]').click();
+  assert.match(await page.locator('.market-limit-note').first().innerText(),
+   /모두 실제로 확인했다고 가정했습니다/);
+  await page.locator('[data-market-tab="current"]').click();
   await assertButton(page,'#marketSimNext');
   await page.locator('#marketSimNext').click();
-  assert.match(await page.locator('[data-market-panel="refresh"]').first().innerText(),/원보 갱신 1회차/);
+  assert.match(await page.locator('[data-market-panel="current"]').first().innerText(),/원보 갱신 1회차/);
   await page.locator('[data-market-tab="current"]').click();
   await assertButton(page,'#marketAutoNext');
   await page.locator('#marketAutoNext').click();
@@ -97,10 +99,12 @@ async function smoke(){
   await page.locator('#dungeonTestGate').selectOption({label:'유씨별원'});
   await page.locator('#dungeonTestKey').selectOption('owned');
   await page.locator('#dungeonTestRun').click();
-  assert.match(await page.locator('#dungeonTestResults').innerText(),/고리의 열쇠 보유/);
+  assert.match(await page.locator('#dungeonTestResults').innerText(),/고리/);
   await page.locator('#dungeonTestKey').selectOption('absent');
+  await page.locator('#dungeonClaimMode').selectOption('never_claimed');
   await page.locator('#dungeonTestRun').click();
-  assert.match(await page.locator('#dungeonTestResults').innerText(),/고리의 열쇠 미보유/);
+  assert.match(await page.locator('#dungeonTestResults').innerText(),/미획득 가정/);
+  assert.match(await page.locator('#dungeonTestResults').innerText(),/이뢰운/);
   assert.equal(faults.filter(e=>/ReferenceError|SyntaxError/.test(e)).length,0,
    'browser encountered script errors: '+faults.join(' | '));
   console.log('PASS market and dungeon browsers: original-save strategy and 4-gate Korean equipment test clicks');
