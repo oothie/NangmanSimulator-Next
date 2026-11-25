@@ -87,19 +87,21 @@ function marketPool(source,shop,save,now,extraPurchases){
 }
 function draw(rng,pool,gold,rare,slots){
  const used=new Set,result=[];let attempts=0,i=0;
+ // All item rolls in this shelf share the same fixed catalog weights.
+ const weights=pool.map(x=>n(gold?x.weightGold:x.weight));
+ const hasWeights=weights.some(x=>x>0);
+ const rarePool=rare?pool.filter(x=>x.rare===1):[];
+ const rareWeights=rarePool.map(x=>n(x.weightGold));
  for(let rareNext=rare;i<6&&attempts++<8000&&pool.length&&used.size<pool.length;){
   if(rareNext){
-   const rarePool=pool.filter(x=>x.rare===1);
    if(!rarePool.length){rareNext=false;continue}
-   const weights=rarePool.map(x=>n(x.weightGold));
-   const found=rarePool[rng.weighted('guishishop',weights)-1];
+   const found=rarePool[rng.weighted('guishishop',rareWeights)-1];
    if(!found||used.has(found.id))continue;
    rareNext=false;
    if(i<slots){used.add(found.id);result.push(found)}
    i++;
   }else{
-   const weights=pool.map(x=>n(gold?x.weightGold:x.weight));
-   if(weights.every(x=>!(x>0)))break;
+   if(!hasWeights)break;
    const found=pool[rng.weighted('guishishop',weights)-1];
    if(!found||used.has(found.id))continue;
    if(i<slots){used.add(found.id);result.push(found)}
