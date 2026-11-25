@@ -56,6 +56,25 @@ const lateOpen=api.replayKoreanClientEvents(fixture,catalog,
 assert.equal(lateOpen.events.length,1);
 assert.equal(lateOpen.events[0].auto,true);
 assert.deepEqual(Array.from(lateOpen.items),Array.from(nativeAuto.items));
+// Multiple generated (never player-derived) seeds exercise consecutive paid
+// refreshes followed by the scheduled free replacement on one shared RNG.
+for(let i=1;i<=24;i++){
+ const generated={...fixture,Rnds:{Sds:{guishishop:1000+i*7919}}};
+ const strategy=api.predict(generated,catalog,now,{slots:6});
+ const twoPaid=strategy.getPaid(2,{vip:0});
+ const autoAfterPaid=strategy.timed(1,{vip:0,paidSteps:2})[0];
+ const events=api.replayKoreanClientEvents(generated,catalog,[
+  {kind:'paid',at:now},{kind:'paid',at:now+1},
+  {kind:'open',at:api.nextHalfDay(now)+1}
+ ],{slots:6});
+ for(let j=0;j<2;j++){
+  assert.deepEqual(Array.from(events.events[j].items),
+   Array.from(twoPaid[j].items,item=>item.id));
+  assert(Math.abs(events.events[j].lucky-twoPaid[j].lucky)<1e-8);
+ }
+ assert.equal(events.events[2].auto,true);
+ assert.deepEqual(Array.from(events.items),Array.from(autoAfterPaid.items,item=>item.id));
+}
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
