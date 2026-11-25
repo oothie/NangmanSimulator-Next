@@ -44,5 +44,7 @@ jobs:
         run: node research/mask-drop/test-qingcheng-mask-cli.cjs
       - name: Verify one-battle Qingcheng appearance from controlled snapshots
         run: node research/mask-drop/test-qingcheng-appearance-from-saves.cjs
+      - name: Verify recovered 60014 Qingcheng NPC formation source provenance
+        run: node research/mask-drop/test-qingcheng-source-formation-provenance.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
