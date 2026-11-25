@@ -2145,7 +2145,11 @@ function marketStrategyMarkup(state,ko){
     x.kind==='reset'?'05시 원보 갱신 한도 초기화':'현재 판매 목록')+
     (x.kind==='reset'?' · 오전 5시 기준':x.acquired?' · 목표 상품 '+x.acquired+'개 구매':' · 구매 없음')+'</b>'+
     '<small>'+escape(marketDate(x.time))+' · 누적 '+escape(x.totalAcquired)+' / '+escape(goal.quantity)+'개</small></div></li>').join('');
-  const status=result.found?'<div class="market-plan-date">'+(mode==='candidate'?'실행 가능한 전량 구매 시점: ':'전체 수량 획득: ')+escape(marketDate(result.when))+(result.proven===false?' · 최단 확정 전':'')+'</div>':
+  const status=result.found?'<div class="market-plan-date">'+
+   (mode==='fastest'&&result.proven===false?'검증된 실행 가능 시점 (최단 미확정): ':
+    mode==='candidate'?'실행 가능한 전량 구매 시점: ':'전체 수량 획득: ')+
+   escape(marketDate(result.when))+(mode==='fastest'&&result.proven===false?
+    ' · 탐색 상한으로 더 빠른 경로가 존재할 수 있음':result.proven===false?' · 최적성 미확정':'')+'</div>':
    '<p class="market-plan-result">'+escape(result.error||'기간 내 전체 수량 획득 미확정')+'</p>';
   return '<article class="market-plan-card"><div class="market-plan-heading"><strong>'+title+
    '</strong><small>'+subtitle+'</small></div>'+status+
@@ -2160,7 +2164,8 @@ function marketStrategyMarkup(state,ko){
    '<details class="market-plan-route"><summary>전체 교체·갱신 경로 <b>'+steps.length+
     '단계</b></summary><ol class="market-route-list">'+stepList+'</ol></details>'+
    '<p class="micro">원보 금액은 갱신비입니다. 상품 자체의 은화·원보 가격은 별도입니다.'+
-    (!result.found?' 해당 기간 또는 탐색 상태 한도 내의 부분 경로이며 완료 전략으로 확정하지 않습니다.':'')+
+    (!result.found?' 해당 기간 또는 탐색 상태 한도 내의 부분 경로이며 완료 전략으로 확정하지 않습니다.':
+     mode==='fastest'&&result.proven===false?' 현재 경로는 실제 RNG로 재검증됐지만 최단 경로임은 증명되지 않았습니다.':'')+
     '</p></article>';
  };
  const periodChoices=[12,28,60,120,240,360,720];
