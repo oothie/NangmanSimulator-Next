@@ -229,7 +229,7 @@ export function mountDungeon(host,save){
  '<div id="dungeonTestResults" aria-live="polite"></div></section>';
  const gateControl=host.querySelector('#dungeonTestGate');
  const keyControl=host.querySelector('#dungeonTestKeyControl');
- const syncGateOptions=()=>{const visible=gateControl.value==='유씨별원';keyControl.hidden=!visible;keyControl.style.display=visible?'':'none'};
+ const syncGateOptions=()=>{const visible=gateControl.value==='유씨별원';keyControl.hidden=!visible;keyControl.style.setProperty('display',visible?'grid':'none','important')};
  gateControl.addEventListener('change',()=>{syncGateOptions();run()});
  syncGateOptions();
  const run=()=>{
