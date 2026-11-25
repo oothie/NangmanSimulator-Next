@@ -2239,7 +2239,7 @@ function dailyMarketView(){
  const timedTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'timed-only'}):[];
  const paidTargets=targetIds.length?state.findTargets(targetIds,periods,{mode:'paid-now',vip:vipChoice}):[];
  const status=state.historyBlocked?'세이브의 암시장 기록이 너무 오래되어 '+state.missed+'회 변경을 안전하게 복원할 수 없습니다. 부정확한 예측을 방지하기 위해 현재 저장 상품만 표시합니다. 최신 세이브를 다시 불러와 주세요.':
-  state.stale?'저장 시점 이후 '+state.missed+'회 정시 변경 구간의 원보 갱신 여부가 세이브로 확인되지 않습니다. 부정확한 구매 경로 예측을 방지하기 위해 저장된 상품만 표시합니다. 최신 세이브로 다시 계산하세요.':
+  state.stale?'저장 시점 이후 08시·20시 정시 변경 구간이 '+state.missed+'회 지났습니다. 이는 실제 무료 갱신 횟수가 아닙니다. 게임에 접속하지 않은 구간의 무료 갱신은 누적 실행되지 않고, 다음 암시장 입장 시 1회만 적용됩니다. 중간 접속과 원보 갱신 이력을 확인할 수 없어 과거 시드로 현재 구매 전략을 확정하지 않습니다. 최신 세이브를 불러와 주세요.':
   !state.seedOk?'암시장 RNG 시드가 없어 향후 판매를 예측할 수 없습니다. 현재 저장 상품만 표시합니다.':
   '세이브에 저장된 상품 목록을 현재 판매 목록으로 표시합니다.';
  return '<div class="market-stats">'+[
