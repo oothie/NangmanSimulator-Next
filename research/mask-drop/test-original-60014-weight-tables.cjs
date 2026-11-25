@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+'use strict';
+const assert=require('node:assert/strict');
+const {FIRST,SECOND,SOURCE_NPCS,dynamicFirstWeights,conditionalNpcStages}=
+ require('./original-60014-weight-tables.cjs');
+assert.equal(FIRST.callPc,74);
+assert.equal(SECOND.callPc,96);
+assert.deepEqual(SECOND.rawSlots,[null,1000,100,10,1]);
+assert.deepEqual(SECOND.positiveLuaSlots,[1000,100,10,1]);
+assert.equal(SECOND.positiveLuaSlots.reduce((x,y)=>x+y,0),1111);
+assert.deepEqual(dynamicFirstWeights([1]),[1,99]);
+assert.deepEqual(dynamicFirstWeights([5,20]),[5,20,75]);
+assert.deepEqual(dynamicFirstWeights([100]),[100,0]);
+assert.throws(()=>dynamicFirstWeights([101]),/source|Explicit/);
+assert.throws(()=>dynamicFirstWeights([75,50]),/negative/);
+assert.deepEqual(SOURCE_NPCS[30681].drop,[7209,1]);
+assert.deepEqual(SOURCE_NPCS[32950].drop,[3031,1]);
+const noAssumption=conditionalNpcStages(30681);
+assert.equal(noAssumption.first.bound,null);
+assert.equal(noAssumption.second.bound,1111);
+assert.equal(noAssumption.firstDropPredictionVerified,false);
+const candidate=conditionalNpcStages(30681,{encryptedDropMatchesSource:true});
+assert.deepEqual(candidate.first.weights,[1,99]);
+assert.equal(candidate.first.verified,false);
+assert.equal(candidate.second.verifiedLiteral,true);
+assert.equal(candidate.firstAndSecondSamePool,false);
+assert.throws(()=>conditionalNpcStages(35125),/Unsupported/);
+console.log('PASS original 60014 proto9 fixed table, dynamic complement & source-equivalence guards');
