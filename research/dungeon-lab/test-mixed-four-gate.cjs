@@ -74,6 +74,18 @@ for(let i=0;i<100;i++)for(const schedule of schedules)for(const mode of ['curren
  assert.deepEqual(first.privateNextState.globalVariable,prior.globalVariable);
  cases++;
 }
+// Source's numeric key guard must change how many seed_lsby draws occur.
+const keyCase=fakeSave(17);
+const unheld=run(keyCase,['유씨별원','유씨별원'],{
+ liuKeyTimeline:[false,false],includePrivateState:true});
+const held=run(keyCase,['유씨별원','유씨별원'],{
+ liuKeyTimeline:[true,true],includePrivateState:true});
+assert.equal(unheld.runs[0].keyState.heldAtStart,false);
+assert.equal(held.runs[0].keyState.heldAtStart,true);
+assert.equal(unheld.runs[0].drawCount,held.runs[0].drawCount+1,
+ 'source must skip the extra key draw when held');
+assert.equal(JSON.stringify(keyCase),JSON.stringify(fakeSave(17)),
+ 'key timeline must not alter input');
 const seed=fakeSave(3);
 assert.throws(()=>run(seed,['문향교']),/Only 1–40/);
 assert.throws(()=>run(seed,['유씨별원'],{liuKeyTimeline:[true,false]}),/Key timeline/);
