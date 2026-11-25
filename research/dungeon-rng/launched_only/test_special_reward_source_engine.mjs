@@ -270,4 +270,23 @@ test('Whale Gao Li key receipt is a hypothesis, not a native proven mutation',()
  assert.equal(hypothetical.events[0].effects[0].sourceVerified,false);
  assert.equal(JSON.stringify(source),snapshot);
 });
+test('inventory-based numeric GetP requires actual Items array',()=>{
+ const source={globalVariable:{get_3970:0},Items:[]};
+ const data=[{npc:35221,specialIds:[3970]}];
+ const inferred=evaluateSpecialAwards(source,data);
+ assert.equal(inferred.events[0].predicted,true);
+ assert.equal(inferred.events[0].numericGuardSource,'세이브 인벤토리 기반 추정');
+ const absent=evaluateSpecialAwards({globalVariable:{}},data);
+ assert.equal(absent.events[0].predicted,false);
+ assert.equal(absent.events[0].unresolved,true);
+});
+test('held numeric item blocks award; explicit numeric state overrides inventory',()=>{
+ const source={globalVariable:{},Items:[{ID:3970,Num:1},{ID:3970,Num:2}]};
+ const data=[{npc:35221,specialIds:[3970]}];
+ const held=evaluateSpecialAwards(source,data);
+ assert.equal(held.events[0].predicted,false);
+ const overridden=evaluateSpecialAwards(source,data,{numericState:{3970:0}});
+ assert.equal(overridden.events[0].predicted,true);
+ assert.equal(source.Items.length,2);
+});
 console.log('PASS',testCount,'synthetic original consumer regressions');
