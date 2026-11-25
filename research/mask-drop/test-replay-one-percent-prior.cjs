@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+'use strict';
+const assert=require('node:assert/strict');
+const {NPC,draw}=require('../dungeon-lab/mask-7209-conditional.cjs');
+const {replay,compareScenarios}=require('./replay-one-percent-prior.cjs');
+const save={Rnds:{Sds:{aidrop70:173827}}};
+const lone=replay(save,{schedule:[NPC.mask],secondStage:'never'});
+assert.equal(lone.totalCandidateLaneDraws,1);
+assert.equal(lone.maskBattles,1);
+assert.equal(lone.nativeBranchVerified,false);
+assert.equal(lone.firstStageChanceVerified,false);
+assert.equal(lone.exactDropPredictionAllowed,false);
+assert.equal(lone.privateInputsReported,false);
+assert(!JSON.stringify(lone).includes('173827'));
+assert.deepEqual(save,{Rnds:{Sds:{aidrop70:173827}}});
+const mixed=[NPC.bandit,NPC.mask,NPC.bandit,NPC.mask];
+const replayMixed=replay(save,{schedule:mixed,secondStage:'never'});
+assert.equal(replayMixed.totalCandidateLaneDraws,4);
+assert.equal(replayMixed.maskBattles,2);
+assert.equal(replayMixed.banditBattles,2);
+let state=173827;
+for(let i=0;i<mixed.length;i++)state=draw(state,100).seed;
+assert(replayMixed.firstStageMaskCandidates.every(x=>x.sequencePosition===2||x.sequencePosition===4));
+const schedule=Array(2000).fill(NPC.mask);
+const scenarios=compareScenarios(save,schedule);
+assert.deepEqual(scenarios.map(x=>x.secondStageHypothesis),
+ ['never','on-mask-first-hit','on-any-first-hit']);
+assert(scenarios[0].firstStageMaskCandidates.length>0);
+assert.equal(scenarios[0].secondStageCalls,0);
+assert.equal(scenarios[1].secondStageCalls,scenarios[1].firstStageSuccesses);
+assert.equal(scenarios[2].secondStageCalls,scenarios[2].firstStageSuccesses);
+assert(scenarios[1].totalCandidateLaneDraws>scenarios[0].totalCandidateLaneDraws);
+assert.notDeepEqual(scenarios[0].firstStageMaskCandidates,scenarios[1].firstStageMaskCandidates);
+assert.throws(()=>replay(save,{schedule:[35125]}),/30681/);
+assert.throws(()=>replay({Rnds:{Sds:{}}},{schedule:mixed}),/aidrop70/);
+assert.throws(()=>replay(save,{schedule:mixed,secondStage:'always'}),/second-stage/);
+console.log('PASS synthetic 1-percent leading prior with optional conditional second draw and mixed 70-level schedule');
