@@ -266,10 +266,13 @@ export function evaluateSpecialAwards(save,producers,{
  * state continues across all clears with award counters carried forward.
  */
 export function forecastSpecialAwards(save,clears,{
- mode='current',tempState=null,numericState=null,numericAfterGrant='unknown'
+ mode='current',tempState=null,numericState=null,numericAfterGrant='unknown',
+ tempLifetime='unknown'
 }={}){
  if(!['unknown','retained'].includes(numericAfterGrant))
   throw Error('원본 숫자형 GetP 보유 변화 가정이 올바르지 않습니다.');
+ if(!['unknown','persist','reset'].includes(tempLifetime))
+  throw Error('원본 temp 변수 회차 간 유지 가정이 올바르지 않습니다.');
  if(!Array.isArray(clears))throw Error('관문 결과 배열이 필요합니다.');
  const base=specialScenario(save,mode);
  const state={...base.globalVariable};
@@ -283,6 +286,12 @@ export function forecastSpecialAwards(save,clears,{
   Object.assign(state,out.counters);
   // Preserve the native temp-scoped payout state, not global get_* values.
   temp=out.tempCounters;
+  // Original GetP(...,'temp') is scoped, not a global persisted save.
+  // With no native proof of its lifetime, never propagate a known value to
+  // later gate clears. 'persist' and 'reset' are explicit counterfactuals.
+  if(tempLifetime==='unknown')temp=null;
+  else if(tempLifetime==='reset'&&temp)temp=Object.fromEntries(
+   Object.keys(temp).map(key=>[key,0]));
   if(numeric&&out.events.some(event=>
     event.npc===35221&&event.itemId===3970&&event.predicted)){
    // Source confirmed a newly awarded key, but not how numeric GetP(3970)
@@ -307,7 +316,8 @@ const NPC_BY_GATE=Object.freeze({
  * The adapter never modifies a deployed engine, a source save or a seed.
  */
 export function forecastSpecialsFromProducer(save,gate,producer,clears,{
- mode='current',keyMode=null,tempState=null,numericState=null,numericAfterGrant='unknown'
+ mode='current',keyMode=null,tempState=null,numericState=null,
+ numericAfterGrant='unknown',tempLifetime='unknown'
 }={}){
  if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
  const bosses=NPC_BY_GATE[gate];
@@ -329,7 +339,7 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
   });
  });
  const grants=forecastSpecialAwards(scenario,trace,{
-  mode:'current',tempState,numericState,numericAfterGrant
+  mode:'current',tempState,numericState,numericAfterGrant,tempLifetime
  });
  const first=new Map();
  for(let i=0;i<grants.clears.length;i++){
@@ -363,10 +373,12 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
 export function forecastInterleavedSpecials(save,gate,producer,clears,{
  mode='current',keyMode=null,tempState=null,numericState=null,
  numericAfterGrant='unknown',firstItemId=null,
- applyUnverifiedWhaleForwardReceipts=false
+ applyUnverifiedWhaleForwardReceipts=false,tempLifetime='unknown'
 }={}){
  if(!['unknown','retained'].includes(numericAfterGrant))
   throw Error('원본 숫자형 GetP 보유 변화 가정이 올바르지 않습니다.');
+ if(!['unknown','persist','reset'].includes(tempLifetime))
+  throw Error('원본 temp 변수 회차 간 유지 가정이 올바르지 않습니다.');
  if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
  if(!Number.isInteger(clears)||clears<1||clears>2000)
   throw Error('1~2000회 범위를 입력하세요.');
@@ -407,6 +419,9 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
   });
   state={...producerResult.nextState,globalVariable:evaluated.counters};
   temp=evaluated.tempCounters;
+  if(tempLifetime==='unknown')temp=null;
+  else if(tempLifetime==='reset'&&temp)temp=Object.fromEntries(
+   Object.keys(temp).map(key=>[key,0]));
   if(numeric&&evaluated.events.some(event=>
     event.npc===35221&&event.itemId===3970&&event.predicted))
    numeric[3970]=numericAfterGrant==='retained'?1:null;
