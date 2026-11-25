@@ -3,6 +3,7 @@
  * 13 launched-boss source pools / typed branch order, not a certified future oracle.
  */
 import {draw} from './dungeon.js';
+import {loadV620KoreanReference} from '../data/v620-korean-reference.js';
 export const GATES=['연왕부','창옥','벽유교','유씨별원'];
 const GRADE=['','백색','녹색','청색','자색'];
 const NAMES={4009:'수라장갑',4209:'지수검',4409:'천운도',4609:'흑살곤',
@@ -42,6 +43,12 @@ const SPECIAL={
  35268:[[8917,'drop_8917_35268','get_8917',10],[8914,'drop_8914_35268','get_8914',15]]
 };
 const SPECIAL_KO={8915:'고리의 열쇠',3523:'몰우전'};
+let publicItemNames=null;
+function specialName(id){
+ const localized=publicItemNames?.[String(id)]?.[0];
+ const clean=typeof localized==='string'?localized.trim():'';
+ return SPECIAL_KO[id]||(clean&&!/[\u3400-\u9fff]/.test(clean)?clean:'특수 보상');
+}
 function number(x){let v=Number(x?.Value??x?.value??x);return Number.isFinite(v)?v:0}
 function countItem(save,id){
  let sum=0;
@@ -76,7 +83,7 @@ function specialsFor(npc,gv,rolled){
   const eligible=!counter||(cap===0?count===0:count<cap);
   if(eligible)available.push(item);
   if(rolled.has(flag)&&number(gv[flag])===1){
-   results.push({name:SPECIAL_KO[item]||'특수 보상',
+   results.push({name:specialName(item),
     kind:eligible?'추첨 당첨 · 지급 조건 충족':'추첨 당첨 · 지급 상한 도달'});
   }
  }
@@ -245,4 +252,9 @@ export function mountDungeon(host,save){
  };
  host.querySelector('#dungeonTestRun').onclick=run;
  run();
+ // Extracted Korean game terms only. No source is ever sent the uploaded save.
+ loadV620KoreanReference().then(publicData=>{
+  publicItemNames=publicData?.items||null;
+  if(host.isConnected)run();
+ }).catch(()=>{});
 }
