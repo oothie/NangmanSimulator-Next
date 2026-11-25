@@ -112,7 +112,7 @@ export function evaluateSpecialAwards(save,producers,{mode='current',tempState=n
     countKey:rule.k||null,unresolved:check.eligible===null});
   }
  }
- return {mode,events,counters,unresolved:events.filter(e=>e.unresolved).length};
+ return {mode,events,counters,tempCounters:temp,unresolved:events.filter(e=>e.unresolved).length};
 }
 /* Do NOT treat the actual save's previous drop_* values as fresh awards.
  * Only the supplied per-clear producer outcomes are consumed. The resulting
@@ -127,14 +127,8 @@ export function forecastSpecialAwards(save,clears,{mode='current',tempState=null
  for(const one of clears){
   const out=evaluateSpecialAwards({globalVariable:state},one,{mode:'current',tempState:temp});
   Object.assign(state,out.counters);
-  if(temp){
-   // Keep the optional temp-scope ledger separately, never in globalVariable.
-   for(const producer of one)for(const id of producer.specialIds||[]){
-    const rule=originalConsumerRule(producer.npc,id);
-    if(rule?.s==='temp'&&out.events.some(e=>e.npc===rule.n&&e.itemId===rule.i&&e.predicted))
-     temp[rule.k]=known(temp[rule.k])+1;
-   }
-  }
+  // Preserve the native temp-scoped payout state, not global get_* values.
+  temp=out.tempCounters;
   result.push(out.events);
  }
  return {mode,clears:result,counters:state,unresolved:result.flat().filter(e=>e.unresolved).length};
@@ -193,4 +187,57 @@ export function forecastSpecialsFromProducer(save,gate,producer,clears,{
   questHistoryAssumedUnchanged:mode!=='current',
   // Preserve native-producer uncertainty rather than calling this verified.
   conditional:true};
+}
+
+/* Integrated per-clear source replay. This is separate from the legacy
+ * precomputed trace replay: the successful consumer's get_* updates and
+ * original flag transitions are fed into the next producer invocation.
+ * No speculative battle-failure rollback event is injected.
+ *
+ * A source producer may still leave out native post-battle side effects; the
+ * returned result retains a conditional status until native validation.
+ */
+export function forecastInterleavedSpecials(save,gate,producer,clears,{
+ mode='current',keyMode=null,tempState=null
+}={}){
+ if(typeof producer!=='function')throw Error('원본 관문 생성 함수가 필요합니다.');
+ if(!Number.isInteger(clears)||clears<1||clears>10)throw Error('1~10회 범위를 입력하세요.');
+ const bosses=NPC_BY_GATE[gate];
+ if(!bosses)throw Error('출시된 4개 관문만 지원합니다.');
+ let state=specialScenario(save,mode);
+ const ownershipMode=keyMode??(mode==='current'?'auto':'absent');
+ let temp=tempState==null?null:{...tempState};
+ const first=new Map(),rows=[];
+ for(let i=0;i<clears;i++){
+  const producerResult=producer(state,1,ownershipMode);
+  if(!producerResult?.nextState||!Array.isArray(producerResult.output)||
+     producerResult.output.length!==1)
+   throw Error('원본 생성기에서 다음 회차 상태를 반환하지 않았습니다.');
+  const one=producerResult.output[0];
+  const outcomes=one.results.map(boss=>{
+   const npc=bosses[boss.boss];
+   if(!npc||!Array.isArray(boss.specialIds))throw Error('보스별 특수 추첨 기록이 없습니다.');
+   return {npc,specialIds:boss.specialIds};
+  });
+  const evaluated=evaluateSpecialAwards(producerResult.nextState,outcomes,{tempState:temp});
+  state={...producerResult.nextState,globalVariable:evaluated.counters};
+  temp=evaluated.tempCounters;
+  for(const event of evaluated.events){
+   if(event.predicted){
+    const token=event.npc+':'+event.itemId;
+    if(!first.has(token))first.set(token,{
+     npc:event.npc,itemId:event.itemId,name:event.name,
+     clear:i+1,quantity:event.quantity
+    });
+   }
+  }
+  rows.push({clear:i+1,producer:one,grants:evaluated.events,
+   unresolved:evaluated.unresolved});
+ }
+ return {gate,mode,ownershipMode,rows,firstPredicted:[...first.values()],
+  // Deliberately separate the battle entry and conditional consumer from
+  // actual final inventory transaction and quest-state transitions.
+  conditional:true,questHistoryAssumedUnchanged:mode!=='current',
+  nextState:state,tempState:temp,
+  unresolved:rows.reduce((sum,row)=>sum+row.unresolved,0)};
 }
