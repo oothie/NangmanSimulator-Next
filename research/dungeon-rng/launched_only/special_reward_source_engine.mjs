@@ -333,8 +333,18 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
  let temp=tempState==null?null:{...tempState};
  const numeric=numericState==null?null:{...numericState};
  const first=new Map(),rows=[];
+ let stoppedReason=null,stoppedAt=null;
  for(let i=0;i<clears;i++){
-  const producerResult=producer(state,1,ownershipMode);
+  let producerResult;
+  try{producerResult=producer(state,1,ownershipMode);}
+  catch(error){
+   if(error?.code!=='DUNGEON_WEIGHT_EXHAUSTED')throw error;
+   stoppedAt=i+1;
+   stoppedReason='원본 재료 추첨 가중치가 소진되어 이후 회차를 재현할 수 없습니다.';
+   // The source producer declined to make a draw, so no later result,
+   // inventory mutation, or invented RNG is appended.
+   break;
+  }
   if(!producerResult?.nextState||!Array.isArray(producerResult.output)||
      producerResult.output.length!==1)
    throw Error('원본 생성기에서 다음 회차 상태를 반환하지 않았습니다.');
@@ -367,7 +377,9 @@ export function forecastInterleavedSpecials(save,gate,producer,clears,{
    event.itemId===Number(firstItemId)&&event.predicted))break;
  }
  return {gate,mode,ownershipMode,rows,firstPredicted:[...first.values()],
-  searchedClears:rows.length,firstItemId,foundTarget:firstItemId==null?null:
+  searchedClears:rows.length,requestedClears:clears,
+  incomplete:stoppedAt!=null,stoppedAt,stoppedReason,
+  firstItemId,foundTarget:firstItemId==null?null:
    rows.some(row=>row.grants.some(event=>event.itemId===Number(firstItemId)&&event.predicted)),
   // Deliberately separate the battle entry and conditional consumer from
   // actual final inventory transaction and quest-state transitions.
