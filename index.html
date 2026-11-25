@@ -2090,8 +2090,9 @@ function marketStrategyGoal(target,root){
  const limited=[223,224,222,225].includes(Number(target.id))&&target.stock!=null;
  const fragment=[223,224,222].includes(Number(target.id))&&limited;
  const remaining=limited?Math.max(0,Number(target.stock)-purchased):null;
- // 한정 잔편은 남은 수량 전부가 아닌 사용자가 지정한 1~3장만 탐색한다.
- const wanted=Math.max(1,Math.min(fragment?3:1000,Math.floor(Number(marketStrategyQuantity)||1)));
+ // 벽파신공·쇄성보 잔편은 1~5장, 독벽도객 잔편은 기존 1~3장만 탐색한다.
+ const fragmentMax=[223,224].includes(Number(target.id))?5:3;
+ const wanted=Math.max(1,Math.min(fragment?fragmentMax:1000,Math.floor(Number(marketStrategyQuantity)||1)));
  const quantity=fragment?Math.min(remaining,wanted):limited?remaining:wanted;
  return {quantity,purchased,remaining,limited,fragment};
 }
@@ -2209,7 +2210,7 @@ function marketStrategyMarkup(state,ko){
     '<optgroup label="한정 상품">'+featured.map(x=>'<option value="'+x.id+'" '+(x.id===marketStrategyTarget?'selected':'')+'>'+escape(productText(x))+(soldSet.has(x.id)?' · 구매 완료':'')+'</option>').join('')+'</optgroup>'+
     '<optgroup label="일반 상품">'+rest.map(x=>'<option value="'+x.id+'" '+(x.id===marketStrategyTarget?'selected':'')+'>'+escape(productText(x))+'</option>').join('')+'</optgroup></select></label>'+   (goal.fragment?
     '<label>획득할 잔편<select id="marketStrategyQuantity" '+(!goal.remaining?'disabled':'')+'>'+
-     Array.from({length:Math.min(3,goal.remaining||0)},(_,i)=>i+1).map(n=>'<option value="'+n+'" '+(n===goal.quantity?'selected':'')+'>'+n+'장</option>').join('')+
+     Array.from({length:Math.min([223,224].includes(Number(target.id))?5:3,goal.remaining||0)},(_,i)=>i+1).map(n=>'<option value="'+n+'" '+(n===goal.quantity?'selected':'')+'>'+n+'장</option>').join('')+
      (!goal.remaining?'<option value="0">남은 잔편 없음</option>':'')+'</select></label>':
     goal.limited?'<label>목표 수량<input type="text" readonly value="남은 '+goal.quantity+'개 전부"></label>':
     '<label>획득 수량<input id="marketStrategyQuantity" type="number" min="1" max="1000" step="1" value="'+
