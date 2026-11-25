@@ -907,7 +907,7 @@ body .top .brand{white-space:nowrap;letter-spacing:0;font-size:16px;line-height:
 <script src="./vendor/yysim/life_hedao_data.js"></script>
 <script src="./vendor/yysim/daily_data.js"></script>
 <script src="./data/market-item-ko.js?rev=20261121a"></script>
-<script src="./data/item-icon-manifest.js?rev=1.1.4"></script>
+<script src="./data/item-icon-manifest.js?rev=1.3.0"></script>
 <script src="./engine/daily-market.js?rev=market-assumed-all-free-v129"></script>
 <script src="./engine/quest-branch.js?rev=v0101"></script>
 <script src="./engine/wash-path-model.js"></script>
@@ -1906,13 +1906,15 @@ function wikiImgTag(x,large=false){
  }else if(x.source==='items'||x.source==='equips'||x.source==='martial'){
   // Original Korean APK artwork packaged by category, never inferred from unrelated icons.
   const folder=x.source==='equips'?'equip':x.source==='martial'?'martial':'item';
-  const id=String(raw||x.id);
-  if(/^\d+$/.test(id)&&folder==='item'&&window.NANGMAN_HOSTED_ITEM_ICONS?.has(Number(id)))
-   add('./icons/item/'+id+'.png');
-  if(/^\d+$/.test(id)&&folder==='equip'&&window.NANGMAN_HOSTED_EQUIP_ICONS?.has(Number(id)))
-   add('./icons/equip/'+id+'.png');
-  if(/^\d+$/.test(id)&&folder==='martial'&&window.NANGMAN_HOSTED_MARTIAL_ICONS?.has(Number(id)))
-   add('./icons/martial/'+id+'.png');
+  // The source icon field sometimes names a distinct sprite ID.
+  // Check that exact sprite first, then the actual item ID as a fallback.
+  const candidates=[raw,String(x.id)].filter((value,index,array)=>
+   /^\d+$/.test(value)&&array.indexOf(value)===index);
+  const installed=folder==='item'?window.NANGMAN_HOSTED_ITEM_ICONS:
+   folder==='equip'?window.NANGMAN_HOSTED_EQUIP_ICONS:
+   window.NANGMAN_HOSTED_MARTIAL_ICONS;
+  for(const id of candidates)if(installed?.has(Number(id)))
+   add('./icons/'+folder+'/'+id+'.png');
  }
  add(url);
  if(!srcs.length)return '<span class="wiki-art-placeholder'+(large?' large':'')+'" aria-hidden="true"></span>';
