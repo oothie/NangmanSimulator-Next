@@ -2090,8 +2090,8 @@ function marketStrategyGoal(target,root){
  const limited=[223,224,222,225].includes(Number(target.id))&&target.stock!=null;
  const fragment=[223,224,222].includes(Number(target.id))&&limited;
  const remaining=limited?Math.max(0,Number(target.stock)-purchased):null;
- // 벽파신공·쇄성보 잔편은 1~5장, 독벽도객 잔편은 기존 1~3장만 탐색한다.
- const fragmentMax=[223,224].includes(Number(target.id))?5:3;
+ // 벽파신공·쇄성보·독벽도객 잔편은 각각 최대 5장까지 탐색한다.
+ const fragmentMax=[223,224,222].includes(Number(target.id))?5:3;
  const wanted=Math.max(1,Math.min(fragment?fragmentMax:1000,Math.floor(Number(marketStrategyQuantity)||1)));
  const quantity=fragment?Math.min(remaining,wanted):limited?remaining:wanted;
  return {quantity,purchased,remaining,limited,fragment};
@@ -2200,7 +2200,7 @@ function marketStrategyMarkup(state,ko){
  if(!periodChoices.includes(marketStrategyPeriods))periodChoices.push(marketStrategyPeriods);
  return '<div class="market-strategy-dashboard">'+
   '<div class="market-goal-top"><div><h4>목표 수량 전체 획득 전략</h4>'+
-   '<p class="micro">한정 잔편은 1~3장 중 선택한 수량을 목표로 계산합니다. 선천단은 남은 수량, 일반 상품은 지정 수량을 사용합니다.</p>'+   '<p class="micro">예측 전제: 표시된 모든 08시·20시마다 게임에 접속해 암시장을 열어 무료 갱신을 실행해야 합니다. 미접속 중 지나간 자동갱신은 나중에 소급 실행되지 않습니다. 원보 갱신은 안내된 날짜와 순서 그대로 실행해야 합니다.</p><p class="micro">원보 갱신 모의실행은 별도 결과 확인 기능입니다. 구매 전략은 현재 예상 상품과 시드에서 독립적으로 계산하며, 세이브 이후 정시 무료 갱신은 모두 확인했다고 가정합니다. 모의 원보 갱신은 반영하지 않습니다.</p></div>'+
+   '<p class="micro">한정 잔편은 1~5장 중 선택한 수량을 목표로 계산합니다. 선천단은 남은 수량, 일반 상품은 지정 수량을 사용합니다.</p>'+   '<p class="micro">예측 전제: 표시된 모든 08시·20시마다 게임에 접속해 암시장을 열어 무료 갱신을 실행해야 합니다. 미접속 중 지나간 자동갱신은 나중에 소급 실행되지 않습니다. 원보 갱신은 안내된 날짜와 순서 그대로 실행해야 합니다.</p><p class="micro">원보 갱신 모의실행은 별도 결과 확인 기능입니다. 구매 전략은 현재 예상 상품과 시드에서 독립적으로 계산하며, 세이브 이후 정시 무료 갱신은 모두 확인했다고 가정합니다. 모의 원보 갱신은 반영하지 않습니다.</p></div>'+
    '<span class="market-goal-state">VIP '+marketVipOverride+' · '+state.slots+'칸</span></div>'+
   outdatedGuide+
   '<div class="market-goal-controls">'+
@@ -2210,7 +2210,7 @@ function marketStrategyMarkup(state,ko){
     '<optgroup label="한정 상품">'+featured.map(x=>'<option value="'+x.id+'" '+(x.id===marketStrategyTarget?'selected':'')+'>'+escape(productText(x))+(soldSet.has(x.id)?' · 구매 완료':'')+'</option>').join('')+'</optgroup>'+
     '<optgroup label="일반 상품">'+rest.map(x=>'<option value="'+x.id+'" '+(x.id===marketStrategyTarget?'selected':'')+'>'+escape(productText(x))+'</option>').join('')+'</optgroup></select></label>'+   (goal.fragment?
     '<label>획득할 잔편<select id="marketStrategyQuantity" '+(!goal.remaining?'disabled':'')+'>'+
-     Array.from({length:Math.min([223,224].includes(Number(target.id))?5:3,goal.remaining||0)},(_,i)=>i+1).map(n=>'<option value="'+n+'" '+(n===goal.quantity?'selected':'')+'>'+n+'장</option>').join('')+
+     Array.from({length:Math.min([223,224,222].includes(Number(target.id))?5:3,goal.remaining||0)},(_,i)=>i+1).map(n=>'<option value="'+n+'" '+(n===goal.quantity?'selected':'')+'>'+n+'장</option>').join('')+
      (!goal.remaining?'<option value="0">남은 잔편 없음</option>':'')+'</select></label>':
     goal.limited?'<label>목표 수량<input type="text" readonly value="남은 '+goal.quantity+'개 전부"></label>':
     '<label>획득 수량<input id="marketStrategyQuantity" type="number" min="1" max="1000" step="1" value="'+
