@@ -50,5 +50,9 @@ jobs:
         run: python3 research/mask-drop/test-decode-qingcheng-tmx.py
       - name: Verify source-authenticated Qingcheng 1-in-3 formation and hunt distribution
         run: node research/mask-drop/test-qingcheng-enemy-formation.cjs
+      - name: Verify two-save Qingcheng aidrop70 mask candidate refresh (synthetic)
+        run: |
+          node research/mask-drop/test-compare-qingcheng-saves-mask.cjs
+          node research/mask-drop/test-qingcheng-save-refresh.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
