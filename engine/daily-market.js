@@ -530,12 +530,18 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    const progress=typeof options.onProgress==='function'?options.onProgress:null;
    const candidate=mode==='fastest'&&options.bestCandidate?.found?options.bestCandidate:null;
    const candidateWhen=candidate?Number(candidate.when):Infinity;
+   const candidateCost=candidate?Number(candidate.cost):Infinity;
    let best=null;
+   // A branch cannot beat an already verified finish when its earliest
+   // possible time is later, or equal with no lower possible paid cost.
+   const cannotImprove=(bound,cost,time,spent)=>
+     bound>time||bound===time&&cost>=spent;
    const push=node=>{
      if(mode==='fastest'){
        node.bound=optimisticTime(node);
-       if(!Number.isFinite(node.bound)||node.bound>candidateWhen||
-          best&&node.bound>best.time)return;
+       if(!Number.isFinite(node.bound)||
+          cannotImprove(node.bound,node.cost,candidateWhen,candidateCost)||
+          best&&cannotImprove(node.bound,node.cost,best.time,best.cost))return;
      }
      let i=heap.length;heap.push(node);
      while(i>0){const p=(i-1)>>1;if(cmp(heap[p],node)<=0)break;heap[i]=heap[p];i=p}
