@@ -141,9 +141,6 @@
   const forecastHost=$('tombForecastOutput'),forecastStatus=$('tombForecastStatus');
   const forecastCount=$('tombForecastCount'),forecastPad=$('tombForecastPad');
   const forecastCsv=$('tombForecastCsv'),eighthEvidence=$('tombEvidenceEighth');
-  const isOriginal1121=input=>input?.encounterSeed===1456365169&&
-    input?.equipmentSeed===492075794&&input?.flags?.get('eat_2659')===9&&
-    input?.flags?.get('rollenemy_tomb2')===200;
   const colorName=n=>color[n]||'등급 미확인';
   const gearName=id=>EQUIP_DATA.equipment?.[id]?.koName||
     ko(EQUIP_DATA.equipment?.[id]?.name||'장비 #'+id);
@@ -229,14 +226,13 @@
     forecastStatus.textContent='예측에 필요한 세이브 데이터 누락: '+missing.join(', ');return;
    }
    try{
-    // A user-observed battle #8 must NOT silently become event-call #8.
-    // The only optional fit is explicit and guarded to the exact pre-hunt
-    // 1121 RNG state; other saves must use unconditioned predictions.
-    if(eighthEvidence.checked&&!isOriginal1121(current)){
-      forecastStatus.textContent='선택한 조건은 현재 세이브의 난수 상태와 일치하지 않아 적용하지 않았습니다.';
+    // Do not embed account-derived RNG snapshots in the public build.
+    // An old private-save-specific evidence preset is intentionally disabled.
+    if(eighthEvidence.checked){
+      forecastStatus.textContent='과거 특정 세이브의 실측 조건 고정 기능은 공개판에서 지원하지 않습니다.';
       return;
     }
-    const constraints=eighthEvidence.checked?[{serial:8,spawn:true,itemId:4009,color:1}]:[];
+    const constraints=[];
     const search=tomb.fitObservations(current,constraints,{count:Math.max(count+pad,8)});
     if(!search.matches.length){
       forecastStatus.textContent='현재 모델에 맞는 보상 후보가 없습니다. 실제 일반 사냥 회차와 35255 조우 호출 회차를 동일하다고 가정하지 마세요.';
