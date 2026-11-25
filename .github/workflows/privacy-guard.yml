@@ -20,3 +20,5 @@ jobs:
         run: node tests/market-assumed-free-synthetic.cjs
       - name: Verify dungeon source-derived success-only consumer
         run: node tests/dungeon-success-synthetic.cjs
+      - name: Verify Korean original PNG icon pack and 1.3.0 manifest
+        run: node tests/original-icon-assets-synthetic.cjs
