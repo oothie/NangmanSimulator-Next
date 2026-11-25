@@ -136,3 +136,18 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 원본 파일 증거: 60014 JHTaskMgr의 `genEventFile`/`genNpcFunFile`/`genPlaceFunFile`는 `createFromFile`을 경유하며 원본 로더에는 `cacheLuaJson`, `cacheLuaJsonKeys`, `.lua`/`require`, `.whale`/`ResourceManager.loadGroup` 참조가 있다. 이 참조만으로 특정 관문의 가중치 테이블 구성 순서는 확정할 수 없다.
 
 **가장 중요한 미복원:** 원본 `getLuaJsonFile` 반환 테이블의 실제 키 삽입 과정과 LuaJIT 네이티브 `pairs` 실행 기록. 독립 게임 실행의 관측이 아직 없으므로 본 v5는 **원본을 관측했을 때 그대로 대입할 안전한 경로**를 만든 것이며, 게임 네이티브 예측 완성을 주장하지 않는다. 연구 모듈의 핵심 키 검증기와 테스트는 이 브랜치에도 보존한다. 개인 세이브·원시 시드·원본 바이너리 미포함, 배포 사이트·버전 불변.
+
+## 2026-11-26 v6 — 원본 LuaJIT 2.1 beta3 재해시 공식 오류 교정
+
+실제 60014의 런타임 기반인 LuaJIT 2.1-beta3의 공개 `lj_tab.c`/`lj_tab.h`와 보존된 연구 ZIP `SourceTable`을 대조하여 **두 개의 수학적 구현 오류**를 확인·교정했다.
+
+- `countint`의 숫자 키 bin은 `k>2 ? lj_fls(k-1) : 0` (1부터 시작하는 최상위 비트 위치). 기존 `floor(log2(k-1))`는 1칸 작았음.
+- `hsize2hbits(s)`는 `s=0:0`, `s=1:1`, `s>=2:1+lj_fls(s-1)`. 기존 `ceil(log2(s))`는 노드 수를 과소 추정.
+
+이에 따라 38개 정적 원본 테이블/3,800개 가능한 추첨값에서 세 *가상 생성 모델*이 보상 결과를 달리하는 구간은 종전 **2,560 → 1,100**, 효과가 동일한 구간은 **1,240 → 2,700**으로 갱신. 이전 연구의 수치를 원본 증명처럼 취급하면 안 된다. 취선채/추가성 동적 테이블 2개 제외. 합성 시드 90개에서 세 모델의 장비 결과가 달라지는 수치도 86 → 61개로 변경. 천일교 합성 임무 조건 최초 분기 차이는 5번째 → 4번째 호출로 변경.
+
+독립 실행 패키지 `Low_Gates_Original_Function_Replay_20261126_v6.zip` (대화 파일, 비공개 세이브·게임 바이너리 제외)에 수정된 `engine/source_table_local.cjs`, 전체 38개 테이블 효과를 계산하는 `engine/audit_beta3_source_tables.cjs`, 새 검증 2개 및 기존 회귀 보정을 기록했다. **Node.js 22에서 44/44 검사 통과**.
+
+원본 공개 참고: [Debian LuaJIT 2.1 beta3 lj_tab.c](https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.c), [lj_tab.h](https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.h).
+
+이는 공개 LuaJIT 코드에 맞춘 **연구 모델의 부분 교정**일 뿐, 한국판 게임의 `getLuaJsonFile` 테이블 초기 해시 크기/생성 순서, 동적 값 및 네이티브 `pairs()` 관측은 아직 확보되지 않았다. 한국판 미래 드랍 확정 불가. 배포 사이트·버전·기존 90급 엔진 변경 없음.
