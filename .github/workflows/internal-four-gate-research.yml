@@ -34,5 +34,7 @@ jobs:
         run: node research/mask-drop/test-replay-one-percent-prior.cjs
       - name: Verify privacy-safe local 7209 candidate reporter (synthetic)
         run: node research/mask-drop/test-local-one-percent-report.cjs
+      - name: Verify Qingcheng 159-battle versus level-70 RNG-call distinction
+        run: node research/mask-drop/test-qingcheng-159-bridge.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
