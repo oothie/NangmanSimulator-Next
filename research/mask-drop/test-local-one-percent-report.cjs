@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 const assert=require('node:assert/strict');
-const {reportLocal,TYPES}=require('./local-one-percent-report.cjs');
+const {reportLocal}=require('./local-one-percent-report.cjs');
+const {TYPES}=require('./replay-one-percent-prior.cjs');
 const original={Rnds:{Sds:{aidrop70:173827}}};
 const output=reportLocal(original,{maskKills:2000});
 assert.equal(output.scenarios.length,3);
