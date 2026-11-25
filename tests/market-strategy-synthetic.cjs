@@ -661,4 +661,80 @@ assert(page.includes('낭만강호 통합 시뮬레이터 v1.3.0'),
  'website version must remain v1.3.0 unless explicitly changed');
 assert.equal(pageRef,workerRef,'page and Worker must use the same RNG revision');
 assert.equal(pageRef,entryRef,'Worker entrypoint must share the RNG cache revision');
+// User-facing 20:00->05:00 example. When the imported save still has
+// enough paid attempts, two draws can happen on the same evening and the
+// 05:00 reset is a bookkeeping event only. If the allowance is exhausted,
+// moving the second draw backward must be rejected, not merely relabeled.
+const eveningNow=morningTime('21:50');
+const nextReset=eveningNow+(7*3600+10*60); // 21:50 -> 05:00
+const nextMorning=nextReset+3*3600; // -> 08:00
+const synthById=new Map(catalog.shops.guishi.map(row=>[row.id,row]));
+function eveningSave(fresh){
+ return {RandShop:{Time:eveningNow,Fresh:fresh,Lucky:0,Buy:60,
+  Counts:[],Items:[]},Rnds:{Sds:{guishishop:1}}};
+}
+function eveningDelayedPlan(save,buyAtMorning){
+ const raw=api.replayKoreanClientEvents(save,catalog,[
+  {kind:'paid',at:eveningNow},
+  {kind:'daily-reset',at:nextReset},
+  {kind:'paid',at:nextReset},
+  {kind:'open',at:nextMorning}
+ ],{slots:6});
+ const [one,,two,auto]=raw.events;
+ const targetIds=buyAtMorning?auto.items:two.items;
+ const chosen=targetIds.find(id=>!one.items.includes(id)&&
+  (!buyAtMorning||!two.items.includes(id)));
+ assert(chosen,'synthetic fixture must have a unique target');
+ const shelf=ids=>ids.map(id=>synthById.get(id));
+ const steps=[
+  {kind:'paid',time:eveningNow,index:save.RandShop.Fresh+1,
+   phase:api.paidRefreshPhase(eveningNow),rareHit:one.rare,
+   items:shelf(one.items),acquired:0,totalAcquired:0},
+  {kind:'reset',time:nextReset,acquired:0,totalAcquired:0},
+  {kind:'paid',time:nextReset,index:1,
+   phase:api.paidRefreshPhase(nextReset),rareHit:two.rare,
+   items:shelf(two.items),acquired:buyAtMorning?0:1,
+   totalAcquired:buyAtMorning?0:1}
+ ];
+ if(buyAtMorning)steps.push({kind:'auto',time:nextMorning,
+  items:shelf(auto.items),acquired:1,totalAcquired:1});
+ return {target:chosen,plan:{mode:'fastest',found:true,
+  when:buyAtMorning?nextMorning:nextReset,
+  paid:2,cost:40,required:1,acquired:1,steps}};
+}
+for(const buyAtMorning of [true,false]){
+ const plenty=eveningSave(0);
+ const input=eveningDelayedPlan(plenty,buyAtMorning);
+ const planning=api.predict(plenty,catalog,eveningNow,{slots:6});
+ const verified=planning.auditStrategy(input.plan,{target:input.target,quantity:1,vip:0});
+ assert(verified.nativeReplayChecked,'the original split plan must replay');
+ const compacted=planning.compactStrategy(verified,{target:input.target,quantity:1,vip:0});
+ assert(compacted.nativeReplayChecked,'the compact plan must replay natively');
+ assert.deepEqual(compacted.steps.filter(x=>x.kind==='paid').map(x=>x.time),
+  [eveningNow,eveningNow],
+  'sufficient saved quota must combine the two paid draws at 21:50');
+ assert.deepEqual(compacted.steps.filter(x=>x.kind==='paid').map(x=>x.index),
+  [1,2],'the combined draws must use the correct remaining-quota indices');
+ assert.equal(compacted.when,buyAtMorning?nextMorning:eveningNow,
+  'an early purchase must advance the completion timestamp');
+ if(!buyAtMorning)assert(!compacted.steps.some(x=>x.kind==='reset'),
+  'a completed route must not keep an irrelevant future reset');
+ const limited=eveningSave(2); // VIP 0: three attempts, already used two.
+ const limitedInput=eveningDelayedPlan(limited,buyAtMorning);
+ const limitedState=api.predict(limited,catalog,eveningNow,{slots:6});
+ const limitedOriginal=limitedState.auditStrategy(limitedInput.plan,{
+  target:limitedInput.target,quantity:1,vip:0});
+ assert(limitedOriginal.nativeReplayChecked);
+ const limitedOutput=limitedState.compactStrategy(limitedOriginal,{
+  target:limitedInput.target,quantity:1,vip:0});
+ assert(limitedOutput.nativeReplayChecked);
+ assert.deepEqual(limitedOutput.steps.filter(x=>x.kind==='paid').map(x=>x.time),
+  [eveningNow,nextReset],
+  'insufficient saved quota must keep one draw after 05:00');
+ assert.deepEqual(limitedOutput.steps.filter(x=>x.kind==='paid').map(x=>x.index),
+  [3,1],'paid index must respect the imported save and 05:00 reset');
+}
+assert(page.includes("const groupedSteps=[]")&&
+ page.includes("'원보 갱신 '+x.repeat+'회"),
+ 'consecutive verified paid draws should be grouped in the UI');
 console.log('PASS synthetic market RNG, stale-save safeguards, and aligned cache keys');
