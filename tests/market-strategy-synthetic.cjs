@@ -43,4 +43,17 @@ const tampered={...plan,steps:plan.steps.map((step,index)=>index===0?{
 }:step)};
 const blocked=market.auditStrategy(tampered,{target,quantity:1,vip:0});
 assert.equal(blocked.found,false,'altered strategy must not be marked verified');
-console.log('PASS synthetic market RNG, native strategy audit, and tamper rejection');
+// A saved RNG state is not a valid present-day RNG state after unobserved
+// 08:00/20:00 buckets. Old planner builds wrongly predicted actual purchases.
+const staleMarket=api.predict(fixture,catalog,now+3*43200,{slots:6});
+assert.equal(staleMarket.stale,true);
+assert.equal(staleMarket.seedOk,false,'unobserved rotations must block forecasts');
+const stalePlan=staleMarket.searchStrategy([target],{mode:'fastest',vip:0,quantity:1,periods:2});
+assert.equal(stalePlan.found,false,'stale save must not produce an actionable route');
+// The native game does not replay every elapsed automatic bucket upon return.
+const lateOpen=api.replayKoreanClientEvents(fixture,catalog,
+ [{kind:'open',at:now+3*43200}],{slots:6});
+assert.equal(lateOpen.events.length,1);
+assert.equal(lateOpen.events[0].auto,true);
+assert.deepEqual(Array.from(lateOpen.items),Array.from(nativeAuto.items));
+console.log('PASS synthetic market RNG, stale-save safeguard, and strategy audit');
