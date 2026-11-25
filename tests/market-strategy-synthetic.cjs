@@ -28,4 +28,19 @@ const timed=market.timed(1)[0];
 const nativeAuto=api.replayKoreanClientEvents(fixture,catalog,[{kind:'open',at:firstAuto}],{slots:6});
 assert.deepEqual(Array.from(nativeAuto.items),Array.from(timed.items,x=>x.id));
 assert.equal(nativeAuto.events[0].auto,true);
-console.log('PASS synthetic paid and automatic refresh against Korean event replay');
+// Reopening within one automatic-refresh bucket must not consume RNG.
+const sameBucket=api.replayKoreanClientEvents(fixture,catalog,[{kind:'open',at:now+1}],{slots:6});
+assert.equal(sameBucket.events[0].auto,false);
+assert.equal(sameBucket.seed,fixture.Rnds.Sds.guishishop);
+// Strategy verification must use native events and reject altered product claims.
+const target=paid.items[0].id;
+const plan=market.searchStrategy([target],{mode:'fastest',vip:0,quantity:1,periods:2,maxStates:5000});
+assert.equal(plan.found,true,'synthetic short-horizon target should be reachable');
+const verified=market.auditStrategy(plan,{target,quantity:1,vip:0});
+assert.equal(verified.nativeReplayChecked,true);
+const tampered={...plan,steps:plan.steps.map((step,index)=>index===0?{
+ ...step,items:step.items.map((item,j)=>j===0?{...item,id:-999}:item)
+}:step)};
+const blocked=market.auditStrategy(tampered,{target,quantity:1,vip:0});
+assert.equal(blocked.found,false,'altered strategy must not be marked verified');
+console.log('PASS synthetic market RNG, native strategy audit, and tamper rejection');
