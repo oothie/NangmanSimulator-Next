@@ -71,4 +71,28 @@ test('Liu key hold scenario carries key into next source step',()=>{
  assert.equal(keep.rows[3].producer.keyState.heldAtStart,true);
  assert.equal(JSON.stringify(s),snap);
 });
+test('source material exhaustion returns only verified prefix and no fabricated draw',()=>{
+ const save=originalSave();
+ const before=JSON.stringify(save);
+ const producer=state=>{
+  if((state.globalVariable.win_dcy||0)>=102){
+   const error=new Error('original material table exhausted');
+   error.code='DUNGEON_WEIGHT_EXHAUSTED';
+   throw error;
+  }
+  return statefulProducer(state);
+ };
+ const r=forecastInterleavedSpecials(save,'창옥',producer,100);
+ assert.equal(r.incomplete,true);
+ assert.equal(r.searchedClears,2);
+ assert.equal(r.requestedClears,100);
+ assert.equal(r.stoppedAt,3);
+ assert.ok(r.stoppedReason);
+ assert.equal(r.nextState.globalVariable.win_dcy,102);
+ assert.equal(JSON.stringify(save),before);
+});
+test('unexpected original RNG failure remains an exception',()=>{
+ const errorProducer=()=>{throw Error('source broken');};
+ assert.throws(()=>forecastInterleavedSpecials(originalSave(),'창옥',errorProducer,2));
+});
 console.log('PASS',passes,'interleaved source-model checks');
