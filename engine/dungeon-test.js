@@ -172,20 +172,10 @@ function beforeBoss(state,save,gate,npc){
   }
  }
 }
-// Provisional pre-award RNG replay calibrated against 1125 field observations.
-// These are *hypothesized draw counts*, NOT a verified LuaJIT producer port.
-// No account data, save seeds, or observed drop outputs are embedded here.
-// Replace with full source branch logic once the producers are recovered.
-function provisionalSpecialPreRoll(state,gate,npc,key){
- const count=gate==='연왕부'&&npc===33653?3:
-  gate==='유씨별원'?(npc===35260?1:npc===35264?1:npc===35268?2:0):0;
- for(let i=0;i<count;i++)sourceRoll(state,key,1000);
-}
 function buildBoss(state,save,gate,boss,keyOwned){
  const [name,npc,pool]=boss,key=seedName(gate,npc);
  const rng=(k,b)=>sourceRoll(state,k,b);
  beforeBoss(state,save,gate,npc);
- provisionalSpecialPreRoll(state,gate,npc,key);
  // Original 35271 producer skips the dedicated 8915 roll if the key
  // is held on entry. This changes subsequent equipment/colour RNG calls.
  // The independent receipt/consumption timeline is not available in a save.
@@ -208,7 +198,7 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
  if(!GATES.includes(gate))throw Error('현재 출시된 4관문만 지원합니다.');
  if(!Number.isInteger(clears)||clears<1||clears>10)throw Error('1~10회 범위를 선택해 주세요.');
  const state=createState(save),output=[],owned=countItem(save,8915)>0;
- const held=keyMode==='owned'?true:keyMode==='absent'?false:owned;
+ const held=keyMode==='owned'?true:keyMode==='absent'?false:owned; // Only actual inventory is ownership; get_8915 is historical, not currently held.
  for(let i=1;i<=clears;i++){
   state.rolled=new Set();
   const group=[];
@@ -221,7 +211,7 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
    number(state.gv['win_'+({창옥:'dcy',벽유교:'byj',연왕부:'ywf',유씨별원:'lsby'}[gate])])+1;
  }
  return {gate,output,conditional:true,keyHeld:held,
-  caution:'장비 지급 배열과 창옥·벽유교 선행 특수 추첨은 원본 기반입니다. 연왕부 하상·유씨별원은 1125 실측을 토대로 선행 추첨 호출 수를 가정한 임시 예측입니다. 원본 특수 보상 함수와 반복 클리어 변화는 미복구이며, 2·3회차 결과는 미검증입니다.',
+  caution:'장비 지급 배열과 창옥·벽유교 선행 특수 추첨은 원본 기반입니다. 연왕부·유씨별원은 선행 특수 추첨과 회차별 상태 변경이 미복구여서 일반 장비까지 예측 오차가 확인되었습니다. 표시되는 결과는 원본 엔진 확정 예측이 아니며 1125 세이브의 유씨별원 1·2회 실측과 불일치합니다.',
   keyNote:gate==='유씨별원'?'고리의 열쇠 보유 시 원본에서 전용 추첨 호출이 생략됩니다. 세이브 보유 수량과 누적 지급 기록은 서로 다릅니다.':''};
 }
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -239,7 +229,7 @@ export function mountDungeon(host,save){
  '<div id="dungeonTestResults" aria-live="polite"></div></section>';
  const gateControl=host.querySelector('#dungeonTestGate');
  const keyControl=host.querySelector('#dungeonTestKeyControl');
- const syncGateOptions=()=>{const visible=gateControl.value==='유씨별원';keyControl.hidden=!visible;keyControl.style.setProperty('display',visible?'grid':'none','important')};
+ const syncGateOptions=()=>{const visible=gateControl.value==='유씨별원';keyControl.hidden=!visible;keyControl.style.display=visible?'':'none'};
  gateControl.addEventListener('change',()=>{syncGateOptions();run()});
  syncGateOptions();
  const run=()=>{
