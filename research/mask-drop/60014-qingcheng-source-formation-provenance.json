@@ -41,21 +41,29 @@
       "storedBytes": 44345,
       "sha256": "3ac7a5978c6bd6ac346c76359aa54ce43686323a11525d9e268d977f593eb726",
       "prefix": "DADDY",
-      "decrypted": false
+      "decrypted": true,
+      "decodedSha256": "d2bfae0c16da3262816685d307e81520ff935b4d9aafb749cfb6d844b9300e87",
+      "mapSizeTiles": [
+        30,
+        25
+      ],
+      "banditMapObjects": 6,
+      "nativeDecryptor": "JHTMXMapInfoC2Ev + parseXMLFile -> xxtea_decrypt; original DADDY prefix"
     }
   },
   "facts": [
     "User's confirmed initial encounters: Qingcheng ordinary battles 1=>0 bandits, 2=>1 bandit",
     "The observed 70-level drop-lane transition matches one 32950 bandit",
     "Another controlled Manhogang kill advances the same lane by one",
-    "The map grouping function does not itself perform a direct random roll, based on recovered opcode constants and callsites"
+    "The map grouping function does not itself perform a direct random roll, based on recovered opcode constants and callsites",
+    "Encrypted original qc TMX was authenticated and decrypted, yielding six fixed map NPC32950 objects, nine NPC objects total"
   ],
   "unknowns": [
-    "Encrypted map_qc.tmx NPC placement/object group",
     "Whether field target selection follows deterministic path, user movement or an external randomized generator",
     "Respawn or travel route between ordinary battles",
     "Whether every spawned 32950 unconditionally advances aidrop70 under all combat conditions",
-    "Actual native 7209 award condition after first weighted draw"
+    "Actual native 7209 award condition after first weighted draw",
+    "Which of six preplaced map NPC targets will be attacked next and the 70-75 battle enemy composition"
   ],
   "futureBanditAppearances": null,
   "originalRuntimeNextSpawnVerified": false,
