@@ -77,7 +77,7 @@ async function smoke(){
   await page.locator('#marketStrategyRun').click();
   await page.waitForFunction(()=>document.querySelector('#marketStrategyStatus')?.textContent
     ?.includes('탐색 완료'),null,{timeout:60000});
-  assert.match(await page.locator('[data-market-panel="strategy"]').innerText(),/최단 기간/);
+  assert.match(await page.locator('[data-market-panel="strategy"]').innerText(),/목표 수량 전체 획득 전략/);
   // Public dungeon engine must run from the same *artificial* uploaded save.
   await page.locator('[data-view="drop"]').click();
   await page.locator('[data-drop-mode="dungeon"]').click();
