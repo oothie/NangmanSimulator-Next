@@ -114,21 +114,35 @@ export function restoreOriginalPendingAward(state, npc, item){
  * A caller must supply evidence that the battle-loss branch executed.
  * Unknown/unsupported consumer rollbacks are left untouched.
  */
-export function applyOriginalBattleLoss(save,npc){
+export function applyOriginalBattleLoss(save,npc,{
+ includeUnverifiedWhaleRollback=false
+}={}){
  const boss=Number(npc);
  const draft=copySave(save);
  draft.globalVariable=draft.globalVariable||{};
- const effects=[];
+ const effects=[],excluded=[];
  for(const rule of SPECIAL_CONSUMER_RULES.filter(r=>r.n===boss)){
   if(!rule.rb)continue;
+  // In 54506 the rollback is inside the verified lost event. For the
+  // separately recovered Whale consumer only the rollback CONDITION was
+  // extracted, not the enclosing event's run-time trigger. Never silently
+  // classify it as a 60014 battle-loss action.
+  if(rule.originArchive!=='54506-original'&&!includeUnverifiedWhaleRollback){
+   if(known(draft.globalVariable[rule.f])===rule.rb.ifFlagEquals)
+    excluded.push({npc:boss,itemId:rule.i,
+     reason:'Whale 복구 실행 이벤트 확인 전'});
+   continue;
+  }
   const applied=restoreOriginalPendingAward(draft.globalVariable,boss,rule.i);
   if(applied.applied)effects.push({
    npc:boss,itemId:rule.i,name:rewardLabel(rule.i),
-   flag:rule.f,rollback:rule.rb,counter:applied.counter
+   flag:rule.f,rollback:rule.rb,counter:applied.counter,
+   sourceVerifiedLostBranch:rule.originArchive==='54506-original'
   });
  }
- return {nextState:draft,lossEvent:true,npc:boss,effects,
-  changed:effects.length,unsupported:!SPECIAL_CONSUMER_RULES.some(r=>r.n===boss)};
+ return {nextState:draft,lossEvent:true,npc:boss,effects,excluded,
+  changed:effects.length,unverified:excluded.length,
+  unsupported:!SPECIAL_CONSUMER_RULES.some(r=>r.n===boss)};
 }
 function consumerGuard(rule,state,tempState,numericState){
  const numeric=SOURCE_NUMERIC_GUARDS[ruleKey(rule)];
