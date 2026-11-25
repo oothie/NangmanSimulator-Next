@@ -1,6 +1,6 @@
 /* Synthetic-only state feedback and long-horizon special reward regressions. */
 import assert from 'node:assert/strict';
-import {forecastInterleavedSpecials} from './special_reward_source_engine.mjs';
+import {forecastInterleavedSpecials,compareSpecialClaimHistories} from './special_reward_source_engine.mjs';
 import {replayLiuManor} from './replay_original_liu.mjs';
 
 let passes=0;
@@ -141,5 +141,48 @@ test('Liu rare-material temp GetP is unresolved unless supplied',()=>{
  assert.deepEqual(reset.rows.map(row=>
   row.grants.find(x=>x.itemId===8801).predicted),[true,true,true]);
  assert.equal(s.globalVariable.get_8801,undefined);
+});
+test('historical producer flag blocks count-only reset but not never-claimed assumption',()=>{
+ const source=originalSave();
+ source.globalVariable.get_8295_40374=1;
+ source.globalVariable.drop_8295_40374=2;
+ const before=JSON.stringify(source);
+ const sourceProducer=state=>{
+  const hit=!(state.globalVariable.drop_8295_40374||0);
+  return {output:[{clear:1,results:[{boss:'장정',
+    specialIds:hit?[8295]:[]}]}],
+   nextState:{...state,globalVariable:{
+    ...state.globalVariable,win_dcy:(state.globalVariable.win_dcy||0)+1
+   }}};
+ };
+ const compared=compareSpecialClaimHistories(source,'창옥',sourceProducer,4);
+ const key='40374:8295';
+ assert.equal(compared.byMode.current.firstByItem[key],undefined);
+ assert.equal(compared.byMode.unclaimed.firstByItem[key],undefined);
+ assert.equal(compared.byMode.never_claimed.firstByItem[key],1);
+ assert.equal(compared.byMode.never_claimed.incomplete,false);
+ assert.equal(JSON.stringify(source),before);
+});
+test('never-claimed mode resets only reward flags, preserving quest and material state',()=>{
+ const source=originalSave();
+ source.globalVariable.get_8295_40374=1;
+ source.globalVariable.drop_8295_40374=2;
+ source.globalVariable.win_dcy=17;
+ source.globalVariable.num_2601_40372=89;
+ source.globalVariable.questComplete=1;
+ const producer=state=>{
+  const flag=state.globalVariable.drop_8295_40374;
+  return {output:[{clear:1,results:[{boss:'장정',
+   specialIds:flag?[]:[8295]}]}],
+   nextState:{...state,globalVariable:{...state.globalVariable,win_dcy:state.globalVariable.win_dcy+1}}
+  };
+ };
+ const result=forecastInterleavedSpecials(source,'창옥',producer,1,{
+  mode:'never_claimed'});
+ assert.equal(result.firstPredicted[0].itemId,8295);
+ assert.equal(result.nextState.globalVariable.win_dcy,18);
+ assert.equal(result.nextState.globalVariable.num_2601_40372,89);
+ assert.equal(result.nextState.globalVariable.questComplete,1);
+ assert.equal(source.globalVariable.get_8295_40374,1);
 });
 console.log('PASS',passes,'interleaved source-model checks');
