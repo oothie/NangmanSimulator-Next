@@ -16,6 +16,8 @@ const allow=new Set([
  'test_run_lower_gate_save_pair.cjs',
  'audit_40_table_synthetic_key.cjs',
  'test_audit_40_table_synthetic_key.cjs',
+ 'audit_40_table_metadata_positions.cjs',
+ 'test_audit_40_table_metadata_positions.cjs',
  'test_after_save_equipment_evidence.cjs',
  'check_research_privacy.cjs',
  'README.md'
