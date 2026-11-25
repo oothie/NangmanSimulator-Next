@@ -14,6 +14,8 @@ jobs:
           node-version: '22'
       - name: Reject private save artifacts
         run: node scripts/check-public-privacy.cjs
+      - name: Verify synthetic field-drop seed availability
+        run: node tests/field-seed-availability-synthetic.cjs
       - name: Verify synthetic ghost-market RNG
         run: node tests/market-strategy-synthetic.cjs
       - name: Verify old-save assumed automatic refreshes
