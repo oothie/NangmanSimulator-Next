@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Reconstruct 8 fragment-completion follow-up effects from original 60014 SBC.
+"""Reconstruct 8 fragment-after-award shop unlocks from original 60014 SBC.
 
 Input is the LOCAL archival V177 zip; original compressed SBC bytes stay local.
-Output includes only game IDs, condition, event side effect, and source hash.
+The nested GetP counter condition occurs after the preceding AddBattleDrop
+and AddP(get,1) reward command. Output includes only game IDs, source guard
+value (post-award), event side effect, and source hash.
 No user save or seed is accessed or written.
 """
 from __future__ import annotations
@@ -41,7 +43,7 @@ def extract(outer: Path) -> list[dict]:
                     'npc': int(source['npc']),
                     'item': int(source['item']),
                     'count': guard['count'].decode(),
-                    'before': int(guard['value']),
+                    'after': int(guard['value']),
                     'shop': effect['shop'].decode(),
                     'delta': int(effect['delta']),
                     'source': name,
