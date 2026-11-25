@@ -507,6 +507,44 @@ for(const stocklessSeed of [12345,13579,97531,24680,44444,78945,24681]){
   }
  }
 }
+// Browser-facing recovery: stale but valid saves must simulate from their
+// actual saved shop timestamp, never by guessing missed client sessions.
+const indexSource=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const forecastStart=indexSource.indexOf('function marketForecastContext(){');
+const forecastEnd=indexSource.indexOf('function dailyMarketView(){',forecastStart);
+assert(forecastStart>=0&&forecastEnd>forecastStart,'site forecast context must exist');
+const contextSource=indexSource.slice(forecastStart,forecastEnd);
+function marketContextAt(save,at){
+ const FakeDate=class extends Date{static now(){return at*1000;}};
+ const factory=new Function('save','window','marketSlotsOverride','Date',
+  contextSource+'\\nreturn marketForecastContext();');
+ return factory(save,{NangmanMarket:api,DAILY_DATA:catalog},6,FakeDate);
+}
+const presentContext=marketContextAt(fixture,now+60);
+assert.equal(presentContext.archived,false);
+assert.equal(presentContext.anchor,now+60);
+assert.equal(presentContext.state.seedOk,true);
+const pastContext=marketContextAt(fixture,now+5*43200);
+assert.equal(pastContext.archived,true);
+assert.equal(pastContext.anchor,now);
+assert.equal(pastContext.state.seedOk,true,
+ 'buttons must remain usable at the archived shop timestamp');
+const stillStale=api.predict(fixture,catalog,now+5*43200,{slots:6});
+assert.equal(stillStale.seedOk,false,
+ 'historic replay must not claim present-day RNG certainty');
+const archivedPaid=pastContext.state.getPaid(1,{vip:0})[0];
+assert(archivedPaid?.items?.length>0,
+ 'archived refresh preview should produce concrete items');
+const archivedStrategy=pastContext.state.searchStrategy([target],{
+ mode:'fastest',vip:0,quantity:1,periods:2,maxStates:10000
+});
+assert(archivedStrategy.found,'archived purchase strategy should run');
+assert(pastContext.state.auditStrategy(archivedStrategy,{
+ target,quantity:1,vip:0
+}).nativeReplayChecked,'archived strategy must match native RNG');
+assert(indexSource.includes("if($('marketSimNext'))$('marketSimNext').onclick"));
+assert(indexSource.includes("if($('marketAutoNext'))$('marketAutoNext').onclick"));
+assert(indexSource.includes("if($('marketStrategyRun'))$('marketStrategyRun').onclick"));
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
@@ -518,8 +556,8 @@ const pageRef=revision(page,'engine/daily-market.js?rev=');
 const workerRef=revision(workerSource,'./daily-market.js?rev=');
 const entryRef=revision(page,'new Worker(\'engine/market-strategy-worker.js?rev=');
 assert(pageRef&&workerRef&&entryRef,'market modules must use explicit cache revisions');
-assert(page.includes('낭만강호 통합 시뮬레이터 v1.2.7'),
- 'website version must advance to v1.2.7');
+assert(page.includes('낭만강호 통합 시뮬레이터 v1.2.8'),
+ 'website version must advance to v1.2.8');
 assert.equal(pageRef,workerRef,'page and Worker must use the same RNG revision');
 assert.equal(pageRef,entryRef,'Worker entrypoint must share the RNG cache revision');
 console.log('PASS synthetic market RNG, stale-save safeguards, and aligned cache keys');
