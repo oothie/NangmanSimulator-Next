@@ -2,7 +2,7 @@
 'use strict';
 const assert=require('node:assert/strict');
 const {draw}=require('../dungeon-lab/mask-7209-conditional.cjs');
-const {firstHits,plan,verifyFutureFormationRows}=require('./qingcheng-mask-planner.cjs');
+const {firstHits,plan,verifyFutureFormationRows,sourceMapObject}=require('./qingcheng-mask-planner.cjs');
 const original={Rnds:{Sds:{aidrop70:173827}}};
 const hits=firstHits(173827,{maxDraws:500});
 assert(hits.length>0);
@@ -11,6 +11,13 @@ const output=plan(original,{observed:[{bandits:0,otherEnemies:3},{bandits:1,othe
 assert.deepEqual(output.observedBanditCounts,[0,1]);
 assert.equal(output.observedLevel70Bandits,1);
 assert.equal(output.observedFights,2);
+assert.equal(output.verifiedMapSpawnObjects,6);
+assert.deepEqual(output.observedMapOrigins,[null,null]);
+const withObject=plan(original,{observed:[{bandits:0,mapObjectId:1331},{bandits:1,mapObjectId:1422}],maxDraws:500});
+assert.deepEqual(withObject.observedMapOrigins[0],{objectId:1331,x:1200,y:1136});
+assert.deepEqual(withObject.observedMapOrigins[1],{objectId:1422,x:688,y:1008});
+assert.deepEqual(sourceMapObject(1333),{objectId:1333,x:880,y:816});
+assert.throws(()=>plan(original,{observed:[{bandits:1,mapObjectId:9999}]}),/Unknown original/);
 assert.equal(output.nextCandidateAidrop70Index,first-1);
 assert.equal(output.level70DrawsBeforeNextCandidate,first-2);
 assert.equal(output.futureBattleBanditCounts,null);
