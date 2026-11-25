@@ -355,6 +355,23 @@ for(const syntheticSeed of [12345,13579,97531,24680,44444]){
 }
 assert.equal(checkedCount,30);
 assert(proofCount>=29,'dominance pruning should prove at least 29 / 30 routes');
+// Memoized search shelves must remain identical to the independently replayed
+// client for both optimization goals across different synthetic streams.
+for(const memoSeed of [12345,13579,97531,24680,44444]){
+ const memoSave={RandShop:{Time:now,Fresh:0,Lucky:0,Buy:60,Items:[],Counts:[]},
+  Rnds:{Sds:{guishishop:memoSeed}}};
+ const memoState=api.predict(memoSave,catalog,now,{slots:6});
+ for(const memoTarget of [223,224,222])
+ for(const memoQuantity of [1,2])
+ for(const memoMode of ['fastest','cheapest']){
+  const route=memoState.searchStrategy([memoTarget],{
+   mode:memoMode,quantity:memoQuantity,vip:1,periods:12,maxStates:2000
+  });
+  if(route.found)assert(memoState.auditStrategy(route,{
+   target:memoTarget,quantity:memoQuantity,vip:1
+  }).nativeReplayChecked,'cached shelf must match independent native event replay');
+ }
+}
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
