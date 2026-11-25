@@ -87,8 +87,9 @@ assert.equal(imaginaryAlwaysOnline.events.filter(x=>x.auto).length,6);
 assert.notEqual(actualMissed.seed,imaginaryAlwaysOnline.seed,
  'always-online assumption must not replace a real missed-session history');
 const pageSource=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert(pageSource.includes('이는 실제 무료 갱신 횟수가 아닙니다'),
- 'stale-save warning should explain elapsed boundaries are not draws');
+assert(pageSource.includes('저장 시점 기준 모의실행')&&
+ pageSource.includes('지금의 실제 판매 목록이 아닌'),
+ 'archived saves must be labeled historical, never current-day predictions');
 // Multiple generated (never player-derived) seeds exercise consecutive paid
 // refreshes followed by the scheduled free replacement on one shared RNG.
 for(let i=1;i<=24;i++){
