@@ -626,8 +626,8 @@ const pageRef=revision(page,'engine/daily-market.js?rev=');
 const workerRef=revision(workerSource,'./daily-market.js?rev=');
 const entryRef=revision(page,'new Worker(\'engine/market-strategy-worker.js?rev=');
 assert(pageRef&&workerRef&&entryRef,'market modules must use explicit cache revisions');
-assert(page.includes('낭만강호 통합 시뮬레이터 v1.2.9'),
- 'website version must remain v1.2.9 unless explicitly changed');
+assert(page.includes('낭만강호 통합 시뮬레이터 v1.3.0'),
+ 'website version must remain v1.3.0 unless explicitly changed');
 assert.equal(pageRef,workerRef,'page and Worker must use the same RNG revision');
 assert.equal(pageRef,entryRef,'Worker entrypoint must share the RNG cache revision');
 console.log('PASS synthetic market RNG, stale-save safeguards, and aligned cache keys');
