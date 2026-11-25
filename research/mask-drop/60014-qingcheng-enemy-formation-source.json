@@ -1,0 +1,67 @@
+{
+  "source": "Korean 60014 src/app/story/event/qc_enemy.lua",
+  "whale": "wapp__story__event.whale",
+  "exactWhaleIndex": 41,
+  "bkdrNameHash": "0x07a074e2",
+  "encryptedLength": 3817,
+  "encryptedSha256": "90c2cc85f1686ae0e170c39dc69d93f5e2cfda2205bea1e2690f3f7edaccad14",
+  "decryptedBytecodeSha256": "219da77083766eda04962dfe804c990c36b0681c3da6ad070c7c85c75ae72984",
+  "sourceProvedVia": "trailing Whale BKDR hash match, not equal-length guess; SBv3 inner stream decrypted and constant-table source emulated",
+  "stageOrder": [
+    {
+      "step": 4,
+      "reads": "JHRandom(1,3)",
+      "choices": [
+        32950,
+        32951,
+        32952
+      ],
+      "target": "enemy1",
+      "banditIf": 1
+    },
+    {
+      "step": 5,
+      "reads": "JHRandom(1,3)",
+      "choices": [
+        32951,
+        32952,
+        32953
+      ],
+      "target": "enemy2"
+    },
+    {
+      "step": 6,
+      "condition": "GetP(3007)>=6",
+      "bossRoll": "SeedRandom('rollenemy_qc',1,1000)-GetP('eat_2659')*10 <= GetP('rollenemy_qc2')",
+      "bossNpc": 32954,
+      "nonBossNpc": "JHRandom(32951,32953)",
+      "afterBoss": "AddP('rollenemy_qc2',-750)",
+      "afterNonBoss": "AddP('rollenemy_qc2',250) when GetP(3007)>=6"
+    },
+    {
+      "step": 7,
+      "quickFightMinimumLevel": 70,
+      "combatNpcVariables": [
+        "enemy1",
+        "enemy2",
+        "enemy3",
+        "enemy4",
+        "enemy5"
+      ],
+      "note": "enemy4 and enemy5 are referenced but not explicitly set in this event; runtime temp state needs verification"
+    }
+  ],
+  "extern": {
+    "source": "src/app/core/JHExtern.lua",
+    "decryptedBytecodeSha256": "195da532afaa3b9221bb335dedf1efe8eee892be6d3b78d6198b1286d244179c",
+    "JHRandomFunctionPrototype": 8,
+    "JHRandomBranches": "calls math.jhrandom when available, else math.random",
+    "moduleInitializerPrototype": 79,
+    "moduleInitializer": "math.randomseed(os.time())",
+    "mathJhrandomNativeRuntimeAndSeedPersistenceVerified": false
+  },
+  "explicitBanditSlotChance": "1 / 3 under uniform JHRandom",
+  "noBanditInExplicitSecondThirdChoices": true,
+  "exactFutureSpawnScheduleVerified": false,
+  "gameSaveOrUserSeedIncluded": false
+}
