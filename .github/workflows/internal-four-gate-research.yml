@@ -36,5 +36,7 @@ jobs:
         run: node research/mask-drop/test-local-one-percent-report.cjs
       - name: Verify Qingcheng 159-battle versus level-70 RNG-call distinction
         run: node research/mask-drop/test-qingcheng-159-bridge.cjs
+      - name: Verify controlled Qingcheng pre/post 159-lane comparison (synthetic)
+        run: node research/mask-drop/test-verify-qingcheng-interval.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
