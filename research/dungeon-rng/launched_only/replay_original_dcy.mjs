@@ -98,6 +98,6 @@ export function replayChangok(save,clears=1){
   gv.win_dcy=win+1;
   output.push({clear,results,drawCount:calls});
  }
- return {gate:'창옥',output,source:'40389_1',
+ return {gate:'창옥',output,nextState:{...save,Rnds:{...(save.Rnds||{}),Sds:seeds},globalVariable:gv},source:'40389_1',
   warning:'원본 계산에 따른 조건부 결과이며 장비 및 특수 보상의 미래 적중을 보장하지 않습니다.'};
 }
