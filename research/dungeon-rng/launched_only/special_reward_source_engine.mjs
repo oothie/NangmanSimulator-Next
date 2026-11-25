@@ -62,6 +62,7 @@ export function restoreOriginalPendingAward(state, npc, item){
  return {applied:true,rule:ruleKey(row),counter:update?.key||null};
 }
 function consumerGuard(rule,state,tempState){
+ if(rule.review)return {eligible:null,reason:'원본 추가 지급 제한 독립 검증 필요'};
  const flagValue=known(state[rule.f]);
  if(rule.fc==='== 1'&&flagValue!==1)return {eligible:false,reason:'이번 회차 지급 플래그 없음'};
  if(rule.fc==='~= 0'&&flagValue===0)return {eligible:false,reason:'이번 회차 지급 플래그 없음'};
