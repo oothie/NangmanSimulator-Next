@@ -140,11 +140,14 @@ function halfDay(t){return Math.floor(Math.max(t+GUISHI_ROTATION_SHIFT,0)/43200)
 function nextHalfDay(t){return (halfDay(t)+1)*43200-GUISHI_ROTATION_SHIFT}
 // Korean server paid-refresh allowance resets at 05:00 KST (20:00 UTC prior day).
  function resetDay(t){return Math.floor(Math.max(t+14400,0)/86400)}
-// The morning 05:00 paid-quota reset occurs three hours before the 08:00
-// free redraw. Paid rolls placed in this window must precede that redraw.
+// Distinguish actual RNG event order, not merely the 05:00 quota day.
+// 20:00 free entry advances the same guishishop stream before subsequent paid
+// redraws. 20:00–04:59 uses the previous 05:00 daily allowance.
 function paidRefreshPhase(t){
  const minute=((Math.floor(Number(t)/60)+540)%1440+1440)%1440;
- return minute>=300&&minute<480?'before-08-free':'after-08-free';
+ if(minute>=300&&minute<480)return 'before-08-free';
+ if(minute>=480&&minute<1200)return 'after-08-before-20';
+ return 'after-20-free';
 }
 function currentShelf(saved,catalog){
  return (saved||[]).map(x=>catalog.find(y=>y.id===n(x?.ID??x?.id))||
