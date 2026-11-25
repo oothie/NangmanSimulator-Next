@@ -21,6 +21,8 @@ assert.equal(draw(12345,100).value,draw(12345,100).seed%100+1);
 assert(!JSON.stringify(result).includes('12345'),'no raw seed in emitted model output');
 assert.equal(LEVEL70_SOURCE.totalNpcRows,146);
 assert.equal(LEVEL70_SOURCE.explicitDropRows,2);
+assert.equal(LEVEL70_SOURCE.sameNameAlternateNpc.npc,35125);
+assert.equal(LEVEL70_SOURCE.sameNameAlternateNpc.directDrop,false);
 assert.deepEqual(LEVEL70_SOURCE.rows.map(row=>[row.npc,...row.drop]),
  [[30681,7209,1],[32950,3031,1]]);
 assert(!Object.hasOwn(NPC,'wolf'),'unsupported non-source NPC must be excluded');
