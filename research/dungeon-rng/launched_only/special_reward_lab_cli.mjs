@@ -23,12 +23,22 @@ function main(args){
  const keyMode=option(args,'--key-mode',null);
  const firstItemText=option(args,'--first-item',null);
  const firstItemId=firstItemText==null?null:Number(firstItemText);
+ const keyGuardText=option(args,'--numeric-3970',null);
+ const numericState=keyGuardText==null?null:{3970:Number(keyGuardText)};
+ const tempText=option(args,'--temp-get-8801',null);
+ const tempState=tempText==null?null:{get_8801:Number(tempText)};
+ if(keyGuardText!=null&&(!Number.isSafeInteger(numericState[3970])||
+    numericState[3970]<0))throw Error('원본 숫자형 GetP(3970) 판정값 오류');
+ if(tempText!=null&&(!Number.isSafeInteger(tempState.get_8801)||
+    tempState.get_8801<0))throw Error('임시 GetP 8801 판정값 오류');
  if(!saveFile)throw Error('--save 로 로컬 세이브 경로를 지정하세요.');
  if(!producer[gate])throw Error('출시된 4관문만 지원합니다.');
  if(!Number.isInteger(clears)||clears<1||clears>2000)
   throw Error('원본 관문 재생 범위: 1~2000회');
  const save=JSON.parse(readFileSync(saveFile,'utf8'));
- const result=forecastInterleavedSpecials(save,gate,producer[gate],clears,{mode,keyMode,firstItemId});
+ const result=forecastInterleavedSpecials(save,gate,producer[gate],clears,{
+  mode,keyMode,firstItemId,numericState,tempState
+ });
  console.log('관문:',gate,'· 시나리오:',mode,'· 탐색 범위:',clears+'회');
  for(let i=0;i<result.rows.length;i++){
   const clear=result.rows[i].producer,grants=result.rows[i].grants;
@@ -48,7 +58,7 @@ function main(args){
  for(const event of result.firstPredicted)
   console.log(' ',event.name+' · '+event.clear+'회차');
  if(!result.firstPredicted.length)console.log(' 범위 내 없음');
- if(result.unresolved)console.log('미해결 임시 변수 범위:',result.unresolved+'건');
+ if(result.unresolved)console.log('원본 지급 조건 미해결:',result.unresolved+'건');
  if(result.questHistoryAssumedUnchanged)
   console.log('주의: 임무 해금 상태는 세이브 당시 상태로 유지한 가상 지급 시나리오입니다.');
 }
