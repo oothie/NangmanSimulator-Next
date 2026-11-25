@@ -2312,7 +2312,7 @@ function marketSimulatedTimeline(context,vipChoice,periods){
    time=at;autoCount++;
   }
  }
- const endCount=events.length;
+ const paidUsedAtCursor=used;
  const preview=[];
  let next=api.nextHalfDay(time);
  for(let i=0;i<periods;i++,next+=43200){
@@ -2324,8 +2324,8 @@ function marketSimulatedTimeline(context,vipChoice,periods){
   window.DAILY_DATA,events,{slots:context.state.slots});
  const last=actions[actions.length-1];
  const current=last?replay.events[last.eventIndex]:null;
- return {paidCount,autoCount,used,max:allowance.max,time,
-  paidLeft:Math.max(0,allowance.max-used),last,
+ return {paidCount,autoCount,used:paidUsedAtCursor,max:allowance.max,time,
+  paidLeft:Math.max(0,allowance.max-paidUsedAtCursor),last,
   lastRare:current?.rare===true,
   items:current?itemRows(current.items):context.state.today,
   preview:preview.map(x=>({time:x.time,
