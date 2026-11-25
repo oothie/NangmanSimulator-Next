@@ -64,7 +64,7 @@ test('Liu key hold scenario carries key into next source step',()=>{
  const snap=JSON.stringify(s);
  const use=forecastInterleavedSpecials(s,'유씨별원',replayLiuManor,4,{keyMode:'auto'});
  const keep=forecastInterleavedSpecials(s,'유씨별원',replayLiuManor,4,{keyMode:'retain'});
- assert.equal(use.rows[2].producer.keyAwarded,undefined);
+ assert.equal(use.rows[2].producer.keyAwarded,true);
  assert.equal(use.rows[3].producer.keyState.heldAtStart,false);
  assert.equal(keep.rows[3].producer.keyState.heldAtStart,true);
  assert.equal(JSON.stringify(s),snap);
