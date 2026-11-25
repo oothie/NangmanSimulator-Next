@@ -4,6 +4,7 @@
  */
 import {draw} from './dungeon.js';
 import {replayLiuManor} from './dungeon-original-liu.js';
+import {replayYanwangfu} from './dungeon-original-yan.js';
 import {loadV620KoreanReference} from '../data/v620-korean-reference.js';
 export const GATES=['연왕부','창옥','벽유교','유씨별원'];
 const GRADE=['','백색','녹색','청색','자색'];
@@ -198,6 +199,27 @@ function buildBoss(state,save,gate,boss,keyOwned){
 export function predictGate(save,gate,clears=1,keyMode='auto'){
  if(!GATES.includes(gate))throw Error('현재 출시된 4관문만 지원합니다.');
  if(!Number.isInteger(clears)||clears<1||clears>10)throw Error('1~10회 범위를 선택해 주세요.');
+ if(gate==='연왕부'){
+  const replay=replayYanwangfu(save,clears);
+  return {gate,output:replay.output.map(clear=>({
+   clear:clear.clear,drawCount:clear.drawCount,
+   results:clear.results.map(row=>{
+    const npc=POOLS['연왕부'].find(b=>b[0]===row.boss)?.[1];
+    const listed=SPECIAL[npc]||[];
+    const special=(row.specialIds||[]).map(item=>({
+     name:specialName(item),kind:'추첨 당첨 · 실제 지급 조건 확인 필요'
+    }));
+    const specialCandidateNames=listed.filter(([item,flag,counter,cap])=>
+     !counter||(cap===0?number(save?.globalVariable?.[counter])===0:
+      number(save?.globalVariable?.[counter])<cap)).map(([item])=>specialName(item));
+    return {boss:row.boss,name:row.name,grade:row.grade,special,
+     specialCandidates:specialCandidateNames.length,specialTotal:listed.length,
+     specialCandidateNames,warnings:[]};
+   })
+  })),conditional:true,keyHeld:false,
+  caution:'연왕부: 과거 실측 재현 33381_1 원본 진입 경로를 사용합니다. 1125 세이브의 하상 천운도 백색·나머지 미드랍 실측과 일치하며, 특수 지급은 별도 검증이 필요합니다.',
+  keyNote:''};
+ }
  if(gate==='유씨별원'){
   const replay=replayLiuManor(save,clears,keyMode);
   const output=replay.output.map(clear=>({
