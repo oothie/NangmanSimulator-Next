@@ -5,6 +5,8 @@
 import {draw} from './dungeon.js';
 import {replayLiuManor} from './dungeon-original-liu.js';
 import {replayYanwangfu} from './dungeon-original-yan.js';
+import {replayChangok} from './dungeon-original-dcy.js';
+import {replayByeokyu} from './dungeon-original-byj.js';
 import {loadV620KoreanReference} from '../data/v620-korean-reference.js';
 export const GATES=['연왕부','창옥','벽유교','유씨별원'];
 const GRADE=['','백색','녹색','청색','자색'];
@@ -44,7 +46,7 @@ const SPECIAL={
  35264:[[8915,'drop_8915_35264',null,null],[8913,'drop_8913_35264','get_8913',15],[5628,'drop_5628_35264','get_5628',0]],
  35268:[[8917,'drop_8917_35268','get_8917',10],[8914,'drop_8914_35268','get_8914',15]]
 };
-const SPECIAL_KO={8915:'고리의 열쇠',3523:'몰우전'};
+const SPECIAL_KO={8915:'고리의 열쇠',3523:'몰우전',3970:'귀용문 열쇠'};
 let publicItemNames=null;
 function specialName(id){
  const localized=publicItemNames?.[String(id)]?.[0];
@@ -254,6 +256,34 @@ export function predictGate(save,gate,clears=1,keyMode='auto'){
    caution:'유씨별원은 원본 관문 계산 흐름에 따른 조건부 결과입니다. 특수 보상의 추첨 당첨과 실제 지급은 별개이며, 미래 드랍의 일치를 보장하지 않습니다.',
    keyNote:'열쇠 보유량은 세이브의 실제 소지 아이템으로 판단하며, 누적 get_8915 기록은 사용하지 않습니다. 세이브 보유 기준의 연속 클리어는 고리 열쇠 획득 후 즉시 사용을 가정합니다.'};
  }
+ if(gate==='창옥'||gate==='벽유교'){
+  const replay=gate==='창옥'?replayChangok(save,clears):replayByeokyu(save,clears);
+  const output=replay.output.map(clear=>({
+   clear:clear.clear,drawCount:clear.drawCount,
+   results:clear.results.map(row=>{
+    const npc=POOLS[gate].find(b=>b[0]===row.boss)?.[1];
+    const listed=SPECIAL[npc]||[];
+    const special=freshReplaySpecials(listed,row.specialIds,save);
+    const candidateList=listed.filter(([item,flag,counter,cap])=>{
+     if(gate==='벽유교'&&item===3970&&!clear.keyEnabled)return false;
+     return !counter||(cap===0?number(save?.globalVariable?.[counter])===0:
+      number(save?.globalVariable?.[counter])<cap);
+    });
+    const warnings=gate==='벽유교'&&row.boss==='불로선인'?
+     ['귀용문 열쇠: '+clear.keyCondition+
+       (clear.keyEnabled?' · 추첨 실행':' · 추첨 생략')]:[];
+    return {boss:row.boss,name:row.name,grade:row.grade,special,
+     specialCandidates:candidateList.length,specialTotal:listed.length,
+     specialCandidateNames:candidateList.map(([item])=>specialName(item)),warnings};
+   })
+  }));
+  return {gate,output,conditional:true,keyHeld:false,
+   caution:gate==='창옥'?
+    '창옥은 원본 장비·색상·특수 보상 선행 추첨과 재료 누적 가중치를 반영한 조건부 결과입니다.':
+    '벽유교는 원본 장비·색상과 특수 보상 분기를 재생합니다. 귀용문 열쇠는 임무 단계와 개방 상태에 따라 추첨 여부가 달라집니다.',
+   keyNote:gate==='벽유교'?
+    '귀용문 열쇠는 추첨 성공과 실제 아이템 지급을 구분해 표시합니다. 원본 임무 단계가 없으면 임의로 예측하지 않습니다.':''};
+ }
  const state=createState(save),output=[],owned=countItem(save,8915)>0;
  const held=keyMode==='owned'?true:keyMode==='absent'?false:owned; // Only actual inventory is ownership; get_8915 is historical, not currently held.
  for(let i=1;i<=clears;i++){
@@ -286,7 +316,7 @@ export function mountDungeon(host,save){
  '<div id="dungeonTestResults" aria-live="polite"></div></section>';
  const gateControl=host.querySelector('#dungeonTestGate');
  const keyControl=host.querySelector('#dungeonTestKeyControl');
- const syncGateOptions=()=>{const visible=gateControl.value==='유씨별원';keyControl.hidden=!visible;keyControl.style.display=visible?'':'none'};
+ const syncGateOptions=()=>{const visible=gateControl.value==='유씨별원';keyControl.hidden=!visible;keyControl.style.setProperty('display',visible?'grid':'none','important')};
  gateControl.addEventListener('change',()=>{syncGateOptions();run()});
  syncGateOptions();
  const run=()=>{
