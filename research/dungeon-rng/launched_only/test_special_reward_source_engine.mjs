@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {
  SPECIAL_CONSUMER_RULES,SPECIAL_KOREAN_NAMES,ORIGINAL_FRAGMENT_MILESTONES,specialScenario,originalConsumerRule,
- restoreOriginalPendingAward,evaluateSpecialAwards,forecastSpecialAwards,
+ restoreOriginalPendingAward,applyOriginalBattleLoss,evaluateSpecialAwards,forecastSpecialAwards,
  forecastSpecialsFromProducer
 } from './special_reward_source_engine.mjs';
 
@@ -150,5 +150,41 @@ test('one-time source SetP and AddP counter paths are distinct',()=>{
  const fragment=evaluateSpecialAwards({globalVariable:{get_2926:3}},
   [{npc:40373,specialIds:[2926]}]);
  assert.equal(fragment.counters.get_2926,4);
+});
+test('source lost branch restores pending award and its counter only once',()=>{
+ const src={globalVariable:{
+  drop_8295_40374:2,get_8295_40374:1,
+  drop_2925_40374:2,get_2925:10,
+  drop_7165_40374:0,get_7165_40374:1
+ }};
+ const before=JSON.stringify(src);
+ const loss=applyOriginalBattleLoss(src,40374);
+ assert.equal(loss.lossEvent,true);
+ assert.equal(loss.changed,2);
+ assert.equal(loss.nextState.globalVariable.drop_8295_40374,1);
+ assert.equal(loss.nextState.globalVariable.get_8295_40374,0);
+ assert.equal(loss.nextState.globalVariable.get_2925,9);
+ assert.equal(loss.nextState.globalVariable.get_7165_40374,1);
+ assert.equal(JSON.stringify(src),before);
+ const duplicate=applyOriginalBattleLoss(loss.nextState,40374);
+ assert.equal(duplicate.changed,0);
+});
+test('source lost branch is specific to the matching boss',()=>{
+ const src={globalVariable:{
+  drop_8295_40374:2,get_8295_40374:1
+ }};
+ const loss=applyOriginalBattleLoss(src,35221);
+ assert.equal(loss.changed,0);
+ assert.equal(loss.nextState.globalVariable.get_8295_40374,1);
+});
+test('source lost branch restores temporary-free key receipt count only',()=>{
+ const src={globalVariable:{
+  drop_3970_35221:2,get_3970:1
+ }};
+ const loss=applyOriginalBattleLoss(src,35221);
+ assert.equal(loss.changed,1);
+ assert.equal(loss.nextState.globalVariable.drop_3970_35221,1);
+ assert.equal(loss.nextState.globalVariable.get_3970,0);
+ assert.equal(src.globalVariable.get_3970,1);
 });
 console.log('PASS',testCount,'synthetic original consumer regressions');
