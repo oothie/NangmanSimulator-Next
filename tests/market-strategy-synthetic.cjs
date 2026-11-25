@@ -145,6 +145,26 @@ for(const quantity of [1,2,3]){
   }else assert.equal(route.found,false,'stock cap must reject 3rd purchase');
  }
 }
+// A three-copy limited product must support 1/2/3-copy goals, then vanish.
+const tripleCatalog={...stockCatalog,shops:{...stockCatalog.shops,
+ guishi:stockCatalog.shops.guishi.map(item=>item.id===stockTarget.id?
+  {...item,stock:3}:item)}};
+const triplePlanner=api.predict(stockSave,tripleCatalog,now,{slots:6});
+for(const quantity of [1,2,3]){
+ const policy=triplePlanner.findFeasibleStrategy([stockTarget.id],{
+  quantity,vip:3,periods:3
+ });
+ assert.equal(policy.found,true,'synthetic three-copy goal should be reachable');
+ const audited=triplePlanner.auditStrategy(policy,{
+  target:stockTarget.id,quantity,vip:3
+ });
+ assert.equal(audited.nativeReplayChecked,true,
+  'every multiple-copy purchase must pass native replay');
+}
+const four=triplePlanner.searchStrategy([stockTarget.id],{
+ mode:'cheapest',quantity:4,vip:3,periods:3,maxStates:2000
+});
+assert.equal(four.found,false,'fourth copy must exceed three-copy stock cap');
 const catalogSnapshot=JSON.stringify(stockCatalog.shops.guishi);
 const stockEvents=api.replayKoreanClientEvents(stockSave,stockCatalog,[
  {kind:'purchase',at:now,item:stockTarget.id},
