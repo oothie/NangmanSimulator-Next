@@ -1,0 +1,1564 @@
+{
+  "schema": "low-gate-source-evidence-v1",
+  "origin": {
+    "repository": "oothie/NangmanSimulator-Next",
+    "branch": "research/dungeon-rng-original",
+    "equipment": "vendor/sanbujin/drops/dungeon-data.js",
+    "names": "vendor/sanbujin/drops/dungeon-names-ko.js",
+    "kind": "reference-model-not-60014-native-proof"
+  },
+  "in_scope": [
+    {
+      "gate": "취선채",
+      "source_name": "聚仙寨",
+      "level_inferred_from_equipment": 20,
+      "bosses": [
+        {
+          "npc": 37002,
+          "source_boss": "吴进",
+          "outer": [
+            [
+              "equip",
+              40
+            ],
+            [
+              "weapon",
+              10
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_jxz",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_jxz",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4802,
+              5002,
+              5202,
+              5402,
+              5602
+            ],
+            "seed": "seed_jxz",
+            "max": 5,
+            "random": true,
+            "names": [
+              "낭피 허리띠",
+              "홍동아대",
+              "가죽조끼",
+              "황옥반지",
+              "옥정추"
+            ]
+          },
+          "weapon": {
+            "ids": [
+              4002,
+              4202,
+              4402,
+              4602
+            ],
+            "seed": "seed_jxz",
+            "max": 4,
+            "random": true,
+            "names": [
+              "청동장갑",
+              "청동검",
+              "청도대도",
+              "숙동곤"
+            ]
+          },
+          "special": []
+        },
+        {
+          "npc": 37003,
+          "source_boss": "宋浩",
+          "outer": [
+            [
+              "equip",
+              40
+            ],
+            [
+              "weapon",
+              10
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_jxz",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_jxz",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4802,
+              5002,
+              5202,
+              5402,
+              5602
+            ],
+            "seed": "seed_jxz",
+            "max": 5,
+            "random": true,
+            "names": [
+              "낭피 허리띠",
+              "홍동아대",
+              "가죽조끼",
+              "황옥반지",
+              "옥정추"
+            ]
+          },
+          "weapon": {
+            "ids": [
+              4002,
+              4202,
+              4402,
+              4602
+            ],
+            "seed": "seed_jxz",
+            "max": 4,
+            "random": true,
+            "names": [
+              "청동장갑",
+              "청동검",
+              "청도대도",
+              "숙동곤"
+            ]
+          },
+          "special": []
+        },
+        {
+          "npc": 37004,
+          "source_boss": "周深",
+          "outer": [
+            [
+              "equip",
+              40
+            ],
+            [
+              "weapon",
+              10
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_jxz",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_jxz",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4802,
+              5002,
+              5202,
+              5402,
+              5602
+            ],
+            "seed": "seed_jxz",
+            "max": 5,
+            "random": true,
+            "names": [
+              "낭피 허리띠",
+              "홍동아대",
+              "가죽조끼",
+              "황옥반지",
+              "옥정추"
+            ]
+          },
+          "weapon": {
+            "ids": [
+              4002,
+              4202,
+              4402,
+              4602
+            ],
+            "seed": "seed_jxz",
+            "max": 4,
+            "random": true,
+            "names": [
+              "청동장갑",
+              "청동검",
+              "청도대도",
+              "숙동곤"
+            ]
+          },
+          "special": []
+        }
+      ]
+    },
+    {
+      "gate": "추가보",
+      "source_name": "邹家堡",
+      "level_inferred_from_equipment": 30,
+      "bosses": [
+        {
+          "npc": 33886,
+          "source_boss": "邹林彪",
+          "outer": [
+            [
+              "equip",
+              40
+            ],
+            [
+              "weapon",
+              10
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_zjb",
+          "color": [
+            [
+              2,
+              30
+            ],
+            [
+              1,
+              60
+            ],
+            [
+              4,
+              1
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "colorSeed": "seed_zjb",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4803,
+              5003,
+              5203,
+              5403,
+              5603
+            ],
+            "seed": "seed_zjb",
+            "max": 5,
+            "random": true,
+            "names": [
+              "낭철 허리띠",
+              "정강아대",
+              "호심갑",
+              "진주반지",
+              "진주추"
+            ]
+          },
+          "weapon": {
+            "ids": [
+              4003,
+              4203,
+              4403,
+              4603
+            ],
+            "seed": "seed_zjb",
+            "max": 4,
+            "random": true,
+            "names": [
+              "흑철장갑",
+              "생철검",
+              "박도",
+              "제미곤"
+            ]
+          },
+          "special": [
+            {
+              "id": 4621,
+              "name": "낭아봉",
+              "acquired": [
+                "get_4621"
+              ],
+              "flag": "drop_4621_33886",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        },
+        {
+          "npc": 33887,
+          "source_boss": "邹林虎",
+          "outer": [
+            [
+              "equip",
+              40
+            ],
+            [
+              "weapon",
+              10
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_zjb",
+          "color": [
+            [
+              2,
+              30
+            ],
+            [
+              1,
+              60
+            ],
+            [
+              4,
+              1
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "colorSeed": "seed_zjb",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4803,
+              5003,
+              5203,
+              5403,
+              5603
+            ],
+            "seed": "seed_zjb",
+            "max": 5,
+            "random": true,
+            "names": [
+              "낭철 허리띠",
+              "정강아대",
+              "호심갑",
+              "진주반지",
+              "진주추"
+            ]
+          },
+          "weapon": {
+            "ids": [
+              4003,
+              4203,
+              4403,
+              4603
+            ],
+            "seed": "seed_zjb",
+            "max": 4,
+            "random": true,
+            "names": [
+              "흑철장갑",
+              "생철검",
+              "박도",
+              "제미곤"
+            ]
+          },
+          "special": [
+            {
+              "id": 4416,
+              "name": "귀투도",
+              "acquired": [
+                "get_4416"
+              ],
+              "flag": "drop_4416_33887",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        },
+        {
+          "npc": 33888,
+          "source_boss": "邹林龙",
+          "outer": [
+            [
+              "equip",
+              40
+            ],
+            [
+              "weapon",
+              10
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_zjb",
+          "color": [
+            [
+              2,
+              30
+            ],
+            [
+              1,
+              60
+            ],
+            [
+              4,
+              1
+            ],
+            [
+              3,
+              9
+            ]
+          ],
+          "colorSeed": "seed_zjb",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4803,
+              5003,
+              5203,
+              5403,
+              5603
+            ],
+            "seed": "seed_zjb",
+            "max": 5,
+            "random": true,
+            "names": [
+              "낭철 허리띠",
+              "정강아대",
+              "호심갑",
+              "진주반지",
+              "진주추"
+            ]
+          },
+          "weapon": {
+            "ids": [
+              4003,
+              4203,
+              4403,
+              4603
+            ],
+            "seed": "seed_zjb",
+            "max": 4,
+            "random": true,
+            "names": [
+              "흑철장갑",
+              "생철검",
+              "박도",
+              "제미곤"
+            ]
+          },
+          "special": []
+        }
+      ]
+    },
+    {
+      "gate": "혈의루",
+      "source_name": "血衣楼",
+      "level_inferred_from_equipment": 60,
+      "bosses": [
+        {
+          "npc": 40027,
+          "source_boss": "春十娘",
+          "outer": [
+            [
+              "equip",
+              50
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_xyl",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_xyl",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4006,
+              4806,
+              5206,
+              5606
+            ],
+            "seed": "seed_xyl",
+            "max": 4,
+            "random": true,
+            "names": [
+              "천균장갑",
+              "류운 허리띠",
+              "유리갑",
+              "청명옥"
+            ]
+          },
+          "weapon": {
+            "ids": [],
+            "seed": "seed_xyl",
+            "max": 0,
+            "random": false,
+            "names": []
+          },
+          "special": [
+            {
+              "id": 4014,
+              "name": "유잠 장갑",
+              "acquired": [
+                "get_4014"
+              ],
+              "flag": "drop_4014_40027",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        },
+        {
+          "npc": 40028,
+          "source_boss": "施无道",
+          "outer": [
+            [
+              "equip",
+              50
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_xyl",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_xyl",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4206,
+              4806,
+              5006,
+              5406
+            ],
+            "seed": "seed_xyl",
+            "max": 4,
+            "random": true,
+            "names": [
+              "송문검",
+              "류운 허리띠",
+              "홍아아대",
+              "벽라반지"
+            ]
+          },
+          "weapon": {
+            "ids": [],
+            "seed": "seed_xyl",
+            "max": 0,
+            "random": false,
+            "names": []
+          },
+          "special": [
+            {
+              "id": 5413,
+              "name": "뇌음반지",
+              "acquired": [
+                "get_5413"
+              ],
+              "flag": "drop_5413_40028",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        },
+        {
+          "npc": 40030,
+          "source_boss": "斩玉书",
+          "outer": [
+            [
+              "equip",
+              50
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_xyl",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_xyl",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4006,
+              4206,
+              4406,
+              4606,
+              4806,
+              5006,
+              5206,
+              5406,
+              5606
+            ],
+            "seed": "seed_xyl",
+            "max": 9,
+            "random": true,
+            "names": [
+              "천균장갑",
+              "송문검",
+              "백련도",
+              "반화곤",
+              "류운 허리띠",
+              "홍아아대",
+              "유리갑",
+              "벽라반지",
+              "청명옥"
+            ]
+          },
+          "weapon": {
+            "ids": [],
+            "seed": "seed_xyl",
+            "max": 0,
+            "random": false,
+            "names": []
+          },
+          "special": [
+            {
+              "id": 4216,
+              "name": "백녹검",
+              "acquired": [
+                "get_4216"
+              ],
+              "flag": "drop_4216_40030",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gate": "철인문",
+      "source_name": "铁刃门",
+      "level_inferred_from_equipment": 70,
+      "bosses": [
+        {
+          "npc": 40170,
+          "source_boss": "君杰",
+          "outer": [
+            [
+              "equip",
+              50
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_trm",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_trm",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4407,
+              4807,
+              5007,
+              5207,
+              5407,
+              5607
+            ],
+            "seed": "seed_trm",
+            "max": 6,
+            "random": true,
+            "names": [
+              "안령도",
+              "적연 허리띠",
+              "청명아대",
+              "명광갑",
+              "적혈반지",
+              "무황추"
+            ]
+          },
+          "weapon": {
+            "ids": [],
+            "seed": "seed_trm",
+            "max": 0,
+            "random": false,
+            "names": []
+          },
+          "special": []
+        },
+        {
+          "npc": 40171,
+          "source_boss": "仁鬼",
+          "outer": [
+            [
+              "equip",
+              50
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_trm",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_trm",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4407,
+              5007,
+              5407,
+              5607
+            ],
+            "seed": "seed_trm",
+            "max": 4,
+            "random": true,
+            "names": [
+              "안령도",
+              "청명아대",
+              "적혈반지",
+              "무황추"
+            ]
+          },
+          "weapon": {
+            "ids": [],
+            "seed": "seed_trm",
+            "max": 0,
+            "random": false,
+            "names": []
+          },
+          "special": [
+            {
+              "id": 4419,
+              "name": "포정식칼",
+              "acquired": [
+                "get_4419"
+              ],
+              "flag": "drop_4419_40171",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        },
+        {
+          "npc": 40172,
+          "source_boss": "王豹彪",
+          "outer": [
+            [
+              "equip",
+              50
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_trm",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_trm",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4407,
+              4807,
+              5007,
+              5607
+            ],
+            "seed": "seed_trm",
+            "max": 4,
+            "random": true,
+            "names": [
+              "안령도",
+              "적연 허리띠",
+              "청명아대",
+              "무황추"
+            ]
+          },
+          "weapon": {
+            "ids": [],
+            "seed": "seed_trm",
+            "max": 0,
+            "random": false,
+            "names": []
+          },
+          "special": [
+            {
+              "id": 4418,
+              "name": "운문대도",
+              "acquired": [
+                "get_4418"
+              ],
+              "flag": "drop_4418_40172",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "gate": "천일교",
+      "source_name": "天一教",
+      "level_inferred_from_equipment": 80,
+      "bosses": [
+        {
+          "npc": 33858,
+          "source_boss": "白贯虹",
+          "outer": [
+            [
+              "equip",
+              40
+            ],
+            [
+              "weapon",
+              10
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_tyj",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_tyj",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4808,
+              5408,
+              5608
+            ],
+            "seed": "seed_tyj",
+            "max": 3,
+            "random": true,
+            "names": [
+              "청운 허리띠",
+              "자금반지",
+              "칠성부"
+            ]
+          },
+          "weapon": {
+            "ids": [
+              4208
+            ],
+            "seed": "seed_tyj",
+            "max": 1,
+            "random": false,
+            "names": [
+              "관석검"
+            ]
+          },
+          "special": [
+            {
+              "id": 4217,
+              "name": "벽옥피리",
+              "acquired": [
+                "get_4217"
+              ],
+              "flag": "drop_4217_33858",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            },
+            {
+              "id": 5613,
+              "name": "벽옥피리",
+              "acquired": [],
+              "flag": "",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        },
+        {
+          "npc": 33860,
+          "source_boss": "王白石",
+          "outer": [
+            [
+              "equip",
+              40
+            ],
+            [
+              "weapon",
+              10
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_tyj",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_tyj",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4808,
+              5008,
+              5408
+            ],
+            "seed": "seed_tyj",
+            "max": 3,
+            "random": true,
+            "names": [
+              "청운 허리띠",
+              "복마아대",
+              "자금반지"
+            ]
+          },
+          "weapon": {
+            "ids": [
+              4608
+            ],
+            "seed": "seed_tyj",
+            "max": 1,
+            "random": false,
+            "names": [
+              "혼원곤"
+            ]
+          },
+          "special": [
+            {
+              "id": 4619,
+              "name": "칠성쇄악창",
+              "acquired": [
+                "get_4619"
+              ],
+              "flag": "drop_4619_33860",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            },
+            {
+              "id": 4817,
+              "name": "망우허리띠",
+              "acquired": [
+                "get_4817"
+              ],
+              "flag": "drop_4817_33860",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        },
+        {
+          "npc": 33861,
+          "source_boss": "天一老祖",
+          "outer": [
+            [
+              "equip",
+              40
+            ],
+            [
+              "weapon",
+              10
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_tyj",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_tyj",
+          "nested": false,
+          "equip": {
+            "ids": [
+              5208,
+              5608,
+              5008
+            ],
+            "seed": "seed_tyj",
+            "max": 3,
+            "random": true,
+            "names": [
+              "금사갑",
+              "칠성부",
+              "복마아대"
+            ]
+          },
+          "weapon": {
+            "ids": [
+              4008
+            ],
+            "seed": "seed_tyj",
+            "max": 1,
+            "random": false,
+            "names": [
+              "파천장갑"
+            ]
+          },
+          "special": [
+            {
+              "id": 5211,
+              "name": "독경연갑",
+              "acquired": [
+                "get_5211"
+              ],
+              "flag": "drop_5211_33861",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        },
+        {
+          "npc": 33862,
+          "source_boss": "江紫衣",
+          "outer": [
+            [
+              "equip",
+              40
+            ],
+            [
+              "weapon",
+              10
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_tyj",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_tyj",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4808,
+              5008,
+              5208,
+              5408,
+              5608
+            ],
+            "seed": "seed_tyj",
+            "max": 5,
+            "random": true,
+            "names": [
+              "청운 허리띠",
+              "복마아대",
+              "금사갑",
+              "자금반지",
+              "칠성부"
+            ]
+          },
+          "weapon": {
+            "ids": [
+              4008,
+              4208,
+              4408,
+              4608
+            ],
+            "seed": "seed_tyj",
+            "max": 4,
+            "random": true,
+            "names": [
+              "파천장갑",
+              "관석검",
+              "팔괘도",
+              "혼원곤"
+            ]
+          },
+          "special": []
+        }
+      ]
+    },
+    {
+      "gate": "고골문",
+      "source_name": "枯骨门",
+      "level_inferred_from_equipment": 80,
+      "bosses": [
+        {
+          "npc": 35111,
+          "source_boss": "孟昆",
+          "outer": [
+            [
+              "equip",
+              50
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_kgm",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_kgm",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4808,
+              5008,
+              5208,
+              5408
+            ],
+            "seed": "seed_kgm",
+            "max": 4,
+            "random": true,
+            "names": [
+              "청운 허리띠",
+              "복마아대",
+              "금사갑",
+              "자금반지"
+            ]
+          },
+          "weapon": {
+            "ids": [],
+            "seed": "seed_kgm",
+            "max": 0,
+            "random": false,
+            "names": []
+          },
+          "special": [
+            {
+              "id": 5418,
+              "name": "유옥반지",
+              "acquired": [
+                "get_5418"
+              ],
+              "flag": "drop_5418_35111",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        },
+        {
+          "npc": 35112,
+          "source_boss": "尹茂",
+          "outer": [
+            [
+              "equip",
+              50
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_kgm",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_kgm",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4008,
+              4208,
+              4408,
+              4608
+            ],
+            "seed": "seed_kgm",
+            "max": 4,
+            "random": true,
+            "names": [
+              "파천장갑",
+              "관석검",
+              "팔괘도",
+              "혼원곤"
+            ]
+          },
+          "weapon": {
+            "ids": [],
+            "seed": "seed_kgm",
+            "max": 0,
+            "random": false,
+            "names": []
+          },
+          "special": [
+            {
+              "id": 5615,
+              "name": "고골추",
+              "acquired": [
+                "get_5615"
+              ],
+              "flag": "drop_5615_35112",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        },
+        {
+          "npc": 35114,
+          "source_boss": "茧",
+          "outer": [
+            [
+              "equip",
+              50
+            ],
+            [
+              "none",
+              50
+            ]
+          ],
+          "outerSeed": "seed_kgm",
+          "color": [
+            [
+              1,
+              50
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              3,
+              15
+            ],
+            [
+              2,
+              30
+            ]
+          ],
+          "colorSeed": "seed_kgm",
+          "nested": false,
+          "equip": {
+            "ids": [
+              4008,
+              4208,
+              4408,
+              4608,
+              4808,
+              5008,
+              5208,
+              5408
+            ],
+            "seed": "seed_kgm",
+            "max": 8,
+            "random": true,
+            "names": [
+              "파천장갑",
+              "관석검",
+              "팔괘도",
+              "혼원곤",
+              "청운 허리띠",
+              "복마아대",
+              "금사갑",
+              "자금반지"
+            ]
+          },
+          "weapon": {
+            "ids": [],
+            "seed": "seed_kgm",
+            "max": 0,
+            "random": false,
+            "names": []
+          },
+          "special": [
+            {
+              "id": 4018,
+              "name": "귀조",
+              "acquired": [
+                "get_4018"
+              ],
+              "flag": "drop_4018_35114",
+              "proof": "reference-flag-only; native-award-order-unverified"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "other_low_source_rows": [
+    {
+      "source_gate": "泰安镇·墨门遗迹",
+      "record": "orange-1911",
+      "boss": "机关蝙蝠",
+      "special": [
+        {
+          "id": 4417,
+          "name": "복시참"
+        }
+      ]
+    },
+    {
+      "source_gate": "泰安镇·墨门遗迹",
+      "record": "orange-1912",
+      "boss": "机关巨猿",
+      "special": [
+        {
+          "id": 5212,
+          "name": "금강갑"
+        },
+        {
+          "id": 4017,
+          "name": "거원벽개"
+        }
+      ]
+    },
+    {
+      "source_gate": "泰安镇·墨门遗迹",
+      "record": "orange-1913",
+      "boss": "机关孔雀",
+      "special": [
+        {
+          "id": 4219,
+          "name": "영우검"
+        },
+        {
+          "id": 5417,
+          "name": "칠색반지"
+        }
+      ]
+    },
+    {
+      "source_gate": "泰安镇·墨门遗迹",
+      "record": "orange-1915",
+      "boss": "墨家巨子",
+      "special": [
+        {
+          "id": 4622,
+          "name": "진마곤"
+        }
+      ]
+    },
+    {
+      "source_gate": "姑苏·枯骨门",
+      "record": "orange-1953",
+      "boss": "薛金钗",
+      "special": [
+        {
+          "id": 4018,
+          "name": "귀조"
+        }
+      ]
+    }
+  ],
+  "missing_proof": [
+    "10급 원본 관문 등록/지급 함수",
+    "40·50급 일반 장비 발생 여부 및 원본 호출 체인",
+    "저급 관문 전체 TDUP/TSET 키 타입·LuaJIT 실제 순회",
+    "특수 지급 선행 조건·난수 소비·획득 후 재진입",
+    "세이브 전후 실측 장비·특수 보상·종료 시드"
+  ]
+}
