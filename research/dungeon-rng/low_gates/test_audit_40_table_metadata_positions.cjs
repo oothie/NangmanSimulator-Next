@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+'use strict';
+const assert=require('node:assert/strict');
+const {audit,PATTERNS,winner}=require('./audit_40_table_metadata_positions.cjs');
+const a=audit();
+assert.equal(a.tableCount,40);
+assert.equal(a.staticTables,38);
+assert.equal(a.dynamicallyWeightedTables,2);
+assert.equal(a.totalSyntheticRolls,4000);
+assert.deepEqual(a.counts,{firstVsLast:1080,firstVsAbsent:2455,lastVsAbsent:2325,allModelAgree:1260});
+assert.equal(a.originalTableContainsSyntheticKeyVerified,false);
+assert.equal(a.originalNativePairsOrderVerified,false);
+assert.equal(a.directlyRunnableNativeFuturePrediction,false);
+assert.equal(a.userSaveOrSeedUsed,false);
+assert.deepEqual(PATTERNS.mixed.keys,[50,'50 ']);
+assert.equal(winner(PATTERNS.mixed.first,1),'string:50 ');
+assert.equal(winner(PATTERNS.mixed.absent,1),'number:50');
+assert.equal(winner(PATTERNS.dynamic60.first,1),'number:40');
+assert.equal(winner(PATTERNS.dynamic60.last,1),'number:60');
+assert.equal(winner(PATTERNS.dynamic80.first,1),'number:20');
+assert.equal(winner(PATTERNS.dynamic80.absent,1),'number:80');
+assert.deepEqual(a.records.filter(r=>r.dynamicCounterValues!==null).map(x=>x.gate),['취선채','추가성']);
+assert.equal(a.records.filter(r=>r.firstVsLast>0).length,31);
+assert(!JSON.stringify(a).includes('OnlyID'));
+console.log('PASS 40/40 original source table shapes; three-way 60014 typed hash orders at 4,000 synthetic rolls, no native future proof');
