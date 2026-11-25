@@ -72,7 +72,8 @@ function createMixedRunner(producers,forecastInterleavedSpecials){
    unresolved+=played.unresolved;
    runs.push({gate,clear:counts[gate],drawCount:played.producer.drawCount,
     equipment,grants,unresolved:played.unresolved,
-    keyState:played.producer.keyState??null});
+    keyState:played.producer.keyState??null,
+    ...(options.includePrivateTrace===true?{privateRngTrace:played.producer.rngTrace}: {})});
    state=result.nextState;temp=result.tempState;numeric=result.numericState;
   }
   if(JSON.stringify(save)!==starting)
