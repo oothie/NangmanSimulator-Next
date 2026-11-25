@@ -261,6 +261,11 @@ export function evaluateSpecialAwards(save,producers,{
    // A fixed grade 5 (orange) is never a grant of five item copies.
    events.push({npc,itemId:id,name:rewardLabel(id),predicted:awarded,
     status:check.reason,quantity:awarded?1:0,
+    // A source-derived successful conditional payout is not a native-60014
+    // observed grant. Keep the provenance attached through every UI adapter.
+    sourceOrigin:rule.origin,sourceArchive:rule.originArchive,
+    native60014Parity:rule.native60014Parity,
+    provenanceLevel:'원본 조건 재생 · 한국판 실측 별도 검증',
     gradeCode:awarded?rule.q:null,sourceArgument3:rule.q,effects,pendingHypotheses,
     postAwardFlag:awarded?counters[rule.f]:null,
     countKey:rule.k||null,unresolved:check.eligible===null});
@@ -487,4 +492,31 @@ export function compareSpecialClaimHistories(save,gate,producer,clears,opts={}){
  return {gate,byMode,differences,
   gameProgressPreserved:true,
   counterfactualNotHistoricalProof:true};
+}
+
+/* Release gate: reject promotion of this laboratory model to a native 60014
+ * guaranteed predictor while even one source or state transition lacks
+ * cross-version evidence. It returns a machine-readable audit, not a
+ * fabricated 'verified' status for a synthetically passing regression.
+ */
+export function specialEngineReleaseReadiness(){
+ const missingNative=SPECIAL_CONSUMER_RULES.filter(r=>
+  r.native60014Parity!=='verified').map(r=>({
+    npc:r.n,itemId:r.i,name:rewardLabel(r.i),source:r.origin,
+    reason:'한국판 60014 원본 지급 함수 동등성 미확인'
+   }));
+ const unresolvedTransitions=[
+  {gate:'유씨별원',itemId:8801,reason:"get_8801 temp 변수 수명 미확정"},
+  {gate:'유씨별원',itemId:8915,reason:'get_8915 순방향 카운터 증감 미검증'},
+  {gate:'유씨별원',itemId:8915,reason:'Whale 복구 이벤트의 실행 조건 미검증'},
+  {gate:'벽유교',itemId:3970,reason:'숫자형 GetP(3970) 지급 이후 보유 변화 미검증'}
+ ];
+ return {
+  ready:missingNative.length===0&&unresolvedTransitions.length===0,
+  totalRules:SPECIAL_CONSUMER_RULES.length,
+  native60014Verified:SPECIAL_CONSUMER_RULES.length-missingNative.length,
+  native60014Unknown:missingNative,
+  transitionUnknown:unresolvedTransitions,
+  onlySyntheticRegressionsAreNotProof:true
+ };
 }
