@@ -146,7 +146,7 @@ const workerError=workerMessages.find(x=>x.type==='error');
 assert.equal(workerError,undefined,workerError?.message);
 const workerResult=workerMessages.find(x=>x.type==='result');
 assert(workerResult,'strategy Worker must emit a completed result');
-for(const objective of ['free','cheapest','fastest']){
+for(const objective of ['free','fastest']){
  assert(workerResult.plans[objective],objective+' route must be present');
  if(workerResult.plans[objective].found)
   assert.equal(workerResult.plans[objective].nativeReplayChecked,true,
@@ -164,12 +164,10 @@ assert.equal(freeError,undefined,freeError?.message);
 const freeResult=workerMessages.find(x=>x.type==='result');
 assert(freeResult,'free-target Worker must return all strategy objectives');
 assert.equal(freeResult.plans.free.found,true);
-assert.equal(freeResult.plans.cheapest.cost,0);
-assert.equal(freeResult.plans.cheapest.verifiedMinimumCost,true,
- 'zero-cost audited free route must bypass paid search');
-assert.equal(freeResult.plans.cheapest.nativeReplayChecked,true);
-assert.equal(freeResult.plans.cheapest.mode,'free',
- 'keep free-mode event timeline valid for audit');
+assert.equal(freeResult.plans.cheapest,undefined,
+ 'redundant minimum-jade plan must not be calculated or shown');
+assert.equal(freeResult.plans.free.nativeReplayChecked,true,
+ 'free-only plan must remain verified');
 // Daily paid allowance is reset at 05:00 KST for every VIP level.
 for(let vip=0;vip<api.VIP_REFRESH.length;vip++){
  const allowance=market.paidAllowance(vip);
@@ -210,8 +208,8 @@ assert.equal(longError,undefined,longError?.message);
 const longResponse=workerMessages.find(x=>x.type==='result');
 assert(longResponse,'720-period calculation must return a response');
 assert(longResponse.plans.free.found);
-assert.equal(longResponse.plans.cheapest.cost,0);
-assert.equal(longResponse.plans.cheapest.verifiedMinimumCost,true);
+assert.equal(longResponse.plans.cheapest,undefined,
+ '720-period Worker must not run redundant cheapest search');
 assert.equal(longResponse.plans.fastest.found,true,
  'an audited feasible route must survive a capped optimality search');
 assert.equal(longResponse.plans.fastest.proven,false,
@@ -546,6 +544,47 @@ assert(pastContext.state.auditStrategy(archivedStrategy,{
 assert(indexSource.includes("if($('marketSimNext'))$('marketSimNext').onclick"));
 assert(indexSource.includes("if($('marketAutoNext'))$('marketAutoNext').onclick"));
 assert(indexSource.includes("if($('marketStrategyRun'))$('marketStrategyRun').onclick"));
+// Historic strategy separates the new daily paid allowance (05:00 KST)
+// from its first 08:00 free shop draw. Both paid orderings are independent RNG
+// paths, not two labels for the same shelf.
+const morningTime=hhmm=>Math.floor(Date.parse('2026-11-25T'+hhmm+':00+09:00')/1000);
+const beforeMorning=morningTime('04:45');
+const resetMorning=morningTime('05:00');
+const freeMorning=morningTime('08:00');
+const morningSave={RandShop:{Time:beforeMorning,Fresh:3,Lucky:0,Buy:60,
+ Counts:[],Items:[]},Rnds:{Sds:{guishishop:12345}}};
+const paidBeforeFree=api.replayKoreanClientEvents(morningSave,catalog,[
+ {kind:'daily-reset',at:resetMorning},
+ {kind:'paid',at:resetMorning},
+ {kind:'open',at:freeMorning}
+],{slots:6});
+const paidAfterFree=api.replayKoreanClientEvents(morningSave,catalog,[
+ {kind:'daily-reset',at:resetMorning},
+ {kind:'open',at:freeMorning},
+ {kind:'paid',at:freeMorning}
+],{slots:6});
+assert.equal(paidBeforeFree.events[1].fresh,1,
+ '05:00-08:00 paid refresh uses the new daily allowance');
+assert.equal(paidBeforeFree.events[1].auto,false,
+ '05:00 paid refresh must not trigger the 08:00 free draw early');
+assert.equal(paidBeforeFree.events[2].auto,true,
+ '08:00 shop entry must draw after a 05:00 paid refresh');
+assert.notDeepEqual(paidBeforeFree.items,paidAfterFree.items,
+ '05:00-before-08:00 and after-08:00 paid orders must stay distinct');
+const pageForPhases=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const phaseStart=pageForPhases.indexOf('function marketBeforeMorningFree(at){');
+const phaseEnd=pageForPhases.indexOf('function marketStrategyMarkup',phaseStart);
+assert(phaseStart>0&&phaseEnd>phaseStart,'morning paid phase classifier is required');
+const classifyMorning=new Function(pageForPhases.slice(phaseStart,phaseEnd)+
+ '\nreturn marketBeforeMorningFree;')();
+assert.equal(classifyMorning(morningTime('04:59')),false);
+assert.equal(classifyMorning(resetMorning),true);
+assert.equal(classifyMorning(morningTime('07:59')),true);
+assert.equal(classifyMorning(freeMorning),false);
+assert(pageForPhases.includes('05~08시 무료 갱신 전')&&
+ pageForPhases.includes('08시 이후'),'paid phase labels should be visible');
+assert(!pageForPhases.includes("plan('cheapest'"),
+ 'the limited-item strategy UI must not show minimum-jade strategy');
 // The page and strategy Worker must load the same revision of the RNG module.
 const page=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const workerSource=fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8');
