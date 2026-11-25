@@ -1,0 +1,25 @@
+name: Ghost-market browser smoke
+on:
+  push:
+    paths:
+      - index.html
+      - engine/daily-market.js
+      - engine/market-strategy-worker.js
+      - tests/market-ui-browser.cjs
+      - .github/workflows/market-ui-browser.yml
+  workflow_dispatch:
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Browser prerequisite
+        run: |
+          command -v google-chrome || command -v chromium
+          npm install --no-save --ignore-scripts playwright-core
+      - name: Click through market controls
+        run: node tests/market-ui-browser.cjs
