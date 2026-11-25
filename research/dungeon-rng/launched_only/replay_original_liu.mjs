@@ -52,6 +52,14 @@ export function replayLiuManor(save,clears=1,keyMode='auto'){
   };
   const choose=(name,pairs)=>{
    const total=pairs.reduce((s,x)=>s+number(x[0]),0);
+   if(name==='유씨별원 재료 A'&&total<=0){
+    // Reconstructed weighted table has no eligible material left.
+    // Do not invent an RNG draw or a phantom drop when the source input
+    // is beyond its proven coverage.
+    const error=new Error('원본 유씨별원 재료 A 가중치 소진: 이후 회차 미확정');
+    error.code='DUNGEON_WEIGHT_EXHAUSTED';
+    throw error;
+   }
    const val=rng(name,total);
    let remain=val;
    for(const pair of pairs){remain-=pair[0];if(remain<=0)return pair[1];}
