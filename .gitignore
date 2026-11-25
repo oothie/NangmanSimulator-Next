@@ -1,0 +1,14 @@
+# Personal game saves and locally derived account data must never be published.
+*세이브*.json
+*세이브*.zip
+*섭*.json
+*서버*.json
+*personal-save*
+*private-fixture*
+*.save.json
+*.save.zip
+*.local.json
+.private/
+local-saves/
+private-saves/
+tests/private-fixtures/
