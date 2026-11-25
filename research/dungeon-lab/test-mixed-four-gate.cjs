@@ -77,6 +77,8 @@ for(let i=0;i<100;i++)for(const schedule of schedules)for(const mode of ['curren
   assert.equal(entry.privateRngTrace.length,actual.drawCount);
   const traceSeeds={...prior.Rnds.Sds};
   for(const event of entry.privateRngTrace){
+   if(gate==='벽유교'||gate==='유씨별원')
+    assert.equal(typeof event.name,'string','shared RNG must label the original draw');
    assert(Number.isSafeInteger(event.bound)&&event.bound>0);
    const result=draw(traceSeeds[event.key],event.bound);
    assert.equal(event.value,result.value,
