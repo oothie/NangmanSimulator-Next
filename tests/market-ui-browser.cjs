@@ -53,7 +53,11 @@ async function smoke(){
   // actual file input and tab clicks, not internal app variables.
   const old=Math.floor(Date.now()/1000)-86400;
   const testSave={RandShop:{Time:old,Fresh:0,Lucky:0,Buy:60,Counts:[],Items:[]},
-   Rnds:{Sds:{guishishop:12345}}};
+   Rnds:{Sds:{guishishop:12345,seed_byj:13817,seed_lsby:29811,
+    seed_33654:11231,seed_33653:11232,seed_33652:11233,seed_33650:11234,
+    seed_dcy_40372:31511,seed_dcy_40373:31512,seed_dcy_40374:31513}},
+   globalVariable:{win_byj:0,win_dcy:0,win_ywf:0,win_lsby:0},
+   Branch:{byj_bz:{step:-1}},Items:[]};
   page.on('dialog',dialog=>{faults.push('Dialog: '+dialog.message());dialog.dismiss()});
   await page.locator('#file').setInputFiles({name:'artificial-market.json',
    mimeType:'application/json',buffer:Buffer.from(JSON.stringify(testSave))});
@@ -72,9 +76,26 @@ async function smoke(){
   await page.waitForFunction(()=>document.querySelector('#marketStrategyStatus')?.textContent
     ?.includes('탐색 완료'),null,{timeout:60000});
   assert.match(await page.locator('[data-market-panel="strategy"]').innerText(),/최단 기간/);
+  // Public dungeon engine must run from the same *artificial* uploaded save.
+  await page.locator('[data-view="drop"]').click();
+  await page.locator('[data-drop-mode="dungeon"]').click();
+  await page.locator('#dungeonTestRun').waitFor({timeout:30000});
+  assert.match(await page.locator('#dungeonTestHost').innerText(),/관문 일반 장비 드랍 \(테스트\)/);
+  await page.locator('#dungeonTestGate').selectOption({label:'창옥'});
+  await page.locator('#dungeonTestRun').click();
+  const changeText=await page.locator('#dungeonTestResults').innerText();
+  assert.match(changeText,/무준신/);
+  assert.match(changeText,/(미드랍|수라장갑|자미아대|흑살곤|옥형 허리띠|청운추)/);
+  await page.locator('#dungeonTestGate').selectOption({label:'유씨별원'});
+  await page.locator('#dungeonTestKey').selectOption('owned');
+  await page.locator('#dungeonTestRun').click();
+  assert.match(await page.locator('#dungeonTestResults').innerText(),/고리의 열쇠 보유/);
+  await page.locator('#dungeonTestKey').selectOption('absent');
+  await page.locator('#dungeonTestRun').click();
+  assert.match(await page.locator('#dungeonTestResults').innerText(),/고리의 열쇠 미보유/);
   assert.equal(faults.filter(e=>/ReferenceError|SyntaxError/.test(e)).length,0,
    'browser encountered script errors: '+faults.join(' | '));
-  console.log('PASS market browser: archived save, paid preview, free preview and strategy Worker click');
+  console.log('PASS market and dungeon browsers: original-save strategy and 4-gate Korean equipment test clicks');
  }finally{await browser.close()}
 }
 async function assertButton(page,selector){
