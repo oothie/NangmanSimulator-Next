@@ -517,7 +517,7 @@ const contextSource=indexSource.slice(forecastStart,forecastEnd);
 function marketContextAt(save,at){
  const FakeDate=class extends Date{static now(){return at*1000;}};
  const factory=new Function('save','window','marketSlotsOverride','Date',
-  contextSource+'\\nreturn marketForecastContext();');
+  contextSource+'\nreturn marketForecastContext();');
  return factory(save,{NangmanMarket:api,DAILY_DATA:catalog},6,FakeDate);
 }
 const presentContext=marketContextAt(fixture,now+60);
