@@ -48,5 +48,7 @@ jobs:
         run: node research/mask-drop/test-qingcheng-source-formation-provenance.cjs
       - name: Verify original Qingcheng TMX decoder and six fixed monster map nodes
         run: python3 research/mask-drop/test-decode-qingcheng-tmx.py
+      - name: Verify source-authenticated Qingcheng 1-in-3 formation and hunt distribution
+        run: node research/mask-drop/test-qingcheng-enemy-formation.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
