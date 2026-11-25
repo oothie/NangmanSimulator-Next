@@ -305,14 +305,14 @@ for(const syntheticSeed of [13579,13581,13583,13585]){
 // is globally earliest. Such a route must remain explicitly unproven.
 const boundedSave={
  RandShop:{Time:now,Fresh:0,Lucky:0,Buy:60,Counts:[],Items:[]},
- Rnds:{Sds:{guishishop:12345}}
+ Rnds:{Sds:{guishishop:13579}}
 };
 const boundedState=api.predict(boundedSave,catalog,now,{slots:6});
-const candidateBounded=boundedState.findFeasibleStrategy([223],{
+const candidateBounded=boundedState.findFeasibleStrategy([222],{
  quantity:2,vip:1,periods:12
 });
 assert(candidateBounded.found,'synthetic route should exist for capped search');
-const limitedBounded=boundedState.searchStrategy([223],{
+const limitedBounded=boundedState.searchStrategy([222],{
  mode:'fastest',quantity:2,vip:1,periods:12,maxStates:2000,
  bestCandidate:candidateBounded
 });
@@ -322,7 +322,7 @@ assert.equal(limitedBounded.proven,false,
 assert.equal(limitedBounded.limited,true,
  'a capped search must indicate that states remain unexplored');
 const boundedAudit=boundedState.auditStrategy(limitedBounded,{
- target:223,quantity:2,vip:1
+ target:222,quantity:2,vip:1
 });
 assert(boundedAudit.nativeReplayChecked,
  'unproved earliest route must still pass exact native replay');
