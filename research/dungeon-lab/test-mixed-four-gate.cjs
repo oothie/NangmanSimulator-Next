@@ -38,7 +38,10 @@ const schedules=[
 let cases=0,specialUnknowns=0,hiddenGradeRolls=0;
 for(let i=0;i<100;i++)for(const schedule of schedules)for(const mode of ['current','never_claimed']){
  const save=fakeSave(i),snapshot=JSON.stringify(save);
- const first=run(save,schedule,{claimMode:mode,includePrivateState:true});
+ const publicRun=run(save,schedule,{claimMode:mode});
+ assert(publicRun.runs.every(x=>!Object.hasOwn(x,'privateRngTrace')));
+ assert(!Object.hasOwn(publicRun,'privateNextState'));
+ const first=run(save,schedule,{claimMode:mode,includePrivateState:true,includePrivateTrace:true});
  assert.equal(JSON.stringify(save),snapshot,'save must stay immutable');
  for(const lane of ['aidrop1','mdrop','seed_32299','rollenemy_mobei','guishishop'])
   assert.equal(first.privateNextState.Rnds.Sds[lane],save.Rnds.Sds[lane],
@@ -71,6 +74,18 @@ for(let i=0;i<100;i++)for(const schedule of schedules)for(const mode of ['curren
   const actual=raw.rows[0].producer;
   const entry=first.runs[j];
   assert.equal(entry.drawCount,actual.drawCount);
+  assert.equal(entry.privateRngTrace.length,actual.drawCount);
+  const traceSeeds={...prior.Rnds.Sds};
+  for(const event of entry.privateRngTrace){
+   assert(Number.isSafeInteger(event.bound)&&event.bound>0);
+   const result=draw(traceSeeds[event.key],event.bound);
+   assert.equal(event.value,result.value,
+    'logged RNG value must match direct draw on '+event.key);
+   traceSeeds[event.key]=result.seed;
+  }
+  for(const [key,value] of Object.entries(traceSeeds))
+   assert.equal(raw.nextState.Rnds.Sds[key],value,
+    'independent replay of bounds must reproduce final RNG '+key);
   assert.deepEqual(entry.equipment.map(x=>[x.itemId,x.rolledGradeCode]),
    actual.results.map(x=>[x.itemId,x.gradeCode??null]));
   assert.deepEqual(entry.grants.map(x=>[x.npc,x.itemId,x.predicted,x.unresolved]),
