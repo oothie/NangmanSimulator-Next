@@ -185,4 +185,37 @@ test('never-claimed mode resets only reward flags, preserving quest and material
  assert.equal(result.nextState.globalVariable.questComplete,1);
  assert.equal(source.globalVariable.get_8295_40374,1);
 });
+test('numeric key ownership inferred from Items is marked as inference throughout replay',()=>{
+ const save={globalVariable:{win_byj:20},Items:[]};
+ const copy=JSON.stringify(save);
+ const sourceProducer=state=>({output:[{clear:1,results:[
+  {boss:'불로선인',specialIds:[3970]}
+ ]}],nextState:{...state,globalVariable:{
+  ...state.globalVariable,win_byj:(state.globalVariable.win_byj||0)+1
+ }}});
+ const r=forecastInterleavedSpecials(save,'벽유교',sourceProducer,2);
+ assert.equal(r.rows[0].grants[0].predicted,true);
+ assert.equal(r.rows[0].grants[0].numericGuardSource,'세이브 인벤토리 기반 추정');
+ assert.equal(r.rows[1].grants[0].predicted,false);
+ assert.equal(r.rows[1].grants[0].unresolved,true);
+ assert.equal(r.numericState[3970],null);
+ const owned=forecastInterleavedSpecials({
+  ...save,Items:[{ID:3970,Num:1}]
+ },'벽유교',sourceProducer,1);
+ assert.equal(owned.rows[0].grants[0].predicted,false);
+ assert.equal(JSON.stringify(save),copy);
+});
+test('never-claimed numeric guard is a marked hypothetical, not stock evidence',()=>{
+ const save={globalVariable:{win_byj:20,get_3970:1},
+  Items:[{ID:3970,Num:1}]};
+ const sourceProducer=state=>({output:[{clear:1,results:[
+  {boss:'불로선인',specialIds:[3970]}
+ ]}],nextState:{...state,globalVariable:{...state.globalVariable}}});
+ const r=forecastInterleavedSpecials(save,'벽유교',sourceProducer,1,{
+  mode:'never_claimed'
+ });
+ assert.equal(r.rows[0].grants[0].predicted,true);
+ assert.equal(r.rows[0].grants[0].numericGuardSource,'미획득 가상 보유량');
+ assert.equal(save.Items[0].Num,1);
+});
 console.log('PASS',passes,'interleaved source-model checks');
