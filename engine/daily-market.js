@@ -613,9 +613,13 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      }
    }
    const completionProved=!heap.length||mode==='fastest'&&best&&heap[0].bound>best.time;
-   if(mode==='fastest'&&candidate&&completionProved&&
+   // Keep an independently replayed feasible candidate even if the A*
+   // state cap prevents a proof of earliest completion. Preserve the route's
+   // event mode: a free-only route need not contain daily-reset markers.
+   if(mode==='fastest'&&candidate&&
       (!best||candidate.when<best.time||candidate.when===best.time&&candidate.cost<best.cost))
-     return {...candidate,mode:'fastest',proven:true,expanded,verifiedShorterRoutes:true};
+     return {...candidate,proven:completionProved,limited:!completionProved,
+       expanded,verifiedShorterRoutes:completionProved,requestedMode:'fastest'};
    if(best){const result=finish(best);
      return mode==='fastest'?{...result,proven:completionProved,limited:!completionProved}:result;
    }
