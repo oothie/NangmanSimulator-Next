@@ -4,7 +4,9 @@
 - 전용 브랜치: `research/low-gates-original-20261125` — 통합 시뮬레이터 사이트, main, 버전, 배포, 기존 90급 연구 브랜치 변경 없음.
 - 60014 원본 LuaJIT 함수로 **직접 검증한 값**과 산부진 참조 모델만으로 **조건부 복원한 값**을 엄격히 구분.
 - 데이터: `LOW_GATE_REFERENCE_EVIDENCE_20261125.json`; 검증: `test_low_gate_reference.cjs`.
-- 실행: `node research/dungeon-rng/low-gates/test_low_gate_reference.cjs`.
+- 실행: `node research/dungeon-rng/low-gates/test_low_gate_reference.cjs` 및 `node research/dungeon-rng/low-gates/test_low_gate_conditional.cjs`.
+- `low_gate_conditional.cjs`: 이미 알고 있는 RNG 출력값 세 개를 받아 장비 발생 여부·장비 ID·색상으로 변환하는 **조건부 독립 엔진**. 특수 보상은 의도적으로 미확정 표시한다. RNG 시드 전방 계산 및 원본 함수 전체 복원은 아직 아니다.
+- `test_low_gate_conditional.cjs`: 19보스별 장비 여부 난수 1~100 전수, 각 장비 슬롯 경계, 색상 가중치 끝값, 잘못된 난수 입력 차단 검사. 자동 테스트 실행 로그는 현재 브랜치에 아직 첨부하지 않았으며 소스 수준 대조는 별도로 수행했다.
 
 ## 참조 모델 일치 검사
 현재 확보된 낮은 급수의 일반 드랍은 취선채(3명), 추가보(3명), 혈의루(3명), 철인문(3명), 천일교(4명), 고골문(3명): **19보스**.
