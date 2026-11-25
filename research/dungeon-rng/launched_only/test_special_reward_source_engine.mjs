@@ -108,16 +108,16 @@ test('unclaimed ownership scenario uses key-absent branch by default',()=>{
 test('eight source fragment completion effects exactly follow original guard',()=>{
  assert.equal(ORIGINAL_FRAGMENT_MILESTONES.length,8);
  for(const entry of ORIGINAL_FRAGMENT_MILESTONES){
-  const base={globalVariable:{[entry.count]:entry.before,[entry.shop]:0}};
+  const base={globalVariable:{[entry.count]:entry.after-1,[entry.shop]:0}};
   const done=evaluateSpecialAwards(base,[{npc:entry.npc,specialIds:[entry.item]}]);
   assert.equal(done.events[0].predicted,true);
   assert.equal(done.events[0].effects.length,1);
   assert.equal(done.events[0].effects[0].key,entry.shop);
   assert.equal(done.counters[entry.shop],1);
-  // The original input is read-only and no extra milestone runs on a
-  // second award after the recorded completion threshold.
+  // The nested original GetP(14/9) is checked AFTER AddP(get_item,1).
+  // The shop unlock happens at the 14th/9th fragment, before the cap.
   assert.equal(base.globalVariable[entry.shop],0);
-  const prior=evaluateSpecialAwards({globalVariable:{[entry.count]:entry.before-1}},
+  const prior=evaluateSpecialAwards({globalVariable:{[entry.count]:entry.after-2}},
    [{npc:entry.npc,specialIds:[entry.item]}]);
   assert.equal(prior.events[0].effects.length,0);
  }
