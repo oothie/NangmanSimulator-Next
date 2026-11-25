@@ -32,5 +32,7 @@ jobs:
         run: node research/mask-drop/test-original-60014-weight-tables.cjs
       - name: Verify one-percent leading hypothesis with optional stage-two branch
         run: node research/mask-drop/test-replay-one-percent-prior.cjs
+      - name: Verify privacy-safe local 7209 candidate reporter (synthetic)
+        run: node research/mask-drop/test-local-one-percent-report.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
