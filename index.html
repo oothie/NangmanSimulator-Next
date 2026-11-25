@@ -2365,7 +2365,7 @@ function dailyMarketView(){
   '세이브에 저장된 상품 목록을 표시합니다.';
  return '<div class="market-stats">'+[
   ['예측 슬롯',state.slots+'칸'],['저장 슬롯',state.saveSlots+'칸'],
-  ['선택 VIP 갱신 잔여',allowance.left+'회'],['판매 후보 상품',state.available.length+'종']
+  ['모의 시점 원보 갱신 잔여',(simulation?.paidLeft??allowance.left)+'회'],['판매 후보 상품',state.available.length+'종']
  ].map(([name,value])=>'<div class="stat-cell"><span class="label">'+name+'</span><span class="value">'+escape(value)+'</span></div>').join('')+'</div>'+
  
  
@@ -2374,7 +2374,7 @@ function dailyMarketView(){
  clockLine+
  '<nav class="market-nav" role="group" aria-label="암시장 기능">'+[['current','현재 상품 · 모의 갱신'],['strategy','한정 상품 전략'],['search','상품 검색']].map(([id,label])=>'<button type="button" data-market-tab="'+id+'" class="'+(marketPanel===id?'active':'')+'">'+label+'</button>').join('')+'</nav>'+ 
  '<section class="market-section" data-market-panel="current"><h4>암시장 상품 · 통합 모의 갱신</h4>'+
- '<p class="micro">세이브에 기록된 상품에서 출발해 원보 갱신을 모의실행하고, 이어지는 08시·20시 무료 자동 갱신까지 같은 경로로 확인합니다. 실제 게임의 원보·세이브는 변경되지 않습니다.</p>'+
+ '<p class="micro">세이브에 기록된 상품부터 원보 갱신과 08시·20시 무료 갱신을 원하는 순서로 모의실행합니다. 무료 갱신 최대 30일(60회), 매일 05시 원보 갱신 한도 자동 초기화. 실제 게임의 원보·세이브는 변경되지 않습니다.</p>'+
  '<div class="actions market-sim-controls">'+
  '<label>VIP 등급 <select id="marketVipSelect" aria-label="VIP 등급 수동 선택">'+[0,1,2,3,4,5].map(l=>'<option value="'+l+'" '+(vipChoice===l?'selected':'')+'>VIP '+l+' · 하루 '+window.NangmanMarket.VIP_REFRESH[l]+'회</option>').join('')+'</select></label>'+
  '<button id="marketSimNext" class="btn primary" '+(!state.seedOk||!simulation||simulation.paidLeft<=0?'disabled':'')+'>모의 원보 갱신 +1회</button>'+
