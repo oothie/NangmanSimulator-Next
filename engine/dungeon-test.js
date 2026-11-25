@@ -2,7 +2,7 @@
  * Public code has NO seed, account, equipment instance, or save-derived data.
  * 13 launched-boss source pools / typed branch order, not a certified future oracle.
  */
-import {replayLiuManor} from './dungeon-original-liu.js';
+import {replayLiuManor} from './dungeon-original-liu.js?rev=key-award-v129';
 import {replayYanwangfu} from './dungeon-original-yan.js';
 import {replayChangok} from './dungeon-original-dcy.js';
 import {replayByeokyu} from './dungeon-original-byj.js';
