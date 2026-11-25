@@ -38,7 +38,7 @@ for(const gate of evidence.in_scope) for(const b of gate.bosses){
 }
 assert.equal(bosses,19);
 assert.equal(special,15);
-assert.equal(routeFound,15);
+assert.equal(routeFound,11); // blood-house unique drops lack native-replay route mappings
 const missing=evidence.missing_proof;
 assert(missing.some(s=>s.includes('10급')));
 assert(missing.some(s=>s.includes('TDUP')));
