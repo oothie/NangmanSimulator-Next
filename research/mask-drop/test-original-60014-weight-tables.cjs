@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 const assert=require('node:assert/strict');
-const {FIRST,SECOND,SOURCE_NPCS,dynamicFirstWeights,conditionalNpcStages}=
+const {FIRST,SECOND,SOURCE_NPCS,dynamicFirstWeights,ipairsEntryCount,conditionalNpcStages}=
  require('./original-60014-weight-tables.cjs');
 assert.equal(FIRST.callPc,74);
 assert.equal(SECOND.callPc,96);
@@ -19,10 +19,16 @@ const noAssumption=conditionalNpcStages(30681);
 assert.equal(noAssumption.first.bound,null);
 assert.equal(noAssumption.second.bound,1111);
 assert.equal(noAssumption.firstDropPredictionVerified,false);
-const candidate=conditionalNpcStages(30681,{encryptedDropMatchesSource:true});
+assert.deepEqual(SOURCE_NPCS[30681].rawLuaSlots,[null,null,7209,1]);
+assert.deepEqual(SOURCE_NPCS[32950].rawLuaSlots,[null,null,3031,1]);
+assert.equal(ipairsEntryCount(SOURCE_NPCS[30681].rawLuaSlots),0);
+assert.equal(ipairsEntryCount([null,1000,100,10,1]),4);
+assert.equal(noAssumption.cfgIpairsEntryCount,0);
+assert.equal(noAssumption.first.verified,false);
+const candidate=conditionalNpcStages(30681,{explicitEncryptedWeightRows:[1]});
 assert.deepEqual(candidate.first.weights,[1,99]);
 assert.equal(candidate.first.verified,false);
 assert.equal(candidate.second.verifiedLiteral,true);
 assert.equal(candidate.firstAndSecondSamePool,false);
 assert.throws(()=>conditionalNpcStages(35125),/Unsupported/);
-console.log('PASS original 60014 proto9 fixed table, dynamic complement & source-equivalence guards');
+console.log('PASS original 60014 bytecode weight tables and nil-first cfg guard');
