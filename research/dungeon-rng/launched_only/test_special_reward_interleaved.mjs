@@ -95,4 +95,37 @@ test('unexpected original RNG failure remains an exception',()=>{
  const errorProducer=()=>{throw Error('source broken');};
  assert.throws(()=>forecastInterleavedSpecials(originalSave(),'창옥',errorProducer,2));
 });
+test('Liu 35271_1 unconditional rare material flag consumes no extra RNG',()=>{
+ const s={Rnds:{Sds:{seed_lsby:11}},
+  globalVariable:{win_lsby:30,roll_35268:0,roll_8915_35264:0},
+  Items:[]};
+ const before=JSON.stringify(s);
+ const base=replayLiuManor(s,1,'auto');
+ const rare=base.output[0].results[0].specialIds;
+ assert.ok(rare.includes(8801));
+ assert.equal(base.nextState.globalVariable.drop_35260_rarematerial,1);
+ // Two separate pure executions cannot change the external seed.
+ const again=replayLiuManor(s,1,'auto');
+ assert.deepEqual(base.output[0].results.map(x=>[x.name,x.grade]),
+  again.output[0].results.map(x=>[x.name,x.grade]));
+ assert.equal(base.nextState.Rnds.Sds.seed_lsby,
+  again.nextState.Rnds.Sds.seed_lsby);
+ assert.equal(JSON.stringify(s),before);
+});
+test('Liu rare-material temp GetP is unresolved unless supplied',()=>{
+ const s={Rnds:{Sds:{seed_lsby:11}},
+  globalVariable:{win_lsby:30,roll_35268:0,roll_8915_35264:0},
+  Items:[]};
+ const unknown=forecastInterleavedSpecials(s,'유씨별원',replayLiuManor,3);
+ assert.equal(unknown.rows.filter(x=>x.grants.some(y=>y.itemId===8801&&y.unresolved)).length,3);
+ assert.ok(!unknown.firstPredicted.some(x=>x.itemId===8801));
+ const known=forecastInterleavedSpecials(s,'유씨별원',replayLiuManor,3,{
+  tempState:{get_8801:0}
+ });
+ const rare=known.rows.map(x=>x.grants.find(y=>y.itemId===8801));
+ assert.deepEqual(rare.map(x=>x.predicted),[true,false,false]);
+ assert.equal(known.firstPredicted.find(x=>x.itemId===8801)?.clear,1);
+ assert.equal(known.tempState.get_8801,1);
+ assert.equal(s.globalVariable.get_8801,undefined);
+});
 console.log('PASS',passes,'interleaved source-model checks');
