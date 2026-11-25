@@ -123,9 +123,23 @@ test('Liu rare-material temp GetP is unresolved unless supplied',()=>{
   tempState:{get_8801:0}
  });
  const rare=known.rows.map(x=>x.grants.find(y=>y.itemId===8801));
+ // The source does not establish temp lifetime between separate clears:
+ // after first resolved award, all later ones remain unresolved by default.
  assert.deepEqual(rare.map(x=>x.predicted),[true,false,false]);
+ assert.deepEqual(rare.map(x=>x.unresolved),[false,true,true]);
  assert.equal(known.firstPredicted.find(x=>x.itemId===8801)?.clear,1);
- assert.equal(known.tempState.get_8801,1);
+ assert.equal(known.tempState,null);
+ const retained=forecastInterleavedSpecials(s,'유씨별원',replayLiuManor,3,{
+  tempState:{get_8801:0},tempLifetime:'persist'
+ });
+ assert.deepEqual(retained.rows.map(row=>
+  row.grants.find(x=>x.itemId===8801).predicted),[true,false,false]);
+ assert.equal(retained.tempState.get_8801,1);
+ const reset=forecastInterleavedSpecials(s,'유씨별원',replayLiuManor,3,{
+  tempState:{get_8801:0},tempLifetime:'reset'
+ });
+ assert.deepEqual(reset.rows.map(row=>
+  row.grants.find(x=>x.itemId===8801).predicted),[true,true,true]);
  assert.equal(s.globalVariable.get_8801,undefined);
 });
 console.log('PASS',passes,'interleaved source-model checks');
