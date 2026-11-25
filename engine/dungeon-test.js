@@ -178,17 +178,20 @@ export function mountDungeon(host,save){
    let html='<p class="micro">'+esc(result.caution)+'</p>';
    if(result.keyNote)html+='<p class="micro">'+esc(result.keyNote)+'</p>';
    for(const clear of result.output){
-    html+='<h4>'+clear.clear+'회차</h4><div class="table-scroll"><table style="min-width:780px;table-layout:fixed;width:100%"><colgroup><col style="width:17%"><col style="width:29%"><col style="width:15%"><col style="width:39%"></colgroup><thead><tr><th>보스</th><th>장비</th><th>색상</th><th>특수 드랍·조건</th></tr></thead><tbody>';
+    html+='<h4>'+clear.clear+'회차</h4><div class="table-scroll"><table style="min-width:620px;table-layout:fixed;width:100%"><colgroup><col style="width:22%"><col style="width:30%"><col style="width:16%"><col style="width:32%"></colgroup><thead><tr><th>보스</th><th>장비</th><th>색상</th><th>특수보상</th></tr></thead><tbody>';
     for(const row of clear.results){
      const gradeColor={백색:'#a2a2a2',녹색:'#259b61',청색:'#397db3',자색:'#9052c4'}[row.grade]||'';
-     const specials=row.special.map(s=>esc(s.name)+' · '+esc(s.kind)).join(', ');
-     const extra=row.warnings.map(esc).join(' · ');
-     const candidateList=row.specialCandidateNames||[];
-     const detail=[specials,extra,
-      candidateList.length?'특수 보상 후보: '+candidateList.map(esc).join(', ')+' (미당첨·지급 불확정)':'특수 보상 후보 없음'].filter(Boolean).join(' / ');
+     // Only source-predicted, consumer-eligible awards belong in this column.
+     // Do not display unawarded candidates, failed draws or branch diagnostics.
+     const awarded=(row.special||[]).filter(item=>
+      typeof item.name==='string'&&
+      (item.kind==='추첨 당첨 · 지급 조건 충족'||
+       item.kind==='드랍 예측 · 원본 지급 조건 충족'));
+     const rewardNames=[...new Set(awarded.map(item=>item.name))];
      html+='<tr><td>'+esc(row.boss)+'</td><td>'+esc(row.name)+'</td><td>'+
      (row.grade?'<b style="color:'+gradeColor+'">'+esc(row.grade)+'</b>':'—')+
-     '</td><td style="overflow-wrap:anywhere">'+detail+'</td></tr>';
+     '</td><td style="overflow-wrap:anywhere">'+
+     (rewardNames.length?rewardNames.map(esc).join(', '):'—')+'</td></tr>';
     }
     html+='</tbody></table></div>';
    }
