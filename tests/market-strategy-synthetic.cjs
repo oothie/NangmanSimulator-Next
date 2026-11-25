@@ -217,6 +217,25 @@ assert.equal(longResponse.plans.fastest.proven,false,
  'bounded fastest candidate must not be labeled globally optimal');
 assert.equal(longResponse.plans.fastest.limited,true);
 assert.equal(longResponse.plans.fastest.nativeReplayChecked,true);
+// v1.2.7: the paid-refresh simulator is read-only. Running it cannot change
+// the uploaded save or alter independent Worker purchase-route exploration.
+const untouched=JSON.stringify(fixture);
+market.getPaid(1,{vip:1});
+market.getPaid(3,{vip:1});
+assert.equal(JSON.stringify(fixture),untouched,
+ 'paid-refresh preview must not mutate the uploaded save');
+workerMessages.length=0;
+workerContext.self.onmessage({data:{type:'calculate',requestId:'independent',
+ save:fixture,anchor:now,slots:6,vip:1,target,quantity:1,
+ periods:2,maxStates:15000}});
+const independentResult=workerMessages.find(msg=>msg.type==='result');
+assert(independentResult,'strategy must execute without a preview prefix');
+assert.equal(independentResult.plans.fastest.nativeReplayChecked,true);
+assert.equal(JSON.stringify(fixture),untouched,
+ 'strategy calculations must leave the uploaded save unchanged');
+assert(!fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8').includes('prefixPaid')&&
+ !fs.readFileSync(path.join(root,'engine/market-strategy-worker.js'),'utf8').includes('afterPaidRefreshes'),
+ 'the strategy Worker must not chain from simulated paid refreshes');
 // Synthetic stock-cap regression. No account values or player-derived seeds.
 const targetTemplate=catalog.shops.guishi.find(x=>x.rare===1&&x.weight>0)
  ||catalog.shops.guishi[0];
@@ -499,6 +518,8 @@ const pageRef=revision(page,'engine/daily-market.js?rev=');
 const workerRef=revision(workerSource,'./daily-market.js?rev=');
 const entryRef=revision(page,'new Worker(\'engine/market-strategy-worker.js?rev=');
 assert(pageRef&&workerRef&&entryRef,'market modules must use explicit cache revisions');
+assert(page.includes('낭만강호 통합 시뮬레이터 v1.2.7'),
+ 'website version must advance to v1.2.7');
 assert.equal(pageRef,workerRef,'page and Worker must use the same RNG revision');
 assert.equal(pageRef,entryRef,'Worker entrypoint must share the RNG cache revision');
 console.log('PASS synthetic market RNG, stale-save safeguards, and aligned cache keys');
