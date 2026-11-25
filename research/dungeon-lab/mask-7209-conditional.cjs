@@ -15,6 +15,7 @@ const SOURCE=Object.freeze({item:7209,name:'수라가면',npc:NPC.mask,
 const WEIGHTS=Object.freeze({30681:[1,99],32950:[1,99]});
 const LEVEL70_SOURCE=Object.freeze({
  totalNpcRows:146,explicitDropRows:2,otherWithoutDirectDrop:144,
+ sameNameAlternateNpc:Object.freeze({npc:35125,name:'만호강',level:70,directDrop:false}),
  rows:Object.freeze([
   Object.freeze({npc:30681,name:'만호강',level:70,drop:Object.freeze([7209,1])}),
   Object.freeze({npc:32950,name:'산적',level:70,drop:Object.freeze([3031,1])})
