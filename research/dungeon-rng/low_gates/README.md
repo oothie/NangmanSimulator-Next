@@ -123,3 +123,16 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 - **실제 네이티브 확정은 아님:** 원본 `getLuaJsonFile`의 리턴 테이블 키 삽입/순서와 LuaJIT `pairs()` 해시 순회, 원본 게임 시드 등가 및 묵문유적 일반 장비 소비자는 여전히 미확정.
 
 코드와 검증은 대화 산출물 ZIP에 보존했으며, 이 커밋에는 **개인 세이브/원시 시드/원본 게임 바이너리 없이 연구 경과만** 남겼다. 공개 사이트·버전/기존 90급 엔진 미수정.
+
+## 2026-11-26 후속 v5 — 원본 `pairs` 순회 관측 직접 주입
+
+별도 복원 패키지 `Low_Gates_Original_Function_Replay_20261126_v5.zip`에서 기존 원본 파생 6관문 재생기의 가중치 선택기에 `observed` 경로를 추가했다.
+
+- `native_pairs_observation.cjs`: **관측된 순회 기록**과 원본 테이블의 키를 타입(정수/문자열)까지 보존해 비교. 메타키 `key`의 실제 존재 여부는 반드시 별도로 지정. 누락·중복·타입 혼동은 거부.
+- `native_seedkeyroll_two_pass.cjs`: 기존 `first/last/absent`와 분리한 `observed` 순서로 합산 → 한 번 RNG → 동일 순서로 분기 선택. **관측을 제공했다고 원본 런타임 검증을 자동 부여하지 않음**.
+- `source_order_forward.cjs`: `orderMode='observed'`일 때 관문별 원본 단계 `index`의 전체 기록이 없으면 계산 차단. 가설을 조용히 사용하는 fallback 없음.
+- 천일교 80급 전체 4보스의 source-replay 및 키 타입 오류 차단 테스트 추가. **전체 Node .cjs 42/42 통과**.
+
+원본 파일 증거: 60014 JHTaskMgr의 `genEventFile`/`genNpcFunFile`/`genPlaceFunFile`는 `createFromFile`을 경유하며 원본 로더에는 `cacheLuaJson`, `cacheLuaJsonKeys`, `.lua`/`require`, `.whale`/`ResourceManager.loadGroup` 참조가 있다. 이 참조만으로 특정 관문의 가중치 테이블 구성 순서는 확정할 수 없다.
+
+**가장 중요한 미복원:** 원본 `getLuaJsonFile` 반환 테이블의 실제 키 삽입 과정과 LuaJIT 네이티브 `pairs` 실행 기록. 독립 게임 실행의 관측이 아직 없으므로 본 v5는 **원본을 관측했을 때 그대로 대입할 안전한 경로**를 만든 것이며, 게임 네이티브 예측 완성을 주장하지 않는다. 연구 모듈의 핵심 키 검증기와 테스트는 이 브랜치에도 보존한다. 개인 세이브·원시 시드·원본 바이너리 미포함, 배포 사이트·버전 불변.
