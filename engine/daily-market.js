@@ -73,8 +73,9 @@ function enabled(item,save,now){
  }
  return item.serverP==='fn_jiayuan';
 }
-function marketPool(source,shop,save,now){
+function marketPool(source,shop,save,now,extraPurchases){
  const count=countsMap(shop.Counts);
+ if(extraPurchases)for(const [id,additional] of extraPurchases)count[id]=(count[id]||0)+additional;
  const ordered=orderPool(source,GUISHI_ORDER);
  const available=[],soldOut=[];
  for(const item of ordered){
@@ -255,6 +256,9 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
     required:goal,error:'암시장 경로 재검증 실패: '+reason+' · 제시된 갱신 경로를 사용하지 마세요.'});
    if(!Number.isSafeInteger(id)||goal<1||!Array.isArray(plan.steps))return fail('목표·경로 누락');
    const current=(today||[]).find(x=>x.id===id&&n(x.buyed)!==1);
+   const limited=available.find(x=>x.id===id),already=countsMap(shop.Counts)[id]||0;
+   const poolFor=()=>limited?.stock!=null&&already+got>=limited.stock?
+    available.filter(x=>x.id!==id):available;
    for(const step of plan.steps){
     if(!step||!['current','paid','auto','reset'].includes(step.kind)||
        !Number.isFinite(step.time)||step.time<t)return fail('시각·실행 순서');
@@ -273,14 +277,14 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      const threshold=16.666666666666668+luck;
      rare=rr.chance('guishishop',threshold);
      luck=rare?threshold-100:threshold;
-     items=draw(rr,available,true,rare,slots);
+     items=draw(rr,poolFor(),true,rare,slots);
      used++;paid++;
      if(step.index!=null&&step.index!==used)return fail('원보 갱신 번호');
      if(step.rareHit!=null&&step.rareHit!==rare)return fail('특별상품 추첨');
     }else{
      if(step.time!==auto||(plan.mode!=='free'&&step.time>=daily))
       return fail('08시·20시 자동 교체 누락');
-     items=draw(rr,available,false,false,slots);
+     items=draw(rr,poolFor(),false,false,slots);
      auto+=43200;
     }
     let acquired=0;
@@ -299,14 +303,17 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    // Independently replay the full plan using Korean-client event semantics.
    // Agreement with the planner's draw() alone does not prove a valid schedule.
    try{
-    const events=plan.steps.filter(step=>step.kind!=='current').map(step=>({
-     kind:step.kind==='auto'?'open':step.kind==='reset'?'daily-reset':'paid',
-     at:step.time
-    }));
+    const events=plan.steps.flatMap(step=>[
+     ...(step.kind==='current'?[]:[{kind:step.kind==='auto'?'open':step.kind==='reset'?'daily-reset':'paid',at:step.time}]),
+     ...(step.acquired?[{kind:'purchase',at:step.time,item:id}]:[])
+    ]);
     const native=replayKoreanClientEvents(save,source,events,{slots});
     let cursor=0;
     for(const step of plan.steps){
-     if(step.kind==='current')continue;
+     if(step.kind==='current'){
+      if(step.acquired){const buy=native.events[cursor++];if(!buy||!buy.purchased)return fail('현재 상품 구매 재현');}
+      continue;
+     }
      const observed=native.events[cursor++];
      if(!observed)return fail('원본 이벤트 재현 누락');
      if(step.kind==='auto'&&!observed.auto)return fail('원본 자동갱신 실행 조건');
@@ -314,6 +321,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      if(step.kind==='paid'&&step.rareHit!==observed.rare)return fail('원본 특별상품 판정');
      if(!Array.isArray(step.items)||step.items.map(x=>x?.id).join(',')!==observed.items.join(','))
       return fail('원본 독립 호출 경로의 상품 불일치');
+     if(step.acquired){const buy=native.events[cursor++];if(!buy||!buy.purchased)return fail('원본 구매 상한 적용');}
     }
    }catch(error){return fail('원본 이벤트 교차검증: '+String(error?.message||error))}
    return {...plan,modelReplayChecked:true,nativeReplayChecked:true};
@@ -336,6 +344,9 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    const nextDaily=t=>(resetDay(t)+1)*86400-14400;
    const deadline=nextHalfDay(now)+(horizon-1)*43200;
    const current=(today||[]).find(x=>ids.has(x.id)&&n(x.buyed)!==1);
+   const prior=countsMap(shop.Counts)[chosen.id]||0;
+   const poolFor=qty=>chosen.stock!=null&&prior+qty>=chosen.stock?
+    available.filter(x=>x.id!==chosen.id):available;
    const candidates=[],policies=[];
    for(const first of [0,.25,.5,1])
     for(const after of [0,.25,.5,1])
@@ -352,7 +363,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
     const paidOnce=()=>{
      const chance=16.666666666666668+luck,rare=r.chance('guishishop',chance);
      luck=rare?chance-100:chance;
-     const items=draw(r,available,true,rare,slots);
+     const items=draw(r,poolFor(got),true,rare,slots);
      const acquired=items.some(x=>ids.has(x.id))?1:0;
      got+=acquired;used++;paid++;
      const e={kind:'paid',time,index:used,rareHit:rare,items,acquired,totalAcquired:got};
@@ -372,7 +383,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
       if(got>=goal)break;
      }
      time=auto;tick++;
-     const items=draw(r,available,false,false,slots);
+     const items=draw(r,poolFor(got),false,false,slots);
      const acquired=items.some(x=>ids.has(x.id))?1:0;
      got+=acquired;
      const e={kind:'auto',time,items,acquired,totalAcquired:got};
@@ -430,6 +441,8 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    const cap=Math.max(500,Math.min(500000,Math.trunc(n(options.maxStates,300000))));
    const costPerRefresh=20;
    const target=items=>(items||[]).find(x=>ids.has(x.id))||null;
+   const poolFor=qty=>chosen.stock!=null&&bought+qty>=chosen.stock?
+    available.filter(x=>x.id!==chosen.id):available;
    const current=target(today);
    const currentAvailable=current&&Number(current.buyed||0)!==1?current:null;
    // Current-shelf purchase needs no new RNG roll. Never count a previously
@@ -442,7 +455,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      cost:0,paid:0,purchased:initialQty,lastItem:currentAvailable,
      steps:currentAvailable?[{kind:'current',time:now,items:today,
        acquired:1,totalAcquired:1}]:[],
-     trail:currentAvailable?{prev:null,event:{kind:'current',time:now,acquired:1,totalAcquired:1}}:null};
+     trail:currentAvailable?{prev:null,event:{kind:'current',time:now,items:today,acquired:1,totalAcquired:1}}:null};
    let expanded=0;
    // Paths share immutable predecessors instead of copying their full history.
    const history=node=>{const events=[];for(let t=node.trail;t;t=t.prev)events.push(t.event);return events.reverse()};
@@ -475,7 +488,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      let got=purchases,found=initial.lastItem;
      for(let i=1;i<=periodLimit&&got<goal;i++){
        const when=nextAuto+(i-1)*43200;
-       const items=draw(rr,available,false,false,slots);
+       const items=draw(rr,poolFor(got),false,false,slots);
        const match=target(items),acquired=match?1:0;
        got+=acquired;
        if(match)found=match;
@@ -552,7 +565,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
        const threshold=16.666666666666668+node.lucky;
        const rareHit=rr.chance('guishishop',threshold);
        const nextLucky=rareHit?threshold-100:threshold;
-       const items=draw(rr,available,true,rareHit,slots);
+       const items=draw(rr,poolFor(node.purchased),true,rareHit,slots);
        push(withShelf(node,items,{kind:'paid',time:node.time,index:node.used+1,
          rareHit},{seed:rr.seeds.guishishop,lucky:nextLucky,
          used:node.used+1,cost:node.cost+costPerRefresh,paid:node.paid+1}));
@@ -562,7 +575,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
      if(t<=deadline){
        if(autoFirst){
          const rr=new KeyRng({guishishop:node.seed});
-         const items=draw(rr,available,false,false,slots);
+         const items=draw(rr,poolFor(node.purchased),false,false,slots);
          push(withShelf(node,items,{kind:'auto',time:t},{
            seed:rr.seeds.guishishop,time:t,nextAuto:t+43200,
            nextDaily:node.nextDaily,period:node.period+1}));
@@ -605,7 +618,8 @@ function replayKoreanClientEvents(save,source,events,options={}){
  const state={time:n(shop.Time),fresh:n(shop.Fresh),lucky:n(shop.Lucky),
   items:currentShelf(shop.Items,source?.shops?.guishi||[]),seed:Number(rawSeed)};
  const out=[];let lastEventTime=state.time;
- const poolAt=when=>marketPool(source?.shops?.guishi||[],shop,save,when).available;
+ const purchased=new Map();
+ const poolAt=when=>marketPool(source?.shops?.guishi||[],shop,save,when,purchased).available;
  const newShelf=(paid,rare,when)=>{
   const pool=poolAt(when),used=new Set,result=[];
   let pendingRare=rare,attempts=0,drawn=0;
@@ -620,7 +634,7 @@ function replayKoreanClientEvents(save,source,events,options={}){
    drawn++;pendingRare=false;
   }
   if(result.length!==slots)throw Error('암시장 상품 슬롯 구성에 실패했습니다.');
-  return result;
+  return result.map(item=>({...item,buyed:0}));
  };
  const checkAuto=when=>{
   if(when>state.time&&halfDay(when)!==halfDay(state.time)){
@@ -635,8 +649,20 @@ function replayKoreanClientEvents(save,source,events,options={}){
   const at=Number(entry?.at),kind=entry?.kind;
   if(!Number.isSafeInteger(at)||at<lastEventTime)throw Error('암시장 이벤트 시각 순서가 잘못되었습니다.');
   lastEventTime=at;
-  if(!['open','daily-reset','paid'].includes(kind))throw Error('알 수 없는 암시장 이벤트 종류입니다.');
-  const auto=checkAuto(at);let rare=false;
+  if(!['open','daily-reset','paid','purchase'].includes(kind))throw Error('알 수 없는 암시장 이벤트 종류입니다.');
+  const auto=kind==='purchase'?false:checkAuto(at);let rare=false;
+  if(kind==='purchase'){
+   const id=Number(entry.item),item=state.items.find(x=>x.id===id);
+   const base=countsMap(shop.Counts)[id]||0,used=purchased.get(id)||0;
+   if(!item||!Number.isSafeInteger(id)||id<=0||item.stock!=null&&base+used>=item.stock)
+    throw Error('판매 목록 밖 상품 또는 구매 상한 초과');
+   if(item.buyed===1)throw Error('이미 구매한 상품입니다.');
+   purchased.set(id,used+1);item.buyed=1;
+   state.seed=rng.seeds.guishishop;
+   out.push({kind,at,auto:false,rare:false,purchased:true,seed:state.seed,
+    lucky:state.lucky,fresh:state.fresh,shopTime:state.time,items:state.items.map(x=>x.id)});
+   continue;
+  }
   if(kind==='daily-reset'){state.fresh=0;}
   if(kind==='paid'){
    state.fresh++;
