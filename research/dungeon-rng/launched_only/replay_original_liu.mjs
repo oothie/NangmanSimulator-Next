@@ -90,6 +90,13 @@ export function replayLiuManor(save,clears=1,keyMode='auto'){
    const r=rng('윤무 한정보상 5020',1000);
    flag('윤무',5020,'drop_5020_35260',r-win<=50&&!gv.drop_5020_35260);
   }
+  // 35271_1 source command 6, unconditional and AFTER the 5020 branch:
+  // SetP('drop_35260_rarematerial',1). This consumes NO seed_lsby draw.
+  // Its reward consumer checks get_8801 in the 'temp' scope, not
+  // save.globalVariable. Preserve the producer flag without inventing
+  // an eligible temporary state or a confirmed award.
+  gv.drop_35260_rarematerial=1;
+  specials['윤무'].push(8801);
   equipment('윤무',POOLS['윤무'],Y_COLOR);
 
   // Steps 9-11: 고리, including the separate *numeric* GetP(8915) ownership guard.
