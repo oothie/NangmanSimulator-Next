@@ -65,7 +65,7 @@ function audit(snapshots,{maxPerBattle=12}={}){
   battleIntervals:rows.length,
   rows,
   inferredLevel70Calls:complete?inferredBandits:null,
-  60014NpcForThisLevel:'산적',
+  sourceNpcForLevel70:'산적',
   originalGameFormationRoutineRecovered:false,
   futureAppearanceSchedule:null,
   privateInputsReported:false,
