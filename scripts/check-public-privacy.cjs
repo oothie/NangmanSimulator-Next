@@ -39,6 +39,12 @@ function walk(dir){
   if(/\.(?:js|cjs|ts|md|txt)$/i.test(name)&&
       /(?:guishishop|BornTalent\s*\.\s*S)\s*[:=]\s*\d{6,}\b/.test(source))
     findings.push(rel+': hardcoded save-derived RNG value');
+  // Reject hardcoded comparisons to private save RNG snapshots.
+  // Account-derived encounter/equipment seed fingerprints must stay in
+  // offline-only investigation, not in deployed source code.
+  if(/\.(?:js|cjs|ts)$/i.test(name)&&
+      /\b(?:encounterSeed|equipmentSeed|tigerSeed)\s*={2,3}\s*\d{6,}\b/.test(source))
+    findings.push(rel+': account-derived seed fingerprint comparison');
  }
 }
 walk(root);
