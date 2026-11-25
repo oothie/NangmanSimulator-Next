@@ -530,6 +530,7 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
    const progress=typeof options.onProgress==='function'?options.onProgress:null;
    const candidate=mode==='fastest'&&options.bestCandidate?.found?options.bestCandidate:null;
    const candidateWhen=candidate?Number(candidate.when):Infinity;
+   let best=null;
    const push=node=>{
      if(mode==='fastest'){
        node.bound=optimisticTime(node);
@@ -546,7 +547,6 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
          if(cmp(tail,heap[c])<=0)break;
          heap[i]=heap[c];i=c}heap[i]=tail}return head};
    push(initial);
-   let best=null;
    while(heap.length&&expanded<cap){
      const node=pop();
      // Distinct acquired quantities must NOT merge into the same RNG state.
