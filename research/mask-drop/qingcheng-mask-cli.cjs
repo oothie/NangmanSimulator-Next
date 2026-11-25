@@ -20,10 +20,12 @@ function safeResult(save,observations=[]){
   observedLevel70Bandits:x.observedLevel70Bandits,
   nextCandidateDraw:x.nextCandidateAidrop70Index,
   requiredLevel70CallsBeforeTarget:x.level70DrawsBeforeNextCandidate,
+  originalQingchengFirstEnemyBanditProbability:1/3,
+  statisticalHuntEstimate:x.sourceBasedFieldBattleEstimate,
   candidatePlan:x.maskPlanWhenNoOtherConsumption,
   nextFiveConditionalCandidates:x.firstFiveCandidateDraws,
   exactFutureBanditAppearances:null,
-  reason:'일반 전투에서 산적 인원을 뽑는 원본 함수가 복원되지 않아 자동 출현 예측 금지',
+  reason:'원본 qc_enemy.lua 적 편성 함수 복원: 첫 슬롯 1/3 산적. JHRandom의 런타임 상태를 세이브에서 아직 복원하지 못해 특정 미래 회차는 확정 불가',
   actualMaskDropVerified:false,rawSavePrinted:false
  };
 }
