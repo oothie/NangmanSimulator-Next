@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+'use strict';
+const assert=require('node:assert/strict');
+const {draw}=require('../dungeon-lab/mask-7209-conditional.cjs');
+const {check}=require('./verify-qingcheng-interval.cjs');
+const f=(a,b=99)=>({Rnds:{Sds:{aidrop70:a,aidrop71:b,aidrop72:33,aidrop73:34,aidrop75:35,rollenemy_qc:36,seed_32954:37}}});
+let state=173827;
+for(let i=0;i<159;i++)state=draw(state,100).seed;
+const positive=check(f(173827),f(state,101));
+assert.equal(positive.usable,true);
+assert.equal(positive.supportsExactlyOneAidrop70DrawPerFight,true);
+assert.equal(positive.observedLevel70LaneChanged,true);
+assert.deepEqual(positive.otherLaneChangedLabels,['aidrop71']);
+assert.equal(positive.nativeBattlePerNpcCallProven,false);
+assert.equal(positive.sharedLaneConfirmed,false);
+assert.equal(positive.privateInputReported,false);
+assert(!JSON.stringify(positive).includes('173827'));
+assert(!JSON.stringify(positive).includes(String(state)));
+const negative=check(f(173827),f(173827));
+assert.equal(negative.supportsExactlyOneAidrop70DrawPerFight,false);
+assert.equal(negative.observedLevel70LaneChanged,false);
+assert(negative.candidateCallCounts.includes(0));
+assert.equal(check({Rnds:{Sds:{}}},f(173827)).usable,false);
+assert.throws(()=>check(f(173827),f(state),{expectedFieldFights:159,maxCalls:158}),/Invalid/);
+console.log('PASS 159 exact candidate lane progression from controlled pre/post synthetic saves without disclosing seed values');
