@@ -18,7 +18,7 @@ function load(path){
  const raw=JSON.parse(fs.readFileSync(path,'utf8'));
  return Array.isArray(raw)?raw[0]:raw;
 }
-function modelKey(m){return [m.bound,m.calls,m.hitFrom,m.hitTo,m.rewardDraw].join(':')}
+function modelKey(m){return [Array.isArray(m.bounds)?m.bounds.join(','):m.bound,m.calls,m.hitFrom,m.hitTo,m.rewardDraw].join(':')}
 function selectNpcModel(candidate,npc){
  // Model candidates can supply two independent NPC-specific weight scenarios.
  // The old single-model form remains a 30681-only shorthand and is REJECTED
@@ -26,11 +26,15 @@ function selectNpcModel(candidate,npc){
  if(candidate.mask&&candidate.bandit)return npc===NPC.mask?candidate.mask:candidate.bandit;
  return npc===NPC.mask?candidate:null;
 }
+function weights(m){
+ return Array.isArray(m.bounds)?m.bounds:Array(m.calls).fill(m.bound);
+}
 function checkModel(m){
- if(!m||!Number.isSafeInteger(m.bound)||m.bound<1||m.bound>1000000||
-  !Number.isInteger(m.calls)||m.calls<0||m.calls>2||
+ if(!m||!Number.isSafeInteger(m.calls)||m.calls<0||m.calls>2||
+  !Array.isArray(weights(m))||weights(m).length!==m.calls||
+  weights(m).some(v=>!Number.isSafeInteger(v)||v<1||v>1000000)||
   !Number.isInteger(m.hitFrom)||m.hitFrom<1||
-  !Number.isInteger(m.hitTo)||m.hitTo<m.hitFrom||m.hitTo>m.bound||
+  !Number.isInteger(m.hitTo)||m.hitTo<m.hitFrom||m.hitTo>(weights(m)[m.rewardDraw-1]||0)||
   !Number.isInteger(m.rewardDraw)||m.rewardDraw<1||m.rewardDraw>Math.max(1,m.calls))
   throw RangeError('Explicit valid bound/calls/hit window/reward draw required');
 }
@@ -65,7 +69,7 @@ function evaluate(events,models){
    const active=selectNpcModel(model,e.npc);
    let state=e.before,roll=null;
    for(let i=1;i<=active.calls;i++){
-    const d=draw(state,active.bound);
+    const d=draw(state,weights(active)[i-1]);
     state=d.seed;
     if(i===active.rewardDraw)roll=d.value;
    }
@@ -92,6 +96,7 @@ function evaluate(events,models){
   limitations:[
    '본 추첨의 전체 가중치와 실제 호출 횟수가 아직 원본 실행으로 검증되지 않음',
    '만호강과 산적은 동일한 난수 경로 후보라도 서로 다른 NPC별 가중치 배열을 쓸 수 있음',
+   '첫 번째/두 번째 추첨이 서로 다른 인자 테이블을 받을 수 있어 bounds 배열로 단계별 구분',
    '수라가면 미획득은 음성 판정에 사용하지 않음: 후처리·보상 조건 미확정',
    '동일한 난수 전이는 원본 weightRand 함수 호출을 증명하지 않음',
    '실제 획득 첫 회차를 확정하는 계산기가 아님'
