@@ -31,9 +31,24 @@ async function smoke(){
   const page=await browser.newPage();
   const faults=[];
   page.on('pageerror',err=>faults.push(String(err)));
-  await page.goto('http://127.0.0.1:'+port+'/#daily',{waitUntil:'domcontentloaded',timeout:60000});
-  await page.waitForFunction(()=>typeof window.NangmanMarket?.predict==='function'&&
-   typeof render==='function',{timeout:30000});
+  page.on('requestfailed',request=>faults.push('failed: '+request.url()+' '+request.failure()?.errorText));
+  page.on('response',response=>{if(response.status()>=400)
+    faults.push('HTTP '+response.status()+' '+response.url());});
+  const first=await page.goto('http://127.0.0.1:'+port+'/#daily',
+   {waitUntil:'domcontentloaded',timeout:60000});
+  console.log('Browser HTTP',first?.status(),'URL',page.url());
+  try{
+   await page.waitForFunction(()=>typeof window.NangmanMarket?.predict==='function'&&
+    typeof render==='function',null,{timeout:15000});
+  }catch(error){
+   const state=await page.evaluate(()=>({
+    market:typeof window.NangmanMarket,render:typeof render,
+    scripts:document.scripts.length,title:document.title,view:!!document.getElementById('view')
+   })).catch(e=>({error:String(e)}));
+   console.log('Browser runtime diagnostics',JSON.stringify(state));
+   console.log('Page faults',JSON.stringify(faults.slice(0,25)));
+   throw error;
+  }
   // A day-old synthetic seed must remain usable for historical preview.
   await page.evaluate(()=>{
    const old=Math.floor(Date.now()/1000)-86400;
