@@ -16,5 +16,7 @@ jobs:
         run: node scripts/check-public-privacy.cjs
       - name: Verify mixed four-gate interleaved original-model RNG
         run: node research/dungeon-lab/test-mixed-four-gate.cjs
+      - name: Verify all 26 extracted game source tables
+        run: node research/dungeon-lab/test-source-26-tables.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
