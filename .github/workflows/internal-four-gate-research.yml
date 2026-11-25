@@ -40,5 +40,7 @@ jobs:
         run: node research/mask-drop/test-verify-qingcheng-interval.cjs
       - name: Verify Qingcheng enemy-count ledger and guarded mask target planner
         run: node research/mask-drop/test-qingcheng-mask-planner.cjs
+      - name: Verify private-safe Qingcheng mask local CLI
+        run: node research/mask-drop/test-qingcheng-mask-cli.cjs
       - name: Verify base four-gate source-consumer model
         run: node tests/dungeon-success-synthetic.cjs
