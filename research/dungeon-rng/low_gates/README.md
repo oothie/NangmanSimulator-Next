@@ -330,3 +330,13 @@ Node.js 테스트 **55/55 통과**. Python `test_native_source_registry.py`는 1
 - Node.js **70/70 테스트**, Python SBv3 파서 **4/4**, 원본 지급 레지스트리 **12스크립트/40가중치/19보스/74지급 기록** 통과.
 - 이는 **실행 경로/관측 난수의 검증 인터페이스**다. 원본 game VM의 실행 분기 도달 자체나 JHRandom의 math.jhrandom/math.random 레인·원시 상태를 복구한 것이 아니며, 네이티브 ARM64 런타임 검증이나 미래 게임 드랍 홀드아웃도 미완료.
 - 실제 게임 SBv3 바이트, 개인 세이브 및 원시 RNG 시드는 공개 ZIP 및 GitHub에 포함하지 않음. 공개 사이트/버전 및 출시 90급 관문 엔진 변경 없음.
+
+## 2026-11-26 v22 — 60014 JHExtern.JHRandom 원본 분기 직접 복호화
+
+- 사용자 보존 `gameversion(1).json`과 `src_whale64(3).zip` 내 `wapp__core.whale` 레코드 15(암호화 크기 14,401바이트)를 선택 복호화. 매니페스트 `v=1649ba9a014593d771560bcc4f25ab6f` 확인.
+- 총 80개 프로토타입, 전역 `JHRandom` 등록 위치 proto79 PC19, 본체 proto8 **32명령** 직접 확인. 인수 조건 분기 PC0/1, `math.jhrandom` 조회 PC3/7/17/21(4회), `math.random` 조회 PC12/27(2회), 런타임 존재 조건 PC4/18, 반환 PC31. 독립 증거: [JHRandom 원본 PC 감사](original_jhrandom_dispatch_v22.json).
+- 기존 구현은 두 숫자 인수 형태만 지원. 별도 `original_jhrandom_dispatch.cjs`에서 **인수 한 개 `JHRandom(max)` 및 두 개 `JHRandom(min,max)` 모두 타입·범위 및 인수 개수를 검증**, 런타임 `math.jhrandom` 존재 여부와 실제 RNG 오라클가 관측되지 않으면 계산 차단. 현재 기존 세이브 RNG 실행을 가상 시드로 대체하지 않음.
+- 이전 보존 원본 `JHExtern` SHA `12906de159ffb7441e8651ae4dec5e610a9943dd8cf67680f421980905c4038e`와 이번 직접 복호화 SHA `195da532afaa3b9221bb335dedf1efe8eee892be6d3b78d6198b1286d244179c`는 다르다. **이전 원본과 파일 자체 동일이라고 주장하지 않으며**, 차이 및 독자 VM 분기 방향의 최종 판정은 다음 후속 작업.
+- 전체 JS 테스트 **71/71**, 원본 SBv3 파서 4/4, 원본 레지스트리 12스크립트/40단계/19보스/74지급 기록 검증 통과.
+- 전체 엔진·원본 감사 스크립트(게임 바이너리 제외) 독립 대화 패키지: `Low_Gates_Original_Function_Replay_20261126_v22.zip` SHA256 `4106a5f6c42bf7cff29d35104c73604077641b9a51b19c9b5dcfd3ea8430faa7`.
+- 네이티브 `math.jhrandom` 실제 RNG 내부 상태/시드 및 전체 87개 호출 도달성, 게임 원본 ARM64 `pairs` 관측, 미래 드랍 독립 검증은 **여전히 미완료**. 공개 시뮬레이터와 버전, 출시 90급 4관문 엔진 미변경.
