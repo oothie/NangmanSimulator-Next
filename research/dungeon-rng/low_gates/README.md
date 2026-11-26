@@ -173,3 +173,15 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 - **검사:** 신규 세 가지 포함 **49/49 Node .cjs 테스트 통과**; 사용자의 사전·사후 세이브나 원본 바이너리를 GitHub에 포함하지 않음.
 
 **원본 완전 복원 이전의 필수 증거:** 실제 60014 `getLuaJsonFile` 구현과 생성되는 Lua 테이블의 배열·해시 초기 크기/메타 키 배치, 그 테이블에 대한 실제 게임 LuaJIT `pairs()` 순회 기록. 묵문유적 일반 장비 지급 원본 및 미래 홀드아웃도 미완료. 공개 사이트/버전/기존 90급 엔진 불변.
+
+## 2026-11-26 v9 — 실제 원본 LuaJIT `pairs` 수집용 실행 후킹 인터페이스
+
+`Low_Gates_Original_Function_Replay_20261126_v9.zip`(대화 연구 산출물)에 `native_pairs_capture.lua`, `native_pairs_capture_import.cjs`, `native_pairs_capture_bridge.cjs` 및 검증 테스트 2개를 추가했다.
+
+- 게임의 **실제 SeedKeyRoll bounded RNG 호출 전후** 같은 `m_json` 객체에 `begin()/finish()`를 호출하도록 설계한 읽기 전용 Lua 모듈. **아직 실제 게임에 설치·실행하거나 기록을 채집하지 않았음**.
+- 타입이 다른 `50`(숫자) 및 `"50 "`(문자열)을 구별하고 원본 6관문·40경로를 확인한다. 38개 정적 테이블의 전체 키 집합을 검사할 수 있다. 2개 동적 가중치 테이블은 원본 실행 가중치가 확인되기 전까지 차단한다.
+- `observedPairsByPath`로 해당 결과를 기존 관문 엔진에 전달하는 어댑터. 혈의루·철인문·천일교·고골문 4관문 전체를 **합성 관측 입력**으로 관통하는 회귀 검사 포함.
+- **전체 51/51 Node 테스트 파일 통과**. 테스트는 소스 정합성 및 연결 검증이지 원본 60014 게임 런타임의 독립 실행 증명이 아님.
+- 90급 출시 4관문의 상태 전달 및 잘못된 기존 해시 크기 가정과 교차 비교. 원본 `getLuaJsonFile` 반환 객체 생성/테이블 초기 크기, 실제 네이티브 `pairs` 관측은 여전히 미완료. 공개 사이트/버전, 기존 출시 4관문 엔진, 사용자 세이브 변경 없음.
+
+재현: ZIP의 `engine` 폴더에서 `for f in test_*.cjs; do node "$f" || exit 1; done`. SHA-256 `8b503586a768eb721c885c0591d9836f598409fc0228c061820ea5b4c1ec55dc`.
