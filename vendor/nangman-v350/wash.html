@@ -472,6 +472,100 @@ html:not([data-theme="ink"]) #washModule .n-subtabs button.active{
 #washModule .bad{border-color:#b75b5b!important;background:color-mix(in srgb,#b75b5b 19%,var(--wash-card))!important}
 #washModule .good,#washModule .warn,#washModule .bad{color:var(--wash-ink)!important}
 </style>
+
+<style id="manual-wash-vertical-layout-fix">
+/* 수동 모의 세수작 전용: 뷰포트 고정 높이와 고정 행 높이로 인한 겹침 방지 */
+#simPane.active {
+  height: auto !important;
+  min-height: 1150px;
+  overflow: visible !important;
+}
+#simPane .sim-workspace {
+  height: auto !important;
+  min-height: 1150px;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  align-items: stretch;
+}
+#simPane .sim-left,
+#simPane .sim-right {
+  min-width: 0;
+  min-height: 0;
+  overflow: visible !important;
+}
+#simPane .sim-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#simPane .sim-left-top {
+  flex: 0 0 auto;
+  min-height: 300px;
+}
+#simPane .sim-left-top > div[style*="overflow:hidden"] {
+  flex: 0 0 auto !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  min-width: 0;
+}
+#simPane .sim-left-log {
+  flex: 1 1 auto;
+  min-height: 300px;
+}
+#simPane #simRecentLog {
+  flex: 1 1 auto;
+  min-height: 180px;
+  max-height: none;
+}
+#simPane .sim-right {
+  display: flex !important;
+  flex-direction: column;
+  gap: 12px;
+  align-content: normal;
+}
+#simPane .sim-right > * {
+  flex-shrink: 0;
+  min-width: 0;
+}
+#simPane .sim-right > .sim-compact-row {
+  height: auto;
+  min-height: 0;
+  align-items: center;
+}
+#simPane .sim-right > .card {
+  min-height: 0;
+  height: auto;
+  overflow: visible !important;
+}
+#simPane #simSummary,
+#simPane #simExchangePreview {
+  height: auto !important;
+  min-height: 64px;
+  max-height: none !important;
+  overflow: visible !important;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+#simPane #simFindTalentResult {
+  flex: 1 1 100%;
+  max-height: none !important;
+  overflow: visible !important;
+}
+#simPane #simSlots {
+  min-width: 0;
+  max-height: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#simPane .sim-compact-row {
+  height: auto;
+  min-height: 0;
+  row-gap: 8px;
+}
+@media (max-width: 1100px) {
+  #simPane .sim-workspace { grid-template-columns: minmax(0, 1fr); }
+  #simPane .sim-left, #simPane .sim-right { width: 100%; box-sizing: border-box; }
+}
+</style>
 </head>
 <body>
 <main>
