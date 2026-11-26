@@ -283,3 +283,15 @@ Node.js 테스트 **55/55 통과**. Python `test_native_source_registry.py`는 1
 수정된 실제 엔진 전체는 대화 파일 `Low_Gates_Original_Function_Replay_20261126_v17.zip` (SHA-256 `511fe6f83acb233a9da37c03ce5fae64e2045e60a31acb2dd6e8ee9bea0b7570`)에 보존했다. **비공개 세이브·실제 시드·복호화 게임 바이트코드 포함하지 않음.** 공개 사이트/버전/기존 90급 엔진 변경 없음.
 
 미완료: ARM64 네이티브 `pairs()` 순회 독립 검증, `getLuaJsonFile` 실행시 캐시 조건 실측, 특수소비자 완전 상태 전달, 묵문유적 일반 드랍, 새로운 미래 플레이 홀드아웃.
+
+## 2026-11-26 v18 — 40개 원본 테이블 해시 순회 C↔JS 이중 구현 및 JHTaskMgr 원본 이중 추출 감사
+
+- 공개 LuaJIT 2.1.0 beta3 `lj_tab_newkey`, `rehashtab`, `lj_tab_next`에 근거한 **독립 C 언어 참조 모델** `native_beta3_reference.c` 작성. 실제 C 컴파일 후 실행 결과를 JS 원본 KGC 실행기와 교차 검사.
+- 60014 Whale 원본에서 직접 추출했던 정적/동적 **40/40개 타입 있는 가중치 키 배열**의 순회 결과가 C 및 JS 모델 사이에서 전부 일치. 숫자/문자 혼합과 공백 키, 해시 충돌/재해시/배열을 포함한 **1,000개 합성 사례**도 일치. 합계 **1,040건 모델 간 순회 일치**. **이것은 ARM64 게임 내 `pairs()` 직접 실행 검증이 아니다.**
+- 이전 60014 `JHTaskMgr` 바이트코드와 사용자 Library에 있던 독립 Whale 선택 복호화 `JHTaskMgr`에 `audit_original_task_loader.py`를 각각 실행해 **16개 메서드 등록·생성자 호출 기록**, **proto44의 224개 명령과 25개 주요 상수·호출 위치**의 감사 구조가 모두 일치함을 확인. 원본 바이트 SHA는 서로 다르며 *바이트 동일 파일*로 주장하지 않는다. [로더 이중 복호화 교차증거](ORIGINAL_TASK_LOADER_INDEPENDENT_CROSSCHECK_20261126.json).
+- 기존 64개 검사와 신규 C/JS 순회 및 로더 독립 감사 2개 포함 Node **66/66**, Python SBv3 파서 **4/4**, 레지스트리 **12스크립트/40가중치/19보스/74지급 기록** 통과.
+- 연구용 실제 C 소스, C/JS 회귀, 로더 증거, 전체 실행기: 대화 패키지 `Low_Gates_Original_Function_Replay_20261126_v18.zip` SHA-256 `e0fb9b59f93765a172039a4a7444480744d8e7ce4c4e9b2c4fdfc887083fa546`. 원본 게임 바이트코드, 개인 세이브 및 원시 RNG 시드는 포함하지 않음.
+
+**남은 검증:** 게임에 포함된 ARM64 `pairs()`의 직접 관측, `getLuaJsonFile` 실제 `require`/캐시 분기 경로 기록, 전 보상 소비·특수 드랍 상태 전달과 미래 홀드아웃. 현재 KGC에 한해 JS↔C **모델 간 복원 신뢰도**가 상승했지만 실제 게임 적중률 보증으로 확대하지 않는다. 공개 사이트·버전 및 기존 90급 관문 코드 미변경.
+
+원본 참고: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.c/ 및 https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.h/
