@@ -362,3 +362,16 @@ v22에서는 JHExtern.JHRandom의 `math.jhrandom`/ `math.random` 참조와 분�
 - 원본을 로컬에서만 읽는 `prove_jhrandom_nil_branch.py` 와 분기/조건 검사 추가. Node.js **73/73**, Python SBv3 파서 **4/4**, 원본 12스크립트·40가중치·19보스·74기록 검사 통과.
 - 전체 실행기와 신규 테스트 독립 대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v24.zip`, SHA256 `bd3509cf0ea39d4c0076a96705fab542184d5394bdb95cc26b47737682e2a596`. 게임 원본 코드/바이너리·개인 세이브·시드 미포함.
 - **원본 게임 전용 opcode7/41의 독립 ARM64 opcode 매핑과 math.jhrandom 시드·PRNG 내부 동작, 런타임 실행 도달 및 미래 드랍은 아직 미확정**. 이번 성과는 형식 매개변수 레지스터/조건 복원과 명시적 nil 전달 오류 수정. 공개 사이트·버전·기존 90급 관문 미변경.
+
+## 2026-11-26 v25 — 실제 60014 ARM64 math.random 진입 및 전투 JHRandom 조건 도달성
+
+**이번에는 기존 추정/소스 요약이 아니라 직접 소유한 60014 네이티브 바이너리를 검사했다.** 사용자 Library에서 `split_config.arm64_v8a(3).apk`를 선택 추출하여 원본 `libcocos2dlua.so` SHA256이 이전 90급 연구 V137 증거인 `53398b3460ecc678d8be1ad62b8afd89e370d7ca7a77d65396c00c0706443154`와 일치함을 확인했다.
+
+- ARM64 실제 BL 목적지 디코딩: `0x828bf4 → 0x80b914`(표준 LuaJIT `math.random`의 난수 double 단계), `0x828d60 → 0x80b874`(`math.randomseed`의 TW223 상태 갱신). 원본 네이티브 함수가 바이너리에 존재함을 입증하며, **현재 게임의 실제 RNG 상태나 선택 분기는 아직 미확정**.
+- APK 내 ARM64 공유 라이브러리 13개 모두에서 대소문자 무시 ASCII `jhrandom` 평문 0건. 이것으로 런타임 등록 부재를 증명할 수 없으므로 `math.jhrandom` 비활성/항상 fallback이라는 결론은 **내리지 않음**. [원본 네이티브 증거](ORIGINAL_NATIVE_JHRANDOM_AND_MATH_RANDOM_AUDIT_20261126.json).
+- 신규 `original_jhrandom_reachability.cjs`: 6관문 **원본 87개 JHRandom 호출 위치**의 `NpcExist`, 천일교 `qf_temp`, 불투명 조건을 원본 가드에 따라 평가하되 **직접 관측된 시점별 NPC/조건 기록**만 사용. 미관측 조건은 중단, 임의 도달 경로가 원본 가드 관측과 충돌하면 중단. v21의 `observedJHRandomTimeline` 통로에 연결.
+- 혈의루 원본 KGC 세이브 기반 연속 재생과 통합 검사: 가드 관측·난수 호출 기록·정적 보상 상태 갱신 결합. 가상 관측 전투 난수값을 바꿔도 `SeedKeyRoll` 명명 관문 시드가 뒤섞이지 않는 내부 불변성 확인. **이는 실제 게임 두 RNG 레인이 영원히 분리된다는 독립 증거가 아님.**
+- Node.js 회귀 **75/75**, Python SBv3 파서 **4/4**, Python 원본 ELF 검사 모듈 자체의 합성 검사 **7/7**, 원본 레지스트리 **12스크립트/40가중치/19보스/74기록** 통과.
+- 엔진 전체·Python 원본 ELF 선택 감사(바이너리 제외) 및 연구 문서: 대화 다운로드 `Low_Gates_Original_Function_Replay_20261126_v25.zip` SHA256 `345b814a355343d31145c6153c476f456c471c9727663106ad56b35179be7899`. 게임 바이너리·세이브·원시 난수 시드 미포함.
+
+**여전히 남음:** `math.jhrandom`의 실제 등록 상태/네이티브 구현·시드, 표준 `math.random`의 게임 시작/현재 상태, 실행 시 게임 세계의 NPC 조건 기록, 실제 ARM64 게임 관문 미래 홀드아웃. 공개 사이트/버전 및 기존 출시 90급 4관문 엔진 불변.
