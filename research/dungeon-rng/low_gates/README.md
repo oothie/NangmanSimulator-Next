@@ -340,3 +340,15 @@ Node.js 테스트 **55/55 통과**. Python `test_native_source_registry.py`는 1
 - 전체 JS 테스트 **71/71**, 원본 SBv3 파서 4/4, 원본 레지스트리 12스크립트/40단계/19보스/74지급 기록 검증 통과.
 - 전체 엔진·원본 감사 스크립트(게임 바이너리 제외) 독립 대화 패키지: `Low_Gates_Original_Function_Replay_20261126_v22.zip` SHA256 `4106a5f6c42bf7cff29d35104c73604077641b9a51b19c9b5dcfd3ea8430faa7`.
 - 네이티브 `math.jhrandom` 실제 RNG 내부 상태/시드 및 전체 87개 호출 도달성, 게임 원본 ARM64 `pairs` 관측, 미래 드랍 독립 검증은 **여전히 미완료**. 공개 시뮬레이터와 버전, 출시 90급 4관문 엔진 미변경.
+
+## 2026-11-26 v23 — 60014 원본 JHRandom 네 실행 경로의 실제 CFG 및 호출 PC 검증
+
+v22에서는 JHExtern.JHRandom의 `math.jhrandom`/ `math.random` 참조와 분기 위치만 확인했지만 어느 CALL에 실제 도달하는지 PC 수준으로 결합하지 않았다. v23에서는 **원본 SBv3 proto8, 32개 명령을 직접 디코딩해 PC 상대 점프를 계산**했다.
+
+- 원본 무조건 점프: **PC1→16, 5→11, 10→31, 15→31, 19→26, 25→31**. 네 경로는 각각 **정확히 한 번의 CALL**을 실행하고 PC31의 반환으로 합류.
+- 1인수 네이티브 **PC9**, 1인수 fallback **PC14**, 2인수 네이티브 **PC24**, 2인수 fallback **PC30**. 원본 GC 상수 `math.jhrandom` / `math.random` 이름 및 TGETS 위치와 교차검사. 공개 가능한 메타증거: [JHRandom CFG v23](original_jhrandom_cfg_v23.json).
+- `reproduction_tools/prove_jhrandom_cfg.py`: 사용자가 소유한 원본 SBv3를 로컬에서만 읽는 재현 검사. `engine/original_jhrandom_dispatch.cjs`: 별도 런타임 난수 오라클이 확인된 호출에 한해 원본 PC/분기명을 추적 기록. 잘못된 범위, 미관측 경로에서는 차단.
+- 기존 포함 Node.js **72/72 검사**, Python SBv3 파서 **4/4**, 원본 12스크립트/40가중치/19보스/74지급 기록 구조 검사 모두 통과.
+- 독립 패키지 `Low_Gates_Original_Function_Replay_20261126_v23.zip` SHA256 `c567f7919077d94d2385773670f85acf0362e14c7c66b6bb4d23e0d07203d920` 에 전체 실행기, 원본 검증 도구, 테스트 보존. 원본 바이너리, 사용자 세이브 및 실제 원시 시드 **미포함**.
+
+중요한 한계: **PC0의 인수 분기 opcode 의미/방향의 독립 네이티브 확인과 math.jhrandom 내부 RNG 생성·시드 갱신/게임 런타임 실행은 아직 미확정**이다. 인수 1/2 경로 표기는 원본 레지스터 구성에 따른 현재 가설이며 정식 VM 분석 후 확정해야 한다. 위 성과는 원본 CFG 증명이지 실게임 미래 드랍 적중의 증명이 아님. 공개 사이트/버전 및 출시 90급 4관문 엔진 미수정.
