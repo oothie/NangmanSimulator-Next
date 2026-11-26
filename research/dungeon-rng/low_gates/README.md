@@ -269,3 +269,17 @@ Node.js 테스트 **55/55 통과**. Python `test_native_source_registry.py`는 1
 - **실행기·정밀 레이아웃·선택 추출 재현 코드**는 대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v16.zip`에 별도 보존. 원본 복호화된 게임 스크립트 자체는 ZIP에도 포함하지 않았다. 패키지 SHA-256: `c82c3e0963d75ac076ec930ea602823ff279188d33762cddcfaae2510fd5ddd8`.
 
 **남은 실제 검증:** 원본 게임 ARM64의 `pairs()` 해시 노드 방문 순서가 연구 LuaJIT 2.1 beta3 JS 구현과 동일하다는 네이티브 독립 증명은 아직 없다. `JHTaskMgr.getLuaJsonFile`의 Whale require/cache 호출 경로는 원본 proto 44에서 확인했으나 해당 런타임의 실제 조건/캐시 상태는 별도 관측이 필요하다. 또한 관문 모든 소비자 후처리/특수보상과 미래 실게임 홀드아웃 및 묵문유적 40급 일반 장비는 미완료. **실게임 정확한 미래 드랍으로 확정하지 않는다.** 공개 사이트·버전·기존 90급 4관문 엔진 미수정.
+
+## 2026-11-26 v17 — 40개 실제 KGC 테이블을 세이브 기반 6관문 연속 재생에 연결
+
+이전 v16에서는 개별 관문의 `playOriginalKtab`만 원본 KGC가 전달되고 `repeat_session.replay`, `low_gate_win_only.play`, `replayMixedFromSave`, `seriesFromSave`, `replayFromSave`의 실사용 경로에서는 원본 레이아웃이 전달되지 않거나 기본 가상 `first`를 계속 사용했다. **원본 KGC 데이터를 확보하고도 세이브/혼합 재생에서 사용하지 못하던 연결 결함을 수정.**
+
+- `repeat_session.cjs`: 단계별 실제 관문 KGC 레이아웃 `ktabLayoutsByGate[gate]`을 원본 이중 순회 추첨 함수까지 전달. 매핑 없음은 **차단**하며 과거 `first`로 자동 대체하지 않음. 관측 네이티브 순서 경로도 게이트별로 전달.
+- `low_gate_win_only.cjs`: 40개 원본 TDUP/KGC SHA·소스 경로·키 타입·TSET 순서 정합성을 한 번 검사한 뒤 연속 6관문에 제공. 묵문유적 일반 장비는 아직 미복원으로 별도 처리.
+- `save_adapter.cjs`, `replay_mixed_from_save.cjs`, `replay_series_from_save.cjs`, `task_rng_divergence.cjs`: 6관문 일반 드랍의 세이브 기반 조회, 혼합 클리어, 연속 클리어 및 천일교 임무 조건 진단에서 **원본 `orderMode:'ktab'`** 을 기본 사용.
+- 신규 테스트 `test_original_ktab_mixed_sequence.cjs`, `test_save_entry_original_ktab.cjs`: 6관문 혼합 120건, 단일 관문·연속 조회, 불완전 KGC 차단, 비공개 시드 결과 비노출. 기존 테스트 포함 Node.js **64/64**, Python **4/4**, 원본 지급 레지스트리 **12스크립트/40가중치/19보스/74기록** 검사 통과.
+- 합성 시드 150개에서 6관문 `first`/원본 `ktab` 모델의 장비 및 종료 시드가 동일했다. 이는 게임 네이티브 동등성/미래 드랍 예측의 실측은 아니다.
+
+수정된 실제 엔진 전체는 대화 파일 `Low_Gates_Original_Function_Replay_20261126_v17.zip` (SHA-256 `511fe6f83acb233a9da37c03ce5fae64e2045e60a31acb2dd6e8ee9bea0b7570`)에 보존했다. **비공개 세이브·실제 시드·복호화 게임 바이트코드 포함하지 않음.** 공개 사이트/버전/기존 90급 엔진 변경 없음.
+
+미완료: ARM64 네이티브 `pairs()` 순회 독립 검증, `getLuaJsonFile` 실행시 캐시 조건 실측, 특수소비자 완전 상태 전달, 묵문유적 일반 드랍, 새로운 미래 플레이 홀드아웃.
