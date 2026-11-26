@@ -216,3 +216,14 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 별도 대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v12.zip`에 원본 소스 출처 검사 모듈 `source_build_provenance_guard.cjs`와 관련 검사 2개를 추가했다. 12개 스크립트의 빌드별 SHA-256 전부 독립 일치 확인이 없으면 동일 빌드의 실행이라고 주장하지 않도록 막고, `original_loader_provenance.cjs` 출력에 원본 버전 일치/실제 VM 호출 여부를 구분해 둔다.
 
 Node.js 테스트 **55/55 통과**. Python `test_native_source_registry.py`는 12스크립트·40테이블·19보스·74지급 기록 통과. 원본 `.sbc` 파일이 없는 환경이어서 원본 바이트코드를 읽어야 하는 `verify_native_task_source.py`, `verify_dynamic_contract.py`는 이번에 실행하지 못함. 실제 게임에서 `getLuaJsonFile` 및 `pairs()`를 독립 관측한 상태도 아님. 공개 사이트·버전/기존 출시 4관문 미변경; 개인 세이브 및 네이티브 게임 바이너리 비공개 유지.
+
+## 2026-11-26 v13 — 60014 동일 버전 확인 및 6관문 원본 생산자·소비자 연결
+
+사용자가 보존된 현 Whale 소스와 60014 빌드가 **동일하다고 명시적으로 확인**함. 연구는 이 전제를 받아 진행한다. 독립적인 12개 SHA-256 교차검증을 수행한 것으로 기록하지 않는다.
+
+별도 대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v13.zip`:
+- `source_build_provenance_guard.cjs`: `userConfirmedSameBuild:true`를 **연구용 호환성**으로 허용. `sourceEqualityWith60014Verified`는 실제 해시가 맞을 때만 참. 실제 해시 불일치가 있으면 사용자 확인만으로 덮지 않음.
+- `original_loader_provenance.cjs`: 6관문 소스 이벤트 `genEventFile → createFromFile`(60014 JHTaskMgr PC13), 전투 보상 소비자 `genNpcFunFile → createFromFile`(PC6·20) **12개 원본 스크립트 경로**를 분리 연결.
+- 신규 검사 두 개 포함 Node.js **57/57 테스트 통과**. 원본 함수 호출부 및 각 스크립트 경로의 정적 대응이 확인된 것이며 실제 실행 시 테이블 생성 결과를 관측한 것은 아님.
+
+이로써 빌드 비교 반복은 우선 중단하고 다음 직접 복원 목표는 **60014 `getLuaJsonFile` 함수 본체의 최초 테이블 할당/키 삽입 명령**과 **실제 LuaJIT 네이티브 `pairs()` 순회**로 유지. 이는 아직 미확정이며 모델의 전방 예측 정확도 또한 미검증. 공개 사이트/버전, 출시 90급 4관문 엔진과 비공개 세이브 미변경.
