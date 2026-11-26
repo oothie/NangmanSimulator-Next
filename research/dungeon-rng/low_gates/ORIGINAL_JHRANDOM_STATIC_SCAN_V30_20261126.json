@@ -1,0 +1,61 @@
+{
+  "schema": "whale-60014-static-jhrandom-registration-audit-v30",
+  "source": "owned 60014-compatible src_whale64(3).zip/gameversion(1).json",
+  "groupsInspected": 71,
+  "originalScriptsDecrypted": 3565,
+  "parseFailures": 0,
+  "groupsNotScanned": [
+    "wapp__story.whale",
+    "wapp__story__branch.whale",
+    "wapp__story__event.whale",
+    "wapp__excel.whale",
+    "non-wapp namespaces"
+  ],
+  "lowercaseMathJhrandomSites": [
+    {
+      "module": "JHExtern",
+      "group": "wapp__core.whale",
+      "record": 15,
+      "prototype": 8,
+      "opcode": "TGETS",
+      "pcs": [
+        3,
+        7,
+        17,
+        21
+      ],
+      "staticAssignment": false
+    },
+    {
+      "module": "JHNetServer",
+      "group": "wapp__net.whale",
+      "record": 3,
+      "prototype": 23,
+      "opcode": "TGETS",
+      "pcs": [
+        974,
+        978
+      ],
+      "staticAssignment": false
+    }
+  ],
+  "otherLowercaseSubstringConstants": 0,
+  "staticLiteralMathJhrandomSetters": 0,
+  "otherGlobalUppercaseJHRandomSites": 18,
+  "registeredAtGameRuntime": null,
+  "standardFallbackActuallyExecuted": null,
+  "importantLimitation": "No observed static setter in 3565 source modules is not proof that math.jhrandom is absent at runtime. Excluded modules, dynamic names and native/loaded registrations remain possible.",
+  "algorithmFix": "JHRandom(min,max) with zero or negative min is valid in LuaJIT math.random fallback. Reject invalid single-argument upper and unverified signed 32-bit overflow cases only.",
+  "tests": {
+    "nodeTestFiles": 88,
+    "sourceRegistryScripts": 12,
+    "sourceWeightedStages": 40,
+    "sourceEquipmentBosses": 19,
+    "sourceAwardRecords": 74,
+    "pythonNativeAuditTests": 7
+  },
+  "executableGameHoldoutValidated": false,
+  "privateGameBytecodeIncluded": false,
+  "privatePlayerSaveIncluded": false,
+  "researchPackageSHA256": "f4ecc9cd1c4ca2843012958daf758258cfa3052d27af6b9637f2a30c7299f4d5"
+}
