@@ -389,3 +389,19 @@ v22에서는 JHExtern.JHRandom의 `math.jhrandom`/ `math.random` 참조와 분�
 **미완료:** math.jhrandom 런타임 존재/구현, 실제 게임 전역 PRNG 상태 및 모든 간섭 호출, 실제 관문 JHRandom 조건 도달성, 실게임 미래 드랍 홀드아웃, 묵문유적 일반 장비. 완전 예측 확정 금지. 공개 사이트와 버전 및 출시 90급 엔진 불변.
 
 LuaJIT 원본 참조: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lib_math.c/
+
+## 2026-11-26 v27 — 공유 전역 LuaJIT math.random 간섭 누락 차단 + 6관문 혼합 세션 재생
+
+실제 원본 `lib_math.c`(LuaJIT 2.1 beta3)에서 `math.random`은 동일한 PRNG 상태(upvalue `RandomState`)를 사용하고 `math.randomseed`가 그 상태를 재설정함을 대조했다. **v26 `original_jhrandom_fallback_timeline.cjs`는 관문 JHRandom 호출만 연속 소비하므로**, 정확한 시작 상태가 주어져도 다른 스크립트가 중간에 전역 함수를 호출하면 추첨 상태를 잘못 전진시키는 결함이 있었다.
+
+- `engine/original_global_math_timeline.cjs`: 원본 관문 호출·원본 외부 `math.random`·관측된 `math.randomseed` 경계를 하나의 **완전 전역 호출 원장**으로 조건부 재생. 실제 관측 경로/전체 타임라인 증거 누락 시 차단. 사용자 제출 '완전' 플래그는 **독립적인 게임 실행 증거가 아님**을 명시.
+- 기존 `replayFallback`에서 외부 호출 기록을 암묵적으로 생략하던 v26 동작 차단. `observedGuardEvidence` 원본 조건 교차 검증 유지.
+- `engine/original_global_math_session.cjs`: 취선채·추가성·혈의루·철인문·천일교·고골문의 임의 혼합/반복 일정을 **하나의 공유 전역 PRNG 상태**로 재생. 회차/원본 호출 PC 순서, 외부 스크립트 호출, 관측 후 `math.randomseed` 재설정 상태 지원. **합성 혼합 160/160건**에서 별도로 계산한 상태 전진과 결과 일치.
+- `math.random`의 정수 인수를 LuaJIT `lj_num2int`이 안전한 **signed int32** 범위로 제한, 너무 큰 구간이나 잘못된 입력은 상태 소모 전에 차단.
+- 기존 연구 `independentlyVerifiedGameplay` 표기 오류 수정: 사용자 임의·합성 transcript가 일치했다고 독립 실게임 검증으로 표시하지 않음. `providedTranscriptMatches`만 별도로 기록.
+- **Node.js 검사 81/81**, Python SBv3 파서 **4/4**, 네이티브 감사 테스트 **7/7**, 보존 원본 12개 스크립트·40가중치·19보스·74지급 기록 검사 통과.
+- 대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v27.zip`, SHA256 `9e8b48d28b7c5ae65867c88f3817d5b9971e13a0fb29c0aada1b2715284baf37`. **코드와 테스트는 ZIP에 보존**했고 GitHub에는 연구 체크포인트만 기록. 개인 세이브·실제 RNG 시드·게임 원본 바이너리 포함하지 않음.
+
+미완료: 게임에서 `math.jhrandom`의 실제 등록/상태, 실게임 전역 PRNG 상태와 **모든** 다른 스크립트의 외부 호출, ARM64 게임 실측 및 미래 드랍 독립 검증. 공개 시뮬레이터 사이트/버전과 90급 출시 관문 구현 변경 없음.
+
+참고: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lib_math.c/
