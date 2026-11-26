@@ -352,3 +352,13 @@ v22에서는 JHExtern.JHRandom의 `math.jhrandom`/ `math.random` 참조와 분�
 - 독립 패키지 `Low_Gates_Original_Function_Replay_20261126_v23.zip` SHA256 `c567f7919077d94d2385773670f85acf0362e14c7c66b6bb4d23e0d07203d920` 에 전체 실행기, 원본 검증 도구, 테스트 보존. 원본 바이너리, 사용자 세이브 및 실제 원시 시드 **미포함**.
 
 중요한 한계: **PC0의 인수 분기 opcode 의미/방향의 독립 네이티브 확인과 math.jhrandom 내부 RNG 생성·시드 갱신/게임 런타임 실행은 아직 미확정**이다. 인수 1/2 경로 표기는 원본 레지스터 구성에 따른 현재 가설이며 정식 VM 분석 후 확정해야 한다. 위 성과는 원본 CFG 증명이지 실게임 미래 드랍 적중의 증명이 아님. 공개 사이트/버전 및 출시 90급 4관문 엔진 미수정.
+
+## 2026-11-26 v24 — JHRandom 두 번째 형식 매개변수 nil 분기 오류 수정
+
+60014 원본 JHExtern.lua JHRandom(proto8)의 **함수 헤더 `00050200`(형식 매개변수 2개)** 와 PC0 opcode7 A1/D0, PC1 상대 점프 PC16을 사용자 보존 복호화 원본에서 직접 검증. PC4/18은 native math.jhrandom 사용 분기, PC9/14/24/30은 네 경로 호출 위치. [원본 형식 매개변수·PC 증거](original_jhrandom_nil_register_v24.json).
+
+- v23까지 JS `original_jhrandom_dispatch.cjs`는 **호출 인수 길이**를 기준으로 한 인수/두 인수 분기. `JHRandom(10, undefined)` 또는 `JHRandom(10, null)`은 Lua VM의 형식 매개변수 R1이 **nil**인 상태이므로 한 인수 경로여야 하지만 v23에서는 두 인수 경로로 처리하거나 차단했다.
+- v24는 명시적인 JS undefined/null를 Lua nil로 정규화하고, JHRandom(10,nil) 호출을 한 인수 형태로 실제 관측 난수 오라클에 전달. 두 번째 숫자 인수는 두 인수 경로를 유지. **숫자 0은 nil이 아니다**(범위상 유효하지 않으면 차단). 네 경로 PC9/14/24/30을 테스트하고 임의 시드 생성 금지 유지.
+- 원본을 로컬에서만 읽는 `prove_jhrandom_nil_branch.py` 와 분기/조건 검사 추가. Node.js **73/73**, Python SBv3 파서 **4/4**, 원본 12스크립트·40가중치·19보스·74기록 검사 통과.
+- 전체 실행기와 신규 테스트 독립 대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v24.zip`, SHA256 `bd3509cf0ea39d4c0076a96705fab542184d5394bdb95cc26b47737682e2a596`. 게임 원본 코드/바이너리·개인 세이브·시드 미포함.
+- **원본 게임 전용 opcode7/41의 독립 ARM64 opcode 매핑과 math.jhrandom 시드·PRNG 내부 동작, 런타임 실행 도달 및 미래 드랍은 아직 미확정**. 이번 성과는 형식 매개변수 레지스터/조건 복원과 명시적 nil 전달 오류 수정. 공개 사이트·버전·기존 90급 관문 미변경.
