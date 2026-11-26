@@ -440,3 +440,16 @@ LuaJIT 원본 참조: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5
 **다음 최우선:** 실제 게임 런타임 시작/관문 입장/전투 보상 시점의 `type(math.jhrandom)` 독립 관측 → 사용 경로 확정 → 해당 PRNG의 시작 상태·외부 소비 복원 → 일반 장비 ID/색상 홀드아웃 검증. 공개 사이트·버전·기존 출시 90급 4관문 코드 불변.
 
 LuaJIT 2.1 beta3 표준 근거: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lib_math.c/
+
+## 2026-11-26 v31 — JHNetServer 원본 직접 math.random(17) 외부 소비 복원
+
+기존 v30에서 정적 조회만 확인했던 `JHNetServer` 60014 Whale `wapp__net.whale` (원본 레코드 3)의 **원본 proto23 / 총 1,655개 명령**을 직접 복호화하여 LuaJIT 호출 프레임을 재검증했다. 이는 기존 6관문 전투 스크립트의 **87개 `JHRandom` 호출**과 다른 **직접 math 호출**이며, 실행 시 공유 글로벌 RNG 상태에 영향을 줄 수 있다.
+
+- 원본 PC973–975: `math.jhrandom` 조회와 조건 검사. PC977–980: 상한 17의 네이티브 함수 호출 `PC980`; PC983–986: 상한 17의 `math.random` 폴백 직접 호출 `PC986`. 두 CALL 모두 B=2/C=2, 직전 KSHORT D=17.
+- 새 `engine/original_netserver_direct_random.cjs`: 실제 도달 PC986이 **별도 관측된 때에만** 한 번 `math.random(17)` 소비. 네이티브 활성 상태에서는 폴백을 가정하지 않는다. 범위/PC/관측 출처 오류 차단.
+- 기존 단일 관문 `original_global_math_timeline.cjs` 및 혼합 관문 `original_global_math_session.cjs` 모두 이 이벤트 처리. 호출 사이 상태 전진과 최종 상태를 별도 TW223 참조 계산과 비교.
+- 재현 도구 `reproduction_tools/prove_netserver_direct_random.py`: 사용자가 보존한 60014 Whale을 선택 복호화하고 원본 상수/PC/레지스터를 검사. **복호화 게임 바이너리는 ZIP/GitHub에 포함하지 않는다.**
+- JS 회귀 **89/89**, Python SBv3 파서 **4/4**, 원본 등록 구조 12스크립트/40테이블/19보스/74지급 기록 통과. 남은 `wapp__excel.whale` 141/141 기록은 이번에 별도 검사했으며 `jhrandom` 직접 문자열 참조가 없었다. 대형 `wapp__story`/branch/event 그룹 전체 재검사는 제한시간 내 미완료로 유지.
+- **완성 아님:** 런타임 `math.jhrandom` 등록/시드·게임 전역 PRNG 전체 원장·JHNetServer PC986의 게임 내 실제 도달 여부·미래 보스별 일반 장비 ID/색상 검증은 아직 없다. 공개 사이트/버전과 출시 90급 4관문 엔진 미수정.
+
+대화용 전체 실행기 및 감사 코드 ZIP: `Low_Gates_Original_Function_Replay_20261126_v31.zip` SHA256 `e40b77a43e1c48a7daeffd12bb51ec940c13e67bec9ea25b2cd4ff97933759a9`.
