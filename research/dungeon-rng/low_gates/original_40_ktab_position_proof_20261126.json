@@ -1,0 +1,275 @@
+{
+  "schema": "lowgate-60014-40-original-ktab-position-proof-v1",
+  "date": "2026-11-26",
+  "source": "Actual user-owned gameversion manifest + selected original Whale records; 12 decrypted SBv3 source hashes match previously archived independent checksums",
+  "originalScriptsVerified": 12,
+  "staticWeightedTables": 38,
+  "dynamicWeightedTables": 2,
+  "allWeightedTables": 40,
+  "commonKgcLayout": {
+    "arraySlotCount": 0,
+    "serializedHashPairCount": 1,
+    "originalMetadataKey": "key",
+    "metadataInsertedInKgcBeforeTset": true,
+    "initialHashBitsFromOriginalKgc": 1
+  },
+  "nativePairsRuntimeIndependentlyVerified": false,
+  "futureGameDropHoldoutVerified": false,
+  "privateSaveOrRawSeedDataPresent": false,
+  "gates": [
+    {
+      "gate": "취선채",
+      "producer": "30410_1.lua",
+      "producerSHA256": "de9f9ddd1c6236daf0b5daf0031e7d3a0047fd493bf2102f497ff12e472034e1",
+      "consumer": "jxz_fight.lua",
+      "consumerSHA256": "e1b75f96de7c59b503dd078ea76481493f3176993587c7a4abfab2912cfd6cab",
+      "stages": [
+        {
+          "path": "3/4/2",
+          "originalTdupPc": 209,
+          "kgcConstantIndex": 91
+        },
+        {
+          "path": "3/5/2",
+          "originalTdupPc": 225,
+          "kgcConstantIndex": 96
+        },
+        {
+          "path": "3/6/2",
+          "originalTdupPc": 245,
+          "kgcConstantIndex": 102
+        },
+        {
+          "path": "3/7/2",
+          "originalTdupPc": 261,
+          "kgcConstantIndex": 107
+        },
+        {
+          "path": "3/8/2",
+          "originalTdupPc": 281,
+          "kgcConstantIndex": 113
+        },
+        {
+          "path": "3/9/2",
+          "originalTdupPc": 297,
+          "kgcConstantIndex": 118
+        },
+        {
+          "path": "3/11/2/imp_no/2/2",
+          "originalTdupPc": 350,
+          "kgcConstantIndex": 137
+        }
+      ]
+    },
+    {
+      "gate": "추가성",
+      "producer": "33892_1.lua",
+      "producerSHA256": "bf6960f7f24f370cd25b4f194b81211b02c9a8676f3fe9e6fb81e45fb5cba5a2",
+      "consumer": "zjb_fight.lua",
+      "consumerSHA256": "04afca00069a31e4a7743c318a45b5936a8c19b6e06ab8e2a752fde8f0fa5beb",
+      "stages": [
+        {
+          "path": "3/8/2",
+          "originalTdupPc": 249,
+          "kgcConstantIndex": 108
+        },
+        {
+          "path": "3/9/2",
+          "originalTdupPc": 265,
+          "kgcConstantIndex": 113
+        },
+        {
+          "path": "3/11/2",
+          "originalTdupPc": 299,
+          "kgcConstantIndex": 124
+        },
+        {
+          "path": "3/12/2",
+          "originalTdupPc": 315,
+          "kgcConstantIndex": 129
+        },
+        {
+          "path": "3/13/2",
+          "originalTdupPc": 335,
+          "kgcConstantIndex": 135
+        },
+        {
+          "path": "3/14/2",
+          "originalTdupPc": 351,
+          "kgcConstantIndex": 140
+        },
+        {
+          "path": "3/16/2/imp_no/1/2",
+          "originalTdupPc": 394,
+          "kgcConstantIndex": 155
+        }
+      ]
+    },
+    {
+      "gate": "혈의루",
+      "producer": "32710_1.lua",
+      "producerSHA256": "cd83f7ef5949edd55d41f05177a06e48fda0e661906e8c4752d368586bd87558",
+      "consumer": "xyl_fight.lua",
+      "consumerSHA256": "99eec7067ea7c22ad04a94651010d6fd04446cf46f04d7e08cefcd7e5d845f9b",
+      "stages": [
+        {
+          "path": "3/7/2",
+          "originalTdupPc": 285,
+          "kgcConstantIndex": 125
+        },
+        {
+          "path": "3/8/2",
+          "originalTdupPc": 297,
+          "kgcConstantIndex": 130
+        },
+        {
+          "path": "3/12/2",
+          "originalTdupPc": 359,
+          "kgcConstantIndex": 151
+        },
+        {
+          "path": "3/13/2",
+          "originalTdupPc": 371,
+          "kgcConstantIndex": 155
+        },
+        {
+          "path": "3/17/2",
+          "originalTdupPc": 433,
+          "kgcConstantIndex": 176
+        },
+        {
+          "path": "3/18/2",
+          "originalTdupPc": 445,
+          "kgcConstantIndex": 180
+        }
+      ]
+    },
+    {
+      "gate": "철인문",
+      "producer": "sdm_cz.lua",
+      "producerSHA256": "235d25e7eb67e1c140196b28c4c04bdbab9b80987cab50b5e0af67ae47bac1fa",
+      "consumer": "sdm_fight.lua",
+      "consumerSHA256": "265848f30752a9f50efbe48abe8f035c0359b761e6074dac5e5da7861bd07c5b",
+      "stages": [
+        {
+          "path": "4/5/2",
+          "originalTdupPc": 303,
+          "kgcConstantIndex": 129
+        },
+        {
+          "path": "4/6/2",
+          "originalTdupPc": 315,
+          "kgcConstantIndex": 134
+        },
+        {
+          "path": "4/10/2",
+          "originalTdupPc": 377,
+          "kgcConstantIndex": 155
+        },
+        {
+          "path": "4/11/2",
+          "originalTdupPc": 389,
+          "kgcConstantIndex": 159
+        },
+        {
+          "path": "4/15/2",
+          "originalTdupPc": 451,
+          "kgcConstantIndex": 180
+        },
+        {
+          "path": "4/16/2",
+          "originalTdupPc": 463,
+          "kgcConstantIndex": 184
+        }
+      ]
+    },
+    {
+      "gate": "천일교",
+      "producer": "32815_1.lua",
+      "producerSHA256": "5cdaa8adbef07f51d07ac7f5bd614932d04cf0e26a1ac154f3ea30f5cf57ab56",
+      "consumer": "tyj_fight.lua",
+      "consumerSHA256": "af1c25cf623b879b2ed693f150475ef41555823cbc8bcf668ebe537d955e280f",
+      "stages": [
+        {
+          "path": "3/4/2",
+          "originalTdupPc": 275,
+          "kgcConstantIndex": 123
+        },
+        {
+          "path": "3/5/2",
+          "originalTdupPc": 291,
+          "kgcConstantIndex": 128
+        },
+        {
+          "path": "3/8/2",
+          "originalTdupPc": 347,
+          "kgcConstantIndex": 148
+        },
+        {
+          "path": "3/9/2",
+          "originalTdupPc": 363,
+          "kgcConstantIndex": 153
+        },
+        {
+          "path": "3/12/2",
+          "originalTdupPc": 411,
+          "kgcConstantIndex": 169
+        },
+        {
+          "path": "3/13/2",
+          "originalTdupPc": 427,
+          "kgcConstantIndex": 174
+        },
+        {
+          "path": "3/16/2",
+          "originalTdupPc": 475,
+          "kgcConstantIndex": 190
+        },
+        {
+          "path": "3/17/2",
+          "originalTdupPc": 491,
+          "kgcConstantIndex": 195
+        }
+      ]
+    },
+    {
+      "gate": "고골문",
+      "producer": "35017_1.lua",
+      "producerSHA256": "d110f056d44bf4c52eba02e28d4185cc00bcecdb4f8d896ff01754afc3a07f20",
+      "consumer": "kgm_fight.lua",
+      "consumerSHA256": "567ea4ad4cd399157a9199bdf7f141e574b8db25535ddb9e97a5bd1b55ebcd7f",
+      "stages": [
+        {
+          "path": "3/10/2",
+          "originalTdupPc": 255,
+          "kgcConstantIndex": 106
+        },
+        {
+          "path": "3/11/2",
+          "originalTdupPc": 267,
+          "kgcConstantIndex": 111
+        },
+        {
+          "path": "3/14/2",
+          "originalTdupPc": 315,
+          "kgcConstantIndex": 127
+        },
+        {
+          "path": "3/15/2",
+          "originalTdupPc": 327,
+          "kgcConstantIndex": 131
+        },
+        {
+          "path": "3/18/2",
+          "originalTdupPc": 375,
+          "kgcConstantIndex": 147
+        },
+        {
+          "path": "3/19/2",
+          "originalTdupPc": 387,
+          "kgcConstantIndex": 151
+        }
+      ]
+    }
+  ]
+}
