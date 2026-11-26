@@ -161,3 +161,15 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 - `test_original_stage_binding.cjs`와 `test_all_gate_observed_source_paths.cjs`: 천일교와 6관문 전체 원본 40단계의 합성 입력 재생/타입 검증/누락 경로 차단. 기존 테스트 포함 **46/46 Node .cjs 테스트 통과**. 원본 지급 기록 Python 검사도 12원본 스크립트·40가중치 단계·19보스·74지급 기록 통과.
 
 이번 패키지는 실제 한국판 게임에서 얻은 `pairs()` 순회 기록이나 새로운 플레이 종료 시드를 포함하지 않는다. **원본 소스 경로 정합성**을 검증한 것이지 LuaJIT 네이티브 순회, `getLuaJsonFile` 키 생성 과정, 묵문유적 일반 장비 지급, 실게임 미래 드랍을 확정한 것은 아니다. 원본 게임 파일·개인 세이브·원시 시드는 공개 브랜치에 저장하지 않았으며 공개 사이트·버전/90급 엔진은 변경하지 않았다.
+
+## 2026-11-26 v8 — 90급 출시 4관문 교차감사 / 원본 로더 및 초기 해시 크기
+
+대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v8.zip`에는 사용자 라이브러리 보존 60014의 `JHTaskMgr` 바이트코드 감사 및 출시 90급 연구의 `luajit-beta3-hash-strict.cjs`/혼합 관문 재생기와 비교한 독립 코드가 있다. 원본 게임 바이너리/세이브는 브랜치에 업로드하지 않음.
+
+- **로더:** `genEventFile`, `genNpcFunFile`, `genPlaceFunFile`의 `createFromFile` 경로 및 `createFromString`/`createFromLuaString` 별도 분기를 정적 증거에 따라 검사. 관문 6개·40개 가중치 소스 경로 결합. `getLuaJsonFile`의 실제 디코딩/테이블 삽입 결과는 여전히 관측하지 못함.
+- **초기 테이블 크기:** 기존 90급·20~80급 모델 모두 초기 해시 비트 1을 암묵적으로 가정한 부분 발견. 크기 0·1·2·3 비트와 메타 키 배치 3종을 가정 비교하면 **정적 38/38개 테이블이 초기 크기에 따라 다른 순회 결과를 가질 수 있음**. 이는 실제 런타임 결과가 아니라 원본 수학 공식에 기댄 *후보 모델 간 민감도*.
+- **구 90급 해시 모델:** 과거 `luajit-beta3-hash-strict.cjs`의 정수 키 bin 및 해시 노드 수 공식은 20~80급 v6 교정 버전과 불일치. 90급의 과거 실측 재생 13개 장비·9개 시드 정합성은 유지하되, 그 재생 순서를 네이티브 보증으로 옮기지 않음. 90급 기존 구현 자체는 수정하지 않음.
+- **연구 엔진:** `native_seedkeyroll_two_pass.cjs`와 `source_order_forward.cjs`에 선택적 `initialHashBits` 전달; 이전 기본값 1 유지, `observed` 네이티브 순회 기록과 추정 해시 크기 동시 사용 차단.
+- **검사:** 신규 세 가지 포함 **49/49 Node .cjs 테스트 통과**; 사용자의 사전·사후 세이브나 원본 바이너리를 GitHub에 포함하지 않음.
+
+**원본 완전 복원 이전의 필수 증거:** 실제 60014 `getLuaJsonFile` 구현과 생성되는 Lua 테이블의 배열·해시 초기 크기/메타 키 배치, 그 테이블에 대한 실제 게임 LuaJIT `pairs()` 순회 기록. 묵문유적 일반 장비 지급 원본 및 미래 홀드아웃도 미완료. 공개 사이트/버전/기존 90급 엔진 불변.
