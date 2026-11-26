@@ -467,3 +467,14 @@ LuaJIT 2.1 beta3 표준 근거: https://sources.debian.org/src/luajit/2.1.0~beta
 - 대화 코드 패키지 `Low_Gates_Original_Function_Replay_20261126_v32.zip` SHA256 `1ccbd8e57f5b034fe9967fa47754ccdbdee8f47bc33a4f0f111d539e289e9100`; 배포 사이트·버전·90급 출시 엔진 불변.
 
 **주의:** JHNetServer 후보 구성 코드의 발견은 20–80급 일반 장비 드랍 결과를 독립적으로 예측했다는 뜻이 아니다. JHBaseData 원본 호출 인수도 반드시 독립 관측해야 하며, 합성 테스트 결과를 실게임 검증으로 표기하지 않는다.
+
+## 2026-11-27 v33 — 원본 장비 생성자 3개 전역 math.random 정수 상한 직접 복원
+
+v32의 `JHBaseData` 생성자 RNG 입력 인수 미확정 부분을 사용자 보존 **60014 `wapp__data.whale`** 원본에서 직접 재검사해 해결. 독립된 이전 60014 장비 생성자 연구와도 교차확인했으며, **게임이 실제로 몇 번 생성자를 실행하는지는 여전히 미확정**이다.
+
+- `JHBaseData` 레코드68 / proto3: PC36 `KNUM R3 KNUM[0]` → PC37 `math.random(2047483645)` → PC38 `__RandSeed` 저장. 원본 복호화 SHA256 `cebd62bc3f4bfe267edc3a38b25b270047307d1174984fb82f89c5d92b4b88fd`.
+- `JHEquipData` 레코드85 / proto0: PC151 → **PC152 `math.random(2147483645)`** → PC153 `m_nMJSeed`, PC165 → **PC166 `math.random(2147483645)`** → PC167 `m_nCZSeed`. 부모 `super.ctor(self)` PC0–4. 원본 SHA256 `a945b3f365c3bd449193a9e7a4062b029071254bd7d033e3737b83fed4bb8246`.
+- 양쪽 모두 원본 KNUM[0] 정수 상수 직접 파싱. 기존 v32 재생기의 **0인수/임의 인수 JHBaseData 이벤트를 거절하고 원본 인수만 승인**. 별도의 `equipdata-constructor-math-random` 원본 PC152/166 이벤트를 단일/혼합 관문 공용 글로벌 RNG 원장에 연결. PC 실행이 관측되지 않으면 이벤트를 임의로 만들지 않는다.
+- `reproduction_tools/prove_constructor_seed_bounds.py`에서 원본 두 모듈의 KNUM·CALL·저장 필드를 다시 확인. **Node 93/93**, Python SBv3 **4/4**, 원본 레지스트리 12스크립트/40테이블/19보스/74지급 기록 통과.
+- 사용자 독립 실행기 ZIP `Low_Gates_Original_Function_Replay_20261127_v33.zip`; SHA256 `0b66de155d1b3c0d36f76cf96d755dea24a1782bfea28c02a294ef0dd3b23967`. 공개 게임 바이너리/원본 스크립트·개인 세이브·난수 시드 **미포함**. GitHub에는 연구 기록만 올리고 실행 엔진은 ZIP에 보존.
+- 미완료: 실제 객체 생성자 실행 횟수와 관련 간접 RNG, 게임 전역 RNG 초기 상태/재설정 및 `math.jhrandom` 런타임 상태, 일반 장비 미래 ID/색상 실측 검증. **공개 사이트·버전·90급 출시 엔진 미변경**.
