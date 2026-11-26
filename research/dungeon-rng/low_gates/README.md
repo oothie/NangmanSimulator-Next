@@ -208,3 +208,11 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 - 기존 90급 4관문, 사이트·버전, 원본 파일·실제 세이브·원시 시드 불변. 코드 산출물은 ZIP에 따로 보존하고 이 저장소에는 연구 체크포인트만 게시.
 
 미완료: 게임 60014 `getLuaJsonFile` 실제 함수 본체, 원본 VM에서 발생한 `pairs()` 순회 기록, 묵문유적 일반 장비 지급. 따라서 미래 장비 드랍 정확도 미검증.
+
+## 2026-11-26 v12 — 60014 빌드 근거와 20~80급 소스의 버전 일치 차단
+
+보존된 `Low_Gate_Original_Source_20261125.zip`의 `source_provenance_20261125.json`을 확인한 결과, 6관문 12개 이벤트 생산자/소비자 스크립트는 `gameversion(1).json` + `src_whale64(3).zip`의 **selected-current-gameversion**에서 추출했다. 문서상 **원본 60014와 완전 일치하지 않을 수 있음**을 명시한다. 반면 로더 감사 `ORIGINAL_TASK_LOADER_AUDIT.json`은 **60014 빌드의 `JHTaskMgr`**이다. 따라서 60014 `createFromFile` 경로를 20~80급 관문에서 실제 실행한 함수라고 확정하면 안 된다.
+
+별도 대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v12.zip`에 원본 소스 출처 검사 모듈 `source_build_provenance_guard.cjs`와 관련 검사 2개를 추가했다. 12개 스크립트의 빌드별 SHA-256 전부 독립 일치 확인이 없으면 동일 빌드의 실행이라고 주장하지 않도록 막고, `original_loader_provenance.cjs` 출력에 원본 버전 일치/실제 VM 호출 여부를 구분해 둔다.
+
+Node.js 테스트 **55/55 통과**. Python `test_native_source_registry.py`는 12스크립트·40테이블·19보스·74지급 기록 통과. 원본 `.sbc` 파일이 없는 환경이어서 원본 바이트코드를 읽어야 하는 `verify_native_task_source.py`, `verify_dynamic_contract.py`는 이번에 실행하지 못함. 실제 게임에서 `getLuaJsonFile` 및 `pairs()`를 독립 관측한 상태도 아님. 공개 사이트·버전/기존 출시 4관문 미변경; 개인 세이브 및 네이티브 게임 바이너리 비공개 유지.
