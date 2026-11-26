@@ -375,3 +375,17 @@ v22에서는 JHExtern.JHRandom의 `math.jhrandom`/ `math.random` 참조와 분�
 - 엔진 전체·Python 원본 ELF 선택 감사(바이너리 제외) 및 연구 문서: 대화 다운로드 `Low_Gates_Original_Function_Replay_20261126_v25.zip` SHA256 `345b814a355343d31145c6153c476f456c471c9727663106ad56b35179be7899`. 게임 바이너리·세이브·원시 난수 시드 미포함.
 
 **여전히 남음:** `math.jhrandom`의 실제 등록 상태/네이티브 구현·시드, 표준 `math.random`의 게임 시작/현재 상태, 실행 시 게임 세계의 NPC 조건 기록, 실제 ARM64 게임 관문 미래 홀드아웃. 공개 사이트/버전 및 기존 출시 90급 4관문 엔진 불변.
+
+## 2026-11-26 v26 — 표준 LuaJIT math.random TW223 생성기 및 6관문 조건부 호출 상태 전진
+
+이번 연구에서는 v25에서 확인한 한국판 60014 ARM64 원본의 **표준 math.random 폴백** 경로를 실제 계산 가능한 독립 구현으로 보완했다. **math.jhrandom 자체의 구현/시드 복원이 아니며 실제 게임이 폴백 분기를 사용했다는 증명도 아니다.**
+
+- `engine/original_luajit_math_random.cjs`: LuaJIT beta3 `lib_math.c`의 4개 64비트 TW223 상태, 시드 생성 시 10회 초기 워밍업, 하나/둘 인수 시의 정수 결과 변환. BigInt 64비트 연산과 float64 bit-cast 사용.
+- `reproduction_tools/luajit_math_oracle.c`: 별도 C 참조 구현. **합성 시드 8 × 상한 5 × 100회 = 4,000 호출**을 JavaScript/C에서 비교해 난수 double 4,000개·정수 결과 4,000개와 최종 4-word 내부 상태 40세트 모두 일치.
+- `engine/original_jhrandom_fallback_timeline.cjs`: v21~v25의 원본 전투 JHRandom 87개 호출 경로와 연결. 독립 관측한 **전역 math.random 상태와 런타임 fallback 경로 선택**, 실제 도달한 원본 호출 경로가 모두 제공된 경우에만 난수 및 최종 상태를 계산. 외부 게임 transcript가 있으면 별도로 일치 여부를 검사. 단지 합성 계산 자체를 실게임 관측이라고 표시하지 않음.
+- 관련 신규 회귀 두 개 포함 **Node 77/77 통과**; Python SBv3 4/4, ARM64 감사 로직 7/7, 보존 원본 소스 레지스트리 12스크립트·40테이블·19보스·74지급 기록 통과.
+- 실행 코드·C 원본·테스트 및 보고서 전체는 대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v26.zip` (SHA256 `be90ac83040148ee64beb0f6c1545ac6a3976c4d6b351f2a7d05e222e55f1df3`)에 보존. 게임 바이너리·사용자 세이브·실제 원시 시드 미포함.
+
+**미완료:** math.jhrandom 런타임 존재/구현, 실제 게임 전역 PRNG 상태 및 모든 간섭 호출, 실제 관문 JHRandom 조건 도달성, 실게임 미래 드랍 홀드아웃, 묵문유적 일반 장비. 완전 예측 확정 금지. 공개 사이트와 버전 및 출시 90급 엔진 불변.
+
+LuaJIT 원본 참조: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lib_math.c/
