@@ -1,0 +1,48 @@
+{
+  "schema": "jhrandom-original-nil-register-v24",
+  "privateOriginalSha256": "195da532afaa3b9221bb335dedf1efe8eee892be6d3b78d6198b1286d244179c",
+  "source": "JHExtern.lua original proto8",
+  "sourceHeaderHex": "00050200",
+  "formalParameters": 2,
+  "frameSize": 5,
+  "argumentTest": {
+    "pc": 0,
+    "opcode": 7,
+    "A": 1,
+    "D": 0,
+    "semanticInterpretation": "nil primitive test on second argument",
+    "nativePermutationOpcodeMapIndependentlyVerified": false
+  },
+  "branchJump": {
+    "pc": 1,
+    "targetPc": 16
+  },
+  "nativeAvailabilityTests": [
+    {
+      "pc": 4,
+      "opcode": 41,
+      "D": 2
+    },
+    {
+      "pc": 18,
+      "opcode": 41,
+      "D": 2
+    }
+  ],
+  "calls": {
+    "oneNativePc": 9,
+    "oneFallbackPc": 14,
+    "twoNativePc": 24,
+    "twoFallbackPc": 30
+  },
+  "implementationFix": "Normalize explicit JS undefined or null as Lua nil in the second formal argument; preserves single-argument native/fallback path; numeric second argument preserves two-bound path",
+  "tests": {
+    "nodeFiles": 73,
+    "pythonSB3": 4,
+    "sourceScripts": 12,
+    "weightedTables": 40
+  },
+  "nativeRngSeedOrPRNGRecovered": false,
+  "futureGameDropsVerified": false,
+  "originalGameBytesPublished": false
+}
