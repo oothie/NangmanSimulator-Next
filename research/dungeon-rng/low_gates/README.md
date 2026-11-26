@@ -319,3 +319,14 @@ Node.js 테스트 **55/55 통과**. Python `test_native_source_registry.py`는 1
 - 두 신규 테스트 포함 Node.js **69/69**, Python SBv3 **4/4**, 원본 지급 레지스트리 **12스크립트/40단계/19보스/74기록** 감사 통과. `repeat_session` 원본 KGC 연속 재생 통합 검사 포함.
 
 **미완료:** 실제 ARM64 LuaJIT `pairs()`의 독립 실행 검증, JHRandom의 정확한 RNG 레인과 전투 단계 도달성, 모든 지급 후처리 및 미래 실게임 홀드아웃. 공개 사이트/버전과 기존 90급 4관문 모델은 변경하지 않음. 원본 바이너리·사용자 세이브·개인 시드 파일은 연구 ZIP/GitHub 미포함.
+
+## 2026-11-26 v21 — 원본 6관문 JHRandom 호출 87개 도달성·순서·범위 검증
+
+독립 연구 패키지: Low_Gates_Original_Function_Replay_20261126_v21.zip (SHA256 1e2864b0061703995a0e8ba0a31fb069dcb9172f8df4e6b17a771d455b784c7c).
+
+- 신규 engine/original_jhrandom_call_timeline.cjs는 원본 전투 6개 SBv3에서 추출한 87개 JHRandom 위치를 **원본 명령 순서**로 검증. 취선채 20, 추가성 17, 혈의루 19, 철인문 15, 천일교 10, 고골문 6개. 적 배치 54·승리 보상 27·아이템 선택 인수 2·기타 4개.
+- 원본 전투 명령은 NpcExist 및 다른 조건부 전투 상태에 따라 실행되므로 87개를 무조건 소비하지 않는다. 독립 확인된 실행 명령 경로와 인수 경계·결과값·호출 순서가 모두 있어야 검증. 해당 기록이 없으면 **차단**.
+- 취선채 및 추가성 원본 전투 아이템 난수 2개가 v20 통합 80개 지급 트리의 경로와 정확히 일치하는지 교차 검증. engine/repeat_session.cjs에 선택적 observedJHRandomTimeline 연결; 기존 보상용 observedJHRandomRolls와 동시에 제공하면 모순 차단. 실패 시 기존 상태 및 시드 불변.
+- Node.js **70/70 테스트**, Python SBv3 파서 **4/4**, 원본 지급 레지스트리 **12스크립트/40가중치/19보스/74지급 기록** 통과.
+- 이는 **실행 경로/관측 난수의 검증 인터페이스**다. 원본 game VM의 실행 분기 도달 자체나 JHRandom의 math.jhrandom/math.random 레인·원시 상태를 복구한 것이 아니며, 네이티브 ARM64 런타임 검증이나 미래 게임 드랍 홀드아웃도 미완료.
+- 실제 게임 SBv3 바이트, 개인 세이브 및 원시 RNG 시드는 공개 ZIP 및 GitHub에 포함하지 않음. 공개 사이트/버전 및 출시 90급 관문 엔진 변경 없음.
