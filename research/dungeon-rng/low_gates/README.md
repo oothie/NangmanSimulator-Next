@@ -415,3 +415,13 @@ LuaJIT 원본 참조: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5
 - **원본 numeric randomseed 인수 지원**: 두 모듈 모두 `external-math-randomseed`에서 `observationProof:'captured-original-randomseed-argument'`와 검증된 유한 숫자 `seed`를 수신하면 소스 기반 `LuaJitMathRandom.seed`로 재설정 직후 4-word 상태 계산. 기존 `captured-exact-post-randomseed-state`도 지원. 추측/NaN/무한/문자열·조합이 모호한 기록은 차단.
 - 새 소스 가드/전역 관측 검증, 원본 randomseed 인수의 중간 재설정 회귀 2개 포함 **Node.js 83/83**, Python SBv3 parser 4/4, 원본 네이티브 감사 테스트 7/7, 원본 가중치 레지스트리 12스크립트/40테이블/19보스/74지급 기록 검사 통과.
 - **남은 병목**: 게임의 `math.jhrandom` 런타임 등록 및 초기 상태, 실제 전역 PRNG 전체 호출 기록, ARM64 게임 직접 실행, 묵문유적 일반 장비, 미래 관문 장비 홀드아웃. 본 작업은 추측 기반 RNG 정확성을 주장하지 않는다. 공개 사이트·버전·90급 출시 관문 구현 미변경; 원본 게임 바이너리, 사용자 세이브/원시 RNG 시드는 ZIP/GitHub 미포함.
+
+## 2026-11-26 v29 — 64-bit 원본 TW223 관측 정밀도 차단 및 중간 PRNG 상태 대조
+
+독립 대화 산출물: `Low_Gates_Original_Function_Replay_20261126_v29.zip` SHA256 `302c3e030eedfc2e209a9163ca46307c847f7da856aeb541477673a251964daa`. 전체 엔진·신규 코드·테스트 및 보고서 포함.
+
+- **실제 구현 오류 수정:** 기존 `original_luajit_math_random.cjs`의 `LuaJitMathRandom.fromObservedState`가 64비트 상태 워드를 JS Number로 받아 BigInt로 전환하던 경우, 2^53 이상에서는 입력 Number가 이미 반올림되어 잘못된 PRNG 상태를 승인할 수 있었음. v29는 4개 정확한 unsigned 64-bit BigInt/16진·10진 문자열 또는 안전 정수 Number만 허용. 크거나 비정상적인 Number/문자열은 계산 전 차단.
+- **새 교차검증:** 단일 및 혼합 관문 공유 `math.random` 실행기에 `checkpoint-global-math-state` 이벤트 추가. 원본 호출 사이의 정확한 4-word 상태를 비교하며 난수 상태를 추가 소비하지 않음. 불일치시 중단해 누락 전역 호출/재시드 경계를 탐지하고, 정상 관측 재시드는 계속 지원. 사용자가 제출하는 체크포인트는 독립 실게임 실행 증거로 자동 인정하지 않음.
+- 전역 상태 검증의 실패 시 결과 상태를 반환하지 않는 방침 유지. 기존 원본 6관문 RNG/보상 및 90급 출시 4관문, 공개 사이트·버전 변경 없음.
+- JS 회귀 **85/85**, Python 네이티브 감사 **7/7**, 원본 레지스트리 **12스크립트/40가중치/19보스/74지급 기록** 통과. 회귀 검증은 합성 상태 기반이며 **원본 게임 내부 PRNG 상태를 독립 관측한 것은 아님**.
+- 미완료: 런타임 `math.jhrandom` 등록 여부 및 고유 시드, 실제 글로벌 PRNG 원장·실게임 ARM64 실행, 묵문유적 일반 장비, 미래 드랍 독립 홀드아웃. 비공개 세이브/게임 바이너리/원시 시드를 본 ZIP/GitHub에 포함하지 않음.
