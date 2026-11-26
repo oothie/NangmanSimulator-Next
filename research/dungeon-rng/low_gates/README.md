@@ -227,3 +227,17 @@ Node.js 테스트 **55/55 통과**. Python `test_native_source_registry.py`는 1
 - 신규 검사 두 개 포함 Node.js **57/57 테스트 통과**. 원본 함수 호출부 및 각 스크립트 경로의 정적 대응이 확인된 것이며 실제 실행 시 테이블 생성 결과를 관측한 것은 아님.
 
 이로써 빌드 비교 반복은 우선 중단하고 다음 직접 복원 목표는 **60014 `getLuaJsonFile` 함수 본체의 최초 테이블 할당/키 삽입 명령**과 **실제 LuaJIT 네이티브 `pairs()` 순회**로 유지. 이는 아직 미확정이며 모델의 전방 예측 정확도 또한 미검증. 공개 사이트/버전, 출시 90급 4관문 엔진과 비공개 세이브 미변경.
+
+## 2026-11-26 v14 — 원본 SBv3 KGC 상수 테이블 크기와 TDUP 복제 경로
+
+대화 산출물 Low_Gates_Original_Function_Replay_20261126_v14.zip에 실행 코드 및 테스트 보존.
+
+- LuaJIT 2.1 beta3 bcread_ktab (lj_bcread.c)는 원본 직렬화된 narray, nhash로 lj_tab_new(L,narray,hsize2hbits(nhash))를 수행하며, 해시 키·값을 저장 순서로 삽입한다. lj_tab_dup (lj_tab.c)는 TDUP 과정에서 배열·해시 노드·연결 정보까지 복제한다. **KGC/TDUP 경로만큼은 초기 해시 크기가 실제 상수 데이터로 결정된다.**
+- 기존 parse_sb3_tables.py에서 읽고 버리던 상수 배열 슬롯 수·직렬화 해시 쌍 수·타입 구분·삽입 순서 및 TDUP KGC 참조를 preserve_layout=True 옵션으로 보존하도록 변경. 이전 API 기본 반환은 유지.
+- original_ktab_loader.cjs는 원본 해시 비트 계산을 사용해 상수 템플릿을 조립하고, 후속 키 쓰기까지 적용한다. 배열이 실제 존재하는 경우 불완전한 복제이므로 계산 차단.
+- native_seedkeyroll_two_pass.cjs와 source_order_forward.cjs에 orderMode='ktab' 지원. 각 원본 소스 경로의 KGC 레이아웃이 없으면 차단하며 모델로 대체하지 않음.
+- Node.js 59/59 테스트 통과, 신규 Python 합성 SBv3 상수 검사 3/3 통과, 보존된 원본 지급 레지스트리 12개 스크립트/40개 테이블/19개 보스/74개 지급 기록 검사 통과.
+- 실제 관문 게임 SBv3 상수 바이트를 새로 복호화한 것은 아니다. KGC 경로가 해당 관문의 실제 getLuaJsonFile 실행 경로인지, 네이티브 pairs 순서 및 미래 드랍 정답인지 여전히 미확정. 현재 이 단계는 원본 동작을 대입할 정확한 코드 경로를 확보한 것.
+- 개인 세이브, 게임 바이너리, 원시 시드는 공개 저장소에 업로드하지 않았고 공개 사이트·버전·90급 관문 엔진은 수정하지 않았다.
+
+원본 참고: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_bcread.c/ , https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.c/
