@@ -1,0 +1,37 @@
+{
+  "schema": "60014-arm64-native-rng-source-evidence-v25",
+  "date": "2026-11-26",
+  "provenance": "User-owned split_config.arm64_v8a(3).apk; select only its original ARM64 shared libraries",
+  "originalCocosSha256": "53398b3460ecc678d8be1ad62b8afd89e370d7ca7a77d65396c00c0706443154",
+  "originalCocosSizeBytes": 19480304,
+  "originalArm64CallEdges": [
+    {
+      "pc": "0x828bf4",
+      "BLTarget": "0x80b914",
+      "description": "LuaJIT native math.random uses random-double step"
+    },
+    {
+      "pc": "0x828d60",
+      "BLTarget": "0x80b874",
+      "description": "LuaJIT math.randomseed initializes TW223 state"
+    }
+  ],
+  "nativeSharedLibrariesInspected": 13,
+  "caseInsensitiveJhrandomAsciiLiteralOccurrences": 0,
+  "customMathJhrandomRuntimeAvailability": null,
+  "mathRandomFallbackProvenAvailable": true,
+  "originalGameJHRandomBranchActuallyTaken": null,
+  "warning": "Absence of a literal in APK native libraries does not prove math.jhrandom is unavailable at game runtime: a dynamic or Lua-based registration remains possible.",
+  "validatedReplay": {
+    "originalSourceJHRandomCallsites": 87,
+    "sourceGuardReceiptDerivedReachability": true,
+    "nodeTestFiles": 75,
+    "pythonParserTests": 4,
+    "pythonNativeAuditSyntheticTests": 7
+  },
+  "privacy": {
+    "gameBinaryPublished": false,
+    "playerSavePublished": false,
+    "rawGameRngSeedsPublished": false
+  }
+}
