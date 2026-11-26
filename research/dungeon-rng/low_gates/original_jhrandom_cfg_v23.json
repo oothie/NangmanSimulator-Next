@@ -1,0 +1,55 @@
+{
+  "schema": "original-jhrandom-60014-cfg-source-proof-v23",
+  "originalSource": "60014-compatible selected and locally decrypted JHExtern SBv3, no bytes shared",
+  "sourceFunction": {
+    "module": "src/app/core/JHExtern.lua",
+    "prototype": 8,
+    "instructionCount": 32
+  },
+  "jumpTargets": {
+    "1": 16,
+    "5": 11,
+    "10": 31,
+    "15": 31,
+    "19": 26,
+    "25": 31
+  },
+  "conditionalNativeTests": [
+    4,
+    18
+  ],
+  "paths": [
+    {
+      "name": "one_native",
+      "sourceCallPc": 9,
+      "sourceOracle": "math.jhrandom"
+    },
+    {
+      "name": "one_fallback",
+      "sourceCallPc": 14,
+      "sourceOracle": "math.random"
+    },
+    {
+      "name": "two_native",
+      "sourceCallPc": 24,
+      "sourceOracle": "math.jhrandom"
+    },
+    {
+      "name": "two_fallback",
+      "sourceCallPc": 30,
+      "sourceOracle": "math.random"
+    }
+  ],
+  "status": {
+    "allFourPathsLeadToFinalReturn": true,
+    "originalArgumentDirectionNativeVMIndependentlyVerified": false,
+    "mathJhrandomSeedAndStateProven": false,
+    "actualGameArm64Invoked": false,
+    "syntheticTestsPassed": 72
+  },
+  "privacy": {
+    "originalGameBinaryStored": false,
+    "playerSavesStored": false,
+    "rawRngSeedsStored": false
+  }
+}
