@@ -425,3 +425,18 @@ LuaJIT 원본 참조: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5
 - 전역 상태 검증의 실패 시 결과 상태를 반환하지 않는 방침 유지. 기존 원본 6관문 RNG/보상 및 90급 출시 4관문, 공개 사이트·버전 변경 없음.
 - JS 회귀 **85/85**, Python 네이티브 감사 **7/7**, 원본 레지스트리 **12스크립트/40가중치/19보스/74지급 기록** 통과. 회귀 검증은 합성 상태 기반이며 **원본 게임 내부 PRNG 상태를 독립 관측한 것은 아님**.
 - 미완료: 런타임 `math.jhrandom` 등록 여부 및 고유 시드, 실제 글로벌 PRNG 원장·실게임 ARM64 실행, 묵문유적 일반 장비, 미래 드랍 독립 홀드아웃. 비공개 세이브/게임 바이너리/원시 시드를 본 ZIP/GitHub에 포함하지 않음.
+
+## 2026-11-26 v30 — 원본 Whale 3,565개 모듈에서 math.jhrandom 정적 등록 경로 재감사 + 두 인수 음수 범위 오류 교정
+
+이번 연구는 공개 사이트가 아니라 별도 20~80급 관문 원본 엔진에만 적용. 전체 실행 코드와 88개 테스트는 대화 다운로드 `Low_Gates_Original_Function_Replay_20261126_v30.zip` (SHA-256 `f4ecc9cd1c4ca2843012958daf758258cfa3052d27af6b9637f2a30c7299f4d5`)에 보존. **원본 게임 바이너리/복호화된 스크립트·사용자 세이브·시드 미포함.**
+
+- **실제 원본 선택 복호화 전수검사:** 게임 Whale `71개 그룹 / 3,565개 스크립트`를 각각 정상 복호화·파싱(실패 0). 이 범위에는 기존 core/data/task/main/battle/AI뿐 아니라 `wapp__story__fun.whale` 관문 소비자 2,355개와 branchtrigger/excelutils 그룹도 포함. [공개 가능한 원본 소스 PC·범위 증거](ORIGINAL_JHRANDOM_STATIC_SCAN_V30_20261126.json).
+- 대소문자를 구별한 원본 키 `math.jhrandom`의 소문자 `jhrandom` 필드 접근은 **JHExtern proto8 PC3/7/17/21, JHNetServer proto23 PC974/978**에서만 발견. 전부 **TGETS(조회)**. 이 범위 내에 원본 소문자 키를 직접 TSETS하는 명령은 **0개**, 다른 GC 상수 문자열 내부의 소문자 `jhrandom` 부분 문자열도 **0개**. 다른 스크립트의 전역 대문자 `JHRandom` 래퍼 참조는 별도로 구별.
+- **해석 제한:** `wapp__story.whale`, `wapp__story__branch.whale`, `wapp__story__event.whale`, `wapp__excel.whale` 및 다른 네이티브/리소스는 아직 전수 정적 검사하지 않았다. 동적 문자열·런타임 등록도 가능하므로 **게임에서 math.jhrandom이 없다는 증명이나 표준 math.random fallback 활성화 확인은 아니다.**
+- **실제 계산 오류 수정:** 기존 `original_jhrandom_dispatch.cjs`는 `JHRandom(최솟값, 최댓값)`의 최솟값에 **0·음수를 허용하지 않아** 원본 LuaJIT `lib_math.c`의 `math.random(r1,r2)` 범위와 불일치했다. 두 인수 경로는 유효한 signed 32-bit 범위에서 0/음수를 허용; 한 인수 경로는 양의 상한만 허용. 범위 오버플로는 안전하게 차단하고 네 가지 원본 JHExtern call PC9/14/24/30은 유지.
+- 새로운 **읽기 전용 Lua 런타임 관측기** `reproduction_tools/probe_runtime_math_jhrandom.lua`는 `rawget(math, 'jhrandom')`의 형식만 조사. **난수를 호출하거나 상태·세이브를 변경하지 않는다. 실제 게임에서 실행한 적은 없으므로 관측 기록이 존재한다고 주장하지 않는다.** `original_math_runtime_capability.cjs`는 전달받은 관측 결과의 스키마를 엄격 검증하되 실게임 독립 검증으로 표시하지 않는다.
+- **Node.js 회귀 88/88**, Python 원본 관련 감사 7/7, 원본 12스크립트·40가중치·19보스·74지급 경로 구조 검사 통과. 정적 검사만으로 자동 미래 드랍 예측이나 math.jhrandom 시드 복원 완성은 불가.
+
+**다음 최우선:** 실제 게임 런타임 시작/관문 입장/전투 보상 시점의 `type(math.jhrandom)` 독립 관측 → 사용 경로 확정 → 해당 PRNG의 시작 상태·외부 소비 복원 → 일반 장비 ID/색상 홀드아웃 검증. 공개 사이트·버전·기존 출시 90급 4관문 코드 불변.
+
+LuaJIT 2.1 beta3 표준 근거: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lib_math.c/
