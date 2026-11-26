@@ -185,3 +185,14 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 - 90급 출시 4관문의 상태 전달 및 잘못된 기존 해시 크기 가정과 교차 비교. 원본 `getLuaJsonFile` 반환 객체 생성/테이블 초기 크기, 실제 네이티브 `pairs` 관측은 여전히 미완료. 공개 사이트/버전, 기존 출시 4관문 엔진, 사용자 세이브 변경 없음.
 
 재현: ZIP의 `engine` 폴더에서 `for f in test_*.cjs; do node "$f" || exit 1; done`. SHA-256 `8b503586a768eb721c885c0591d9836f598409fc0228c061820ea5b4c1ec55dc`.
+
+## 2026-11-26 v10 — LuaJIT 2.1 beta3 배열 재해시 원본 불일치 교정
+
+독립 산출물 Low_Gates_Original_Function_Replay_20261126_v10.zip의 engine/source_table_local.cjs에 **countarray()/countint() 분리 교정**을 적용했다. 공개 원본 lj_tab.c의 rehashtab()은 기존 배열 슬롯을 배열 인덱스 구간별로 세는 countarray()와 해시 영역/새 키를 세는 countint()를 구분한다. 이전 연구 모델은 기존 배열 슬롯에도 countint()를 사용해 **배열 크기 17 대신 9**가 되어야 하는 사례에서 해시 순회가 달라졌다. 새로운 test_beta3_array_rehash.cjs가 이 사례와 뒤따르는 신규 키 9의 순회 차이를 고정했다.
+
+- 전체 Node.js **52/52 검사 통과**, Python 소스 검사 12파일·40가중치·19보스·74지급 기록 통과.
+- 기존 원본 정적 38개 테이블 × 초기 해시 비트 0~3 × 메타 키 3종 = 456가지 구성에서 배열 영역이 생성된 사례는 **0개**. 따라서 이 수정만으로 기존 정적 38테이블의 가설 결과 수치를 변경하지 않는다. 다른 테이블/동적 가중치의 조건에서 의미가 있음.
+- 원본 게임 실행 pairs() 관측, getLuaJsonFile 함수 본체 및 반환 테이블 내부 구성, 묵문유적 일반 장비 소비자는 **여전히 미확정**. 원본 소스를 확인하지 않은 상태에서 예측 적중 주장 금지.
+- 게임 바이너리·세이브·실제 시드 및 식별정보 브랜치 미업로드. 공개 웹사이트·버전/기존 90급 엔진 불변.
+
+공개 원본: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.c/
