@@ -295,3 +295,14 @@ Node.js 테스트 **55/55 통과**. Python `test_native_source_registry.py`는 1
 **남은 검증:** 게임에 포함된 ARM64 `pairs()`의 직접 관측, `getLuaJsonFile` 실제 `require`/캐시 분기 경로 기록, 전 보상 소비·특수 드랍 상태 전달과 미래 홀드아웃. 현재 KGC에 한해 JS↔C **모델 간 복원 신뢰도**가 상승했지만 실제 게임 적중률 보증으로 확대하지 않는다. 공개 사이트·버전 및 기존 90급 관문 코드 미변경.
 
 원본 참고: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.c/ 및 https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.h/
+
+## 2026-11-26 v19 — 원본 6관문 입장 jhLua/RmManyP 누락 복원
+
+대화 패키지 Low_Gates_Original_Function_Replay_20261126_v19.zip (SHA-256 2372f160b624a6f44db1913c7b3e3657f9eb2bc62fa5a20a590415e3e15ccf95)에서 **관문 입장 초기 상태 갱신이 누락됐던 실제 버그**를 수정했다.
+
+- 원본에서 앞서 SHA를 확정한 6개 60014 관문 이벤트 생산자 SBv3를 다시 직접 파싱. 최상위 원본 jhLua 블록 11개, RmP 초기화 **31개**, NPC/맵 관련 비RNG 단계 **10개**를 원본 루트 명령 위치대로 추출. 새 engine/original_entry_timeline_60014.json 및 재추출 코드 reproduction_tools/derive_entry_timeline.py에 반영.
+- 추가성, 혈의루, 철인문, 천일교, 고골문 입장시에 원본 RmManyP가 이전 보스 처치 기록 및 라운드/빠른 진입 플래그를 제거하지만, 기존 source_order_forward.cjs 이벤트 재생은 그 명령들을 건너뛰고 있었음. 각 연산을 순서대로 재생하도록 engine/original_entry_prelude.cjs와 원본 KGC 재생 경로를 수정.
+- 취선채 원본의 round_jxz 및 quick_fuben RmP, 모든 관문의 fuben_* SetP 및 num_fuben AddP(-1)를 출처 기반으로 적용. num_fuben이 입력에 없을 때는 **임의 0/음수를 만들지 않고 미관측 상태를 기록**해 실제 세이브의 계정 카운터를 가정하지 않음.
+- 원본 최상위 조건식·40개 SeedKeyRoll의 상대적 실행 순서 보존; 혈의루의 맨 앞 조건문이 뒤따르는 jhLua 초기화보다 먼저 실행되는 것도 보존. 기존 first/last/absent 가설 경로와 공개 사이트는 변경하지 않음.
+- 모든 6관문 합성 원본 KGC 입장 실행 및 초기화 확인. JavaScript **67/67 테스트 통과**, Python SBv3 **4/4**, 소스 레지스트리 **12스크립트/40단계/19보스/74지급 기록** 검사 통과.
+- 비RNG NPC/맵 변경 자체, 관문 전체 특수 보상 소비자 후처리, 묵문유적 일반 장비, 실제 ARM64 pairs 순회 및 새로운 미래 실게임 홀드아웃은 아직 미복원·미검증. **게임 원본 바이트코드·개인 세이브·원시 시드 ZIP/GitHub 미포함.**
