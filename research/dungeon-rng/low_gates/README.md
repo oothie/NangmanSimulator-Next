@@ -241,3 +241,17 @@ Node.js 테스트 **55/55 통과**. Python `test_native_source_registry.py`는 1
 - 개인 세이브, 게임 바이너리, 원시 시드는 공개 저장소에 업로드하지 않았고 공개 사이트·버전·90급 관문 엔진은 수정하지 않았다.
 
 원본 참고: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_bcread.c/ , https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.c/
+
+## 2026-11-26 v15 — 원본 KGC 배열 0번 슬롯 및 음수 정수 키 복원
+
+별도 대화 산출물 `Low_Gates_Original_Function_Replay_20261126_v15.zip`에 원본 바이트코드 로더 관련 **실제 파서 오류 2개**를 수정한 실행기와 회귀검사를 보존했다.
+
+- 60014 LuaJIT beta3 `lj_bcread.c:bcread_ktab`은 배열을 index 0부터 `narray-1`까지 채운다. 기존 `parse_sb3_tables.py`가 index 1부터 기록하던 오류를 교정.
+- 같은 원본의 `bcread_ktabk` 정수형은 signed int32로 변환한다. 기존 파서는 ULEB 수치를 unsigned로 유지했으므로 `0xffffffff -> -1` 처리 수정.
+- `original_ktab_loader.cjs`의 KGC/T DUP 해시 전용 제한 해제. `narray`의 nil 슬롯, 배열/해시 동시 배치, TDUP 이후 배열 인덱스 post-write를 소스 기반으로 계산. 원본에서 명시되지 않은 배열/해시 중복 키 및 hash nil 삭제는 차단.
+- **전체 Node.js 테스트 60/60**, Python SBv3 파서 테스트 **4/4**, 보존 원본 레지스트리 12스크립트/40가중치/19보스/74기록 구조 검증 통과.
+- 새로 확보한 실제 관문 60014 원본 KGC 바이트코드나 게임 네이티브 `pairs()` 관측은 없으므로 **원본 `getLuaJsonFile` 전체 함수 및 미래 드랍의 완전 재현은 여전히 미검증**. 특히 38개 정적 가중치는 기존 자료에서 해시형이고 이번 배열 지원이 해당 테이블의 게임 적중률을 개선했다고 주장하지 않는다.
+
+공개 사이트·버전, 90급 기존 관문 엔진, 개인 세이브·원시 시드 미변경. 코드 ZIP은 개인 자료를 포함하지 않는다.
+
+원본: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_bcread.c/
