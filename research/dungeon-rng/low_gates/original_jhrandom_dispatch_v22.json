@@ -1,0 +1,55 @@
+{
+  "schema": "lowgate-original-jhrandom-dispatch-v22",
+  "originalSource": "user-owned 60014-compatible gameversion manifest and selected wapp__core.whale",
+  "script": "src/app/core/JHExtern.lua",
+  "manifestV": "1649ba9a014593d771560bcc4f25ab6f",
+  "decryptedSourceSha256": "195da532afaa3b9221bb335dedf1efe8eee892be6d3b78d6198b1286d244179c",
+  "historicalArchivedSha256": "12906de159ffb7441e8651ae4dec5e610a9943dd8cf67680f421980905c4038e",
+  "fullByteEqualityWithHistorical": false,
+  "prototypes": 80,
+  "globalJHRandomRegistration": {
+    "prototype": 79,
+    "pc": 19
+  },
+  "JHRandomFunction": {
+    "prototype": 8,
+    "instructionCount": 32,
+    "argumentCountTestPC": 0,
+    "argumentBranchJumpPC": 1,
+    "oneArgCandidateSegment": [
+      2,
+      15
+    ],
+    "twoArgCandidateSegment": [
+      16,
+      30
+    ],
+    "mathJhrandomLookups": [
+      3,
+      7,
+      17,
+      21
+    ],
+    "mathRandomLookups": [
+      12,
+      27
+    ],
+    "nativeAvailabilityBranchTests": [
+      4,
+      18
+    ],
+    "returnPC": 31
+  },
+  "verification": {
+    "nativeRngStreamProven": false,
+    "vmBranchDirectionVerified": false,
+    "actualGameCallsCaptured": false,
+    "jsTestFilesPassed": 71,
+    "pythonParserTestsPassed": 4
+  },
+  "privacy": {
+    "originalBinaryPublished": false,
+    "privateSavesPublished": false,
+    "rawSeedsPublished": false
+  }
+}
