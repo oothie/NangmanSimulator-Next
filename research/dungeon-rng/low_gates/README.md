@@ -405,3 +405,13 @@ LuaJIT 원본 참조: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5
 미완료: 게임에서 `math.jhrandom`의 실제 등록/상태, 실게임 전역 PRNG 상태와 **모든** 다른 스크립트의 외부 호출, ARM64 게임 실측 및 미래 드랍 독립 검증. 공개 시뮬레이터 사이트/버전과 90급 출시 관문 구현 변경 없음.
 
 참고: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lib_math.c/
+
+## 2026-11-26 v28 — 원본 가드 관측 검증 오류 / 글로벌 math.randomseed 인수 재생
+
+별도 실행 코드 전체 패키지: `Low_Gates_Original_Function_Replay_20261126_v28.zip`; SHA256 `fc3e90f4aed82cbf272094a9e1fb3fa95935125ef0edb3ee34157dea17aa93ed`.
+
+- **실제 오류 수정**: `original_global_math_timeline.cjs`가 `observedGuardEvidence`로 얻은 `reachedPaths`를 `verifyTimeline`에 전달하지 않고 옵션 입력(미지정이면 undefined)을 그대로 전달해, 정상 전투 관측값까지 차단하던 오류 수정. 잘못된 PC 순서/결과/도달하지 않은 호출은 계속 차단한다.
+- **혼합 관문 관측 검증**: `original_global_math_session.cjs`의 각 `clears[]`에 선택적인 `observedNativeCalls`를 추가. 원본 조건으로 확정한 실행 도달 경로 및 공유 LuaJIT PRNG 재생값을 개별 관측과 대조. 불일치 시 최종 상태를 확정하지 않음. 단 사용자가 제출한 관측 기록 자체는 독립 실게임 검증 증거가 아님.
+- **원본 numeric randomseed 인수 지원**: 두 모듈 모두 `external-math-randomseed`에서 `observationProof:'captured-original-randomseed-argument'`와 검증된 유한 숫자 `seed`를 수신하면 소스 기반 `LuaJitMathRandom.seed`로 재설정 직후 4-word 상태 계산. 기존 `captured-exact-post-randomseed-state`도 지원. 추측/NaN/무한/문자열·조합이 모호한 기록은 차단.
+- 새 소스 가드/전역 관측 검증, 원본 randomseed 인수의 중간 재설정 회귀 2개 포함 **Node.js 83/83**, Python SBv3 parser 4/4, 원본 네이티브 감사 테스트 7/7, 원본 가중치 레지스트리 12스크립트/40테이블/19보스/74지급 기록 검사 통과.
+- **남은 병목**: 게임의 `math.jhrandom` 런타임 등록 및 초기 상태, 실제 전역 PRNG 전체 호출 기록, ARM64 게임 직접 실행, 묵문유적 일반 장비, 미래 관문 장비 홀드아웃. 본 작업은 추측 기반 RNG 정확성을 주장하지 않는다. 공개 사이트·버전·90급 출시 관문 구현 미변경; 원본 게임 바이너리, 사용자 세이브/원시 RNG 시드는 ZIP/GitHub 미포함.
