@@ -1,0 +1,15 @@
+{
+  "schema": "lowgate-taskmgr-two-decrypted-original-semantics-v1",
+  "original60014SHA256": "33a9c8c4a9350fbaddeab0d163b4e6094e87ab8a12f55a3c7437b6bb60e80b49",
+  "independentWhaleSHA256": "7dce4c52eac183828756f2a812340f539f8f5769ff02454d044759b693af3600",
+  "sameRawBytecode": false,
+  "matchingRegistrationAndConstructorMethodRecords": 16,
+  "matchingLoaderPrototype": 44,
+  "matchingLoaderInstructionCount": 224,
+  "matchingLoaderConstantReferenceSites": 25,
+  "normalizedOriginalStructureSHA256": "23277ad707eccd343eed76b847bde46179858a37828149d3b02a9cab12ed76d4",
+  "normalizedIndependentStructureSHA256": "23277ad707eccd343eed76b847bde46179858a37828149d3b02a9cab12ed76d4",
+  "gameRuntimeBranchObserved": false,
+  "originalBinaryIncluded": false,
+  "interpretation": "Independent original bytecodes differ in raw SHA, but all audited constructor registrations and getLuaJsonFile loader source locations match. Uninspected opcodes or runtime branches may still differ."
+}
