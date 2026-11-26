@@ -151,3 +151,13 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 원본 공개 참고: [Debian LuaJIT 2.1 beta3 lj_tab.c](https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.c), [lj_tab.h](https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.h).
 
 이는 공개 LuaJIT 코드에 맞춘 **연구 모델의 부분 교정**일 뿐, 한국판 게임의 `getLuaJsonFile` 테이블 초기 해시 크기/생성 순서, 동적 값 및 네이티브 `pairs()` 관측은 아직 확보되지 않았다. 한국판 미래 드랍 확정 불가. 배포 사이트·버전·기존 90급 엔진 변경 없음.
+
+## 2026-11-26 v7 — 원본 40개 가중치 실행 단계의 소스 경로 정합성
+
+별도 연구 패키지 `Low_Gates_Original_Function_Replay_20261126_v7.zip`에서 60014 복원 자료의 `low_gate_event_program.json`과 `native_source_registry.json`을 대조하여 **6관문 40개 가중치 단계를 전부 소스 트리 경로로 연결**했다. 로컬 내부 인덱스는 원본 소스 경로와 같은 값이 아니므로 네이티브 증거 식별자로 사용할 수 없다.
+
+- `engine/original_stage_binding.cjs`: 원본 관문명 + 분기 순회 순서 + 실제 숫자/문자열 키 타입·공백·가중치 순서가 모두 일치할 때만 원본 단계 경로 부여. 원본 40/40 일치.
+- `engine/source_order_forward.cjs`: 실제 순회 관측이 있다면 `observedPairsByPath`로 그 원본 경로를 직접 지정하며, 해당 경로가 빠지면 계산을 차단. 구 `observedPairsByIndex` 호환 유지. 가중치 추첨 trace에 원본 소스 경로 포함.
+- `test_original_stage_binding.cjs`와 `test_all_gate_observed_source_paths.cjs`: 천일교와 6관문 전체 원본 40단계의 합성 입력 재생/타입 검증/누락 경로 차단. 기존 테스트 포함 **46/46 Node .cjs 테스트 통과**. 원본 지급 기록 Python 검사도 12원본 스크립트·40가중치 단계·19보스·74지급 기록 통과.
+
+이번 패키지는 실제 한국판 게임에서 얻은 `pairs()` 순회 기록이나 새로운 플레이 종료 시드를 포함하지 않는다. **원본 소스 경로 정합성**을 검증한 것이지 LuaJIT 네이티브 순회, `getLuaJsonFile` 키 생성 과정, 묵문유적 일반 장비 지급, 실게임 미래 드랍을 확정한 것은 아니다. 원본 게임 파일·개인 세이브·원시 시드는 공개 브랜치에 저장하지 않았으며 공개 사이트·버전/90급 엔진은 변경하지 않았다.
