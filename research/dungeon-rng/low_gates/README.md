@@ -196,3 +196,15 @@ node research/dungeon-rng/low_gates/check_research_privacy.cjs
 - 게임 바이너리·세이브·실제 시드 및 식별정보 브랜치 미업로드. 공개 웹사이트·버전/기존 90급 엔진 불변.
 
 공개 원본: https://sources.debian.org/src/luajit/2.1.0~beta3%2Bdfsg-5.1/src/lj_tab.c/
+
+## 2026-11-26 v11 — 네이티브 순회 기록 메타키 위치 보존 / 생성자 유일성 판정
+
+독립 패키지 `Low_Gates_Original_Function_Replay_20261126_v11.zip`에 아래 수정과 검사 포함:
+
+- v10까지 `native_pairs_capture_import.cjs`는 관측한 메타키 `key` 위치를 제거하고, `native_pairs_capture_bridge.cjs`는 이를 무조건 **맨 앞에 재삽입**했다. 결과적으로 original pairs의 위치 증거가 훼손되었다. v11에서는 `fullNativePairOrder`를 보존해 원본에서 앞/중간/뒤에 있던 메타키 위치를 그대로 전달한다.
+- `native_pairs_candidate_reconciler.cjs`: 38개 정적 원본 가중치 테이블을 대상으로 가상 해시 초기비트 0~3 및 메타 키 first/last/absent 12종을 합성 비교하는 식별기. 각 경로의 두 번의 관측 입력 타입·구성 정합성 확인 후 **동일한 순회 순서가 나오는 여러 생성자 가설을 모두 유지**한다.
+- **새로운 복원상 중요 사실:** 38개 정적 테이블을 모두 관측해도 가상 메타키 first 혹은 last 조건에서 초기 해시 비트 0/1/3이 전부 동일한 순회를 생성한다. 따라서 순회 기록만으로 원본 초기 할당 크기를 항상 유일하게 알 수 없으며 `getLuaJsonFile`의 테이블 생성 코드를 직접 확인해야 한다.
+- Node.js 소스 회귀 **53/53 테스트 파일 통과** (38정적 테이블 × 12모델 = 456개의 합성 캡처를 신규 테스트에서 검증). 이는 **게임 실행의 native 관측이 아님**.
+- 기존 90급 4관문, 사이트·버전, 원본 파일·실제 세이브·원시 시드 불변. 코드 산출물은 ZIP에 따로 보존하고 이 저장소에는 연구 체크포인트만 게시.
+
+미완료: 게임 60014 `getLuaJsonFile` 실제 함수 본체, 원본 VM에서 발생한 `pairs()` 순회 기록, 묵문유적 일반 장비 지급. 따라서 미래 장비 드랍 정확도 미검증.
