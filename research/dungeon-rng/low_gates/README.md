@@ -453,3 +453,17 @@ LuaJIT 2.1 beta3 표준 근거: https://sources.debian.org/src/luajit/2.1.0~beta
 - **완성 아님:** 런타임 `math.jhrandom` 등록/시드·게임 전역 PRNG 전체 원장·JHNetServer PC986의 게임 내 실제 도달 여부·미래 보스별 일반 장비 ID/색상 검증은 아직 없다. 공개 사이트/버전과 출시 90급 4관문 엔진 미수정.
 
 대화용 전체 실행기 및 감사 코드 ZIP: `Low_Gates_Original_Function_Replay_20261126_v31.zip` SHA256 `e40b77a43e1c48a7daeffd12bb51ec940c13e67bec9ea25b2cd4ff97933759a9`.
+
+## 2026-11-26 v32 — JHNetServer의 실제 후보 선택·제거 후속 처리 + JHBaseData의 별도 글로벌 RNG 출처
+
+이번에는 **60014 원본 Whale 바이트코드를 다시 선택 복호화한 명령 PC 자체**를 근거로 기존 난수 소비기의 성격과 누락된 외부 호출 출처를 보완했다.
+
+- `wapp__net.whale` 레코드 3의 `JHNetServer` proto23(1,655 명령) 재검증: 랜덤 후보 테이블 **TNEW R17 PC904**, 원본 목록의 `ipairs` PC905, 네이티브/폴백 각각 PC980/986에서 17 범위 난수 호출, 결과 인덱스로 R17 조회하는 **PC988**, `table.remove` 호출 **PC993** 확인. 원본 점프 **PC976→983 / PC982→988** 재계산. 따라서 해당 난수는 **전투 구성 후보를 선택 후 제거하는 흐름**으로 연결된다. 이를 장비 아이템 품질 추첨 자체로 해석하지 않는다.
+- `wapp__data.whale` 레코드 68의 `JHBaseData` proto3(44 명령) 확인: PC30–33 `S`→`__RandSeed` 변환 등록, PC34/35 `math.random` 직접 조회, **PC37** 호출 후 PC38에서 `__RandSeed` 저장. **또 다른 직접 글로벌 RNG 호출 출처**로, 실제 기반 데이터 객체 생성자 실행 횟수와 호출 인수 준비 PC36의 독립 VM 의미는 아직 불명.
+- `engine/original_netserver_candidate_selection.cjs`: 외부에서 정확히 관측한 17개 후보 테이블과 원본 폴백 PC986 관측값이 주어졌을 때만 후보 인덱스 선택·제거를 순수 함수로 재생. 원본 테이블/호출은 임의 생성하지 않는다.
+- `engine/original_basedata_global_random.cjs`: **원본 PC37 실행 도달과 실제 인수까지 별도 관측한 호출만** 글로벌 `math.random` 원장에 반영하도록 단일/혼합 관문 재생기 연결. 실행기 출력에 `base-data-rand-seed-init` 목적과 `__RandSeed` 필드를 표시.
+- `reproduction_tools/prove_netserver_direct_random.py`, `prove_basedata_global_math_consumer.py`: 보존 원본 바이너리를 로컬에서만 사용해 PC·레지스터를 검사. 이번 패키지는 원본 바이너리를 포함하지 않는다.
+- Node.js 회귀 **91/91**, Python SBv3 **4/4**, 원본 레지스트리 **12스크립트·40가중치·19보스·74지급 기록** 통과. 네이티브 런타임 등록/초기 상태·실제 호출 횟수 및 미래 드랍 홀드아웃은 여전히 미확정.
+- 대화 코드 패키지 `Low_Gates_Original_Function_Replay_20261126_v32.zip` SHA256 `1ccbd8e57f5b034fe9967fa47754ccdbdee8f47bc33a4f0f111d539e289e9100`; 배포 사이트·버전·90급 출시 엔진 불변.
+
+**주의:** JHNetServer 후보 구성 코드의 발견은 20–80급 일반 장비 드랍 결과를 독립적으로 예측했다는 뜻이 아니다. JHBaseData 원본 호출 인수도 반드시 독립 관측해야 하며, 합성 테스트 결과를 실게임 검증으로 표기하지 않는다.
