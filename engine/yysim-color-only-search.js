@@ -70,6 +70,12 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
  const queue=new Heap(),seen=new Set(),routes=[];
  let generated=0,explored=0,pruned=0,failures=0,restored=0,nativeWashes=0,
  best=Number.isFinite(initialBest)?Math.max(0,Number(initialBest)):Infinity;
+ // Supplemental mixed searches spend a small fixed budget jumping through
+ // real WASM washes to the next observable missing goal. These are ADDITIONAL
+ // branches, not replacements for the cost-first one-wash transitions.
+ let lookaheadNodes=0,lookaheadHits=0;
+ const lookaheadNodeLimit=supplemental?18:0;
+ const lookaheadWashLimit=supplemental?Math.min(160,maxWashes):0;
  const diagnostics={method:supplemental?'mixed-color-first-wasm-cost':'color-only-wasm-cost-first',
   isMixed:true,desiredCount:desiredIds.length,
   incumbentUpperBound:Number.isFinite(best)?best:null,
@@ -233,6 +239,34 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
     }));
     else failures++;
    }
+   // Seed the heap with several nearby real WASM goal sightings.
+   // A rare purple sighting can otherwise be buried under thousands of
+   // cheaper intermediate one-wash nodes in a bounded mixed search.
+   // Slot-opening and every ordinary wash step still remain in the heap.
+   if(lookaheadNodes<lookaheadNodeLimit&&node.washes<maxWashes&&
+      !state.talents.some(t=>desiredIds.includes(Number(t.id))&&!t.locked)){
+    lookaheadNodes++;
+    restore(state);
+    let hits=0;
+    for(let step=0;step<lookaheadWashLimit&&
+        node.washes+step<maxWashes;step++){
+     const beforeWash=washNo(getState());
+     nativeWashes++;
+     const washed=doWash(),scanState=getState();
+     if(!washed||washed.error||washNo(scanState)!==beforeWash+1){
+      failures++;break;
+     }
+     const spent=pills(scanState)-startPills;
+     if(spent>=best)break;
+     const found=(scanState.talents||[]).some(t=>
+      desiredIds.includes(Number(t.id))&&!t.locked);
+     if(found){
+      add(clone(scanState),node.actions);
+      lookaheadHits++;
+      if(++hits>=3)break;
+     }
+    }
+   }
    if(node.washes<maxWashes){
     restore(state);
     nativeWashes++;
@@ -256,7 +290,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
  Object.assign(diagnostics,{expandedStates:explored,generatedStates:generated,
   prunedStates:pruned,failedTransitions:failures,restoreChecks:restored,
   nodeLimitReached:explored>=maxNodes,remainingCandidates:queue.length,
-  simulatedWashes:nativeWashes,
+  simulatedWashes:nativeWashes,lookaheadNodes,lookaheadHits,
   lowestObservedPills:Number.isFinite(best)?best:null});
  return {routes,scanned:nativeWashes,diagnostics,
   error:routes.length?null:'원본 WASM 비용순 탐색 범위에서 목표 재능을 모두 보유하는 경로를 찾지 못했습니다. 최솟값은 확정되지 않았습니다.'};
