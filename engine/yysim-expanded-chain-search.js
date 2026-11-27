@@ -12,7 +12,7 @@ class Heap{
  pop(){const a=this.a,v=a[0],x=a.pop();if(a.length){let i=0;while(i*2+1<a.length){let c=i*2+1;if(c+1<a.length&&a[c+1].priority<a[c].priority)c++;if(a[c].priority>=x.priority)break;a[i]=a[c];i=c}a[i]=x}return v}
 }
 async function run({desiredIds,talents,getState,setState,doWash,exchangeTalent,guard,
- horizon=4500,nodeLimit=3400,topN=8,initialBest=Infinity,
+ horizon=6000,nodeLimit=3400,topN=8,initialBest=Infinity,
  onVerifiedCandidate=null,progress=()=>{}}={}){
  if(!Array.isArray(desiredIds)||desiredIds.length<1||desiredIds.length>4||
   new Set(desiredIds.map(Number)).size!==desiredIds.length)throw Error('체인 탐색 목표 오류');
@@ -22,7 +22,7 @@ async function run({desiredIds,talents,getState,setState,doWash,exchangeTalent,g
  const originalKey=canonical(original),base=cp(original);
  base.has_bag_pills=true;base.bag_pills=Math.max(num(base.bag_pills),100000);
  const washStart=num(base.total_wash),pillStart=num(base.total_pills);
- const limit=Math.min(6500,Math.max(100,Number(horizon)||4500));
+ const limit=Math.min(7000,Math.max(100,Number(horizon)||6000));
  const maxNodes=Math.min(12000,Math.max(200,Number(nodeLimit)||3400));
  const goals=desiredIds.map(Number),goalSet=new Set(goals);
  const name=id=>String(talents[String(id)]?.name||id);
@@ -167,20 +167,24 @@ async function run({desiredIds,talents,getState,setState,doWash,exchangeTalent,g
    if(expanded<=Math.min(maxNodes,1000)){
     restore(s);
     const quotas=new Map(),maxScan=Math.min(limit-w,
-     expanded<100?1200:expanded<400?360:90);
+     expanded<=12?5800:expanded<100?1400:expanded<400?420:120);
     for(let k=1;k<=maxScan;k++){
      const previous=num(getState().total_wash),out=doWash();nativeWashes++;
      if(!out||out.error||num(getState().total_wash)!==previous+1)break;
      const next=cp(getState());
      if(cost(next)>=ceiling)break;
      const targets=(next.talents||[]).filter(t=>!t.locked&&
-      (goalSet.has(Number(t.id))||grade(t.id)>=4));
+      (goalSet.has(Number(t.id))||grade(t.id)>=2));
      let found=false;
      for(const t of targets){
       const id=Number(t.id),count=quotas.get(id)||0;
-      if(count<3){quotas.set(id,count+1);found=true}
+      if(count<(goalSet.has(id)?5:2)&&
+       (count===0||k>=40*count)){
+       quotas.set(id,count+1);found=true
+      }
      }
-     if(found||k===50||k===200||k===600)add(next,node.actions);
+     if(found||[50,200,600,1200,2400,3600,4800].includes(k))
+      add(next,node.actions);
     }
    }
    if(expanded%60===0){
