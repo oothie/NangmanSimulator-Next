@@ -691,11 +691,13 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    }
   }
  }
- // A first sighting lock changes the WASM draw sequence. For two
- // lower-grade goals, consider later genuine sightings before locking either.
+ // Locking the first lower-grade target changes the WASM stream. This
+ // timing search applies to ANY one-to-three purple anchors with two or
+ // three remaining colors, not just two purple + two colors.
  async function searchDeferredColorLocks(start,base,native,diagnostics,routes){
-  if(shape.purple.length!==2||shape.colors.length!==2||
+  if(shape.colors.length<2||
      shape.colors.some(id=>idsOf(start).includes(id)))return;
+  diagnostics.deferredColorGoalCount=shape.colors.length;
   restore(start);
   const events=[];
   for(let offset=1;offset<=horizon;offset++){
