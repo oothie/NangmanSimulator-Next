@@ -13135,7 +13135,20 @@ window.addEventListener('message',event=>{
  if(d.kind==='nangman-purple-save')syncSave(d.save);
  else if(d.kind==='nangman-purple-clear')syncSave(null);
 });
+function reportHeight(){
+ const height=Math.max(document.body?.scrollHeight||0,document.documentElement?.scrollHeight||0);
+ if(!height)return;
+ try{window.parent.postMessage({kind:'nangman-purple-height',height},location.origin)}catch(_){}
+}
+if(typeof ResizeObserver!=='undefined'){
+ const observer=new ResizeObserver(reportHeight);
+ observer.observe(document.body);
+ const root=document.getElementById('purpleV6');if(root)observer.observe(root);
+}
+window.addEventListener('load',reportHeight);
+window.addEventListener('resize',reportHeight);
 send('ready');
+reportHeight();
 })();
 </script>
 </body></html>
