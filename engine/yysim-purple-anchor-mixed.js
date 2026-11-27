@@ -44,6 +44,32 @@ function sampleIntervalCandidates(events,cap=8){
 // When two lower-grade goals are selected, reserve native replay slots
 // for candidates where EACH goal arrives first. Without this, frequent
 // appearances of one color can fill the entire eight-candidate budget.
+// Extended-only balanced candidate sampler. Unlike quick search, the longer
+// search must reserve room for early, middle AND late occurrences of EACH
+// lower-grade goal, not exhaust the budget on one frequent early target.
+function sampleExpandedMixedCandidates(events,colors,cap=8){
+ if(!Array.isArray(events)||!events.length||cap<=0)return [];
+ const ordered=events.slice().sort((a,b)=>Number(a.time)-Number(b.time));
+ if(ordered.length<=cap)return ordered;
+ const picked=new Map();
+ const add=e=>{
+  if(!e||picked.size>=cap)return;
+  picked.set(Number(e.time),e);
+ };
+ const goals=[...new Set((colors||[]).map(Number))];
+ const perGoal=Math.max(5,Math.min(28,Math.floor(cap/Math.max(1,goals.length*2))));
+ for(const id of goals){
+  const match=ordered.filter(e=>(e.appearing||[]).includes(id));
+  for(const e of sampleIntervalCandidates(match,perGoal))add(e);
+ }
+ const cheapest=ordered.slice().sort((a,b)=>
+  count(a.state,'total_pills')-count(b.state,'total_pills')||
+  Number(a.time)-Number(b.time));
+ for(const e of cheapest.slice(0,Math.ceil(cap/4)))add(e);
+ for(const e of sampleIntervalCandidates(ordered,cap))add(e);
+ for(const e of cheapest)add(e);
+ return [...picked.values()].sort((a,b)=>Number(a.time)-Number(b.time));
+}
 function sampleMixedColorCandidates(events,colors,cap=8){
  if(!Array.isArray(events)||!events.length||cap<=0)return [];
  const ordered=events.slice().sort((a,b)=>
@@ -364,8 +390,10 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   // Spend a larger replay budget where multiple distinct arrival timings can
   // change the total pill minimum; do not discard the cheapest events for
   // each individual color merely because the other color is common.
-  const replayBudget=expanded?48:24;
-  const chosen=sampleMixedColorCandidates(candidatesInWindow,shape.colors,replayBudget);
+  const replayBudget=expanded?96:24;
+  const chosen=expanded?
+   sampleExpandedMixedCandidates(candidatesInWindow,shape.colors,replayBudget):
+   sampleMixedColorCandidates(candidatesInWindow,shape.colors,replayBudget);
   diagnostics.betweenCandidates=(diagnostics.betweenCandidates||0)+
    candidatesInWindow.length;
   diagnostics.betweenExamined=(diagnostics.betweenExamined||0)+chosen.length;
@@ -732,11 +760,10 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   // Three lower-grade goals have a larger continuation branching factor.
   // Bound the expensive replay count while preserving the earliest event
   // for each target and the least-spent event states.
-  const deferredBudget=shape.colors.length===3?(expanded?32:20):(expanded?64:40);
+  const deferredBudget=shape.colors.length===3?(expanded?72:20):(expanded?100:40);
   const candidates=events.length<=deferredBudget?events:
-   sampleMixedColorCandidates(events.map(e=>({
-    ...e,time:e.wash,appearing:e.colors
-   })),missing,deferredBudget);
+   (expanded?sampleExpandedMixedCandidates:sampleMixedColorCandidates)(
+    events.map(e=>({...e,time:e.wash,appearing:e.colors})),missing,deferredBudget);
   diagnostics.deferredColorSightings=(diagnostics.deferredColorSightings||0)+events.length;
   diagnostics.deferredColorExamined=(diagnostics.deferredColorExamined||0)+candidates.length;
   for(const event of candidates){
@@ -851,7 +878,9 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    // anchor branches instead of stopping at the first purple-only winner.
    const twoPurple=shape.purple.length===2;
    const attempted=new Set(),paddingModes=[...new Set(
-    twoPurple?[0,5,10,20,maxPad]:expanded?[0,5,maxPad]:[0,maxPad])];
+    expanded?(twoPurple?[0,5,10,20,40,80,120,200,maxPad]:
+     [0,5,20,60,120,200,maxPad]):
+    twoPurple?[0,5,10,20,maxPad]:[0,maxPad])];
    const allMatching=[],seenBackbones=new Set();
    diagnostics.purpleAttempts=0;
    diagnostics.purpleNativeCalls=0;
@@ -977,8 +1006,8 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     // never assume the cheapest purple cost implies cheapest mixed cost.
     // A purple-only top-16 cutoff can discard the best mixed completion.
     // Preserve multiple cost tiers and distinct completion wash times.
-    const backboneBudget=twoPurple?(expanded?64:32):
-     (expanded?48:Math.max(20,topN*3));
+    const backboneBudget=twoPurple?(expanded?104:32):
+     (expanded?80:Math.max(20,topN*3));
     const selected=[];
     const signatures=new Set();
     const costs=new Set();
