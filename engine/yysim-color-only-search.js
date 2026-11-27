@@ -69,7 +69,77 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
   const held=desiredIds.filter(id=>(state.talents||[]).some(t=>Number(t.id)===id&&t.locked)).length;
   queue.push({state,actions,cost,washes,held});
  }
+ function greedy(mode){
+  // Obtain a completed native-WASM upper bound before spending the
+  // cost-ordered search budget. Each mode uses a distinct real slot timing.
+  restore(base);
+  let current=clone(getState()),actions=[];
+  const atStart=washNo(current);
+  // Unrelated old locks may leave no replaceable slots; release them in
+  // this trial only. The cost search also tests retaining those locks.
+  const unlocked=current.talents.map(t=>({...t,locked:
+   desiredIds.includes(Number(t.id))&&!!t.locked}));
+  if(unlocked.some((t,i)=>t.locked!==current.talents[i].locked)){
+   const old=current;
+   if(setState({...old,talents:unlocked})){
+    current=clone(getState());
+    for(const t of old.talents.filter(t=>t.locked&&!desiredIds.includes(Number(t.id))))
+     actions.push({kind:'unlock',talent:name(talents,Number(t.id)),
+      wash_no:atStart,pills_after:0});
+   }
+  }
+  for(let offset=0;offset<=maxWashes;offset++){
+   current=clone(getState());
+   const at=washNo(current);
+   for(const id of desiredIds){
+    const entry=current.talents.find(t=>Number(t.id)===id);
+    if(!entry||entry.locked)continue;
+    const next={...current,talents:current.talents.map(t=>
+     Number(t.id)===id?{...t,locked:true}:t)};
+    if(!setState(next))continue;
+    current=clone(getState());
+    if(at>Number(actions.at(-1)?.wash_no??atStart))
+     actions.push({kind:'wash_to',wash_no:at,
+      pills_after:pills(current)-startPills});
+    actions.push({kind:'lock',talent:name(talents,id),wash_no:at,
+     pills_after:pills(current)-startPills});
+   }
+   if(present(current,desiredIds)){
+    const cost=pills(current)-startPills;
+    if(cost<best){best=cost;routes.length=0}
+    if(cost===best&&routes.length<topN)routes.push({
+     order_ids:[...desiredIds],final_slots:clone(current.talents),
+     actions:clone(actions),pills:cost,washes:at-startWash,
+     exchanges:0,pad:0,optimal:false,native_verified:true,
+     strategy:'원본 WASM 녹·파맥 선행 완성 경로'
+    });
+    return true;
+   }
+   if(offset===maxWashes||pills(current)-startPills>=best)break;
+   const needed=mode==='upfront'?desiredIds.length:
+    Math.min(desiredIds.length,desiredIds.filter(id=>
+     current.talents.some(t=>Number(t.id)===id&&t.locked)).length+1);
+   const required=Math.max(151,150+needed);
+   while(Number(current.zizhi)<required&&Number(current.zizhi)<154){
+    const next={...current,zizhi:Number(current.zizhi)+1,
+     str_gift:num(current.str_gift)+100,con_gift:num(current.con_gift)+100};
+    if(!setState(next))return false;
+    current=clone(getState());
+    actions.push({kind:'open_slot',note:'자질 '+next.zizhi,
+     wash_no:at,pills_after:pills(current)-startPills});
+   }
+   const washed=doWash(),after=getState();
+   if(!washed||washed.error||washNo(after)!==at+1)break;
+  }
+  return false;
+ }
  try{
+  for(const mode of ['progressive','upfront']){
+   try{greedy(mode)}catch(error){
+    diagnostics.greedyErrors=(diagnostics.greedyErrors||0)+1;
+   }
+  }
+  diagnostics.greedyBest=Number.isFinite(best)?best:null;
   restore(base);
   add(clone(getState()),[]);
   while(queue.length&&explored<maxNodes){
