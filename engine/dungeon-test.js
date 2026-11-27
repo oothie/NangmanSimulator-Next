@@ -169,8 +169,9 @@ export function mountDungeon(host,save){
  function dailyRun(){
   try{
    const out=predictDailyGates(save,dailyPlan,dailyDays);
-   result.innerHTML=out.results.map(x=>'<h3>'+x.day+'일차</h3>'+
-    x.rows.map(y=>paintRows(y.results,y.gate+' '+y.clear+'회차')).join('')).join('')+
+   result.innerHTML=out.results.map(x=>'<details class="dun-day-group" style="margin:12px 0;border:1px solid var(--border);border-radius:8px;background:var(--panel);overflow:hidden">'+
+    '<summary style="cursor:pointer;padding:12px 14px;font-weight:700;background:var(--paper)">'+x.day+'일차 · '+x.rows.length+'회차</summary>'+
+    '<div style="padding:12px 14px">'+x.rows.map(y=>paintRows(y.results,y.gate+' '+y.clear+'회차')).join('')+'</div></details>').join('')+
     (out.complete?'':'<p class="micro">'+esc(out.warnings.join(' · '))+'</p>');
   }catch(e){result.textContent='일일 예측 실패: '+String(e.message||e)}
  }
