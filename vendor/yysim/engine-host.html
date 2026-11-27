@@ -57,6 +57,7 @@ try{
   const maxPad=Number(payload?.maxPad??0);
   const horizon=Number(payload?.horizon??2500);
   const topN=Number(payload?.topN??8);
+  const searchMode=payload?.searchMode==='expanded'?'expanded':'quick';
   // Dispatch green/blue/purple goals to ORIGINAL native search. This is an
   // experimental characterization of the existing WASM, NOT proof that its
   // purple-oriented generator can fulfill a mixed final state. Only fully
@@ -84,12 +85,13 @@ try{
    const startState=wasmGetState();
    if(!startState||typeof startState!=='object')
     throw Error('원본 자동탐색 시작 상태를 읽지 못했습니다');
-   const worker=new Worker('./native-auto-search-worker.js?rev=1.3.1-native-replay-identity-v14');
+   const worker=new Worker('./native-auto-search-worker.js?rev=1.3.1-dual-search-v15');
    const response=await new Promise((resolve,reject)=>{
+    const expanded=searchMode==='expanded';
     const limit=setTimeout(()=>{
      worker.terminate();
-     reject(Error('원본 세수 자동탐색이 5분 응답 제한을 초과했습니다'));
-    },295000);
+     reject(Error(expanded?'확장 탐색이 10분 응답 제한을 초과했습니다':'빠른 탐색이 5분 응답 제한을 초과했습니다'));
+    },expanded?595000:295000);
     let finished=false;
     const close=()=>{if(finished)return false;finished=true;clearTimeout(limit);worker.terminate();return true};
     worker.onmessage=event=>{
@@ -109,7 +111,8 @@ try{
     };
     worker.onmessageerror=()=>{if(close())reject(Error('세수 탐색 결과 전달에 실패했습니다'))};
     try{worker.postMessage({kind:'nangman-native-auto-search',requestId,
-      state:startState,request:{desired_ids:ids,max_pad:maxPad,horizon,top_n:topN}})}
+      state:startState,request:{desired_ids:ids,max_pad:maxPad,horizon,top_n:topN,
+       search_mode:searchMode}})}
     catch(error){if(close())reject(error)}
    });
    send(requestId,true,response);
