@@ -81,7 +81,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
  const lookaheadNodeLimit=deepSearch?36:(supplemental?10:0);
  const lookaheadWashLimit=deepSearch?Math.min(950,maxWashes):
   (supplemental?Math.min(360,maxWashes):0);
- const lookaheadSeen=new Set();
+ const lookaheadSeen=new Map();
  const lookaheadSightings=new Map();
  const diagnostics={method:supplemental?'mixed-color-first-wasm-cost':'color-only-wasm-cost-first',
   isMixed:true,desiredCount:desiredIds.length,
@@ -340,8 +340,12 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
       Number(t.id)===id&&t.locked));
      const band=Math.floor(node.washes/160);
      const key=[state.zizhi,locked.join(','),band].join(':');
-     if(!lookaheadSeen.has(key)){
-      lookaheadSeen.add(key);
+     const sampled=lookaheadSeen.get(key)||0;
+     // Two genuinely different native frontier states may reach the same
+     // slot/locked mask through different RNG histories. Never collapse
+     // their deeper scans merely because their visible talents match.
+     if(sampled<2){
+      lookaheadSeen.set(key,sampled+1);
       lookaheadNodes++;
       restore(state);
       const perGoal=new Map(),observedHere=new Set();
@@ -438,6 +442,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
   nodeLimitReached:explored>=maxNodes,remainingCandidates:queue.length,
   simulatedWashes:nativeWashes,lookaheadNodes,lookaheadHits,
   lookaheadGoalSightings:Object.fromEntries(lookaheadSightings),
+  lookaheadProfiles:lookaheadSeen.size,
   lowestObservedPills:Number.isFinite(best)?best:null});
  return {routes,scanned:nativeWashes,diagnostics,
   error:routes.length?null:'원본 WASM 비용순 탐색 범위에서 목표 재능을 모두 보유하는 경로를 찾지 못했습니다. 최솟값은 확정되지 않았습니다.'};
