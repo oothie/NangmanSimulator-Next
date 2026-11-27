@@ -1597,6 +1597,7 @@ if(sub==='auto'){
    (state.autoExpandedStatus==='running'?
     '<p class="micro">⏳ '+escape(state.autoExpandedProgress?.stage||'추가 경로 분석 중')+
     (state.autoExpandedProgress?.bestPills==null?'':' · 현재 후보 '+escape(state.autoExpandedProgress.bestPills)+'개')+
+    ' · 경과 '+escape(state.autoExpandedProgress?.elapsedSeconds??0)+'초'+
     '</p><button type="button" class="btn" id="yyAutoStopExtended">확장 탐색 중단</button>':'')+
    (state.autoExpandedStatus==='error'?'<p class="notice">'+escape(state.autoExpandedError||'확장 탐색 실패')+'</p>':'')+
    (state.autoExpandedStatus==='stopped'?'<p class="micro">확장 탐색을 중단했습니다. 빠른 탐색 결과는 유지됩니다.</p>':'')+
@@ -5734,6 +5735,13 @@ async function startExpanded({generation,source,options,initial,colorSearch}){
  state.autoExpandedProgress={stage:'확장 탐색 WASM 준비 중'};
  state.autoExpandedError='';
  announce();
+ const started=performance.now();
+ const ticker=setInterval(()=>{
+  if(!valid()||state.autoExpandedStatus!=='running')return;
+  state.autoExpandedProgress={...state.autoExpandedProgress,
+   elapsedSeconds:Math.floor((performance.now()-started)/1000)};
+  announce();
+ },5000);
  try{
   await washSearchEngine.call('init');
   if(!valid())return;
@@ -5749,7 +5757,8 @@ async function startExpanded({generation,source,options,initial,colorSearch}){
   },progress=>{
    if(!valid()||state.autoExpandedStatus!=='running')return;
    const {partialResult,...visible}=progress||{};
-   state.autoExpandedProgress=visible;
+   state.autoExpandedProgress={...visible,
+    elapsedSeconds:Math.floor((performance.now()-started)/1000)};
    if(partialResult&&Array.isArray(partialResult.result?.routes))
     state.autoExpandedResult={...partialResult,colorSearch};
    const phase=String(progress?.phase||''),now=performance.now();
@@ -5771,7 +5780,7 @@ async function startExpanded({generation,source,options,initial,colorSearch}){
   state.autoExpandedError=String(error?.message||error);
   state.autoExpandedProgress=null;
   announce();
- }
+ }finally{clearInterval(ticker)}
 }
 function fields(evt){for(const key of ['seed','roleId','zizhi','count'])if(evt[key]!==undefined&&evt[key]!==null)state[key]=evt[key];}
 function connectActiveWashView(){
