@@ -5711,7 +5711,7 @@ js.onerror=()=>window.dispatchEvent(new Event('nangman-wiki-source-error'));
 document.head.append(js);
 </script>
 <script type="module">
-import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=1.3.1-dual-search';
+import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=1.3.1-dual-search-v2';
 const state=window.__washRuntime={ready:false,active:false,error:'',output:'',loading:false,log:[],undoStates:[],generation:0};
 function syncWasmBag(obj){state.bagPills=obj?.has_bag_pills===true&&Number.isFinite(Number(obj.bag_pills))?Number(obj.bag_pills):null;}
 function announce(){window.dispatchEvent(new Event('nangman-wash-updated'))}
