@@ -85,7 +85,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
     current=clone(getState());
     for(const t of old.talents.filter(t=>t.locked&&!desiredIds.includes(Number(t.id))))
      actions.push({kind:'unlock',talent:name(talents,Number(t.id)),
-      wash_no:atStart,pills_after:0});
+      wash_no:0,pills_after:0});
    }
   }
   for(let offset=0;offset<=maxWashes;offset++){
@@ -98,10 +98,10 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
      Number(t.id)===id?{...t,locked:true}:t)};
     if(!setState(next))continue;
     current=clone(getState());
-    if(at>Number(actions.at(-1)?.wash_no??atStart))
-     actions.push({kind:'wash_to',wash_no:at,
+    if(at-startWash>Number(actions.at(-1)?.wash_no??0))
+     actions.push({kind:'wash_to',wash_no:at-startWash,
       pills_after:pills(current)-startPills});
-    actions.push({kind:'lock',talent:name(talents,id),wash_no:at,
+    actions.push({kind:'lock',talent:name(talents,id),wash_no:at-startWash,
      pills_after:pills(current)-startPills});
    }
    if(present(current,desiredIds)){
@@ -126,7 +126,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
     if(!setState(next))return false;
     current=clone(getState());
     actions.push({kind:'open_slot',note:'자질 '+next.zizhi,
-     wash_no:at,pills_after:pills(current)-startPills});
+     wash_no:at-startWash,pills_after:pills(current)-startPills});
    }
    const washed=doWash(),after=getState();
    if(!washed||washed.error||washNo(after)!==at+1)break;
@@ -153,8 +153,8 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
      const finalWash=washNo(node.state);
      // The last color may appear in an unlocked slot during a wash. The
      // final wash is essential even if no explicit lock follows it.
-     if(finalWash>Number(actions[actions.length-1]?.wash_no??startWash))
-      actions.push({kind:'wash_to',wash_no:finalWash,pills_after:node.cost});
+     if(finalWash-startWash>Number(actions[actions.length-1]?.wash_no??0))
+      actions.push({kind:'wash_to',wash_no:finalWash-startWash,pills_after:node.cost});
      routes.push({
       order_ids:[...desiredIds],final_slots:clone(node.state.talents),
       actions,pills:node.cost,washes:node.washes,
@@ -174,7 +174,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
      str_gift:num(state.str_gift)+100,con_gift:num(state.con_gift)+100};
     if(setState(clone(next))&&Number(getState().zizhi)===next.zizhi)
      add(clone(getState()),node.actions.concat({
-      kind:'open_slot',note:'자질 '+next.zizhi,wash_no:at,
+      kind:'open_slot',note:'자질 '+next.zizhi,wash_no:at-startWash,
       pills_after:pills(getState())-startPills
      }));
     else failures++;
@@ -190,9 +190,9 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
      const current=clone(getState());
      if(current.talents.some(t=>Number(t.id)===id&&t.locked))
       add(current,node.actions.concat({
-       kind:'wash_to',wash_no:at,pills_after:pills(current)-startPills
+       kind:'wash_to',wash_no:at-startWash,pills_after:pills(current)-startPills
       },{
-       kind:'lock',talent:name(talents,id),wash_no:at,
+       kind:'lock',talent:name(talents,id),wash_no:at-startWash,
        pills_after:pills(current)-startPills
       }));
      else failures++;
@@ -206,7 +206,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
     const id=Number(talent.id);
     const next={...state,talents:state.talents.map(t=>Number(t.id)===id?{...t,locked:false}:t)};
     if(setState(clone(next)))add(clone(getState()),node.actions.concat({
-     kind:'unlock',talent:name(talents,id),wash_no:at,
+     kind:'unlock',talent:name(talents,id),wash_no:at-startWash,
      pills_after:pills(getState())-startPills
     }));
     else failures++;
