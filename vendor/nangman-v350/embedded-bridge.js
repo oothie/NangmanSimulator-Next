@@ -320,10 +320,10 @@ html[data-nangman-theme="dark"] body #rk218 tr.row-keep > td :is(b,strong,span,s
  color:#f1fff6!important;opacity:1!important;
 }
 html[data-nangman-theme="dark"] body #rk218 tr.search-hit272 .rk-grade256{
- background:#354153!important;border-color:#8494ac!important;
+ background:var(--gback)!important;border-color:var(--gb)!important;color:var(--gc)!important;
 }
-html[data-nangman-theme="dark"] body #rk218 tr.search-hit272 .rk-grade256 :is(b,small){
- color:#f1fff6!important;
+html[data-nangman-theme="dark"] body #rk218 tr.search-hit272 .rk-grade256 :is(b,small,strong,span){
+ color:var(--gc)!important;
 }
 `;
 syncHostTheme();
