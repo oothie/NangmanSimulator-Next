@@ -74,8 +74,11 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
  // real WASM washes to the next observable missing goal. These are ADDITIONAL
  // branches, not replacements for the cost-first one-wash transitions.
  let lookaheadNodes=0,lookaheadHits=0;
- const lookaheadNodeLimit=supplemental?18:0;
- const lookaheadWashLimit=supplemental?Math.min(160,maxWashes):0;
+ // Rare purple events may be hundreds of washes apart. Concentrate the
+ // additional scan budget on a handful of low-cost frontier states rather
+ // than spreading short scans across many equivalent branches.
+ const lookaheadNodeLimit=supplemental?10:0;
+ const lookaheadWashLimit=supplemental?Math.min(360,maxWashes):0;
  const diagnostics={method:supplemental?'mixed-color-first-wasm-cost':'color-only-wasm-cost-first',
   isMixed:true,desiredCount:desiredIds.length,
   incumbentUpperBound:Number.isFinite(best)?best:null,
