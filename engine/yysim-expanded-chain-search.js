@@ -171,6 +171,7 @@ async function run({desiredIds,talents,getState,setState,doWash,exchangeTalent,g
    }
    // Probe only native conflict-eligible, unlocked slots. This matches
    // the normal in-game exchange operation and route replay rules.
+   restore(s);
    const eligible=eligibleIndices();
    for(let i=0;i<(s.talents||[]).length;i++){
     if(s.talents[i].locked||(eligible&&!eligible.has(i)))continue;
