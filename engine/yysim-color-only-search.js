@@ -78,12 +78,20 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
    restore(node.state);
    if(present(node.state,desiredIds)){
     if(node.cost<best){best=node.cost;routes.length=0;}
-    if(node.cost===best&&routes.length<topN)routes.push({
-     order_ids:[...desiredIds],final_slots:clone(node.state.talents),
-     actions:node.actions.map(a=>({...a})),pills:node.cost,washes:node.washes,
-     exchanges:0,pad:0,optimal:false,native_verified:true,
-     strategy:'원본 WASM 비용순 녹·파맥 탐색'
-    });
+    if(node.cost===best&&routes.length<topN){
+     const actions=node.actions.map(a=>({...a}));
+     const finalWash=washNo(node.state);
+     // The last color may appear in an unlocked slot during a wash. The
+     // final wash is essential even if no explicit lock follows it.
+     if(finalWash>Number(actions[actions.length-1]?.wash_no??startWash))
+      actions.push({kind:'wash_to',wash_no:finalWash,pills_after:node.cost});
+     routes.push({
+      order_ids:[...desiredIds],final_slots:clone(node.state.talents),
+      actions,pills:node.cost,washes:node.washes,
+      exchanges:0,pad:0,optimal:false,native_verified:true,
+      strategy:'원본 WASM 비용순 녹·파맥 탐색'
+     });
+    }
     // At this cost, no further wash/lock action is needed.
     continue;
    }
