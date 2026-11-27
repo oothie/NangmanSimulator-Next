@@ -23,8 +23,8 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({
 }[c]));
 export function predictGate(save,gate,clears=1,keyMode='auto',claimMode='current'){
  if(!PRODUCERS[gate])throw Error('현재 출시된 4관문만 지원합니다.');
- if(!Number.isInteger(clears)||clears<1||clears>10)
-  throw Error('1~10회 클리어만 계산할 수 있습니다.');
+ if(!Number.isInteger(clears)||clears<1||clears>21)
+  throw Error('1~21회 클리어만 계산할 수 있습니다.');
  if(!['current','never_claimed'].includes(claimMode))
   throw Error('특수보상 획득 가정이 올바르지 않습니다.');
  const simulated=forecastInterleavedSpecials(save,gate,PRODUCERS[gate],clears,{
@@ -63,68 +63,138 @@ export function predictGate(save,gate,clears=1,keyMode='auto',claimMode='current
   stoppedAt:simulated.stoppedAt,
   totalUnresolved:simulated.unresolved};
 }
+
+const DAILY_DEFAULT = Object.freeze({'연왕부':1,'창옥':1,'벽유교':1,'유씨별원':3});
+let activeDungeonTab='regular';
+let activeDungeonGate='연왕부';
+let regularClears=1;
+let dailyPlan={...DAILY_DEFAULT};
+let dailyDays=1;
+let claimMode='current',keyMode='auto';
+
+function extractDailyOutput(gate,simulated,day){
+ return simulated.rows.map(entry=>({
+  day,gate,clear:entry.clear,results:entry.producer.results.map(boss=>{
+   const npc=NPC[gate][boss.boss];
+   const grants=entry.grants.filter(g=>g.npc===npc&&!(gate==='유씨별원'&&npc===35260&&g.itemId===8801));
+   return {boss:boss.boss,name:boss.name,grade:boss.grade,
+    special:[...new Set(grants.filter(g=>g.predicted).map(g=>g.name))],
+    uncertain:[...new Set(grants.filter(g=>g.unresolved).map(g=>g.name))],
+    keyNote:gate==='유씨별원'&&boss.boss==='고리'
+      ?entry.producer.keyState?.received?'고리의 열쇠 지급 예상'
+      :entry.producer.keyState?.heldAtStart?'열쇠 보유 · 추첨 생략':''
+      :''};
+  })
+ }));
+}
+export function predictDailyGates(save,plan,days=1){
+ if(!save)throw Error('세이브를 불러와 주세요.');
+ if(!Number.isInteger(days)||days<1||days>7)throw Error('일일 예측은 1~7일만 가능합니다.');
+ const counts=Object.fromEntries(GATES.map(g=>[g,Number(plan[g]??0)]));
+ const total=Object.values(counts).reduce((a,b)=>a+b,0);
+ if(GATES.some(g=>!Number.isInteger(counts[g])||counts[g]<0||counts[g]>3)||total>6)
+  throw Error('한 관문 최대 3회 · 하루 총 6회까지만 선택할 수 있습니다.');
+ if(!total)throw Error('예측할 관문 횟수를 선택하세요.');
+ let state=save;
+ const results=[],warnings=[];
+ for(let day=1;day<=days;day++){
+  const dayRows=[];
+  for(const gate of GATES){
+   const n=counts[gate];if(!n)continue;
+   const simulated=forecastInterleavedSpecials(state,gate,PRODUCERS[gate],n,{
+    mode:'current',keyMode:'auto',tempLifetime:'unknown',numericAfterGrant:'unknown'
+   });
+   dayRows.push(...extractDailyOutput(gate,simulated,day));
+   if(simulated.incomplete){
+    warnings.push(day+'일차 '+gate+' '+simulated.stoppedAt+'회차부터 계산 불가');
+    return {results,partial:dayRows,warnings,complete:false};
+   }
+   state=simulated.nextState;
+  }
+  results.push({day,rows:dayRows});
+ }
+ return {results,warnings,complete:true};
+}
 export function mountDungeon(host,save){
  if(!host)return;
- host.innerHTML='<section class="card"><h3>관문 일반 장비 드랍 (테스트)</h3>'+
- '<div class="market-goal-controls"><label>관문 <select id="dungeonTestGate">'+
- GATES.map(g=>'<option>'+esc(g)+'</option>').join('')+'</select></label>'+
- '<label>연속 클리어 <select id="dungeonTestClears">'+
- [1,2,3,4,5,6,7,8,9,10].map(n=>'<option value="'+n+'">'+n+'회</option>').join('')+'</select></label>'+
- '<label>특수보상 <select id="dungeonClaimMode">'+
- '<option value="current">현재 획득 기록 기준</option>'+
- '<option value="never_claimed">미획득 가정</option></select></label>'+
- '<label id="dungeonTestKeyControl" hidden>고리의 열쇠 <select id="dungeonTestKey">'+
- '<option value="auto">획득 후 즉시 사용</option>'+
- '<option value="retain">획득 후 보유 유지</option>'+
- '<option value="owned">매 회차 보유</option>'+
- '<option value="absent">매 회차 미보유</option></select></label>'+
- '<button id="dungeonTestRun" type="button">관문 드랍 계산</button></div>'+
- '<div id="dungeonTestResults" aria-live="polite"></div></section>';
- const gateCtrl=host.querySelector('#dungeonTestGate');
- const keyCtrl=host.querySelector('#dungeonTestKeyControl');
- const sync=()=>{const on=gateCtrl.value==='유씨별원';
-  keyCtrl.hidden=!on;keyCtrl.style.setProperty('display',on?'grid':'none','important');
+ const options=(n,chosen,start=0)=>Array.from({length:n-start+1},(_,i)=>start+i).map(v=>
+  '<option value="'+v+'" '+(v===chosen?'selected':'')+'>'+v+'회</option>').join('');
+ host.innerHTML='<section class="card dungeon-131">'+
+ '<nav class="simple-tabs" aria-label="관문 드랍 하위탭">'+
+ '<button type="button" data-dun-tab="regular" class="'+(activeDungeonTab==='regular'?'active':'')+'">드랍 예측</button>'+
+ '<button type="button" data-dun-tab="daily" class="'+(activeDungeonTab==='daily'?'active':'')+'">일일 예측</button></nav>'+
+ '<div id="dunRegular" '+(activeDungeonTab==='regular'?'':'hidden')+'><div class="market-goal-controls">'+
+ '<label>관문<select id="dunGate">'+GATES.map(g=>'<option value="'+esc(g)+'" '+(g===activeDungeonGate?'selected':'')+'>'+esc(g)+'</option>').join('')+'</select></label>'+
+ '<label>연속 회차<select id="dunCount">'+options(21,regularClears,1)+'</select></label>'+
+ '<label>특수보상<select id="dunClaim"><option value="current" '+(claimMode==='current'?'selected':'')+'>현재 획득 기록</option><option value="never_claimed" '+(claimMode==='never_claimed'?'selected':'')+'>미획득 가정</option></select></label>'+
+ '<label id="dunKeyWrap" '+(activeDungeonGate==='유씨별원'?'':'hidden')+'>고리의 열쇠<select id="dunKey">'+
+ [['auto','획득 후 즉시 사용'],['retain','획득 후 보유'],['owned','매회 보유'],['absent','매회 미보유']].map(([v,n])=>'<option value="'+v+'" '+(keyMode===v?'selected':'')+'>'+n+'</option>').join('')+
+ '</select></label><button id="dunRegularRun" type="button">드랍 예측</button></div></div>'+
+ '<div id="dunDaily" '+(activeDungeonTab==='daily'?'':'hidden')+'>'+
+ '<p class="micro">관문별 최대 3회 · 하루 합계 최대 6회</p>'+
+ '<div class="dun-daily-grid">'+GATES.map(g=>'<label class="dun-daily-place">'+esc(g)+
+ '<select data-dun-daily="'+esc(g)+'">'+options(3,dailyPlan[g])+'</select></label>').join('')+'</div>'+
+ '<div class="market-goal-controls"><label>반복 일수<select id="dunDays">'+
+ Array.from({length:7},(_,i)=>'<option value="'+(i+1)+'" '+(i+1===dailyDays?'selected':'')+'>'+(i+1)+'일치</option>').join('')+
+ '</select></label><strong id="dunDailyTotal"></strong><button id="dunDailyRun" type="button">일일 예측</button></div></div>'+
+ '<div id="dunResults" aria-live="polite"></div></section>';
+ const regular=host.querySelector('#dunRegular'),daily=host.querySelector('#dunDaily'),result=host.querySelector('#dunResults');
+ const paintRows=(rows,title)=>{
+  let html='<h4>'+esc(title)+'</h4><div class="table-scroll"><table class="dun-table"><thead><tr><th>보스</th><th>장비</th><th>색상</th><th>특수보상</th></tr></thead><tbody>';
+  for(const r of rows){const color={백색:'#818181',녹색:'#259b61',청색:'#397db3',자색:'#9052c4'}[r.grade]||'';
+   const specials=(r.special||[]).map(x=>typeof x==='string'?x:x.name).concat(r.uncertain||r.unresolved||[]);
+   if(r.keyNote)specials.push(r.keyNote);
+   html+='<tr><td>'+esc(r.boss)+'</td><td>'+esc(r.name)+'</td><td>'+(r.grade?'<b style="color:'+color+'">'+esc(r.grade)+'</b>':'—')+
+    '</td><td>'+esc([...new Set(specials)].join(' · ')||'—')+'</td></tr>';
+  }
+  return html+'</tbody></table></div>';
  };
- const run=()=>{
-  const resultArea=host.querySelector('#dungeonTestResults');
+ function regularRun(){
   try{
-   const gate=gateCtrl.value;
-   const clears=Number(host.querySelector('#dungeonTestClears').value);
-   const mode=host.querySelector('#dungeonClaimMode').value;
-   const key=host.querySelector('#dungeonTestKey').value;
-   const out=predictGate(save,gate,clears,key,mode);
-   let html=mode==='never_claimed'?
-    '<p class="micro">미획득 가정: 보상 획득 기록·특수 지급 플래그만 초기화. 원본 시드와 임무 진행 상태는 유지합니다.</p>':'';
-   for(const clear of out.output){
-    html+='<h4>'+clear.clear+'회차</h4><div class="table-scroll">'+
-     '<table style="min-width:620px;table-layout:fixed;width:100%">'+
-     '<colgroup><col style="width:22%"><col style="width:29%">'+
-     '<col style="width:16%"><col style="width:33%"></colgroup>'+
-     '<thead><tr><th>보스</th><th>장비</th><th>색상</th><th>특수보상</th></tr></thead><tbody>';
-    for(const row of clear.results){
-     const gradeColor={백색:'#a2a2a2',녹색:'#259b61',
-      청색:'#397db3',자색:'#9052c4'}[row.grade]||'';
-     const confirmed=[...new Set(row.special.map(item=>item.name))];
-     const uncertain=[...new Set(row.unresolved)];
-     const specials=[
-      ...confirmed.map(x=>esc(x)),
-      ...uncertain.map(x=>esc(x)+' (미확정)')
-     ];
-     html+='<tr><td>'+esc(row.boss)+'</td><td>'+esc(row.name)+'</td><td>'+
-      (row.grade?'<b style="color:'+gradeColor+'">'+esc(row.grade)+'</b>':'—')+
-      '</td><td style="overflow-wrap:anywhere">'+
-      (specials.length?specials.join(', '):'—')+'</td></tr>';
-    }
-    html+='</tbody></table></div>';
-   }
-   if(out.incomplete)
-    html+='<p class="micro">원본 재료 가중치 소진 · '+out.stoppedAt+'회차부터 미확정</p>';
-   resultArea.innerHTML=html;
-  }catch(error){resultArea.innerHTML='<p class="role-status-note">'+
-    esc(error?.message||error)+'</p>';}
+   if(!save)throw Error('세이브를 불러와 주세요.');
+   const out=predictGate(save,activeDungeonGate,regularClears,keyMode,claimMode);
+   result.innerHTML=out.output.map(x=>paintRows(x.results,activeDungeonGate+' '+x.clear+'회차')).join('')+
+    (out.incomplete?'<p class="micro">'+out.stoppedAt+'회차부터 계산 불가</p>':'');
+  }catch(e){result.textContent='드랍 예측 실패: '+String(e.message||e)}
+ }
+ function updateDaily(){
+  let total=GATES.reduce((s,g)=>s+dailyPlan[g],0);
+  const note=host.querySelector('#dunDailyTotal');if(note)note.textContent='하루 '+total+' / 6회';
+  host.querySelectorAll('[data-dun-daily]').forEach(el=>{
+   const g=el.dataset.dunDaily,remaining=Math.min(3,6-(total-dailyPlan[g]));
+   for(const opt of el.options)opt.disabled=Number(opt.value)>remaining;
+   el.value=String(dailyPlan[g]);
+  });
+ }
+ function dailyRun(){
+  try{
+   const out=predictDailyGates(save,dailyPlan,dailyDays);
+   result.innerHTML=out.results.map(x=>'<h3>'+x.day+'일차</h3>'+
+    x.rows.map(y=>paintRows(y.results,y.gate+' '+y.clear+'회차')).join('')).join('')+
+    (out.complete?'':'<p class="micro">'+esc(out.warnings.join(' · '))+'</p>');
+  }catch(e){result.textContent='일일 예측 실패: '+String(e.message||e)}
+ }
+ host.querySelectorAll('[data-dun-tab]').forEach(b=>b.onclick=()=>{
+  activeDungeonTab=b.dataset.dunTab;
+  host.querySelectorAll('[data-dun-tab]').forEach(x=>x.classList.toggle('active',x===b));
+  regular.hidden=activeDungeonTab!=='regular';daily.hidden=activeDungeonTab!=='daily';result.replaceChildren();
+  if(save)(activeDungeonTab==='daily'?dailyRun:regularRun)();
+ });
+ host.querySelector('#dunGate').onchange=e=>{
+  activeDungeonGate=e.target.value;host.querySelector('#dunKeyWrap').hidden=activeDungeonGate!=='유씨별원';regularRun();
  };
- gateCtrl.addEventListener('change',()=>{sync();run();});
- sync();
- host.querySelector('#dungeonTestRun').onclick=run;
- run();
+ host.querySelector('#dunCount').onchange=e=>{regularClears=Number(e.target.value);regularRun()};
+ host.querySelector('#dunClaim').onchange=e=>{claimMode=e.target.value;regularRun()};
+ host.querySelector('#dunKey').onchange=e=>{keyMode=e.target.value;regularRun()};
+ host.querySelector('#dunRegularRun').onclick=regularRun;
+ host.querySelector('#dunDays').onchange=e=>{dailyDays=Number(e.target.value);dailyRun()};
+ host.querySelectorAll('[data-dun-daily]').forEach(el=>el.onchange=e=>{
+  const g=el.dataset.dunDaily,value=Number(el.value);
+  if(GATES.reduce((s,x)=>s+(x===g?value:dailyPlan[x]),0)>6){el.value=String(dailyPlan[g]);return}
+  dailyPlan[g]=value;updateDaily();dailyRun();
+ });
+ host.querySelector('#dunDailyRun').onclick=dailyRun;
+ updateDaily();
+ if(save)(activeDungeonTab==='daily'?dailyRun:regularRun)();
+ else result.textContent='세이브를 불러와 주세요.';
 }
