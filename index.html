@@ -975,6 +975,55 @@ html[data-theme="ink"] :is(.table-scroll,.equip-detail-full,.equip-directory){sc
  html[data-theme="ink"] :is(button,.btn,.nav button,.simple-tabs button){transition:none;}
 }
 </style>
+<style id="v131-ink-border-clarity">
+/* Dark mode: readable separators without harsh white outlines. */
+html[data-theme="ink"]{
+ --border:#626873;
+ --wr-line:#626873;
+ --wr-border:#626873;
+ --v32-border:#626873;
+}
+html[data-theme="ink"] :is(.top,.page,.aside,.work,.card,.module-panel,.equip-directory-item,.market-target-summary,.dun-daily-place,.dun-day-group){
+ border-color:var(--border)!important;
+}
+html[data-theme="ink"] :is(.aside,.work,.card,.module-panel,.equip-directory-item){
+ box-shadow:0 1px 0 #ffffff0a,0 0 0 1px #00000016;
+}
+html[data-theme="ink"] :is(.heading,.hero,.module-heading,.role-g,.simple-tabs,.aside-title){
+ border-color:var(--border)!important;
+}
+html[data-theme="ink"] :is(.module-table,.dun-table,.equip-detail-full table,.market-table,.table-scroll table){
+ border-collapse:collapse;
+}
+html[data-theme="ink"] :is(.module-table,.dun-table,.equip-detail-full table,.market-table,.table-scroll table) :is(th,td){
+ border-bottom:1px solid var(--border)!important;
+}
+html[data-theme="ink"] :is(.dun-table,.equip-detail-full table,.table-scroll table) :is(th,td){
+ border-right:1px solid #535965;
+}
+html[data-theme="ink"] :is(.dun-table,.equip-detail-full table,.table-scroll table) :is(th,td):last-child{
+ border-right:0;
+}
+html[data-theme="ink"] :is(.module-table,.dun-table,.equip-detail-full table,.table-scroll table) thead th{
+ background:#333842!important;color:var(--text)!important;
+ border-bottom:2px solid #727987!important;
+}
+html[data-theme="ink"] :is(.dun-table,.equip-detail-full table,.table-scroll table) tbody tr:nth-child(even){
+ background:#30353e;
+}
+html[data-theme="ink"] :is(.btn,.dun-daily-place select,.market-goal-controls select,.simple-tabs button.active){
+ border-color:var(--border)!important;
+}
+html[data-theme="ink"] :is(select,input,textarea){
+ border:1px solid #727986!important;
+}
+html[data-theme="ink"] :is(.dungeon-131 .dun-day-group>summary){
+ border-bottom:1px solid transparent;
+}
+html[data-theme="ink"] :is(.dungeon-131 .dun-day-group[open]>summary){
+ border-bottom-color:var(--border);
+}
+</style>
 </head>
 <body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호 통합 시뮬레이터 v1.3.1</div><nav class="nav" id="nav"></nav><div class="tools"><span id="topSaveStatus" class="micro">세이브 미연결</span><button id="saveLink" class="save-link">세이브 불러오기</button><button type="button" id="clearTopSave" class="save-link" title="이 브라우저의 세이브 삭제">해제</button><input id="file" type="file" accept=".json,application/json" hidden><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
 <main class="page"><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="장비 계산 영역"></section><section id="dropWorkspace" class="drop-workspace" hidden aria-label="드랍 계산 영역"></section><section id="purpleDropWorkspace" class="drop-workspace" hidden aria-label="자색 드랍 예측 계산 영역"></section></main></div>
