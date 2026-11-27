@@ -695,9 +695,15 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
  // timing search applies to ANY one-to-three purple anchors with two or
  // three remaining colors, not just two purple + two colors.
  async function searchDeferredColorLocks(start,base,native,diagnostics,routes){
-  if(shape.colors.length<2||
-     shape.colors.some(id=>idsOf(start).includes(id)))return;
+  if(shape.colors.length<2)return;
+  // Preserve lower-grade goals already held by the purple backbone;
+  // branch only on the still-missing goals. Previously the presence of
+  // even one color suppressed the entire delayed-lock search.
+  const retained=shape.colors.filter(id=>idsOf(start).includes(id));
+  const missing=shape.colors.filter(id=>!retained.includes(id));
+  if(!missing.length)return;
   diagnostics.deferredColorGoalCount=shape.colors.length;
+  diagnostics.deferredAlreadyHeld=retained.length;
   restore(start);
   const events=[];
   for(let offset=1;offset<=horizon;offset++){
@@ -705,7 +711,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    if(!ret||ret.error||count(getState(),'total_wash')!==at+1)break;
    diagnostics.scannedWashes++;
    const state=clone(getState());
-   const colors=shape.colors.filter(id=>idsOf(state).includes(id));
+   const colors=missing.filter(id=>idsOf(state).includes(id));
    if(colors.length)events.push({wash:at+1,state,colors});
    const incumbent=Math.min(Infinity,...routes.map(r=>r.pills));
    if(count(state,'total_pills')-count(initial,'total_pills')>=incumbent)break;
@@ -722,7 +728,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   const candidates=events.length<=deferredBudget?events:
    sampleMixedColorCandidates(events.map(e=>({
     ...e,time:e.wash,appearing:e.colors
-   })),shape.colors,deferredBudget);
+   })),missing,deferredBudget);
   diagnostics.deferredColorSightings=(diagnostics.deferredColorSightings||0)+events.length;
   diagnostics.deferredColorExamined=(diagnostics.deferredColorExamined||0)+candidates.length;
   for(const event of candidates){
@@ -733,7 +739,9 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     const actions=[...clone(base),{kind:'wash_to',wash_no:event.wash,
      pills_after:count(getState(),'total_pills')-count(initial,'total_pills'),
      note:'녹·파맥 잠금 시점 비교'}];
-    const held=new Set();
+    // Targets retained at the branch start stay locked by the original
+    // native state. They must count toward final completion.
+    const held=new Set(retained);
     for(const id of event.colors){
      lockId(id,true);held.add(id);
      actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
