@@ -72,12 +72,13 @@ self.addEventListener('message',async event=>{
    // is strictly extended-only; the existing fast-search path is untouched.
    try{
     if(!self.YYWashExpandedChain)
-     importScripts('../../engine/yysim-expanded-chain-search.js?rev=20261127-chain-exchange-v1');
+     importScripts('../../engine/yysim-expanded-chain-search.js?rev=20261127-eligible-chain-v2');
     chain=await self.YYWashExpandedChain.run({
      desiredIds:ids,talents:TALENT_DATA,
      getState:wasmGetState,setState:wasmSetState,
      doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
-     guard:canonical(),horizon:Math.max(horizon,4500),topN,
+     getConflicts:wasmGetConflicts,
+     guard:canonical(),horizon:Math.max(horizon,6000),topN,
      nodeLimit:4200,
      onVerifiedCandidate:routes=>publishPartial({routes},
       {method:'expanded-native-event-chain'},
