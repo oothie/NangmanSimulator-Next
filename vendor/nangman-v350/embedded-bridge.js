@@ -268,6 +268,31 @@ function applyHostPresentation(){
  if(duplicate)duplicate.remove();
  root.querySelectorAll(':scope > .rhome').forEach(el=>el.remove());
 }
+/* Opaque result-row backgrounds: the previous transparent host-active layer
+ * exposed the source table's beige highlight while the bridge forced light text.
+ * Keep all highlighted cells and nested labels on the SAME dark surface. */
+themeStyle.textContent += `
+html[data-nangman-theme="dark"] body #rk218 tr.search-hit272,
+html[data-nangman-theme="dark"] body #rk218 tr.search-hit272 > td,
+html[data-nangman-theme="dark"] body #rk218 tr.search-hit272:hover > td,
+html[data-nangman-theme="dark"] body #rk218 tr.row-keep,
+html[data-nangman-theme="dark"] body #rk218 tr.row-keep > td,
+html[data-nangman-theme="dark"] body #rk218 tr.row-keep:hover > td{
+ background:#294b43!important;background-color:#294b43!important;
+ color:#f1fff6!important;border-color:#668d7f!important;
+ opacity:1!important;
+}
+html[data-nangman-theme="dark"] body #rk218 tr.search-hit272 > td :is(b,strong,span,small),
+html[data-nangman-theme="dark"] body #rk218 tr.row-keep > td :is(b,strong,span,small){
+ color:#f1fff6!important;opacity:1!important;
+}
+html[data-nangman-theme="dark"] body #rk218 tr.search-hit272 .rk-grade256{
+ background:#354153!important;border-color:#8494ac!important;
+}
+html[data-nangman-theme="dark"] body #rk218 tr.search-hit272 .rk-grade256 :is(b,small){
+ color:#f1fff6!important;
+}
+`;
 syncHostTheme();
 document.head.appendChild(themeStyle);
 function capMangjing(){
