@@ -72,7 +72,7 @@ self.addEventListener('message',async event=>{
    // is strictly extended-only; the existing fast-search path is untouched.
    try{
     if(!self.YYWashExpandedChain)
-     importScripts('../../engine/yysim-expanded-chain-search.js?rev=20261127-eligible-chain-v2');
+     importScripts('../../engine/yysim-expanded-chain-search.js?rev=20261127-expanded-chain-v3');
     chain=await self.YYWashExpandedChain.run({
      desiredIds:ids,talents:TALENT_DATA,
      getState:wasmGetState,setState:wasmSetState,
