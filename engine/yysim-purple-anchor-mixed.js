@@ -702,6 +702,14 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   const retained=shape.colors.filter(id=>idsOf(start).includes(id));
   const missing=shape.colors.filter(id=>!retained.includes(id));
   if(!missing.length)return;
+  // WASM washes spend nonnegative pills. An already more expensive
+  // unfinished branch cannot beat a complete route found elsewhere.
+  const spent=count(start,'total_pills')-count(initial,'total_pills');
+  const incumbent=routes.length?Math.min(...routes.map(r=>r.pills)):Infinity;
+  if(spent>=incumbent){
+   diagnostics.deferredBasePruned=(diagnostics.deferredBasePruned||0)+1;
+   return;
+  }
   diagnostics.deferredColorGoalCount=shape.colors.length;
   diagnostics.deferredAlreadyHeld=retained.length;
   restore(start);
