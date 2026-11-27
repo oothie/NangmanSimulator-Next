@@ -36,7 +36,9 @@ function plan(route,nameIds={}){
    if(!found)throw Error('원본 슬롯 개방 자질 조건을 확인할 수 없습니다');
    planned.push({kind,requiredSlots:Number(found[0])-150});
   }else if(kind==='lock'||kind==='unlock'){
-   const id=resolve(action.talent);
+   // New expanded WASM routes preserve stable numeric IDs for temporary
+   // talents; old fast routes still use the original name mapping.
+   const id=integer(action.talent_id)??resolve(action.talent);
    if(id===null)throw Error('잠금·해제의 원본 재능 이름이 없습니다');
    planned.push({kind,id});
   }else if(kind==='wash_to'||kind==='wash_until'){
@@ -52,7 +54,8 @@ function plan(route,nameIds={}){
    if(Array.isArray(action.chain)&&action.chain.length>1)
     throw Error('연쇄 치환의 분기 조건은 아직 1:1 재생되지 않습니다');
    exchanges++;
-   const from=resolve(action.from),to=resolve(action.to||action.talent);
+   const from=integer(action.from_id)??resolve(action.from);
+   const to=integer(action.to_id)??resolve(action.to||action.talent);
    if(from===null||to===null)throw Error('원본 치환 전후 재능을 확인할 수 없습니다');
    planned.push({kind,from,to});
   }else planned.push({kind});
