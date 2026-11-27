@@ -283,6 +283,101 @@ html[data-nangman-theme="dark"] body #rk218 :is(.rk237-total,.picker237,.detail-
  color:var(--host-sub)!important;
 }
 `;
+/* Dark equipment audit: ceiling rows, pity badges, action controls, cards.
+ * Keep color pairs opaque to avoid pale original CSS showing through.
+ * This stylesheet is appended after the original engine styles. */
+themeStyle.textContent += `
+html[data-nangman-theme="dark"] body #rk218 :is(.pity-group260,.pity-variant260,.group-result258,.res,.result-card,.city-result258,.city-list258,.search-result-layout275,.search-result-side275){
+ color:var(--host-text)!important;border-color:var(--host-border)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.pity-group260,.pity-variant260,.group-result258,.res,.result-card,.city-result258){
+ background:#292f39!important;background-color:#292f39!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .pity-group260{
+ background:#373226!important;border:1px solid #9b8151!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .pity-group260 :is(.reshead,.resname,.meta,.props){
+ color:#f4e8cf!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .pity-variant260{
+ background:#292f39!important;border:1px solid #647183!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .pity-variant260 :is(.resname,.props,.meta){
+ color:#e9edf5!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .city-result258{
+ background:#303a46!important;color:#edf3fb!important;border:1px solid #60758d!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .city-result258 :is(b,.meta,.region-prop226){
+ color:#f1e0b8!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .city-result258:is(:hover,.on,:focus-visible){
+ background:#425369!important;color:#fff!important;border-color:#d5b781!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.pity-badge239,.seed-tag.lucky,.tag.ok){
+ display:inline-flex!important;align-items:center!important;
+ background:#594521!important;background-color:#594521!important;
+ color:#ffe9b6!important;border:1px solid #bf9a54!important;
+ opacity:1!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.pity-badge239,.seed-tag.lucky,.tag.ok) :is(b,span,small,strong){
+ color:#ffe9b6!important;
+}
+/* "1천장", "2천장" etc are sticky row headers in regional crafting tables. */
+html[data-nangman-theme="dark"] body #rk218 :is(.regionTbl225,.unique-seq-table227) :is(td.sticky225,th.sticky225,td.sticky227,th.sticky227){
+ background:#384152!important;background-color:#384152!important;
+ color:#f3e5c6!important;border:1px solid #707f92!important;font-weight:800!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 tbody tr:nth-child(even) td.sticky225{
+ background:#414a5a!important;color:#f3e5c6!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 tbody tr:hover td.sticky225{
+ background:#4b596a!important;color:#fff2d5!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 :is(.r239-head,.r239-label,.r239-cell,.r239-line){
+ color:var(--host-text)!important;border-color:#687585!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 .r239-label{
+ background:#3e4856!important;color:#e7eef7!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 .r239-empty{
+ color:#bbc6d4!important;
+}
+/* Rarity / quality labels: vivid backgrounds and readable foregrounds. */
+html[data-nangman-theme="dark"] body #rk218 .quality226{
+ display:inline-flex!important;align-items:center!important;
+ padding:2px 7px!important;border-radius:5px!important;
+ font-weight:800!important;opacity:1!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.quality226.q-white226,.quality226.q-white){
+ background:#414955!important;color:#edf1f6!important;border:1px solid #8694a5!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.quality226.q-green226,.quality226.q-green){
+ background:#204b37!important;color:#acf1c0!important;border:1px solid #5c9c76!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.quality226.q-blue226,.quality226.q-blue){
+ background:#244a6c!important;color:#b5dfff!important;border:1px solid #6598c3!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.quality226.q-purple226,.quality226.q-purple){
+ background:#4c3369!important;color:#efd0ff!important;border:1px solid #ad81d2!important;
+}
+/* All action buttons, including dynamically generated pity filters. */
+html[data-nangman-theme="dark"] body #rk218 :is(button,.chip,.rbtn,.btn,.unique-pick247,.city-result258):not(.on):not(.active):not(.primary):not([aria-pressed="true"]):not([aria-selected="true"]){
+ color:#edf1f6!important;border-color:#728093!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(button,.chip,.rbtn,.btn,.unique-pick247):is(.on,.active,.primary,[aria-pressed="true"],[aria-selected="true"]){
+ background:#514630!important;color:#ffe8b2!important;border-color:#d2ad68!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(button,.chip,.rbtn,.btn,.unique-pick247):focus-visible{
+ outline:2px solid #f0c880!important;outline-offset:2px!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.pity-group260,.pity-variant260,.group-result258,.region-group352) :is(.note218,.meta,.side-text275){
+ color:#c7cbd2!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.pity-group260,.pity-variant260,.group-result258,.region-group352) :is(input,select,textarea,option){
+ background:#252d37!important;color:#f0f3f7!important;border-color:#778397!important;
+}
+`;
 function setHostTheme(theme){
  document.documentElement.dataset.nangmanTheme=theme==='dark'?'dark':'light';
 }
