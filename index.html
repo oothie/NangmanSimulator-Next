@@ -5324,7 +5324,7 @@ function updateEquipmentVisibility(){
   host.dataset.equipmentTab=frameKey;
   const frame=document.createElement('iframe');
   frame.title=tab[1]+' 엔진';frame.loading='eager';frame.referrerPolicy='same-origin';
-  frame.src=original?'./vendor/nangman-v350/equipment.html?rev=cp-route-step-fix-20261127':
+  frame.src=original?'./vendor/nangman-v350/equipment.html?rev=region-ink-clarity-20261127':
    './vendor/sanbujin/'+tab[2]+'/index.html?rev=v097';
   frame.addEventListener('load',()=>{
    sendThemeToEquipment(frame);sendSaveToEquipment(frame);
