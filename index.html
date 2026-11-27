@@ -1444,9 +1444,10 @@ if(sub==='auto'){
    '<span class="wash-auto-check" aria-hidden="true">'+(selectedTargets.includes(t.id)?'✓':'')+'</span></button>').join('')+'</div></details>').join('');
  const card=analyzed?.routes?.length?'<div class="wash-guide-results">'+
  analyzed.routes.map((x,i)=>({x,i})).sort((a,b)=>{
-  const af=a.x.complete&&a.x.estimatedPills!=null&&ownedPills!=null&&a.x.estimatedPills<=ownedPills;
-  const bf=b.x.complete&&b.x.estimatedPills!=null&&ownedPills!=null&&b.x.estimatedPills<=ownedPills;
-  return Number(bf)-Number(af)||a.i-b.i;
+  // The user prioritizes actual pill cost above current bag affordability.
+  // Affordability is informational and must never reorder the routes.
+  return (a.x.estimatedPills??Infinity)-(b.x.estimatedPills??Infinity)||
+   (a.x.estimatedWashes??Infinity)-(b.x.estimatedWashes??Infinity)||a.i-b.i;
  }).map(({x,i},displayIndex)=>{
   const budgetKnown=ownedPills!=null&&x.estimatedPills!=null;
   const affordable=x.complete&&budgetKnown&&x.estimatedPills<=ownedPills;
@@ -1478,7 +1479,7 @@ if(sub==='auto'){
   }).join('');
   const slots=x.finalSlots.map(a=>'<span class="wash-guide-slot">'+escape(talentName(a.id))+(a.locked?' · 잠금':'')+'</span>').join('');
   return '<section class="wash-guide-route">'+
-   '<div class="wash-guide-heading"><div><span class="wash-guide-eyebrow">'+(affordable?'보유량 내 실행 가능':displayIndex===0?'가장 적은 세수단 후보':'추가 경로 '+(displayIndex+1))+'</span>'+
+   '<div class="wash-guide-heading"><div><span class="wash-guide-eyebrow">'+(displayIndex===0?'발견 경로 중 세수단 최소':'추가 경로 '+(displayIndex+1))+'</span>'+
    '<h4>'+escape(Number(x.estimatedPills??0).toLocaleString())+'개 <small>세수단</small></h4></div>'+
    '<div class="wash-guide-summary"><span>총 세수 '+escape(x.estimatedWashes??'—')+'회</span>'+
    '<span>치환 '+escape(x.exchanges??'—')+'회</span>'+
@@ -1499,13 +1500,13 @@ if(sub==='auto'){
  const minPills=completeCostRoutes.length?Math.min(...completeCostRoutes.map(x=>x.estimatedPills)):null;
  const budgetStatus=analyzed?.stats?.complete&&ownedPills!=null?
   '<p class="micro">보유 세수단 '+escape(ownedPills.toLocaleString())+'개 · 완주 가능한 탐색 후보 '+affordableCount+'개'+
-  (affordableCount?' · 가능 경로 우선 표시':minPills==null?' · 예상 소모 미확정':
-   ' · 최소 소모 '+escape(minPills.toLocaleString())+'개 · '+escape(Math.max(0,minPills-ownedPills).toLocaleString())+'개 부족')+
+  (affordableCount?' · 최소 소모 경로부터 표시':minPills==null?' · 예상 소모 미확정':
+   ' · 발견 경로 최소 '+escape(minPills.toLocaleString())+'개 · '+escape(Math.max(0,minPills-ownedPills).toLocaleString())+'개 부족')+
   '. 보유량 초과 경로도 비교용으로 표시합니다.</p>':'';
  const anchorStats=result?.nativeDiagnostics?.method==='purple-anchor-nearest-native-wash'?result.nativeDiagnostics:null;
  const resultStatus=analyzed?
   '<p class="micro">'+(analyzed.stats.complete?
-   '목표 재능을 모두 확보한 경로 '+analyzed.stats.complete+'개 · 세수단이 적은 순서로 표시':
+   '목표 재능을 모두 확보한 경로 '+analyzed.stats.complete+'개 · 세수단 소모량 오름차순 (전역 최솟값은 미확정)':
    '이번 탐색에서 목표 재능을 모두 확보하는 경로를 찾지 못했습니다.')+'</p>'+
   (!analyzed.stats.complete&&searchData?.error?
    '<p class="notice">'+escape(api.koreanError(searchData.error))+'</p>':'')+
@@ -1524,7 +1525,7 @@ if(sub==='auto'){
     '<p>자맥 순서 '+(x.order||[]).map(id=>escape(talentName(id))).join(' → ')+
     ' · '+escape(api.koreanError(x.reason||'확인 불가'))+'</p>').join('')+
    '</div></details>':''):
-  '<p class="micro">자맥 1~3개와 녹맥·파맥을 합쳐 목표 2~4개를 자동 탐색할 수 있습니다. (1자맥+1·2·3녹·파맥 포함)</p>';
+  '<p class="micro">자맥·녹맥·파맥 중 원하는 재능 1~4개를 선택하세요. 자맥만, 녹맥만, 파맥만, 혼합 조합을 모두 계산하며 세수단 소모량이 가장 적은 발견 경로부터 표시합니다.</p>';
  body='<section class="wash-section"><div class="section-header"><h3>자동 탐색</h3></div>'+
   
   '<p class="micro">'+(r?'선택 인물 '+escape(r.name)+' · 계산 시 세이브 자동 연결':'먼저 세이브를 불러오세요')+'</p>'+ 
