@@ -131,6 +131,20 @@ async function run({desiredIds,talents,getState,setState,doWash,exchangeTalent,g
     change(node,old=>({...old,zizhi:num(old.zizhi)+1,
      str_gift:num(old.str_gift)+100,con_gift:num(old.con_gift)+100}),
      {kind:'open_slot',note:'자질 '+(num(s.zizhi)+1),wash_no:w,pills_after:node.c});
+   // A full release is a distinct timing strategy used by native
+   // multi-stage routes. Emit ordinary replayable unlock operations, but
+   // create the combined state directly to avoid wasting the bounded
+   // queue on every intermediate permutation of the same release.
+   if(locks>=2){
+    const released={...s,talents:s.talents.map(t=>({...t,locked:false}))};
+    if(checked(released)&&key(released)!==key(s)){
+     const actions=flush(node.actions,s);
+     for(const t of s.talents.filter(t=>t.locked))
+      actions.push({kind:'unlock',talent_id:Number(t.id),
+       talent:name(Number(t.id)),wash_no:w,pills_after:node.c});
+     add(cp(getState()),actions);
+    }
+   }
    const unique=new Set();
    for(const slot of s.talents||[]){
     const id=Number(slot.id);
