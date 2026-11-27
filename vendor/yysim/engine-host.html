@@ -85,7 +85,7 @@ try{
    const startState=wasmGetState();
    if(!startState||typeof startState!=='object')
     throw Error('원본 자동탐색 시작 상태를 읽지 못했습니다');
-   const worker=new Worker('./native-auto-search-worker.js?rev=1.3.1-deep-cost-v17');
+   const worker=new Worker('./native-auto-search-worker.js?rev=1.3.1-extended-chain-v18');
    const response=await new Promise((resolve,reject)=>{
     const expanded=searchMode==='expanded';
     const limit=setTimeout(()=>{
