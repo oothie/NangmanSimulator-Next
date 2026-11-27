@@ -65,6 +65,52 @@ self.addEventListener('message',async event=>{
    diagnostics={isMixed:true,returned:result.routes.length,
     complete:result.routes.length,incomplete:0,
     method:'purple-anchor-original-wasm',...result.diagnostics};
+   // A purple-first backbone may miss the cheapest FINAL mixed path.
+   // Independently explore cheaper color-first timings with the SAME
+   // original WASM wash/lock/slot state. Keep this bounded so the native
+   // purple solver remains responsive for ordinary 3+1 combinations.
+   if(anchor.purple.length===1&&
+      self.YYWashColorOnly?.mixedShape(ids,TALENT_DATA)){
+    const baselineCost=result.routes.length?
+     Math.min(...result.routes.map(route=>Number(route.pills)).filter(Number.isFinite)):
+     Infinity;
+    try{
+     const supplementary=await self.YYWashColorOnly.run({
+      desiredIds:ids,horizon:Math.min(horizon,
+       Number.isFinite(baselineCost)?750:1500),
+      topN,talents:TALENT_DATA,
+      getState:wasmGetState,setState:wasmSetState,doWash:wasmDoWash,
+      guard:canonical(),allowMixed:true,initialBest:baselineCost,
+      nodeLimit:Number.isFinite(baselineCost)?1400:3600,
+      progress:data=>progress({...data,completed:2,total:4})
+     });
+     const complete=route=>Array.isArray(route?.final_slots)&&
+      ids.every(id=>route.final_slots.some(slot=>Number(slot.id)===Number(id)));
+     const combined=[...result.routes,...supplementary.routes].filter(complete)
+      .filter(route=>Number.isFinite(Number(route.pills)))
+      .sort((a,b)=>Number(a.pills)-Number(b.pills)||
+       Number(a.washes)-Number(b.washes));
+     const seen=new Set();
+     result.routes=combined.filter(route=>{
+      const key=JSON.stringify([route.final_slots,route.actions]);
+      if(seen.has(key))return false;
+      seen.add(key);return true;
+     }).slice(0,topN);
+     result.error=result.routes.length?null:result.error;
+     diagnostics.colorFirstSupplement={
+      searched:true,returned:supplementary.routes.length,
+      improved:result.routes.length&&Number(result.routes[0].pills)<baselineCost,
+      ...supplementary.diagnostics
+     };
+     diagnostics.returned=result.routes.length;
+     diagnostics.complete=result.routes.length;
+    }catch(error){
+     // Inability to restore the real WASM state must remain fatal.
+     if(/복원|restore/i.test(String(error?.message||error)))throw error;
+     diagnostics.colorFirstSupplement={
+      searched:true,error:String(error?.message||error)};
+    }
+   }
   }else{
    result=canonical().run({getState:wasmGetState,setState:wasmSetState,
     search:wasmSearchWashRoutes},request);
