@@ -46,28 +46,37 @@ function sampleIntervalCandidates(events,cap=8){
 // appearances of one color can fill the entire eight-candidate budget.
 function sampleMixedColorCandidates(events,colors,cap=8){
  if(!Array.isArray(events)||!events.length||cap<=0)return [];
- if(!Array.isArray(colors)||colors.length<2)
-  return sampleIntervalCandidates(events,cap);
+ const ordered=events.slice().sort((a,b)=>
+  Number(a.time)-Number(b.time));
+ if(ordered.length<=cap)return ordered;
  const picked=new Map();
- const add=event=>{if(event&&picked.size<cap)picked.set(event.time,event);};
- // Include two earliest native events for each possible first color.
- for(const color of colors){
-  let n=0;
-  for(const event of events){
-   if((event.appearing||[]).includes(color)){
-    add(event);
-    if(++n>=2)break;
-   }
-  }
+ const add=event=>{
+  if(!event||picked.size>=cap)return;
+  // A wash timestamp identifies a real native event within one anchor
+  // stream. Retain the original state, not a fabricated partial state.
+  picked.set(Number(event.time),event);
+ };
+ const byPills=(a,b)=>count(a.state,'total_pills')-
+  count(b.state,'total_pills')||Number(a.time)-Number(b.time);
+ const goals=Array.isArray(colors)?[...new Set(colors.map(Number))]:[];
+ // Cover EVERY lower-grade target, including rarer second/third goals.
+ // These early branches can alter subsequent WASM RNG consumption.
+ for(const id of goals){
+  const matching=ordered.filter(e=>(e.appearing||[]).includes(id));
+  for(const e of matching.slice(0,2))add(e);
  }
- // Preserve broad coverage even when one color is scarce or absent.
- for(const event of sampleIntervalCandidates(events,cap))add(event);
- for(const event of events){if(picked.size>=cap)break;add(event);}
- // Explore the cheapest partial states first; this creates a verified
- // incumbent sooner, and subsequent native wash costs are nonnegative.
- return [...picked.values()].sort((a,b)=>
-  count(a.state,'total_pills')-count(b.state,'total_pills')||
-  a.time-b.time);
+ // Ensure the least-spent real states are tested, not just fixed-index
+ // evenly spaced samples. Already spent pills are a valid lower bound.
+ const cheapest=ordered.slice().sort(byPills);
+ for(const e of cheapest.slice(0,Math.max(1,Math.ceil(cap/3))))add(e);
+ // Preserve later lock times, where the first appearance gives a
+ // different RNG sequence but an earlier branch may be a dead end.
+ const diversified=sampleIntervalCandidates(ordered,
+  Math.min(ordered.length,Math.max(cap,cap*2)));
+ for(const e of diversified)add(e);
+ // Fill unused slots from the cheapest remaining native observations.
+ for(const e of cheapest)add(e);
+ return [...picked.values()].sort(byPills).slice(0,cap);
 }
 function actionsToRoute(actions,final,base,original,desiredIds,window='last-purple-after'){
  const washes=count(final,'total_wash')-count(base,'total_wash');
