@@ -722,7 +722,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
  // Locking the first lower-grade target changes the WASM stream. This
  // timing search applies to ANY one-to-three purple anchors with two or
  // three remaining colors, not just two purple + two colors.
- async function searchDeferredColorLocks(start,base,native,diagnostics,routes){
+ async function searchDeferredColorLocks(start,base,native,diagnostics,routes,lockRetained=false){
   if(shape.colors.length<2)return;
   // Preserve lower-grade goals already held by the purple backbone;
   // branch only on the still-missing goals. Previously the presence of
@@ -741,6 +741,29 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   diagnostics.deferredColorGoalCount=shape.colors.length;
   diagnostics.deferredAlreadyHeld=retained.length;
   restore(start);
+  let retainedActions=base;
+  if(expanded&&lockRetained){
+   retainedActions=clone(base);
+   try{
+    for(const id of retained){
+     const t=getState().talents.find(t=>number(t.id)===id);
+     if(!t||t.locked)continue;
+     lockId(id,true);
+     retainedActions.push({
+      kind:'lock',talent:talents[String(id)]?.name||String(id),
+      wash_no:count(getState(),'total_wash'),
+      pills_after:count(getState(),'total_pills')-count(initial,'total_pills'),
+      note:'확장 탐색 · 먼저 보유한 녹·파맥 잠금'
+     });
+     diagnostics.preLockedRetained=(diagnostics.preLockedRetained||0)+1;
+    }
+   }catch(error){
+    // Other unmodified native branches remain available. Do not fabricate
+    // a lock if the original WASM rejects the third-lock limit.
+    diagnostics.preLockRejected=(diagnostics.preLockRejected||0)+1;
+    return;
+   }
+  }
   const events=[];
   for(let offset=1;offset<=horizon;offset++){
    const at=count(getState(),'total_wash'),ret=doWash();
@@ -771,7 +794,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
       bestCost())continue;
    try{
     restore(event.state);
-    const actions=[...clone(base),{kind:'wash_to',wash_no:event.wash,
+    const actions=[...clone(retainedActions),{kind:'wash_to',wash_no:event.wash,
      pills_after:count(getState(),'total_pills')-count(initial,'total_pills'),
      note:'녹·파맥 잠금 시점 비교'}];
     // Targets retained at the branch start stay locked by the original
@@ -810,6 +833,13 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
       await new Promise(resolve=>setTimeout(resolve,0));}
     }
    }catch(_){diagnostics.deferredColorRejected=(diagnostics.deferredColorRejected||0)+1;}
+  }
+  // With an already-visible but unlocked lower-grade goal, the unlocked
+  // scanning stream can lose it. Explore an additional genuine WASM branch
+  // that locks it BEFORE scanning for the remaining goals.
+  if(expanded&&!lockRetained&&retained.some(id=>
+   start.talents.some(t=>number(t.id)===id&&!t.locked))){
+   await searchDeferredColorLocks(start,base,native,diagnostics,routes,true);
   }
  }
  const routes=[],recordedRouteKeys=new Set();
