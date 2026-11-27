@@ -11647,11 +11647,15 @@ function rkPaintXl237(h,o,e,cfg){
        });
        o._rkBudgetAll360={key:cacheKey,data};
      }
-     body=data.map(({prop:p,best})=>best?
-       '<tr><td>'+esc(propLabel218(p))+'</td><td>'+best.mud+'</td><td><b>'+esc(formatPropValue(p,best.total))+'</b></td><td>'+
-       (best.steps.map(t=>t.at+'번째 · '+t.slot+'번 슬롯 · '+esc(propLabel218(t.prop))+' '+esc(formatPropValue(t.prop,t.v))+' · '+t.mud+' 연금니').join('<br>')||'정련 없음')+'</td></tr>':
-       '<tr><td>'+esc(propLabel218(p))+'</td><td colspan="3">해당 예산 내 결과 없음</td></tr>'
-     ).join('');
+     // Apply exactly the same theoretical-max/grade thresholds as the
+     // CP-value view. Never derive a grade from the budget percentage.
+     body=data.map(({prop:p,best})=>{
+       if(!best)return '<tr><td>'+esc(propLabel218(p))+'</td><td colspan="3">해당 예산 내 결과 없음</td></tr>';
+       const g=rkRefineGradeFromTotal256(bcfg,p,best.total);
+       const badge=g.max>0?'<span class="rk-grade256 is-'+g.key+'"><b>'+g.label+'</b><small>'+g.rounded+'%</small></span>':'';
+       return '<tr><td>'+esc(propLabel218(p))+'</td><td>'+best.mud+'</td><td><b>'+esc(formatPropValue(p,best.total))+'</b> '+badge+'</td><td>'+
+       (best.steps.map(t=>t.at+'번째 · '+t.slot+'번 슬롯 · '+esc(propLabel218(t.prop))+' '+esc(formatPropValue(t.prop,t.v))+' · '+t.mud+' 연금니').join('<br>')||'정련 없음')+'</td></tr>';
+     }).join('');
    }else body='<tr><td colspan="4">계산할 옵션을 하나 선택하세요.</td></tr>';
  }else{
    if(RK237.mode==='hit'&&o?.xl){
