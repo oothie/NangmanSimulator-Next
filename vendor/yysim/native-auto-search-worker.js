@@ -9,7 +9,7 @@ self.window=self;
 importScripts('./wasm_data.js?rev=0.10.30','./core_glue.js?rev=0.10.30',
  './data.js?rev=0.10.30','../../engine/yysim-native-search-guard.js?rev=0.10.61',
  '../../engine/yysim-purple-anchor-mixed.js?rev=20261127-best-cost-dedup-v6',
- '../../engine/yysim-color-only-search.js?rev=20261127-cost-first-wash-count');
+ '../../engine/yysim-color-only-search.js?rev=20261127-mixed-color-first-v2');
 let initialized=null;
 const canonical=()=>self.YYWashNativeSearchGuard;
 const send=(id,kind,data)=>self.postMessage({kind,requestId:id,...data});
