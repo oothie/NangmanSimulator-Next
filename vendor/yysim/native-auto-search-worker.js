@@ -8,7 +8,8 @@
 self.window=self;
 importScripts('./wasm_data.js?rev=0.10.30','./core_glue.js?rev=0.10.30',
  './data.js?rev=0.10.30','../../engine/yysim-native-search-guard.js?rev=0.10.61',
- '../../engine/yysim-purple-anchor-mixed.js?rev=20261124-anchor-v20');
+ '../../engine/yysim-purple-anchor-mixed.js?rev=20261124-anchor-v20',
+ '../../engine/yysim-color-only-search.js?rev=20261127-cost-first');
 let initialized=null;
 const canonical=()=>self.YYWashNativeSearchGuard;
 const send=(id,kind,data)=>self.postMessage({kind,requestId:id,...data});
@@ -43,7 +44,16 @@ self.addEventListener('message',async event=>{
   const topN=Number(request?.top_n??8);
   const anchor=self.YYWashPurpleAnchorMixed?.requestShape(ids,TALENT_DATA);
   let result,diagnostics;
-  if(anchor){
+  if(self.YYWashColorOnly?.shape(ids,TALENT_DATA)){
+   result=await self.YYWashColorOnly.run({
+    desiredIds:ids,horizon,topN,talents:TALENT_DATA,
+    getState:wasmGetState,setState:wasmSetState,doWash:wasmDoWash,
+    guard:canonical(),progress:data=>progress({...data,completed:2,total:4})
+   });
+   diagnostics={isMixed:true,returned:result.routes.length,
+    complete:result.routes.length,incomplete:0,
+    method:'color-only-wasm-cost-first',...result.diagnostics};
+  }else if(anchor){
    result=await self.YYWashPurpleAnchorMixed.run({
     desiredIds:ids,maxPad,horizon,topN,talents:TALENT_DATA,
     getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes,
