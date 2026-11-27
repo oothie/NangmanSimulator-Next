@@ -715,7 +715,10 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   }
   // A cheaper completion can begin at a later first-color occurrence.
   // Preserve broad candidate coverage instead of truncating to early events.
-  const deferredBudget=expanded?64:40;
+  // Three lower-grade goals have a larger continuation branching factor.
+  // Bound the expensive replay count while preserving the earliest event
+  // for each target and the least-spent event states.
+  const deferredBudget=shape.colors.length===3?(expanded?32:20):(expanded?64:40);
   const candidates=events.length<=deferredBudget?events:
    sampleMixedColorCandidates(events.map(e=>({
     ...e,time:e.wash,appearing:e.colors
