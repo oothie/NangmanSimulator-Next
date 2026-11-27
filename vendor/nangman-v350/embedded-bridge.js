@@ -250,6 +250,39 @@ html[data-nangman-theme="dark"] body #rk218 :is(
  .q-orange226,.grade-5,.region-prop226,.z-region
 ){color:#e7ba84!important}
 `;
+/* Grade/quality colors must override the generic ink-mode text guard.
+ * Grade chips use their own dark background AND foreground, never translucent
+ * neutral host-active; retain original grade semantics across detailed tables. */
+themeStyle.textContent += `
+html[data-nangman-theme="dark"] body #rk218 .rk-grade256.is-white{--gc:#e1e5eb;--gback:#3c4652;--gb:#8693a2}
+html[data-nangman-theme="dark"] body #rk218 .rk-grade256.is-green{--gc:#a8f1bf;--gback:#204b36;--gb:#529d73}
+html[data-nangman-theme="dark"] body #rk218 .rk-grade256.is-blue{--gc:#b0ddff;--gback:#254d70;--gb:#649cc7}
+html[data-nangman-theme="dark"] body #rk218 .rk-grade256.is-purple{--gc:#ebc9ff;--gback:#4b3267;--gb:#a677d0}
+html[data-nangman-theme="dark"] body #rk218 .rk-grade256.is-red{--gc:#ffc5c2;--gback:#633237;--gb:#cb7779}
+html[data-nangman-theme="dark"] body #rk218 .rk-grade256.is-gold{--gc:#ffe6a5;--gback:#5b4722;--gb:#ba9555}
+html[data-nangman-theme="dark"] body #rk218 :is(.rk-grade-row256,.rb-detail233,.rk237-total,.search-hit272,.row-keep,.auto339-result,.auto346-result) .rk-grade256,
+html[data-nangman-theme="dark"] body #rk218 .rk-grade256{
+ display:inline-flex!important;align-items:center!important;gap:4px!important;
+ background:var(--gback)!important;background-color:var(--gback)!important;
+ color:var(--gc)!important;border:1px solid var(--gb)!important;
+ border-radius:999px!important;padding:3px 8px!important;
+ opacity:1!important;box-shadow:none!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.rb-detail233,.rk237-total,.search-hit272,.row-keep,.rk-grade-row256,.auto339-result,.auto346-result) .rk-grade256 :is(b,small,strong,span),
+html[data-nangman-theme="dark"] body #rk218 .rk-grade256 :is(b,small,strong,span){
+ color:var(--gc)!important;opacity:1!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .rk-grade256 small{font-weight:650!important}
+html[data-nangman-theme="dark"] body #rk218 :is(.auto339-region,.auto339-material,.auto339-mang,.auto345-purple-note) :is(b,strong,span,small){
+ color:inherit!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.rk237-total,.picker237,.detail-controls218,.search-result-side275,.rb-detail233) :is(.rinput,select,input){
+ background:var(--host-panel)!important;color:var(--host-text)!important;border-color:var(--host-border)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.rk237-total,.picker237,.detail-controls218,.search-result-side275) :is(.glab,.note218,.meta,.side-text275){
+ color:var(--host-sub)!important;
+}
+`;
 function setHostTheme(theme){
  document.documentElement.dataset.nangmanTheme=theme==='dark'?'dark':'light';
 }
