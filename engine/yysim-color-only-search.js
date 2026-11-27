@@ -66,7 +66,8 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
  base.bag_pills=Math.max(100000,num(base.bag_pills));
  const startWash=washNo(base),startPills=pills(base);
  const maxWashes=Math.max(20,Math.min(5000,Number(horizon)||2500));
- const maxNodes=Math.max(2000,Math.min(50000,Number(nodeLimit)||18000));
+ const maxNodes=Math.max(supplemental?600:2000,
+  Math.min(50000,Number(nodeLimit)||18000));
  const queue=new Heap(),seen=new Set(),routes=[];
  let generated=0,explored=0,pruned=0,failures=0,restored=0,nativeWashes=0,
  best=Number.isFinite(initialBest)?Math.max(0,Number(initialBest)):Infinity;
