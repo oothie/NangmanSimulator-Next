@@ -120,7 +120,7 @@ function actionsToRoute(actions,final,base,original,desiredIds,window='last-purp
 }
 async function run({desiredIds,maxPad=0,horizon=900,topN=8,
  talents,getState,setState,search,doWash,exchangeTalent,
- guard,progress=()=>{},expanded=false}={}){
+ guard,progress=()=>{},expanded=false,onVerifiedCandidate=null}={}){
  const shape=requestShape(desiredIds,talents);
  if(!shape)throw Error('자맥 1~3개와 녹맥·파맥 1~3개를 합쳐 서로 다른 목표 2~4개를 선택하세요');
  if([getState,setState,search,doWash,exchangeTalent].some(x=>typeof x!=='function')||
@@ -847,8 +847,24 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   diagnostics.prunedByCost=(diagnostics.prunedByCost||0)+1;
   return true;
  };
- const reportBest=(phase)=>progress({phase,scannedWashes:diagnostics.scannedWashes,
-  candidateRoutes:routes.length,bestPills:routes.length?bestCost():null});
+ let lastExtendedPublished=Infinity;
+ const reportBest=phase=>{
+  progress({phase,scannedWashes:diagnostics.scannedWashes,
+   candidateRoutes:routes.length,bestPills:routes.length?bestCost():null});
+  // Stream only strictly improved, complete, native-state-confirmed
+  // minimum-cost paths; do not flood the UI with equivalent candidates.
+  if(expanded&&typeof onVerifiedCandidate==='function'&&routes.length){
+   const current=bestCost();
+   if(Number.isFinite(current)&&current<lastExtendedPublished){
+    const verified=routes.filter(route=>Number.isFinite(route.pills)&&
+     desiredIds.every(id=>(route.final_slots||[]).some(t=>Number(t.id)===id)));
+    if(verified.length){
+     lastExtendedPublished=current;
+     onVerifiedCandidate(clone(verified));
+    }
+   }
+  }
+ };
 
  let baseline=null;
  try{
