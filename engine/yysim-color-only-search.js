@@ -154,7 +154,8 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
  }
  let lastBroadcast='';
  function notifyCandidate(){
-  if(typeof onVerifiedCandidate!=='function'||!routes.length)return;
+  if(!routes.length)return;
+  if(!deepSearch&&typeof onVerifiedCandidate!=='function')return;
   // A candidate is not published until its exact native WASM wash/lock
   // actions have been independently replayed from the initial state.
   const current=clone(getState());
@@ -172,7 +173,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
     best=Math.min(Number.isFinite(initialBest)?Number(initialBest):Infinity,
      verifiedBest);
    }
-   if(!verified.length)return;
+   if(!verified.length||typeof onVerifiedCandidate!=='function')return;
    const signature=JSON.stringify(verified.map(r=>[r.pills,r.washes,r.actions]));
    if(signature===lastBroadcast)return;
    lastBroadcast=signature;
