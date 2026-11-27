@@ -149,6 +149,26 @@ function paidRefreshPhase(t){
  if(minute>=480&&minute<1200)return 'after-08-before-20';
  return 'after-20-free';
 }
+
+// RandShop.Time marks the last free market rotation, NOT the paid quota's day.
+// ResetDay and the save snapshot belong to the saved paid-refresh count.
+function marketSnapshotTime(save){
+ const candidates=[save?.UploadTime,save?.RealTime,save?.AutoSave,save?.ResetDay,save?.RandShop?.Time];
+ for(const candidate of candidates){
+  const value=Number(candidate);
+  if(Number.isSafeInteger(value)&&value>0)return value;
+ }
+ return 0;
+}
+function paidQuotaFromSave(save,now){
+ const raw=save?.RandShop?.Fresh,parsed=Number(raw);
+ const observed=raw!=null&&raw!==''&&Number.isSafeInteger(parsed)&&parsed>=0?parsed:null;
+ const snapshotTime=marketSnapshotTime(save);
+ const resetSinceSave=snapshotTime>0&&resetDay(snapshotTime)<resetDay(now);
+ return {observed,used:resetSinceSave?0:observed,resetSinceSave,snapshotTime,
+  resetStamp:Number(save?.ResetDay)||0};
+}
+
 function currentShelf(saved,catalog){
  return (saved||[]).map(x=>catalog.find(y=>y.id===n(x?.ID??x?.id))||
   {id:n(x?.ID??x?.id),item:0,name:'',price:0,money:0,count:1,unmapped:true,
@@ -175,16 +195,16 @@ function predict(save,source,now=Math.floor(Date.now()/1000),options={}){
  // Keep their observed shelf, never silently derive a "current" future shelf.
  const historyBlocked=missed>730,forecastOk=hasSeed&&!historyBlocked&&!stale;
  let today=currentShelf(shop.Items,src);
- const fresh=clock>0&&resetDay(clock)<resetDay(now)?0:n(shop.Fresh);
- const paidMax=VIP_REFRESH[vip.vip]??3,paidLeft=Math.max(0,paidMax-fresh),lucky=n(shop.Lucky);
+ const quota=paidQuotaFromSave(save,now),fresh=quota.used??0;
+ const paidMax=VIP_REFRESH[vip.vip]??3,paidLeft=quota.used===null?0:Math.max(0,paidMax-fresh),lucky=n(shop.Lucky);
  return {sourceVersion:source?.ver??null,seedOk:forecastOk,seedPresent:hasSeed,historyBlocked,seed:hasSeed?n(save.Rnds.Sds.guishishop):null,
   today,available,soldOut,slots,saveSlots,stale,tooOld:missed>1,missed,lastTime:clock,
-  nextTime:nextHalfDay(now),now,paidLeft,paidMax,fresh,lucky,vip,
+  nextTime:nextHalfDay(now),now,paidLeft,paidMax,fresh,lucky,vip,paidQuota:quota,
   // VIP override is a local-only scenario; never alter the imported save.
   paidAllowance(vipOverride=vip.vip){
    const level=Math.max(0,Math.min(5,Math.trunc(n(vipOverride,vip.vip))));
    const max=VIP_REFRESH[level]??VIP_REFRESH[0];
-   return {vip:level,max,used:fresh,left:Math.max(0,max-fresh)};
+   return {vip:level,max,used:fresh,left:quota.used===null?0:Math.max(0,max-fresh),known:quota.used!==null};
   },
   getPaid(count=1,options={}){
    if(!forecastOk)return [];
@@ -854,7 +874,7 @@ function assumeAllFreeVisits(save,source,now=Math.floor(Date.now()/1000),options
   RandShop:{...shop,Time:target,
    Items:replay.items.map(id=>({ID:id,Buyed:0})),
    // 05:00 KST is the quota reset; no assumed paid purchases.
-   Fresh:resetDay(savedAt)!==resetDay(target)?0:n(shop.Fresh),
+   Fresh:resetDay(marketSnapshotTime(save)||savedAt)!==resetDay(target)?0:n(shop.Fresh),
    Lucky:replay.lucky},
   Rnds:{...(save?.Rnds||{}),Sds:{...(save?.Rnds?.Sds||{}),
    guishishop:replay.seed}}
