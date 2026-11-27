@@ -1024,6 +1024,57 @@ html[data-theme="ink"] :is(.dungeon-131 .dun-day-group[open]>summary){
  border-bottom-color:var(--border);
 }
 </style>
+<style id="v131-mobile-layout-audit">
+/* Keep the viewport stable; long data tables scroll inside their own panels. */
+@media(max-width:760px){
+ html,body{width:100%;max-width:100%;margin:0;}
+ .shell{width:100%;max-width:100%;min-width:0;padding:8px!important;}
+ .top{display:flex;flex-wrap:wrap;gap:8px!important;padding:10px!important;min-width:0;}
+ .brand{font-size:clamp(17px,5vw,23px)!important;white-space:normal;min-width:0;overflow-wrap:anywhere;}
+ .nav{order:3;flex:1 1 100%;min-width:0;display:flex;flex-wrap:nowrap!important;
+  overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;gap:4px;padding-bottom:4px;}
+ .nav button{flex:0 0 auto;white-space:nowrap;min-height:38px;padding:7px 10px;}
+ .tools{min-width:0;max-width:100%;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;gap:4px;}
+ .save-link,.tools button{max-width:100%;overflow-wrap:anywhere;}
+ .page{width:100%;max-width:100%;min-width:0;padding:10px!important;}
+ .layout,.work,.aside,.module-wrap,.module-panel,.equipment-workspace,
+ .equipment-host,.drop-workspace,#purpleDropWorkspace,.equip-detail-full,.card,
+ .dungeon-131,#dunResults{min-width:0;max-width:100%;box-sizing:border-box;}
+ .work,.module-wrap,.module-panel{padding:10px!important;}
+ .module-head,.heading,.hero{gap:8px;flex-wrap:wrap;}
+ .module-head h2,.hero h2{font-size:clamp(19px,5vw,26px);}
+ .simple-tabs,.equip-primary-tabs{display:flex;flex-wrap:nowrap!important;
+  overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+  gap:4px;max-width:100%;padding-bottom:4px;}
+ .simple-tabs button,.equip-primary-tabs button{flex:0 0 auto;white-space:nowrap;padding:9px 12px;}
+ .market-goal-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px;}
+ .market-goal-controls>*,.market-goal-controls label{min-width:0;max-width:100%;}
+ .market-goal-controls select,.market-goal-controls input{width:100%;min-width:0;max-width:100%;}
+ .market-goal-controls button{min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;}
+ .dungeon-131 .dun-daily-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px;}
+ .dungeon-131 .dun-daily-place{min-width:0;gap:6px;flex-wrap:wrap;}
+ .dungeon-131 .dun-daily-place select{flex:0 0 auto;max-width:76px;}
+ .table-scroll,.detail-scroll,.equip-detail-table-wrap,.market-table-wrap,
+ .dungeon-131 .table-scroll,.module-panel .table-scroll{
+  display:block;max-width:100%;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;}
+ .dungeon-131 .dun-table{min-width:550px;table-layout:auto;}
+ .equipment-host iframe,.drop-workspace iframe,.purple-drop-iframe{
+  display:block;width:100%;max-width:100%;min-width:0;border:0;}
+ .equip-detail-full :is(button,select,input){max-width:100%;}
+ .equip-detail-full .equip-detail-buttons{display:flex;flex-wrap:wrap;gap:6px;}
+ .equip-detail-full .equip-detail-buttons button{flex:1 1 130px;min-width:0;}
+ img,svg,canvas{max-width:100%;height:auto;}
+}
+@media(max-width:420px){
+ .shell{padding:5px!important}.page{padding:8px!important}
+ .market-goal-controls{grid-template-columns:minmax(0,1fr)!important;}
+ .dungeon-131 .dun-daily-place{font-size:12px;padding:8px;}
+ .dungeon-131 .dun-daily-place select{max-width:70px;}
+ .tools{flex:1 1 100%;justify-content:flex-start;}
+ .theme{margin-left:auto;}
+}
+</style>
 </head>
 <body><div class="app-shell-bg" aria-hidden="true"></div><div class="shell"><header class="top"><div class="brand">낭만강호 통합 시뮬레이터 v1.3.1</div><nav class="nav" id="nav"></nav><div class="tools"><span id="topSaveStatus" class="micro">세이브 미연결</span><button id="saveLink" class="save-link">세이브 불러오기</button><button type="button" id="clearTopSave" class="save-link" title="이 브라우저의 세이브 삭제">해제</button><input id="file" type="file" accept=".json,application/json" hidden><div class="theme"><button id="paper" class="on" aria-label="밝은 테마">밝은 테마</button><button id="ink" aria-label="어두운 테마">어두운 테마</button></div></div></header>
 <main class="page"><div id="view"></div><section id="equipmentWorkspace" class="equipment-workspace" hidden aria-label="장비 계산 영역"></section><section id="dropWorkspace" class="drop-workspace" hidden aria-label="드랍 계산 영역"></section><section id="purpleDropWorkspace" class="drop-workspace" hidden aria-label="자색 드랍 예측 계산 영역"></section></main></div>
