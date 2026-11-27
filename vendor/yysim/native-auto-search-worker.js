@@ -8,8 +8,8 @@
 self.window=self;
 importScripts('./wasm_data.js?rev=0.10.30','./core_glue.js?rev=0.10.30',
  './data.js?rev=0.10.30','../../engine/yysim-native-search-guard.js?rev=0.10.61',
- '../../engine/yysim-purple-anchor-mixed.js?rev=20261124-anchor-v20',
- '../../engine/yysim-color-only-search.js?rev=20261127-cost-first');
+ '../../engine/yysim-purple-anchor-mixed.js?rev=20261127-min-cost-all-orders',
+ '../../engine/yysim-color-only-search.js?rev=20261127-cost-first-final-wash');
 let initialized=null;
 const canonical=()=>self.YYWashNativeSearchGuard;
 const send=(id,kind,data)=>self.postMessage({kind,requestId:id,...data});
