@@ -96,6 +96,62 @@ themeStyle.textContent += `
   body #rk218 input,body #rk218 select{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
 }
 `;
+/* Regional crafting uses later light-only styles with !important declarations.
+   Override these only under the host ink theme. Preserve item-grade labels. */
+themeStyle.textContent += `
+html[data-nangman-theme="dark"]{
+ --host-bg:#20242b;--host-panel:#282c33;--host-card:#282c33;
+ --host-text:#e2ded6;--host-sub:#b5ada4;--host-border:#626873;
+ --host-gold:#c5a777;--host-hover:#343a44;--host-active:#c5a77726;
+ color-scheme:dark;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.regionbar225,.region-group352,.regionScroll225,.region-grid223,.region-route223,#eseq,#regionDetail231){
+ background:var(--host-panel)!important;color:var(--host-text)!important;
+ border-color:var(--host-border)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionScroll225{
+ border:1px solid var(--host-border)!important;border-radius:8px!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.regionTbl225,.regionTbl225 thead,.regionTbl225 tbody,.regionTbl225 tfoot,.regionTbl225 tr){
+ background:var(--host-panel)!important;color:var(--host-text)!important;
+ border-color:var(--host-border)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 :is(th,td),
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 :is(th.sticky225,td.sticky225){
+ background:var(--host-panel)!important;color:var(--host-text)!important;
+ border-bottom:1px solid var(--host-border)!important;
+ border-right:1px solid #535965!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 thead :is(th,th.sticky225){
+ background:#353a44!important;color:var(--host-text)!important;
+ border-bottom:2px solid #727987!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 tbody tr:nth-child(even) :is(td,td.sticky225){
+ background:#30353e!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 tbody tr:hover :is(td,td.sticky225){
+ background:#3b414c!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 :is(.r225q,.r225ext,.r225reg,.r225spec,small),
+html[data-nangman-theme="dark"] body #rk218 .regionbar225 :is(label,.note218){
+ color:var(--host-text)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .regionTbl225 .r225reg.none{
+ color:var(--host-sub)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.r239-label,.rk240-allhint,.region-group352 .note218){
+ background:#333842!important;color:var(--host-text)!important;
+ border-color:var(--host-border)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(.regionbar225 select,.regionbar225 option,.regionbar225 input){
+ background:#282c33!important;color:var(--host-text)!important;
+ border:1px solid #727986!important;color-scheme:dark;
+}
+html[data-nangman-theme="dark"] body #rk218 #regionDetail231 :is(.box218,.rb-detail233,.rb-card233,.mini,.grp218,.rk240-slot){
+ background:var(--host-panel)!important;color:var(--host-text)!important;
+ border-color:var(--host-border)!important;
+}
+`;
 function setHostTheme(theme){
  document.documentElement.dataset.nangmanTheme=theme==='dark'?'dark':'light';
 }
