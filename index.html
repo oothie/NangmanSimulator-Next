@@ -5227,7 +5227,7 @@ if($('yyAutoOwnedPills'))$('yyAutoOwnedPills').onchange=()=>{
  if(!raw||!Number.isSafeInteger(n)||n<0){alert('보유 세수단은 0 이상의 정수로 입력하세요.');field.value=String(runtime.autoOwnedPills??0);return;}
  runtime.autoOwnedPills=n;render();
 };
-if($('yyAutoStopExtended'))$('yyAutoStopExtended').onclick=()=>stopExpanded('stopped');
+if($('yyAutoStopExtended'))$('yyAutoStopExtended').onclick=()=>window.dispatchEvent(new Event('nangman-wash-cancel-extended'));
 if($('yyAutoRun'))$('yyAutoRun').onclick=()=>{
  try{
   const runtime=window.__washRuntime||{};
@@ -5720,6 +5720,7 @@ async function startExpanded({generation,source,options,initial,colorSearch}){
   window.__nangmanWashSaveSource?.()?.save===source.save&&
   window.__nangmanWashSaveSource?.()?.role?.id===source.role.id;
  state.autoExpandedStatus='running';
+ let lastExpandedPaint=0,lastExpandedPhase='';
  state.autoExpandedResult=null;
  state.autoExpandedProgress={stage:'확장 탐색 WASM 준비 중'};
  state.autoExpandedError='';
@@ -5742,7 +5743,10 @@ async function startExpanded({generation,source,options,initial,colorSearch}){
    state.autoExpandedProgress=visible;
    if(partialResult&&Array.isArray(partialResult.result?.routes))
     state.autoExpandedResult={...partialResult,colorSearch};
-   announce();
+   const phase=String(progress?.phase||''),now=performance.now();
+   if(partialResult||phase!==lastExpandedPhase||now-lastExpandedPaint>650){
+    lastExpandedPaint=now;lastExpandedPhase=phase;announce();
+   }
   });
   if(!valid())return;
   if(!result||!Array.isArray(result.result?.routes)||
