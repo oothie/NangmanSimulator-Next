@@ -147,7 +147,7 @@ self.addEventListener('message',async event=>{
        desired_ids:ids,max_pad:pad,horizon:Math.max(horizon,4500),top_n:Math.min(20,topN+8)});
      for(const route of pass.routes||[]){
       if(!ids.every(id=>(route.final_slots||[]).some(t=>Number(t.id)===id)))continue;
-      const key=JSON.stringify([route.actions,route.final_slots]);
+      const key=JSON.stringify([route.actions,route.final_slots,Number(route.pills)]);
       if(signatures.has(key))continue;
       signatures.add(key);candidates.push(route);
      }
