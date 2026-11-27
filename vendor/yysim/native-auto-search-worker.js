@@ -76,8 +76,10 @@ self.addEventListener('message',async event=>{
      Infinity;
     try{
      const supplementary=await self.YYWashColorOnly.run({
+      // The heap remains node-bounded; the larger wash horizon allows
+      // cost-first lookahead to reach sparse late purple/green events.
       desiredIds:ids,horizon:Math.min(horizon,
-       Number.isFinite(baselineCost)?750:1500),
+       Number.isFinite(baselineCost)?1800:2500),
       topN,talents:TALENT_DATA,
       getState:wasmGetState,setState:wasmSetState,doWash:wasmDoWash,
       guard:canonical(),allowMixed:true,initialBest:baselineCost,
