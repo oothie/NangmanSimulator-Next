@@ -96,6 +96,50 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
   const held=desiredIds.filter(id=>(state.talents||[]).some(t=>Number(t.id)===id&&t.locked)).length;
   queue.push({state,actions,cost,washes,held});
  }
+ // Verify completed paths by replaying their displayed operations from the
+ // starting WASM state. A correct final slot snapshot alone is not enough:
+ // the lock/open-slot sequence must reproduce the same pills and wash count.
+ const talentIdsByName=new Map(Object.keys(talents).map(id=>
+  [name(talents,id),Number(id)]));
+ function verifyRoute(route){
+  restore(base);
+  const start=washNo(getState());
+  const washUntil=target=>{
+   if(!Number.isInteger(target)||target<0||target>maxWashes)return false;
+   while(washNo(getState())<start+target){
+    const at=washNo(getState()),ret=doWash();
+    if(!ret||ret.error||washNo(getState())!==at+1)return false;
+   }
+   return washNo(getState())===start+target;
+  };
+  for(const action of route.actions||[]){
+   if(!washUntil(Number(action.wash_no||0)))return false;
+   if(action.kind==='wash_to')continue;
+   if(action.kind==='open_slot'){
+    const match=String(action.note||'').match(/15[1-4]/);
+    const target=match?Number(match[0]):NaN;
+    const current=clone(getState());
+    if(!Number.isInteger(target)||target!==Number(current.zizhi)+1)return false;
+    const next={...current,zizhi:target,
+     str_gift:num(current.str_gift)+100,con_gift:num(current.con_gift)+100};
+    if(!setState(next)||Number(getState().zizhi)!==target)return false;
+   }else if(action.kind==='lock'||action.kind==='unlock'){
+    let id=talentIdsByName.get(String(action.talent));
+    if(id==null&&Number.isInteger(Number(action.talent)))
+     id=Number(action.talent);
+    const current=clone(getState());
+    if(!current.talents.some(t=>Number(t.id)===id))return false;
+    const next={...current,talents:current.talents.map(t=>
+     Number(t.id)===id?{...t,locked:action.kind==='lock'}:t)};
+    if(!setState(next))return false;
+   }else return false;
+  }
+  const final=getState();
+  return washNo(final)-start===route.washes&&
+   pills(final)-startPills===route.pills&&
+   present(final,desiredIds)&&
+   guard.canonicalJson(final.talents)===guard.canonicalJson(route.final_slots);
+ }
  function greedy(mode){
   // Obtain a completed native-WASM upper bound before spending the
   // cost-ordered search budget. Each mode uses a distinct real slot timing.
@@ -282,6 +326,19 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
     await new Promise(resolve=>setTimeout(resolve,0));
    }
   }
+  // A result is surfaced only if its claimed wash/lock route can be
+  // reproduced independently on the unchanged native WASM state.
+  const verified=[];
+  let replayRejected=0;
+  for(const route of routes){
+   let ok=false;
+   try{ok=verifyRoute(route)}catch(_){ok=false}
+   if(ok)verified.push(route);
+   else replayRejected++;
+  }
+  routes.splice(0,routes.length,...verified);
+  diagnostics.replayValidated=verified.length;
+  diagnostics.replayRejected=replayRejected;
  }finally{
   if(!setState(clone(source))||guard.canonicalJson(getState())!==before)
    throw Error('녹·파맥 탐색 종료 후 원본 WASM 상태 복원 검증 실패');
