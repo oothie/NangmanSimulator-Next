@@ -66,10 +66,10 @@ self.addEventListener('message',async event=>{
     complete:result.routes.length,incomplete:0,
     method:'purple-anchor-original-wasm',...result.diagnostics};
    // A purple-first backbone may miss the cheapest FINAL mixed path.
-   // Independently explore cheaper color-first timings with the SAME
-   // original WASM wash/lock/slot state. Keep this bounded so the native
-   // purple solver remains responsive for ordinary 3+1 combinations.
-   if(anchor.purple.length===1&&
+   // Always compare color-first routes for one purple; for multi-purple
+   // combinations invoke this bounded fallback only if no route was found.
+   // All alternatives use exactly the SAME native WASM state transitions.
+   if((anchor.purple.length===1||!result.routes.length)&&
       self.YYWashColorOnly?.mixedShape(ids,TALENT_DATA)){
     const baselineCost=result.routes.length?
      Math.min(...result.routes.map(route=>Number(route.pills)).filter(Number.isFinite)):
@@ -81,7 +81,8 @@ self.addEventListener('message',async event=>{
       topN,talents:TALENT_DATA,
       getState:wasmGetState,setState:wasmSetState,doWash:wasmDoWash,
       guard:canonical(),allowMixed:true,initialBest:baselineCost,
-      nodeLimit:Number.isFinite(baselineCost)?1400:3600,
+      nodeLimit:Number.isFinite(baselineCost)?1400:
+       (anchor.purple.length===1?3600:1800),
       progress:data=>progress({...data,completed:2,total:4})
      });
      const complete=route=>Array.isArray(route?.final_slots)&&
