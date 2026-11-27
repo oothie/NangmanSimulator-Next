@@ -152,6 +152,44 @@ html[data-nangman-theme="dark"] body #rk218 #regionDetail231 :is(.box218,.rb-det
  border-color:var(--host-border)!important;
 }
 `;
+/* Narrow-screen equipment tabs, filters and result tables: scroll only data areas. */
+themeStyle.textContent += `
+@media(max-width:760px){
+ html,body{width:100%!important;max-width:100%!important;}
+ body #rk218,body #rk218 #rmain,body #rk218 .box218,
+ body #rk218 .bbody,body #rk218 .rb-detail233,
+ body #rk218 .region-group352,body #rk218 .regionbar225,
+ body #rk218 .equip-card-list{
+  min-width:0!important;max-width:100%!important;box-sizing:border-box!important;
+ }
+ body #rk218 .regionbar225{display:flex!important;flex-wrap:wrap!important;gap:8px!important;}
+ body #rk218 .regionbar225 label{min-width:0!important;max-width:100%!important;flex-wrap:wrap!important;}
+ body #rk218 .regionbar225 select{max-width:100%!important;min-width:0!important;}
+ body #rk218 :is(.regionScroll225,.unique-seq-scroll227,.scroll218,.detail-scroll,
+ .rk237-table-wrap,.table-wrap,.result-table-wrap,.history-table-wrap){
+  display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
+  overflow-x:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+ }
+ body #rk218 :is(.regionTbl225,.unique-seq-table227,.detail-table218){
+  width:max-content!important;min-width:100%!important;table-layout:auto!important;
+ }
+ body #rk218 .regionTbl225 :is(th,td){white-space:nowrap!important;}
+ body #rk218 .tabs218{flex-wrap:nowrap!important;overflow-x:auto!important;
+  overflow-y:hidden!important;max-width:100%!important;-webkit-overflow-scrolling:touch;}
+ body #rk218 .tabs218 button{flex:0 0 auto!important;}
+ body #rk218 .equip-card-list{grid-template-columns:minmax(0,1fr)!important;}
+ body #rk218 :is(.grid218,.region-grid223,.unique-grid223,.search-result-layout275,
+ .rk237-groups,.auto346-main){grid-template-columns:minmax(0,1fr)!important;}
+ body #rk218 :is(.auto339-result,.auto342-slot,.auto345-optionblock,
+ .rb-card233,.recipe-card,.rk-detail-head233){min-width:0!important;max-width:100%!important;}
+ body #rk218 :is(input,select,textarea,button){max-width:100%!important;}
+}
+@media(max-width:420px){
+ body #rk218 .bbody{padding:8px!important;}
+ body #rk218 :is(.box218,.rb-detail233,.mini,.grp218){padding-left:8px!important;padding-right:8px!important;}
+ body #rk218 .regionbar225{padding:8px!important;}
+}
+`;
 function setHostTheme(theme){
  document.documentElement.dataset.nangmanTheme=theme==='dark'?'dark':'light';
 }
