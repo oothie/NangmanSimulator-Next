@@ -13,6 +13,7 @@ class Heap{
 }
 async function run({desiredIds,talents,getState,setState,doWash,exchangeTalent,guard,
  horizon=6000,nodeLimit=3400,topN=8,initialBest=Infinity,
+ getConflicts=null,
  onVerifiedCandidate=null,progress=()=>{}}={}){
  if(!Array.isArray(desiredIds)||desiredIds.length<1||desiredIds.length>4||
   new Set(desiredIds.map(Number)).size!==desiredIds.length)throw Error('체인 탐색 목표 오류');
@@ -25,6 +26,13 @@ async function run({desiredIds,talents,getState,setState,doWash,exchangeTalent,g
  const limit=Math.min(7000,Math.max(100,Number(horizon)||6000));
  const maxNodes=Math.min(12000,Math.max(200,Number(nodeLimit)||3400));
  const goals=desiredIds.map(Number),goalSet=new Set(goals);
+ const eligibleIndices=()=>{
+  if(typeof getConflicts!=='function')return null;
+  const rows=getConflicts();
+  if(!Array.isArray(rows))return new Set();
+  return new Set(rows.filter(x=>x?.can_exchange===true&&
+   Number.isInteger(Number(x?.index))).map(x=>Number(x.index)));
+ };
  const name=id=>String(talents[String(id)]?.name||id);
  const grade=id=>Number(talents[String(id)]?.pinzhi||0);
  const key=s=>canonical(s);
@@ -85,9 +93,11 @@ async function run({desiredIds,talents,getState,setState,doWash,exchangeTalent,g
     if(!checked(old))return false;
    }else if(a.kind==='exchange'){
     const old=cp(getState()),i=old.talents.findIndex(t=>Number(t.id)===Number(a.from_id));
-    if(i<0)return false;
+    if(i<0||old.talents[i].locked)return false;
+    const eligible=eligibleIndices();
+    if(eligible&&!eligible.has(i))return false;
     const ret=exchangeTalent(i),next=getState();exchangeAttempts++;
-    if(!ret||ret.error||key(next)===key(old)||
+    if(!ret||ret.success!==true||ret.error||key(next)===key(old)||
       Number(next.talents[i]?.id)!==Number(a.to_id))return false;
    }else return false;
   }
@@ -159,13 +169,16 @@ async function run({desiredIds,talents,getState,setState,doWash,exchangeTalent,g
       Number(t.id)===id?{...t,locked:false}:t)}),
       {kind:'unlock',talent_id:id,talent:name(id),wash_no:w,pills_after:node.c});
    }
-   // Probe every actual native exchange; do not guess any output talent.
+   // Probe only native conflict-eligible, unlocked slots. This matches
+   // the normal in-game exchange operation and route replay rules.
+   const eligible=eligibleIndices();
    for(let i=0;i<(s.talents||[]).length;i++){
+    if(s.talents[i].locked||(eligible&&!eligible.has(i)))continue;
     restore(s);
     const before=cp(getState()),from=Number(before.talents[i].id);
     const ret=exchangeTalent(i);exchangeAttempts++;
     const after=cp(getState()),to=Number(after.talents[i]?.id);
-    if(!ret||ret.error||!Number.isInteger(to)||from===to||
+    if(!ret||ret.success!==true||ret.error||!Number.isInteger(to)||from===to||
        key(before)===key(after)||cost(after)<node.c)continue;
     add(after,flush(node.actions,s).concat({
      kind:'exchange',from_id:from,to_id:to,from:name(from),to:name(to),
