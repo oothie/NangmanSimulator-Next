@@ -60,7 +60,11 @@ self.addEventListener('message',async event=>{
     desiredIds:ids,horizon:expanded?Math.max(horizon,4500):horizon,
     topN,talents:TALENT_DATA,nodeLimit:expanded?45000:18000,
     getState:wasmGetState,setState:wasmSetState,doWash:wasmDoWash,
-    guard:canonical(),progress:data=>progress({...data,completed:2,total:4,
+    guard:canonical(),
+    onVerifiedCandidate:expanded?routes=>publishPartial({routes},
+     {method:'color-only-wasm-cost-first'},
+     '확장 탐색 · 녹·파맥 검증 완료 후보 발견, 추가 경로 비교 중'):null,
+    progress:data=>progress({...data,completed:2,total:4,
      stage:expanded?'확장 탐색 · 녹·파맥 비용순 경로 비교':data.stage})
    });
    diagnostics={isMixed:true,returned:result.routes.length,
@@ -102,6 +106,15 @@ self.addEventListener('message',async event=>{
       nodeLimit:expanded?28000:Number.isFinite(baselineCost)?
        (anchor.purple.length===1?1400:1000):
        (anchor.purple.length===1?3600:1800),
+      onVerifiedCandidate:expanded?routes=>{
+       const combined=[...result.routes,...routes]
+        .filter(route=>ids.every(id=>(route.final_slots||[])
+         .some(slot=>Number(slot.id)===Number(id))))
+        .sort((a,b)=>Number(a.pills)-Number(b.pills)||
+         Number(a.washes)-Number(b.washes));
+       publishPartial({routes:combined.slice(0,topN)},diagnostics,
+        '확장 탐색 · 더 적은 세수단 후보 검증, 추가 경로 비교 중');
+      }:null,
       progress:data=>progress({...data,completed:2,total:4})
      });
      const complete=route=>Array.isArray(route?.final_slots)&&
