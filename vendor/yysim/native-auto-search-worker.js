@@ -8,7 +8,7 @@
 self.window=self;
 importScripts('./wasm_data.js?rev=0.10.30','./core_glue.js?rev=0.10.30',
  './data.js?rev=0.10.30','../../engine/yysim-native-search-guard.js?rev=0.10.61',
- '../../engine/yysim-purple-anchor-mixed.js?rev=20261127-min-pill-priority-2',
+ '../../engine/yysim-purple-anchor-mixed.js?rev=20261127-multi-color-deferred-v3',
  '../../engine/yysim-color-only-search.js?rev=20261127-cost-first-wash-count');
 let initialized=null;
 const canonical=()=>self.YYWashNativeSearchGuard;
