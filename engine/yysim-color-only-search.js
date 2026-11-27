@@ -128,7 +128,11 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
      str_gift:num(current.str_gift)+100,con_gift:num(current.con_gift)+100};
     if(!setState(next)||Number(getState().zizhi)!==target)return false;
    }else if(action.kind==='lock'||action.kind==='unlock'){
-    let id=talentIdsByName.get(String(action.talent));
+    // Numeric identity is recorded internally so duplicate display names
+    // cannot replay-lock the wrong talent. The UI still shows Korean names.
+    let id=Number.isInteger(Number(action.talent_id))&&
+     action.talent_id!=null?Number(action.talent_id):
+     talentIdsByName.get(String(action.talent));
     if(id==null&&Number.isInteger(Number(action.talent)))
      id=Number(action.talent);
     const current=clone(getState());
@@ -159,7 +163,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
    if(setState({...old,talents:unlocked})){
     current=clone(getState());
     for(const t of old.talents.filter(t=>t.locked&&!desiredIds.includes(Number(t.id))))
-     actions.push({kind:'unlock',talent:name(talents,Number(t.id)),
+     actions.push({kind:'unlock',talent_id:Number(t.id),talent:name(talents,Number(t.id)),
       wash_no:0,pills_after:0});
    }
   }
@@ -176,7 +180,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
     if(at-startWash>Number(actions.at(-1)?.wash_no??0))
      actions.push({kind:'wash_to',wash_no:at-startWash,
       pills_after:pills(current)-startPills});
-    actions.push({kind:'lock',talent:name(talents,id),wash_no:at-startWash,
+    actions.push({kind:'lock',talent_id:id,talent:name(talents,id),wash_no:at-startWash,
      pills_after:pills(current)-startPills});
    }
    if(present(current,desiredIds)){
@@ -268,7 +272,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
       add(current,node.actions.concat({
        kind:'wash_to',wash_no:at-startWash,pills_after:pills(current)-startPills
       },{
-       kind:'lock',talent:name(talents,id),wash_no:at-startWash,
+       kind:'lock',talent_id:id,talent:name(talents,id),wash_no:at-startWash,
        pills_after:pills(current)-startPills
       }));
      else failures++;
@@ -282,7 +286,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
     const id=Number(talent.id);
     const next={...state,talents:state.talents.map(t=>Number(t.id)===id?{...t,locked:false}:t)};
     if(setState(clone(next)))add(clone(getState()),node.actions.concat({
-     kind:'unlock',talent:name(talents,id),wash_no:at-startWash,
+     kind:'unlock',talent_id:id,talent:name(talents,id),wash_no:at-startWash,
      pills_after:pills(getState())-startPills
     }));
     else failures++;
