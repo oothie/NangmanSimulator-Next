@@ -50,7 +50,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
  const maxWashes=Math.max(20,Math.min(5000,Number(horizon)||2500));
  const maxNodes=Math.max(2000,Math.min(50000,Number(nodeLimit)||18000));
  const queue=new Heap(),seen=new Set(),routes=[];
- let generated=0,explored=0,pruned=0,failures=0,restored=0,best=Infinity;
+ let generated=0,explored=0,pruned=0,failures=0,restored=0,nativeWashes=0,best=Infinity;
  const diagnostics={method:'color-only-wasm-cost-first',isMixed:true,desiredCount:desiredIds.length,
   expandedStates:0,generatedStates:0,prunedStates:0,failedTransitions:0,
   nodeBudget:maxNodes,horizon:maxWashes,costOptimalityUnproven:true};
@@ -128,6 +128,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
     actions.push({kind:'open_slot',note:'자질 '+next.zizhi,
      wash_no:at-startWash,pills_after:pills(current)-startPills});
    }
+   nativeWashes++;
    const washed=doWash(),after=getState();
    if(!washed||washed.error||washNo(after)!==at+1)break;
   }
@@ -213,6 +214,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
    }
    if(node.washes<maxWashes){
     restore(state);
+    nativeWashes++;
     const washed=doWash(),next=getState();
     if(washed&&!washed.error&&washNo(next)===at+1)
      add(clone(next),node.actions);
@@ -220,7 +222,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
    }
    if(explored%250===0){
     progress({phase:'color-native-cost',stage:'녹·파맥 실제 세수 비용순 탐색 중',
-     scannedWashes:explored,candidateRoutes:routes.length,bestPills:Number.isFinite(best)?best:null,
+     scannedWashes:nativeWashes,candidateRoutes:routes.length,bestPills:Number.isFinite(best)?best:null,
      expandedStates:explored,nodeBudget:maxNodes});
     await new Promise(resolve=>setTimeout(resolve,0));
    }
@@ -233,8 +235,9 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
  Object.assign(diagnostics,{expandedStates:explored,generatedStates:generated,
   prunedStates:pruned,failedTransitions:failures,restoreChecks:restored,
   nodeLimitReached:explored>=maxNodes,remainingCandidates:queue.length,
+  simulatedWashes:nativeWashes,
   lowestObservedPills:Number.isFinite(best)?best:null});
- return {routes,scanned:explored,diagnostics,
+ return {routes,scanned:nativeWashes,diagnostics,
   error:routes.length?null:'원본 WASM 비용순 탐색 범위에서 목표 녹·파맥을 모두 보유하는 경로를 찾지 못했습니다. 최솟값은 확정되지 않았습니다.'};
 }
 root.YYWashColorOnly={shape,run};
