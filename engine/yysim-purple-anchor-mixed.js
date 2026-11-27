@@ -855,11 +855,10 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
      await new Promise(resolve=>setTimeout(resolve,0));
     }
     if(matching.length){
-     // Do not stop after the first valid 3-purple route. A slightly
-     // dearer/differently ordered purple backbone can be the ONLY route
-     // on which all four goals coexist after green/blue insertion.
+     // The globally cheapest mixed route can start from a different purple
+     // order, including a more expensive purple-only prefix. Keep all
+     // replay-validated order candidates instead of ending at the first hit.
      allMatching.push(...matching);
-     if(!twoPurple&&!expanded)break;
     }
    }
    // Single-purple native searches can return no anchor despite a real next
@@ -916,7 +915,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     allMatching.sort((a,b)=>a.purpleMeasuredPills-b.purpleMeasuredPills);
     // Each is independently replayed against the original native WASM;
     // never assume the cheapest purple cost implies cheapest mixed cost.
-    const selected=allMatching.slice(0,twoPurple?16:expanded?Math.max(12,topN):topN);
+    const selected=allMatching.slice(0,twoPurple?16:Math.max(12,topN));
     baseline={...(baseline||{}),routes:selected};
     diagnostics.purpleBackboneCosts=selected.map(x=>({
      pills:x.purpleMeasuredPills,maxPad:x.purplePad,
