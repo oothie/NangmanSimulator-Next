@@ -5809,6 +5809,51 @@ html[data-theme="ink"] #purpleV6 :is(select,input,textarea){
  #purpleV6 #v6DetailRuntime #rk218 .rb-detail233{padding:7px!important;}
 }
 </style>
+<style id="v131-dark-text-contrast-audit">
+/* Legacy embedded light-only colors: guard readable text, keep rarity accents. */
+html[data-theme="ink"] #purpleV6 :is(
+ #v6Main,#v6Detail,#v6DetailRuntime,.v9-group,.v9-route,.v9-claim,
+ .v31-input-head,.v31-summary,.v31-path,.v31-options,.v31-notes,
+ .v35-equipment-list,.v35-equipment-heading,.v35-summary-action,
+ .v35-count-table,.v6-note
+){color:var(--v32-text)!important;}
+html[data-theme="ink"] #purpleV6 #v6Main :is(
+ .v9-group,.v9-route,.v9-claim,.v31-input-head,.v31-options,
+ .v35-equipment-list,.v35-equipment-heading,.v35-summary-action
+) :is(h1,h2,h3,h4,h5,h6,p,label,summary,strong,small,td,th){
+ color:var(--v32-text)!important;
+}
+html[data-theme="ink"] #purpleV6 :is(
+ .v35-equipment-list,.v35-count-table,#v6DetailRuntime
+) :is(table,tr,th,td){
+ color:var(--v32-text)!important;border-color:var(--v32-border)!important;
+}
+html[data-theme="ink"] #purpleV6 #v6DetailRuntime #rk218 :is(
+ .box218,.mini,.rb-detail233,.rb-card233,.rk-detail-head233,.grp218,
+ .rk240-slot,.rk240-allhint,.detail-region277,.recipe-card
+) :is(h1,h2,h3,h4,h5,h6,p,label,small,summary,th,td,strong){
+ color:var(--v32-text)!important;
+}
+html[data-theme="ink"] #purpleV6 :is(
+ input,select,option,optgroup,textarea
+){background:var(--v32-panel)!important;color:var(--v32-text)!important;
+ border-color:var(--v32-border)!important;color-scheme:dark;}
+html[data-theme="ink"] #purpleV6 #v6Main :is(
+ .v35-purple,.v35-purple *
+){color:var(--v32-link)!important;}
+html[data-theme="ink"] #purpleV6 #v6DetailRuntime #rk218 :is(
+ .q-purple,.q-purple226,.clg4,.grade-4
+){color:#d2afea!important;}
+html[data-theme="ink"] #purpleV6 #v6DetailRuntime #rk218 :is(
+ .q-green,.q-green226,.clg2,.grade-2
+){color:#83d39b!important;}
+html[data-theme="ink"] #purpleV6 #v6DetailRuntime #rk218 :is(
+ .q-blue,.q-blue226,.clg3,.grade-3
+){color:#91c7f0!important;}
+html[data-theme="ink"] #purpleV6 #v6Main #v9Run{
+ background:var(--v32-button)!important;color:#17191e!important;
+}
+</style>
 </head>
 <body>
 <section id="edsLab" aria-label="Eds 자색 장비 내부 예측 연구실">
