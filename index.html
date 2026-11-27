@@ -1237,6 +1237,7 @@ function invalidateWashLink(nextRoleId){
  const state=window.__washRuntime;
  if(!state)return;
  if(nextRoleId!=null&&state.origin==='save'&&state.linkedRoleId===nextRoleId)return;
+ window.dispatchEvent(new Event('nangman-wash-cancel-extended'));
  state.generation=(state.generation||0)+1;
  state.active=false;state.origin=null;state.linkedRoleId=null;state.nativeState=null;state.autoLinkRequested=null;state.lastConflict=null;state.bagPills=null;state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.constraints=null;state.constraintsDisplay='';state.liveTalents=[];
  state.undoStates=[];state.log=[];state.historyHiddenBefore=0;state.historyPage=1;state.output='선택 캐릭터 또는 세이브가 변경되었습니다. WASM을 다시 연결하세요.';
@@ -5697,6 +5698,61 @@ import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=1
 const state=window.__washRuntime={ready:false,active:false,error:'',output:'',loading:false,log:[],undoStates:[],generation:0};
 function syncWasmBag(obj){state.bagPills=obj?.has_bag_pills===true&&Number.isFinite(Number(obj.bag_pills))?Number(obj.bag_pills):null;}
 function announce(){window.dispatchEvent(new Event('nangman-wash-updated'))}
+let expandedRunId=0;
+function stopExpanded(reason='stopped'){
+ expandedRunId++;
+ washSearchEngine.cancel();
+ if(state.autoExpandedStatus==='running')state.autoExpandedStatus=reason;
+ state.autoExpandedProgress=null;
+ announce();
+}
+window.addEventListener('nangman-wash-cancel-extended',()=>stopExpanded('stopped'));
+async function startExpanded({generation,source,options,initial,colorSearch}){
+ const token=++expandedRunId;
+ const valid=()=>token===expandedRunId&&state.generation===generation&&
+  window.__nangmanWashSaveSource?.()?.save===source.save&&
+  window.__nangmanWashSaveSource?.()?.role?.id===source.role.id;
+ state.autoExpandedStatus='running';
+ state.autoExpandedResult=null;
+ state.autoExpandedProgress={stage:'확장 탐색 WASM 준비 중'};
+ state.autoExpandedError='';
+ announce();
+ try{
+  await washSearchEngine.call('init');
+  if(!valid())return;
+  const applied=await washSearchEngine.call('set-state',initial);
+  if(!valid())return;
+  if(Number(applied?.role_id)!==Number(initial.role_id)||
+     Number(applied?.seed)!==Number(initial.seed)||
+     Number(applied?.total_wash)!==Number(initial.total_wash)||
+     Number(applied?.total_pills)!==Number(initial.total_pills))
+   throw Error('확장 탐색의 초기 세수 상태가 빠른 탐색과 다릅니다');
+  const result=await washSearchEngine.call('auto-search',{
+   ...options,searchMode:'expanded'
+  },progress=>{
+   if(!valid()||state.autoExpandedStatus!=='running')return;
+   const {partialResult,...visible}=progress||{};
+   state.autoExpandedProgress=visible;
+   if(partialResult&&Array.isArray(partialResult.result?.routes))
+    state.autoExpandedResult={...partialResult,colorSearch};
+   announce();
+  });
+  if(!valid())return;
+  if(!result||!Array.isArray(result.result?.routes)||
+     result.nativeFunction!=='wasmSearchWashRoutes')
+   throw Error('확장 탐색 결과를 검증할 수 없습니다');
+  state.autoExpandedResult={...result,colorSearch};
+  state.autoExpandedStatus='done';
+  state.autoExpandedProgress=null;
+  announce();
+ }catch(error){
+  if(!valid())return;
+  state.autoExpandedStatus='error';
+  state.autoExpandedError=String(error?.message||error);
+  state.autoExpandedProgress=null;
+  announce();
+ }
+}
 function fields(evt){for(const key of ['seed','roleId','zizhi','count'])if(evt[key]!==undefined&&evt[key]!==null)state[key]=evt[key];}
 function connectActiveWashView(){
  if(!window.__nangmanWashTabActive)return;
@@ -5716,6 +5772,10 @@ window.addEventListener('nangman-wash-command',async e=>{
  const {op}=e.detail;if(op!=='washEngineImport')fields(e.detail);state.loading=true;state.error='';
  const automaticSearch=['washEngineAutoSearch','washEngineAutoProgressive'].includes(op);
  if(automaticSearch){
+  stopExpanded('stopped');
+  state.autoExpandedResult=null;
+  state.autoExpandedStatus='idle';
+  state.autoExpandedProgress=null;
   state.autoResult=null;
   state.autoProgress={phase:'init',stage:'선택한 캐릭터·WASM 탐색 준비',percentage:0,
    completed:0,total:0,checked:0,found:0,bestPills:null};
@@ -5954,6 +6014,9 @@ window.addEventListener('nangman-wash-command',async e=>{
   };
   updateProgress({phase:'init',stage:'선택한 목표와 세이브 검증',percentage:0,
    completed:0,total:0,checked:0,found:0,bestPills:null});
+  // Preserve the exact same WASM input for both independent searches.
+  const expandedStartState=await washEngine.call('state');
+  ensureSession();
   let result;
   result=op==='washEngineAutoProgressive'?
    await window.YYWashProgressive.run({
@@ -5978,6 +6041,14 @@ window.addEventListener('nangman-wash-command',async e=>{
    (isAnchored?' · 실제 세수 검사 ':' · 탐색 분기 ')+analysis.stats.scanned+'회 · 후보 '+analysis.stats.total+
    '개 · 목표 획득 경로 '+analysis.stats.complete+
    '개 · 실제 세이브 변경 없음';
+  // Show fast results now; expanded search continues in an isolated iframe.
+  queueMicrotask(()=>{
+   if(state.generation!==generation||
+      window.__nangmanWashSaveSource?.()?.save!==source.save||
+      window.__nangmanWashSaveSource?.()?.role?.id!==source.role.id)return;
+   startExpanded({generation,source,options,initial:expandedStartState,
+    colorSearch:isColor});
+  });
  }else if(op==='washEngineSequencePads'){
   if(!state.active||state.origin!=='save'||state.linkedRoleId!==window.__nangmanWashSaveSource?.()?.role?.id)
    throw Error('선택한 캐릭터의 저장 세수 상태와 연결해야 합니다');
