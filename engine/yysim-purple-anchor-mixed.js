@@ -1152,11 +1152,11 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    }
    for(const slot of fixed.talents){
     const id=number(slot.id);
-    if(slot.locked&&!retainedTargets.has(id))
+    if(slot.locked&&!retainedLockIds.has(id))
      tailActions.push({kind:'unlock',talent:talents[String(id)]?.name||String(id),
       wash_no:count(fixed,'total_wash')});
    }
-   for(const id of retainedTargets){
+   for(const id of retainedLockIds){
     const existing=fixed.talents.find(t=>number(t.id)===id);
     if(existing&&!existing.locked)
      tailActions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
