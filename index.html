@@ -1611,7 +1611,7 @@ if(sub==='auto'){
     '</p>':
     state.autoExpandedStatus==='running'?'<p class="micro">확장 탐색에서 아직 완료된 경로가 없습니다. 탐색은 계속됩니다.</p>':
     state.autoExpandedStatus==='done'?'<p class="micro">확장 범위에서 추가 완성 경로를 찾지 못했습니다.</p>':
-    '<p class="micro">빠른 탐색이 끝나면 추가 탐색을 시작합니다.</p>')+
+    '<p class="micro">'+(result?'다시 자동 탐색을 시작하면 확장 탐색도 함께 실행됩니다.':'빠른 탐색이 끝나면 추가 탐색을 시작합니다.')+'</p>')+
    expandedCard+'</section></div>'+
   
   '</section>';
@@ -5800,6 +5800,14 @@ window.addEventListener('nangman-wash-command',async e=>{
  if(state.loading)return;
  const {op}=e.detail;if(op!=='washEngineImport')fields(e.detail);state.loading=true;state.error='';
  const automaticSearch=['washEngineAutoSearch','washEngineAutoProgressive'].includes(op);
+ // A mutation of the source wash state invalidates both search panels.
+ // Read-only inspection and route replay retain their own rules.
+ if(!automaticSearch&&!['washEngineReplayRoute','washEngineConstraints',
+      'washEnginePreview','washEngineInit'].includes(op)){
+  if(state.autoExpandedStatus==='running')stopExpanded('stopped');
+  state.autoExpandedResult=null;
+  state.autoExpandedStatus='idle';
+ }
  if(automaticSearch){
   stopExpanded('stopped');
   state.autoExpandedResult=null;
@@ -6003,7 +6011,8 @@ window.addEventListener('nangman-wash-command',async e=>{
     estimatedPills:route.estimatedPills,goals:route.goalIds});
   }
   state.liveTalents=output.state.talents||[];syncWasmBag(output.state);
-  state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;
+  state.preview=null;state.autoResult=null;state.autoProgress=null;
+  state.autoExpandedResult=null;state.autoExpandedStatus='idle';state.yyLinkedResult=null;
   state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;
   state.output='원본 WASM 경로 단계 '+output.steps+'개 모의 검증 완료 · 목표 자맥 슬롯 대조 성공'+
    (output.pillsConsumed==null?' · 세수단 소비 검증 불가':' · 세수단 실제 소비 '+output.pillsConsumed+'개 일치')+
