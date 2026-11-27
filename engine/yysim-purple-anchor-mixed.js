@@ -345,7 +345,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    // An earlier full four-slot native route is a strict upper bound:
    // every future wash only increases total consumed pills. Skip later
    // events which cannot improve the best completed route.
-   const best=Math.min(Infinity,...routes.map(r=>r.pills));
+   const best=bestCost();
    if(count(getState(),'total_pills')-count(initial,'total_pills')>=best){
     diagnostics.betweenScanPruned=(diagnostics.betweenScanPruned||0)+1;
     break;
@@ -377,7 +377,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     ...chosen.map(x=>x.time).slice(0,24-diagnostics.betweenSampledWashes.length));
   for(const candidate of chosen){
    // Already-spent native pills are a strict lower bound on final cost.
-   const best=Math.min(Infinity,...routes.map(r=>r.pills));
+   const best=bestCost();
    if(count(candidate.state,'total_pills')-count(initial,'total_pills')>=best){
     diagnostics.candidatePruned=(diagnostics.candidatePruned||0)+1;
     continue;
@@ -471,7 +471,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
           // Every original WASM wash costs nonnegative pills. Once a
           // candidate already costs as much as a complete verified route,
           // further washes cannot improve the minimum found so far.
-          const incumbent=Math.min(Infinity,...routes.map(r=>r.pills));
+          const incumbent=bestCost();
           if(count(getState(),'total_pills')-count(initial,'total_pills')>=incumbent){
            diagnostics.prunedByCost=(diagnostics.prunedByCost||0)+1;
            throw Error('이미 검증된 경로보다 세수단이 더 필요한 후보');
@@ -497,7 +497,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
          const washNo=originalWash+washShift;
          if(washNo<count(getState(),'total_wash'))
           throw Error('재탐색의 세수 회차가 이전 회차로 돌아갑니다');
-         const incumbent=Math.min(Infinity,...routes.map(r=>r.pills));
+         const incumbent=bestCost();
          if(count(getState(),'total_pills')-count(initial,'total_pills')>=incumbent)
           throw Error('검증된 최소 비용을 이미 초과한 재탐색 분기');
          washTo(washNo,incumbent,freeDisposable);
@@ -568,7 +568,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
           const final=getState();
           const verifiedRoute=actionsToRoute(combined,final,initial,native,
            desiredIds,'purple-between-replanned');
-          routes.push(verifiedRoute);
+          recordRoute(verifiedRoute);
           diagnostics.replannedCosts=diagnostics.replannedCosts||[];
           if(diagnostics.replannedCosts.length<8)
            diagnostics.replannedCosts.push({
@@ -646,7 +646,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     for(let offset=0;offset<=horizon;offset++){
      if(held.size===shape.colors.length&&hasAll(getState(),desiredIds)){
       const final=getState();
-      routes.push(actionsToRoute(actions,final,initial,native,
+      recordRoute(actionsToRoute(actions,final,initial,native,
        desiredIds,'purple-between'));
       reportBest('anchor-between');
       break;
@@ -705,7 +705,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   // WASM washes spend nonnegative pills. An already more expensive
   // unfinished branch cannot beat a complete route found elsewhere.
   const spent=count(start,'total_pills')-count(initial,'total_pills');
-  const incumbent=routes.length?Math.min(...routes.map(r=>r.pills)):Infinity;
+  const incumbent=bestCost();
   if(spent>=incumbent){
    diagnostics.deferredBasePruned=(diagnostics.deferredBasePruned||0)+1;
    return;
@@ -721,7 +721,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    const state=clone(getState());
    const colors=missing.filter(id=>idsOf(state).includes(id));
    if(colors.length)events.push({wash:at+1,state,colors});
-   const incumbent=Math.min(Infinity,...routes.map(r=>r.pills));
+   const incumbent=bestCost();
    if(count(state,'total_pills')-count(initial,'total_pills')>=incumbent)break;
    if(offset%75===0){progress({phase:'anchor-color-timing',
     scannedWashes:diagnostics.scannedWashes,candidateRoutes:routes.length});
@@ -741,7 +741,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   diagnostics.deferredColorExamined=(diagnostics.deferredColorExamined||0)+candidates.length;
   for(const event of candidates){
    if(count(event.state,'total_pills')-count(initial,'total_pills')>=
-      Math.min(Infinity,...routes.map(r=>r.pills)))continue;
+      bestCost())continue;
    try{
     restore(event.state);
     const actions=[...clone(base),{kind:'wash_to',wash_no:event.wash,
@@ -760,7 +760,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
      if(held.size===shape.colors.length&&hasAll(getState(),desiredIds)){
       const complete=actionsToRoute(actions,getState(),initial,native,
        desiredIds,'purple-color-delayed-lock');
-      routes.push(complete);
+      recordRoute(complete);
       diagnostics.deferredColorCompleted=(diagnostics.deferredColorCompleted||0)+1;
       reportBest('anchor-color-timing');break;
      }
@@ -785,7 +785,29 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    }catch(_){diagnostics.deferredColorRejected=(diagnostics.deferredColorRejected||0)+1;}
   }
  }
- const routes=[],diagnostics={method:'purple-anchor-nearest-native-wash',
+ const routes=[],recordedRouteKeys=new Set();
+ let bestCompletedPills=Infinity;
+ // Keep only the cheapest complete native-WASM routes. A valid route
+ // supplies a final-state proof; cost is never estimated from a prefix.
+ const bestCost=()=>bestCompletedPills;
+ const recordRoute=route=>{
+  if(!route||!Number.isFinite(route.pills)||route.pills<0||
+     !Array.isArray(route.final_slots)||
+     !desiredIds.every(id=>route.final_slots.some(t=>number(t.id)===id)))
+   return false;
+  if(route.pills>bestCompletedPills)return false;
+  if(route.pills<bestCompletedPills){
+   bestCompletedPills=route.pills;
+   routes.length=0;
+   recordedRouteKeys.clear();
+  }
+  const signature=JSON.stringify([route.final_slots,route.actions]);
+  if(recordedRouteKeys.has(signature))return false;
+  recordedRouteKeys.add(signature);
+  if(routes.length<Math.max(1,topN))routes.push(route);
+  return true;
+ };
+ const diagnostics={method:'purple-anchor-nearest-native-wash',
   purpleTargets:shape.purple,colorTargets:shape.colors,
   purpleRoutes:0,replayed:0,failures:[],scannedWashes:0,
   expandedSearch:expanded,
@@ -793,14 +815,13 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
  // Never prune without a complete original-WASM four-target result.
  const reachedIncumbent=()=>{
   if(!routes.length)return false;
-  const best=Math.min(...routes.map(r=>r.pills));
+  const best=bestCost();
   if(count(getState(),'total_pills')-count(initial,'total_pills')<best)return false;
   diagnostics.prunedByCost=(diagnostics.prunedByCost||0)+1;
   return true;
  };
  const reportBest=(phase)=>progress({phase,scannedWashes:diagnostics.scannedWashes,
-  candidateRoutes:routes.length,bestPills:routes.length?
-   Math.min(...routes.map(r=>r.pills)):null});
+  candidateRoutes:routes.length,bestPills:routes.length?bestCost():null});
 
  let baseline=null;
  try{
@@ -1059,7 +1080,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    // colors may have appeared while following the native purple backbone.
    // Never wash away or re-search an already completed four-slot result.
    if(seen.size===shape.colors.length&&hasAll(getState(),desiredIds)){
-    routes.push(actionsToRoute(tailActions,getState(),initial,native,desiredIds));
+    recordRoute(actionsToRoute(tailActions,getState(),initial,native,desiredIds));
     reportBest('anchor-wash');
    }else{
    const from=count(getState(),'total_wash');
@@ -1087,7 +1108,7 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
      const final=getState();
      if(!shape.purple.every(id=>final.talents.some(t=>number(t.id)===id&&t.locked)))
       throw Error('자맥 확정 슬롯이 혼합 결과에서 잠기지 않았습니다');
-     routes.push(actionsToRoute(tailActions,final,initial,native,desiredIds));
+     recordRoute(actionsToRoute(tailActions,final,initial,native,desiredIds));
      reportBest('anchor-wash');
      break;
     }
