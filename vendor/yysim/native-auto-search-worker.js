@@ -8,8 +8,8 @@
 self.window=self;
 importScripts('./wasm_data.js?rev=0.10.30','./core_glue.js?rev=0.10.30',
  './data.js?rev=0.10.30','../../engine/yysim-native-search-guard.js?rev=0.10.61',
- '../../engine/yysim-purple-anchor-mixed.js?rev=20261127-best-cost-dedup-v6',
- '../../engine/yysim-color-only-search.js?rev=20261127-extended-interim-v7');
+ '../../engine/yysim-purple-anchor-mixed.js?rev=20261127-deep-balanced-stream-v7',
+ '../../engine/yysim-color-only-search.js?rev=20261127-deep-goal-lookahead-v8');
 let initialized=null;
 const canonical=()=>self.YYWashNativeSearchGuard;
 const send=(id,kind,data)=>self.postMessage({kind,requestId:id,...data});
@@ -77,6 +77,9 @@ self.addEventListener('message',async event=>{
     getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes,
     doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
     guard:canonical(),expanded,
+    onVerifiedCandidate:expanded?routes=>publishPartial({routes},
+     {method:'purple-anchor-nearest-native-wash'},
+     '확장 탐색 · 더 적은 세수단 혼합 경로 확인, 추가 분기 계산 중'):null,
     progress:data=>progress({...data,
      // These are observed mixed-search counters, not an estimated %.
      completed:2,total:4})
