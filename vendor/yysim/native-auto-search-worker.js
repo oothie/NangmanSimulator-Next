@@ -58,7 +58,8 @@ self.addEventListener('message',async event=>{
   if(self.YYWashColorOnly?.shape(ids,TALENT_DATA)){
    result=await self.YYWashColorOnly.run({
     desiredIds:ids,horizon:expanded?Math.max(horizon,4500):horizon,
-    topN,talents:TALENT_DATA,nodeLimit:expanded?45000:18000,
+    topN,talents:TALENT_DATA,nodeLimit:expanded?48000:18000,
+    deepSearch:expanded,
     getState:wasmGetState,setState:wasmSetState,doWash:wasmDoWash,
     guard:canonical(),
     onVerifiedCandidate:expanded?routes=>publishPartial({routes},
@@ -103,6 +104,7 @@ self.addEventListener('message',async event=>{
       topN,talents:TALENT_DATA,
       getState:wasmGetState,setState:wasmSetState,doWash:wasmDoWash,
       guard:canonical(),allowMixed:true,initialBest:baselineCost,
+      deepSearch:expanded,
       nodeLimit:expanded?28000:Number.isFinite(baselineCost)?
        (anchor.purple.length===1?1400:1000):
        (anchor.purple.length===1?3600:1800),
