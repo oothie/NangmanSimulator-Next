@@ -190,6 +190,66 @@ themeStyle.textContent += `
  body #rk218 .regionbar225{padding:8px!important;}
 }
 `;
+/* Complete ink-mode text contrast across legacy engine cards and nested tables.
+   Preserve rarity and quality colors by excluding known grade/value classes. */
+themeStyle.textContent += `
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .box218,.box218>summary,.bbody,.rb-card233,.rb-controls233,.rb-detail233,
+ .rk-detail-head233,.rk240-slot,.rk240-allhint,.regionbar225,.region-group352,
+ .regionScroll225,.unique-special247,.search-result-layout275,.search-result-side275,
+ .recipe-card,.auto339-result,.auto345-optionblock,.auto346-main,.ownedlist,
+ .equip-pick-card,.equip-pick-title,.equip-pick-meta,.equip-pick-options,
+ .detail-controls218,.picker237,.rk237-total,.region-route223
+){
+ color:var(--host-text)!important;border-color:var(--host-border)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .box218,.rb-detail233,.rb-card233,.rk240-slot,.region-group352,
+ .regionScroll225,.unique-special247,.recipe-card,.equip-pick-card
+){
+ background:var(--host-panel)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .box218,.rb-detail233,.rb-card233,.rk240-slot,.region-group352,
+ .regionScroll225,.unique-special247,.equip-pick-card
+) :is(h1,h2,h3,h4,h5,h6,label,summary,small,p,th,td,strong){
+ color:var(--host-text)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .regionbar225,.region-group352,.regionScroll225,.auto339-result,
+ .auto345-optionblock,.equip-pick-card,.rb-detail233
+) :is(input:not([type=checkbox]),select,option,optgroup,textarea){
+ background:var(--host-panel)!important;color:var(--host-text)!important;
+ color-scheme:dark;border-color:var(--host-border)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .regionTbl225,.detail-table218,.tbl218,.unique-seq-table227
+) :is(th,td){
+ color:var(--host-text)!important;border-color:var(--host-border)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .chip,.rbtn,.tabs218 button,.rb-equip-nav button,.equip-pick-card,.auto345-refine-chip
+):not(.on):not(.active):not(.primary){
+ color:var(--host-text)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .meta,.note218,.cost-hint,.equip-pick-meta,.r225reg.none,.side-text275
+){
+ color:var(--host-sub)!important;
+}
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .q-purple226,.q-purple,.clg4,.grade-4
+){color:#d2afea!important}
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .q-green226,.q-green,.clg2,.grade-2
+){color:#83d39b!important}
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .q-blue226,.q-blue,.clg3,.grade-3
+){color:#91c7f0!important}
+html[data-nangman-theme="dark"] body #rk218 :is(
+ .q-orange226,.grade-5,.region-prop226,.z-region
+){color:#e7ba84!important}
+`;
 function setHostTheme(theme){
  document.documentElement.dataset.nangmanTheme=theme==='dark'?'dark':'light';
 }
