@@ -1518,6 +1518,10 @@ if(sub==='auto'){
   catch(_){expandedAnalyzed=null}
  }
  const expandedCard=renderCards(expandedReport,expandedAnalyzed,'extended');
+ const completedExtended=expandedAnalyzed?.routes?.filter(x=>
+  x.complete&&Number.isFinite(x.estimatedPills))||[];
+ const expandedMinPills=completedExtended.length?
+  Math.min(...completedExtended.map(x=>x.estimatedPills)):null;
  const completeCostRoutes=analyzed?.routes?.filter(x=>x.complete&&x.estimatedPills!=null)||[];
  const affordableCount=ownedPills==null?null:completeCostRoutes.filter(x=>x.estimatedPills<=ownedPills).length;
  const minPills=completeCostRoutes.length?Math.min(...completeCostRoutes.map(x=>x.estimatedPills)):null;
@@ -1583,22 +1587,27 @@ if(sub==='auto'){
   '<div class="section-header"><h3>탐색 결과</h3><span class="micro">두 탐색 모두 현재 인물의 원본 WASM 계산 · 전역 최솟값 미확정</span></div>'+
   '<div class="wash-dual-results">'+
    '<section class="wash-dual-panel"><div class="wash-dual-heading"><div><strong>빠른 탐색</strong><small>기존 탐색 · 먼저 결과 표시</small></div><span class="wash-dual-state">'+
-   (state.loading?'계산 중':result?'완료':'대기')+'</span></div>'+
+   (state.loading?'계산 중':result?'완료':state.error?'오류':'대기')+'</span></div>'+
    (resultStatus||'<p class="micro">자동탐색을 실행하면 빠른 탐색 결과가 먼저 표시됩니다.</p>')+
    budgetStatus+card+'</section>'+
    '<section class="wash-dual-panel"><div class="wash-dual-heading"><div><strong>확장 탐색</strong><small>추가 WASM 후보 · 최대 10분</small></div><span class="wash-dual-state">'+
    (state.autoExpandedStatus==='running'?'탐색 중':state.autoExpandedStatus==='done'?'완료':
-    state.autoExpandedStatus==='stopped'?'중단':'대기')+'</span></div>'+
+    state.autoExpandedStatus==='stopped'?'중단':
+    state.autoExpandedStatus==='error'?'오류':'대기')+'</span></div>'+
    (state.autoExpandedStatus==='running'?
     '<p class="micro">⏳ '+escape(state.autoExpandedProgress?.stage||'추가 경로 분석 중')+
     (state.autoExpandedProgress?.bestPills==null?'':' · 현재 후보 '+escape(state.autoExpandedProgress.bestPills)+'개')+
     '</p><button type="button" class="btn" id="yyAutoStopExtended">확장 탐색 중단</button>':'')+
    (state.autoExpandedStatus==='error'?'<p class="notice">'+escape(state.autoExpandedError||'확장 탐색 실패')+'</p>':'')+
    (state.autoExpandedStatus==='stopped'?'<p class="micro">확장 탐색을 중단했습니다. 빠른 탐색 결과는 유지됩니다.</p>':'')+
-   (expandedAnalyzed?.stats?.complete?
-    '<p class="micro">추가 검증 경로 '+escape(expandedAnalyzed.stats.complete)+'개 · 최저 '+
-    escape(Math.min(...expandedAnalyzed.routes.filter(x=>x.complete&&x.estimatedPills!=null).map(x=>x.estimatedPills)))+
-    '개 · 빠른 탐색과 별도 비교</p>':
+   (expandedMinPills!=null?
+    '<p class="micro">추가 검증 경로 '+escape(completedExtended.length)+'개 · 최저 '+
+    escape(expandedMinPills.toLocaleString())+'개'+
+    (minPills==null?' · 빠른 탐색에서 완성 경로 미발견':
+     expandedMinPills<minPills?' · 빠른 탐색 대비 '+escape((minPills-expandedMinPills).toLocaleString())+'개 절약':
+     expandedMinPills===minPills?' · 빠른 탐색 최저 소모량과 동일':
+     ' · 빠른 탐색 최저 소모량 '+escape(minPills.toLocaleString())+'개 유지')+
+    '</p>':
     state.autoExpandedStatus==='running'?'<p class="micro">확장 탐색에서 아직 완료된 경로가 없습니다. 탐색은 계속됩니다.</p>':
     state.autoExpandedStatus==='done'?'<p class="micro">확장 범위에서 추가 완성 경로를 찾지 못했습니다.</p>':
     '<p class="micro">빠른 탐색이 끝나면 추가 탐색을 시작합니다.</p>')+
