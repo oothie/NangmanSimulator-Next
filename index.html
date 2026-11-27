@@ -5177,19 +5177,25 @@ document.querySelectorAll('.wash-auto-choice[data-yy-auto-id]').forEach(el=>el.o
  const adding=!ids.includes(id);
  if(adding&&ids.length>=4){alert('자동 탐색 목표는 최대 4개까지 선택할 수 있습니다.');return}
  runtime.autoDesiredIds=adding?[...ids,id]:ids.filter(x=>x!==id);
- runtime.autoResult=null;runtime.autoProgress=null;
+ window.dispatchEvent(new Event('nangman-wash-cancel-extended'));
+ runtime.autoResult=null;runtime.autoExpandedResult=null;
+ runtime.autoExpandedStatus='idle';runtime.autoProgress=null;
  render();
 });
 if($('yyAutoClear'))$('yyAutoClear').onclick=()=>{
  const runtime=window.__washRuntime||{};runtime.autoDesiredIds=[];
- runtime.autoResult=null;render();
+ window.dispatchEvent(new Event('nangman-wash-cancel-extended'));
+ runtime.autoResult=null;runtime.autoExpandedResult=null;
+ runtime.autoExpandedStatus='idle';render();
 };
-document.querySelectorAll('[data-yy-replay-route]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineReplayRoute',index:Number(el.dataset.yyReplayRoute)}})));
+document.querySelectorAll('[data-yy-replay-route]').forEach(el=>el.onclick=()=>window.dispatchEvent(new CustomEvent('nangman-wash-command',{detail:{op:'washEngineReplayRoute',index:Number(el.dataset.yyReplayRoute),
+ routeSource:el.dataset.yyRouteSource==='extended'?'extended':'quick'}})));
  document.querySelectorAll('[data-yy-copy-route]').forEach(el=>el.onclick=async()=>{
  try{
   const runtime=window.__washRuntime||{},api=window.YYWashAutoSearch;
-  const report=runtime.autoResult;
-  if(!api||!report)throw Error('먼저 원본 자동 탐색을 실행하세요');
+  const report=el.dataset.yyRouteSource==='extended'?
+   runtime.autoExpandedResult:runtime.autoResult;
+  if(!api||!report)throw Error('먼저 해당 탐색 결과를 확인하세요');
   const rows=api.routeOutcome(report.result,report.desiredIds).routes;
   const route=rows[Number(el.dataset.yyCopyRoute)];
   if(!route)throw Error('복사할 경로를 찾을 수 없습니다');
@@ -5221,6 +5227,7 @@ if($('yyAutoOwnedPills'))$('yyAutoOwnedPills').onchange=()=>{
  if(!raw||!Number.isSafeInteger(n)||n<0){alert('보유 세수단은 0 이상의 정수로 입력하세요.');field.value=String(runtime.autoOwnedPills??0);return;}
  runtime.autoOwnedPills=n;render();
 };
+if($('yyAutoStopExtended'))$('yyAutoStopExtended').onclick=()=>stopExpanded('stopped');
 if($('yyAutoRun'))$('yyAutoRun').onclick=()=>{
  try{
   const runtime=window.__washRuntime||{};
@@ -5950,12 +5957,14 @@ window.addEventListener('nangman-wash-command',async e=>{
   state.output='선택 인물 원본 WASM 가용 재능 '+countEntries(result.available)+
    '개 항목 · 충돌 관계 '+countEntries(result.conflicts)+'개 항목을 확인했습니다. 모의 세수 상태는 변경되지 않습니다.';
  }else if(op==='washEngineReplayRoute'){
+  stopExpanded('stopped');
   const source=window.__nangmanWashSaveSource?.();
   if(!state.active||state.origin!=='save'||!source?.role||
      state.linkedRoleId!==source.role.id)throw Error('원본 자동 탐색을 실행한 캐릭터의 세이브 연결이 필요합니다');
-  if(!state.autoResult||!window.YYWashRouteReplay?.run)
-   throw Error('먼저 해당 캐릭터의 원본 자동 탐색을 실행하세요');
-  const report=state.autoResult;
+  const report=e.detail.routeSource==='extended'?
+   state.autoExpandedResult:state.autoResult;
+  if(!report||!window.YYWashRouteReplay?.run)
+   throw Error('먼저 해당 캐릭터의 탐색 결과를 확인하세요');
   const routes=window.YYWashAutoSearch.routeOutcome(report.result,report.desiredIds).routes;
   const index=Number(e.detail.index);
   if(!Number.isInteger(index)||index<0||index>=routes.length)
