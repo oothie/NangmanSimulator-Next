@@ -775,6 +775,17 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 .quest-catalog-item summary{cursor:pointer;overflow-wrap:anywhere}.quest-catalog-description{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;max-width:100%;font-size:14px}
 
 /* Automatic wash: readable chronological steps, using shared light/dark tokens. */
+.wash-dual-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start;margin-top:12px}
+.wash-dual-panel{min-width:0;border:1px solid var(--border);border-radius:12px;background:var(--panel);color:var(--text);padding:15px}
+.wash-dual-heading{display:flex;align-items:start;justify-content:space-between;gap:10px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px}
+.wash-dual-heading strong{display:block;font-size:19px;color:var(--text)}
+.wash-dual-heading small{display:block;font-size:12px;color:var(--sub);margin-top:4px}
+.wash-dual-state{border:1px solid var(--border);background:var(--paper);padding:5px 8px;border-radius:8px;font-size:12px;white-space:nowrap;font-weight:700}
+.wash-dual-panel .wash-guide-route{padding:13px;overflow-wrap:anywhere}
+.wash-dual-panel .wash-guide-step{grid-template-columns:30px minmax(0,1fr);padding:10px;gap:8px}
+.wash-dual-panel .wash-guide-number{width:26px;height:26px;font-size:13px}
+.wash-dual-panel .wash-guide-heading h4{font-size:28px}
+@media(max-width:950px){.wash-dual-results{grid-template-columns:minmax(0,1fr)}}
 .wash-guide-results{display:grid;gap:22px;margin:18px 0 26px}
 .wash-guide-route{padding:20px 22px;border:1px solid var(--border);border-radius:12px;background:var(--panel);color:var(--text);min-width:0}
 .wash-guide-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:18px}
@@ -1442,7 +1453,9 @@ if(sub==='auto'){
   group.items.map(t=>'<button type="button" class="wash-auto-choice" data-yy-auto-id="'+t.id+'" aria-pressed="'+selectedTargets.includes(t.id)+'" title="'+escape(talent(t.id))+'">'+
    '<span class="wash-auto-label">'+escape(talentName(t.id))+'</span><span class="wash-auto-id">#'+t.id+'</span>'+
    '<span class="wash-auto-check" aria-hidden="true">'+(selectedTargets.includes(t.id)?'✓':'')+'</span></button>').join('')+'</div></details>').join('');
- const card=analyzed?.routes?.length?'<div class="wash-guide-results">'+
+ const renderCards=(report,analysis,sourceKey)=>{
+  const analyzed=analysis,mapNames=report?.nameIds||{};
+  return analyzed?.routes?.length?'<div class="wash-guide-results">'+
  analyzed.routes.map((x,i)=>({x,i})).sort((a,b)=>{
   // The user prioritizes actual pill cost above current bag affordability.
   // Affordability is informational and must never reorder the routes.
@@ -1485,8 +1498,8 @@ if(sub==='auto'){
    '<span>치환 '+escape(x.exchanges??'—')+'회</span>'+
    '<span>'+escape(x.complete?'목표 전부 확보':'목표 미완성')+'</span>'+
    (budgetKnown?'<span>'+(affordable?'완료 후 '+escape(remaining.toLocaleString())+'개 남음':'보유량 초과 · '+escape(shortage.toLocaleString())+'개 부족')+'</span>':'')+'</div></div>'+
-   '<div class="wash-guide-actions"><button type="button" class="btn" data-yy-copy-route="'+i+'">전체 경로 복사</button>'+
-   (x.complete?'<button type="button" class="btn" data-yy-replay-route="'+i+'" '+(!replayable||state.loading?'disabled':'')+'>모의 실행으로 확인</button>':'')+'</div>'+
+   '<div class="wash-guide-actions"><button type="button" class="btn" data-yy-copy-route="'+i+'" data-yy-route-source="'+sourceKey+'">전체 경로 복사</button>'+
+   (x.complete?'<button type="button" class="btn" data-yy-replay-route="'+i+'" data-yy-route-source="'+sourceKey+'" '+(!replayable||state.loading?'disabled':'')+'>모의 실행으로 확인</button>':'')+'</div>'+
    (replayError?'<p class="micro">모의 실행 제한: '+escape(replayError)+'</p>':'')+
    (displayIndex>0?'<details class="wash-guide-alternative"><summary>다른 경로의 세수 단계 펼치기</summary>':'')+
    '<h5 class="wash-guide-section-title">따라 하기 · '+x.actions.length+'단계</h5>'+
@@ -1495,6 +1508,15 @@ if(sub==='auto'){
    '<div class="wash-guide-slots">'+slots+'</div>'+
    (displayIndex>0?'</details>':'')+'</section>';
  }).join('')+'</div>':'';
+ };
+ const card=renderCards(result,analyzed,'quick');
+ const expandedReport=state.autoExpandedResult;
+ let expandedAnalyzed=null;
+ if(expandedReport?.result&&api){
+  try{expandedAnalyzed=api.routeOutcome(expandedReport.result,expandedReport.desiredIds)}
+  catch(_){expandedAnalyzed=null}
+ }
+ const expandedCard=renderCards(expandedReport,expandedAnalyzed,'extended');
  const completeCostRoutes=analyzed?.routes?.filter(x=>x.complete&&x.estimatedPills!=null)||[];
  const affordableCount=ownedPills==null?null:completeCostRoutes.filter(x=>x.estimatedPills<=ownedPills).length;
  const minPills=completeCostRoutes.length?Math.min(...completeCostRoutes.map(x=>x.estimatedPills)):null;
@@ -1557,7 +1579,29 @@ if(sub==='auto'){
      '<div class="micro" style="margin-top:5px">'+(percent==null?'계산 중':percent+'% · 완료된 실제 검증 단계 기준')+' · 전체 경로의 전역 최솟값 보장 없음</div></div>';
    })():'')+
   (state.error?'<div class="notice">'+escape(state.error)+'</div>':'')+
-  '<div class="section-header"><h3>탐색 결과</h3></div>'+resultStatus+budgetStatus+card+
+  '<div class="section-header"><h3>탐색 결과</h3><span class="micro">두 탐색 모두 현재 인물의 원본 WASM 계산 · 전역 최솟값 미확정</span></div>'+
+  '<div class="wash-dual-results">'+
+   '<section class="wash-dual-panel"><div class="wash-dual-heading"><div><strong>빠른 탐색</strong><small>기존 탐색 · 먼저 결과 표시</small></div><span class="wash-dual-state">'+
+   (state.loading?'계산 중':result?'완료':'대기')+'</span></div>'+
+   (resultStatus||'<p class="micro">자동탐색을 실행하면 빠른 탐색 결과가 먼저 표시됩니다.</p>')+
+   budgetStatus+card+'</section>'+
+   '<section class="wash-dual-panel"><div class="wash-dual-heading"><div><strong>확장 탐색</strong><small>추가 WASM 후보 · 최대 10분</small></div><span class="wash-dual-state">'+
+   (state.autoExpandedStatus==='running'?'탐색 중':state.autoExpandedStatus==='done'?'완료':
+    state.autoExpandedStatus==='stopped'?'중단':'대기')+'</span></div>'+
+   (state.autoExpandedStatus==='running'?
+    '<p class="micro">⏳ '+escape(state.autoExpandedProgress?.stage||'추가 경로 분석 중')+
+    (state.autoExpandedProgress?.bestPills==null?'':' · 현재 후보 '+escape(state.autoExpandedProgress.bestPills)+'개')+
+    '</p><button type="button" class="btn" id="yyAutoStopExtended">확장 탐색 중단</button>':'')+
+   (state.autoExpandedStatus==='error'?'<p class="notice">'+escape(state.autoExpandedError||'확장 탐색 실패')+'</p>':'')+
+   (state.autoExpandedStatus==='stopped'?'<p class="micro">확장 탐색을 중단했습니다. 빠른 탐색 결과는 유지됩니다.</p>':'')+
+   (expandedAnalyzed?.stats?.complete?
+    '<p class="micro">추가 검증 경로 '+escape(expandedAnalyzed.stats.complete)+'개 · 최저 '+
+    escape(Math.min(...expandedAnalyzed.routes.filter(x=>x.complete&&x.estimatedPills!=null).map(x=>x.estimatedPills)))+
+    '개 · 빠른 탐색과 별도 비교</p>':
+    state.autoExpandedStatus==='running'?'<p class="micro">확장 탐색에서 아직 완료된 경로가 없습니다. 탐색은 계속됩니다.</p>':
+    state.autoExpandedStatus==='done'?'<p class="micro">확장 범위에서 추가 완성 경로를 찾지 못했습니다.</p>':
+    '<p class="micro">빠른 탐색이 끝나면 추가 탐색을 시작합니다.</p>')+
+   expandedCard+'</section></div>'+
   
   '</section>';
 }
