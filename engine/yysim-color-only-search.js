@@ -15,6 +15,20 @@ function shape(ids,data){
  if(!Array.isArray(ids)||ids.length<1||ids.length>4||new Set(ids).size!==ids.length)return false;
  return ids.every(id=>[2,3].includes(Number(data[String(id)]?.pinzhi)));
 }
+// A supplemental cost-first search may also retain one purple goal.
+// The original purple WASM solver remains the primary search; this native
+// state search independently explores color-first locking as a bounded
+// alternative, without inventing wash RNG or a synthetic finished route.
+function mixedShape(ids,data){
+ if(!Array.isArray(ids)||ids.length<2||ids.length>4||
+    new Set(ids).size!==ids.length)return false;
+ const grades=ids.map(id=>Number(data[String(id)]?.pinzhi));
+ if(grades.filter(g=>g===4).length!==1||
+    !grades.every(g=>[2,3,4].includes(g)))return false;
+ const families=ids.map(id=>Number(data[String(id)]?.type));
+ return families.every(x=>Number.isInteger(x)&&x>0)&&
+  new Set(families).size===ids.length;
+}
 class Heap{
  constructor(){this.a=[];}
  get length(){return this.a.length}
@@ -37,8 +51,11 @@ class Heap{
  }
 }
 async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
- doWash,guard,progress=()=>{},nodeLimit=18000}={}){
- if(!shape(desiredIds,talents))throw Error('녹맥·파맥만 선택한 1~4개 목표가 필요합니다');
+ doWash,guard,progress=()=>{},nodeLimit=18000,allowMixed=false,
+ initialBest=Infinity}={}){
+ const supplemental=allowMixed&&mixedShape(desiredIds,talents);
+ if(!(supplemental||shape(desiredIds,talents)))
+  throw Error('원본 WASM 비용순 탐색에서 지원하지 않는 목표 조합입니다');
  if([getState,setState,doWash].some(f=>typeof f!=='function')||!guard?.canonicalJson)
   throw Error('세수 WASM 상태 및 세수 함수가 준비되지 않았습니다');
  const source=clone(getState());
@@ -50,8 +67,11 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
  const maxWashes=Math.max(20,Math.min(5000,Number(horizon)||2500));
  const maxNodes=Math.max(2000,Math.min(50000,Number(nodeLimit)||18000));
  const queue=new Heap(),seen=new Set(),routes=[];
- let generated=0,explored=0,pruned=0,failures=0,restored=0,nativeWashes=0,best=Infinity;
- const diagnostics={method:'color-only-wasm-cost-first',isMixed:true,desiredCount:desiredIds.length,
+ let generated=0,explored=0,pruned=0,failures=0,restored=0,nativeWashes=0,
+ best=Number.isFinite(initialBest)?Math.max(0,Number(initialBest)):Infinity;
+ const diagnostics={method:supplemental?'mixed-color-first-wasm-cost':'color-only-wasm-cost-first',
+  isMixed:true,desiredCount:desiredIds.length,
+  incumbentUpperBound:Number.isFinite(best)?best:null,
   expandedStates:0,generatedStates:0,prunedStates:0,failedTransitions:0,
   nodeBudget:maxNodes,horizon:maxWashes,costOptimalityUnproven:true};
  const restore=s=>{
@@ -111,7 +131,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
      order_ids:[...desiredIds],final_slots:clone(current.talents),
      actions:clone(actions),pills:cost,washes:at-startWash,
      exchanges:0,pad:0,optimal:false,native_verified:true,
-     strategy:'원본 WASM 녹·파맥 선행 완성 경로'
+     strategy:supplemental?'원본 WASM 자맥·녹파맥 통합 비용순 예비 탐색':'원본 WASM 녹·파맥 선행 완성 경로'
     });
     return true;
    }
@@ -160,7 +180,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
       order_ids:[...desiredIds],final_slots:clone(node.state.talents),
       actions,pills:node.cost,washes:node.washes,
       exchanges:0,pad:0,optimal:false,native_verified:true,
-      strategy:'원본 WASM 비용순 녹·파맥 탐색'
+      strategy:supplemental?'원본 WASM 자맥·녹파맥 통합 비용순 경로':'원본 WASM 비용순 녹·파맥 탐색'
      });
     }
     // At this cost, no further wash/lock action is needed.
@@ -221,7 +241,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
     else failures++;
    }
    if(explored%250===0){
-    progress({phase:'color-native-cost',stage:'녹·파맥 실제 세수 비용순 탐색 중',
+    progress({phase:'color-native-cost',stage:supplemental?'자맥·녹파맥 통합 비용순 후보 비교 중':'녹·파맥 실제 세수 비용순 탐색 중',
      scannedWashes:nativeWashes,candidateRoutes:routes.length,bestPills:Number.isFinite(best)?best:null,
      expandedStates:explored,nodeBudget:maxNodes});
     await new Promise(resolve=>setTimeout(resolve,0));
@@ -238,7 +258,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
   simulatedWashes:nativeWashes,
   lowestObservedPills:Number.isFinite(best)?best:null});
  return {routes,scanned:nativeWashes,diagnostics,
-  error:routes.length?null:'원본 WASM 비용순 탐색 범위에서 목표 녹·파맥을 모두 보유하는 경로를 찾지 못했습니다. 최솟값은 확정되지 않았습니다.'};
+  error:routes.length?null:'원본 WASM 비용순 탐색 범위에서 목표 재능을 모두 보유하는 경로를 찾지 못했습니다. 최솟값은 확정되지 않았습니다.'};
 }
-root.YYWashColorOnly={shape,run};
+root.YYWashColorOnly={shape,mixedShape,run};
 })(self);
