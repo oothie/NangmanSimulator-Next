@@ -147,7 +147,7 @@ export function mountDungeon(host,save){
  [['auto','획득 후 즉시 사용'],['retain','획득 후 보유'],['owned','매회 보유'],['absent','매회 미보유']].map(([v,n])=>'<option value="'+v+'" '+(keyMode===v?'selected':'')+'>'+n+'</option>').join('')+
  '</select></label><button id="dunRegularRun" type="button">드랍 예측</button></div></div>'+
  '<div id="dunDaily" '+(activeDungeonTab==='daily'?'':'hidden')+'>'+
- '<p class="micro">관문별 최대 3회 · 하루 합계 최대 6회</p>'+
+ '<p class="micro">관문별 최대 3회 · 하루 합계 최대 6회<br>유씨별원 고리의 열쇠는 획득 즉시 사용하는 기준으로 예측합니다.</p>'+
  '<div class="dun-daily-grid">'+GATES.map(g=>'<label class="dun-daily-place">'+esc(g)+
  '<select data-dun-daily="'+esc(g)+'">'+options(3,dailyPlan[g])+'</select></label>').join('')+'</div>'+
  '<div class="market-goal-controls"><label>반복 일수<select id="dunDays">'+
