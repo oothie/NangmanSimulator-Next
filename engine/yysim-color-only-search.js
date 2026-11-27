@@ -163,6 +163,15 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
    for(const route of routes){
     try{if(verifyRoute(route))verified.push(route)}catch(_){}
    }
+   if(deepSearch){
+    // The expanded search must never prune further branches using a
+    // completed route whose exact native WASM replay has failed.
+    routes.splice(0,routes.length,...verified);
+    const verifiedBest=verified.length?
+     Math.min(...verified.map(r=>Number(r.pills))):Infinity;
+    best=Math.min(Number.isFinite(initialBest)?Number(initialBest):Infinity,
+     verifiedBest);
+   }
    if(!verified.length)return;
    const signature=JSON.stringify(verified.map(r=>[r.pills,r.washes,r.actions]));
    if(signature===lastBroadcast)return;
