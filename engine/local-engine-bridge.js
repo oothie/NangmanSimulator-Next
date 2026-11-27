@@ -42,7 +42,7 @@ export class LocalEngine {
  async call(op,payload,onProgress){
   const isBoot=op==='init';
   // Searches can take longer when the actual WASM enumerates locked branches.
-  const timeLimit=op==='auto-search'?300000:60000;
+  const timeLimit=op==='auto-search'?(payload?.searchMode==='expanded'?615000:300000):60000;
   const callOnce=async()=>{
    await this.mount();
    const requestId=++this.seq;
@@ -77,11 +77,17 @@ export class LocalEngine {
    }
   }
  }
- close(){
-  window.removeEventListener('message',this.bound);
+ cancel(){
+  // Destroy only this engine's isolated iframe and workers. Keep the
+  // message listener so a new search can remount cleanly afterwards.
   this.frame?.remove();this.frame=null;this.mountPromise=null;
-  for(const p of this.pending.values())p.reject(Error('엔진 종료'));
+  this.bootAttempt++;
+  for(const p of this.pending.values())p.reject(Error('탐색 중단'));
   this.pending.clear();
+ }
+ close(){
+  this.cancel();
+  window.removeEventListener('message',this.bound);
  }
 }
 export const washEngine=new LocalEngine('./vendor/yysim/engine-host.html','yysim-wash');
