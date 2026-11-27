@@ -4733,7 +4733,7 @@ function hideInternalExplanationNotes(){
 function render(){if(v==='wiki'&&!wikiSkipCapture&&document.querySelector('.wiki-category-bar button.active')?.dataset.wikiCat===wikiSelectedCategory)rememberWikiList();wikiSkipCapture=false;$('nav').innerHTML=tabs.map(([id,t])=>'<button data-view="'+id+'" class="'+(v===id?'active':'')+'">'+t+((id==='sect'||id==='battle')?'<span class="wip">(미구현)</span>':'')+'</button>').join('');$('topSaveStatus').textContent=save?'세이브 연결 · '+roles.length+'명':'세이브 미연결';$('clearTopSave').hidden=!save;$('view').innerHTML=v==='wash'?wash():v==='save'?saveView():others();updateEquipmentVisibility();updateDropVisibility();updatePurpleVisibility();hideInternalExplanationNotes();
 if(v==='drop'&&dropSelectedMode==='dungeon'&&$('dungeonTestHost')){
  const target=$('dungeonTestHost'),activeSave=save;
- import('./engine/dungeon-test.js?rev=1.3.1-daily-fold').then(module=>{
+ import('./engine/dungeon-test.js?rev=1.3.1-daily-zero-saved').then(module=>{
   if(target.isConnected&&v==='drop'&&dropSelectedMode==='dungeon')module.mountDungeon(target,activeSave);
  }).catch(error=>{
   if(target.isConnected)target.textContent='관문 테스트 엔진 로딩 실패: '+String(error?.message||error);
