@@ -361,6 +361,12 @@ html[data-nangman-theme="dark"] body #rk218 :is(.quality226.q-blue226,.quality22
 html[data-nangman-theme="dark"] body #rk218 :is(.quality226.q-purple226,.quality226.q-purple){
  background:#4c3369!important;color:#efd0ff!important;border:1px solid #ad81d2!important;
 }
+html[data-nangman-theme="dark"] body #rk218 .quality226.q-orange226{
+ background:#634126!important;color:#ffe2ad!important;border:1px solid #d49c5d!important;
+}
+html[data-nangman-theme="dark"] body #rk218 .quality226.q-red226{
+ background:#642e35!important;color:#ffc7c7!important;border:1px solid #c87e86!important;
+}
 /* All action buttons, including dynamically generated pity filters. */
 html[data-nangman-theme="dark"] body #rk218 :is(button,.chip,.rbtn,.btn,.unique-pick247,.city-result258):not(.on):not(.active):not(.primary):not([aria-pressed="true"]):not([aria-selected="true"]){
  color:#edf1f6!important;border-color:#728093!important;
