@@ -53,7 +53,7 @@ class Heap{
 }
 async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
  doWash,guard,progress=()=>{},nodeLimit=18000,allowMixed=false,
- initialBest=Infinity}={}){
+ initialBest=Infinity,onVerifiedCandidate=null}={}){
  const supplemental=allowMixed&&mixedShape(desiredIds,talents);
  if(!(supplemental||shape(desiredIds,talents)))
   throw Error('원본 WASM 비용순 탐색에서 지원하지 않는 목표 조합입니다');
@@ -148,6 +148,24 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
    present(final,desiredIds)&&
    guard.canonicalJson(final.talents)===guard.canonicalJson(route.final_slots);
  }
+ let lastBroadcast='';
+ function notifyCandidate(){
+  if(typeof onVerifiedCandidate!=='function'||!routes.length)return;
+  // A candidate is not published until its exact native WASM wash/lock
+  // actions have been independently replayed from the initial state.
+  const current=clone(getState());
+  try{
+   const verified=[];
+   for(const route of routes){
+    try{if(verifyRoute(route))verified.push(route)}catch(_){}
+   }
+   if(!verified.length)return;
+   const signature=JSON.stringify(verified.map(r=>[r.pills,r.washes,r.actions]));
+   if(signature===lastBroadcast)return;
+   lastBroadcast=signature;
+   try{onVerifiedCandidate(clone(verified))}catch(_){}
+  }finally{restore(current)}
+ }
  function greedy(mode){
   // Obtain a completed native-WASM upper bound before spending the
   // cost-ordered search budget. Each mode uses a distinct real slot timing.
@@ -192,6 +210,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
      exchanges:0,pad:0,optimal:false,native_verified:true,
      strategy:supplemental?'원본 WASM 자맥·녹파맥 통합 비용순 예비 탐색':'원본 WASM 녹·파맥 선행 완성 경로'
     });
+    notifyCandidate();
     return true;
    }
    if(offset===maxWashes||pills(current)-startPills>=best)break;
@@ -241,6 +260,7 @@ async function run({desiredIds,horizon=2500,topN=8,talents,getState,setState,
       exchanges:0,pad:0,optimal:false,native_verified:true,
       strategy:supplemental?'원본 WASM 자맥·녹파맥 통합 비용순 경로':'원본 WASM 비용순 녹·파맥 탐색'
      });
+     notifyCandidate();
     }
     // At this cost, no further wash/lock action is needed.
     continue;
