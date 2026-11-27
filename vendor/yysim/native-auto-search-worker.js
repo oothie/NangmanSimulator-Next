@@ -42,13 +42,26 @@ self.addEventListener('message',async event=>{
   const maxPad=Number(request?.max_pad??0);
   const horizon=Number(request?.horizon??2500);
   const topN=Number(request?.top_n??8);
+  const expanded=request?.search_mode==='expanded';
   const anchor=self.YYWashPurpleAnchorMixed?.requestShape(ids,TALENT_DATA);
+  const publishPartial=(result,diagnostics,stage)=>{
+   if(!expanded||!Array.isArray(result?.routes))return;
+   const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
+    .filter(([,v])=>v?.name).map(([id,v])=>[v.name,Number(id)]));
+   progress({phase:'expanded-candidate',stage,
+    candidateRoutes:result.routes.length,
+    bestPills:result.routes.length?Math.min(...result.routes.map(r=>Number(r.pills))):null,
+    partialResult:{result,desiredIds:ids,maxPad,horizon,topN,nameIds,
+     nativeFunction:'wasmSearchWashRoutes',nativeDiagnostics:diagnostics}});
+  };
   let result,diagnostics;
   if(self.YYWashColorOnly?.shape(ids,TALENT_DATA)){
    result=await self.YYWashColorOnly.run({
-    desiredIds:ids,horizon,topN,talents:TALENT_DATA,
+    desiredIds:ids,horizon:expanded?Math.max(horizon,4500):horizon,
+    topN,talents:TALENT_DATA,nodeLimit:expanded?45000:18000,
     getState:wasmGetState,setState:wasmSetState,doWash:wasmDoWash,
-    guard:canonical(),progress:data=>progress({...data,completed:2,total:4})
+    guard:canonical(),progress:data=>progress({...data,completed:2,total:4,
+     stage:expanded?'확장 탐색 · 녹·파맥 비용순 경로 비교':data.stage})
    });
    diagnostics={isMixed:true,returned:result.routes.length,
     complete:result.routes.length,incomplete:0,
@@ -58,19 +71,21 @@ self.addEventListener('message',async event=>{
     desiredIds:ids,maxPad,horizon,topN,talents:TALENT_DATA,
     getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes,
     doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
-    guard:canonical(),progress:data=>progress({...data,
+    guard:canonical(),expanded,
+    progress:data=>progress({...data,
      // These are observed mixed-search counters, not an estimated %.
      completed:2,total:4})
    });
    diagnostics={isMixed:true,returned:result.routes.length,
     complete:result.routes.length,incomplete:0,
     method:'purple-anchor-original-wasm',...result.diagnostics};
+   publishPartial(result,diagnostics,'확장 탐색 · 자맥 중심 경로 검증 완료, 통합 비용순 경로 비교 중');
    // A purple-first backbone may miss the cheapest FINAL mixed path.
    // Also compare two-purple mixed routes using a smaller state budget:
    // the cheapest purple-only prefix need not produce the cheapest final
    // two-purple/two-color completion. Three-purple routes retain the
    // existing fallback-only behavior to avoid excessive WASM work.
-   if((anchor.purple.length<=2||!result.routes.length)&&
+   if((expanded||anchor.purple.length<=2||!result.routes.length)&&
       self.YYWashColorOnly?.mixedShape(ids,TALENT_DATA)){
     const baselineCost=result.routes.length?
      Math.min(...result.routes.map(route=>Number(route.pills)).filter(Number.isFinite)):
@@ -79,12 +94,12 @@ self.addEventListener('message',async event=>{
      const supplementary=await self.YYWashColorOnly.run({
       // The heap remains node-bounded; the larger wash horizon allows
       // cost-first lookahead to reach sparse late purple/green events.
-      desiredIds:ids,horizon:Math.min(horizon,
-       Number.isFinite(baselineCost)?1800:2500),
+      desiredIds:ids,horizon:expanded?Math.max(horizon,4500):
+       Math.min(horizon,Number.isFinite(baselineCost)?1800:2500),
       topN,talents:TALENT_DATA,
       getState:wasmGetState,setState:wasmSetState,doWash:wasmDoWash,
       guard:canonical(),allowMixed:true,initialBest:baselineCost,
-      nodeLimit:Number.isFinite(baselineCost)?
+      nodeLimit:expanded?28000:Number.isFinite(baselineCost)?
        (anchor.purple.length===1?1400:1000):
        (anchor.purple.length===1?3600:1800),
       progress:data=>progress({...data,completed:2,total:4})
@@ -109,6 +124,7 @@ self.addEventListener('message',async event=>{
      };
      diagnostics.returned=result.routes.length;
      diagnostics.complete=result.routes.length;
+     publishPartial(result,diagnostics,'확장 탐색 · 더 넓은 비용순 경로 비교 완료');
     }catch(error){
      // Inability to restore the real WASM state must remain fatal.
      if(/복원|restore/i.test(String(error?.message||error)))throw error;
@@ -117,8 +133,37 @@ self.addEventListener('message',async event=>{
     }
    }
   }else{
-   result=canonical().run({getState:wasmGetState,setState:wasmSetState,
-    search:wasmSearchWashRoutes},request);
+   if(expanded&&ids.every(id=>TALENT_DATA[String(id)]?.pinzhi===4)){
+    // Wider native WASM padding is searched in independent verified passes.
+    // Keep the cheapest complete routes; a single pad is not monotonic.
+    const pads=[0,5,10,20,40,80,120];
+    const candidates=[],signatures=new Set();
+    for(let i=0;i<pads.length;i++){
+     const pad=pads[i];
+     progress({phase:'expanded-pad',stage:'확장 탐색 · 자맥 경로 '+(i+1)+' / '+pads.length,
+      nativeAttempts:i+1,totalAttempts:pads.length});
+     const pass=canonical().run({getState:wasmGetState,setState:wasmSetState,
+      search:wasmSearchWashRoutes},{
+       desired_ids:ids,max_pad:pad,horizon:Math.max(horizon,4500),top_n:Math.min(20,topN+8)});
+     for(const route of pass.routes||[]){
+      if(!ids.every(id=>(route.final_slots||[]).some(t=>Number(t.id)===id)))continue;
+      const key=JSON.stringify([route.actions,route.final_slots]);
+      if(signatures.has(key))continue;
+      signatures.add(key);candidates.push(route);
+     }
+     candidates.sort((a,b)=>Number(a.pills)-Number(b.pills)||
+      Number(a.washes)-Number(b.washes));
+     result={routes:candidates.slice(0,topN),scanned:(result?.scanned||0)+(pass.scanned||0),
+      error:null};
+     publishPartial(result,{method:'expanded-purple-pad',examinedPads:i+1},
+      '확장 탐색 · 자맥 선행 범위 '+pad+'까지 비교');
+     await new Promise(resolve=>setTimeout(resolve,0));
+    }
+    result={...result,error:result.routes.length?null:'확장 자맥 경로 미발견'};
+   }else{
+    result=canonical().run({getState:wasmGetState,setState:wasmSetState,
+     search:wasmSearchWashRoutes},request);
+   }
    const isMixed=ids.some(id=>TALENT_DATA[String(id)]?.pinzhi!==4);
    const completeRoutes=result.routes.filter(route=>{
     const final=new Set((route?.final_slots||[]).map(t=>Number(t?.id)));
@@ -128,7 +173,7 @@ self.addEventListener('message',async event=>{
     complete:completeRoutes.length,incomplete:result.routes.length-completeRoutes.length,
     unsupportedNotProven:isMixed&&completeRoutes.length===0};
   }
-  progress({phase:'worker-result',completed:3,total:4,
+  progress({phase:expanded?'expanded-final':'worker-result',completed:3,total:4,
    stage:'원본 탐색 완료 · 최종 슬롯 및 비용 검증 중',
    candidateRoutes:result.routes?.length??0});
   if(canonical().canonicalJson(wasmGetState())!==before)
