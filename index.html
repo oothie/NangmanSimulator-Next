@@ -857,7 +857,7 @@ button[data-export-csv],a[download$=".csv"]{display:none!important}
 #topSaveStatus{white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
 #clearTopSave[hidden]{display:none!important}
 @media(max-width:800px){.top{flex-wrap:wrap;gap:10px}.tools{gap:5px}#topSaveStatus{font-size:11px}.save-link{padding:7px 9px}}
-</style><script defer src="./shared/korean-terms.js?rev=v083"></script><script defer src="./shared/private-wash-search.js"></script><link rel="stylesheet" href="./shared/readability-v084.css?v=084"><link rel="stylesheet" href="./vendor/sanbujin/shared/app/equipment-detail-v084.css?v=084"><script defer src="./vendor/sanbujin/shared/app/equipment-detail-v084.js?v=084"></script><style id="wiki-image-correction-v085">
+</style><script defer src="./shared/korean-terms.js?rev=v083"></script><script defer src="./shared/private-wash-search.js?rev=1.3.1-all-grade-cost"></script><link rel="stylesheet" href="./shared/readability-v084.css?v=084"><link rel="stylesheet" href="./vendor/sanbujin/shared/app/equipment-detail-v084.css?v=084"><script defer src="./vendor/sanbujin/shared/app/equipment-detail-v084.js?v=084"></script><style id="wiki-image-correction-v085">
 .wiki-art-placeholder{display:inline-grid;place-items:center;flex:none;width:38px;height:38px;border:1px solid var(--border);border-radius:7px;background:var(--panel);font-weight:800;font-size:14px;color:var(--sub)}
 .wiki-art-placeholder.large{width:72px;height:72px;font-size:23px}
 </style><style>
@@ -1130,8 +1130,8 @@ html[data-theme="ink"] :is(
 <script src="./engine/wash-conflict-model.js"></script>
 <script src="./engine/wash-chain-core.js"></script>
 <script src="./engine/wash-goal-audit.js"></script>
-<script src="./engine/yysim-auto-search.js?rev=0.10.55"></script>
-<script src="./engine/yysim-auto-progressive.js?rev=0.10.55"></script>
+<script src="./engine/yysim-auto-search.js?rev=1.3.1-all-grade-cost"></script>
+<script src="./engine/yysim-auto-progressive.js?rev=1.3.1-all-grade-cost"></script>
 <script src="./engine/yysim-target-catalog.js?rev=0.10.50"></script>
 <script src="./engine/yysim-route-replay.js"></script>
 <script src="./engine/yysim-wash-dashboard.js"></script>
@@ -1549,7 +1549,7 @@ if(sub==='auto'){
      '<div class="micro" style="margin:6px 0">'+
      (completed!=null&&total>0?'실제 검증 단계 '+escape(completed.toLocaleString())+' / '+escape(total.toLocaleString())+' · ':'')+
      (Number.isFinite(Number(p.checked))?'확인한 세수 '+escape(Number(p.checked).toLocaleString())+'회 · ':'')+
-     (p.indeterminate?'경과 시간 '+escape(p.elapsedSeconds??0)+'초 · 경로 검사 중': '경과 '+escape(p.elapsedSeconds??0)+'초 · 발견 후보 '+escape(p.found??0)+'개 · 최소 세수단 '+escape(p.bestPills==null?'미발견':p.bestPills+'개'))+
+     (p.indeterminate?'경과 시간 '+escape(p.elapsedSeconds??0)+'초 · 경로 검사 중': '경과 '+escape(p.elapsedSeconds??0)+'초 · 발견 후보 '+escape(p.found??0)+'개 · 현재 최저 후보 '+escape(p.bestPills==null?'미발견':p.bestPills+'개'))+
      (p.maxGoals!=null?' · 확보한 목표 최대 '+escape(p.maxGoals)+' / '+escape(p.goalCount||selectedTargets.length):'')+'</div>'+
      (p.indeterminate?'<div role="progressbar" aria-label="세수 경로 계산 중" style="height:10px;border-radius:12px;overflow:hidden;background:var(--surface-2,rgba(128,128,128,.18))"><div style="height:100%;width:100%;background:repeating-linear-gradient(110deg,var(--accent,#9a668e) 0 12px,transparent 12px 25px);opacity:.65"></div></div>':
       '<div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+escape(percent??0)+'" aria-label="자동탐색 진행률" style="height:10px;border-radius:12px;overflow:hidden;background:var(--surface-2,rgba(128,128,128,.18))">'+
@@ -5183,7 +5183,7 @@ if($('yyAutoRun'))$('yyAutoRun').onclick=()=>{
   const ids=runtime.autoDesiredIds||[];
   const horizon=window.YYWashAutoSearch.recommendedHorizon(ids,catalog);
   const input=window.YYWashAutoSearch.options({
-   desiredIds:ids,maxPad:0,horizon,topN:8
+   desiredIds:ids,maxPad:0,horizon,topN:12
   },catalog.flatMap(g=>g.items.map(t=>t.id)));
   const colorSelected=input.desiredIds.some(id=>catalog.some(g=>g.quality!==4&&g.items.some(t=>t.id===id)));
   // Mixed grades now reach ORIGINAL wasmSearchWashRoutes for diagnostics.
@@ -5649,7 +5649,7 @@ js.onerror=()=>window.dispatchEvent(new Event('nangman-wiki-source-error'));
 document.head.append(js);
 </script>
 <script type="module">
-import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=0.10.47';
+import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=1.3.1-all-grade-cost';
 const state=window.__washRuntime={ready:false,active:false,error:'',output:'',loading:false,log:[],undoStates:[],generation:0};
 function syncWasmBag(obj){state.bagPills=obj?.has_bag_pills===true&&Number.isFinite(Number(obj.bag_pills))?Number(obj.bag_pills):null;}
 function announce(){window.dispatchEvent(new Event('nangman-wash-updated'))}
