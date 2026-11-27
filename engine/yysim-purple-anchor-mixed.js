@@ -165,6 +165,17 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   if(!setState({...current,talents:list}))
    throw Error('원본 WASM 재능 잠금 상태 변경 실패');
  }
+ // In the expanded branch only, a four-goal route can finish with three
+ // locked talents and its last target present in the remaining free slot.
+ // Attempting to lock all four may be rejected by native wash rules and
+ // unnecessarily discard a valid lower-cost completion.
+ const retainColorIfFinal=id=>{
+  const current=getState();
+  if(expanded&&hasAll(current,desiredIds)&&
+     current.talents.filter(t=>t.locked).length>=3)return false;
+  lockId(id,true);
+  return true;
+ };
  // Original yy-sim open_slot follows upgradeZiZhi: a virtual
  // aptitude increment adds +100 strength and constitution gifts per step.
  // Apply through the original WASM state API, never fabricate a new slot.
@@ -801,8 +812,8 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     // native state. They must count toward final completion.
     const held=new Set(retained);
     for(const id of event.colors){
-     lockId(id,true);held.add(id);
-     actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
+     const locked=retainColorIfFinal(id);held.add(id);
+     if(locked)actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
       wash_no:event.wash,
       pills_after:count(getState(),'total_pills')-count(initial,'total_pills')});
     }
@@ -820,12 +831,12 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
      diagnostics.scannedWashes++;
      for(const id of shape.colors){
       if(held.has(id)||!idsOf(getState()).includes(id))continue;
-      lockId(id,true);held.add(id);
+      const locked=retainColorIfFinal(id);held.add(id);
       const now=count(getState(),'total_wash');
       const pills=count(getState(),'total_pills')-count(initial,'total_pills');
       actions.push({kind:'wash_to',wash_no:now,pills_after:pills,
        note:'나머지 녹·파맥 찾기'});
-      actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
+      if(locked)actions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
        wash_no:now,pills_after:pills});
      }
      if(extra%75===74){progress({phase:'anchor-color-timing',
@@ -1130,8 +1141,12 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    // Freeze all purple anchors. Free only nonselected, replaceable slots.
    const fixed=getState();
    const retainedTargets=new Set([...shape.purple,...shape.colors]);
+   const priority=[...shape.purple,...shape.colors];
+   const retainedLockIds=expanded?
+    new Set(priority.filter(id=>fixed.talents.some(t=>number(t.id)===id)).slice(0,3)):
+    retainedTargets;
    const slots=fixed.talents.map(t=>({...t,
-    locked:retainedTargets.has(number(t.id))}));
+    locked:retainedLockIds.has(number(t.id))}));
    if(!setState({...fixed,talents:slots})){
     diagnostics.failures.push('자맥 확정 후 자유 슬롯 생성 실패');continue;
    }
@@ -1173,10 +1188,10 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
      if(seen.has(id))continue;
      const slot=now.talents.find(t=>number(t.id)===id);
      if(!slot)continue;
-     lockId(id,true);seen.add(id);
+     const locked=retainColorIfFinal(id);seen.add(id);
      tailActions.push({kind:'wash_to',wash_no:count(now,'total_wash'),
       note:'자맥 이후 녹·파맥 후보 '+id});
-     tailActions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
+     if(locked)tailActions.push({kind:'lock',talent:talents[String(id)]?.name||String(id),
       wash_no:count(now,'total_wash')});
     }
     if(seen.size===shape.colors.length&&hasAll(getState(),desiredIds)){
