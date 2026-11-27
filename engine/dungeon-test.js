@@ -64,11 +64,27 @@ export function predictGate(save,gate,clears=1,keyMode='auto',claimMode='current
   totalUnresolved:simulated.unresolved};
 }
 
-const DAILY_DEFAULT = Object.freeze({'연왕부':1,'창옥':1,'벽유교':1,'유씨별원':3});
+const DAILY_DEFAULT = Object.freeze({'연왕부':0,'창옥':0,'벽유교':0,'유씨별원':0});
+const DAILY_PLAN_KEY='nangman-dungeon-daily-plan';
+function loadDailyPlan(){
+ const defaults={...DAILY_DEFAULT};
+ try{
+  const stored=JSON.parse(localStorage.getItem(DAILY_PLAN_KEY)||'null');
+  if(!stored||typeof stored!=='object'||Array.isArray(stored))return defaults;
+  const plan=Object.fromEntries(GATES.map(g=>[g,Number(stored[g]??0)]));
+  if(GATES.some(g=>!Number.isInteger(plan[g])||plan[g]<0||plan[g]>3)||
+     GATES.reduce((n,g)=>n+plan[g],0)>6)return defaults;
+  return plan;
+ }catch{return defaults;}
+}
+function saveDailyPlan(plan){
+ try{localStorage.setItem(DAILY_PLAN_KEY,JSON.stringify(
+  Object.fromEntries(GATES.map(g=>[g,plan[g]]))))}catch{}
+}
 let activeDungeonTab='regular';
 let activeDungeonGate='연왕부';
 let regularClears=1;
-let dailyPlan={...DAILY_DEFAULT};
+let dailyPlan=loadDailyPlan();
 let dailyDays=1;
 let claimMode='current',keyMode='auto';
 
@@ -167,6 +183,7 @@ export function mountDungeon(host,save){
   });
  }
  function dailyRun(){
+  if(!GATES.some(g=>dailyPlan[g]>0)){result.textContent='관문별 횟수를 선택하면 일일 예측 결과가 표시됩니다.';return;}
   try{
    const out=predictDailyGates(save,dailyPlan,dailyDays);
    result.innerHTML=out.results.map(x=>'<details class="dun-day-group" style="margin:12px 0;border:1px solid var(--border);border-radius:8px;background:var(--panel);overflow:hidden">'+
@@ -192,7 +209,7 @@ export function mountDungeon(host,save){
  host.querySelectorAll('[data-dun-daily]').forEach(el=>el.onchange=e=>{
   const g=el.dataset.dunDaily,value=Number(el.value);
   if(GATES.reduce((s,x)=>s+(x===g?value:dailyPlan[x]),0)>6){el.value=String(dailyPlan[g]);return}
-  dailyPlan[g]=value;updateDaily();dailyRun();
+  dailyPlan[g]=value;saveDailyPlan(dailyPlan);updateDaily();dailyRun();
  });
  host.querySelector('#dunDailyRun').onclick=dailyRun;
  updateDaily();
