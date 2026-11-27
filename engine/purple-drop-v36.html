@@ -5686,6 +5686,43 @@ html[data-theme="ink"] #purpleV6 #v6DetailRuntime #rk218 :is(
  button.active,.tab-btn.active,.btn-primary
 ) {background:var(--v32-button)!important;color:#15171c!important;border-color:var(--v32-button)!important;}
 </style>
+<style id="v131-ink-predicted-list-comfort">
+/* Predictions contain legacy light-only !important rules: override only in ink mode. */
+html[data-theme="ink"] {
+ --v32-bg:#17191e;--v32-panel:#262a31;--v32-subpanel:#20242b;
+ --v32-text:#e2ded6;--v32-muted:#b2aba2;--v32-border:#414650;
+ --v32-button:#c5a777;--v32-link:#c4a2d2;
+}
+html[data-theme="ink"] #purpleV6 #v6Main :is(.v9-group,.v9-route,.v31-options,.v31-place,.v31-summary span,.v9-claim,.v35-equipment-list,.v35-summary-action,.v6-note){
+ background:var(--v32-subpanel)!important;color:var(--v32-text)!important;border-color:var(--v32-border)!important;
+}
+html[data-theme="ink"] #purpleV6 #v6Main :is(.v9-group,.v35-equipment-list,.v35-summary-action){
+ background:var(--v32-panel)!important;
+}
+html[data-theme="ink"] #purpleV6 #v6Main :is(.v31-path,.v9-stats,.v31-notes,.v35-equipment-heading span,.v35-count-table small){
+ color:var(--v32-muted)!important;
+}
+html[data-theme="ink"] #purpleV6 #v6Main .v35-equipment-list :is(.v35-count-table,.v35-count-table thead,.v35-count-table tbody,.v35-count-table tfoot,.v35-count-table tr,.v35-count-table th,.v35-count-table td){
+ background:var(--v32-panel)!important;color:var(--v32-text)!important;border-color:var(--v32-border)!important;
+}
+html[data-theme="ink"] #purpleV6 #v6Main .v35-equipment-list .v35-count-table tbody tr:nth-child(even) :is(th,td){
+ background:var(--v32-subpanel)!important;
+}
+html[data-theme="ink"] #purpleV6 #v6Main .v35-equipment-list .v35-count-table .v35-purple,
+html[data-theme="ink"] #purpleV6 #v6Main .v35-equipment-list .v35-count-table .v35-purple *{
+ color:var(--v32-link)!important;
+}
+html[data-theme="ink"] #purpleV6 #v6Main :is(.v9-detail,.v35-summary-action,button):focus-visible,
+html[data-theme="ink"] #purpleV6 #v6Detail :is(button,select,input):focus-visible{
+ outline:2px solid var(--v32-button)!important;outline-offset:2px;
+}
+html[data-theme="ink"] #purpleV6 #v6DetailRuntime #rk218 :is(.detail-table218,.tbl218,.scroll218,.rk240-table,table,th,td){
+ background:var(--v32-panel)!important;color:var(--v32-text)!important;border-color:var(--v32-border)!important;
+}
+html[data-theme="ink"] #purpleV6 #v6DetailRuntime #rk218 :is(input,select,option,optgroup,textarea){
+ background:var(--v32-subpanel)!important;color:var(--v32-text)!important;border-color:var(--v32-border)!important;color-scheme:dark;
+}
+</style>
 </head>
 <body>
 <section id="edsLab" aria-label="Eds 자색 장비 내부 예측 연구실">
