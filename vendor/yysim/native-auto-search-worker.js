@@ -44,12 +44,20 @@ self.addEventListener('message',async event=>{
   const topN=Number(request?.top_n??8);
   const expanded=request?.search_mode==='expanded';
   const anchor=self.YYWashPurpleAnchorMixed?.requestShape(ids,TALENT_DATA);
+  let bestExtendedRoutes=[];
   const publishPartial=(result,diagnostics,stage)=>{
    if(!expanded||!Array.isArray(result?.routes))return;
-   const visibleRoutes=result.routes.filter(route=>Number.isFinite(Number(route?.pills))&&
-    ids.every(id=>(route.final_slots||[]).some(t=>Number(t.id)===id)))
+   const all=[...bestExtendedRoutes,...result.routes]
+    .filter(route=>Number.isFinite(Number(route?.pills))&&
+     ids.every(id=>(route.final_slots||[]).some(t=>Number(t.id)===id)))
     .sort((a,b)=>Number(a.pills)-Number(b.pills)||
-     Number(a.washes)-Number(b.washes)).slice(0,topN);
+     Number(a.washes)-Number(b.washes));
+   const seenRoutes=new Set();
+   const visibleRoutes=all.filter(route=>{
+    const key=JSON.stringify([route.actions,route.final_slots,Number(route.pills)]);
+    if(seenRoutes.has(key))return false;seenRoutes.add(key);return true;
+   }).slice(0,topN);
+   bestExtendedRoutes=visibleRoutes;
    const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
     .filter(([,v])=>v?.name).map(([id,v])=>[v.name,Number(id)]));
    progress({phase:'expanded-candidate',stage,
@@ -58,7 +66,33 @@ self.addEventListener('message',async event=>{
     partialResult:{result:{...result,routes:visibleRoutes},desiredIds:ids,maxPad,horizon,topN,nameIds,
      nativeFunction:'wasmSearchWashRoutes',nativeDiagnostics:diagnostics}});
   };
-  let result,diagnostics;
+  let result,diagnostics,chain=null,chainFailure=null;
+  if(expanded){
+   // Private source states never leave the browser. The new generic graph
+   // is strictly extended-only; the existing fast-search path is untouched.
+   try{
+    if(!self.YYWashExpandedChain)
+     importScripts('../../engine/yysim-expanded-chain-search.js?rev=20261127-chain-exchange-v1');
+    chain=await self.YYWashExpandedChain.run({
+     desiredIds:ids,talents:TALENT_DATA,
+     getState:wasmGetState,setState:wasmSetState,
+     doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
+     guard:canonical(),horizon:Math.max(horizon,4500),topN,
+     nodeLimit:4200,
+     onVerifiedCandidate:routes=>publishPartial({routes},
+      {method:'expanded-native-event-chain'},
+      '확장 탐색 · 임시 잠금·해제·치환으로 더 저렴한 경로 확인'),
+     progress:data=>progress({...data,completed:2,total:4})
+    });
+    publishPartial(chain,{...chain.diagnostics},
+     '확장 탐색 · 임시 재능·연쇄 치환 분기 완료');
+   }catch(error){
+    // State-restoration failures cannot be ignored; other failures must
+    // not erase already confirmed native routes.
+    if(/복원|restore/i.test(String(error?.message||error)))throw error;
+    chainFailure=String(error?.message||error);
+   }
+  }
   if(self.YYWashColorOnly?.shape(ids,TALENT_DATA)){
    result=await self.YYWashColorOnly.run({
     desiredIds:ids,horizon:expanded?Math.max(horizon,4500):horizon,
@@ -198,6 +232,24 @@ self.addEventListener('message',async event=>{
    diagnostics={isMixed,returned:result.routes.length,
     complete:completeRoutes.length,incomplete:result.routes.length-completeRoutes.length,
     unsupportedNotProven:isMixed&&completeRoutes.length===0};
+  }
+  if(expanded&&Array.isArray(result?.routes)){
+   // Merge independently verified chain routes with all native anchor/cost
+   // candidates. Best-known cost never worsens as more stages finish.
+   const joined=[...bestExtendedRoutes,...result.routes,...(chain?.routes||[])]
+    .filter(route=>Number.isFinite(Number(route?.pills))&&
+     ids.every(id=>(route.final_slots||[]).some(t=>Number(t.id)===id)))
+    .sort((a,b)=>Number(a.pills)-Number(b.pills)||
+     Number(a.washes)-Number(b.washes));
+   const unique=new Set();
+   result.routes=joined.filter(route=>{
+    const key=JSON.stringify([route.actions,route.final_slots,Number(route.pills)]);
+    if(unique.has(key))return false;unique.add(key);return true;
+   }).slice(0,topN);
+   result.error=result.routes.length?null:result.error;
+   diagnostics={...diagnostics,chainSearch:chain?.diagnostics||null,
+    chainSearchError:chainFailure,
+    returned:result.routes.length,complete:result.routes.length};
   }
   if(expanded&&Array.isArray(result?.routes)&&result.routes.length>topN){
    result.routes=result.routes.slice().sort((a,b)=>Number(a.pills)-Number(b.pills)||
