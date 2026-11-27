@@ -66,10 +66,11 @@ self.addEventListener('message',async event=>{
     complete:result.routes.length,incomplete:0,
     method:'purple-anchor-original-wasm',...result.diagnostics};
    // A purple-first backbone may miss the cheapest FINAL mixed path.
-   // Always compare color-first routes for one purple; for multi-purple
-   // combinations invoke this bounded fallback only if no route was found.
-   // All alternatives use exactly the SAME native WASM state transitions.
-   if((anchor.purple.length===1||!result.routes.length)&&
+   // Also compare two-purple mixed routes using a smaller state budget:
+   // the cheapest purple-only prefix need not produce the cheapest final
+   // two-purple/two-color completion. Three-purple routes retain the
+   // existing fallback-only behavior to avoid excessive WASM work.
+   if((anchor.purple.length<=2||!result.routes.length)&&
       self.YYWashColorOnly?.mixedShape(ids,TALENT_DATA)){
     const baselineCost=result.routes.length?
      Math.min(...result.routes.map(route=>Number(route.pills)).filter(Number.isFinite)):
@@ -83,7 +84,8 @@ self.addEventListener('message',async event=>{
       topN,talents:TALENT_DATA,
       getState:wasmGetState,setState:wasmSetState,doWash:wasmDoWash,
       guard:canonical(),allowMixed:true,initialBest:baselineCost,
-      nodeLimit:Number.isFinite(baselineCost)?1400:
+      nodeLimit:Number.isFinite(baselineCost)?
+       (anchor.purple.length===1?1400:1000):
        (anchor.purple.length===1?3600:1800),
       progress:data=>progress({...data,completed:2,total:4})
      });
