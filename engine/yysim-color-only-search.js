@@ -15,7 +15,7 @@ function shape(ids,data){
  if(!Array.isArray(ids)||ids.length<1||ids.length>4||new Set(ids).size!==ids.length)return false;
  return ids.every(id=>[2,3].includes(Number(data[String(id)]?.pinzhi)));
 }
-// A supplemental cost-first search may also retain one purple goal.
+// A supplemental cost-first search may also retain purple goals.
 // The original purple WASM solver remains the primary search; this native
 // state search independently explores color-first locking as a bounded
 // alternative, without inventing wash RNG or a synthetic finished route.
@@ -23,7 +23,8 @@ function mixedShape(ids,data){
  if(!Array.isArray(ids)||ids.length<2||ids.length>4||
     new Set(ids).size!==ids.length)return false;
  const grades=ids.map(id=>Number(data[String(id)]?.pinzhi));
- if(grades.filter(g=>g===4).length!==1||
+ const purples=grades.filter(g=>g===4).length;
+ if(purples<1||purples>=grades.length||purples>3||
     !grades.every(g=>[2,3,4].includes(g)))return false;
  const families=ids.map(id=>Number(data[String(id)]?.type));
  return families.every(x=>Number.isInteger(x)&&x>0)&&
