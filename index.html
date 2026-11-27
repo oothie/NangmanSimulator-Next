@@ -5375,7 +5375,7 @@ function updateEquipmentVisibility(){
   host.dataset.equipmentTab=frameKey;
   const frame=document.createElement('iframe');
   frame.title=tab[1]+' 엔진';frame.loading='eager';frame.referrerPolicy='same-origin';
-  frame.src=original?'./vendor/nangman-v350/equipment.html?rev=region-ink-clarity-20261127':
+  frame.src=original?'./vendor/nangman-v350/equipment.html?rev=mobile-audit-20261127':
    './vendor/sanbujin/'+tab[2]+'/index.html?rev=v097';
   frame.addEventListener('load',()=>{
    sendThemeToEquipment(frame);sendSaveToEquipment(frame);
@@ -5468,7 +5468,7 @@ function updatePurpleVisibility(){
   purpleFrame=document.createElement('iframe');purpleFrame.title='자색 드랍 예측';
   purpleFrame.className='purple-drop-iframe';purpleFrame.loading='eager';
   purpleFrame.referrerPolicy='same-origin';
-  purpleFrame.src='./engine/purple-drop-v36.html?rev=purple-131-border-clarity';
+  purpleFrame.src='./engine/purple-drop-v36.html?rev=purple-131-mobile-audit';
   purpleFrame.addEventListener('load',()=>{purpleSentVersion=-1;sendThemeToPurple();sendSaveToPurple(true)});
   host.appendChild(purpleFrame);
  }
