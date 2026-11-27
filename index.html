@@ -1239,7 +1239,7 @@ function invalidateWashLink(nextRoleId){
  if(nextRoleId!=null&&state.origin==='save'&&state.linkedRoleId===nextRoleId)return;
  window.dispatchEvent(new Event('nangman-wash-cancel-extended'));
  state.generation=(state.generation||0)+1;
- state.active=false;state.origin=null;state.linkedRoleId=null;state.nativeState=null;state.autoLinkRequested=null;state.lastConflict=null;state.bagPills=null;state.preview=null;state.autoResult=null;state.autoProgress=null;state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.constraints=null;state.constraintsDisplay='';state.liveTalents=[];
+ state.active=false;state.origin=null;state.linkedRoleId=null;state.nativeState=null;state.autoLinkRequested=null;state.lastConflict=null;state.bagPills=null;state.preview=null;state.autoResult=null;state.autoProgress=null;state.autoExpandedResult=null;state.autoExpandedStatus='idle';state.yyLinkedResult=null;state.yySelectedWashNos=[];state.previewNameIds=null;state.pathReports=null;state.constraints=null;state.constraintsDisplay='';state.constraints=null;state.constraintsDisplay='';state.liveTalents=[];
  state.undoStates=[];state.log=[];state.historyHiddenBefore=0;state.historyPage=1;state.output='선택 캐릭터 또는 세이브가 변경되었습니다. WASM을 다시 연결하세요.';
 }
 function yyWashStateFromSave(root,role,original){
@@ -5701,7 +5701,7 @@ js.onerror=()=>window.dispatchEvent(new Event('nangman-wiki-source-error'));
 document.head.append(js);
 </script>
 <script type="module">
-import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=1.3.1-all-grade-cost';
+import {washEngine,washSearchEngine} from './engine/local-engine-bridge.js?rev=1.3.1-dual-search';
 const state=window.__washRuntime={ready:false,active:false,error:'',output:'',loading:false,log:[],undoStates:[],generation:0};
 function syncWasmBag(obj){state.bagPills=obj?.has_bag_pills===true&&Number.isFinite(Number(obj.bag_pills))?Number(obj.bag_pills):null;}
 function announce(){window.dispatchEvent(new Event('nangman-wash-updated'))}
@@ -5794,6 +5794,7 @@ window.addEventListener('nangman-wash-command',async e=>{
  announce();
  const generation=state.generation||0,logBefore=state.log.length;
  const ensureSession=()=>{if(state.generation!==generation)throw Error('세이브 또는 캐릭터가 변경되어 이전 WASM 실행 결과를 폐기했습니다.');};
+ let expansionPlan=null;
  try{
  // Original yy-sim applies the selected save immediately for normal wash actions.
  const automaticOps=new Set(['washEngineOnce','washEngineMulti','washEngineUntilGold',
@@ -6030,6 +6031,7 @@ window.addEventListener('nangman-wash-command',async e=>{
   // Preserve the exact same WASM input for both independent searches.
   const expandedStartState=await washEngine.call('state');
   ensureSession();
+  expansionPlan={generation,source,options,initial:expandedStartState,colorSearch:isColor};
   let result;
   result=op==='washEngineAutoProgressive'?
    await window.YYWashProgressive.run({
@@ -6059,8 +6061,7 @@ window.addEventListener('nangman-wash-command',async e=>{
    if(state.generation!==generation||
       window.__nangmanWashSaveSource?.()?.save!==source.save||
       window.__nangmanWashSaveSource?.()?.role?.id!==source.role.id)return;
-   startExpanded({generation,source,options,initial:expandedStartState,
-    colorSearch:isColor});
+   startExpanded(expansionPlan);
   });
  }else if(op==='washEngineSequencePads'){
   if(!state.active||state.origin!=='save'||state.linkedRoleId!==window.__nangmanWashSaveSource?.()?.role?.id)
@@ -6281,7 +6282,16 @@ window.addEventListener('nangman-wash-command',async e=>{
    JSON.stringify(result,null,2):
    '원본 WASM에서 모의 세수를 실행하지 않았습니다. 단약 부족 또는 세수 제한 여부를 확인하세요.';
  }
- }catch(err){state.error=automaticSearch?window.YYWashAutoSearch.koreanError(err):String(err.message||err);if(automaticSearch)state.autoProgress=null}
+ }catch(err){
+  state.error=automaticSearch?window.YYWashAutoSearch.koreanError(err):String(err.message||err);
+  if(automaticSearch){
+   state.autoProgress=null;
+   // A failed or timed-out quick search must not suppress the independent
+   // extended search when the native starting state was already verified.
+   if(expansionPlan&&state.generation===generation)
+    queueMicrotask(()=>startExpanded(expansionPlan));
+  }
+ }
  finally{
   if(state.active&&state.generation===generation){
    try{
