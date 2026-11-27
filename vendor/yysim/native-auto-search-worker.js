@@ -46,12 +46,16 @@ self.addEventListener('message',async event=>{
   const anchor=self.YYWashPurpleAnchorMixed?.requestShape(ids,TALENT_DATA);
   const publishPartial=(result,diagnostics,stage)=>{
    if(!expanded||!Array.isArray(result?.routes))return;
+   const visibleRoutes=result.routes.filter(route=>Number.isFinite(Number(route?.pills))&&
+    ids.every(id=>(route.final_slots||[]).some(t=>Number(t.id)===id)))
+    .sort((a,b)=>Number(a.pills)-Number(b.pills)||
+     Number(a.washes)-Number(b.washes)).slice(0,topN);
    const nameIds=Object.fromEntries(Object.entries(TALENT_DATA)
     .filter(([,v])=>v?.name).map(([id,v])=>[v.name,Number(id)]));
    progress({phase:'expanded-candidate',stage,
-    candidateRoutes:result.routes.length,
-    bestPills:result.routes.length?Math.min(...result.routes.map(r=>Number(r.pills))):null,
-    partialResult:{result,desiredIds:ids,maxPad,horizon,topN,nameIds,
+    candidateRoutes:visibleRoutes.length,
+    bestPills:visibleRoutes.length?Number(visibleRoutes[0].pills):null,
+    partialResult:{result:{...result,routes:visibleRoutes},desiredIds:ids,maxPad,horizon,topN,nameIds,
      nativeFunction:'wasmSearchWashRoutes',nativeDiagnostics:diagnostics}});
   };
   let result,diagnostics;
@@ -73,7 +77,8 @@ self.addEventListener('message',async event=>{
     method:'color-only-wasm-cost-first',...result.diagnostics};
   }else if(anchor){
    result=await self.YYWashPurpleAnchorMixed.run({
-    desiredIds:ids,maxPad,horizon,topN,talents:TALENT_DATA,
+    desiredIds:ids,maxPad,horizon,topN:expanded?20:topN,
+    talents:TALENT_DATA,
     getState:wasmGetState,setState:wasmSetState,search:wasmSearchWashRoutes,
     doWash:wasmDoWash,exchangeTalent:wasmExchangeTalent,
     guard:canonical(),expanded,
@@ -190,6 +195,12 @@ self.addEventListener('message',async event=>{
    diagnostics={isMixed,returned:result.routes.length,
     complete:completeRoutes.length,incomplete:result.routes.length-completeRoutes.length,
     unsupportedNotProven:isMixed&&completeRoutes.length===0};
+  }
+  if(expanded&&Array.isArray(result?.routes)&&result.routes.length>topN){
+   result.routes=result.routes.slice().sort((a,b)=>Number(a.pills)-Number(b.pills)||
+    Number(a.washes)-Number(b.washes)).slice(0,topN);
+   if(diagnostics){diagnostics.returned=result.routes.length;
+    diagnostics.complete=result.routes.length}
   }
   progress({phase:expanded?'expanded-final':'worker-result',completed:3,total:4,
    stage:'원본 탐색 완료 · 최종 슬롯 및 비용 검증 중',
