@@ -3,7 +3,7 @@
 export class LocalEngine {
  constructor(source,kind){
   this.source=source;this.kind=kind;this.seq=0;this.pending=new Map();
-  this.frame=null;this.mountPromise=null;this.bootAttempt=0;
+  this.frame=null;this.mountPromise=null;this.mountReject=null;this.bootAttempt=0;
   this.bound=e=>{
    if(e.origin!==location.origin||e.source!==this.frame?.contentWindow||
       e.data?.kind!==this.kind)return;
@@ -29,7 +29,8 @@ export class LocalEngine {
   frame.src=this.source+separator+'engineRev=1.3.1-min-pills&attempt='+this.bootAttempt;
   this.frame=frame;
   this.mountPromise=new Promise((resolve,reject)=>{
-   frame.onload=()=>resolve();
+   this.mountReject=reject;
+   frame.onload=()=>{if(this.frame===frame)resolve()};
    frame.onerror=()=>reject(Error('로컬 계산 엔진 페이지를 불러오지 못했습니다'));
    document.body.append(frame);
   });
@@ -37,7 +38,8 @@ export class LocalEngine {
   catch(error){
    if(this.frame===frame){frame.remove();this.frame=null}
    throw error;
-  }finally{this.mountPromise=null}
+  }finally{if(this.frame===frame)this.mountPromise=null;
+   this.mountReject=null}
  }
  async call(op,payload,onProgress){
   const isBoot=op==='init';
@@ -66,6 +68,7 @@ export class LocalEngine {
   if(!isBoot)return callOnce();
   try{return await callOnce()}
   catch(firstError){
+   if(String(firstError?.message||'').includes('탐색 중단'))throw firstError;
    // A fresh iframe clears a partial WASM instance and bypasses cached
    // engine HTML; only initialization is safe to retry automatically.
    this.bootAttempt++;
@@ -80,6 +83,8 @@ export class LocalEngine {
  cancel(){
   // Destroy only this engine's isolated iframe and workers. Keep the
   // message listener so a new search can remount cleanly afterwards.
+  this.mountReject?.(Error('탐색 중단'));
+  this.mountReject=null;
   this.frame?.remove();this.frame=null;this.mountPromise=null;
   this.bootAttempt++;
   for(const p of this.pending.values())p.reject(Error('탐색 중단'));
