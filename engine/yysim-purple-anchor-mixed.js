@@ -1221,6 +1221,8 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
    try{await searchBetween(native,marks,diagnostics,routes)}
    catch(error){diagnostics.failures.push('자맥 사이 구간: '+String(error?.message||error))}
    restore(initial);
+   // A fully verified zero-cost completion is globally unbeatable.
+   if(expanded&&routes.length&&bestCost()===0)break;
   }
  }finally{restore(originalState)}
  // Keep the original fast purple-only solution when it already yields
