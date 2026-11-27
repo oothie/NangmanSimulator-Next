@@ -566,6 +566,55 @@ html:not([data-theme="ink"]) #washModule .n-subtabs button.active{
   #simPane .sim-left, #simPane .sim-right { width: 100%; box-sizing: border-box; }
 }
 </style>
+<style id="v131-wash-dark-text-mobile-audit">
+html[data-theme="ink"]{
+ --wash-card:#282c33;--wash-elevated:#20242b;--wash-ink:#e2ded6;
+ --wash-muted:#b5ada4;--wash-line:#626873;--wash-accent:#c5a777;
+}
+html[data-theme="ink"] #washModule :is(
+ .card,.sim-left,.sim-right,.sim-summary,.character-sections,
+ .character-card,.sim-compact-row,.sim-left-log,.sim-left-top,.scroll,
+ .good,.warn,.bad,.sim-cost-badge,.badge
+){color:var(--wash-ink)!important;border-color:var(--wash-line)!important;}
+html[data-theme="ink"] #washModule :is(
+ .card,.sim-left,.sim-right,.character-card,.scroll
+){background:var(--wash-card)!important;}
+html[data-theme="ink"] #washModule :is(
+ .card,.sim-left,.sim-right,.character-card,.sim-left-log,.sim-left-top
+) :is(h1,h2,h3,h4,p,label,summary,strong,th,td){
+ color:var(--wash-ink)!important;
+}
+html[data-theme="ink"] #washModule :is(.tabs,.n-subtabs,.row,.sim-compact-row)
+ button:not(.active):not(.primary){
+ color:var(--wash-ink)!important;background:var(--wash-elevated)!important;
+ border-color:var(--wash-line)!important;
+}
+html[data-theme="ink"] #washModule :is(input,select,option,optgroup,textarea){
+ background:var(--wash-elevated)!important;color:var(--wash-ink)!important;
+ border-color:var(--wash-line)!important;color-scheme:dark;
+}
+html[data-theme="ink"] #washModule :is(.small,.muted,.sim-help,small){
+ color:var(--wash-muted)!important;
+}
+@media(max-width:760px){
+ #washModule,#washModule main,#washModule .card,
+ #simPane.active,#simPane .sim-workspace,#simPane .sim-left,
+ #simPane .sim-right{min-width:0!important;max-width:100%!important;box-sizing:border-box!important;}
+ #simPane .sim-workspace{grid-template-columns:minmax(0,1fr)!important;}
+ #washModule .scroll,#simPane .scroll,#washModule .character-table-wrap{
+  width:100%!important;max-width:100%!important;overflow-x:auto!important;
+  -webkit-overflow-scrolling:touch;
+ }
+ #washModule .tabs,#washModule .n-subtabs{
+  display:flex;flex-wrap:nowrap!important;overflow-x:auto!important;
+  max-width:100%!important;-webkit-overflow-scrolling:touch;
+ }
+ #washModule .tabs button,#washModule .n-subtabs button{
+  flex:0 0 auto!important;white-space:nowrap;
+ }
+ #simPane .sim-right>.card{min-width:0!important;max-width:100%!important;}
+}
+</style>
 </head>
 <body>
 <main>
