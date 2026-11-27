@@ -5302,16 +5302,23 @@ function updatePurpleVisibility(){
   purpleFrame=document.createElement('iframe');purpleFrame.title='자색 드랍 예측';
   purpleFrame.className='purple-drop-iframe';purpleFrame.loading='eager';
   purpleFrame.referrerPolicy='same-origin';
-  purpleFrame.src='./engine/purple-drop-v36.html?rev=purple-131-20261127';
+  purpleFrame.src='./engine/purple-drop-v36.html?rev=purple-131-mobile-height-20261127';
   purpleFrame.addEventListener('load',()=>{purpleSentVersion=-1;sendThemeToPurple();sendSaveToPurple(true)});
   host.appendChild(purpleFrame);
  }
  sendSaveToPurple();if(active)sendThemeToPurple();
 }
 window.addEventListener('message',event=>{
- if(event.origin!==location.origin||event.source!==purpleFrame?.contentWindow||
-    event.data?.kind!=='nangman-purple-status')return;
- if(event.data.status==='ready'){purpleReady=true;purpleSentVersion=-1;sendThemeToPurple();sendSaveToPurple(true)}
+ if(event.origin!==location.origin||event.source!==purpleFrame?.contentWindow)return;
+ if(event.data?.kind==='nangman-purple-height'){
+  const height=Number(event.data.height);
+  if(Number.isFinite(height)&&height>100&&height<60000)
+   purpleFrame.style.height=Math.ceil(height+14)+'px';
+  return;
+ }
+ if(event.data?.kind==='nangman-purple-status'&&event.data.status==='ready'){
+  purpleReady=true;purpleSentVersion=-1;sendThemeToPurple();sendSaveToPurple(true);
+ }
 });
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==dropFrame?.contentWindow||event.data?.kind!=='nangman-embedded-status'||event.data.module!=='drops')return;
