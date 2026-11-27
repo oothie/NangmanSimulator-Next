@@ -94,6 +94,7 @@ self.addEventListener('message',async event=>{
     chainFailure=String(error?.message||error);
    }
   }
+  try{
   if(self.YYWashColorOnly?.shape(ids,TALENT_DATA)){
    result=await self.YYWashColorOnly.run({
     desiredIds:ids,horizon:expanded?Math.max(horizon,4500):horizon,
@@ -233,6 +234,15 @@ self.addEventListener('message',async event=>{
    diagnostics={isMixed,returned:result.routes.length,
     complete:completeRoutes.length,incomplete:result.routes.length-completeRoutes.length,
     unsupportedNotProven:isMixed&&completeRoutes.length===0};
+  }
+  }catch(error){
+   if(!expanded||!chain?.routes?.length||
+      /복원|restore/i.test(String(error?.message||error)))throw error;
+   // Retain the chain's independently replayed, complete native path
+   // even when another expanded-only search method rejects a branch.
+   result={routes:chain.routes,scanned:chain.scanned,error:null};
+   diagnostics={method:'expanded-chain-fallback',
+    fallbackCause:String(error?.message||error)};
   }
   if(expanded&&Array.isArray(result?.routes)){
    // Merge independently verified chain routes with all native anchor/cost
