@@ -43,7 +43,7 @@ function plan(route,nameIds={}){
    planned.push({kind,id});
   }else if(kind==='wash_to'||kind==='wash_until'){
    const target=integer(action.wash_no);
-   if(target===null||target<washes||target>5000)
+   if(target===null||target<washes||target>7000)
     throw Error('원본 세수 회차가 역행하거나 범위를 벗어났습니다');
    const id=kind==='wash_until'?resolve(action.talent):null;
    if(kind==='wash_until'&&id===null)
