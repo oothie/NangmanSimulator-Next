@@ -352,7 +352,11 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
   }
   // Fixed native replay budget, but include the interior of the interval.
   // An edge-only sample can miss a cheaper completed final four-slot route.
-  const chosen=sampleMixedColorCandidates(candidatesInWindow,shape.colors,8);
+  // Spend a larger replay budget where multiple distinct arrival timings can
+  // change the total pill minimum; do not discard the cheapest events for
+  // each individual color merely because the other color is common.
+  const replayBudget=expanded?48:24;
+  const chosen=sampleMixedColorCandidates(candidatesInWindow,shape.colors,replayBudget);
   diagnostics.betweenCandidates=(diagnostics.betweenCandidates||0)+
    candidatesInWindow.length;
   diagnostics.betweenExamined=(diagnostics.betweenExamined||0)+chosen.length;
@@ -698,8 +702,13 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     scannedWashes:diagnostics.scannedWashes,candidateRoutes:routes.length});
     await new Promise(resolve=>setTimeout(resolve,0));}
   }
-  const candidates=events.length<=32?events:
-   [...events.slice(0,20),...sampleIntervalCandidates(events.slice(20),12)];
+  // A cheaper completion can begin at a later first-color occurrence.
+  // Preserve broad candidate coverage instead of truncating to early events.
+  const deferredBudget=expanded?64:40;
+  const candidates=events.length<=deferredBudget?events:
+   sampleMixedColorCandidates(events.map(e=>({
+    ...e,time:e.wash,appearing:e.colors
+   })),shape.colors,deferredBudget);
   diagnostics.deferredColorSightings=(diagnostics.deferredColorSightings||0)+events.length;
   diagnostics.deferredColorExamined=(diagnostics.deferredColorExamined||0)+candidates.length;
   for(const event of candidates){
@@ -915,7 +924,31 @@ async function run({desiredIds,maxPad=0,horizon=900,topN=8,
     allMatching.sort((a,b)=>a.purpleMeasuredPills-b.purpleMeasuredPills);
     // Each is independently replayed against the original native WASM;
     // never assume the cheapest purple cost implies cheapest mixed cost.
-    const selected=allMatching.slice(0,twoPurple?16:Math.max(12,topN));
+    // A purple-only top-16 cutoff can discard the best mixed completion.
+    // Preserve multiple cost tiers and distinct completion wash times.
+    const backboneBudget=twoPurple?(expanded?64:32):
+     (expanded?48:Math.max(20,topN*3));
+    const selected=[];
+    const signatures=new Set();
+    const costs=new Set();
+    for(const candidate of allMatching){
+     const key=candidate.purpleMeasuredPills+':'+
+      String(candidate.actions?.at(-1)?.wash_no??'')+':'+
+      String(candidate.purplePad??0);
+     if(signatures.has(key))continue;
+     signatures.add(key);
+     if(selected.length<backboneBudget/2||
+        !costs.has(candidate.purpleMeasuredPills)){
+      selected.push(candidate);
+      costs.add(candidate.purpleMeasuredPills);
+     }
+     if(selected.length>=backboneBudget)break;
+    }
+    for(const candidate of allMatching){
+     if(selected.length>=backboneBudget)break;
+     if(!selected.includes(candidate))selected.push(candidate);
+    }
+    diagnostics.backboneBudget=backboneBudget;
     baseline={...(baseline||{}),routes:selected};
     diagnostics.purpleBackboneCosts=selected.map(x=>({
      pills:x.purpleMeasuredPills,maxPad:x.purplePad,
