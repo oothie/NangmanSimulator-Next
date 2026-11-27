@@ -180,6 +180,9 @@ self.addEventListener('message',async event=>{
       error:null};
      publishPartial(result,{method:'expanded-purple-pad',examinedPads:i+1},
       '확장 탐색 · 자맥 선행 범위 '+pad+'까지 비교');
+     // Zero additional pills is a mathematically proven lower bound.
+     // An extended search cannot improve it by testing more native pads.
+     if(result.routes.some(route=>Number(route.pills)===0))break;
      await new Promise(resolve=>setTimeout(resolve,0));
     }
     result={...result,error:result.routes.length?null:'확장 자맥 경로 미발견'};
